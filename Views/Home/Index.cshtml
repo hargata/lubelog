@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "My Garage";
+}
+@model VehicleInputModel
+@section Scripts{
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}
+@if (Model is not null && Model.Errors.Any())
+{
+    foreach(string error in Model.Errors)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @error
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <h1>Garage</h1>
+        <button onclick="showAddVehicleModal()" class="btn btn-success btn-sm mt-1 mb-1">Add Vehicle</button>
+    </div>
+    <div id="garageContainer" class="row gy-3">
+    </div>
+</div>
+<div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-inline" asp-action="AddVehicle" enctype="multipart/form-data">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVehicleModalLabel">Add New Vehicle</h5>
+            </div>
+            <div class="modal-body">
+                
+                    <div class="form-group">
+                        <label for="inputYear">Year</label>
+                        <input asp-for="Year" type="number" id="inputYear" class="form-control">
+                        <label for="inputMake">Make</label>
+                        <input asp-for="Make" type="text" id="inputMake" class="form-control">
+                        <label for="inputModel">Model</label>
+                        <input asp-for="Model" type="text" id="inputModel" class="form-control">
+                        <label for="inputLicensePlate">License Plate</label>
+                        <input asp-for="LicensePlate" type="text" id="inputLicensePlate" class="form-control">
+                        <label for="inputImage">Upload a picture(optional)</label>
+                        <input asp-for="Image" type="file" accept=".png" class="form-control-file" id="inputImage">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add New Vehicle</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
