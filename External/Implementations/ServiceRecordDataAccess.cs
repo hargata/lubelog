@@ -25,6 +25,15 @@ namespace CarCareTracker.External.Implementations
                 return table.FindById(serviceRecordId);
             };
         }
+        public bool DeleteServiceRecordById(int serviceRecordId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<ServiceRecord>(tableName);
+                table.Delete(serviceRecordId);
+                return true;
+            };
+        }
         public bool SaveServiceRecordToVehicle(ServiceRecord serviceRecord)
         {
             using (var db = new LiteDatabase(dbName))

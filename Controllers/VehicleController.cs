@@ -88,5 +88,11 @@ namespace CarCareTracker.Controllers
             };
             return Json(convertedResult);
         }
+        [HttpPost] 
+        public IActionResult DeleteServiceRecordById(int serviceRecordId)
+        {
+            var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
+            return Json(result);
+        }
     }
 }

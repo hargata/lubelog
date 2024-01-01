@@ -91,10 +91,22 @@ function editServiceRecordToVehicle() {
             successToast("Service Record updated.");
             hideAddServiceRecordModal();
             getVehicleServiceRecords(formValues.vehicleId);
+            serviceRecordEditId = 0; //reset global var.
         } else {
             errorToast("An error has occurred, please try again later.");
         }
     })
+}
+function deleteServiceRecord(serviceRecordId) {
+    $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
+        if (data) {
+            successToast("Service Record deleted");
+            var vehicleId = GetVehicleId().vehicleId;
+            getVehicleServiceRecords(vehicleId);
+        } else {
+            errorToast("An error has occurred, please try again later.");
+        }
+    });
 }
 function addServiceRecordToVehicle() {
     //get values
