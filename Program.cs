@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
 builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
+builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
 
 var app = builder.Build();
 

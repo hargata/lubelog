@@ -1,0 +1,62 @@
+﻿@model List<ServiceRecord>
+
+<div class="col-12">
+    <table class="table">
+        <thead class="table-light">
+            <tr class="d-flex">
+                <th scope="col" class="col-2">Date</th>
+                <th scope="col" class="col-2">Mileage</th>
+                <th scope="col" class="col-4">Description</th>
+                <th scope="col" class="col-2">Cost</th>
+                <th scope="col" class="col-2">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(ServiceRecord serviceRecord in Model)
+            {
+                <tr class="d-flex">
+                    <td class="col-2">@serviceRecord.Date.ToShortDateString()</td>
+                    <td class ="col-2">@serviceRecord.Mileage</td>
+                    <td class="col-4">@serviceRecord.Description</td>
+                    <td class="col-2">@serviceRecord.Cost.ToString("C")</td>
+                    <td class="col-2">@serviceRecord.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="addServiceRecordModal" tabindex="-1" role="dialog" aria-labelledby="addServiceRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addServiceRecordModalLabel">Add New Service Record</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="serviceRecordDate">Date</label>
+                        <div class="input-group">
+                            <input type="text" id="serviceRecordDate" class="form-control">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="bi bi-grid-3x3-gap"></i></span>
+                            </div>
+                        </div>
+                        <label for="serviceRecordMileage">Mileage</label>
+                        <input type="number" id="serviceRecordMileage" class="form-control">
+                        <label for="serviceRecordDescription">Description</label>
+                        <input type="text" id="serviceRecordDescription" class="form-control">
+                        <label for="serviceRecordCost">Cost</label>
+                        <input type="number" id="serviceRecordCost" class="form-control">
+                        <label for="serviceRecordNotes">Notes(optional)</label>
+                        <textarea id="serviceRecordNotes" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddServiceRecordModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addServiceRecordToVehicle()">Add New Service Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

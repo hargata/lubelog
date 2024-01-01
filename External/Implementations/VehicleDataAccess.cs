@@ -8,23 +8,22 @@ namespace CarCareTracker.External.Implementations
     {
         private static string dbName = "cartracker.db";
         private static string tableName = "vehicles";
-        public bool AddVehicle(Vehicle newVehicle)
+        public bool SaveVehicle(Vehicle vehicle)
         {
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<Vehicle>(tableName);
-                table.Insert(newVehicle);
+                table.Upsert(vehicle);
+                return true;
             };
-            return true;
         }
         public bool DeleteVehicle(int vehicleId)
         {
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<Vehicle>(tableName);
-                table.Delete(vehicleId);
+                return table.Delete(vehicleId);
             };
-            return true;
         }
         public List<Vehicle> GetVehicles()
         {

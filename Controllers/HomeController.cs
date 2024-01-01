@@ -78,7 +78,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 //save vehicle.
-                var result = _dataAccess.AddVehicle(newVehicle);
+                var result = _dataAccess.SaveVehicle(newVehicle);
                 RedirectToAction("Index");
             }
             catch(Exception ex)

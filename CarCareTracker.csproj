@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Vehicle\Index.cshtml~RF54a0536.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.17" />
   </ItemGroup>
 

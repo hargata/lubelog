@@ -23,8 +23,8 @@ namespace CarCareTracker.External.Implementations
             {
                 var table = db.GetCollection<Note>(tableName);
                 table.Upsert(note);
+                return true;
             };
-            return true;
         }
     }
 }

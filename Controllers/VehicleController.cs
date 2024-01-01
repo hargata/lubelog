@@ -7,6 +7,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
+using CarCareTracker.External.Implementations;
 
 namespace CarCareTracker.Controllers
 {
@@ -15,13 +16,15 @@ namespace CarCareTracker.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly INoteDataAccess _noteDataAccess;
+        private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
 
-        public VehicleController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, INoteDataAccess noteDataAccess, IWebHostEnvironment webEnv)
+        public VehicleController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, INoteDataAccess noteDataAccess, IServiceRecordDataAccess serviceRecordDataAccess, IWebHostEnvironment webEnv)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
+            _serviceRecordDataAccess = serviceRecordDataAccess;
             _webEnv = webEnv;
         }
         [HttpGet]
@@ -57,6 +60,18 @@ namespace CarCareTracker.Controllers
                 return Json(existingNote.NoteText);
             }
             return Json("");
+        }
+        [HttpGet]
+        public IActionResult GetServiceRecordsByVehicleId(int vehicleId)
+        {
+            var result = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            return PartialView("_ServiceRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
+        {
+            var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
+            return Json(result);
         }
     }
 }
