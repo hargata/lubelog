@@ -73,5 +73,20 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             return Json(result);
         }
+        [HttpGet]
+        public IActionResult GetServiceRecordById(int serviceRecordId)
+        {
+            var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
+            //convert to Input object.
+            var convertedResult = new ServiceRecordInput { Id = result.Id, 
+                Cost = result.Cost, 
+                Date = result.Date.ToShortDateString(), 
+                Description = result.Description,
+                Mileage = result.Mileage,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId
+            };
+            return Json(convertedResult);
+        }
     }
 }

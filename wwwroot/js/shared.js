@@ -28,3 +28,11 @@ function errorToast(message) {
         }
     })
 }
+function genericSwal(title, message) {
+    Swal.fire({
+        showConfirmButton: true,
+        title: title,
+        text: message,
+        icon: "info"
+    })
+}

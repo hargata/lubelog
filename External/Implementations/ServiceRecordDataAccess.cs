@@ -17,6 +17,14 @@ namespace CarCareTracker.External.Implementations
                 return serviceRecords.ToList() ?? new List<ServiceRecord>();
             };
         }
+        public ServiceRecord GetServiceRecordById(int serviceRecordId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<ServiceRecord>(tableName);
+                return table.FindById(serviceRecordId);
+            };
+        }
         public bool SaveServiceRecordToVehicle(ServiceRecord serviceRecord)
         {
             using (var db = new LiteDatabase(dbName))

@@ -49,11 +49,52 @@ function DeleteVehicle(vehicleId) {
         }
     })
 }
+var serviceRecordEditId = 0;
+function showEditServiceRecordModal(serviceRecordId) {
+    //retrieve service record object.
+    $.get(`/Vehicle/GetServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
+        if (data) {
+            //UI elements.
+            $("#addServiceRecordButton").hide();
+            $("#editServiceRecordButton").show();
+            //pre-populate fields.
+            $("#serviceRecordDate").val(data.date);
+            $("#serviceRecordMileage").val(data.mileage);
+            $("#serviceRecordDescription").val(data.description);
+            $("#serviceRecordCost").val(data.cost);
+            $("#serviceRecordNotes").val(data.notes);
+            serviceRecordEditId = serviceRecordId; //set global var.
+            $('#addServiceRecordModal').modal('show');
+        }
+    });
+}
 function showAddServiceRecordModal() {
+    serviceRecordEditId = 0;
+    $("#addServiceRecordButton").show();
+    $("#editServiceRecordButton").hide();
     $('#addServiceRecordModal').modal('show');
 }
 function hideAddServiceRecordModal() {
+    serviceRecordEditId = 0;
     $('#addServiceRecordModal').modal('hide');
+}
+function editServiceRecordToVehicle() {
+    var formValues = getAndValidateServiceRecordValues();
+    //validate
+    if (formValues.hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    //save to db.
+    $.post('/Vehicle/SaveServiceRecordToVehicleId', { serviceRecord: formValues }, function (data) {
+        if (data) {
+            successToast("Service Record updated.");
+            hideAddServiceRecordModal();
+            getVehicleServiceRecords(formValues.vehicleId);
+        } else {
+            errorToast("An error has occurred, please try again later.");
+        }
+    })
 }
 function addServiceRecordToVehicle() {
     //get values
@@ -108,6 +149,7 @@ function getAndValidateServiceRecordValues() {
         $("#serviceRecordCost").removeClass("is-invalid");
     }
     return {
+        id: serviceRecordEditId,
         hasError: hasError,
         vehicleId: vehicleId,
         date: serviceDate,
@@ -116,4 +158,10 @@ function getAndValidateServiceRecordValues() {
         cost: serviceCost,
         notes: serviceNotes
     }
+}
+function showServiceRecordNotes(note) {
+    if (note.trim() == '') {
+        return;
+    }
+    genericSwal("Note", note);
 }
