@@ -4,13 +4,6 @@
 function hideAddVehicleModal() {
     $('#addVehicleModal').modal('hide');
 }
-function DeleteVehicle(vehicleId) {
-    $.post('/Vehicle/DeleteVehicle', { vehicleId: vehicleId }, function (data) {
-        if (data) {
-            window.location.href = '/Home';
-        }
-    })
-}
 $(document).ready(function () {
     loadGarage();
 });
