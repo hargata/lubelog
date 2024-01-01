@@ -9,7 +9,3 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 - LiteDB
 - Bootstrap-DatePicker
 - SweetAlert2
-
-[!CAUTION]
-
-This project is still very much a work in progress. The codebase is still in a volatile stage and drastic changes might take place. Cannot recommend forking the project in its current state.
