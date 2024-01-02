@@ -4,16 +4,6 @@
 @section Scripts {
     <script src="~/js/garage.js" asp-append-version="true"></script>
 }
-@if (Model is not null && Model.Errors.Any())
-{
-    foreach (string error in Model.Errors)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @error
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-}
 <div class="row">
     <div class="d-flex justify-content-between">
         <h1>Garage</h1>
