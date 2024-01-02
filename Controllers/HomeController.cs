@@ -23,12 +23,8 @@ namespace CarCareTracker.Controllers
             _webEnv = webEnv;
         }
 
-        public IActionResult Index(VehicleInputModel? initialModel)
+        public IActionResult Index()
         {
-            if (initialModel is not null && initialModel.Errors is not null)
-            {
-                return View(initialModel);
-            }
             return View();
         }
         public IActionResult Garage()
@@ -41,74 +37,25 @@ namespace CarCareTracker.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddVehicle(VehicleInputModel vehicleInput)
+        public IActionResult AddVehicle(Vehicle vehicleInput)
         {
-            var errors = new List<string>();
-            //validation
-            if (vehicleInput.Year < 1900)
-                errors.Add("Year is invalid");
-            if (string.IsNullOrWhiteSpace(vehicleInput.Make))
-                errors.Add("Make is required");
-            if (string.IsNullOrWhiteSpace(vehicleInput.Model))
-                errors.Add("Model is required");
-            if (string.IsNullOrWhiteSpace(vehicleInput.LicensePlate))
-                errors.Add("License Plate is required");
-            if (errors.Any())
-            {
-                vehicleInput.Errors = errors;
-                return RedirectToAction("Index", "Home", vehicleInput);
-            }
-
             try
             {
-                //map vehicleInput to vehicle object.
-                var newVehicle = new Vehicle
-                {
-                    Year = vehicleInput.Year,
-                    Make = vehicleInput.Make,
-                    Model = vehicleInput.Model,
-                    LicensePlate = vehicleInput.LicensePlate
-                };
-                if (vehicleInput.Image is not null)
-                {
-                    string imagePath = UploadImage(vehicleInput.Image);
-                    if (!string.IsNullOrWhiteSpace(imagePath))
-                    {
-                        newVehicle.ImageLocation = imagePath;
-                    }
-                }
                 //save vehicle.
-                var result = _dataAccess.SaveVehicle(newVehicle);
-                RedirectToAction("Index");
+                var result = _dataAccess.SaveVehicle(vehicleInput);
+                return Json(result);
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Error Saving Vehicle");
-                vehicleInput.Errors = new List<string> { "Error Saving Vehicle, Please Try Again Later" };
-                return RedirectToAction("Index", "Home", vehicleInput);
+                return Json(false);
             }
-            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private string UploadImage(IFormFile fileToUpload)
-        {
-            string uploadDirectory = "images/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-            string fileName = Guid.NewGuid() + Path.GetExtension(fileToUpload.FileName);
-            string filePath = Path.Combine(uploadPath, fileName);
-            using (var stream = System.IO.File.Create(filePath))
-            {
-                fileToUpload.CopyTo(stream);
-            }
-            return Path.Combine("/", uploadDirectory, fileName);
         }
     }
 }
