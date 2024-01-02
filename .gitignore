@@ -3,3 +3,5 @@ bin/
 obj/
 wwwroot/images/
 cartracker.db
+wwwroot/documents/
+wwwroot/temp/

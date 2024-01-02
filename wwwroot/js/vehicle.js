@@ -81,6 +81,7 @@ function hideAddServiceRecordModal() {
     $('#serviceRecordModal').modal('hide');
 }
 function deleteServiceRecord(serviceRecordId) {
+    $("#workAroundInput").show();
     Swal.fire({
         title: "Confirm Deletion?",
         text: "Deleted Service Records cannot be restored.",
@@ -99,6 +100,8 @@ function deleteServiceRecord(serviceRecordId) {
                     errorToast("An error has occurred, please try again later.");
                 }
             });
+        } else {
+            $("#workAroundInput").hide();
         }
     });
 }
@@ -120,4 +123,24 @@ function saveServiceRecordToVehicle(isEdit) {
             errorToast("An error has occurred, please try again later.");
         }
     })
+}
+function uploadServiceRecordFilesAsync() {
+    let formData = new FormData();
+    var files = $("#serviceRecordFiles")[0].files;
+    for (var x = 0; x < files.length; x++) {
+        formData.append("file", files[x]);
+    }
+    $.ajax({
+        url: "/Files/HandleMultipleFileUpload",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            if (response.length > 0) {
+                uploadedFiles.push.apply(uploadedFiles, response);
+            }
+        }
+    });
 }

@@ -7,6 +7,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
+using CarCareTracker.Helper;
 
 namespace CarCareTracker.Controllers
 {
@@ -14,13 +15,13 @@ namespace CarCareTracker.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
-        private readonly IWebHostEnvironment _webEnv;
+        private readonly IFileHelper _fileHelper;
 
-        public HomeController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, IWebHostEnvironment webEnv)
+        public HomeController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, IFileHelper fileHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
-            _webEnv = webEnv;
+            _fileHelper = fileHelper;
         }
 
         public IActionResult Index()
@@ -41,6 +42,8 @@ namespace CarCareTracker.Controllers
         {
             try
             {
+                //move image from temp folder to images folder.
+                vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 return Json(result);

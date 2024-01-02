@@ -1,6 +1,10 @@
 ﻿@model List<ServiceRecord>
 <div class="row">
-    <div class="d-flex flex-row-reverse">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <span class="badge bg-primary">@($"Total: {Model.Sum(x=>x.Cost).ToString("C")}")</span>
+            <span class="ms-2 badge bg-success">@($"# of Service Records: {Model.Count()}")</span>
+        </div>
         <div>
             <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i>Add Service Record</button>
         </div>

@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using CarCareTracker.External.Implementations;
+using CarCareTracker.Helper;
 
 namespace CarCareTracker.Controllers
 {
@@ -18,12 +19,14 @@ namespace CarCareTracker.Controllers
         private readonly INoteDataAccess _noteDataAccess;
         private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
+        private readonly IFileHelper _fileHelper;
 
-        public VehicleController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, INoteDataAccess noteDataAccess, IServiceRecordDataAccess serviceRecordDataAccess, IWebHostEnvironment webEnv)
+        public VehicleController(ILogger<HomeController> logger, IFileHelper fileHelper, IVehicleDataAccess dataAccess, INoteDataAccess noteDataAccess, IServiceRecordDataAccess serviceRecordDataAccess, IWebHostEnvironment webEnv)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
+            _fileHelper = fileHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _webEnv = webEnv;
         }
@@ -70,6 +73,8 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
         {
+            //move files from temp.
+            serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             return Json(result);
         }
@@ -82,7 +87,6 @@ namespace CarCareTracker.Controllers
         public IActionResult GetServiceRecordForEditById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
-            //retrieve uploaded files.
             //convert to Input object.
             var convertedResult = new ServiceRecordInput { Id = result.Id, 
                 Cost = result.Cost, 
@@ -90,7 +94,8 @@ namespace CarCareTracker.Controllers
                 Description = result.Description,
                 Mileage = result.Mileage,
                 Notes = result.Notes,
-                VehicleId = result.VehicleId
+                VehicleId = result.VehicleId,
+                Files = result.Files
             };
             return PartialView("_ServiceRecordModal", convertedResult);
         }

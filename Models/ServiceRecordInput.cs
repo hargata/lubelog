@@ -9,7 +9,7 @@
         public string Description { get; set; }
         public decimal Cost { get; set; }
         public string Notes { get; set; }
-        public List<string> Files { get; set; } = new List<string>();
-        public ServiceRecord ToServiceRecord() { return new ServiceRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes }; }
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public ServiceRecord ToServiceRecord() { return new ServiceRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes, Files = Files }; }
     }
 }

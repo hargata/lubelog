@@ -1,5 +1,6 @@
 using CarCareTracker.External.Implementations;
 using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
 builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
 builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
+builder.Services.AddSingleton<IFileHelper, FileHelper>();
 
 var app = builder.Build();
 

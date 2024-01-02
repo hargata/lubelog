@@ -7,6 +7,7 @@
         <div class="form-group">
             <div class="row">
                 <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="serviceRecordDate">Date</label>
                     <div class="input-group">
                         <input type="text" id="serviceRecordDate" class="form-control" value="@Model.Date">
@@ -22,6 +23,26 @@
                 <div class="col-md-6 col-12">
                     <label for="serviceRecordNotes">Notes(optional)</label>
                     <textarea id="serviceRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            <label>Uploaded Documents</label>
+                            @foreach (UploadedFiles filesUploaded in Model.Files)
+                            {
+                                <div class="d-flex justify-content-between">
+                                    <a type="button" class="btn btn-link" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteServiceRecordFile('@filesUploaded.Location', this)"><i class="bi bi-trash"></i></button>
+                                </div>
+                            }
+                            <label for="serviceRecordFiles">Upload more documents</label>
+                            <input onChange="uploadServiceRecordFilesAsync()" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="serviceRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="serviceRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadServiceRecordFilesAsync()" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="serviceRecordFiles">
+                    }
                 </div>
             </div>
         </div>
@@ -36,12 +57,25 @@
     @if (Model.Id == 0)
     {
         <button type="button" id="addServiceRecordButton" class="btn btn-primary" onclick="saveServiceRecordToVehicle()">Add New Service Record</button>
-    } else if (Model.Id > 0)
+    }
+    else if (Model.Id > 0)
     {
         <button type="button" id="editServiceRecordButton" class="btn btn-primary" onclick="saveServiceRecordToVehicle(true)">Edit Service Record</button>
     }
 </div>
 <script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+    }
+    function deleteServiceRecordFile(fileLocation, event) {
+        event.parentElement.remove();
+        uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+    }
     function getAndValidateServiceRecordValues() {
         var serviceDate = $("#serviceRecordDate").val();
         var serviceMileage = $("#serviceRecordMileage").val();
@@ -51,7 +85,7 @@
         var vehicleId = GetVehicleId().vehicleId;
         //validation
         var hasError = false;
-        if (serviceDate.trim() == '' || !isDate(serviceDate)) { //eliminates whitespace.
+        if (serviceDate.trim() == '') { //eliminates whitespace.
             hasError = true;
             $("#serviceRecordDate").addClass("is-invalid");
         } else {
@@ -83,7 +117,8 @@
             mileage: serviceMileage,
             description: serviceDescription,
             cost: serviceCost,
-            notes: serviceNotes
+            notes: serviceNotes,
+            files: uploadedFiles
         }
     }
 </script>
