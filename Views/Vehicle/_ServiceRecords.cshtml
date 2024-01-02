@@ -8,32 +8,25 @@
 </div>
 <div class="row vehicleDetailTabContainer">
     <div class="col-12">
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr class="d-flex">
                     <th scope="col" class="col-1">Date</th>
                     <th scope="col" class="col-2">Mileage</th>
                     <th scope="col" class="col-4">Description</th>
                     <th scope="col" class="col-2">Cost</th>
-                    <th scope="col" class="col-2">Notes</th>
-                    <th scope="col" class="col-1">Actions</th>
+                    <th scope="col" class="col-3">Notes</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (ServiceRecord serviceRecord in Model)
                 {
-                    <tr class="d-flex">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditServiceRecordModal(@serviceRecord.Id)">
                         <td class="col-1">@serviceRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@serviceRecord.Mileage</td>
                         <td class="col-4">@serviceRecord.Description</td>
                         <td class="col-2">@serviceRecord.Cost.ToString("C")</td>
-                        <td class="col-2 text-truncate" onclick="showServiceRecordNotes('@serviceRecord.Notes')" style="cursor:alias;">@serviceRecord.Notes</td>
-                        <td class="col-1">
-                            <div class="btn-group">
-                                <button onclick="showEditServiceRecordModal(@serviceRecord.Id)" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></button>
-                                <button onclick="deleteServiceRecord(@serviceRecord.Id)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </td>
+                        <td class="col-3 text-truncate">@serviceRecord.Notes</td>
                     </tr>
                 }
             </tbody>
@@ -42,38 +35,10 @@
 </div>
 
 
-<div class="modal fade" id="addServiceRecordModal" tabindex="-1" role="dialog" aria-labelledby="addServiceRecordModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addServiceRecordModalLabel">Add New Service Record</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="serviceRecordDate">Date</label>
-                        <div class="input-group">
-                            <input type="text" id="serviceRecordDate" class="form-control">
-                            <div class="input-group-append">
-                                <span class="input-group-text"><i class="bi bi-grid-3x3-gap"></i></span>
-                            </div>
-                        </div>
-                        <label for="serviceRecordMileage">Mileage</label>
-                        <input type="number" id="serviceRecordMileage" class="form-control">
-                        <label for="serviceRecordDescription">Description</label>
-                        <input type="text" id="serviceRecordDescription" class="form-control">
-                        <label for="serviceRecordCost">Cost</label>
-                        <input type="number" id="serviceRecordCost" class="form-control">
-                        <label for="serviceRecordNotes">Notes(optional)</label>
-                        <textarea id="serviceRecordNotes" class="form-control" rows="5"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="hideAddServiceRecordModal()">Cancel</button>
-                    <button type="button" id="addServiceRecordButton" class="btn btn-primary" onclick="addServiceRecordToVehicle()">Add New Service Record</button>
-                    <button type="button" id="editServiceRecordButton" class="btn btn-primary" onclick="editServiceRecordToVehicle()" style="display:none;">Edit Service Record</button>
-                </div>
-            </form>
+<div class="modal fade" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="serviceRecordModalContent">
+
         </div>
     </div>
 </div>

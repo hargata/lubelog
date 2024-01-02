@@ -74,9 +74,15 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
-        public IActionResult GetServiceRecordById(int serviceRecordId)
+        public IActionResult GetAddServiceRecordPartialView()
+        {
+            return PartialView("_ServiceRecordModal", new ServiceRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetServiceRecordForEditById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
+            //retrieve uploaded files.
             //convert to Input object.
             var convertedResult = new ServiceRecordInput { Id = result.Id, 
                 Cost = result.Cost, 
@@ -86,7 +92,7 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId
             };
-            return Json(convertedResult);
+            return PartialView("_ServiceRecordModal", convertedResult);
         }
         [HttpPost] 
         public IActionResult DeleteServiceRecordById(int serviceRecordId)

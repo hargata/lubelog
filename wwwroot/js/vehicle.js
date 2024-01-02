@@ -43,10 +43,6 @@ function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#servicerecord-tab-pane").html(data);
-            //initiate datepicker
-            $('#serviceRecordDate').datepicker({
-                endDate: "+0d"
-            });
         }
     })
 }
@@ -57,53 +53,32 @@ function DeleteVehicle(vehicleId) {
         }
     })
 }
-var serviceRecordEditId = 0;
-function showEditServiceRecordModal(serviceRecordId) {
-    //retrieve service record object.
-    $.get(`/Vehicle/GetServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
+function showAddServiceRecordModal() {
+    $.get('/Vehicle/GetAddServiceRecordPartialView', function (data) {
         if (data) {
-            //UI elements.
-            $("#addServiceRecordButton").hide();
-            $("#editServiceRecordButton").show();
-            //pre-populate fields.
-            $("#serviceRecordDate").val(data.date);
-            $("#serviceRecordMileage").val(data.mileage);
-            $("#serviceRecordDescription").val(data.description);
-            $("#serviceRecordCost").val(data.cost);
-            $("#serviceRecordNotes").val(data.notes);
-            serviceRecordEditId = serviceRecordId; //set global var.
-            $('#addServiceRecordModal').modal('show');
+            $("#serviceRecordModalContent").html(data);
+            //initiate datepicker
+            $('#serviceRecordDate').datepicker({
+                endDate: "+0d"
+            });
+            $('#serviceRecordModal').modal('show');
         }
     });
 }
-function showAddServiceRecordModal() {
-    serviceRecordEditId = 0;
-    $("#addServiceRecordButton").show();
-    $("#editServiceRecordButton").hide();
-    $('#addServiceRecordModal').modal('show');
+function showEditServiceRecordModal(serviceRecordId) {
+    $.get(`/Vehicle/GetServiceRecordForEditById?serviceRecordId=${serviceRecordId}`, function (data) {
+        if (data) {
+            $("#serviceRecordModalContent").html(data);
+            //initiate datepicker
+            $('#serviceRecordDate').datepicker({
+                endDate: "+0d"
+            });
+            $('#serviceRecordModal').modal('show');
+        }
+    });
 }
 function hideAddServiceRecordModal() {
-    serviceRecordEditId = 0;
-    $('#addServiceRecordModal').modal('hide');
-}
-function editServiceRecordToVehicle() {
-    var formValues = getAndValidateServiceRecordValues();
-    //validate
-    if (formValues.hasError) {
-        errorToast("Please check the form data");
-        return;
-    }
-    //save to db.
-    $.post('/Vehicle/SaveServiceRecordToVehicleId', { serviceRecord: formValues }, function (data) {
-        if (data) {
-            successToast("Service Record updated.");
-            hideAddServiceRecordModal();
-            getVehicleServiceRecords(formValues.vehicleId);
-            serviceRecordEditId = 0; //reset global var.
-        } else {
-            errorToast("An error has occurred, please try again later.");
-        }
-    })
+    $('#serviceRecordModal').modal('hide');
 }
 function deleteServiceRecord(serviceRecordId) {
     Swal.fire({
@@ -116,6 +91,7 @@ function deleteServiceRecord(serviceRecordId) {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
                 if (data) {
+                    hideAddServiceRecordModal();
                     successToast("Service Record deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleServiceRecords(vehicleId);
@@ -126,7 +102,7 @@ function deleteServiceRecord(serviceRecordId) {
         }
     });
 }
-function addServiceRecordToVehicle() {
+function saveServiceRecordToVehicle(isEdit) {
     //get values
     var formValues = getAndValidateServiceRecordValues();
     //validate
@@ -137,61 +113,11 @@ function addServiceRecordToVehicle() {
     //save to db.
     $.post('/Vehicle/SaveServiceRecordToVehicleId', { serviceRecord: formValues }, function (data) {
         if (data) {
-            successToast("Service Record added.");
+            successToast(isEdit ? "Service Record Updated" : "Service Record Added.");
             hideAddServiceRecordModal();
             getVehicleServiceRecords(formValues.vehicleId);
         } else {
             errorToast("An error has occurred, please try again later.");
         }
     })
-}
-function getAndValidateServiceRecordValues() {
-    var serviceDate = $("#serviceRecordDate").val();
-    var serviceMileage = $("#serviceRecordMileage").val();
-    var serviceDescription = $("#serviceRecordDescription").val();
-    var serviceCost = $("#serviceRecordCost").val();
-    var serviceNotes = $("#serviceRecordNotes").val();
-    var vehicleId = GetVehicleId().vehicleId;
-    //validation
-    var hasError = false;
-    if (serviceDate.trim() == '') { //eliminates whitespace.
-        hasError = true;
-        $("#serviceRecordDate").addClass("is-invalid");
-    } else {
-        $("#serviceRecordDate").removeClass("is-invalid");
-    }
-    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
-        hasError = true;
-        $("#serviceRecordMileage").addClass("is-invalid");
-    } else {
-        $("#serviceRecordMileage").removeClass("is-invalid");
-    }
-    if (serviceDescription.trim() == '') { 
-        hasError = true;
-        $("#serviceRecordDescription").addClass("is-invalid");
-    } else {
-        $("#serviceRecordDescription").removeClass("is-invalid");
-    }
-    if (serviceCost.trim() == '') {
-        hasError = true;
-        $("#serviceRecordCost").addClass("is-invalid");
-    } else {
-        $("#serviceRecordCost").removeClass("is-invalid");
-    }
-    return {
-        id: serviceRecordEditId,
-        hasError: hasError,
-        vehicleId: vehicleId,
-        date: serviceDate,
-        mileage: serviceMileage,
-        description: serviceDescription,
-        cost: serviceCost,
-        notes: serviceNotes
-    }
-}
-function showServiceRecordNotes(note) {
-    if (note.trim() == '') {
-        return;
-    }
-    genericSwal("Note", note);
 }

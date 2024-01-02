@@ -1,0 +1,55 @@
+﻿.sloader {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255,255,255,0.5);
+}
+
+.loader {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border: 3px solid white;
+    border-radius: 50%;
+    animation: spin 7s ease-in-out;
+    animation-iteration-count: infinite;
+    transition-duration: 0.1s;
+}
+
+.loader:hover {
+    scale: 0.95;
+    /*Loader on hover effect*/
+}
+
+.loader:active {
+    scale: 2.5;
+    /*Loader on click effect*/
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+        border-bottom: solid 3px transparent;
+        border-top: solid 3px transparent;
+    }
+
+    50% {
+        transform: rotate(1800deg);
+        border: 3px solid white;
+        border-left: solid 3px transparent;
+        border-right: solid 3px transparent;
+    }
+
+    100% {
+        /*Reversed spinning*/
+        transform: rotate(0deg);
+        border-bottom: solid 3px transparent;
+        border-top: solid 3px transparent;
+    }
+}

@@ -1,0 +1,89 @@
+﻿@model ServiceRecordInput
+<div class="modal-header">
+    <h5 class="modal-title" id="addServiceRecordModalLabel">@(Model.Id == 0 ? "Add New Service Record" : "Edit Service Record")</h5>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <label for="serviceRecordDate">Date</label>
+                    <div class="input-group">
+                        <input type="text" id="serviceRecordDate" class="form-control" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="serviceRecordMileage">Mileage</label>
+                    <input type="number" id="serviceRecordMileage" class="form-control" value="@Model.Mileage">
+                    <label for="serviceRecordDescription">Description</label>
+                    <input type="text" id="serviceRecordDescription" class="form-control" value="@Model.Description">
+                    <label for="serviceRecordCost">Cost</label>
+                    <input type="number" id="serviceRecordCost" class="form-control" value="@Model.Cost">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="serviceRecordNotes">Notes(optional)</label>
+                    <textarea id="serviceRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (Model.Id > 0)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteServiceRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddServiceRecordModal()">Cancel</button>
+    @if (Model.Id == 0)
+    {
+        <button type="button" id="addServiceRecordButton" class="btn btn-primary" onclick="saveServiceRecordToVehicle()">Add New Service Record</button>
+    } else if (Model.Id > 0)
+    {
+        <button type="button" id="editServiceRecordButton" class="btn btn-primary" onclick="saveServiceRecordToVehicle(true)">Edit Service Record</button>
+    }
+</div>
+<script>
+    function getAndValidateServiceRecordValues() {
+        var serviceDate = $("#serviceRecordDate").val();
+        var serviceMileage = $("#serviceRecordMileage").val();
+        var serviceDescription = $("#serviceRecordDescription").val();
+        var serviceCost = $("#serviceRecordCost").val();
+        var serviceNotes = $("#serviceRecordNotes").val();
+        var vehicleId = GetVehicleId().vehicleId;
+        //validation
+        var hasError = false;
+        if (serviceDate.trim() == '' || !isDate(serviceDate)) { //eliminates whitespace.
+            hasError = true;
+            $("#serviceRecordDate").addClass("is-invalid");
+        } else {
+            $("#serviceRecordDate").removeClass("is-invalid");
+        }
+        if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+            hasError = true;
+            $("#serviceRecordMileage").addClass("is-invalid");
+        } else {
+            $("#serviceRecordMileage").removeClass("is-invalid");
+        }
+        if (serviceDescription.trim() == '') {
+            hasError = true;
+            $("#serviceRecordDescription").addClass("is-invalid");
+        } else {
+            $("#serviceRecordDescription").removeClass("is-invalid");
+        }
+        if (serviceCost.trim() == '') {
+            hasError = true;
+            $("#serviceRecordCost").addClass("is-invalid");
+        } else {
+            $("#serviceRecordCost").removeClass("is-invalid");
+        }
+        return {
+            id: @Model.Id,
+            hasError: hasError,
+            vehicleId: vehicleId,
+            date: serviceDate,
+            mileage: serviceMileage,
+            description: serviceDescription,
+            cost: serviceCost,
+            notes: serviceNotes
+        }
+    }
+</script>
