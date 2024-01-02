@@ -34,7 +34,7 @@ function getVehicleNote(vehicleId) {
 function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
-            $("#ServiceRecordContainer").html(data);
+            $("#servicerecord-tab-pane").html(data);
             //initiate datepicker
             $('#serviceRecordDate').datepicker({
                 endDate: "+0d"

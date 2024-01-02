@@ -1,37 +1,46 @@
 ﻿@model List<ServiceRecord>
-
-<div class="col-12">
-    <table class="table">
-        <thead>
-            <tr class="d-flex">
-                <th scope="col" class="col-1">Date</th>
-                <th scope="col" class="col-2">Mileage</th>
-                <th scope="col" class="col-4">Description</th>
-                <th scope="col" class="col-2">Cost</th>
-                <th scope="col" class="col-2">Notes</th>
-                <th scope="col" class="col-1">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (ServiceRecord serviceRecord in Model)
-            {
-                <tr class="d-flex">
-                    <td class="col-1">@serviceRecord.Date.ToShortDateString()</td>
-                    <td class="col-2">@serviceRecord.Mileage</td>
-                    <td class="col-4">@serviceRecord.Description</td>
-                    <td class="col-2">@serviceRecord.Cost.ToString("C")</td>
-                    <td class="col-2 text-truncate" onclick="showServiceRecordNotes('@serviceRecord.Notes')" style="cursor:alias;">@serviceRecord.Notes</td>
-                    <td class="col-1">
-                        <div class="btn-group">
-                            <button onclick="showEditServiceRecordModal(@serviceRecord.Id)" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></button>
-                            <button onclick="deleteServiceRecord(@serviceRecord.Id)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="row">
+    <div class="d-flex flex-row-reverse">
+        <div>
+            <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i>Add Service Record</button>
+        </div>
+    </div>
 </div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <table class="table">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col" class="col-1">Date</th>
+                    <th scope="col" class="col-2">Mileage</th>
+                    <th scope="col" class="col-4">Description</th>
+                    <th scope="col" class="col-2">Cost</th>
+                    <th scope="col" class="col-2">Notes</th>
+                    <th scope="col" class="col-1">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ServiceRecord serviceRecord in Model)
+                {
+                    <tr class="d-flex">
+                        <td class="col-1">@serviceRecord.Date.ToShortDateString()</td>
+                        <td class="col-2">@serviceRecord.Mileage</td>
+                        <td class="col-4">@serviceRecord.Description</td>
+                        <td class="col-2">@serviceRecord.Cost.ToString("C")</td>
+                        <td class="col-2 text-truncate" onclick="showServiceRecordNotes('@serviceRecord.Notes')" style="cursor:alias;">@serviceRecord.Notes</td>
+                        <td class="col-1">
+                            <div class="btn-group">
+                                <button onclick="showEditServiceRecordModal(@serviceRecord.Id)" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></button>
+                                <button onclick="deleteServiceRecord(@serviceRecord.Id)" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 <div class="modal fade" id="addServiceRecordModal" tabindex="-1" role="dialog" aria-labelledby="addServiceRecordModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
