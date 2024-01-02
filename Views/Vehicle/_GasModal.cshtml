@@ -1,0 +1,77 @@
+﻿@model GasRecordInput
+<div class="modal-header">
+    <h5 class="modal-title">@(Model.Id == 0 ? "Add New Gas Record" : "Edit Gas Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="gasRecordDate">Date</label>
+                    <div class="input-group">
+                        <input type="text" id="gasRecordDate" class="form-control" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="gasRecordMileage">Mileage</label>
+                    <input type="number" id="gasRecordMileage" class="form-control" value="@Model.Mileage">
+                    <label for="gasRecordGallons">Gallons</label>
+                    <input type="text" id="gasRecordGallons" class="form-control" value="@Model.Gallons">
+                    <label for="GasRecordCost">Cost</label>
+                    <input type="number" id="gasRecordCost" class="form-control" value="@Model.Cost">
+                </div>
+                <div class="col-md-6 col-12">
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            <label>Uploaded Documents</label>
+                            @foreach (UploadedFiles filesUploaded in Model.Files)
+                            {
+                                <div class="d-flex justify-content-between">
+                                    <a type="button" class="btn btn-link" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteGasRecordFile('@filesUploaded.Location', this)"><i class="bi bi-trash"></i></button>
+                                </div>
+                            }
+                            <label for="gasRecordFiles">Upload more documents</label>
+                            <input onChange="uploadServiceRecordFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="gasRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="gasRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadServiceRecordFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="gasRecordFiles">
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (Model.Id > 0)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteGasRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">Cancel</button>
+    @if (Model.Id == 0)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle()">Add New Gas Record</button>
+    }
+    else if (Model.Id > 0)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">Edit Gas Record</button>
+    }
+</div>
+<script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+    }
+    function getGasRecordModelData(){
+        return {id: @Model.Id}
+    }
+</script>

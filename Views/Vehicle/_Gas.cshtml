@@ -1,0 +1,54 @@
+﻿@model List<GasRecordViewModel>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.Count()}")</span>
+            <span class="badge bg-primary">@($"Average MPG: {Model.Where(y=>y.MilesPerGallon > 0).Average(x => x.MilesPerGallon)}")</span>
+            <span class="badge bg-primary">@($"Min MPG: {Model.Min(x => x.MilesPerGallon)}")</span>
+            <span class="badge bg-primary">@($"Max MPG: {Model.Max(x => x.MilesPerGallon)}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Gallons: {Model.Sum(x=>x.Gallons)}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+        </div>
+        <div>
+            <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i>Add Gas Record</button>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col" class="col-2">Date Refueled</th>
+                    <th scope="col" class="col-2">Mileage</th>
+                    <th scope="col" class="col-2">Gallons</th>
+                    <th scope="col" class="col-2">MPG</th>
+                    <th scope="col" class="col-2">Cost</th>
+                    <th scope="col" class="col-2">Unit Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (GasRecordViewModel gasRecord in Model)
+                {
+                    <tr class="d-flex" style="cursor:pointer;" onclick="">
+                        <td class="col-2">@gasRecord.Date</td>
+                        <td class="col-2">@gasRecord.Mileage</td>
+                        <td class="col-2">@gasRecord.Gallons</td>
+                        <td class="col-2">@gasRecord.MilesPerGallon</td>
+                        <td class="col-2">@gasRecord.Cost.ToString("C")</td>
+                        <td class="col-2">@gasRecord.CostPerGallon</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="gasRecordModalContent">
+
+        </div>
+    </div>
+</div>

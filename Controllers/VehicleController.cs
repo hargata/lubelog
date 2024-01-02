@@ -18,16 +18,24 @@ namespace CarCareTracker.Controllers
         private readonly IVehicleDataAccess _dataAccess;
         private readonly INoteDataAccess _noteDataAccess;
         private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
+        private readonly IGasRecordDataAccess _gasRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IFileHelper _fileHelper;
 
-        public VehicleController(ILogger<HomeController> logger, IFileHelper fileHelper, IVehicleDataAccess dataAccess, INoteDataAccess noteDataAccess, IServiceRecordDataAccess serviceRecordDataAccess, IWebHostEnvironment webEnv)
+        public VehicleController(ILogger<HomeController> logger, 
+            IFileHelper fileHelper, 
+            IVehicleDataAccess dataAccess, 
+            INoteDataAccess noteDataAccess, 
+            IServiceRecordDataAccess serviceRecordDataAccess, 
+            IGasRecordDataAccess gasRecordDataAccess,
+            IWebHostEnvironment webEnv)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
             _fileHelper = fileHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
+            _gasRecordDataAccess = gasRecordDataAccess;
             _webEnv = webEnv;
         }
         [HttpGet]
@@ -64,6 +72,52 @@ namespace CarCareTracker.Controllers
             }
             return Json("");
         }
+        #region "Gas Records"
+        [HttpGet]
+        public IActionResult GetGasRecordsByVehicleId(int vehicleId)
+        {
+            var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var computedResults = new List<GasRecordViewModel>();
+            //perform computation.
+            for(int i = 0; i < result.Count; i++)
+            {
+                if (i > 0)
+                {
+                    var currentObject = result[i];
+                    var previousObject = result[i - 1];
+                    var deltaMileage = currentObject.Mileage - previousObject.Mileage;
+                    computedResults.Add(new GasRecordViewModel()
+                    {
+                        Id = currentObject.Id,
+                        VehicleId = currentObject.VehicleId,
+                        Date = currentObject.Date.ToShortDateString(),
+                        Mileage = currentObject.Mileage,
+                        Gallons = currentObject.Gallons,
+                        Cost = currentObject.Cost,
+                        DeltaMileage = deltaMileage,
+                        MilesPerGallon = deltaMileage / currentObject.Gallons,
+                        CostPerGallon = (currentObject.Cost / currentObject.Gallons)
+                    });
+                } else
+                {
+                    computedResults.Add(new GasRecordViewModel()
+                    {
+                        Id = result[i].Id,
+                        VehicleId = result[i].VehicleId,
+                        Date = result[i].Date.ToShortDateString(),
+                        Mileage = result[i].Mileage,
+                        Gallons = result[i].Gallons,
+                        Cost = result[i].Cost,
+                        DeltaMileage = 0,
+                        MilesPerGallon = 0,
+                        CostPerGallon = (result[i].Cost / result[i].Gallons)
+                    });
+                }
+            }
+            return PartialView("_GasRecords", result);
+        }
+        #endregion
+        #region "Service Records"
         [HttpGet]
         public IActionResult GetServiceRecordsByVehicleId(int vehicleId)
         {
@@ -105,5 +159,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
             return Json(result);
         }
+        #endregion
+
     }
 }

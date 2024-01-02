@@ -69,9 +69,9 @@ function saveServiceRecordToVehicle(isEdit) {
         }
     })
 }
-function uploadServiceRecordFilesAsync() {
+function uploadServiceRecordFilesAsync(event) {
     let formData = new FormData();
-    var files = $("#serviceRecordFiles")[0].files;
+    var files = event.files;
     for (var x = 0; x < files.length; x++) {
         formData.append("file", files[x]);
     }
