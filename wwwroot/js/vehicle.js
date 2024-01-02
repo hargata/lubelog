@@ -16,8 +16,16 @@ $(document).ready(function () {
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
         switch (e.target.id) {
+            case "servicerecord-tab":
+                getVehicleServiceRecords(vehicleId);
+                break;
             case "notes-tab":
                 getVehicleNote(vehicleId);
+                break;
+        }
+        switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
+            case "servicerecord-tab":
+                $("#servicerecord-tab-pane").html("");
                 break;
         }
     });
