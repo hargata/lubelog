@@ -9,25 +9,18 @@
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/sweetalert/sweetalert2.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CarCareTracker.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2023 - CarCareTracker - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/shared.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="~/sweetalert/sweetalert2.all.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+</head>
+<body>
+    <div class="container" style="height:85vh;">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
 </body>
 </html>

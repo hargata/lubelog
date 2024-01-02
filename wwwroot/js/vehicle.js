@@ -98,13 +98,23 @@ function editServiceRecordToVehicle() {
     })
 }
 function deleteServiceRecord(serviceRecordId) {
-    $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
-        if (data) {
-            successToast("Service Record deleted");
-            var vehicleId = GetVehicleId().vehicleId;
-            getVehicleServiceRecords(vehicleId);
-        } else {
-            errorToast("An error has occurred, please try again later.");
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Service Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
+                if (data) {
+                    successToast("Service Record deleted");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    getVehicleServiceRecords(vehicleId);
+                } else {
+                    errorToast("An error has occurred, please try again later.");
+                }
+            });
         }
     });
 }

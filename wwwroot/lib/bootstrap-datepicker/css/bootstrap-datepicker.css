@@ -99,7 +99,7 @@
 }
 .datepicker table tr td.day:hover,
 .datepicker table tr td.day.focused {
-  background: #eee;
+  background: #777;
   cursor: pointer;
 }
 .datepicker table tr td.old,
@@ -425,7 +425,7 @@
 .datepicker .prev:hover,
 .datepicker .next:hover,
 .datepicker tfoot tr th:hover {
-  background: #eee;
+  background: #777;
 }
 .datepicker .prev.disabled,
 .datepicker .next.disabled {

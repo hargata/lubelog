@@ -17,10 +17,6 @@ html {
     min-height: 100%;
 }
 
-body {
-    margin-bottom: 60px;
-}
-
 .card {
     border-radius: 4px;
     box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
@@ -32,4 +28,10 @@ body {
 .card:hover {
     transform: scale(1.05);
     box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+}
+
+.vehicleDetailTabContainer{
+    max-height:65vh;
+    overflow-y:auto;
+    overflow-x:auto;
 }
