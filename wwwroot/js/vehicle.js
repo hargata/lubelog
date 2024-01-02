@@ -144,3 +144,53 @@ function uploadServiceRecordFilesAsync() {
         }
     });
 }
+function getAndValidateServiceRecordValues() {
+    var serviceDate = $("#serviceRecordDate").val();
+    var serviceMileage = $("#serviceRecordMileage").val();
+    var serviceDescription = $("#serviceRecordDescription").val();
+    var serviceCost = $("#serviceRecordCost").val();
+    var serviceNotes = $("#serviceRecordNotes").val();
+    var vehicleId = GetVehicleId().vehicleId;
+    var serviceRecordId = getServiceRecordModelData().id;
+    //validation
+    var hasError = false;
+    if (serviceDate.trim() == '') { //eliminates whitespace.
+        hasError = true;
+        $("#serviceRecordDate").addClass("is-invalid");
+    } else {
+        $("#serviceRecordDate").removeClass("is-invalid");
+    }
+    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+        hasError = true;
+        $("#serviceRecordMileage").addClass("is-invalid");
+    } else {
+        $("#serviceRecordMileage").removeClass("is-invalid");
+    }
+    if (serviceDescription.trim() == '') {
+        hasError = true;
+        $("#serviceRecordDescription").addClass("is-invalid");
+    } else {
+        $("#serviceRecordDescription").removeClass("is-invalid");
+    }
+    if (serviceCost.trim() == '') {
+        hasError = true;
+        $("#serviceRecordCost").addClass("is-invalid");
+    } else {
+        $("#serviceRecordCost").removeClass("is-invalid");
+    }
+    return {
+        id: serviceRecordId,
+        hasError: hasError,
+        vehicleId: vehicleId,
+        date: serviceDate,
+        mileage: serviceMileage,
+        description: serviceDescription,
+        cost: serviceCost,
+        notes: serviceNotes,
+        files: uploadedFiles
+    }
+}
+function deleteServiceRecordFile(fileLocation, event) {
+    event.parentElement.remove();
+    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+}
