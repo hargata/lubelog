@@ -1,6 +1,7 @@
 ﻿@model ServiceRecordInput
 <div class="modal-header">
     <h5 class="modal-title" id="addServiceRecordModalLabel">@(Model.Id == 0 ? "Add New Service Record" : "Edit Service Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddServiceRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
     <form>
