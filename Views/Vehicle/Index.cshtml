@@ -14,9 +14,7 @@
         <div class="d-flex justify-content-between">
             <button onclick="returnToGarage()" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></button>
             <h1 class="text-truncate">@($"{Model.Year} {Model.Make} {Model.Model}(License # {Model.LicensePlate})")</h1>
-            <div class="btn-group">
-                <button onclick="editVehicle(@Model.Id)" class="btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
-            </div>
+            <button onclick="editVehicle(@Model.Id)" class="btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
         </div>
     </div>
     <hr />
