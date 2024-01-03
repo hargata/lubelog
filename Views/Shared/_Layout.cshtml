@@ -1,5 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+@inject IConfiguration Configuration
+@{
+    var useDarkMode = bool.Parse(Configuration["DarkMode"]);
+}
+<html lang="en" data-bs-theme="@(useDarkMode ? "dark" : "light")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -2,7 +2,7 @@
     ViewData["Title"] = "LubeLogger - View Vehicle";
 }
 @model Vehicle
-@section Scripts{
+@section Scripts {
     <script src="~/js/vehicle.js" asp-append-version="true"></script>
     <script src="~/js/servicerecord.js" asp-append-version="true"></script>
     <script src="~/js/gasrecord.js" asp-append-version="true"></script>
@@ -34,12 +34,15 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark me-2"></i>Notes</button>
         </li>
-        <li class="nav-item ms-auto" role="presentation">
-            <button class="nav-link" id="manage-tab" data-bs-toggle="tab" data-bs-target="#manage-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench me-2"></i>Manage Vehicle</button>
+        <li class="nav-item dropdown ms-auto" role="presentation">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Manage Vehicle</a>
+            <ul class="dropdown-menu">
+                <li><button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><i class="bi bi-trash me-2"></i>Delete Vehicle</button></li>
+            </ul>
         </li>
     </ul>
     <div class="tab-content" id="vehicleTabContent">
-        <div class="tab-pane fade show active" id="servicerecord-tab-pane" role="tabpanel"tabindex="0"></div>
+        <div class="tab-pane fade show active" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="gas-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0">222</div>
         <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0">
@@ -58,13 +61,6 @@
             </div>
         </div>
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0">333</div>
-        <div class="tab-pane fade" id="manage-tab-pane" role="tabpanel" tabindex="0">
-            <div class="row">
-                <div class="d-flex justify-content-center">
-                    <button onclick="deleteVehicle(@Model.Id)" class="btn btn-danger btn-md mt-1 mb-1"><i class="bi bi-trash me-2"></i>Delete Vehicle</button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
@@ -74,7 +70,7 @@
     </div>
 </div>
 <script>
-    function GetVehicleId(){
+    function GetVehicleId() {
         return { vehicleId: @Model.Id};
     }
 </script>

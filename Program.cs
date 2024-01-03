@@ -10,6 +10,7 @@ builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
 builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
 builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
 builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
+builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 
 var app = builder.Build();

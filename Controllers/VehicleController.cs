@@ -19,6 +19,7 @@ namespace CarCareTracker.Controllers
         private readonly INoteDataAccess _noteDataAccess;
         private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
         private readonly IGasRecordDataAccess _gasRecordDataAccess;
+        private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IFileHelper _fileHelper;
 
@@ -28,6 +29,7 @@ namespace CarCareTracker.Controllers
             INoteDataAccess noteDataAccess, 
             IServiceRecordDataAccess serviceRecordDataAccess, 
             IGasRecordDataAccess gasRecordDataAccess,
+            ICollisionRecordDataAccess collisionRecordDataAccess,
             IWebHostEnvironment webEnv)
         {
             _logger = logger;
@@ -36,6 +38,7 @@ namespace CarCareTracker.Controllers
             _fileHelper = fileHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
+            _collisionRecordDataAccess = collisionRecordDataAccess;
             _webEnv = webEnv;
         }
         [HttpGet]
@@ -227,6 +230,50 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         #endregion
-
+        #region "Collision Records"
+        [HttpGet]
+        public IActionResult GetCollisionRecordsByVehicleId(int vehicleId)
+        {
+            var result = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            return PartialView("_CollisionRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput serviceRecord)
+        {
+            //move files from temp.
+            serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(serviceRecord.ToCollisionRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddCollisionRecordPartialView()
+        {
+            return PartialView("_CollisionRecordModal", new CollisionRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetCollisionRecordForEditById(int serviceRecordId)
+        {
+            var result = _collisionRecordDataAccess.GetCollisionRecordById(serviceRecordId);
+            //convert to Input object.
+            var convertedResult = new CollisionRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Mileage = result.Mileage,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_CollisionRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteCollisionRecordById(int serviceRecordId)
+        {
+            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(serviceRecordId);
+            return Json(result);
+        }
+        #endregion
     }
 }
