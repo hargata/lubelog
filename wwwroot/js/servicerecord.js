@@ -69,7 +69,7 @@ function saveServiceRecordToVehicle(isEdit) {
         }
     })
 }
-function uploadServiceRecordFilesAsync(event) {
+function uploadVehicleFilesAsync(event) {
     let formData = new FormData();
     var files = event.files;
     for (var x = 0; x < files.length; x++) {

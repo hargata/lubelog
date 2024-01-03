@@ -35,3 +35,7 @@ html {
     overflow-y:auto;
     overflow-x:auto;
 }
+
+.vehicleNoteContainer{
+    height:40vh;
+}

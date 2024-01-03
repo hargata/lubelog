@@ -78,14 +78,14 @@ namespace CarCareTracker.Controllers
         {
             var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var computedResults = new List<GasRecordViewModel>();
+            int previousMileage = 0;
             //perform computation.
             for(int i = 0; i < result.Count; i++)
             {
                 if (i > 0)
                 {
                     var currentObject = result[i];
-                    var previousObject = result[i - 1];
-                    var deltaMileage = currentObject.Mileage - previousObject.Mileage;
+                    var deltaMileage = currentObject.Mileage - previousMileage;
                     computedResults.Add(new GasRecordViewModel()
                     {
                         Id = currentObject.Id,
@@ -113,8 +113,9 @@ namespace CarCareTracker.Controllers
                         CostPerGallon = (result[i].Cost / result[i].Gallons)
                     });
                 }
+                previousMileage = result[i].Mileage;
             }
-            return PartialView("_GasRecords", result);
+            return PartialView("_GasRecords", computedResults);
         }
         #endregion
         #region "Service Records"

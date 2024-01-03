@@ -3,9 +3,9 @@
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.Count()}")</span>
-            <span class="badge bg-primary">@($"Average MPG: {Model.Where(y=>y.MilesPerGallon > 0).Average(x => x.MilesPerGallon)}")</span>
-            <span class="badge bg-primary">@($"Min MPG: {Model.Min(x => x.MilesPerGallon)}")</span>
-            <span class="badge bg-primary">@($"Max MPG: {Model.Max(x => x.MilesPerGallon)}")</span>
+            <span class="badge bg-primary">@($"Average Fuel Economy: {Model.Where(y=>y.MilesPerGallon > 0).Average(x => x.MilesPerGallon)}")</span>
+            <span class="badge bg-primary">@($"Min Fuel Economy: {Model.Min(x => x.MilesPerGallon)}")</span>
+            <span class="badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon)}")</span>
             <span class="ms-2 badge bg-success">@($"Total Gallons: {Model.Sum(x=>x.Gallons)}")</span>
             <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
@@ -20,9 +20,9 @@
             <thead>
                 <tr class="d-flex">
                     <th scope="col" class="col-2">Date Refueled</th>
-                    <th scope="col" class="col-2">Mileage</th>
-                    <th scope="col" class="col-2">Gallons</th>
-                    <th scope="col" class="col-2">MPG</th>
+                    <th scope="col" class="col-2">Odometer</th>
+                    <th scope="col" class="col-2">Consumption</th>
+                    <th scope="col" class="col-2">Fuel Economy</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-2">Unit Cost</th>
                 </tr>
