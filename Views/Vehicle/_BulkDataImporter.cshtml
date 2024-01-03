@@ -40,12 +40,14 @@
     function importFromCsv() {
         var vehicleId = GetVehicleId().vehicleId;
         var mode = "@Model";
+        sloader.show();
         $.post('/Vehicle/ImportToVehicleIdFromCsv', { vehicleId: vehicleId, mode: mode, fileName: uploadedFile }, function (data) {
+            sloader.hide();
             if (data) {
                 successToast("Data Imported Successfully");
                 hideBulkImportModal();
                 if (mode == "gas") {
-                    getVehicleGasRecords();
+                    getVehicleGasRecords(vehicleId);
                 }
             } else {
                 errorToast("An error has occurred, please double check the data and try again.");
