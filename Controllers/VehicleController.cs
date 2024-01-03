@@ -20,6 +20,7 @@ namespace CarCareTracker.Controllers
         private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
         private readonly IGasRecordDataAccess _gasRecordDataAccess;
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
+        private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IFileHelper _fileHelper;
 
@@ -30,6 +31,7 @@ namespace CarCareTracker.Controllers
             IServiceRecordDataAccess serviceRecordDataAccess, 
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
+            ITaxRecordDataAccess taxRecordDataAccess,
             IWebHostEnvironment webEnv)
         {
             _logger = logger;
@@ -39,6 +41,7 @@ namespace CarCareTracker.Controllers
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
+            _taxRecordDataAccess = taxRecordDataAccess;
             _webEnv = webEnv;
         }
         [HttpGet]
@@ -272,6 +275,50 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(collisionRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Tax Records"
+        [HttpGet]
+        public IActionResult GetTaxRecordsByVehicleId(int vehicleId)
+        {
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            return PartialView("_TaxRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
+        {
+            //move files from temp.
+            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddTaxRecordPartialView()
+        {
+            return PartialView("_TaxRecordModal", new TaxRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetTaxRecordForEditById(int taxRecordId)
+        {
+            var result = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
+            //convert to Input object.
+            var convertedResult = new TaxRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_TaxRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteTaxRecordById(int taxRecordId)
+        {
+            var result = _taxRecordDataAccess.DeleteTaxRecordById(taxRecordId);
             return Json(result);
         }
         #endregion
