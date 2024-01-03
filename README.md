@@ -1,4 +1,5 @@
-# LubeLogger
+![image](https://github.com/hargata/lubelog/assets/155338622/545debcd-d80a-44da-b892-4c652ab0384a)
+
 A self-hosted, open-source vehicle service records and maintainence tracker.
 
 ## Why
