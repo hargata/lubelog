@@ -129,6 +129,28 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("_GasModal", new GasRecordInput());
         }
+        [HttpGet]
+        public IActionResult GetGasRecordForEditById(int gasRecordId)
+        {
+            var result = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
+            var convertedResult = new GasRecordInput
+            {
+                Id = result.Id,
+                Mileage = result.Mileage,
+                VehicleId = result.VehicleId,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Files = result.Files,
+                Gallons = result.Gallons
+            };
+            return PartialView("_GasModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteGasRecordById(int gasRecordId)
+        {
+            var result = _gasRecordDataAccess.DeleteGasRecordById(gasRecordId);
+            return Json(result);
+        }
         #endregion
         #region "Service Records"
         [HttpGet]

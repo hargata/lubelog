@@ -33,7 +33,7 @@
             <tbody>
                 @foreach (GasRecordViewModel gasRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)">
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>

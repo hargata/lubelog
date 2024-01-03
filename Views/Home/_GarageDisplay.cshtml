@@ -6,7 +6,7 @@
     {
         <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4">
             <div class="card" onclick="viewVehicle(@vehicle.Id)">
-                <img src="@vehicle.ImageLocation" style="height:145px" />
+                <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down;" />
                 <div class="card-body">
                     <h5 class="card-title text-truncate">@($"{vehicle.Year}")</h5>
                     <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
