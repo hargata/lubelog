@@ -12,7 +12,7 @@
     <form class="form-inline">
         <div class="form-group">
             <label for="inputYear">Year</label>
-            <input type="number" id="inputYear" class="form-control" value="@Model.Year">
+            <input type="number" id="inputYear" class="form-control" value="@(Model.Year > 0 ? Model.Year : "")">
             <label for="inputMake">Make</label>
             <input type="text" id="inputMake" class="form-control" value="@Model.Make">
             <label for="inputModel">Model</label>
@@ -32,12 +32,13 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
     @if (Model.Id == 0)
     {
+        <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
         <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">Add New Vehicle</button>
     } else if (Model.Id > 0)
     {
+        <button type="button" class="btn btn-secondary" onclick="hideEditVehicleModal()">Cancel</button>
         <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">Save Vehicle</button>
     }
 </div>

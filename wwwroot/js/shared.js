@@ -76,11 +76,13 @@ function saveVehicle(isEdit) {
     }, function (data) {
         if (data) {
             if (!isEdit) {
-                successToast("Vehicle added");
+                successToast("Vehicle Added");
                 hideAddVehicleModal();
                 loadGarage();
             }
             else {
+                successToast("Vehicle Updated");
+                hideEditVehicleModal();
                 viewVehicle(vehicleId);
             }
         } else {
