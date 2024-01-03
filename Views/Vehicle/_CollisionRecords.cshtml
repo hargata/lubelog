@@ -1,0 +1,47 @@
+﻿@model List<CollisionRecord>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success">@($"# of Collision Records: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+        </div>
+        <div>
+            <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Collision Record</button>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col" class="col-1">Date</th>
+                    <th scope="col" class="col-2">Mileage</th>
+                    <th scope="col" class="col-4">Description</th>
+                    <th scope="col" class="col-2">Cost</th>
+                    <th scope="col" class="col-3">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (CollisionRecord collisionRecord in Model)
+                {
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditCollisionRecordModal(@collisionRecord.Id)">
+                        <td class="col-1">@collisionRecord.Date.ToShortDateString()</td>
+                        <td class="col-2">@collisionRecord.Mileage</td>
+                        <td class="col-4">@collisionRecord.Description</td>
+                        <td class="col-2">@collisionRecord.Cost.ToString("C")</td>
+                        <td class="col-3 text-truncate">@collisionRecord.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="collisionRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="collisionRecordModalContent">
+        </div>
+    </div>
+</div>

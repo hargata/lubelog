@@ -238,11 +238,11 @@ namespace CarCareTracker.Controllers
             return PartialView("_CollisionRecords", result);
         }
         [HttpPost]
-        public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput serviceRecord)
+        public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
             //move files from temp.
-            serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(serviceRecord.ToCollisionRecord());
+            collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             return Json(result);
         }
         [HttpGet]
@@ -251,9 +251,9 @@ namespace CarCareTracker.Controllers
             return PartialView("_CollisionRecordModal", new CollisionRecordInput());
         }
         [HttpGet]
-        public IActionResult GetCollisionRecordForEditById(int serviceRecordId)
+        public IActionResult GetCollisionRecordForEditById(int collisionRecordId)
         {
-            var result = _collisionRecordDataAccess.GetCollisionRecordById(serviceRecordId);
+            var result = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
             //convert to Input object.
             var convertedResult = new CollisionRecordInput
             {
@@ -269,9 +269,9 @@ namespace CarCareTracker.Controllers
             return PartialView("_CollisionRecordModal", convertedResult);
         }
         [HttpPost]
-        public IActionResult DeleteCollisionRecordById(int serviceRecordId)
+        public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
-            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(serviceRecordId);
+            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(collisionRecordId);
             return Json(result);
         }
         #endregion

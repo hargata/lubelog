@@ -25,10 +25,19 @@ $(document).ready(function () {
             case "gas-tab":
                 getVehicleGasRecords(vehicleId);
                 break;
+            case "accident-tab":
+                getVehicleCollisionRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
                 $("#servicerecord-tab-pane").html("");
+                break;
+            case "gas-tab":
+                $("#gas-tab-pane").html("");
+                break;
+            case "accident-tab":
+                $("#accident-tab-pane").html("");
                 break;
         }
     });
@@ -48,6 +57,20 @@ function getVehicleServiceRecords(vehicleId) {
             $("#servicerecord-tab-pane").html(data);
         }
     })
+}
+function getVehicleGasRecords(vehicleId) {
+    $.get(`/Vehicle/GetGasRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#gas-tab-pane").html(data);
+        }
+    });
+}
+function getVehicleCollisionRecords(vehicleId) {
+    $.get(`/Vehicle/GetCollisionRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#accident-tab-pane").html(data);
+        }
+    });
 }
 function editVehicle(vehicleId) {
     $.get(`/Vehicle/GetEditVehiclePartialViewById?vehicleId=${vehicleId}`, function (data) {
@@ -74,13 +97,6 @@ function deleteVehicle(vehicleId) {
                     window.location.href = '/Home';
                 }
             })
-        }
-    });
-}
-function getVehicleGasRecords(vehicleId) {
-    $.get(`/Vehicle/GetGasRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
-            $("#gas-tab-pane").html(data);
         }
     });
 }

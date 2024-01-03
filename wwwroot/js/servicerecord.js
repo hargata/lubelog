@@ -38,7 +38,7 @@ function deleteServiceRecord(serviceRecordId) {
             $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
                 if (data) {
                     hideAddServiceRecordModal();
-                    successToast("Service Record deleted");
+                    successToast("Service Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleServiceRecords(vehicleId);
                 } else {
