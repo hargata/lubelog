@@ -15,7 +15,7 @@
         public string MoveFileFromTemp(string currentFilePath, string newFolder)
         {
             string tempPath = "temp/";
-            if (!currentFilePath.StartsWith("/temp/")) //file is not in temp directory.
+            if (string.IsNullOrWhiteSpace(currentFilePath) || !currentFilePath.StartsWith("/temp/")) //file is not in temp directory.
             {
                 return currentFilePath;
             }

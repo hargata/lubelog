@@ -44,6 +44,29 @@ namespace CarCareTracker.Controllers
             var data = _dataAccess.GetVehicleById(vehicleId);
             return View(data);
         }
+        [HttpGet]
+        public IActionResult GetEditVehiclePartialViewById(int vehicleId)
+        {
+            var data = _dataAccess.GetVehicleById(vehicleId);
+            return PartialView("_VehicleModal", data);
+        }
+        [HttpPost]
+        public IActionResult SaveVehicle(Vehicle vehicleInput)
+        {
+            try
+            {
+                //move image from temp folder to images folder.
+                vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
+                //save vehicle.
+                var result = _dataAccess.SaveVehicle(vehicleInput);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Saving Vehicle");
+                return Json(false);
+            }
+        }
         [HttpPost]
         public IActionResult DeleteVehicle(int vehicleId)
         {

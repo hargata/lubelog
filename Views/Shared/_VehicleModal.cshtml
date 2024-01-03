@@ -1,0 +1,49 @@
+﻿@model Vehicle
+@{
+    if (Model.ImageLocation == "/defaults/noimage.png")
+    {
+        Model.ImageLocation = "";
+    }
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="addVehicleModalLabel">@(Model.Id == 0 ? "Add New Vehicle" : "Edit Vehicle")</h5>
+</div>
+<div class="modal-body">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="inputYear">Year</label>
+            <input type="number" id="inputYear" class="form-control" value="@Model.Year">
+            <label for="inputMake">Make</label>
+            <input type="text" id="inputMake" class="form-control" value="@Model.Make">
+            <label for="inputModel">Model</label>
+            <input type="text" id="inputModel" class="form-control" value="@Model.Model">
+            <label for="inputLicensePlate">License Plate</label>
+            <input type="text" id="inputLicensePlate" class="form-control" value="@Model.LicensePlate">
+            @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
+            {
+                <label for="inputImage">Replace picture(optional)</label>
+                <input onChange="uploadFileAsync()" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
+            } else
+            {
+                <label for="inputImage">Upload a picture(optional)</label>
+                <input onChange="uploadFileAsync()" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
+            }
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
+    @if (Model.Id == 0)
+    {
+        <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">Add New Vehicle</button>
+    } else if (Model.Id > 0)
+    {
+        <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">Save Vehicle</button>
+    }
+</div>
+<script>
+    var uploadedFile = "@Model.ImageLocation";
+    function getVehicleModelData() {
+        return { id: @Model.Id}
+    }
+</script>

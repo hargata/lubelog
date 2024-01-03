@@ -34,30 +34,8 @@
 
 <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addVehicleModalLabel">Add New Vehicle</h5>
-            </div>
-            <div class="modal-body">
-                <form class="form-inline">
-                    <div class="form-group">
-                        <label for="inputYear">Year</label>
-                        <input type="number" id="inputYear" class="form-control">
-                        <label for="inputMake">Make</label>
-                        <input type="text" id="inputMake" class="form-control">
-                        <label for="inputModel">Model</label>
-                        <input type="text" id="inputModel" class="form-control">
-                        <label for="inputLicensePlate">License Plate</label>
-                        <input type="text" id="inputLicensePlate" class="form-control">
-                        <label for="inputImage">Upload a picture(optional)</label>
-                        <input onChange="uploadFileAsync()" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
-                <button type="button" onclick="addVehicle()" class="btn btn-primary">Add New Vehicle</button>
-            </div>
+        <div class="modal-content" id="addVehicleModalContent">
+           
         </div>
     </div>
 </div>

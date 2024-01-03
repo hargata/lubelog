@@ -37,22 +37,10 @@ namespace CarCareTracker.Controllers
         {
             return View();
         }
-        [HttpPost]
-        public IActionResult AddVehicle(Vehicle vehicleInput)
+        [HttpGet]
+        public IActionResult AddVehiclePartialView()
         {
-            try
-            {
-                //move image from temp folder to images folder.
-                vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
-                //save vehicle.
-                var result = _dataAccess.SaveVehicle(vehicleInput);
-                return Json(result);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Error Saving Vehicle");
-                return Json(false);
-            }
+            return PartialView("_VehicleModal", new Vehicle());
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
