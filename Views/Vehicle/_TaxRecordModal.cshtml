@@ -1,0 +1,77 @@
+﻿@model TaxRecordInput
+<div class="modal-header">
+    <h5 class="modal-title">@(Model.Id == 0 ? "Add New Tax Record" : "Edit Tax Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddTaxRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="taxRecordDate">Date</label>
+                    <div class="input-group">
+                        <input type="text" id="taxRecordDate" class="form-control" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="taxRecordDescription">Description</label>
+                    <input type="text" id="taxRecordDescription" class="form-control" value="@Model.Description">
+                    <label for="taxRecordCost">Cost</label>
+                    <input type="number" id="taxRecordCost" class="form-control" value="@Model.Cost">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="taxRecordNotes">Notes(optional)</label>
+                    <textarea id="taxRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            <label>Uploaded Documents</label>
+                            @foreach (UploadedFiles filesUploaded in Model.Files)
+                            {
+                                <div class="d-flex justify-content-between">
+                                    <a type="button" class="btn btn-link" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteTaxRecordFile('@filesUploaded.Location', this)"><i class="bi bi-trash"></i></button>
+                                </div>
+                            }
+                            <label for="taxRecordFiles">Upload more documents</label>
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="taxRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="taxRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="taxRecordFiles">
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (Model.Id > 0)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteTaxRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddTaxRecordModal()">Cancel</button>
+    @if (Model.Id == 0)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle()">Add New Tax Record</button>
+    }
+    else if (Model.Id > 0)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle(true)">Edit Tax Record</button>
+    }
+</div>
+<script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+        }
+    function getTaxRecordModelData() {
+        return { id: @Model.Id}
+    }
+</script>

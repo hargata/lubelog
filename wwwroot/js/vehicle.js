@@ -28,6 +28,9 @@ $(document).ready(function () {
             case "accident-tab":
                 getVehicleCollisionRecords(vehicleId);
                 break;
+            case "tax-tab":
+                getVehicleTaxRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -38,6 +41,9 @@ $(document).ready(function () {
                 break;
             case "accident-tab":
                 $("#accident-tab-pane").html("");
+                break;
+            case "tax-tab":
+                $("#tax-tab-pane").html("");
                 break;
         }
     });
@@ -69,6 +75,13 @@ function getVehicleCollisionRecords(vehicleId) {
     $.get(`/Vehicle/GetCollisionRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#accident-tab-pane").html(data);
+        }
+    });
+}
+function getVehicleTaxRecords(vehicleId) {
+    $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#tax-tab-pane").html(data);
         }
     });
 }

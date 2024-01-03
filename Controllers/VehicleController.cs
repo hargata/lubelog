@@ -82,10 +82,12 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteVehicle(int vehicleId)
         {
             //Delete all service records, gas records, notes, etc.
-            _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId);
-            _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId);
-            _noteDataAccess.DeleteNoteByVehicleId(vehicleId);
-            var result = _dataAccess.DeleteVehicle(vehicleId);
+            var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
+                _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
+                _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
+                _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
+                _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
         [HttpPost]
