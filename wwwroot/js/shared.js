@@ -90,9 +90,10 @@ function saveVehicle(isEdit) {
         }
     });
 }
-function uploadFileAsync() {
+function uploadFileAsync(event) {
     let formData = new FormData();
-    formData.append("file", $("#inputImage")[0].files[0]);
+    formData.append("file", event.files[0]);
+    sloader.show();
     $.ajax({
         url: "/Files/HandleFileUpload",
         data: formData,
@@ -101,6 +102,7 @@ function uploadFileAsync() {
         contentType: false,
         type: 'POST',
         success: function (response) {
+            sloader.hide();
             if (response.trim() != '') {
                 uploadedFile = response;
             }

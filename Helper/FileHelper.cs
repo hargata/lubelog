@@ -2,6 +2,7 @@
 {
     public interface IFileHelper
     {
+        string GetFullFilePath(string currentFilePath);
         public string MoveFileFromTemp(string currentFilePath, string newFolder);
         public bool DeleteFile(string currentFilePath);
     }
@@ -11,6 +12,21 @@
         public FileHelper(IWebHostEnvironment webEnv)
         {
             _webEnv = webEnv;
+        }
+        public string GetFullFilePath(string currentFilePath)
+        {
+            if (currentFilePath.StartsWith("/"))
+            {
+                currentFilePath = currentFilePath.Substring(1);
+            }
+            string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            if (File.Exists(oldFilePath))
+            {
+                return oldFilePath;
+            } else
+            {
+                return string.Empty;
+            }
         }
         public string MoveFileFromTemp(string currentFilePath, string newFolder)
         {

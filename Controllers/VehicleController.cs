@@ -9,6 +9,9 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using CarCareTracker.External.Implementations;
 using CarCareTracker.Helper;
+using CsvHelper;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace CarCareTracker.Controllers
 {
@@ -156,6 +159,56 @@ namespace CarCareTracker.Controllers
                 previousMileage = result[i].Mileage;
             }
             return PartialView("_Gas", computedResults);
+        }
+        [HttpGet]
+        public IActionResult GetBulkImportModalPartialView(string mode)
+        {
+            return PartialView("_BulkDataImporter", mode);
+        }
+        [HttpPost]
+        public IActionResult ImportToVehicleIdFromCsv(int vehicleId, string mode, string fileName)
+        {
+            var fullFileName = _fileHelper.GetFullFilePath(fileName);
+            if (vehicleId == default || string.IsNullOrWhiteSpace(fullFileName))
+            {
+                return Json(false);
+            }
+            try
+            {
+                using (var reader = new StreamReader(fullFileName))
+                {
+                    var config = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture);
+                    config.MissingFieldFound = null;
+                    config.HeaderValidated = null;
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        if (mode == "gas")
+                        {
+                            var records = csv.GetRecords<GasRecordImport>().ToList();
+                            if (records.Any())
+                            {
+                                foreach (GasRecordImport gasRecordToInsert in records)
+                                {
+                                    var convertedGasRecord = new GasRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = gasRecordToInsert.Date,
+                                        Mileage = gasRecordToInsert.Odometer,
+                                        Gallons = gasRecordToInsert.FuelConsumed,
+                                        Cost = gasRecordToInsert.Cost
+                                    };
+                                    _gasRecordDataAccess.SaveGasRecordToVehicle(convertedGasRecord);
+                                }
+                            }
+                        }
+                    }
+                }
+                return Json(true);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occurred While Bulk Inserting");
+                return Json(false);
+            }
         }
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)

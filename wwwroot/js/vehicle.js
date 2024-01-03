@@ -96,6 +96,17 @@ function editVehicle(vehicleId) {
 function hideEditVehicleModal() {
     $('#editVehicleModal').modal('hide');
 }
+function showBulkImportModal(mode) {
+    $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {
+        if (data) {
+            $("#bulkImportModalContent").html(data);
+            $("#bulkImportModal").modal('show');
+        }
+    })
+}
+function hideBulkImportModal(){
+    $("#bulkImportModal").modal('hide');
+}
 function deleteVehicle(vehicleId) {
     Swal.fire({
         title: "Confirm Deletion?",
