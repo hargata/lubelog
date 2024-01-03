@@ -43,5 +43,14 @@ namespace CarCareTracker.External.Implementations
                 return true;
             };
         }
+        public bool DeleteAllServiceRecordsByVehicleId(int vehicleId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<ServiceRecord>(tableName);
+                var serviceRecords = table.DeleteMany(Query.EQ(nameof(ServiceRecord.VehicleId), vehicleId));
+                return true;
+            };
+        }
     }
 }

@@ -6,5 +6,6 @@ namespace CarCareTracker.External.Interfaces
     {
         public Note GetNoteByVehicleId(int vehicleId);
         public bool SaveNoteToVehicleId(Note note);
+        bool DeleteNoteByVehicleId(int vehicleId);
     }
 }

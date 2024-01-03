@@ -26,5 +26,14 @@ namespace CarCareTracker.External.Implementations
                 return true;
             };
         }
+        public bool DeleteNoteByVehicleId(int vehicleId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<Note>(tableName);
+                table.DeleteMany(Query.EQ(nameof(Note.VehicleId), vehicleId));
+                return true;
+            };
+        }
     }
 }

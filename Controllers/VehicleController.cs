@@ -45,6 +45,11 @@ namespace CarCareTracker.Controllers
             return View(data);
         }
         [HttpGet]
+        public IActionResult AddVehiclePartialView()
+        {
+            return PartialView("_VehicleModal", new Vehicle());
+        }
+        [HttpGet]
         public IActionResult GetEditVehiclePartialViewById(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
@@ -70,6 +75,10 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeleteVehicle(int vehicleId)
         {
+            //Delete all service records, gas records, notes, etc.
+            _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId);
+            _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId);
+            _noteDataAccess.DeleteNoteByVehicleId(vehicleId);
             var result = _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }

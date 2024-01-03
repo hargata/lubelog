@@ -37,11 +37,6 @@ namespace CarCareTracker.Controllers
         {
             return View();
         }
-        [HttpGet]
-        public IActionResult AddVehiclePartialView()
-        {
-            return PartialView("_VehicleModal", new Vehicle());
-        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

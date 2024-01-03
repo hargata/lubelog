@@ -1,6 +1,6 @@
 ﻿function showAddVehicleModal() {
     uploadedFile = "";
-    $.get('/Home/AddVehiclePartialView', function (data) {
+    $.get('/Vehicle/AddVehiclePartialView', function (data) {
         if (data) {
             $("#addVehicleModalContent").html(data);
         }
