@@ -22,6 +22,9 @@ $(document).ready(function () {
             case "notes-tab":
                 getVehicleNote(vehicleId);
                 break;
+            case "gas-tab":
+                getVehicleGasRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -52,4 +55,33 @@ function DeleteVehicle(vehicleId) {
             window.location.href = '/Home';
         }
     })
+}
+function getVehicleGasRecords(vehicleId) {
+    $.get(`/Vehicle/GetGasRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#gas-tab-pane").html(data);
+        }
+    });
+}
+function uploadVehicleFilesAsync(event) {
+    let formData = new FormData();
+    var files = event.files;
+    for (var x = 0; x < files.length; x++) {
+        formData.append("file", files[x]);
+    }
+    sloader.show();
+    $.ajax({
+        url: "/Files/HandleMultipleFileUpload",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (response.length > 0) {
+                uploadedFiles.push.apply(uploadedFiles, response);
+            }
+        }
+    });
 }

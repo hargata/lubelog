@@ -1,12 +1,15 @@
 ﻿@model List<GasRecordViewModel>
 <div class="row">
     <div class="d-flex justify-content-between">
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.Count()}")</span>
-            <span class="badge bg-primary">@($"Average Fuel Economy: {Model.Where(y=>y.MilesPerGallon > 0).Average(x => x.MilesPerGallon)}")</span>
-            <span class="badge bg-primary">@($"Min Fuel Economy: {Model.Min(x => x.MilesPerGallon)}")</span>
-            <span class="badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon)}")</span>
-            <span class="ms-2 badge bg-success">@($"Total Gallons: {Model.Sum(x=>x.Gallons)}")</span>
+            @if (Model.Count() > 1)
+            {
+                <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Average(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+            }
+            <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.Sum(x=>x.Gallons)}")</span>
             <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
         <div>
@@ -33,10 +36,10 @@
                     <tr class="d-flex" style="cursor:pointer;" onclick="">
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2">@gasRecord.Mileage</td>
-                        <td class="col-2">@gasRecord.Gallons</td>
-                        <td class="col-2">@gasRecord.MilesPerGallon</td>
+                        <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
+                        <td class="col-2">@gasRecord.MilesPerGallon.ToString("F")</td>
                         <td class="col-2">@gasRecord.Cost.ToString("C")</td>
-                        <td class="col-2">@gasRecord.CostPerGallon</td>
+                        <td class="col-2">@gasRecord.CostPerGallon.ToString("F")</td>
                     </tr>
                 }
             </tbody>

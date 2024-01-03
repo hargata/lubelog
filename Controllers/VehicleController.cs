@@ -115,7 +115,19 @@ namespace CarCareTracker.Controllers
                 }
                 previousMileage = result[i].Mileage;
             }
-            return PartialView("_GasRecords", computedResults);
+            return PartialView("_Gas", computedResults);
+        }
+        [HttpPost]
+        public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
+        {
+            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddGasRecordPartialView()
+        {
+            return PartialView("_GasModal", new GasRecordInput());
         }
         #endregion
         #region "Service Records"

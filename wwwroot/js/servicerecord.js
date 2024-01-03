@@ -69,28 +69,6 @@ function saveServiceRecordToVehicle(isEdit) {
         }
     })
 }
-function uploadVehicleFilesAsync(event) {
-    let formData = new FormData();
-    var files = event.files;
-    for (var x = 0; x < files.length; x++) {
-        formData.append("file", files[x]);
-    }
-    sloader.show();
-    $.ajax({
-        url: "/Files/HandleMultipleFileUpload",
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            if (response.length > 0) {
-                uploadedFiles.push.apply(uploadedFiles, response);
-            }
-        }
-    });
-}
 function getAndValidateServiceRecordValues() {
     var serviceDate = $("#serviceRecordDate").val();
     var serviceMileage = $("#serviceRecordMileage").val();
