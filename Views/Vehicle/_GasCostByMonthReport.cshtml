@@ -1,50 +1,56 @@
 ﻿@model List<GasCostForVehicleByMonth>
-<canvas id="bar-chart" class="vehicleDetailTabContainer"></canvas>
-<script>
-    renderChart();
-    function renderChart() {
-        var barGraphLabels = [];
-        var barGraphData = [];
-        var useDarkMode = getGlobalConfig().useDarkMode;
+@if (Model.Any())
+{
+    <canvas id="bar-chart" class="vehicleDetailTabContainer"></canvas>
+    <script>
+        renderChart();
+        function renderChart() {
+            var barGraphLabels = [];
+            var barGraphData = [];
+            var useDarkMode = getGlobalConfig().useDarkMode;
         @foreach (GasCostForVehicleByMonth gasCost in Model)
         {
             @:barGraphLabels.push("@gasCost.MonthName");
             @:barGraphData.push(@gasCost.Cost);
         }
-            new Chart($("#bar-chart"), {
-                type: 'bar',
-                data: {
-                    labels: barGraphLabels,
-                    datasets: [
-                        {
-                            label: "Gas Expenses by Month",
-                            backgroundColor: ["#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f"],
-                            data: barGraphData
-                        }
-                    ]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: useDarkMode ? "#fff" : "#000"
+                new Chart($("#bar-chart"), {
+                    type: 'bar',
+                    data: {
+                        labels: barGraphLabels,
+                        datasets: [
+                            {
+                                label: "Gas Expenses by Month",
+                                backgroundColor: ["#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f"],
+                                data: barGraphData
                             }
-                        }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: useDarkMode ? "#fff" : "#000"
+                    options: {
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: useDarkMode ? "#fff" : "#000"
+                                }
                             }
                         },
-                        x: {
-                            ticks: {
-                                color: useDarkMode ? "#fff" : "#000"
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: useDarkMode ? "#fff" : "#000"
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: useDarkMode ? "#fff" : "#000"
+                                }
                             }
                         }
                     }
-                }
-            });
-    }
-</script>
+                });
+        }
+    </script>
+} else
+{
+    <h1>No data found, insert some gas data to see visualizations here.</h1>
+}

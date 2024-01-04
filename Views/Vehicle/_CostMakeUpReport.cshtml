@@ -1,41 +1,47 @@
 ﻿@model CostMakeUpForVehicle
-<canvas id="pie-chart"></canvas>
-<script>
-    renderChart();
-    function renderChart() {
-        var useDarkMode = getGlobalConfig().useDarkMode;
-        new Chart($("#pie-chart"), {
-            type: 'pie',
-            data: {
-                labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance(Repairs)", "Tax", "Fuel"],
-                datasets: [
-                    {
-                        label: "Expenses by Category",
-                        backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361"],
-                        data: [
-                            @Model.ServiceRecordSum, 
-                            @Model.CollisionRecordSum, 
-                            @Model.TaxRecordSum,
-                            @Model.GasRecordSum
-                        ]
-                    }
-                ]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        position: "bottom",
-                        labels: {
-                            color: useDarkMode ? "#fff" : "#000"
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum > 0)
+{
+    <canvas id="pie-chart"></canvas>
+    <script>
+        renderChart();
+        function renderChart() {
+            var useDarkMode = getGlobalConfig().useDarkMode;
+            new Chart($("#pie-chart"), {
+                type: 'pie',
+                data: {
+                    labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance(Repairs)", "Tax", "Fuel"],
+                    datasets: [
+                        {
+                            label: "Expenses by Category",
+                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361"],
+                            data: [
+        @Model.ServiceRecordSum,
+        @Model.CollisionRecordSum,
+        @Model.TaxRecordSum,
+        @Model.GasRecordSum
+                                ]
                         }
-                    },
-                    title: {
-                        display: true,
-                        text: "Expenses by Type",
-                        color: useDarkMode ? "#fff" : "#000"
-                    },
+                    ]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: useDarkMode ? "#fff" : "#000"
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: "Expenses by Type",
+                            color: useDarkMode ? "#fff" : "#000"
+                        },
+                    }
                 }
-            }
-        });
-    }
-</script>
+            });
+        }
+    </script>
+} else
+{
+    <h1>No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.</h1>
+}

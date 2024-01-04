@@ -46,8 +46,14 @@
             if (data) {
                 successToast("Data Imported Successfully");
                 hideBulkImportModal();
-                if (mode == "gas") {
+                if (mode == "gasrecord") {
                     getVehicleGasRecords(vehicleId);
+                } else if (mode == "servicerecord") {
+                    getVehicleServiceRecords(vehicleId);
+                } else if (mode == "repairrecord") {
+                    getVehicleCollisionRecords(vehicleId);
+                } else if (mode == "taxrecord") {
+                    getVehicleTaxRecords(vehicleId);
                 }
             } else {
                 errorToast("An error has occurred, please double check the data and try again.");

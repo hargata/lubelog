@@ -1,4 +1,8 @@
-﻿@model List<CollisionRecord>
+﻿@inject IConfiguration Configuration
+@{
+    var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
+}
+@model List<CollisionRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
@@ -6,7 +10,22 @@
             <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
         <div>
-            <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+            @if (enableCsvImports)
+            {
+                <div class="btn-group">
+                    <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('repairrecord')">Import via CSV</a></li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+            }
         </div>
     </div>
 </div>
@@ -16,7 +35,7 @@
             <thead>
                 <tr class="d-flex">
                     <th scope="col" class="col-1">Date</th>
-                    <th scope="col" class="col-2">Mileage</th>
+                    <th scope="col" class="col-2">Odometer</th>
                     <th scope="col" class="col-4">Description</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-3">Notes</th>

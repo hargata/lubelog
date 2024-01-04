@@ -138,22 +138,78 @@ namespace CarCareTracker.Controllers
                     config.HeaderValidated = null;
                     using (var csv = new CsvReader(reader, config))
                     {
-                        if (mode == "gas")
+                        if (mode == "gasrecord")
                         {
                             var records = csv.GetRecords<GasRecordImport>().ToList();
                             if (records.Any())
                             {
-                                foreach (GasRecordImport gasRecordToInsert in records)
+                                foreach (GasRecordImport recordToInsert in records)
                                 {
-                                    var convertedGasRecord = new GasRecord()
+                                    var convertedRecord = new GasRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = gasRecordToInsert.Date,
-                                        Mileage = gasRecordToInsert.Odometer,
-                                        Gallons = gasRecordToInsert.FuelConsumed,
-                                        Cost = gasRecordToInsert.Cost
+                                        Date = recordToInsert.Date,
+                                        Mileage = recordToInsert.Odometer,
+                                        Gallons = recordToInsert.FuelConsumed,
+                                        Cost = recordToInsert.Cost
                                     };
-                                    _gasRecordDataAccess.SaveGasRecordToVehicle(convertedGasRecord);
+                                    _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+                                }
+                            }
+                        } else if (mode == "servicerecord")
+                        {
+                            var records = csv.GetRecords<ServiceRecordImport>().ToList();
+                            if (records.Any())
+                            {
+                                foreach (ServiceRecordImport recordToInsert in records)
+                                {
+                                    var convertedRecord = new ServiceRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = recordToInsert.Date,
+                                        Mileage = recordToInsert.Odometer,
+                                        Description = recordToInsert.Description,
+                                        Notes = recordToInsert.Notes,
+                                        Cost = recordToInsert.Cost
+                                    };
+                                    _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
+                                }
+                            }
+                        } else if (mode == "repairrecord")
+                        {
+                            var records = csv.GetRecords<ServiceRecordImport>().ToList();
+                            if (records.Any())
+                            {
+                                foreach (ServiceRecordImport recordToInsert in records)
+                                {
+                                    var convertedRecord = new CollisionRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = recordToInsert.Date,
+                                        Mileage = recordToInsert.Odometer,
+                                        Description = recordToInsert.Description,
+                                        Notes = recordToInsert.Notes,
+                                        Cost = recordToInsert.Cost
+                                    };
+                                    _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
+                                }
+                            }
+                        } else if (mode == "taxrecord")
+                        {
+                            var records = csv.GetRecords<TaxRecordImport>().ToList();
+                            if (records.Any())
+                            {
+                                foreach (TaxRecordImport recordToInsert in records)
+                                {
+                                    var convertedRecord = new TaxRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = recordToInsert.Date,
+                                        Description = recordToInsert.Description,
+                                        Notes = recordToInsert.Notes,
+                                        Cost = recordToInsert.Cost
+                                    };
+                                    _taxRecordDataAccess.SaveTaxRecordToVehicle(convertedRecord);
                                 }
                             }
                         }

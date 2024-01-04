@@ -14,7 +14,7 @@
                 <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
             }
-            <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.Sum(x=>x.Gallons)}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.Sum(x=>x.Gallons).ToString("F")}")</span>
             <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
         @if (enableCsvImports)
@@ -25,7 +25,7 @@
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('gas')">Import via CSV</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('gasrecord')">Import via CSV</a></li>
                 </ul>
             </div>
         } else {
