@@ -31,6 +31,9 @@ $(document).ready(function () {
             case "tax-tab":
                 getVehicleTaxRecords(vehicleId);
                 break;
+            case "report-tab":
+                getVehicleReport();
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -84,6 +87,13 @@ function getVehicleTaxRecords(vehicleId) {
             $("#tax-tab-pane").html(data);
         }
     });
+}
+function getVehicleReport() {
+    $.get(`/Vehicle/GetReportPartialView`, function (data) {
+        if (data) {
+            $("#report-tab-pane").html(data);
+        }
+    })
 }
 function editVehicle(vehicleId) {
     $.get(`/Vehicle/GetEditVehiclePartialViewById?vehicleId=${vehicleId}`, function (data) {
@@ -145,12 +155,4 @@ function uploadVehicleFilesAsync(event) {
             }
         }
     });
-}
-function getVehicleReport() {
-    $.get(`/Vehicle/GetReportPartialView`, function (data) {
-        if (data) {
-            $("#bulkImportModalContent").html(data);
-            $("#bulkImportModal").modal('show');
-        }
-    })
 }

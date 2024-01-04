@@ -8,7 +8,7 @@
     <script src="~/js/gasrecord.js" asp-append-version="true"></script>
     <script src="~/js/collisionrecord.js" asp-append-version="true"></script>
     <script src="~/js/taxrecord.js" asp-append-version="true"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="~/lib/chart-js/chart.umd.js"></script>
 }
 <div class="container">
     <div class="row">
@@ -35,6 +35,9 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark me-2"></i>Notes</button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>Reports</button>
+        </li>
         <li class="nav-item dropdown ms-auto" role="presentation">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Manage Vehicle</a>
             <ul class="dropdown-menu">
@@ -45,7 +48,7 @@
     <div class="tab-content" id="vehicleTabContent">
         <div class="tab-pane fade show active" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="gas-tab-pane" role="tabpanel" tabindex="0"></div>
-        <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0">222</div>
+        <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0">
             <div class="row">
                 <div class="col-12">
@@ -62,6 +65,7 @@
             </div>
         </div>
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0"></div>
+        <div class="tab-pane fade" id="report-tab-pane" role="tabpanel" tabindex="0"></div>
     </div>
 </div>
 <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">

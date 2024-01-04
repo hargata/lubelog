@@ -384,7 +384,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetReportPartialView()
         {
-            return PartialView("_CostMakeUpReport");
+            return PartialView("_Report");
         }
         [HttpGet]
         public IActionResult GetCostMakeUpForVehicle(int vehicleId, string startDate = "", string endDate = "")
@@ -399,13 +399,21 @@ namespace CarCareTracker.Controllers
                 DateTime.TryParse(endDate, out DateTime parsedEndDate)
                 )
             {
+                parsedEndDate = parsedEndDate.AddDays(1).AddSeconds(-1);
                 //if start and end dates are provided then we need to filter the data down.
                 serviceRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
                 gasRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
                 collisionRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
                 taxRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
             }
-            return Json(true);
+            var viewModel = new CostMakeUpForVehicle
+            {
+                ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
+                TaxRecordSum = taxRecords.Sum(x => x.Cost)
+            };
+            return PartialView("_CostMakeUpReport", viewModel);
         }
         //public IActionResult GetFuelCostByMonthByVehicle(int vehicleId)
         //{

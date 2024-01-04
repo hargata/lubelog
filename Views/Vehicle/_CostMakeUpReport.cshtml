@@ -1,35 +1,39 @@
-﻿<div class="row">
-    <canvas id="pie-chart"></canvas>
-</div>
+﻿@model CostMakeUpForVehicle
+<canvas id="pie-chart" class="vehicleDetailTabContainer"></canvas>
 <script>
+    renderChart();
     function renderChart() {
         new Chart($("#pie-chart"), {
-            type: 'bar',
+            type: 'pie',
             data: {
-                labels: ["North America", "Latin America", "Europe", "Asia", "Africa"],
+                labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance", "Tax", "Fuel"],
                 datasets: [
                     {
-                        label: "Number of developers (millions)",
-                        backgroundColor: ["red", "blue", "yellow", "green", "pink"],
-                        data: [7, 4, 6, 9, 3]
+                        label: "Expenses by Category",
+                        backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361"],
+                        data: [
+                            @Model.ServiceRecordSum, 
+                            @Model.CollisionRecordSum, 
+                            @Model.TaxRecordSum,
+                            @Model.GasRecordSum
+                        ]
                     }
                 ]
             },
             options: {
-                legend: { display: false },
-                title: {
-                    display: true,
-                    text: 'Number of Developers in Every Continent'
-                },
-
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: "#fff"
                         }
-                    }]
+                    },
+                    title: {
+                        display: true,
+                        text: "Expenses by Type",
+                        color: "#fff"
+                    },
                 }
-
             }
         });
     }

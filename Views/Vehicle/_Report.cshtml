@@ -1,0 +1,30 @@
+﻿<div class="row">
+    <div class="col-6">
+        <div class="row">
+            <div class="col-12">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12" id="costMakeUpReportContent">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-12">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    initiateChart();
+    function initiateChart() {
+        var vehicleId = GetVehicleId().vehicleId;
+        $.get(`/Vehicle/GetCostMakeUpForVehicle?vehicleId=${vehicleId}`, function (data) {
+            $("#costMakeUpReportContent").html(data);
+        })
+    }
+</script>
