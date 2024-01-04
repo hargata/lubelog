@@ -29,7 +29,7 @@ function deleteCollisionRecord(collisionRecordId) {
     $("#workAroundInput").show();
     Swal.fire({
         title: "Confirm Deletion?",
-        text: "Deleted Unplanned Maintenance Records cannot be restored.",
+        text: "Deleted Repair Records cannot be restored.",
         showCancelButton: true,
         confirmButtonText: "Delete",
         confirmButtonColor: "#dc3545"
@@ -38,7 +38,7 @@ function deleteCollisionRecord(collisionRecordId) {
             $.post(`/Vehicle/DeleteCollisionRecordById?collisionRecordId=${collisionRecordId}`, function (data) {
                 if (data) {
                     hideAddCollisionRecordModal();
-                    successToast("Unplanned Maintenance Record Deleted");
+                    successToast("Repair Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleCollisionRecords(vehicleId);
                 } else {
@@ -61,7 +61,7 @@ function saveCollisionRecordToVehicle(isEdit) {
     //save to db.
     $.post('/Vehicle/SaveCollisionRecordToVehicleId', { collisionRecord: formValues }, function (data) {
         if (data) {
-            successToast(isEdit ? "Unplanned Maintenance Record Updated" : "Unplanned Maintenance Record Added.");
+            successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
             hideAddCollisionRecordModal();
             getVehicleCollisionRecords(formValues.vehicleId);
         } else {

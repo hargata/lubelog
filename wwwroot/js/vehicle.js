@@ -48,6 +48,9 @@ $(document).ready(function () {
             case "tax-tab":
                 $("#tax-tab-pane").html("");
                 break;
+            case "report-tab":
+                $("#report-tab-pane").html("");
+                break;
         }
     });
     getVehicleServiceRecords(vehicleId);

@@ -2,11 +2,11 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Unplanned Maintenance Records: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"# of Repair Records: {Model.Count()}")</span>
             <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
         <div>
-            <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Unplanned Maintenance Record</button>
+            <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
         </div>
     </div>
 </div>
