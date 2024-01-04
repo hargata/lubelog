@@ -1,4 +1,8 @@
-﻿@model string
+﻿@inject IConfiguration Configuration
+@{
+    var enableAuth = bool.Parse(Configuration[nameof(UserConfig.EnableAuth)]);
+}
+@model string
 @{
     ViewData["Title"] = "LubeLogger";
 }
@@ -19,6 +23,12 @@
         <li class="nav-item ms-auto" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
         </li>
+        @if (enableAuth)
+        {
+            <li class="nav-item">
+                <button class="nav-link" onclick="performLogOut()">Logout</button>
+            </li>
+        }
     </ul>
     <div class="tab-content" id="homeTab">
         <div class="tab-pane fade @(Model == "garage" ? "show active" : "")" id="garage-tab-pane" role="tabpanel" tabindex="0">

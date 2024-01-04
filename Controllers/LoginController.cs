@@ -121,6 +121,13 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
+        [Authorize]
+        [HttpPost]
+        public IActionResult LogOut()
+        {
+            Response.Cookies.Delete("ACCESS_TOKEN");
+            return Json(true);
+        }
         private static string Sha256_hash(string value)
         {
             StringBuilder Sb = new StringBuilder();

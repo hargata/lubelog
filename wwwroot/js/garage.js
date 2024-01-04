@@ -21,3 +21,10 @@ function loadSettings() {
         $("#settings-tab-pane").html(data);
     });
 }
+function performLogOut() {
+    $.post('/Login/LogOut', function (data) {
+        if (data) {
+            window.location.href = '/Login';
+        }
+    })
+}
