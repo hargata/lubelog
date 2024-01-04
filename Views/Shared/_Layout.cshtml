@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
 @inject IConfiguration Configuration
 @{
-    var useDarkMode = bool.Parse(Configuration["DarkMode"]);
+    var useDarkMode = bool.Parse(Configuration["UseDarkMode"]);
+    var enableCsvImports = bool.Parse(Configuration["EnableCsvImports"]);
 }
 <html lang="en" data-bs-theme="@(useDarkMode ? "dark" : "light")">
 <head>
@@ -20,6 +21,14 @@
     <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="~/sweetalert/sweetalert2.all.min.js"></script>
     <script src="~/js/loader.js"></script>
+    <script>
+        function getGlobalConfig() {
+            return {
+                useDarkMode : "@useDarkMode" == "True",
+                enableCsvImport : "@enableCsvImports" == "True"
+            }
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>
 <body>

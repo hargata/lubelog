@@ -44,3 +44,15 @@ html {
 .vehicleNoteContainer{
     height:40vh;
 }
+
+.display-7 {
+    font-size: calc(1.325rem + 0.9vw);
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+@media (min-width: 1200px) {
+    .display-7 {
+        font-size: 2rem;
+    }
+}

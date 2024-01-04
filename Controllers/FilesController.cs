@@ -8,9 +8,11 @@ using System.Drawing;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using CarCareTracker.Helper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarCareTracker.Controllers
 {
+    [Authorize]
     public class FilesController : Controller
     {
         private readonly ILogger<FilesController> _logger;

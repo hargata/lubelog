@@ -5,6 +5,7 @@
     function renderChart() {
         var barGraphLabels = [];
         var barGraphData = [];
+        var useDarkMode = getGlobalConfig().useDarkMode;
         @foreach (GasCostForVehicleByMonth gasCost in Model)
         {
             @:barGraphLabels.push("@gasCost.MonthName");
@@ -26,7 +27,7 @@
                     plugins: {
                         legend: {
                             labels: {
-                                color: '#fff'
+                                color: useDarkMode ? "#fff" : "#000"
                             }
                         }
                     },
@@ -34,12 +35,12 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                color: "#fff"
+                                color: useDarkMode ? "#fff" : "#000"
                             }
                         },
                         x: {
                             ticks: {
-                                color: "#fff"
+                                color: useDarkMode ? "#fff" : "#000"
                             }
                         }
                     }

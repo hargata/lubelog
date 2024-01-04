@@ -1,0 +1,89 @@
+﻿@model UserConfig
+
+<div class="row">
+    <div class="d-flex justify-content-center">
+        <h6 class="display-6 mt-2">Settings</h6>
+    </div>
+    <hr />
+    <div class="col-12 col-md-6">
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UseDarkMode">
+            <label class="form-check-label" for="enableDarkMode">Dark Mode</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.EnableCsvImports">
+            <label class="form-check-label" for="enableCsvImports">Enable CSV Imports</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UseMPG">
+            <label class="form-check-label" for="useMPG">Use Imperial Units for Fuel Economy Calculations(Miles, Gallons)</label>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UseDescending">
+            <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAuth" checked="@Model.EnableAuth">
+            <label class="form-check-label" for="enableAuth">Enable Authentication</label>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="d-flex justify-content-center">
+        <h6 class="display-6 mt-2">About</h6>
+    </div>
+    <hr />
+    <div class="col-12 col-md-6">
+        <div class="d-flex justify-content-center">
+            <img src="/defaults/lubelogger_logo.png" />
+        </div>
+        <p class="lead">
+            Proudly developed in the rural town of Price, Utah by Hargata Softworks.
+        </p>
+        <p class="lead">If you enjoyed using this app, please consider spreading the good word.</p>
+        <div class="d-flex justify-content-center">
+            <h6 class="display-7 mt-2">Hometown Shoutout</h6>
+        </div>
+        <p class="lead">
+            Do you work remotely and are looking for a new place to call home? Consider looking into the rural Eastern Utah town of Price. Price and Carbon County 
+            has experienced pronounced decline in both population and economic activity within the past decade whereas the rest of the state experienced exponential growth.
+            It is conveniently located in between Salt Lake City and Moab Utah. Amenities are relatively complete in terms of big box stores and high speed fiber Internet.
+            Price and its surrounding towns as a whole could really benefit from in-migration. Thank you!
+        </p>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="d-flex justify-content-center">
+            <h6 class="display-7 mt-2">Open Source Dependencies</h6>
+        </div>
+        <p class="lead">
+            LubeLogger utilizes open-source dependencies to serve you the best possible user experience, those dependencies are:
+        </p>
+        <ul class="list-group">
+            <li class="list-group-item">Bootstrap</li>
+            <li class="list-group-item">Bootstrap-DatePicker</li>
+            <li class="list-group-item">LiteDB</li>
+            <li class="list-group-item">SweetAlert2</li>
+            <li class="list-group-item">CsvHelper</li>
+            <li class="list-group-item">Chart.js</li>
+        </ul>
+    </div>
+</div>
+<script>
+    function updateSettings(){
+        var userConfigObject = {
+            useDarkMode: $("#enableDarkMode").is(':checked'),
+            enableCsvImports: $("#enableCsvImports").is(':checked'),
+            useMPG: $("#useMPG").is(':checked'),
+            useDescending: $("#useDescending").is(':checked')
+        }
+        $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
+            if (data) {
+                setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+            } else {
+                errorToast("An error occurred, please try again later.")
+            }
+        })
+    }
+</script>

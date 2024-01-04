@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using CarCareTracker.Helper;
 using CsvHelper;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarCareTracker.Controllers
 {
+    [Authorize]
     public class VehicleController : Controller
     {
         private readonly ILogger<HomeController> _logger;

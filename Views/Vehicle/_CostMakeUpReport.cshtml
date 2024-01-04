@@ -3,6 +3,7 @@
 <script>
     renderChart();
     function renderChart() {
+        var useDarkMode = getGlobalConfig().useDarkMode;
         new Chart($("#pie-chart"), {
             type: 'pie',
             data: {
@@ -25,13 +26,13 @@
                     legend: {
                         position: "bottom",
                         labels: {
-                            color: "#fff"
+                            color: useDarkMode ? "#fff" : "#000"
                         }
                     },
                     title: {
                         display: true,
                         text: "Expenses by Type",
-                        color: "#fff"
+                        color: useDarkMode ? "#fff" : "#000"
                     },
                 }
             }
