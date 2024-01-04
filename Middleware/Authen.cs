@@ -36,8 +36,14 @@ namespace CarCareTracker.Middleware
                 return AuthenticateResult.Success(ticket);
             } else
             {
+                //auth is enabled by user, we will have to authenticate the user via a ticket.
                 return AuthenticateResult.Fail("Invalid credentials");
             }
+        }
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            Response.Redirect("/Login/Index");
+            return Task.CompletedTask;
         }
     }
 }

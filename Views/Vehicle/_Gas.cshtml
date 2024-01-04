@@ -1,6 +1,7 @@
 ﻿@inject IConfiguration Configuration
 @{
-    var enableCsvImports = bool.Parse(Configuration["EnableCsvImports"]);
+    var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
+    var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
 }
 @model List<GasRecordViewModel>
 <div class="row">
@@ -38,9 +39,9 @@
             <thead>
                 <tr class="d-flex">
                     <th scope="col" class="col-2">Date Refueled</th>
-                    <th scope="col" class="col-2">Odometer</th>
-                    <th scope="col" class="col-2">Consumption</th>
-                    <th scope="col" class="col-2">Fuel Economy</th>
+                    <th scope="col" class="col-2">Odometer(@(useMPG ? "mi." : "km"))</th>
+                    <th scope="col" class="col-2">Consumption(@(useMPG ? "gal" : "l"))</th>
+                    <th scope="col" class="col-2">Fuel Economy(@(useMPG ? "mpg" : "l/100km"))</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-2">Unit Cost</th>
                 </tr>
@@ -54,7 +55,7 @@
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
                         <td class="col-2">@gasRecord.MilesPerGallon.ToString("F")</td>
                         <td class="col-2">@gasRecord.Cost.ToString("C")</td>
-                        <td class="col-2">@gasRecord.CostPerGallon.ToString("F")</td>
+                        <td class="col-2">@gasRecord.CostPerGallon.ToString("C")</td>
                     </tr>
                 }
             </tbody>

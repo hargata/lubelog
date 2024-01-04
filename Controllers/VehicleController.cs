@@ -20,6 +20,8 @@ namespace CarCareTracker.Controllers
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
+        private readonly bool _useDescending;
+        private readonly IConfiguration _config;
         private readonly IFileHelper _fileHelper;
 
         public VehicleController(ILogger<HomeController> logger, 
@@ -30,7 +32,8 @@ namespace CarCareTracker.Controllers
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
-            IWebHostEnvironment webEnv)
+            IWebHostEnvironment webEnv,
+            IConfiguration config)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -41,6 +44,8 @@ namespace CarCareTracker.Controllers
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
             _webEnv = webEnv;
+            _config = config;
+            _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
         }
         [HttpGet]
         public IActionResult Index(int vehicleId)
@@ -168,6 +173,10 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordsByVehicleId(int vehicleId)
         {
             var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            //need it in ascending order to perform computation.
+            result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            //check if the user uses MPG or Liters per 100km.
+            bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
             var computedResults = new List<GasRecordViewModel>();
             int previousMileage = 0;
             //perform computation.
@@ -186,7 +195,7 @@ namespace CarCareTracker.Controllers
                         Gallons = currentObject.Gallons,
                         Cost = currentObject.Cost,
                         DeltaMileage = deltaMileage,
-                        MilesPerGallon = deltaMileage / currentObject.Gallons,
+                        MilesPerGallon = useMPG ? (deltaMileage / currentObject.Gallons) : 100 / (deltaMileage / currentObject.Gallons),
                         CostPerGallon = (currentObject.Cost / currentObject.Gallons)
                     });
                 } else
@@ -205,6 +214,10 @@ namespace CarCareTracker.Controllers
                     });
                 }
                 previousMileage = result[i].Mileage;
+            }
+            if (_useDescending)
+            {
+                computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
             return PartialView("_Gas", computedResults);
         }
@@ -248,6 +261,14 @@ namespace CarCareTracker.Controllers
         public IActionResult GetServiceRecordsByVehicleId(int vehicleId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
             return PartialView("_ServiceRecords", result);
         }
         [HttpPost]
@@ -291,6 +312,14 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCollisionRecordsByVehicleId(int vehicleId)
         {
             var result = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
             return PartialView("_CollisionRecords", result);
         }
         [HttpPost]
@@ -336,6 +365,14 @@ namespace CarCareTracker.Controllers
         public IActionResult GetTaxRecordsByVehicleId(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ToList();
+            }
             return PartialView("_TaxRecords", result);
         }
         [HttpPost]
@@ -382,24 +419,18 @@ namespace CarCareTracker.Controllers
             return PartialView("_Report");
         }
         [HttpGet]
-        public IActionResult GetCostMakeUpForVehicle(int vehicleId, string startDate = "", string endDate = "")
+        public IActionResult GetCostMakeUpForVehicle(int vehicleId, int year = 0)
         {
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            if (!string.IsNullOrWhiteSpace(startDate) && 
-                !string.IsNullOrWhiteSpace(endDate) &&
-                DateTime.TryParse(startDate, out DateTime parsedStartDate) &&
-                DateTime.TryParse(endDate, out DateTime parsedEndDate)
-                )
+            if (year != default)
             {
-                parsedEndDate = parsedEndDate.AddDays(1).AddSeconds(-1);
-                //if start and end dates are provided then we need to filter the data down.
-                serviceRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
-                gasRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
-                collisionRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
-                taxRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
+                serviceRecords.RemoveAll(x => x.Date.Year != year);
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+                collisionRecords.RemoveAll(x => x.Date.Year != year);
+                taxRecords.RemoveAll(x => x.Date.Year != year);
             }
             var viewModel = new CostMakeUpForVehicle
             {

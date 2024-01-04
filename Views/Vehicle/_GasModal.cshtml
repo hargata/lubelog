@@ -1,4 +1,8 @@
-﻿@model GasRecordInput
+﻿@inject IConfiguration Configuration
+@{
+    var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
+}
+@model GasRecordInput
 <div class="modal-header">
     <h5 class="modal-title">@(Model.Id == 0 ? "Add New Gas Record" : "Edit Gas Record")</h5>
     <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
@@ -14,9 +18,9 @@
                         <input type="text" id="gasRecordDate" class="form-control" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="gasRecordMileage">Odometer Reading</label>
+                    <label for="gasRecordMileage">Odometer Reading(@(useMPG ? "miles" : "kilometers"))</label>
                     <input type="number" id="gasRecordMileage" class="form-control" value="@Model.Mileage">
-                    <label for="gasRecordGallons">Fuel Consumption(gals/litres)</label>
+                    <label for="gasRecordGallons">Fuel Consumption(@(useMPG ? "gallons" : "liters"))</label>
                     <input type="text" id="gasRecordGallons" class="form-control" value="@Model.Gallons">
                     <label for="GasRecordCost">Cost</label>
                     <input type="number" id="gasRecordCost" class="form-control" value="@Model.Cost">

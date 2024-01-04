@@ -13,7 +13,7 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<TaxRecord>(tableName);
-                var taxRecords = table.Find(Query.EQ(nameof(TaxRecord.VehicleId), vehicleId)).OrderBy(x => x.Date);
+                var taxRecords = table.Find(Query.EQ(nameof(TaxRecord.VehicleId), vehicleId));
                 return taxRecords.ToList() ?? new List<TaxRecord>();
             };
         }
