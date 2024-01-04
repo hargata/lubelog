@@ -110,7 +110,7 @@
                 if (result.isConfirmed) {
                     $.post('/Login/CreateLoginCreds', { userName: result.value.username, password: result.value.password }, function (data) {
                         if (data) {
-                            window.location.href = '/Home';
+                            window.location.href = '/Login';
                         } else {
                             errorToast("An error occurred, please try again later.");
                         }

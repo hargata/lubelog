@@ -111,6 +111,8 @@ namespace CarCareTracker.Controllers
                     existingUserConfig.UserPasswordHash = string.Empty;
                 }
                 System.IO.File.WriteAllText("userConfig.json", JsonSerializer.Serialize(existingUserConfig));
+                //destroy any login cookies.
+                Response.Cookies.Delete("ACCESS_TOKEN");
                 return Json(true);
             }
             catch (Exception ex)
