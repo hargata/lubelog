@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Configuration.AddJsonFile("userConfig.json", optional: true, reloadOnChange: true);
 
 //Configure Auth
+builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
 builder.Services.AddAuthorization(options =>

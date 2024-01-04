@@ -12,7 +12,7 @@ namespace CarCareTracker.Controllers
     [Authorize]
     public class VehicleController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<VehicleController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly INoteDataAccess _noteDataAccess;
         private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
@@ -24,7 +24,7 @@ namespace CarCareTracker.Controllers
         private readonly IConfiguration _config;
         private readonly IFileHelper _fileHelper;
 
-        public VehicleController(ILogger<HomeController> logger, 
+        public VehicleController(ILogger<VehicleController> logger, 
             IFileHelper fileHelper, 
             IVehicleDataAccess dataAccess, 
             INoteDataAccess noteDataAccess, 

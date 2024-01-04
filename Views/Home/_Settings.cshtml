@@ -25,7 +25,7 @@
             <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
         </div>
         <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAuth" checked="@Model.EnableAuth">
+            <input class="form-check-input" onChange="enableAuthCheckChanged()" type="checkbox" role="switch" id="enableAuth" checked="@Model.EnableAuth">
             <label class="form-check-label" for="enableAuth">Enable Authentication</label>
         </div>
     </div>
@@ -85,5 +85,46 @@
                 errorToast("An error occurred, please try again later.")
             }
         })
+    }
+    function enableAuthCheckChanged(){
+        var enableAuth = $("#enableAuth").is(":checked");
+        if (enableAuth) {
+            //swal dialog to set up username and password.
+            Swal.fire({
+                title: 'Setup Credentials',
+                html: `
+                    <input type="text" id="authUsername" class="swal2-input" placeholder="Username">
+                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password">
+                    `,
+                confirmButtonText: 'Setup',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const username = $("#authUsername").val();
+                    const password = $("#authPassword").val();
+                    if (!username || !password) {
+                        Swal.showValidationMessage(`Please enter username and password`)
+                    }
+                    return { username, password }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Login/CreateLoginCreds', { userName: result.value.username, password: result.value.password }, function (data) {
+                        if (data) {
+                            window.location.href = '/Home';
+                        } else {
+                            errorToast("An error occurred, please try again later.");
+                        }
+                    })
+                }
+            });
+        } else {
+            $.post('/Login/DestroyLoginCreds', function (data) {
+                if (data) {
+                    setTimeout(function () { window.location.href = '/Home' }, 1000);
+                } else {
+                    errorToast("An error occurred, please try again later.");
+                }
+            });
+        }
     }
 </script>
