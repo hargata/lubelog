@@ -2,16 +2,9 @@ using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Drawing;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Logging;
-using CarCareTracker.External.Implementations;
 using CarCareTracker.Helper;
 using CsvHelper;
 using System.Globalization;
-using System.Runtime.InteropServices;
 
 namespace CarCareTracker.Controllers
 {
@@ -415,10 +408,19 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
-        //public IActionResult GetFuelCostByMonthByVehicle(int vehicleId)
-        //{
-
-        //}
+        public IActionResult GetFuelCostByMonthByVehicle(int vehicleId, int year = 0)
+        {
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+            }
+            var groupedGasRecord = gasRecords.GroupBy(x => x.Date.Month).OrderBy(x=>x.Key).Select(x => new GasCostForVehicleByMonth {
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Sum(y=>y.Cost)
+            }).ToList();
+            return PartialView("_GasCostByMonthReport", groupedGasRecord);
+        }
         #endregion
     }
 }

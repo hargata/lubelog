@@ -36,6 +36,11 @@ html {
     overflow-x:auto;
 }
 
+.chartContainer{
+    height:65vh;
+    overflow:auto;
+}
+
 .vehicleNoteContainer{
     height:40vh;
 }
