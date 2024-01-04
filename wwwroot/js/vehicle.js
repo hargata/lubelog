@@ -146,3 +146,11 @@ function uploadVehicleFilesAsync(event) {
         }
     });
 }
+function getVehicleReport() {
+    $.get(`/Vehicle/GetReportPartialView`, function (data) {
+        if (data) {
+            $("#bulkImportModalContent").html(data);
+            $("#bulkImportModal").modal('show');
+        }
+    })
+}

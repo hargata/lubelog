@@ -1,0 +1,36 @@
+﻿<div class="row">
+    <canvas id="pie-chart"></canvas>
+</div>
+<script>
+    function renderChart() {
+        new Chart($("#pie-chart"), {
+            type: 'bar',
+            data: {
+                labels: ["North America", "Latin America", "Europe", "Asia", "Africa"],
+                datasets: [
+                    {
+                        label: "Number of developers (millions)",
+                        backgroundColor: ["red", "blue", "yellow", "green", "pink"],
+                        data: [7, 4, 6, 9, 3]
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Number of Developers in Every Continent'
+                },
+
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+
+            }
+        });
+    }
+</script>

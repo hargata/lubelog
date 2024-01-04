@@ -115,51 +115,7 @@ namespace CarCareTracker.Controllers
             }
             return Json("");
         }
-        #region "Gas Records"
-        [HttpGet]
-        public IActionResult GetGasRecordsByVehicleId(int vehicleId)
-        {
-            var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var computedResults = new List<GasRecordViewModel>();
-            int previousMileage = 0;
-            //perform computation.
-            for(int i = 0; i < result.Count; i++)
-            {
-                if (i > 0)
-                {
-                    var currentObject = result[i];
-                    var deltaMileage = currentObject.Mileage - previousMileage;
-                    computedResults.Add(new GasRecordViewModel()
-                    {
-                        Id = currentObject.Id,
-                        VehicleId = currentObject.VehicleId,
-                        Date = currentObject.Date.ToShortDateString(),
-                        Mileage = currentObject.Mileage,
-                        Gallons = currentObject.Gallons,
-                        Cost = currentObject.Cost,
-                        DeltaMileage = deltaMileage,
-                        MilesPerGallon = deltaMileage / currentObject.Gallons,
-                        CostPerGallon = (currentObject.Cost / currentObject.Gallons)
-                    });
-                } else
-                {
-                    computedResults.Add(new GasRecordViewModel()
-                    {
-                        Id = result[i].Id,
-                        VehicleId = result[i].VehicleId,
-                        Date = result[i].Date.ToShortDateString(),
-                        Mileage = result[i].Mileage,
-                        Gallons = result[i].Gallons,
-                        Cost = result[i].Cost,
-                        DeltaMileage = 0,
-                        MilesPerGallon = 0,
-                        CostPerGallon = (result[i].Cost / result[i].Gallons)
-                    });
-                }
-                previousMileage = result[i].Mileage;
-            }
-            return PartialView("_Gas", computedResults);
-        }
+        #region "Bulk Imports"
         [HttpGet]
         public IActionResult GetBulkImportModalPartialView(string mode)
         {
@@ -204,11 +160,58 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 return Json(true);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Occurred While Bulk Inserting");
                 return Json(false);
             }
+        }
+        #endregion
+        #region "Gas Records"
+        [HttpGet]
+        public IActionResult GetGasRecordsByVehicleId(int vehicleId)
+        {
+            var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var computedResults = new List<GasRecordViewModel>();
+            int previousMileage = 0;
+            //perform computation.
+            for(int i = 0; i < result.Count; i++)
+            {
+                if (i > 0)
+                {
+                    var currentObject = result[i];
+                    var deltaMileage = currentObject.Mileage - previousMileage;
+                    computedResults.Add(new GasRecordViewModel()
+                    {
+                        Id = currentObject.Id,
+                        VehicleId = currentObject.VehicleId,
+                        Date = currentObject.Date.ToShortDateString(),
+                        Mileage = currentObject.Mileage,
+                        Gallons = currentObject.Gallons,
+                        Cost = currentObject.Cost,
+                        DeltaMileage = deltaMileage,
+                        MilesPerGallon = deltaMileage / currentObject.Gallons,
+                        CostPerGallon = (currentObject.Cost / currentObject.Gallons)
+                    });
+                } else
+                {
+                    computedResults.Add(new GasRecordViewModel()
+                    {
+                        Id = result[i].Id,
+                        VehicleId = result[i].VehicleId,
+                        Date = result[i].Date.ToShortDateString(),
+                        Mileage = result[i].Mileage,
+                        Gallons = result[i].Gallons,
+                        Cost = result[i].Cost,
+                        DeltaMileage = 0,
+                        MilesPerGallon = 0,
+                        CostPerGallon = (result[i].Cost / result[i].Gallons)
+                    });
+                }
+                previousMileage = result[i].Mileage;
+            }
+            return PartialView("_Gas", computedResults);
         }
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
@@ -376,6 +379,38 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.DeleteTaxRecordById(taxRecordId);
             return Json(result);
         }
+        #endregion
+        #region "Reports"
+        [HttpGet]
+        public IActionResult GetReportPartialView()
+        {
+            return PartialView("_CostMakeUpReport");
+        }
+        [HttpGet]
+        public IActionResult GetCostMakeUpForVehicle(int vehicleId, string startDate = "", string endDate = "")
+        {
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            if (!string.IsNullOrWhiteSpace(startDate) && 
+                !string.IsNullOrWhiteSpace(endDate) &&
+                DateTime.TryParse(startDate, out DateTime parsedStartDate) &&
+                DateTime.TryParse(endDate, out DateTime parsedEndDate)
+                )
+            {
+                //if start and end dates are provided then we need to filter the data down.
+                serviceRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
+                gasRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
+                collisionRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
+                taxRecords.RemoveAll(x => x.Date < parsedStartDate || x.Date > parsedEndDate);
+            }
+            return Json(true);
+        }
+        //public IActionResult GetFuelCostByMonthByVehicle(int vehicleId)
+        //{
+
+        //}
         #endregion
     }
 }
