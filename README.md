@@ -10,3 +10,5 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 - LiteDB
 - Bootstrap-DatePicker
 - SweetAlert2
+- CsvHelper
+- Chart.js
