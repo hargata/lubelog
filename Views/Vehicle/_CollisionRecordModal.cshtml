@@ -1,6 +1,6 @@
 ﻿@model CollisionRecordInput
 <div class="modal-header">
-    <h5 class="modal-title">@(Model.Id == 0 ? "Add New Collision Record" : "Edit Collision Record")</h5>
+    <h5 class="modal-title">@(Model.Id == 0 ? "Add New Unplanned Maintenance Record" : "Edit Unplanned Maintenance Record")</h5>
     <button type="button" class="btn-close" onclick="hideAddCollisionRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -57,11 +57,11 @@
     <button type="button" class="btn btn-secondary" onclick="hideAddCollisionRecordModal()">Cancel</button>
     @if (Model.Id == 0)
     {
-        <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle()">Add New Collision Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle()">Add New Unplanned Maintenance Record</button>
     }
     else if (Model.Id > 0)
     {
-        <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle(true)">Edit Collision Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle(true)">Edit Unplanned Maintenance Record</button>
     }
 </div>
 <script>
