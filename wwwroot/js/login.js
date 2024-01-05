@@ -10,3 +10,8 @@
         }
     })
 }
+function handlePasswordKeyPress(event) {
+    if (event.keyCode == 13) {
+        performLogin();
+    }
+}
