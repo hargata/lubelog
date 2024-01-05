@@ -1,6 +1,9 @@
 ﻿@model CollisionRecordInput
+@{
+    var isNew = Model.Id == 0;
+}
 <div class="modal-header">
-    <h5 class="modal-title">@(Model.Id == 0 ? "Add New Repair Record" : "Edit Repair Record")</h5>
+    <h5 class="modal-title">@(isNew ? "Add New Repair Record" : "Edit Repair Record")</h5>
     <button type="button" class="btn-close" onclick="hideAddCollisionRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -11,15 +14,15 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="collisionRecordDate">Date</label>
                     <div class="input-group">
-                        <input type="text" id="collisionRecordDate" class="form-control" value="@Model.Date">
+                        <input type="text" id="collisionRecordDate" class="form-control" placeholder="Date repair was performed" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="collisionRecordMileage">Odometer</label>
-                    <input type="number" id="collisionRecordMileage" class="form-control" value="@Model.Mileage">
+                    <input type="number" id="collisionRecordMileage" class="form-control" placeholder="Odometer reading when repaired" value="@(isNew ? "" : Model.Mileage)">
                     <label for="collisionRecordDescription">Description</label>
-                    <input type="text" id="collisionRecordDescription" class="form-control" value="@Model.Description">
+                    <input type="text" id="collisionRecordDescription" class="form-control" placeholder="Description of item(s) repaired(i.e. Alternator)" value="@Model.Description">
                     <label for="collisionRecordCost">Cost</label>
-                    <input type="number" id="collisionRecordCost" class="form-control" value="@Model.Cost">
+                    <input type="number" id="collisionRecordCost" class="form-control" placeholder="Cost of the repair" value="@(isNew ? "" : Model.Cost)">
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="collisionRecordNotes">Notes(optional)</label>
@@ -50,16 +53,16 @@
     </form>
 </div>
 <div class="modal-footer">
-    @if (Model.Id > 0)
+    @if (!isNew)
     {
         <button type="button" class="btn btn-danger" onclick="deleteCollisionRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddCollisionRecordModal()">Cancel</button>
-    @if (Model.Id == 0)
+    @if (isNew)
     {
         <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle()">Add New Repair Record</button>
     }
-    else if (Model.Id > 0)
+    else if (!isNew)
     {
         <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle(true)">Edit Repair Record</button>
     }

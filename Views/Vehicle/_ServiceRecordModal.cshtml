@@ -14,7 +14,7 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="serviceRecordDate">Date</label>
                     <div class="input-group">
-                        <input type="text" id="serviceRecordDate" class="form-control" placeholder="Date serviced" value="@Model.Date">
+                        <input type="text" id="serviceRecordDate" class="form-control" placeholder="Date service was performed" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="serviceRecordMileage">Odometer</label>
@@ -22,7 +22,7 @@
                     <label for="serviceRecordDescription">Description</label>
                     <input type="text" id="serviceRecordDescription" class="form-control" placeholder="Description of item(s) serviced(i.e. Oil Change)" value="@Model.Description">
                     <label for="serviceRecordCost">Cost</label>
-                    <input type="number" id="serviceRecordCost" class="form-control" placeholder="Cost of service" value="@(isNew ? "" : Model.Cost)">
+                    <input type="number" id="serviceRecordCost" class="form-control" placeholder="Cost of the service" value="@(isNew ? "" : Model.Cost)">
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="serviceRecordNotes">Notes(optional)</label>
