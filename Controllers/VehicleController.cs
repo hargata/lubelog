@@ -124,8 +124,12 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, string mode, string fileName)
         {
+            if (vehicleId == default || string.IsNullOrWhiteSpace(fileName))
+            {
+                return Json(false);
+            }
             var fullFileName = _fileHelper.GetFullFilePath(fileName);
-            if (vehicleId == default || string.IsNullOrWhiteSpace(fullFileName))
+            if (string.IsNullOrWhiteSpace(fullFileName))
             {
                 return Json(false);
             }

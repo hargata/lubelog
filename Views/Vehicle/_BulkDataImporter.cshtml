@@ -16,9 +16,15 @@
                     <div class="alert alert-danger" role="alert">
                         Failure to format the data correctly can cause data corruption. Please make sure you make a copy of the local database before proceeding.
                     </div>
-                    @if (Model == "gas")
+                    @if (Model == "gasrecord")
                     {
                         <a class="btn btn-link" href="/defaults/gassample.csv" target="_blank">Download Sample</a>
+                    } else if (Model == "servicerecord" || Model == "repairrecord")
+                    {
+                        <a class="btn btn-link" href="/defaults/servicerecordsample.csv" target="_blank">Download Sample</a>
+                    } else if (Model == "taxrecord")
+                    {
+                        <a class="btn btn-link" href="/defaults/taxrecordsample.csv" target="_blank">Download Sample</a>
                     }
                 </div>
             </div>
