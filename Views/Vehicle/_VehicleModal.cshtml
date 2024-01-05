@@ -1,24 +1,25 @@
 ﻿@model Vehicle
 @{
+    var isNew = Model.Id == 0;
     if (Model.ImageLocation == "/defaults/noimage.png")
     {
         Model.ImageLocation = "";
     }
 }
 <div class="modal-header">
-    <h5 class="modal-title" id="addVehicleModalLabel">@(Model.Id == 0 ? "Add New Vehicle" : "Edit Vehicle")</h5>
+    <h5 class="modal-title" id="addVehicleModalLabel">@(isNew ? "Add New Vehicle" : "Edit Vehicle")</h5>
 </div>
 <div class="modal-body">
     <form class="form-inline">
         <div class="form-group">
             <label for="inputYear">Year</label>
-            <input type="number" id="inputYear" class="form-control" value="@(Model.Year > 0 ? Model.Year : "")">
+            <input type="number" id="inputYear" class="form-control" placeholder="Year(must be after 1900)" value="@(isNew ? "" : Model.Year)">
             <label for="inputMake">Make</label>
-            <input type="text" id="inputMake" class="form-control" value="@Model.Make">
+            <input type="text" id="inputMake" class="form-control" placeholder="Make" value="@Model.Make">
             <label for="inputModel">Model</label>
-            <input type="text" id="inputModel" class="form-control" value="@Model.Model">
+            <input type="text" id="inputModel" class="form-control" placeholder="Model" value="@Model.Model">
             <label for="inputLicensePlate">License Plate</label>
-            <input type="text" id="inputLicensePlate" class="form-control" value="@Model.LicensePlate">
+            <input type="text" id="inputLicensePlate" class="form-control" placeholder="License Plate" value="@Model.LicensePlate">
             @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
             {
                 <label for="inputImage">Replace picture(optional)</label>
@@ -32,11 +33,11 @@
     </form>
 </div>
 <div class="modal-footer">
-    @if (Model.Id == 0)
+    @if (isNew)
     {
         <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
         <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">Add New Vehicle</button>
-    } else if (Model.Id > 0)
+    } else if (!isNew)
     {
         <button type="button" class="btn btn-secondary" onclick="hideEditVehicleModal()">Cancel</button>
         <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">Save Vehicle</button>
