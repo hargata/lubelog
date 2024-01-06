@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  lubelogger:
+    container_name: "lubelogger"
+    image: "lubelogger:latest"
+    ports:
+      - "8080:8080"
+    volumes:
+      - source: C:\lubelogger\data
+        target: /App/data
+        type: bind
+      - source: C:\lubelogger\images
+        target: /App/wwwroot/images
+        type: bind
+      - source: C:\lubelogger\documents
+        target: /App/wwwroot/documents
+        type: bind

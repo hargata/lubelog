@@ -9,8 +9,8 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 1. Install Docker
 2. Clone this repo
 3. Run `docker build -t lubelog .`
-4. Run `docker run -d -p 80:5000 --name lubelog lubelog`
-   1. Optionally, you can mount a volume to the container to persist data.  For example, `docker run -d -p 80:5000 -v /path/to/data:/app/data --name lubelog lubelog`
+4. CHECK docker-compose.yaml and make sure the mounting directories look correct.
+5. Run `docker-compose up`
 
 ## Dependencies
 - Bootstrap
