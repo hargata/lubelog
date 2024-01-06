@@ -6,5 +6,6 @@
     public static class StaticHelper
     {
         public static string DbName = "data/cartracker.db";
+        public static string UserConfigPath = "config/userConfig.json";
     }
 }
