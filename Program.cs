@@ -23,7 +23,7 @@ if (!Directory.Exists("data"))
 }
 
 //Additional JsonFile
-builder.Configuration.AddJsonFile("userConfig.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile("userconfig/userConfig.json", optional: true, reloadOnChange: true);
 
 //Configure Auth
 builder.Services.AddDataProtection();

@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             //compare it against hashed credentials
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText("userconfig/userConfig.json");
                 var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -74,7 +74,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText("userconfig/userConfig.json");
                 var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -86,7 +86,7 @@ namespace CarCareTracker.Controllers
                     existingUserConfig.UserNameHash = hashedUserName;
                     existingUserConfig.UserPasswordHash = hashedPassword;
                 }
-                System.IO.File.WriteAllText("userConfig.json", JsonSerializer.Serialize(existingUserConfig));
+                System.IO.File.WriteAllText("userconfig/userConfig.json", JsonSerializer.Serialize(existingUserConfig));
                 return Json(true);
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText("userconfig/userConfig.json");
                 var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -110,7 +110,7 @@ namespace CarCareTracker.Controllers
                     existingUserConfig.UserNameHash = string.Empty;
                     existingUserConfig.UserPasswordHash = string.Empty;
                 }
-                System.IO.File.WriteAllText("userConfig.json", JsonSerializer.Serialize(existingUserConfig));
+                System.IO.File.WriteAllText("userconfig/userConfig.json", JsonSerializer.Serialize(existingUserConfig));
                 //destroy any login cookies.
                 Response.Cookies.Delete("ACCESS_TOKEN");
                 return Json(true);

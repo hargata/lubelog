@@ -15,3 +15,6 @@ services:
       - source: path\to\documents
         target: /App/wwwroot/documents
         type: bind
+      - source: path\to\userconfig
+        target: /App/userconfig
+        type: bind
