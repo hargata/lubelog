@@ -5,13 +5,6 @@ A self-hosted, open-source vehicle service records and maintainence tracker.
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintainence.
 
-## Docker Setup (Recommended)
-1. Install Docker
-2. Clone this repo
-3. Run `docker build -t lubelogger -f Dockerfile .`
-4. CHECK docker-compose.yaml and make sure the mounting directories look correct.
-5. Run `docker-compose up`
-
 ## Dependencies
 - Bootstrap
 - LiteDB
@@ -20,7 +13,15 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 - CsvHelper
 - Chart.js
 
-## Docker
+## Docker Setup (Recommended)
+1. Install Docker
+2. Clone this repo
+3. Run `docker build -t lubelogger -f Dockerfile .`
+4. CHECK docker-compose.yml and make sure the mounting directories look correct.
+5. If not using traefik, use docker-compose-notraefik.yml
+5. Run `docker-compose build`
+
+##Additional Docker Instructions
 
 ### manual
 
