@@ -9,4 +9,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 EXPOSE 8080
+ENV LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8
 CMD ["./CarCareTracker"]
