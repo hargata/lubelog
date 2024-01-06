@@ -2,7 +2,17 @@
 @model GasRecordInput
 @{
     var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
+    var useKwh = bool.Parse(Configuration[nameof(UserConfig.UsekWh)]);
     var isNew = Model.Id == 0;
+    string consumptionUnit;
+    if (useKwh)
+    {
+        consumptionUnit = "kWh";
+    }
+    else
+    {
+        consumptionUnit = useMPG ? "gallons" : "liters";
+    }
 }
 <div class="modal-header">
     <h5 class="modal-title">@(isNew ? "Add New Gas Record" : "Edit Gas Record")</h5>
@@ -21,7 +31,7 @@
                     </div>
                     <label for="gasRecordMileage">Odometer Reading(@(useMPG ? "miles" : "kilometers"))</label>
                     <input type="number" id="gasRecordMileage" class="form-control" placeholder="Odometer reading when refueled" value="@(isNew ? "" : Model.Mileage)">
-                    <label for="gasRecordGallons">Fuel Consumption(@(useMPG ? "gallons" : "liters"))</label>
+                    <label for="gasRecordGallons">Fuel Consumption(@(consumptionUnit))</label>
                     <input type="text" id="gasRecordGallons" class="form-control" placeholder="Amount of gas refueled" value="@(isNew ? "" : Model.Gallons)">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.IsFillToFull">

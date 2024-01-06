@@ -2,6 +2,18 @@
 @{
     var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
     var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
+    var useKwh = bool.Parse(Configuration[nameof(UserConfig.UsekWh)]);
+    string consumptionUnit;
+    string fuelEconomyUnit;
+    if (useKwh)
+    {
+        consumptionUnit = "kWh";
+        fuelEconomyUnit = useMPG ? "mi/kWh" : "kWh/100km";
+    } else
+    {
+        consumptionUnit = useMPG ? "gal" : "l";
+        fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
+    }
 }
 @model List<GasRecordViewModel>
 <div class="row">
@@ -40,8 +52,8 @@
                 <tr class="d-flex">
                     <th scope="col" class="col-2">Date Refueled</th>
                     <th scope="col" class="col-2">Odometer(@(useMPG ? "mi." : "km"))</th>
-                    <th scope="col" class="col-2">Consumption(@(useMPG ? "gal" : "l"))</th>
-                    <th scope="col" class="col-2">Fuel Economy(@(useMPG ? "mpg" : "l/100km"))</th>
+                    <th scope="col" class="col-2">Consumption(@(consumptionUnit))</th>
+                    <th scope="col" class="col-2">Fuel Economy(@(fuelEconomyUnit))</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-2">Unit Cost</th>
                 </tr>
