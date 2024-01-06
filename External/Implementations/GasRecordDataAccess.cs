@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class GasRecordDataAccess: IGasRecordDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "data/cartracker.db";
         private static string tableName = "gasrecords";
         public List<GasRecord> GetGasRecordsByVehicleId(int vehicleId)
         {

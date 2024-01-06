@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class TaxRecordDataAccess : ITaxRecordDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "data/cartracker.db";
         private static string tableName = "taxrecords";
         public List<TaxRecord> GetTaxRecordsByVehicleId(int vehicleId)
         {

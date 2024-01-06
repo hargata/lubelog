@@ -3,6 +3,7 @@ bin/
 obj/
 wwwroot/images/
 cartracker.db
+data/cartracker.db
 wwwroot/documents/
 wwwroot/temp/
 wwwroot/imports/

@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class ServiceRecordDataAccess: IServiceRecordDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "data/cartracker.db";
         private static string tableName = "servicerecords";
         public List<ServiceRecord> GetServiceRecordsByVehicleId(int vehicleId)
         {

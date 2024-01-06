@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class NoteDataAccess: INoteDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "data/cartracker.db";
         private static string tableName = "notes";
         public Note GetNoteByVehicleId(int vehicleId)
         {
