@@ -19,3 +19,35 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 - SweetAlert2
 - CsvHelper
 - Chart.js
+
+## Docker
+
+### manual
+
+- build
+
+```
+docker build -t hargata/lubelog:latest .
+```
+
+- run
+
+```
+docker run -d hargata/lubelog:latest
+```
+
+add `-v` for persistent volumes as needed. Have a look at the docker-compose.yml for examples.
+
+## docker-compose
+
+- build image
+
+```
+docker compose build
+```
+
+- run
+
+```
+docker compose build
+```
