@@ -13,4 +13,6 @@ WORKDIR /app
 RUN mkdir -p /app/data
 COPY --from=build-env /app/out .
 
+EXPOSE 5000
+
 ENTRYPOINT [ "dotnet", "CarCareTracker.dll" ]
