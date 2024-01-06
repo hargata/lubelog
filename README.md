@@ -16,11 +16,11 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 ## Docker Setup (Recommended)
 1. Install Docker
 2. Clone this repo
-2.5 CHECK culture in Dockerfile, default is en_US
-3. Run `docker build -t lubelogger -f Dockerfile .`
-4. CHECK docker-compose.yml and make sure the mounting directories look correct.
-5. If not using traefik, use docker-compose-notraefik.yml
-5. Run `docker-compose up`
+3. CHECK culture in Dockerfile, default is en_US
+4. Run `docker build -t lubelogger -f Dockerfile .`
+5. CHECK docker-compose.yml and make sure the mounting directories look correct.
+6. If not using traefik, use docker-compose-notraefik.yml
+7. Run `docker-compose up`
 
 ## Additional Docker Instructions
 

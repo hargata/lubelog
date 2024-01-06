@@ -53,9 +53,9 @@
                     <th scope="col" class="col-2">Date Refueled</th>
                     <th scope="col" class="col-2">Odometer(@(useMPG ? "mi." : "km"))</th>
                     <th scope="col" class="col-2">Consumption(@(consumptionUnit))</th>
-                    <th scope="col" class="col-2">Fuel Economy(@(fuelEconomyUnit))</th>
-                    <th scope="col" class="col-2">Cost</th>
-                    <th scope="col" class="col-2">Unit Cost</th>
+                    <th scope="col" class="col-4">Fuel Economy(@(fuelEconomyUnit))</th>
+                    <th scope="col" class="col-1">Cost</th>
+                    <th scope="col" class="col-1">Unit Cost</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,9 +65,9 @@
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-2">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-2">@gasRecord.Cost.ToString("C")</td>
-                        <td class="col-2">@gasRecord.CostPerGallon.ToString("C")</td>
+                        <td class="col-4">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-1">@gasRecord.Cost.ToString("C")</td>
+                        <td class="col-1">@gasRecord.CostPerGallon.ToString("C")</td>
                     </tr>
                 }
             </tbody>
