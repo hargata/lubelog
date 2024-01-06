@@ -8,7 +8,7 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 ## Docker Setup (Recommended)
 1. Install Docker
 2. Clone this repo
-3. Run `docker build -t lubelog .`
+3. Run `docker build -t lubelogger -f Dockerfile .`
 4. CHECK docker-compose.yaml and make sure the mounting directories look correct.
 5. Run `docker-compose up`
 
