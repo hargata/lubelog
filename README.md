@@ -50,5 +50,9 @@ docker compose build
 - run
 
 ```
-docker compose build
+docker compose up
+
+# or variant with traefik labels:
+
+docker compose -f docker-compose.traefik.yml up
 ```
