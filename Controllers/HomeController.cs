@@ -55,7 +55,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("userconfig/userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText("config/userConfig.json");
                 var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -69,7 +69,7 @@ namespace CarCareTracker.Controllers
                     userConfig.UserNameHash = string.Empty;
                     userConfig.UserPasswordHash = string.Empty;
                 }
-                System.IO.File.WriteAllText("userconfig/userConfig.json", System.Text.Json.JsonSerializer.Serialize(userConfig));
+                System.IO.File.WriteAllText("config/userConfig.json", System.Text.Json.JsonSerializer.Serialize(userConfig));
                 return Json(true);
             } catch (Exception ex)
             {
