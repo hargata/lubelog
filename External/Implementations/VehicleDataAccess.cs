@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class VehicleDataAccess: IVehicleDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "data/cartracker.db";
         private static string tableName = "vehicles";
         public bool SaveVehicle(Vehicle vehicle)
         {
