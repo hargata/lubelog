@@ -19,7 +19,7 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 3. Run `docker build -t lubelogger -f Dockerfile .`
 4. CHECK docker-compose.yml and make sure the mounting directories look correct.
 5. If not using traefik, use docker-compose-notraefik.yml
-5. Run `docker-compose build`
+5. Run `docker-compose up`
 
 ## Additional Docker Instructions
 
