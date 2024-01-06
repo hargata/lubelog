@@ -1,0 +1,47 @@
+---
+version: "3.4"
+
+services:
+  app:
+    image: hargata/lubelog:latest
+    build: .
+    restart: unless-stopped
+    # volumes used to keep data persistent
+    volumes:
+      - config:/App/config
+      - data:/App/data
+      - documents:/App/wwwroot/documents
+      - images:/App/wwwroot/images
+      - log:/App/log
+    # expose port and/or use serving via traefik
+    ports:
+      - 8080:8080
+    # traefik configurations, including networks can be commented out if not needed
+    # networks:
+    #   - traefik-ingress
+    # labels:
+    #   ## Traefik General
+    #   # We set 'enable by default' to false, so this tells Traefik we want it to connect here
+    #   traefik.enable: true
+    #   # define network for traefik<>app communication
+    #   traefik.docker.network: traefik-ingress
+    #   ## HTTP Routers
+    #   traefik.http.routers.whoami.entrypoints: https
+    #   traefik.http.routers.whoami.rule: Host(`lubelog.mydomain.tld`)
+    #   ## Middlewares
+    #   #traefik.http.routers.whoami.middlewares: authentik@docker
+    #   # none
+    #   ## HTTP Services
+    #   traefik.http.services.whoami.loadbalancer.server.port: 5000
+
+volumes:
+  config:
+  data:
+  documents:
+  images:
+  log:
+
+#networks:
+#  app:
+#  traefik-ingress:
+#    external: true
