@@ -45,7 +45,8 @@ namespace CarCareTracker.Controllers
                 UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
                 UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
                 UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
-                EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)])
+                EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
+                UsekWh = bool.Parse(_config[nameof(UserConfig.UsekWh)])
             };
             return PartialView("_Settings", userConfig);
         }

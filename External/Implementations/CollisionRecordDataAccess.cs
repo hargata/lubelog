@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class CollisionRecordDataAccess : ICollisionRecordDataAccess
     {
-        private static string dbName = "cartracker.db";
+        private static string dbName = "db/cartracker.db";
         private static string tableName = "collisionrecords";
         public List<CollisionRecord> GetCollisionRecordsByVehicleId(int vehicleId)
         {

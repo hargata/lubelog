@@ -16,7 +16,11 @@
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UseMPG">
-            <label class="form-check-label" for="useMPG">Use Imperial Units for Fuel Economy Calculations(Miles, Gallons)</label>
+            <label class="form-check-label" for="useMPG">Use Imperial Calculation for Fuel Economy Calculations(MPG)<small class="text-body-secondary">Will also change units to miles and gallons</small></label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="usekWh" checked="@Model.UsekWh">
+            <label class="form-check-label" for="usekWh">Electric Car(Gas Consumption Units will be replaced with kWh)</label>
         </div>
     </div>
     <div class="col-12 col-md-6">
@@ -76,7 +80,8 @@
             useDarkMode: $("#enableDarkMode").is(':checked'),
             enableCsvImports: $("#enableCsvImports").is(':checked'),
             useMPG: $("#useMPG").is(':checked'),
-            useDescending: $("#useDescending").is(':checked')
+            useDescending: $("#useDescending").is(':checked'),
+            usekWh: $("#usekWh").is(':checked')
         }
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
             if (data) {
