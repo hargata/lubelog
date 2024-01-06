@@ -6,6 +6,7 @@ using CarCareTracker.Helper;
 using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
+using CarCareTracker.External.Implementations;
 
 namespace CarCareTracker.Controllers
 {
@@ -19,6 +20,7 @@ namespace CarCareTracker.Controllers
         private readonly IGasRecordDataAccess _gasRecordDataAccess;
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
+        private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfiguration _config;
@@ -32,6 +34,7 @@ namespace CarCareTracker.Controllers
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
+            IReminderRecordDataAccess reminderRecordDataAccess,
             IWebHostEnvironment webEnv,
             IConfiguration config)
         {
@@ -43,6 +46,7 @@ namespace CarCareTracker.Controllers
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
+            _reminderRecordDataAccess = reminderRecordDataAccess;
             _webEnv = webEnv;
             _config = config;
             _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
@@ -536,6 +540,55 @@ namespace CarCareTracker.Controllers
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedGasRecord);
+        }
+        #endregion
+        #region "Reminders"
+        [HttpGet]
+        public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
+        {
+            var result = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ToList();
+            }
+            return PartialView("_ReminderRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
+        {
+            var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddReminderRecordPartialView()
+        {
+            return PartialView("_ReminderRecordModal", new ReminderRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetReminderRecordForEditById(int reminderRecordId)
+        {
+            var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            //convert to Input object.
+            var convertedResult = new ReminderRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId
+            };
+            return PartialView("_ReminderRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteReminderRecordById(int reminderRecordId)
+        {
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            return Json(result);
         }
         #endregion
     }

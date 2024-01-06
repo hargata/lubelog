@@ -9,7 +9,6 @@
         public string Description { get; set; }
         public decimal Cost { get; set; }
         public string Notes { get; set; }
-        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
-        public ReminderRecord ToCollisionRecord() { return new ReminderRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes, Files = Files }; }
+        public ReminderRecord ToReminderRecord() { return new ReminderRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes }; }
     }
 }
