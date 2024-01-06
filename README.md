@@ -21,7 +21,7 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 5. If not using traefik, use docker-compose-notraefik.yml
 5. Run `docker-compose build`
 
-##Additional Docker Instructions
+## Additional Docker Instructions
 
 ### manual
 
