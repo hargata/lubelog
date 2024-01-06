@@ -6,12 +6,12 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - source: C:\lubelogger\data
+      - source: path\to\data
         target: /App/data
         type: bind
-      - source: C:\lubelogger\images
+      - source: path\to\images
         target: /App/wwwroot/images
         type: bind
-      - source: C:\lubelogger\documents
+      - source: path\to\documents
         target: /App/wwwroot/documents
         type: bind
