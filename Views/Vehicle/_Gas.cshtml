@@ -65,7 +65,7 @@
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-2">@gasRecord.MilesPerGallon.ToString("F")</td>
+                        <td class="col-2">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
                         <td class="col-2">@gasRecord.Cost.ToString("C")</td>
                         <td class="col-2">@gasRecord.CostPerGallon.ToString("C")</td>
                     </tr>
