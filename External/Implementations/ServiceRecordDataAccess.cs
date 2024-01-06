@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class ServiceRecordDataAccess: IServiceRecordDataAccess
     {
-        private static string dbName = "data/cartracker.db";
+        private static string dbName = StaticHelper.DbName;
         private static string tableName = "servicerecords";
         public List<ServiceRecord> GetServiceRecordsByVehicleId(int vehicleId)
         {
