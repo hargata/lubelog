@@ -17,6 +17,11 @@ builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAcc
 builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 
+if (!Directory.Exists("data"))
+{
+    Directory.CreateDirectory("data");
+}
+
 //Additional JsonFile
 builder.Configuration.AddJsonFile("userConfig.json", optional: true, reloadOnChange: true);
 
