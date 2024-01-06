@@ -14,7 +14,17 @@
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
+        public bool IsFillToFull { get; set; } = true;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
-        public GasRecord ToGasRecord() { return new GasRecord { Id = Id, Cost = Cost, Date = DateTime.Parse(Date), Gallons = Gallons, Mileage = Mileage, VehicleId = VehicleId, Files = Files }; }
+        public GasRecord ToGasRecord() { return new GasRecord { 
+            Id = Id, 
+            Cost = Cost, 
+            Date = DateTime.Parse(Date), 
+            Gallons = Gallons, 
+            Mileage = Mileage, 
+            VehicleId = VehicleId, 
+            Files = Files,
+            IsFillToFull = IsFillToFull
+        }; }
     }
 }

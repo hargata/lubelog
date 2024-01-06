@@ -14,6 +14,7 @@
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
+        public bool IsFillToFull { get; set; } = true;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
 }

@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.Count()}")</span>
-            @if (Model.Count() > 1)
+            @if (Model.Where(x=>x.MilesPerGallon > 0).Any())
             {
                 <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Average(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>

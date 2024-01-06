@@ -74,6 +74,7 @@ function getAndValidateGasRecordValues() {
     var gasMileage = $("#gasRecordMileage").val();
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
+    var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //validation
@@ -110,7 +111,8 @@ function getAndValidateGasRecordValues() {
         mileage: gasMileage,
         gallons: gasGallons,
         cost: gasCost,
-        files: uploadedFiles
+        files: uploadedFiles,
+        isFillToFull: gasIsFillToFull
     }
 }
 function deleteGasRecordFile(fileLocation, event) {

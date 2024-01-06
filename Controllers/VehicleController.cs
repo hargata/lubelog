@@ -24,11 +24,11 @@ namespace CarCareTracker.Controllers
         private readonly IConfiguration _config;
         private readonly IFileHelper _fileHelper;
 
-        public VehicleController(ILogger<VehicleController> logger, 
-            IFileHelper fileHelper, 
-            IVehicleDataAccess dataAccess, 
-            INoteDataAccess noteDataAccess, 
-            IServiceRecordDataAccess serviceRecordDataAccess, 
+        public VehicleController(ILogger<VehicleController> logger,
+            IFileHelper fileHelper,
+            IVehicleDataAccess dataAccess,
+            INoteDataAccess noteDataAccess,
+            IServiceRecordDataAccess serviceRecordDataAccess,
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
@@ -160,7 +160,8 @@ namespace CarCareTracker.Controllers
                                     _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
                                 }
                             }
-                        } else if (mode == "servicerecord")
+                        }
+                        else if (mode == "servicerecord")
                         {
                             var records = csv.GetRecords<ServiceRecordImport>().ToList();
                             if (records.Any())
@@ -179,7 +180,8 @@ namespace CarCareTracker.Controllers
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
                                 }
                             }
-                        } else if (mode == "repairrecord")
+                        }
+                        else if (mode == "repairrecord")
                         {
                             var records = csv.GetRecords<ServiceRecordImport>().ToList();
                             if (records.Any())
@@ -198,7 +200,8 @@ namespace CarCareTracker.Controllers
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                 }
                             }
-                        } else if (mode == "taxrecord")
+                        }
+                        else if (mode == "taxrecord")
                         {
                             var records = csv.GetRecords<TaxRecordImport>().ToList();
                             if (records.Any())
@@ -239,14 +242,16 @@ namespace CarCareTracker.Controllers
             bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
             var computedResults = new List<GasRecordViewModel>();
             int previousMileage = 0;
+            decimal unFactoredConsumption = 0.00M;
+            int unFactoredMileage = 0;
             //perform computation.
-            for(int i = 0; i < result.Count; i++)
+            for (int i = 0; i < result.Count; i++)
             {
                 if (i > 0)
                 {
                     var currentObject = result[i];
                     var deltaMileage = currentObject.Mileage - previousMileage;
-                    computedResults.Add(new GasRecordViewModel()
+                    var gasRecordViewModel = new GasRecordViewModel()
                     {
                         Id = currentObject.Id,
                         VehicleId = currentObject.VehicleId,
@@ -255,10 +260,24 @@ namespace CarCareTracker.Controllers
                         Gallons = currentObject.Gallons,
                         Cost = currentObject.Cost,
                         DeltaMileage = deltaMileage,
-                        MilesPerGallon = useMPG ? (deltaMileage / currentObject.Gallons) : 100 / (deltaMileage / currentObject.Gallons),
                         CostPerGallon = (currentObject.Cost / currentObject.Gallons)
-                    });
-                } else
+                    };
+                    if (currentObject.IsFillToFull)
+                    {
+                        //if user filled to full.
+                        gasRecordViewModel.MilesPerGallon = useMPG ? ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + currentObject.Gallons)) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + currentObject.Gallons));
+                        //reset unFactored vars
+                        unFactoredConsumption = 0;
+                        unFactoredMileage = 0;
+                    } else
+                    {
+                        unFactoredConsumption += currentObject.Gallons;
+                        unFactoredMileage += deltaMileage;
+                        gasRecordViewModel.MilesPerGallon = 0;
+                    }
+                    computedResults.Add(gasRecordViewModel);
+                }
+                else
                 {
                     computedResults.Add(new GasRecordViewModel()
                     {
@@ -305,7 +324,8 @@ namespace CarCareTracker.Controllers
                 Cost = result.Cost,
                 Date = result.Date.ToShortDateString(),
                 Files = result.Files,
-                Gallons = result.Gallons
+                Gallons = result.Gallons,
+                IsFillToFull = result.IsFillToFull
             };
             return PartialView("_GasModal", convertedResult);
         }
@@ -349,9 +369,11 @@ namespace CarCareTracker.Controllers
         {
             var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
             //convert to Input object.
-            var convertedResult = new ServiceRecordInput { Id = result.Id, 
-                Cost = result.Cost, 
-                Date = result.Date.ToShortDateString(), 
+            var convertedResult = new ServiceRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
                 Description = result.Description,
                 Mileage = result.Mileage,
                 Notes = result.Notes,
@@ -360,7 +382,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ServiceRecordModal", convertedResult);
         }
-        [HttpPost] 
+        [HttpPost]
         public IActionResult DeleteServiceRecordById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
@@ -508,9 +530,10 @@ namespace CarCareTracker.Controllers
             {
                 gasRecords.RemoveAll(x => x.Date.Year != year);
             }
-            var groupedGasRecord = gasRecords.GroupBy(x => x.Date.Month).OrderBy(x=>x.Key).Select(x => new GasCostForVehicleByMonth {
+            var groupedGasRecord = gasRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new GasCostForVehicleByMonth
+            {
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y=>y.Cost)
+                Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedGasRecord);
         }
