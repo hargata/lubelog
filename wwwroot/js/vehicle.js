@@ -179,7 +179,7 @@ function uploadVehicleFilesAsync(event) {
 }
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
-        $.get('/Vehicle/GetAddReminderRecordPartialView', {reminderModel: reminderModalInput}, function (data) {
+        $.post('/Vehicle/GetAddReminderRecordPartialView', {reminderModel: reminderModalInput}, function (data) {
             $("#reminderRecordModalContent").html(data);
             $('#reminderDate').datepicker({
                 startDate: "+0d"
@@ -187,7 +187,7 @@ function showAddReminderModal(reminderModalInput) {
             $("#reminderRecordModal").modal("show");
         });
     } else {
-        $.get('/Vehicle/GetAddReminderRecordPartialView', function (data) {
+        $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
             $("#reminderRecordModalContent").html(data);
             $('#reminderDate').datepicker({
                 startDate: "+0d"

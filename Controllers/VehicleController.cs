@@ -672,7 +672,7 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             return Json(result);
         }
-        [HttpGet]
+        [HttpPost]
         public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
         {
             if (reminderModel is not null)

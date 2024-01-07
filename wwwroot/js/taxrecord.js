@@ -66,6 +66,9 @@ function saveTaxRecordToVehicle(isEdit) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
             getVehicleTaxRecords(formValues.vehicleId);
+            if (formValues.addReminderRecord) {
+                setTimeout(function () { showAddReminderModal(formValues); }, 500);
+            }
         } else {
             errorToast("An error has occurred, please try again later.");
         }
@@ -78,6 +81,7 @@ function getAndValidateTaxRecordValues() {
     var taxNotes = $("#taxRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var taxRecordId = getTaxRecordModelData().id;
+    var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
     if (taxDate.trim() == '') { //eliminates whitespace.
@@ -106,7 +110,8 @@ function getAndValidateTaxRecordValues() {
         description: taxDescription,
         cost: taxCost,
         notes: taxNotes,
-        files: uploadedFiles
+        files: uploadedFiles,
+        addReminderRecord: addReminderRecord
     }
 }
 function deleteTaxRecordFile(fileLocation, event) {

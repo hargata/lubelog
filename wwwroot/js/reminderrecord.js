@@ -69,16 +69,18 @@ function getAndValidateReminderRecordValues() {
     var reminderId = getReminderRecordModelData().id;
     //validation
     var hasError = false;
-    if (reminderDate.trim() == '') { //eliminates whitespace.
+    var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
+    var reminderMileageIsInvalid = reminderMileage.trim() == '' || parseInt(reminderMileage) < 0;
+    if ((reminderOption == "Both" || reminderOption == "Date") && reminderDateIsInvalid) { 
         hasError = true;
         $("#reminderDate").addClass("is-invalid");
-    } else {
+    } else if (reminderOption == "Date") {
         $("#reminderDate").removeClass("is-invalid");
     }
-    if (reminderMileage.trim() == '' || parseInt(reminderMileage) < 0) {
+    if ((reminderOption == "Both" || reminderOption == "Odometer") && reminderMileageIsInvalid) {
         hasError = true;
         $("#reminderMileage").addClass("is-invalid");
-    } else {
+    } else if (reminderOption == "Odometer") {
         $("#reminderMileage").removeClass("is-invalid");
     }
     if (reminderDescription.trim() == '') {

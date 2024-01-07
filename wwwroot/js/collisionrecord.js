@@ -66,6 +66,9 @@ function saveCollisionRecordToVehicle(isEdit) {
             successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
             hideAddCollisionRecordModal();
             getVehicleCollisionRecords(formValues.vehicleId);
+            if (formValues.addReminderRecord) {
+                setTimeout(function () { showAddReminderModal(formValues); }, 500);
+            }
         } else {
             errorToast("An error has occurred, please try again later.");
         }
@@ -79,6 +82,7 @@ function getAndValidateCollisionRecordValues() {
     var collisionNotes = $("#collisionRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var collisionRecordId = getCollisionRecordModelData().id;
+    var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
     if (collisionDate.trim() == '') { //eliminates whitespace.
@@ -114,7 +118,8 @@ function getAndValidateCollisionRecordValues() {
         description: collisionDescription,
         cost: collisionCost,
         notes: collisionNotes,
-        files: uploadedFiles
+        files: uploadedFiles,
+        addReminderRecord: addReminderRecord
     }
 }
 function deleteCollisionRecordFile(fileLocation, event) {
