@@ -27,7 +27,7 @@
                 <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
             }
             <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.Sum(x=>x.Gallons).ToString("F")}")</span>
-            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C3")}")</span>
         </div>
         @if (enableCsvImports)
         {
@@ -66,8 +66,8 @@
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
                         <td class="col-4">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1">@gasRecord.Cost.ToString("C")</td>
-                        <td class="col-1">@gasRecord.CostPerGallon.ToString("C")</td>
+                        <td class="col-1">@gasRecord.Cost.ToString("C3")</td>
+                        <td class="col-1">@gasRecord.CostPerGallon.ToString("C3")</td>
                     </tr>
                 }
             </tbody>

@@ -55,6 +55,11 @@ namespace CarCareTracker.Controllers
         {
             try
             {
+                if (!System.IO.File.Exists("config/userConfig.json"))
+                {
+                    //if file doesn't exist it might be because it's running on a mounted volume in docker.
+                    System.IO.File.WriteAllText("config/userConfig.json", System.Text.Json.JsonSerializer.Serialize(new UserConfig()));
+                }
                 var configFileContents = System.IO.File.ReadAllText("config/userConfig.json");
                 var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
