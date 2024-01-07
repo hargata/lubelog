@@ -23,11 +23,16 @@
                         <input type="text" id="reminderDate" class="form-control" placeholder="Future Date" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline">                        
                         <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricOdometer" value="@(ReminderMetric.Odometer)" checked="@(Model.Metric == ReminderMetric.Odometer)">
                         <label class="form-check-label" for="reminderMetricOdometer">Odometer</label>
+                    </div>     
+                    <div class="input-group">
+                        <input type="number" id="reminderMileage" class="form-control" placeholder="Future Odometer Reading" value="@(isNew ? "" : Model.Mileage)">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm btn-primary" onclick="appendMileageToOdometer(500)">+500</button>
+                        </div>
                     </div>
-                    <input type="number" id="reminderMileage" class="form-control" placeholder="Future Odometer Reading" value="@(isNew ? "" : Model.Mileage)">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="@(ReminderMetric.Both)" checked="@(Model.Metric == ReminderMetric.Both)">
                         <label class="form-check-label" for="reminderMetricBoth">Whichever comes first</label>

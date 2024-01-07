@@ -59,6 +59,17 @@ function saveReminderRecordToVehicle(isEdit) {
         }
     })
 }
+function appendMileageToOdometer(increment) {
+    var reminderMileage = $("#reminderMileage").val();
+    var reminderMileageIsInvalid = reminderMileage.trim() == '' || parseInt(reminderMileage) < 0;
+    if (reminderMileageIsInvalid) {
+        reminderMileage = 0;
+    } else {
+        reminderMileage = parseInt(reminderMileage);
+    }
+    reminderMileage += increment;
+    $("#reminderMileage").val(reminderMileage);
+}
 function getAndValidateReminderRecordValues() {
     var reminderDate = $("#reminderDate").val();
     var reminderMileage = $("#reminderMileage").val();

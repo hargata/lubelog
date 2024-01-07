@@ -197,17 +197,19 @@ function showAddReminderModal(reminderModalInput) {
     }
 }
 function getVehicleHaveImportantReminders(vehicleId) {
-    $.get(`/Vehicle/GetVehicleHaveUrgentOrPastDueReminders?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
-            $("#reminderBell").removeClass("bi-bell");
-            $("#reminderBell").addClass("bi-bell-fill");
-            $("#reminderBell").addClass("text-warning");
-            $("#reminderBellDiv").addClass("bell-shake");
-        } else {
-            $("#reminderBellDiv").removeClass("bell-shake");
-            $("#reminderBell").removeClass("bi-bell-fill");
-            $("#reminderBell").addClass("bi-bell");
-            $("#reminderBell").removeClass("text-warning");
-        }
-    });
+    setTimeout(function () {
+        $.get(`/Vehicle/GetVehicleHaveUrgentOrPastDueReminders?vehicleId=${vehicleId}`, function (data) {
+            if (data) {
+                $("#reminderBell").removeClass("bi-bell");
+                $("#reminderBell").addClass("bi-bell-fill");
+                $("#reminderBell").addClass("text-warning");
+                $("#reminderBellDiv").addClass("bell-shake");
+            } else {
+                $("#reminderBellDiv").removeClass("bell-shake");
+                $("#reminderBell").removeClass("bi-bell-fill");
+                $("#reminderBell").addClass("bi-bell");
+                $("#reminderBell").removeClass("text-warning");
+            }
+        });
+    }, 500);
 }
