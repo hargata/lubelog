@@ -16,6 +16,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build and push the Docker image
       run: |
-        docker login -u "hargata" -p "{{ secrets.GHCR_PAT }}" ghcr.io
+        docker login -u "hargata" -p {{ secrets.GHCR_PAT }} ghcr.io
         docker build . --file Dockerfile --tag ghcr.io/hargata/lubelogger:latest
         docker push ghcr.io/hargata/lubelogger:latest
