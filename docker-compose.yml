@@ -3,7 +3,7 @@ version: "3.4"
 
 services:
   app:
-    image: hargata/lubelog:latest
+    image: ghcr.io/hargata/lubelogger:latest
     build: .
     restart: unless-stopped
     # volumes used to keep data persistent
