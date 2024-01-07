@@ -303,7 +303,13 @@ namespace CarCareTracker.Controllers
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
-            return PartialView("_Gas", computedResults);
+            var vehicleIsElectric = _dataAccess.GetVehicleById(vehicleId).IsElectric;
+            var viewModel = new GasRecordViewModelContainer()
+            {
+                UseKwh = vehicleIsElectric,
+                GasRecords = computedResults
+            };
+            return PartialView("_Gas", viewModel);
         }
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
@@ -332,7 +338,13 @@ namespace CarCareTracker.Controllers
                 Gallons = result.Gallons,
                 IsFillToFull = result.IsFillToFull
             };
-            return PartialView("_GasModal", convertedResult);
+            var vehicleIsElectric = _dataAccess.GetVehicleById(convertedResult.VehicleId).IsElectric;
+            var viewModel = new GasRecordInputContainer()
+            {
+                UseKwh = vehicleIsElectric,
+                GasRecord = convertedResult
+            };
+            return PartialView("_GasModal", viewModel);
         }
         [HttpPost]
         public IActionResult DeleteGasRecordById(int gasRecordId)

@@ -37,6 +37,7 @@ function saveVehicle(isEdit) {
     var vehicleMake = $("#inputMake").val();
     var vehicleModel = $("#inputModel").val();
     var vehicleLicensePlate = $("#inputLicensePlate").val();
+    var vehicleIsElectric = $("#inputIsElectric").is(":checked");
     //validate
     var hasError = false;
     if (vehicleYear.trim() == '' || parseInt(vehicleYear) < 1900) {
@@ -72,7 +73,8 @@ function saveVehicle(isEdit) {
         year: vehicleYear,
         make: vehicleMake,
         model: vehicleModel,
-        licensePlate: vehicleLicensePlate
+        licensePlate: vehicleLicensePlate,
+        isElectric: vehicleIsElectric
     }, function (data) {
         if (data) {
             if (!isEdit) {
