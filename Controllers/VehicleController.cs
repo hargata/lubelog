@@ -321,7 +321,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddGasRecordPartialView()
         {
-            return PartialView("_GasModal", new GasRecordInputContainer());
+            return PartialView("_GasModal", new GasRecordInputContainer() { GasRecord = new GasRecordInput() });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
