@@ -16,10 +16,17 @@ services:
     # expose port and/or use serving via traefik
     ports:
       - 8080:8080
+    env_file:
+      - .env
 
 volumes:
   config:
+	external: true
   data:
+	external: true
   documents:
+	external: true
   images:
+	external: true
   log:
+	external: true
