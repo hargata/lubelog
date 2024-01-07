@@ -1,8 +1,9 @@
 ﻿@inject IConfiguration Configuration
+@model GasRecordViewModelContainer
 @{
     var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
     var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
-    var useKwh = bool.Parse(Configuration[nameof(UserConfig.UsekWh)]);
+    var useKwh = Model.UseKwh;
     string consumptionUnit;
     string fuelEconomyUnit;
     if (useKwh)
@@ -15,19 +16,18 @@
         fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
     }
 }
-@model List<GasRecordViewModel>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.Count()}")</span>
-            @if (Model.Where(x=>x.MilesPerGallon > 0).Any())
+            <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.GasRecords.Count()}")</span>
+            @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
             {
-                <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Average(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Average(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
             }
-            <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.Sum(x=>x.Gallons).ToString("F")}")</span>
-            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.Sum(x => x.Cost).ToString("C3")}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.GasRecords.Sum(x => x.Cost).ToString("C3")}")</span>
         </div>
         @if (enableCsvImports)
         {
@@ -59,7 +59,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (GasRecordViewModel gasRecord in Model)
+                @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)">
                         <td class="col-2">@gasRecord.Date</td>
