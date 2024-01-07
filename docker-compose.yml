@@ -21,12 +21,7 @@ services:
 
 volumes:
   config:
-	external: true
   data:
-	external: true
   documents:
-	external: true
   images:
-	external: true
   log:
-	external: true
