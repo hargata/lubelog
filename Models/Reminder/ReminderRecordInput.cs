@@ -9,6 +9,13 @@
         public string Description { get; set; }
         public string Notes { get; set; }
         public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
-        public ReminderRecord ToReminderRecord() { return new ReminderRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Mileage = Mileage, Description = Description, Notes = Notes }; }
+        public ReminderRecord ToReminderRecord() { return new ReminderRecord { 
+            Id = Id, 
+            VehicleId = VehicleId, 
+            Date = DateTime.Parse(Date), 
+            Mileage = Mileage, 
+            Description = Description, 
+            Metric = Metric,
+            Notes = Notes }; }
     }
 }

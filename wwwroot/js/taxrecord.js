@@ -4,7 +4,8 @@
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
             $('#taxRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#taxRecordModal').modal('show');
         }
@@ -16,7 +17,8 @@ function showEditTaxRecordModal(taxRecordId) {
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
             $('#taxRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#taxRecordModal').modal('show');
         }

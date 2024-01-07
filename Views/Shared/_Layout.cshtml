@@ -3,6 +3,16 @@
 @{
     var useDarkMode = bool.Parse(Configuration["UseDarkMode"]);
     var enableCsvImports = bool.Parse(Configuration["EnableCsvImports"]);
+    var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    shortDatePattern = shortDatePattern.ToLower();
+    if (!shortDatePattern.Contains("dd"))
+    {
+        shortDatePattern = shortDatePattern.Replace("d", "dd");
+    }
+    if (!shortDatePattern.Contains("mm"))
+    {
+        shortDatePattern = shortDatePattern.Replace("m", "mm");
+    }
 }
 <html lang="en" data-bs-theme="@(useDarkMode ? "dark" : "light")">
 <head>
@@ -26,6 +36,11 @@
             return {
                 useDarkMode : "@useDarkMode" == "True",
                 enableCsvImport : "@enableCsvImports" == "True"
+            }
+        }
+        function getShortDatePattern() {
+            return {
+                pattern: "@shortDatePattern"
             }
         }
     </script>

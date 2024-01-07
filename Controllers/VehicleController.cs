@@ -545,13 +545,23 @@ namespace CarCareTracker.Controllers
         #region "Reminders"
         private int GetMaxMileage(int vehicleId)
         {
-            var numbersArray = new List<int>
+            var numbersArray = new List<int>();
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            if (serviceRecords.Any())
             {
-                _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Max(x => x.Mileage),
-                _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Max(x => x.Mileage),
-                _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Max(x => x.Mileage)
-            };
-            return numbersArray.Max();
+                numbersArray.Add(serviceRecords.Max(x => x.Mileage));
+            }
+            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            if (repairRecords.Any())
+            {
+                numbersArray.Add(repairRecords.Max(x => x.Mileage));
+            }
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            if (gasRecords.Any())
+            {
+                numbersArray.Add(gasRecords.Max(x => x.Mileage));
+            }
+            return numbersArray.Any() ? numbersArray.Max() : 0;
         }
         private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId)
         {
@@ -567,7 +577,8 @@ namespace CarCareTracker.Controllers
                     Date = reminder.Date,
                     Mileage = reminder.Mileage,
                     Description = reminder.Description,
-                    Notes = reminder.Notes
+                    Notes = reminder.Notes,
+                    Metric = reminder.Metric
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {
@@ -646,7 +657,9 @@ namespace CarCareTracker.Controllers
                 Date = result.Date.ToShortDateString(),
                 Description = result.Description,
                 Notes = result.Notes,
-                VehicleId = result.VehicleId
+                VehicleId = result.VehicleId,
+                Mileage = result.Mileage,
+                Metric = result.Metric
             };
             return PartialView("_ReminderRecordModal", convertedResult);
         }

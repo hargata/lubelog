@@ -54,8 +54,13 @@ namespace CarCareTracker.Controllers
         public IActionResult WriteToSettings(UserConfig userConfig)
         {
             try
-            {
-                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
+            { 
+                if (!System.IO.File.Exists(StaticHelper.UserConfigPath))
+                {
+                    //if file doesn't exist it might be because it's running on a mounted volume in docker.
+                    System.IO.File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(new UserConfig()));
+                }
+               var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
                 var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {

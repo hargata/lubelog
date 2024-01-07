@@ -4,7 +4,8 @@
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
             $('#collisionRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#collisionRecordModal').modal('show');
         }
@@ -16,7 +17,8 @@ function showEditCollisionRecordModal(collisionRecordId) {
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
             $('#collisionRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#collisionRecordModal').modal('show');
         }

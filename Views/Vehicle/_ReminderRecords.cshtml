@@ -5,7 +5,7 @@
             <span class="ms-2 badge bg-success">@($"# of Reminders: {Model.Count()}")</span>
         </div>
         <div>
-            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Reminder</button>
         </div>
     </div>
 </div>
@@ -16,25 +16,34 @@
                 <tr class="d-flex">
                     <th scope="col" class="col-1">Urgency</th>
                     <th scope="col" class="col-2">Metric</th>
-                    <th scope="col" class="col-4">Description</th>
-                    <th scope="col" class="col-2">Cost</th>
-                    <th scope="col" class="col-3">Notes</th>
+                    <th scope="col" class="col-5">Description</th>
+                    <th scope="col" class="col-4">Notes</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditReminderRecordModal(@reminderRecord.Id)">
-                        <td class="col-1">@reminderRecord.Urgency.ToString()</td>
+                        @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
+                        {
+                            <td class="col-1"><span class="badge text-bg-danger">Very Urgent</span></td>
+                        }
+                        else if (reminderRecord.Urgency == ReminderUrgency.Urgent){
+                            <td class="col-1"><span class="badge text-bg-warning">Urgent</span></td>
+                        } else {
+                            <td class="col-1"><span class="badge text-bg-success">Not Urgent</span></td>
+                        }
                         @if (reminderRecord.Metric == ReminderMetric.Date)
                         {
-                            <td class="col-1">@reminderRecord.Date.ToShortDateString()</td>
+                            <td class="col-2">@reminderRecord.Date.ToShortDateString()</td>
                         } else if (reminderRecord.Metric == ReminderMetric.Odometer)
                         {
-                            <td class="col-1">@reminderRecord.Mileage</td>
+                            <td class="col-2">@reminderRecord.Mileage</td>
+                        } else {
+                            <td class="col-2">@reminderRecord.Metric</td>
                         }
-                        <td class="col-4">@reminderRecord.Description</td>
-                        <td class="col-3 text-truncate">@reminderRecord.Notes</td>
+                        <td class="col-5">@reminderRecord.Description</td>
+                        <td class="col-4 text-truncate">@reminderRecord.Notes</td>
                     </tr>
                 }
             </tbody>
