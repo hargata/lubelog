@@ -13,6 +13,7 @@ services:
       - documents:/App/wwwroot/documents
       - images:/App/wwwroot/images
       - log:/App/log
+      - keys:/root/.aspnet/DataProtection-Keys
     # expose port and/or use serving via traefik
     ports:
       - 8080:8080
@@ -42,6 +43,7 @@ volumes:
   documents:
   images:
   log:
+  keys:
 
 networks:
   traefik-ingress:
