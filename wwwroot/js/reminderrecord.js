@@ -12,7 +12,10 @@
 function hideAddReminderRecordModal() {
     $('#reminderRecordModal').modal('hide');
 }
-function deleteReminderRecord(reminderRecordId) {
+function deleteReminderRecord(reminderRecordId, e) {
+    if (e != undefined) {
+        event.stopPropagation();
+    }
     $("#workAroundInput").show();
     Swal.fire({
         title: "Confirm Deletion?",

@@ -600,16 +600,17 @@ namespace CarCareTracker.Controllers
                         //have to specify by which metric this reminder is urgent.
                         reminderViewModel.Metric = ReminderMetric.Date;
                     }
+                    else if (reminder.Mileage < currentMileage + 50)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
                     else if (reminder.Date < DateTime.Now.AddDays(30))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Date;
                     }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    } else if (reminder.Mileage < currentMileage + 100)
+                     else if (reminder.Mileage < currentMileage + 100)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
@@ -652,7 +653,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId);
-            if (result.Where(x=>x.Urgency == ReminderUrgency.Urgent || x.Urgency == ReminderUrgency.PastDue).Any())
+            if (result.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
             {
                 return Json(true);
             }
@@ -672,9 +673,16 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
-        public IActionResult GetAddReminderRecordPartialView()
+        public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
         {
-            return PartialView("_ReminderRecordModal", new ReminderRecordInput());
+            if (reminderModel is not null)
+            {
+                return PartialView("_ReminderRecordModal", reminderModel);
+            }
+            else
+            {
+                return PartialView("_ReminderRecordModal", new ReminderRecordInput());
+            }
         }
         [HttpGet]
         public IActionResult GetReminderRecordForEditById(int reminderRecordId)
