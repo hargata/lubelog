@@ -13,10 +13,17 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 - CsvHelper
 - Chart.js
 
-## Docker Setup (Recommended)
+## Docker Setup (GHCR)
+1. Install Docker
+2. Run `docker pull ghcr.io/hargata/lubelogger:latest`
+3. CHECK culture in .env file, default is en_US, this will change the currency and date formats.
+4. If not using traefik, use docker-compose-notraefik.yml
+5. Run `docker-compose up`
+
+## Docker Setup (Manual Build)
 1. Install Docker
 2. Clone this repo
-3. CHECK culture in Dockerfile, default is en_US
+3. CHECK culture in .env file, default is en_US
 4. Run `docker build -t lubelogger -f Dockerfile .`
 5. CHECK docker-compose.yml and make sure the mounting directories look correct.
 6. If not using traefik, use docker-compose-notraefik.yml
