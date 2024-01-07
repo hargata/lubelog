@@ -190,7 +190,8 @@ function showAddReminderModal(reminderModalInput) {
         $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
             $("#reminderRecordModalContent").html(data);
             $('#reminderDate').datepicker({
-                startDate: "+0d"
+                startDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $("#reminderRecordModal").modal("show");
         });
