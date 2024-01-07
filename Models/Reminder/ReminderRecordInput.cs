@@ -12,7 +12,7 @@
         public ReminderRecord ToReminderRecord() { return new ReminderRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
-            Date = DateTime.Parse(Date), 
+            Date = DateTime.Parse(string.IsNullOrWhiteSpace(Date) ? DateTime.Now.AddDays(1).ToShortDateString() : Date), 
             Mileage = Mileage, 
             Description = Description, 
             Metric = Metric,
