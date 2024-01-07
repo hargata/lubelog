@@ -94,6 +94,7 @@ namespace CarCareTracker.Controllers
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
                 _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
@@ -582,9 +583,19 @@ namespace CarCareTracker.Controllers
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {
-                    //if less than a week from today or less than 50 miles from current mileage then very urgent.
-                    if (reminder.Date < DateTime.Now.AddDays(7))
+                    if (reminder.Date < DateTime.Now)
                     {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Date;
+                    }
+                    else if (reminder.Mileage < currentMileage)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(7))
+                    {
+                        //if less than a week from today or less than 50 miles from current mileage then very urgent.
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                         //have to specify by which metric this reminder is urgent.
                         reminderViewModel.Metric = ReminderMetric.Date;
@@ -605,7 +616,11 @@ namespace CarCareTracker.Controllers
                     }
                 } else if (reminder.Metric == ReminderMetric.Date)
                 {
-                    if (reminder.Date < DateTime.Now.AddDays(7))
+                    if (reminder.Date < DateTime.Now)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(7))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                     }
@@ -615,7 +630,12 @@ namespace CarCareTracker.Controllers
                     }
                 } else if (reminder.Metric == ReminderMetric.Odometer)
                 {
-                    if (reminder.Mileage < currentMileage + 50)
+                    if (reminder.Mileage < currentMileage)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                    else if (reminder.Mileage < currentMileage + 50)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                     }
@@ -629,10 +649,20 @@ namespace CarCareTracker.Controllers
             return reminderViewModels;
         }
         [HttpGet]
+        public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
+        {
+            var result = GetRemindersAndUrgency(vehicleId);
+            if (result.Where(x=>x.Urgency == ReminderUrgency.Urgent || x.Urgency == ReminderUrgency.PastDue).Any())
+            {
+                return Json(true);
+            }
+            return Json(false);
+        }
+        [HttpGet]
         public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId);
-
+            result = result.OrderByDescending(x=>x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }
         [HttpPost]

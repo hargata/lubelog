@@ -30,7 +30,11 @@
                         }
                         else if (reminderRecord.Urgency == ReminderUrgency.Urgent){
                             <td class="col-1"><span class="badge text-bg-warning">Urgent</span></td>
-                        } else {
+                        } else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
+                        {
+                            <td class="col-1"><span class="badge text-bg-secondary">Past Due</span></td>
+                        }
+                        else {
                             <td class="col-1"><span class="badge text-bg-success">Not Urgent</span></td>
                         }
                         @if (reminderRecord.Metric == ReminderMetric.Date)

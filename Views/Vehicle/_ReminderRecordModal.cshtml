@@ -13,7 +13,7 @@
                 <div class="col-md-6 col-12" id="reminderOptions">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="reminderDescription">Description</label>
-                    <input type="text" id="reminderDescription" class="form-control" placeholder="Description of item(s) repaired(i.e. Alternator)" value="@Model.Description">
+                    <input type="text" id="reminderDescription" class="form-control" placeholder="Reminder Description" value="@Model.Description">
                     <label>Remind me on:</label>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricDate" value="@(ReminderMetric.Date)" checked="@(Model.Metric == ReminderMetric.Date)">
