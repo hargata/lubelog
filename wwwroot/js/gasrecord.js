@@ -4,7 +4,8 @@
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             $('#gasRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#gasRecordModal').modal('show');
         }
@@ -16,7 +17,8 @@ function showEditGasRecordModal(gasRecordId) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             $('#gasRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#gasRecordModal').modal('show');
         }
