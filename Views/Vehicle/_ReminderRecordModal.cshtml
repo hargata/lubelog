@@ -1,0 +1,63 @@
+﻿@model ReminderRecordInput
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? "Add New Reminder" : "Edit Reminder")</h5>
+    <button type="button" class="btn-close" onclick="hideAddReminderRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12" id="reminderOptions">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="reminderDescription">Description</label>
+                    <input type="text" id="reminderDescription" class="form-control" placeholder="Description of item(s) repaired(i.e. Alternator)" value="@Model.Description">
+                    <label>Remind me on:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricDate" value="@(ReminderMetric.Date)" checked="@(Model.Metric == ReminderMetric.Date)">
+                        <label class="form-check-label" for="reminderMetricDate">Date</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="reminderDate" class="form-control" placeholder="Future Date" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricOdometer" value="1" checked="@(Model.Metric == ReminderMetric.Odometer)">
+                        <label class="form-check-label" for="reminderMetricOdometer">Odometer</label>
+                    </div>
+                    <input type="number" id="reminderMileage" class="form-control" placeholder="Future Odometer Reading" value="@(isNew ? "" : Model.Mileage)">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="2" checked="@(Model.Metric == ReminderMetric.Both)">
+                        <label class="form-check-label" for="reminderMetricBoth">Whichever comes first</label>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="reminderNotes">Notes(optional)</label>
+                    <textarea id="reminderNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddReminderRecordModal()">Cancel</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveReminderRecordToVehicle()">Add New Reminder</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveReminderRecordToVehicle(true)">Edit Reminder</button>
+    }
+</div>
+<script>
+    function getReminderRecordModelData() {
+        return { id: @Model.Id}
+    }
+</script>

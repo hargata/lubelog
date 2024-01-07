@@ -7,7 +7,7 @@
         public DateTime Date { get; set; }
         public int Mileage { get; set; }
         public string Description { get; set; }
-        public decimal Cost { get; set; }
         public string Notes { get; set; }
+        public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
     }
 }
