@@ -34,6 +34,9 @@ $(document).ready(function () {
             case "report-tab":
                 getVehicleReport();
                 break;
+            case "reminder-tab":
+                getVehicleReminders(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -50,6 +53,9 @@ $(document).ready(function () {
                 break;
             case "report-tab":
                 $("#report-tab-pane").html("");
+                break;
+            case "reminder-tab":
+                $("#reminder-tab-pane").html("");
                 break;
         }
     });
@@ -88,6 +94,13 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
+        }
+    });
+}
+function getVehicleReminders(vehicleId) {
+    $.get(`/Vehicle/GetReminderRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#reminder-tab-pane").html(data);
         }
     });
 }
@@ -157,5 +170,14 @@ function uploadVehicleFilesAsync(event) {
                 uploadedFiles.push.apply(uploadedFiles, response);
             }
         }
+    });
+}
+function showAddReminderModal() {
+    $.get('/Vehicle/GetAddReminderRecordPartialView', function (data) {
+        $("#reminderRecordModalContent").html(data);     
+        $('#reminderDate').datepicker({
+            startDate: "+0d"
+        });
+        $("#reminderRecordModal").modal("show");
     });
 }
