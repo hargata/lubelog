@@ -4,7 +4,8 @@
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
             $('#serviceRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#serviceRecordModal').modal('show');
         }
@@ -16,7 +17,8 @@ function showEditServiceRecordModal(serviceRecordId) {
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
             $('#serviceRecordDate').datepicker({
-                endDate: "+0d"
+                endDate: "+0d",
+                format: getShortDatePattern().pattern
             });
             $('#serviceRecordModal').modal('show');
         }
