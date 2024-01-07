@@ -1,0 +1,70 @@
+﻿@model List<ReminderRecordViewModel>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success">@($"# of Reminders: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-secondary">@($"Past Due: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
+            <span class="ms-2 badge bg-danger">@($"Very Urgent: {Model.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
+            <span class="ms-2 badge bg-warning">@($"Urgent: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"Not Urgent: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
+        </div>
+        <div>
+            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Reminder</button>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col" class="col-1">Urgency</th>
+                    <th scope="col" class="col-2">Metric</th>
+                    <th scope="col" class="col-5">Description</th>
+                    <th scope="col" class="col-3">Notes</th>
+                    <th scope="col" class="col-1">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ReminderRecordViewModel reminderRecord in Model)
+                {
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditReminderRecordModal(@reminderRecord.Id)">
+                        @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
+                        {
+                            <td class="col-1"><span class="badge text-bg-danger">Very Urgent</span></td>
+                        }
+                        else if (reminderRecord.Urgency == ReminderUrgency.Urgent)
+                        {
+                            <td class="col-1"><span class="badge text-bg-warning">Urgent</span></td>
+                        }
+                        else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
+                        {
+                            <td class="col-1"><span class="badge text-bg-secondary">Past Due</span></td>
+                        }
+                        else
+                        {
+                            <td class="col-1"><span class="badge text-bg-success">Not Urgent</span></td>
+                        }
+                        @if (reminderRecord.Metric == ReminderMetric.Date)
+                        {
+                            <td class="col-2">@reminderRecord.Date.ToShortDateString()</td>
+                        }
+                        else if (reminderRecord.Metric == ReminderMetric.Odometer)
+                        {
+                            <td class="col-2">@reminderRecord.Mileage</td>
+                        }
+                        else
+                        {
+                            <td class="col-2">@reminderRecord.Metric</td>
+                        }
+                        <td class="col-5">@reminderRecord.Description</td>
+                        <td class="col-3 text-truncate">@reminderRecord.Notes</td>
+                        <td class="col-1 text-truncate">
+                            <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

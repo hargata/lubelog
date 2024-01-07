@@ -42,6 +42,15 @@
                     }
                     else
                     {
+                        @if (isNew)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
+                                <label class="form-check-label" for="addReminderCheck">
+                                    Add Reminder
+                                </label>
+                            </div>
+                        }
                         <label for="taxRecordFiles">Upload documents(optional)</label>
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="taxRecordFiles">
                     }

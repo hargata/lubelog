@@ -6,6 +6,7 @@ using CarCareTracker.Helper;
 using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
+using CarCareTracker.External.Implementations;
 
 namespace CarCareTracker.Controllers
 {
@@ -19,6 +20,7 @@ namespace CarCareTracker.Controllers
         private readonly IGasRecordDataAccess _gasRecordDataAccess;
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
+        private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfiguration _config;
@@ -32,6 +34,7 @@ namespace CarCareTracker.Controllers
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
+            IReminderRecordDataAccess reminderRecordDataAccess,
             IWebHostEnvironment webEnv,
             IConfiguration config)
         {
@@ -43,6 +46,7 @@ namespace CarCareTracker.Controllers
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
+            _reminderRecordDataAccess = reminderRecordDataAccess;
             _webEnv = webEnv;
             _config = config;
             _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
@@ -90,6 +94,7 @@ namespace CarCareTracker.Controllers
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
                 _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
@@ -536,6 +541,171 @@ namespace CarCareTracker.Controllers
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedGasRecord);
+        }
+        #endregion
+        #region "Reminders"
+        private int GetMaxMileage(int vehicleId)
+        {
+            var numbersArray = new List<int>();
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            if (serviceRecords.Any())
+            {
+                numbersArray.Add(serviceRecords.Max(x => x.Mileage));
+            }
+            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            if (repairRecords.Any())
+            {
+                numbersArray.Add(repairRecords.Max(x => x.Mileage));
+            }
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            if (gasRecords.Any())
+            {
+                numbersArray.Add(gasRecords.Max(x => x.Mileage));
+            }
+            return numbersArray.Any() ? numbersArray.Max() : 0;
+        }
+        private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId)
+        {
+            var currentMileage = GetMaxMileage(vehicleId);
+            var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+            List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
+            foreach(var reminder in reminders)
+            {
+                var reminderViewModel = new ReminderRecordViewModel()
+                {
+                    Id = reminder.Id,
+                    VehicleId = reminder.VehicleId,
+                    Date = reminder.Date,
+                    Mileage = reminder.Mileage,
+                    Description = reminder.Description,
+                    Notes = reminder.Notes,
+                    Metric = reminder.Metric
+                };
+                if (reminder.Metric == ReminderMetric.Both)
+                {
+                    if (reminder.Date < DateTime.Now)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Date;
+                    }
+                    else if (reminder.Mileage < currentMileage)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(7))
+                    {
+                        //if less than a week from today or less than 50 miles from current mileage then very urgent.
+                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
+                        //have to specify by which metric this reminder is urgent.
+                        reminderViewModel.Metric = ReminderMetric.Date;
+                    }
+                    else if (reminder.Mileage < currentMileage + 50)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(30))
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
+                        reminderViewModel.Metric = ReminderMetric.Date;
+                    }
+                     else if (reminder.Mileage < currentMileage + 100)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                } else if (reminder.Metric == ReminderMetric.Date)
+                {
+                    if (reminder.Date < DateTime.Now)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(7))
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
+                    }
+                    else if (reminder.Date < DateTime.Now.AddDays(30))
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
+                    }
+                } else if (reminder.Metric == ReminderMetric.Odometer)
+                {
+                    if (reminder.Mileage < currentMileage)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
+                        reminderViewModel.Metric = ReminderMetric.Odometer;
+                    }
+                    else if (reminder.Mileage < currentMileage + 50)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
+                    }
+                    else if (reminder.Mileage < currentMileage + 100)
+                    {
+                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
+                    }
+                }
+                reminderViewModels.Add(reminderViewModel);
+            }
+            return reminderViewModels;
+        }
+        [HttpGet]
+        public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
+        {
+            var result = GetRemindersAndUrgency(vehicleId);
+            if (result.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
+            {
+                return Json(true);
+            }
+            return Json(false);
+        }
+        [HttpGet]
+        public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
+        {
+            var result = GetRemindersAndUrgency(vehicleId);
+            result = result.OrderByDescending(x=>x.Urgency).ToList();
+            return PartialView("_ReminderRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
+        {
+            var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
+        {
+            if (reminderModel is not null)
+            {
+                return PartialView("_ReminderRecordModal", reminderModel);
+            }
+            else
+            {
+                return PartialView("_ReminderRecordModal", new ReminderRecordInput());
+            }
+        }
+        [HttpGet]
+        public IActionResult GetReminderRecordForEditById(int reminderRecordId)
+        {
+            var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            //convert to Input object.
+            var convertedResult = new ReminderRecordInput
+            {
+                Id = result.Id,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Mileage = result.Mileage,
+                Metric = result.Metric
+            };
+            return PartialView("_ReminderRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteReminderRecordById(int reminderRecordId)
+        {
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            return Json(result);
         }
         #endregion
     }

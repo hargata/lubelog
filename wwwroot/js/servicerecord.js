@@ -66,6 +66,9 @@ function saveServiceRecordToVehicle(isEdit) {
             successToast(isEdit ? "Service Record Updated" : "Service Record Added.");
             hideAddServiceRecordModal();
             getVehicleServiceRecords(formValues.vehicleId);
+            if (formValues.addReminderRecord) {
+                setTimeout(function () { showAddReminderModal(formValues); }, 500);
+            }
         } else {
             errorToast("An error has occurred, please try again later.");
         }
@@ -79,6 +82,7 @@ function getAndValidateServiceRecordValues() {
     var serviceNotes = $("#serviceRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var serviceRecordId = getServiceRecordModelData().id;
+    var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
     if (serviceDate.trim() == '') { //eliminates whitespace.
@@ -114,7 +118,8 @@ function getAndValidateServiceRecordValues() {
         description: serviceDescription,
         cost: serviceCost,
         notes: serviceNotes,
-        files: uploadedFiles
+        files: uploadedFiles,
+        addReminderRecord: addReminderRecord
     }
 }
 function deleteServiceRecordFile(fileLocation, event) {

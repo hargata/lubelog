@@ -1,4 +1,5 @@
-﻿using CarCareTracker.Models;
+﻿using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace CarCareTracker.Controllers
             //compare it against hashed credentials
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("config/userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
                 var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -74,7 +75,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("config/userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
                 var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -86,7 +87,7 @@ namespace CarCareTracker.Controllers
                     existingUserConfig.UserNameHash = hashedUserName;
                     existingUserConfig.UserPasswordHash = hashedPassword;
                 }
-                System.IO.File.WriteAllText("config/userConfig.json", JsonSerializer.Serialize(existingUserConfig));
+                System.IO.File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
                 return Json(true);
             }
             catch (Exception ex)
@@ -101,7 +102,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText("config/userConfig.json");
+                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
                 var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
                 if (existingUserConfig is not null)
                 {
@@ -110,7 +111,7 @@ namespace CarCareTracker.Controllers
                     existingUserConfig.UserNameHash = string.Empty;
                     existingUserConfig.UserPasswordHash = string.Empty;
                 }
-                System.IO.File.WriteAllText("config/userConfig.json", JsonSerializer.Serialize(existingUserConfig));
+                System.IO.File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
                 //destroy any login cookies.
                 Response.Cookies.Delete("ACCESS_TOKEN");
                 return Json(true);

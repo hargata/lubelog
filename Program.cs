@@ -15,6 +15,7 @@ builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>
 builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
 builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
 builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
+builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 
 if (!Directory.Exists("data"))
@@ -23,7 +24,7 @@ if (!Directory.Exists("data"))
 }
 
 //Additional JsonFile
-builder.Configuration.AddJsonFile("config/userConfig.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 
 //Configure Auth
 builder.Services.AddDataProtection();
