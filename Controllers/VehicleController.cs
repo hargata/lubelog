@@ -250,6 +250,7 @@ namespace CarCareTracker.Controllers
             result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             //check if the user uses MPG or Liters per 100km.
             bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
+            bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
             var computedResults = new List<GasRecordViewModel>();
             int previousMileage = 0;
             decimal unFactoredConsumption = 0.00M;
@@ -257,9 +258,19 @@ namespace CarCareTracker.Controllers
             //perform computation.
             for (int i = 0; i < result.Count; i++)
             {
+                var currentObject = result[i];
+                decimal convertedConsumption;
+                if (useUKMPG && useMPG)
+                {
+                    //if we're using UK MPG and the user wants imperial calculation insteace of l/100km
+                    //if UK MPG is selected then the gas consumption are stored in liters but need to convert into UK gallons for computation.
+                    convertedConsumption = currentObject.Gallons / 4.546M;
+                } else
+                {
+                    convertedConsumption = currentObject.Gallons;
+                }
                 if (i > 0)
                 {
-                    var currentObject = result[i];
                     var deltaMileage = currentObject.Mileage - previousMileage;
                     var gasRecordViewModel = new GasRecordViewModel()
                     {
@@ -267,22 +278,22 @@ namespace CarCareTracker.Controllers
                         VehicleId = currentObject.VehicleId,
                         Date = currentObject.Date.ToShortDateString(),
                         Mileage = currentObject.Mileage,
-                        Gallons = currentObject.Gallons,
+                        Gallons = convertedConsumption,
                         Cost = currentObject.Cost,
                         DeltaMileage = deltaMileage,
-                        CostPerGallon = (currentObject.Cost / currentObject.Gallons)
+                        CostPerGallon = (currentObject.Cost / convertedConsumption)
                     };
                     if (currentObject.IsFillToFull)
                     {
                         //if user filled to full.
-                        gasRecordViewModel.MilesPerGallon = useMPG ? ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + currentObject.Gallons)) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + currentObject.Gallons));
+                        gasRecordViewModel.MilesPerGallon = useMPG ? ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption)) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
                         //reset unFactored vars
                         unFactoredConsumption = 0;
                         unFactoredMileage = 0;
                     }
                     else
                     {
-                        unFactoredConsumption += currentObject.Gallons;
+                        unFactoredConsumption += convertedConsumption;
                         unFactoredMileage += deltaMileage;
                         gasRecordViewModel.MilesPerGallon = 0;
                     }
@@ -292,18 +303,18 @@ namespace CarCareTracker.Controllers
                 {
                     computedResults.Add(new GasRecordViewModel()
                     {
-                        Id = result[i].Id,
-                        VehicleId = result[i].VehicleId,
-                        Date = result[i].Date.ToShortDateString(),
-                        Mileage = result[i].Mileage,
-                        Gallons = result[i].Gallons,
-                        Cost = result[i].Cost,
+                        Id = currentObject.Id,
+                        VehicleId = currentObject.VehicleId,
+                        Date = currentObject.Date.ToShortDateString(),
+                        Mileage = currentObject.Mileage,
+                        Gallons = convertedConsumption,
+                        Cost = currentObject.Cost,
                         DeltaMileage = 0,
                         MilesPerGallon = 0,
-                        CostPerGallon = (result[i].Cost / result[i].Gallons)
+                        CostPerGallon = (currentObject.Cost / convertedConsumption)
                     });
                 }
-                previousMileage = result[i].Mileage;
+                previousMileage = currentObject.Mileage;
             }
             if (_useDescending)
             {

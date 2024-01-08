@@ -18,6 +18,10 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UseMPG">
             <label class="form-check-label" for="useMPG">Use Imperial Calculation for Fuel Economy Calculations(MPG)<br /><small class="text-body-secondary">This Will Also Change Units to Miles and Gallons</small></label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UseUKMPG">
+            <label class="form-check-label" for="useUKMPG">Use UK MPG Calculation<br /><small class="text-body-secondary">Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation</small></label>
+        </div>
     </div>
     <div class="col-12 col-md-6">
         <div class="form-check form-switch">
@@ -81,7 +85,8 @@
             enableCsvImports: $("#enableCsvImports").is(':checked'),
             useMPG: $("#useMPG").is(':checked'),
             useDescending: $("#useDescending").is(':checked'),
-            hideZero: $("#hideZero").is(":checked")
+            hideZero: $("#hideZero").is(":checked"),
+            useUKMpg: $("#useUKMPG").is(":checked")
         }
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
             if (data) {
