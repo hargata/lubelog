@@ -117,7 +117,3 @@ function getAndValidateGasRecordValues() {
         isFillToFull: gasIsFillToFull
     }
 }
-function deleteGasRecordFile(fileLocation, event) {
-    event.parentElement.remove();
-    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-}
