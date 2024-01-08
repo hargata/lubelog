@@ -30,14 +30,7 @@
                     @if (Model.Files.Any())
                     {
                         <div>
-                            <label>Uploaded Documents</label>
-                            @foreach (UploadedFiles filesUploaded in Model.Files)
-                            {
-                                <div class="d-flex justify-content-between">
-                                    <a type="button" class="btn btn-link" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCollisionRecordFile('@filesUploaded.Location', this)"><i class="bi bi-trash"></i></button>
-                                </div>
-                            }
+                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
                             <label for="collisionRecordFiles">Upload more documents</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="collisionRecordFiles">
                         </div>
