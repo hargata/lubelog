@@ -214,3 +214,32 @@ function getVehicleHaveImportantReminders(vehicleId) {
         });
     }, 500);
 }
+
+function deleteFileFromUploadedFiles(fileLocation, event) {
+    event.parentElement.remove();
+    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+}
+function editFileName(fileLocation, event) {
+    Swal.fire({
+        title: 'Rename File',
+        html: `
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name">
+                    `,
+        confirmButtonText: 'Rename',
+        focusConfirm: false,
+        preConfirm: () => {
+            const newFileName = $("#newFileName").val();
+            if (!newFileName) {
+                Swal.showValidationMessage(`Please enter a valid file name`)
+            }
+            return { newFileName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var linkDisplayObject = $(event.parentElement.parentElement).find('a')[0];
+            linkDisplayObject.text = result.value.newFileName;
+            var editFileIndex = uploadedFiles.findIndex(x => x.location == fileLocation);
+            uploadedFiles[editFileIndex].name = result.value.newFileName;
+        }
+    });
+}
