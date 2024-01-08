@@ -7,6 +7,7 @@ using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using CarCareTracker.External.Implementations;
+using CarCareTracker.MapProfile;
 
 namespace CarCareTracker.Controllers
 {
@@ -122,12 +123,12 @@ namespace CarCareTracker.Controllers
         }
         #region "Bulk Imports"
         [HttpGet]
-        public IActionResult GetBulkImportModalPartialView(string mode)
+        public IActionResult GetBulkImportModalPartialView(ImportMode mode)
         {
             return PartialView("_BulkDataImporter", mode);
         }
         [HttpPost]
-        public IActionResult ImportToVehicleIdFromCsv(int vehicleId, string mode, string fileName)
+        public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {
             if (vehicleId == default || string.IsNullOrWhiteSpace(fileName))
             {
@@ -145,81 +146,85 @@ namespace CarCareTracker.Controllers
                     var config = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture);
                     config.MissingFieldFound = null;
                     config.HeaderValidated = null;
+                    config.PrepareHeaderForMatch = args => { return args.Header.Trim().ToLower(); };
                     using (var csv = new CsvReader(reader, config))
                     {
-                        if (mode == "gasrecord")
+                        csv.Context.RegisterClassMap<FuellyMapper>();
+                        var records = csv.GetRecords<ImportModel>().ToList();
+                        if (records.Any())
                         {
-                            var records = csv.GetRecords<GasRecordImport>().ToList();
-                            if (records.Any())
+                            foreach (ImportModel importModel in records)
                             {
-                                foreach (GasRecordImport recordToInsert in records)
+                                if (mode == ImportMode.GasRecord)
                                 {
+                                    //convert to gas model.
                                     var convertedRecord = new GasRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = recordToInsert.Date,
-                                        Mileage = recordToInsert.Odometer,
-                                        Gallons = recordToInsert.FuelConsumed,
-                                        Cost = recordToInsert.Cost
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any)
                                     };
-                                    _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+                                    if (string.IsNullOrWhiteSpace(importModel.Cost) && !string.IsNullOrWhiteSpace(importModel.Price))
+                                    {
+                                        //cost was not given but price is.
+                                        //fuelly sometimes exports CSVs without total cost.
+                                        var parsedPrice = decimal.Parse(importModel.Price, NumberStyles.Any);
+                                        convertedRecord.Cost = convertedRecord.Gallons * parsedPrice;
+                                    } else
+                                    {
+                                        convertedRecord.Cost = decimal.Parse(importModel.Cost, NumberStyles.Any);
+                                    }
+                                    if (string.IsNullOrWhiteSpace(importModel.IsFillToFull) && !string.IsNullOrWhiteSpace(importModel.PartialFuelUp))
+                                    {
+                                        var parsedBool = importModel.PartialFuelUp.Trim() == "1";
+                                        convertedRecord.IsFillToFull = !parsedBool;
+                                    } else if (!string.IsNullOrWhiteSpace(importModel.IsFillToFull))
+                                    {
+                                        var parsedBool = importModel.IsFillToFull.Trim() == "1" || importModel.IsFillToFull.Trim() == "Full";
+                                        convertedRecord.IsFillToFull = parsedBool;
+                                    }
+                                    //insert record into db, check to make sure fuelconsumed is not zero so we don't get a divide by zero error.
+                                    if (convertedRecord.Gallons > 0)
+                                    {
+                                        _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+                                    }
                                 }
-                            }
-                        }
-                        else if (mode == "servicerecord")
-                        {
-                            var records = csv.GetRecords<ServiceRecordImport>().ToList();
-                            if (records.Any())
-                            {
-                                foreach (ServiceRecordImport recordToInsert in records)
+                                else if (mode == ImportMode.ServiceRecord)
                                 {
                                     var convertedRecord = new ServiceRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = recordToInsert.Date,
-                                        Mileage = recordToInsert.Odometer,
-                                        Description = recordToInsert.Description,
-                                        Notes = recordToInsert.Notes,
-                                        Cost = recordToInsert.Cost
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
                                 }
-                            }
-                        }
-                        else if (mode == "repairrecord")
-                        {
-                            var records = csv.GetRecords<ServiceRecordImport>().ToList();
-                            if (records.Any())
-                            {
-                                foreach (ServiceRecordImport recordToInsert in records)
+                                else if (mode == ImportMode.RepairRecord)
                                 {
                                     var convertedRecord = new CollisionRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = recordToInsert.Date,
-                                        Mileage = recordToInsert.Odometer,
-                                        Description = recordToInsert.Description,
-                                        Notes = recordToInsert.Notes,
-                                        Cost = recordToInsert.Cost
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                 }
-                            }
-                        }
-                        else if (mode == "taxrecord")
-                        {
-                            var records = csv.GetRecords<TaxRecordImport>().ToList();
-                            if (records.Any())
-                            {
-                                foreach (TaxRecordImport recordToInsert in records)
+                                else if (mode == ImportMode.TaxRecord)
                                 {
                                     var convertedRecord = new TaxRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = recordToInsert.Date,
-                                        Description = recordToInsert.Description,
-                                        Notes = recordToInsert.Notes,
-                                        Cost = recordToInsert.Cost
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {importModel.Date}" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _taxRecordDataAccess.SaveTaxRecordToVehicle(convertedRecord);
                                 }
@@ -274,7 +279,8 @@ namespace CarCareTracker.Controllers
                         //reset unFactored vars
                         unFactoredConsumption = 0;
                         unFactoredMileage = 0;
-                    } else
+                    }
+                    else
                     {
                         unFactoredConsumption += currentObject.Gallons;
                         unFactoredMileage += deltaMileage;
@@ -581,7 +587,7 @@ namespace CarCareTracker.Controllers
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
-            foreach(var reminder in reminders)
+            foreach (var reminder in reminders)
             {
                 var reminderViewModel = new ReminderRecordViewModel()
                 {
@@ -622,12 +628,13 @@ namespace CarCareTracker.Controllers
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Date;
                     }
-                     else if (reminder.Mileage < currentMileage + 100)
+                    else if (reminder.Mileage < currentMileage + 100)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                } else if (reminder.Metric == ReminderMetric.Date)
+                }
+                else if (reminder.Metric == ReminderMetric.Date)
                 {
                     if (reminder.Date < DateTime.Now)
                     {
@@ -641,7 +648,8 @@ namespace CarCareTracker.Controllers
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
-                } else if (reminder.Metric == ReminderMetric.Odometer)
+                }
+                else if (reminder.Metric == ReminderMetric.Odometer)
                 {
                     if (reminder.Mileage < currentMileage)
                     {
@@ -665,7 +673,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId);
-            if (result.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
+            if (result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
             {
                 return Json(true);
             }
@@ -675,7 +683,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId);
-            result = result.OrderByDescending(x=>x.Urgency).ToList();
+            result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }
         [HttpPost]
