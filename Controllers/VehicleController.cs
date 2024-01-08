@@ -311,7 +311,7 @@ namespace CarCareTracker.Controllers
                         Cost = currentObject.Cost,
                         DeltaMileage = 0,
                         MilesPerGallon = 0,
-                        CostPerGallon = (currentObject.Cost / currentObject.Gallons)
+                        CostPerGallon = (currentObject.Cost / convertedConsumption)
                     });
                 }
                 previousMileage = currentObject.Mileage;
