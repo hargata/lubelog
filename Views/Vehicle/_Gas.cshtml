@@ -8,18 +8,16 @@
     var useKwh = Model.UseKwh;
     string consumptionUnit;
     string fuelEconomyUnit;
-    string distanceUnit;
+    string distanceUnit = useMPG ? "mi." : "km";
     if (useKwh)
     {
         consumptionUnit = "kWh";
         fuelEconomyUnit = useMPG ? "mi./kWh" : "kWh/100km";
-        distanceUnit = useMPG ? "mi." : "km";
     }
     else if (useMPG && useUKMPG)
     {
         consumptionUnit = "imp gal";
         fuelEconomyUnit = "mpg";
-        distanceUnit = "mi.";
     } else if (useUKMPG)
     {
         fuelEconomyUnit = "l/100mi.";
@@ -30,7 +28,6 @@
     {
         consumptionUnit = useMPG ? "US gal" : "l";
         fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
-        distanceUnit = useMPG ? "mi." : "km";
     }
 }
 <div class="row">
