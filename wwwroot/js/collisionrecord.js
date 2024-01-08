@@ -122,7 +122,3 @@ function getAndValidateCollisionRecordValues() {
         addReminderRecord: addReminderRecord
     }
 }
-function deleteCollisionRecordFile(fileLocation, event) {
-    event.parentElement.remove();
-    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-}

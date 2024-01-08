@@ -3,6 +3,7 @@
 @{
     var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
     var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
+    var hideZero = bool.Parse(Configuration[nameof(UserConfig.HideZero)]);
     var useKwh = Model.UseKwh;
     string consumptionUnit;
     string fuelEconomyUnit;
@@ -66,8 +67,8 @@
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
                         <td class="col-4">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1">@gasRecord.Cost.ToString("C3")</td>
-                        <td class="col-1">@gasRecord.CostPerGallon.ToString("C3")</td>
+                        <td class="col-1">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString("C3"))</td>
+                        <td class="col-1">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString("C3"))</td>
                     </tr>
                 }
             </tbody>
@@ -76,7 +77,7 @@
 </div>
 
 
-<div class="modal fade" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="gasRecordModalContent">
 

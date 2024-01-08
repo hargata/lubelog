@@ -1,6 +1,7 @@
 ﻿@inject IConfiguration Configuration
 @{
     var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
+    var hideZero = bool.Parse(Configuration[nameof(UserConfig.HideZero)]);
 }
 @model List<ServiceRecord>
 <div class="row">
@@ -48,7 +49,7 @@
                         <td class="col-1">@serviceRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@serviceRecord.Mileage</td>
                         <td class="col-4">@serviceRecord.Description</td>
-                        <td class="col-2">@serviceRecord.Cost.ToString("C")</td>
+                        <td class="col-2">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate">@serviceRecord.Notes</td>
                     </tr>
                 }
@@ -58,7 +59,7 @@
 </div>
 
 
-<div class="modal fade" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="serviceRecordModalContent">
 

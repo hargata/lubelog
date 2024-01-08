@@ -122,7 +122,3 @@ function getAndValidateServiceRecordValues() {
         addReminderRecord: addReminderRecord
     }
 }
-function deleteServiceRecordFile(fileLocation, event) {
-    event.parentElement.remove();
-    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-}

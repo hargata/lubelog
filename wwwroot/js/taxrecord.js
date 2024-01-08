@@ -114,7 +114,3 @@ function getAndValidateTaxRecordValues() {
         addReminderRecord: addReminderRecord
     }
 }
-function deleteTaxRecordFile(fileLocation, event) {
-    event.parentElement.remove();
-    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-}
