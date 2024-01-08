@@ -25,6 +25,10 @@
             <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
         </div>
         <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideZero" checked="@Model.HideZero">
+            <label class="form-check-label" for="hideZero">Replace @(0.ToString("C")) Costs with ---</label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" onChange="enableAuthCheckChanged()" type="checkbox" role="switch" id="enableAuth" checked="@Model.EnableAuth">
             <label class="form-check-label" for="enableAuth">Enable Authentication</label>
         </div>
@@ -76,7 +80,8 @@
             useDarkMode: $("#enableDarkMode").is(':checked'),
             enableCsvImports: $("#enableCsvImports").is(':checked'),
             useMPG: $("#useMPG").is(':checked'),
-            useDescending: $("#useDescending").is(':checked')
+            useDescending: $("#useDescending").is(':checked'),
+            hideZero: $("#hideZero").is(":checked")
         }
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
             if (data) {
