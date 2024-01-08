@@ -15,6 +15,7 @@ namespace CarCareTracker.MapProfile
             Map(m => m.Price).Name(["price"]);
             Map(m => m.PartialFuelUp).Name(["partial_fuelup"]);
             Map(m => m.IsFillToFull).Name(["isfilltofull", "filled up"]);
+            Map(m => m.Description).Name(["description"]);
         }
     }
 }
