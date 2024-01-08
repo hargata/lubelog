@@ -216,7 +216,7 @@ function getVehicleHaveImportantReminders(vehicleId) {
 }
 
 function deleteFileFromUploadedFiles(fileLocation, event) {
-    event.parentElement.remove();
+    event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
 }
 function editFileName(fileLocation, event) {
