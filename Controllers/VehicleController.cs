@@ -99,6 +99,7 @@ namespace CarCareTracker.Controllers
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
                 _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
+                _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
@@ -544,19 +545,22 @@ namespace CarCareTracker.Controllers
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             if (year != default)
             {
                 serviceRecords.RemoveAll(x => x.Date.Year != year);
                 gasRecords.RemoveAll(x => x.Date.Year != year);
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
             }
             var viewModel = new CostMakeUpForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
-                TaxRecordSum = taxRecords.Sum(x => x.Cost)
+                TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                UpgradeRecordSum = upgradeRecords.Sum(x=>x.Cost)
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
@@ -593,6 +597,11 @@ namespace CarCareTracker.Controllers
             if (gasRecords.Any())
             {
                 numbersArray.Add(gasRecords.Max(x => x.Mileage));
+            }
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (upgradeRecords.Any())
+            {
+                numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }

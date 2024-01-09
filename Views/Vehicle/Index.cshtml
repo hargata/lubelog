@@ -9,6 +9,7 @@
     <script src="~/js/collisionrecord.js" asp-append-version="true"></script>
     <script src="~/js/taxrecord.js" asp-append-version="true"></script>
     <script src="~/js/reminderrecord.js" asp-append-version="true"></script>
+    <script src="~/js/upgraderecord.js" asp-append-version="true"></script>
     <script src="~/lib/chart-js/chart.umd.js"></script>
 }
 <div class="container">
@@ -26,6 +27,9 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-fuel-pump me-2"></i>Fuel</button>
@@ -71,6 +75,7 @@
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="reminder-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="report-tab-pane" role="tabpanel" tabindex="0"></div>
+        <div class="tab-pane fade" id="upgrade-tab-pane" role="tabpanel" tabindex="0"></div>
     </div>
 </div>
 <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">

@@ -1,5 +1,5 @@
 ﻿@model CostMakeUpForVehicle
-@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum > 0)
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
 {
     <canvas id="pie-chart"></canvas>
     <script>
@@ -9,17 +9,18 @@
             new Chart($("#pie-chart"), {
                 type: 'pie',
                 data: {
-                    labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance(Repairs)", "Tax", "Fuel"],
+                    labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance(Repairs)", "Upgrades", "Tax", "Fuel"],
                     datasets: [
                         {
                             label: "Expenses by Category",
-                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361"],
+                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
                             data: [
         @Model.ServiceRecordSum,
         @Model.CollisionRecordSum,
+        @Model.UpgradeRecordSum,
         @Model.TaxRecordSum,
         @Model.GasRecordSum
-                                ]
+                                        ]
                         }
                     ]
                 },
@@ -41,7 +42,8 @@
             });
         }
     </script>
-} else
+}
+else
 {
     <h1>No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.</h1>
 }
