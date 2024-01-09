@@ -1,26 +1,26 @@
 ﻿<div class="row">
-    <div class="col-sm-6 col-12">
-        <div class="row">
-            <div class="col-12">
-
-            </div>
-        </div>
+    <div class="col-md-3 col-12">
         <div class="row">
             <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="costMakeUpReportContent">
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-12">
-        <div class="row">
-            <div class="col-12">
-
-            </div>
-        </div>
+    <div class="col-md-6 col-12">
         <div class="row">
             <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
             </div>
         </div>
     </div>
+    <div class="col-md-3 col-12">
+        <div class="row">
+            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="costMakeUpReportContentToo">
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+
 </div>
 <script>
     initiateChart();
@@ -28,6 +28,7 @@
         var vehicleId = GetVehicleId().vehicleId;
         $.get(`/Vehicle/GetCostMakeUpForVehicle?vehicleId=${vehicleId}`, function (data) {
             $("#costMakeUpReportContent").html(data);
+            $("#costMakeUpReportContentToo").html(data);
             $.get(`/Vehicle/GetFuelCostByMonthByVehicle?vehicleId=${vehicleId}`, function (data) {
                 $("#gasCostByMonthReportContent").html(data);
             })
