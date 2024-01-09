@@ -1,0 +1,84 @@
+﻿@model UpgradeRecordInput
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? "Add New Upgrade Record" : "Edit Upgrade Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddUpgradeRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="upgradeRecordDate">Date</label>
+                    <div class="input-group">
+                        <input type="text" id="upgradeRecordDate" class="form-control" placeholder="Date upgrade/mods was installed" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="upgradeRecordMileage">Odometer</label>
+                    <input type="number" id="upgradeRecordMileage" class="form-control" placeholder="Odometer reading when upgraded/modded" value="@(isNew ? "" : Model.Mileage)">
+                    <label for="upgradeRecordDescription">Description</label>
+                    <input type="text" id="upgradeRecordDescription" class="form-control" placeholder="Description of item(s) upgraded/modded" value="@Model.Description">
+                    <label for="upgradeRecordCost">Cost</label>
+                    <input type="number" id="upgradeRecordCost" class="form-control" placeholder="Cost of the upgrade/mods" value="@(isNew ? "" : Model.Cost)">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="upgradeRecordNotes">Notes(optional)</label>
+                    <textarea id="upgradeRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                            <label for="upgradeRecordFiles">Upload more documents</label>
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="upgradeRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        @if (isNew)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
+                                <label class="form-check-label" for="addReminderCheck">
+                                    Add Reminder
+                                </label>
+                            </div>
+                        }
+                        <label for="upgradeRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="upgradeRecordFiles">
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteUpgradeRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddUpgradeRecordModal()">Cancel</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveUpgradeRecordToVehicle()">Add New Upgrade Record</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveUpgradeRecordToVehicle(true)">Edit Upgrade Record</button>
+    }
+</div>
+<script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+        }
+    function getUpgradeRecordModelData() {
+        return { id: @Model.Id}
+    }
+</script>
