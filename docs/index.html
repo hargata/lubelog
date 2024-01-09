@@ -1,0 +1,167 @@
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LubeLogger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .customCarouselCaption{
+            background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
+            padding-top: 3rem;
+            color: #fff !important
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="height:85vh;">
+        <main role="main">
+            <div class="row mt-2">
+                <div class="d-flex justify-content-center">
+                    <img src="lubelogger_logo.png"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <h6 class="display-6 text-center">Self-Hosted, Open-Source, Unconventionally-Named Vehicle Maintenance Records and Fuel Mileage Tracker</h6>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <h6 class="display-6 text-center">Showcase</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div id="carouselGallery" class="carousel slide">
+                    <div class="carousel-indicators">
+                      <button type="button" data-bs-target="#carouselGallery" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                      <button type="button" data-bs-target="#carouselGallery" data-bs-slide-to="1"></button>
+                      <button type="button" data-bs-target="#carouselGallery" data-bs-slide-to="2"></button>
+                      <button type="button" data-bs-target="#carouselGallery" data-bs-slide-to="3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                      <div class="carousel-item active">
+                        <img src="garage.png" class="d-block w-100" alt="Gallery View">
+                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
+                          <h5>Garage</h5>
+                          <p>All of your vehicles conveniently displayed in one place</p>
+                        </div>
+                      </div>
+                      <div class="carousel-item">
+                        <img src="servicerecord.png" class="d-block w-100" alt="...">
+                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
+                          <h5>Service, Repair, and Upgrade Records</h5>
+                          <p>Track all of the work done on your vehicles</p>
+                        </div>
+                      </div>
+                      <div class="carousel-item">
+                        <img src="fuelmileage.png" class="d-block w-100" alt="...">
+                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
+                          <h5>Fuel Mileage</h5>
+                          <p>Keeps track of the fuel economy of your vehicles</p>
+                        </div>
+                      </div>
+                      <div class="carousel-item">
+                        <img src="reminder.png" class="d-block w-100" alt="...">
+                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
+                          <h5>Reminders</h5>
+                          <p>Set up reminders so you never miss another scheduled maintenance</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselGallery" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselGallery" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                  </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <h6 class="display-6 text-center">Features</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">Keeps track of all your maintenance, repair, and upgrade records</li>
+                        <li class="list-group-item">Keeps track of your fuel economy(supports MPG, UK MPG, and L/100KM)</li>
+                        <li class="list-group-item">Keeps track of taxes(registration, going fast tax, etc)</li>
+                        <li class="list-group-item">No limit on how many vehicles you have in your garage</li>
+                        <li class="list-group-item">Import existing records from CSV(supports imports from Fuelly for Fuel Records)</li>
+                        <li class="list-group-item">Attach documents for each record(receipts, invoices, etc)</li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">Set reminders so you never miss another scheduled maintenance</li>
+                        <li class="list-group-item">Dark Mode</li>
+                        <li class="list-group-item">Mobile/Small screen support</li>
+                        <li class="list-group-item">Basic Authentication for security</li>
+                        <li class="list-group-item">Coming Soon(API Endpoints)</li>
+                        <li class="list-group-item">Coming Soon(Consolidated Report Export - Just like CarFax)</li>
+                      </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <h6 class="display-6 text-center">Where to Download</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">
+                        LubeLogger is released exclusively as a Docker Image via the GitHub Container Repository(GHCR)
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">
+                        To pull down the Docker Image, run
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p><code>docker pull ghcr.io/hargata/lubelogger:latest</code></p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">
+                        Check the <a href="https://github.com/hargata/lubelog/" target="_blank">GitHub repository</a> and clone the "docker-compose.yml" and ".env" file onto your computer.
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">
+                        Navigate to the directory where those two files are located, then run
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p><code>docker-compose up</code></p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">
+                        Navigate to the URL the service is listening on, the default is
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p><code>http://localhost:8080</code></p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">LubeLogger is proudly developed in Price Utah by Hargata Softworks
+                    </p>
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <p class="lead">For more information regarding Price Utah, click <a href="https://www.visitutah.com/Places-To-Go/Cities-and-Towns/Price" target="_blank">here</a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
