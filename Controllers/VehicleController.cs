@@ -22,6 +22,7 @@ namespace CarCareTracker.Controllers
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
+        private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfiguration _config;
@@ -36,6 +37,7 @@ namespace CarCareTracker.Controllers
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
+            IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IWebHostEnvironment webEnv,
             IConfiguration config)
         {
@@ -48,6 +50,7 @@ namespace CarCareTracker.Controllers
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
+            _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _webEnv = webEnv;
             _config = config;
             _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
@@ -736,6 +739,59 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteReminderRecordById(int reminderRecordId)
         {
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Upgrade Records"
+        [HttpGet]
+        public IActionResult GetUpgradeRecordsByVehicleId(int vehicleId)
+        {
+            var result = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
+            return PartialView("_UpgradeRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
+        {
+            //move files from temp.
+            upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddUpgradeRecordPartialView()
+        {
+            return PartialView("_UpgradeRecordModal", new UpgradeRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
+        {
+            var result = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
+            //convert to Input object.
+            var convertedResult = new UpgradeRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Mileage = result.Mileage,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_UpgradeRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
+        {
+            var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
             return Json(result);
         }
         #endregion
