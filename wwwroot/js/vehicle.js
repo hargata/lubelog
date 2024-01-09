@@ -141,6 +141,16 @@ function editVehicle(vehicleId) {
 function hideEditVehicleModal() {
     $('#editVehicleModal').modal('hide');
 }
+function exportVehicleData(mode) {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
+        if (!data) {
+            errorToast("An error occurred, please try again later");
+        } else {
+            window.location.href = data;
+        }
+    });
+}
 function showBulkImportModal(mode) {
     $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {
         if (data) {

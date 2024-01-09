@@ -19,7 +19,7 @@
                     @if (Model == ImportMode.GasRecord)
                     {
                         <a class="btn btn-link" href="/defaults/gassample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.ServiceRecord || Model == ImportMode.RepairRecord)
+                    } else if (Model == ImportMode.ServiceRecord || Model == ImportMode.RepairRecord || Model == ImportMode.UpgradeRecord)
                     {
                         <a class="btn btn-link" href="/defaults/servicerecordsample.csv" target="_blank">Download Sample</a>
                     } else if (Model == ImportMode.TaxRecord)
@@ -60,6 +60,8 @@
                     getVehicleCollisionRecords(vehicleId);
                 } else if (mode == "TaxRecord") {
                     getVehicleTaxRecords(vehicleId);
+                } else if (mode == "UpgradeRecord") {
+                    getVehicleUpgradeRecords(vehicleId);
                 }
             } else {
                 errorToast("An error has occurred, please double check the data and try again.");
