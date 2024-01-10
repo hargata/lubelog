@@ -42,12 +42,14 @@ namespace CarCareTracker.Controllers
             _reminderHelper = reminderHelper;
         }
         [HttpGet]
+        [Route("/api/vehicles")]
         public IActionResult Vehicles()
         {
             var result = _dataAccess.GetVehicles();
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/servicerecords")]
         public IActionResult ServiceRecords(int vehicleId)
         {
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
@@ -55,6 +57,7 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/repairrecords")]
         public IActionResult RepairRecords(int vehicleId)
         {
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
@@ -62,6 +65,7 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/upgraderecords")]
         public IActionResult UpgradeRecords(int vehicleId)
         {
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
@@ -69,12 +73,14 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/taxrecords")]
         public IActionResult TaxRecords(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/gasrecords")]
         public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
         {
             var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
@@ -82,6 +88,7 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
+        [Route("/api/vehicle/reminders")]
         public IActionResult Reminders(int vehicleId)
         {
             var currentMileage = GetMaxMileage(vehicleId);
