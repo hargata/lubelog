@@ -3,10 +3,7 @@
         if (data) {
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
-            $('#collisionRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#collisionRecordDate'));
             $('#collisionRecordModal').modal('show');
         }
     });
@@ -16,10 +13,7 @@ function showEditCollisionRecordModal(collisionRecordId) {
         if (data) {
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
-            $('#collisionRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#collisionRecordDate'));
             $('#collisionRecordModal').modal('show');
         }
     });

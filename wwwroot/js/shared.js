@@ -116,3 +116,18 @@ function isValidMoney(input) {
     const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d{1,3}?)?\)?$/;
     return (euRegex.test(input) || usRegex.test(input));
 }
+function initDatePicker(input, futureOnly) {
+    if (futureOnly) {
+        input.datepicker({
+            startDate: "+0d",
+            format: getShortDatePattern().pattern,
+            autoclose: true
+        });
+    } else {
+        input.datepicker({
+            endDate: "+0d",
+            format: getShortDatePattern().pattern,
+            autoclose: true
+        });
+    }
+}

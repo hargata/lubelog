@@ -3,10 +3,7 @@
         if (data) {
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
-            $('#serviceRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#serviceRecordDate'));
             $('#serviceRecordModal').modal('show');
         }
     });
@@ -16,10 +13,7 @@ function showEditServiceRecordModal(serviceRecordId) {
         if (data) {
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
-            $('#serviceRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#serviceRecordDate'));
             $('#serviceRecordModal').modal('show');
         }
     });
