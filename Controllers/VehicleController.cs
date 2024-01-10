@@ -393,7 +393,8 @@ namespace CarCareTracker.Controllers
                 Date = result.Date.ToShortDateString(),
                 Files = result.Files,
                 Gallons = result.Gallons,
-                IsFillToFull = result.IsFillToFull
+                IsFillToFull = result.IsFillToFull,
+                MissedFuelUp = result.MissedFuelUp
             };
             var vehicleIsElectric = _dataAccess.GetVehicleById(convertedResult.VehicleId).IsElectric;
             var viewModel = new GasRecordInputContainer()
