@@ -1,26 +1,25 @@
-﻿@model CostMakeUpForVehicle
-@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
+﻿@model ReminderMakeUpForVehicle
+@if (Model.UrgentCount + Model.VeryUrgentCount + Model.NotUrgentCount + Model.PastDueCount > 0)
 {
-    <canvas id="pie-chart"></canvas>
+    <canvas id="donut-chart"></canvas>
     <script>
         renderChart();
         function renderChart() {
             var useDarkMode = getGlobalConfig().useDarkMode;
-            new Chart($("#pie-chart"), {
-                type: 'pie',
+            new Chart($("#donut-chart"), {
+                type: 'doughnut',
                 data: {
-                    labels: ["Planned Maintenance(Service Records)", "Unplanned Maintenance(Repairs)", "Upgrades", "Tax", "Fuel"],
+                    labels: ["Not Urgent", "Urgent", "Very Urgent", "Past Due"],
                     datasets: [
                         {
-                            label: "Expenses by Category",
+                            label: "Reminders by Category",
                             backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
                             data: [
-        @Model.ServiceRecordSum,
-        @Model.CollisionRecordSum,
-        @Model.UpgradeRecordSum,
-        @Model.TaxRecordSum,
-        @Model.GasRecordSum
-                                        ]
+                                @Model.NotUrgentCount,
+                                @Model.UrgentCount,
+                                @Model.VeryUrgentCount,
+                                @Model.PastDueCount
+                            ]
                         }
                     ]
                 },
@@ -34,7 +33,7 @@
                         },
                         title: {
                             display: true,
-                            text: "Expenses by Type",
+                            text: "Reminders by Urgency",
                             color: useDarkMode ? "#fff" : "#000"
                         },
                     }
@@ -45,5 +44,5 @@
 }
 else
 {
-    <h4>No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.</h4>
+    <h4>No data found, create reminders to see visualizations here.</h4>
 }

@@ -23,6 +23,7 @@ builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<ILoginHelper, LoginHelper>();
+builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 
 if (!Directory.Exists("data"))
 {
