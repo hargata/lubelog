@@ -43,7 +43,15 @@ namespace CarCareTracker.Helper
                         DeltaMileage = deltaMileage,
                         CostPerGallon = currentObject.Cost / convertedConsumption
                     };
-                    if (currentObject.IsFillToFull)
+                    if (currentObject.MissedFuelUp)
+                    {
+                        //if they missed a fuel up, we skip MPG calculation.
+                        gasRecordViewModel.MilesPerGallon = 0;
+                        //reset unFactored vars for missed fuel up because the numbers wont be reliable.
+                        unFactoredConsumption = 0;
+                        unFactoredMileage = 0;
+                    }
+                    else if (currentObject.IsFillToFull)
                     {
                         //if user filled to full.
                         gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
