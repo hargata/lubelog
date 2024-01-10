@@ -41,6 +41,11 @@ namespace CarCareTracker.Controllers
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
         }
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         [HttpGet]
         [Route("/api/vehicles")]
         public IActionResult Vehicles()
