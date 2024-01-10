@@ -49,7 +49,7 @@
                         <td class="col-1">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-6">@taxRecord.Description</td>
                         <td class="col-2">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 text-truncate">@taxRecord.Notes</td>
+                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                     </tr>
                 }
             </tbody>

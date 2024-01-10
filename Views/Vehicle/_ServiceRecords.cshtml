@@ -51,7 +51,7 @@
                         <td class="col-2">@serviceRecord.Mileage</td>
                         <td class="col-4">@serviceRecord.Description</td>
                         <td class="col-2">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 text-truncate">@serviceRecord.Notes</td>
+                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
                     </tr>
                 }
             </tbody>
