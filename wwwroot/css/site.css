@@ -36,6 +36,28 @@ html {
     overflow-x:auto;
 }
 
+@media print {
+    .vehicleDetailTabContainer {
+        background-color: #fff;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        font-size: 14px;
+        line-height: 18px;
+        color: #000 !important;
+        overflow: visible;
+    }
+    td {
+        color: #000 !important;
+    }
+    th {
+        color: #000 !important;
+    }
+}
+
 .chartContainer{
     height:30vh;
     overflow:auto;
@@ -55,6 +77,10 @@ html {
     .display-7 {
         font-size: 2rem;
     }
+}
+
+.reportsCheckBoxContainer {
+    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
 }
 
 .bell-shake {
@@ -100,3 +126,4 @@ html {
         transform: rotate(0);
     }
 }
+

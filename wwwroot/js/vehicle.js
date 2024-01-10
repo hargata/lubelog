@@ -22,7 +22,7 @@ $(document).ready(function () {
                 getVehicleTaxRecords(vehicleId);
                 break;
             case "report-tab":
-                getVehicleReport();
+                getVehicleReport(vehicleId);
                 break;
             case "reminder-tab":
                 getVehicleReminders(vehicleId);
@@ -115,8 +115,8 @@ function getVehicleReminders(vehicleId) {
         }
     });
 }
-function getVehicleReport() {
-    $.get(`/Vehicle/GetReportPartialView`, function (data) {
+function getVehicleReport(vehicleId) {
+    $.get(`/Vehicle/GetReportPartialView?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#report-tab-pane").html(data);
         }

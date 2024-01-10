@@ -1,0 +1,48 @@
+﻿@model ReminderMakeUpForVehicle
+@if (Model.UrgentCount + Model.VeryUrgentCount + Model.NotUrgentCount + Model.PastDueCount > 0)
+{
+    <canvas id="donut-chart"></canvas>
+    <script>
+        renderChart();
+        function renderChart() {
+            var useDarkMode = getGlobalConfig().useDarkMode;
+            new Chart($("#donut-chart"), {
+                type: 'doughnut',
+                data: {
+                    labels: ["Not Urgent", "Urgent", "Very Urgent", "Past Due"],
+                    datasets: [
+                        {
+                            label: "Reminders by Category",
+                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
+                            data: [
+                                @Model.NotUrgentCount,
+                                @Model.UrgentCount,
+                                @Model.VeryUrgentCount,
+                                @Model.PastDueCount
+                            ]
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: useDarkMode ? "#fff" : "#000"
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: "Reminders by Urgency",
+                            color: useDarkMode ? "#fff" : "#000"
+                        },
+                    }
+                }
+            });
+        }
+    </script>
+}
+else
+{
+    <h4>No data found, create reminders to see visualizations here.</h4>
+}

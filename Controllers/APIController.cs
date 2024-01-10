@@ -98,7 +98,7 @@ namespace CarCareTracker.Controllers
         {
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
             return Json(results);
         }
         private int GetMaxMileage(int vehicleId)

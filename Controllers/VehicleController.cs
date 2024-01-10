@@ -6,7 +6,6 @@ using CarCareTracker.Helper;
 using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
-using CarCareTracker.External.Implementations;
 using CarCareTracker.MapProfile;
 
 namespace CarCareTracker.Controllers
@@ -29,11 +28,13 @@ namespace CarCareTracker.Controllers
         private readonly IFileHelper _fileHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IReminderHelper _reminderHelper;
+        private readonly IReportHelper _reportHelper;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
+            IReportHelper reportHelper,
             IVehicleDataAccess dataAccess,
             INoteDataAccess noteDataAccess,
             IServiceRecordDataAccess serviceRecordDataAccess,
@@ -51,6 +52,7 @@ namespace CarCareTracker.Controllers
             _fileHelper = fileHelper;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
+            _reportHelper = reportHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
@@ -571,9 +573,71 @@ namespace CarCareTracker.Controllers
         #endregion
         #region "Reports"
         [HttpGet]
-        public IActionResult GetReportPartialView()
+        public IActionResult GetReportPartialView(int vehicleId)
         {
-            return PartialView("_Report");
+            //get records
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var viewModel = new ReportViewModel();
+            //get totalCostMakeUp
+            viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
+            {
+                ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
+                TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+            };
+            //get costbymonth
+            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, 0));
+            allCosts.AddRange(_reportHelper.GetRepairRecordSum(collisionRecords, 0));
+            allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
+            allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
+            allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
+            allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
+            viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => x.MonthName).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthName = x.Key,
+                Cost = x.Sum(y => y.Cost)
+            }).ToList();
+            //get reminders
+            var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
+            viewModel.ReminderMakeUpForVehicle = new ReminderMakeUpForVehicle
+            {
+                NotUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count(),
+                UrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.Urgent).Count(),
+                VeryUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count(),
+                PastDueCount = reminders.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()
+            };
+            //populate year dropdown.
+            var numbersArray = new List<int>();
+            if (serviceRecords.Any())
+            {
+                numbersArray.Add(serviceRecords.Min(x => x.Date.Year));
+            }
+            if (collisionRecords.Any())
+            {
+                numbersArray.Add(collisionRecords.Min(x => x.Date.Year));
+            }
+            if (gasRecords.Any())
+            {
+                numbersArray.Add(gasRecords.Min(x => x.Date.Year));
+            }
+            if (upgradeRecords.Any())
+            {
+                numbersArray.Add(upgradeRecords.Min(x => x.Date.Year));
+            }
+            var minYear =  numbersArray.Any() ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
+            var yearDifference = DateTime.Now.Year - minYear + 1;
+            for(int i = 0; i < yearDifference; i++)
+            {
+                viewModel.Years.Add(DateTime.Now.AddYears(i * -1).Year);
+            }
+            return PartialView("_Report", viewModel);
         }
         [HttpGet]
         public IActionResult GetCostMakeUpForVehicle(int vehicleId, int year = 0)
@@ -601,19 +665,53 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
-        public IActionResult GetFuelCostByMonthByVehicle(int vehicleId, int year = 0)
+        public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)
         {
-            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            if (year != default)
+            var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now.AddDays(daysToAdd));
+            var viewModel = new ReminderMakeUpForVehicle
             {
-                gasRecords.RemoveAll(x => x.Date.Year != year);
+                NotUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count(),
+                UrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.Urgent).Count(),
+                VeryUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count(),
+                PastDueCount = reminders.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()
+            };
+            return PartialView("_ReminderMakeUpReport", viewModel);
+        }
+        [HttpPost]
+        public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
+        {
+            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            if (selectedMetrics.Contains(ImportMode.ServiceRecord) || selectedMetrics.Contains(ImportMode.All))
+            {
+                var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, year));
             }
-            var groupedGasRecord = gasRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new GasCostForVehicleByMonth
+            if (selectedMetrics.Contains(ImportMode.RepairRecord) || selectedMetrics.Contains(ImportMode.All))
             {
-                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetRepairRecordSum(repairRecords, year));
+            }
+            if (selectedMetrics.Contains(ImportMode.UpgradeRecord) || selectedMetrics.Contains(ImportMode.All))
+            {
+                var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, year));
+            }
+            if (selectedMetrics.Contains(ImportMode.GasRecord) || selectedMetrics.Contains(ImportMode.All))
+            {
+                var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, year));
+            }
+            if (selectedMetrics.Contains(ImportMode.TaxRecord) || selectedMetrics.Contains(ImportMode.All))
+            {
+                var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year));
+            }
+            var groupedRecord = allCosts.GroupBy(x => x.MonthName).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthName = x.Key,
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
-            return PartialView("_GasCostByMonthReport", groupedGasRecord);
+            return PartialView("_GasCostByMonthReport", groupedRecord);
         }
         #endregion
         #region "Reminders"
@@ -642,17 +740,17 @@ namespace CarCareTracker.Controllers
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
-        private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId)
+        private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId, DateTime dateCompare)
         {
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage);
+            List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, dateCompare);
             return results;
         }
         [HttpGet]
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
-            var result = GetRemindersAndUrgency(vehicleId);
+            var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             if (result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
             {
                 return Json(true);
@@ -662,7 +760,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
         {
-            var result = GetRemindersAndUrgency(vehicleId);
+            var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }

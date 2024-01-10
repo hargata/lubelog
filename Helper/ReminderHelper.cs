@@ -4,11 +4,11 @@ namespace CarCareTracker.Helper
 {
     public interface IReminderHelper
     {
-        List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage);
+        List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare);
     }
     public class ReminderHelper: IReminderHelper
     {
-        public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage)
+        public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare)
         {
             List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
             foreach (var reminder in reminders)
@@ -25,7 +25,7 @@ namespace CarCareTracker.Helper
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {
-                    if (reminder.Date < DateTime.Now)
+                    if (reminder.Date < dateCompare)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                         reminderViewModel.Metric = ReminderMetric.Date;
@@ -35,7 +35,7 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
+                    else if (reminder.Date < dateCompare.AddDays(7))
                     {
                         //if less than a week from today or less than 50 miles from current mileage then very urgent.
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
@@ -47,7 +47,7 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
+                    else if (reminder.Date < dateCompare.AddDays(30))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Date;
@@ -60,15 +60,15 @@ namespace CarCareTracker.Helper
                 }
                 else if (reminder.Metric == ReminderMetric.Date)
                 {
-                    if (reminder.Date < DateTime.Now)
+                    if (reminder.Date < dateCompare)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                     }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
+                    else if (reminder.Date < dateCompare.AddDays(7))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                     }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
+                    else if (reminder.Date < dateCompare.AddDays(30))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
