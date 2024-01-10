@@ -1,10 +1,12 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarCareTracker.Controllers
 {
+    [Authorize]
     public class APIController : Controller
     {
         private readonly IVehicleDataAccess _dataAccess;
@@ -15,7 +17,11 @@ namespace CarCareTracker.Controllers
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
+        private readonly IReminderHelper _reminderHelper;
+        private readonly IGasHelper _gasHelper;
         public APIController(IVehicleDataAccess dataAccess,
+            IGasHelper gasHelper,
+            IReminderHelper reminderHelper,
             INoteDataAccess noteDataAccess,
             IServiceRecordDataAccess serviceRecordDataAccess,
             IGasRecordDataAccess gasRecordDataAccess,
@@ -32,6 +38,8 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _gasHelper = gasHelper;
+            _reminderHelper = reminderHelper;
         }
         [HttpGet]
         public IActionResult Vehicles()
@@ -42,19 +50,22 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult ServiceRecords(int vehicleId)
         {
-            var result = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
         [HttpGet]
         public IActionResult RepairRecords(int vehicleId)
         {
-            var result = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
         [HttpGet]
         public IActionResult UpgradeRecords(int vehicleId)
         {
-            var result = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
         [HttpGet]
@@ -64,10 +75,19 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
+        public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
+        {
+            var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG).Select(x => new GasRecordExportModel { Date = x.Date, Odometer = x.Mileage.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString()});
+            return Json(result);
+        }
+        [HttpGet]
         public IActionResult Reminders(int vehicleId)
         {
-            var result = GetRemindersAndUrgency(vehicleId);
-            return Json(result);
+            var currentMileage = GetMaxMileage(vehicleId);
+            var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
+            return Json(results);
         }
         private int GetMaxMileage(int vehicleId)
         {
@@ -93,93 +113,6 @@ namespace CarCareTracker.Controllers
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
-        }
-        private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId)
-        {
-            var currentMileage = GetMaxMileage(vehicleId);
-            var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
-            foreach (var reminder in reminders)
-            {
-                var reminderViewModel = new ReminderRecordViewModel()
-                {
-                    Id = reminder.Id,
-                    VehicleId = reminder.VehicleId,
-                    Date = reminder.Date,
-                    Mileage = reminder.Mileage,
-                    Description = reminder.Description,
-                    Notes = reminder.Notes,
-                    Metric = reminder.Metric
-                };
-                if (reminder.Metric == ReminderMetric.Both)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        //if less than a week from today or less than 50 miles from current mileage then very urgent.
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        //have to specify by which metric this reminder is urgent.
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Date)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Odometer)
-                {
-                    if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                reminderViewModels.Add(reminderViewModel);
-            }
-            return reminderViewModels;
         }
     }
 }

@@ -27,9 +27,13 @@ namespace CarCareTracker.Controllers
         private readonly bool _useDescending;
         private readonly IConfiguration _config;
         private readonly IFileHelper _fileHelper;
+        private readonly IGasHelper _gasHelper;
+        private readonly IReminderHelper _reminderHelper;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
+            IGasHelper gasHelper,
+            IReminderHelper reminderHelper,
             IVehicleDataAccess dataAccess,
             INoteDataAccess noteDataAccess,
             IServiceRecordDataAccess serviceRecordDataAccess,
@@ -45,6 +49,8 @@ namespace CarCareTracker.Controllers
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
             _fileHelper = fileHelper;
+            _gasHelper = gasHelper;
+            _reminderHelper = reminderHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
@@ -333,71 +339,7 @@ namespace CarCareTracker.Controllers
             //check if the user uses MPG or Liters per 100km.
             bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
             bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
-            var computedResults = new List<GasRecordViewModel>();
-            int previousMileage = 0;
-            decimal unFactoredConsumption = 0.00M;
-            int unFactoredMileage = 0;
-            //perform computation.
-            for (int i = 0; i < result.Count; i++)
-            {
-                var currentObject = result[i];
-                decimal convertedConsumption;
-                if (useUKMPG && useMPG)
-                {
-                    //if we're using UK MPG and the user wants imperial calculation insteace of l/100km
-                    //if UK MPG is selected then the gas consumption are stored in liters but need to convert into UK gallons for computation.
-                    convertedConsumption = currentObject.Gallons / 4.546M;
-                } else
-                {
-                    convertedConsumption = currentObject.Gallons;
-                }
-                if (i > 0)
-                {
-                    var deltaMileage = currentObject.Mileage - previousMileage;
-                    var gasRecordViewModel = new GasRecordViewModel()
-                    {
-                        Id = currentObject.Id,
-                        VehicleId = currentObject.VehicleId,
-                        Date = currentObject.Date.ToShortDateString(),
-                        Mileage = currentObject.Mileage,
-                        Gallons = convertedConsumption,
-                        Cost = currentObject.Cost,
-                        DeltaMileage = deltaMileage,
-                        CostPerGallon = (currentObject.Cost / convertedConsumption)
-                    };
-                    if (currentObject.IsFillToFull)
-                    {
-                        //if user filled to full.
-                        gasRecordViewModel.MilesPerGallon = useMPG ? ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption)) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
-                        //reset unFactored vars
-                        unFactoredConsumption = 0;
-                        unFactoredMileage = 0;
-                    }
-                    else
-                    {
-                        unFactoredConsumption += convertedConsumption;
-                        unFactoredMileage += deltaMileage;
-                        gasRecordViewModel.MilesPerGallon = 0;
-                    }
-                    computedResults.Add(gasRecordViewModel);
-                }
-                else
-                {
-                    computedResults.Add(new GasRecordViewModel()
-                    {
-                        Id = currentObject.Id,
-                        VehicleId = currentObject.VehicleId,
-                        Date = currentObject.Date.ToShortDateString(),
-                        Mileage = currentObject.Mileage,
-                        Gallons = convertedConsumption,
-                        Cost = currentObject.Cost,
-                        DeltaMileage = 0,
-                        MilesPerGallon = 0,
-                        CostPerGallon = (currentObject.Cost / convertedConsumption)
-                    });
-                }
-                previousMileage = currentObject.Mileage;
-            }
+            var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
             if (_useDescending)
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
@@ -687,88 +629,8 @@ namespace CarCareTracker.Controllers
         {
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
-            foreach (var reminder in reminders)
-            {
-                var reminderViewModel = new ReminderRecordViewModel()
-                {
-                    Id = reminder.Id,
-                    VehicleId = reminder.VehicleId,
-                    Date = reminder.Date,
-                    Mileage = reminder.Mileage,
-                    Description = reminder.Description,
-                    Notes = reminder.Notes,
-                    Metric = reminder.Metric
-                };
-                if (reminder.Metric == ReminderMetric.Both)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        //if less than a week from today or less than 50 miles from current mileage then very urgent.
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        //have to specify by which metric this reminder is urgent.
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Date)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Odometer)
-                {
-                    if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                reminderViewModels.Add(reminderViewModel);
-            }
-            return reminderViewModels;
+            List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage);
+            return results;
         }
         [HttpGet]
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)

@@ -13,14 +13,17 @@ namespace CarCareTracker.Controllers
     public class LoginController : Controller
     {
         private IDataProtector _dataProtector;
+        private ILoginHelper _loginHelper;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,
-            IDataProtectionProvider securityProvider
+            IDataProtectionProvider securityProvider,
+            ILoginHelper loginHelper
             ) 
         {
             _dataProtector = securityProvider.CreateProtector("login");
             _logger = logger;
+            _loginHelper = loginHelper;
         }
         public IActionResult Index()
         {
@@ -37,30 +40,19 @@ namespace CarCareTracker.Controllers
             //compare it against hashed credentials
             try
             {
-                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
-                var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
-                if (existingUserConfig is not null)
+                var loginIsValid = _loginHelper.ValidateUserCredentials(credentials);
+                if (loginIsValid)
                 {
-                    //create hashes of the login credentials.
-                    var hashedUserName = Sha256_hash(credentials.UserName);
-                    var hashedPassword = Sha256_hash(credentials.Password);
-                    //compare against stored hash.
-                    if (hashedUserName == existingUserConfig.UserNameHash &&
-                        hashedPassword == existingUserConfig.UserPasswordHash)
+                    AuthCookie authCookie = new AuthCookie
                     {
-                        //auth success, create auth cookie
-                        //encrypt stuff.
-                        AuthCookie authCookie = new AuthCookie
-                        {
-                            Id = 1, //this is hardcoded for now
-                            UserName = credentials.UserName,
-                            ExpiresOn = DateTime.Now.AddDays(credentials.IsPersistent ? 30 : 1)
-                        };
-                        var serializedCookie = JsonSerializer.Serialize(authCookie);
-                        var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                        Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
-                        return Json(true);
-                    }
+                        Id = 1, //this is hardcoded for now
+                        UserName = credentials.UserName,
+                        ExpiresOn = DateTime.Now.AddDays(credentials.IsPersistent ? 30 : 1)
+                    };
+                    var serializedCookie = JsonSerializer.Serialize(authCookie);
+                    var encryptedCookie = _dataProtector.Protect(serializedCookie);
+                    Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                    return Json(true);
                 }
             }
             catch (Exception ex)

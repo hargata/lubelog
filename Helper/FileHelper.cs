@@ -3,8 +3,8 @@
     public interface IFileHelper
     {
         string GetFullFilePath(string currentFilePath, bool mustExist = true);
-        public string MoveFileFromTemp(string currentFilePath, string newFolder);
-        public bool DeleteFile(string currentFilePath);
+        string MoveFileFromTemp(string currentFilePath, string newFolder);
+        bool DeleteFile(string currentFilePath);
     }
     public class FileHelper: IFileHelper
     {
