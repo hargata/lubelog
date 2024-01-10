@@ -3,10 +3,7 @@
         if (data) {
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
-            $('#taxRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#taxRecordDate'));
             $('#taxRecordModal').modal('show');
         }
     });
@@ -16,10 +13,7 @@ function showEditTaxRecordModal(taxRecordId) {
         if (data) {
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
-            $('#taxRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#taxRecordDate'));
             $('#taxRecordModal').modal('show');
         }
     });

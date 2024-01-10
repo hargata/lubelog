@@ -3,10 +3,7 @@
         if (data) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
-            $('#gasRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#gasRecordDate'));
             $('#gasRecordModal').modal('show');
         }
     });
@@ -16,10 +13,7 @@ function showEditGasRecordModal(gasRecordId) {
         if (data) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
-            $('#gasRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#gasRecordDate'));
             $('#gasRecordModal').modal('show');
         }
     });

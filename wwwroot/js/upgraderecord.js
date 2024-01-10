@@ -3,10 +3,7 @@
         if (data) {
             $("#upgradeRecordModalContent").html(data);
             //initiate datepicker
-            $('#upgradeRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#upgradeRecordDate'));
             $('#upgradeRecordModal').modal('show');
         }
     });
@@ -16,10 +13,7 @@ function showEditUpgradeRecordModal(upgradeRecordId) {
         if (data) {
             $("#upgradeRecordModalContent").html(data);
             //initiate datepicker
-            $('#upgradeRecordDate').datepicker({
-                endDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#upgradeRecordDate'));
             $('#upgradeRecordModal').modal('show');
         }
     });

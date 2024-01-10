@@ -197,18 +197,13 @@ function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
         $.post('/Vehicle/GetAddReminderRecordPartialView', {reminderModel: reminderModalInput}, function (data) {
             $("#reminderRecordModalContent").html(data);
-            $('#reminderDate').datepicker({
-                startDate: "+0d"
-            });
+            initDatePicker($('#reminderDate'), true);
             $("#reminderRecordModal").modal("show");
         });
     } else {
         $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
             $("#reminderRecordModalContent").html(data);
-            $('#reminderDate').datepicker({
-                startDate: "+0d",
-                format: getShortDatePattern().pattern
-            });
+            initDatePicker($('#reminderDate'), true);
             $("#reminderRecordModal").modal("show");
         });
     }

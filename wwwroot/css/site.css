@@ -53,6 +53,12 @@ html {
     td {
         color: #000 !important;
     }
+    td.col-1{
+        width:10%;
+    }
+    th.col-1 {
+        width: 10%;
+    }
     th {
         color: #000 !important;
     }
