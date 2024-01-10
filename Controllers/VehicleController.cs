@@ -143,7 +143,8 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
-            } else if (mode == ImportMode.RepairRecord)
+            }
+            else if (mode == ImportMode.RepairRecord)
             {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
@@ -160,7 +161,8 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
-            } else if (mode == ImportMode.UpgradeRecord)
+            }
+            else if (mode == ImportMode.UpgradeRecord)
             {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
@@ -177,6 +179,42 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+            }
+            else if (mode == ImportMode.TaxRecord) {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.GasRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
+                bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+                vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+                var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel { Date = x.Date.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString(), Odometer = x.Mileage.ToString() });
+                using (var writer = new StreamWriter(fullExportFilePath))
+                {
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        csv.WriteRecords(exportData);
+                    }
+                }
+                return Json($"/{fileNameToExport}");
             }
             return Json(false);
         }
