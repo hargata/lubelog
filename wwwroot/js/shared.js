@@ -111,3 +111,10 @@ function uploadFileAsync(event) {
         }
     });
 }
+function isValidMoney(input) {
+    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(\.?\d{3})?(,\d{1,3}?)?\)?$/;
+    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d{1,3}?)?\)?$/;
+    console.log(euRegex.test(input));
+    console.log(usRegex.test(input));
+    return (euRegex.test(input) || usRegex.test(input));
+}

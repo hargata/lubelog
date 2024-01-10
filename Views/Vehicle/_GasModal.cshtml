@@ -51,7 +51,7 @@
                         <label class="form-check-label" for="gasIsFillToFull">Is Filled To Full</label>
                     </div>
                     <label for="GasRecordCost">Cost</label>
-                    <input type="number" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                    <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
                 </div>
                 <div class="col-md-6 col-12">
                     @if (Model.GasRecord.Files.Any())
