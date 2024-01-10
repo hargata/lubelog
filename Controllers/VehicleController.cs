@@ -103,33 +103,11 @@ namespace CarCareTracker.Controllers
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
-                _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
-        }
-        [HttpPost]
-        public IActionResult SaveNoteToVehicle(Note newNote)
-        {
-            //check if there is already an existing note for this vehicle.
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(newNote.VehicleId);
-            if (existingNote.Id != default)
-            {
-                newNote.Id = existingNote.Id;
-            }
-            var result = _noteDataAccess.SaveNoteToVehicleId(newNote);
-            return Json(result);
-        }
-        [HttpGet]
-        public IActionResult GetNoteByVehicleId(int vehicleId)
-        {
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(vehicleId);
-            if (existingNote.Id != default)
-            {
-                return Json(existingNote.NoteText);
-            }
-            return Json("");
         }
         #region "Bulk Imports"
         [HttpGet]
@@ -741,6 +719,37 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
         {
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Notes"
+        [HttpGet]
+        public IActionResult GetNotesByVehicleId(int vehicleId)
+        {
+            var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+            return PartialView("_Notes", result);
+        }
+        [HttpPost]
+        public IActionResult SaveNoteToVehicleId(Note note)
+        {
+            var result = _noteDataAccess.SaveNoteToVehicle(note);
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddNotePartialView()
+        {
+            return PartialView("_NoteModal", new Note());
+        }
+        [HttpGet]
+        public IActionResult GetNoteForEditById(int noteId)
+        {
+            var result = _noteDataAccess.GetNoteById(noteId);
+            return PartialView("_NoteModal", result);
+        }
+        [HttpPost]
+        public IActionResult DeleteNoteById(int noteId)
+        {
+            var result = _noteDataAccess.DeleteNoteById(noteId);
             return Json(result);
         }
         #endregion

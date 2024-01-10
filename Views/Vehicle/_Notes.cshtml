@@ -1,0 +1,40 @@
+﻿@model List<Note>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success">@($"# of Notes: {Model.Count()}")</span>
+        </div>
+        <div>
+                <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Note</button>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead>
+                <tr class="d-flex">
+                    <th scope="col" class="col-3">Description</th>
+                    <th scope="col" class="col-9">Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Note note in Model)
+                {
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditNoteModal(@note.Id)">
+                        <td class="col-3">@note.Description</td>
+                        <td class="col-9 text-truncate">@note.NoteText</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" data-bs-focus="false" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="noteModalContent">
+        </div>
+    </div>
+</div>

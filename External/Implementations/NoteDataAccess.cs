@@ -9,16 +9,24 @@ namespace CarCareTracker.External.Implementations
     {
         private static string dbName = StaticHelper.DbName;
         private static string tableName = "notes";
-        public Note GetNoteByVehicleId(int vehicleId)
+        public List<Note> GetNotesByVehicleId(int vehicleId)
         {
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<Note>(tableName);
-                var noteToReturn = table.FindOne(Query.EQ(nameof(Note.VehicleId), vehicleId));
-                return noteToReturn ?? new Note();
+                var noteToReturn = table.Find(Query.EQ(nameof(Note.VehicleId), vehicleId));
+                return noteToReturn.ToList() ?? new List<Note>();
             };
         }
-        public bool SaveNoteToVehicleId(Note note)
+        public Note GetNoteById(int noteId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<Note>(tableName);
+                return table.FindById(noteId);
+            };
+        }
+        public bool SaveNoteToVehicle(Note note)
         {
             using (var db = new LiteDatabase(dbName))
             {
@@ -27,12 +35,21 @@ namespace CarCareTracker.External.Implementations
                 return true;
             };
         }
-        public bool DeleteNoteByVehicleId(int vehicleId)
+        public bool DeleteNoteById(int noteId)
         {
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<Note>(tableName);
-                table.DeleteMany(Query.EQ(nameof(Note.VehicleId), vehicleId));
+                table.Delete(noteId);
+                return true;
+            };
+        }
+        public bool DeleteAllNotesByVehicleId(int vehicleId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<Note>(tableName);
+                var notes = table.DeleteMany(Query.EQ(nameof(Note.VehicleId), vehicleId));
                 return true;
             };
         }

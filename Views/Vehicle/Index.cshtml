@@ -10,6 +10,7 @@
     <script src="~/js/taxrecord.js" asp-append-version="true"></script>
     <script src="~/js/reminderrecord.js" asp-append-version="true"></script>
     <script src="~/js/upgraderecord.js" asp-append-version="true"></script>
+    <script src="~/js/note.js" asp-append-version="true"></script>
     <script src="~/lib/chart-js/chart.umd.js"></script>
 }
 <div class="container">
@@ -57,21 +58,7 @@
         <div class="tab-pane fade show active" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="gas-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0"></div>
-        <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0">
-            <div class="row">
-                <div class="col-12">
-                    <label for="noteTextArea" class="form-label">This is where you can store notes related to the vehicle such as tire size, oil filter size, oil types, etc.</label>
-                    <textarea class="form-control vehicleNoteContainer" id="noteTextArea"></textarea>
-                </div>
-            </div>
-            <div class="row">
-                <div class="d-flex flex-row-reverse">
-                    <div>
-                        <button onclick="saveVehicleNote(@Model.Id)" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i>Save Note</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="reminder-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="report-tab-pane" role="tabpanel" tabindex="0"></div>

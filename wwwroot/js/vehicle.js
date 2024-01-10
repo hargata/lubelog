@@ -63,15 +63,18 @@ $(document).ready(function () {
             case "upgrade-tab":
                 $("#upgrade-tab-pane").html("");
                 break;
+            case "notes-tab":
+                $("#notes-tab-pane").html("");
+                break;
         }
     });
     getVehicleServiceRecords(vehicleId);
 });
 
 function getVehicleNote(vehicleId) {
-    $.get(`/Vehicle/GetNoteByVehicleId?vehicleId=${vehicleId}`, function (data) {
+    $.get(`/Vehicle/GetNotesByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
-            $("#noteTextArea").val(data);
+            $("#notes-tab-pane").html(data);
         }
     });
 }
@@ -111,7 +114,6 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
-            getVehicleHaveImportantReminders(vehicleId);
         }
     });
 }
