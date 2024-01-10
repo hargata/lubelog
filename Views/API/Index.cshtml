@@ -1,0 +1,127 @@
+﻿<div class="row">
+    <div class="d-flex justify-content-center">
+        <h6 class="display-6 mt-2">API</h6>
+    </div>
+</div>
+<div class="row">
+    <div class="d-flex justify-content-center">
+        <p class="lead">If authentication is enabled, use the credentials of the user for Basic Auth(RFC2617)</p>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-1">
+        <h6>Method</h6>
+    </div>
+    <div class="col-5">
+        <h6>Endpoint</h6>
+    </div>
+    <div class="col-3">
+        <h6>Description</h6>
+    </div>
+    <div class="col-3">
+        <h6>Parameters</h6>
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicles</code>
+    </div>
+    <div class="col-3">
+        Returns a list of vehicles
+    </div>
+    <div class="col-3">
+        No Params
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/servicerecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of service records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/repairrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of repair records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/upgraderecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of upgrade records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/taxrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of tax records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/gasrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of gas records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        useMPG(bool) - Use Imperial Units and Calculation
+        <br />
+        useUKMPG(bool) - Use UK Imperial Calculation
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/reminders</code>
+    </div>
+    <div class="col-3">
+        Returns a list of reminders for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
