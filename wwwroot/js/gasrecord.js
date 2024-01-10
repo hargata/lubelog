@@ -99,7 +99,7 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordGallons").removeClass("is-invalid");
     }
-    if (gasCost.trim() == '') {
+    if (gasCost.trim() == '' || !isValidMoney(gasCost)) {
         hasError = true;
         $("#gasRecordCost").addClass("is-invalid");
     } else {

@@ -96,7 +96,7 @@ function getAndValidateTaxRecordValues() {
     } else {
         $("#taxRecordDescription").removeClass("is-invalid");
     }
-    if (taxCost.trim() == '') {
+    if (taxCost.trim() == '' || !isValidMoney(taxCost)) {
         hasError = true;
         $("#taxRecordCost").addClass("is-invalid");
     } else {

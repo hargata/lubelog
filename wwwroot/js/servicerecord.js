@@ -103,7 +103,7 @@ function getAndValidateServiceRecordValues() {
     } else {
         $("#serviceRecordDescription").removeClass("is-invalid");
     }
-    if (serviceCost.trim() == '') {
+    if (serviceCost.trim() == '' || !isValidMoney(serviceCost)) {
         hasError = true;
         $("#serviceRecordCost").addClass("is-invalid");
     } else {

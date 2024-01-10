@@ -75,35 +75,35 @@ function saveUpgradeRecordToVehicle(isEdit) {
     })
 }
 function getAndValidateUpgradeRecordValues() {
-    var serviceDate = $("#upgradeRecordDate").val();
-    var serviceMileage = $("#upgradeRecordMileage").val();
-    var serviceDescription = $("#upgradeRecordDescription").val();
-    var serviceCost = $("#upgradeRecordCost").val();
-    var serviceNotes = $("#upgradeRecordNotes").val();
+    var upgradeDate = $("#upgradeRecordDate").val();
+    var upgradeMileage = $("#upgradeRecordMileage").val();
+    var upgradeDescription = $("#upgradeRecordDescription").val();
+    var upgradeCost = $("#upgradeRecordCost").val();
+    var upgradeNotes = $("#upgradeRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var upgradeRecordId = getUpgradeRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
-    if (serviceDate.trim() == '') { //eliminates whitespace.
+    if (upgradeDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#upgradeRecordDate").addClass("is-invalid");
     } else {
         $("#upgradeRecordDate").removeClass("is-invalid");
     }
-    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+    if (upgradeMileage.trim() == '' || parseInt(upgradeMileage) < 0) {
         hasError = true;
         $("#upgradeRecordMileage").addClass("is-invalid");
     } else {
         $("#upgradeRecordMileage").removeClass("is-invalid");
     }
-    if (serviceDescription.trim() == '') {
+    if (upgradeDescription.trim() == '') {
         hasError = true;
         $("#upgradeRecordDescription").addClass("is-invalid");
     } else {
         $("#upgradeRecordDescription").removeClass("is-invalid");
     }
-    if (serviceCost.trim() == '') {
+    if (upgradeCost.trim() == '' || !isValidMoney(upgradeCost)) {
         hasError = true;
         $("#upgradeRecordCost").addClass("is-invalid");
     } else {
@@ -113,11 +113,11 @@ function getAndValidateUpgradeRecordValues() {
         id: upgradeRecordId,
         hasError: hasError,
         vehicleId: vehicleId,
-        date: serviceDate,
-        mileage: serviceMileage,
-        description: serviceDescription,
-        cost: serviceCost,
-        notes: serviceNotes,
+        date: upgradeDate,
+        mileage: upgradeMileage,
+        description: upgradeDescription,
+        cost: upgradeCost,
+        notes: upgradeNotes,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord
     }
