@@ -103,33 +103,11 @@ namespace CarCareTracker.Controllers
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
-                _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
-        }
-        [HttpPost]
-        public IActionResult SaveNoteToVehicle(Note newNote)
-        {
-            //check if there is already an existing note for this vehicle.
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(newNote.VehicleId);
-            if (existingNote.Id != default)
-            {
-                newNote.Id = existingNote.Id;
-            }
-            var result = _noteDataAccess.SaveNoteToVehicleId(newNote);
-            return Json(result);
-        }
-        [HttpGet]
-        public IActionResult GetNoteByVehicleId(int vehicleId)
-        {
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(vehicleId);
-            if (existingNote.Id != default)
-            {
-                return Json(existingNote.NoteText);
-            }
-            return Json("");
         }
         #region "Bulk Imports"
         [HttpGet]
@@ -165,7 +143,8 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
-            } else if (mode == ImportMode.RepairRecord)
+            }
+            else if (mode == ImportMode.RepairRecord)
             {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
@@ -182,7 +161,8 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
-            } else if (mode == ImportMode.UpgradeRecord)
+            }
+            else if (mode == ImportMode.UpgradeRecord)
             {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
@@ -199,6 +179,42 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+            }
+            else if (mode == ImportMode.TaxRecord) {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.GasRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
+                bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+                vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+                var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel { Date = x.Date.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString(), Odometer = x.Mileage.ToString() });
+                using (var writer = new StreamWriter(fullExportFilePath))
+                {
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        csv.WriteRecords(exportData);
+                    }
+                }
+                return Json($"/{fileNameToExport}");
             }
             return Json(false);
         }
@@ -741,6 +757,37 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
         {
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Notes"
+        [HttpGet]
+        public IActionResult GetNotesByVehicleId(int vehicleId)
+        {
+            var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+            return PartialView("_Notes", result);
+        }
+        [HttpPost]
+        public IActionResult SaveNoteToVehicleId(Note note)
+        {
+            var result = _noteDataAccess.SaveNoteToVehicle(note);
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddNotePartialView()
+        {
+            return PartialView("_NoteModal", new Note());
+        }
+        [HttpGet]
+        public IActionResult GetNoteForEditById(int noteId)
+        {
+            var result = _noteDataAccess.GetNoteById(noteId);
+            return PartialView("_NoteModal", result);
+        }
+        [HttpPost]
+        public IActionResult DeleteNoteById(int noteId)
+        {
+            var result = _noteDataAccess.DeleteNoteById(noteId);
             return Json(result);
         }
         #endregion

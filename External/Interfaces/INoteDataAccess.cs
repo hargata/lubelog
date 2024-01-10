@@ -4,8 +4,10 @@ namespace CarCareTracker.External.Interfaces
 {
     public interface INoteDataAccess
     {
-        public Note GetNoteByVehicleId(int vehicleId);
-        public bool SaveNoteToVehicleId(Note note);
-        bool DeleteNoteByVehicleId(int vehicleId);
+        public List<Note> GetNotesByVehicleId(int vehicleId);
+        public Note GetNoteById(int noteId);
+        public bool SaveNoteToVehicle(Note note);
+        public bool DeleteNoteById(int noteId);
+        public bool DeleteAllNotesByVehicleId(int vehicleId);
     }
 }

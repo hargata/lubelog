@@ -23,6 +23,14 @@
         public string Notes { get; set; }
         public string Cost { get; set; }
     }
+    public class TaxRecordExportModel
+    {
+        public string Date { get; set; }
+        public string Odometer { get; set; }
+        public string Description { get; set; }
+        public string Notes { get; set; }
+        public string Cost { get; set; }
+    }
     public class GasRecordExportModel
     {
         public string Date { get; set; }

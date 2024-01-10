@@ -1,16 +1,6 @@
 ﻿function returnToGarage() {
     window.location.href = '/Home';
 }
-function saveVehicleNote(vehicleId) {
-    var noteText = $("#noteTextArea").val();
-    $.post('/Vehicle/SaveNoteToVehicle', { vehicleId: vehicleId, noteText: noteText }, function (data) {
-        if (data) {
-            successToast("Note saved successfully.");
-        } else {
-            errorToast("An error has occurred, please try again later.");
-        }
-    })
-}
 $(document).ready(function () {
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
@@ -20,7 +10,7 @@ $(document).ready(function () {
                 getVehicleServiceRecords(vehicleId);
                 break;
             case "notes-tab":
-                getVehicleNote(vehicleId);
+                getVehicleNotes(vehicleId);
                 break;
             case "gas-tab":
                 getVehicleGasRecords(vehicleId);
@@ -63,15 +53,18 @@ $(document).ready(function () {
             case "upgrade-tab":
                 $("#upgrade-tab-pane").html("");
                 break;
+            case "notes-tab":
+                $("#notes-tab-pane").html("");
+                break;
         }
     });
     getVehicleServiceRecords(vehicleId);
 });
 
-function getVehicleNote(vehicleId) {
-    $.get(`/Vehicle/GetNoteByVehicleId?vehicleId=${vehicleId}`, function (data) {
+function getVehicleNotes(vehicleId) {
+    $.get(`/Vehicle/GetNotesByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
-            $("#noteTextArea").val(data);
+            $("#notes-tab-pane").html(data);
         }
     });
 }
@@ -111,7 +104,6 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
-            getVehicleHaveImportantReminders(vehicleId);
         }
     });
 }
