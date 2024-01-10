@@ -2,9 +2,9 @@
 {
     public interface IFileHelper
     {
-        string GetFullFilePath(string currentFilePath);
-        public string MoveFileFromTemp(string currentFilePath, string newFolder);
-        public bool DeleteFile(string currentFilePath);
+        string GetFullFilePath(string currentFilePath, bool mustExist = true);
+        string MoveFileFromTemp(string currentFilePath, string newFolder);
+        bool DeleteFile(string currentFilePath);
     }
     public class FileHelper: IFileHelper
     {
@@ -13,7 +13,7 @@
         {
             _webEnv = webEnv;
         }
-        public string GetFullFilePath(string currentFilePath)
+        public string GetFullFilePath(string currentFilePath, bool mustExist = true)
         {
             if (currentFilePath.StartsWith("/"))
             {
@@ -23,7 +23,10 @@
             if (File.Exists(oldFilePath))
             {
                 return oldFilePath;
-            } else
+            } else if (!mustExist)
+            {
+                return oldFilePath;
+            }
             {
                 return string.Empty;
             }

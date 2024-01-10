@@ -1,0 +1,45 @@
+﻿@model Note
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? "Add New Note" : "Edit Note")</h5>
+    <button type="button" class="btn-close" onclick="hideAddNoteModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="noteDescription">Description</label>
+                    <input type="text" id="noteDescription" class="form-control" placeholder="Description of the note" value="@(isNew ? "" : Model.Description)">
+                </div>
+                <div class="col-12">
+                    <label for="noteTextArea">Notes</label>
+                    <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteNote(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddNoteModal()">Cancel</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveNoteToVehicle()">Add New Note</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveNoteToVehicle(true)">Edit Note</button>
+    }
+</div>
+<script>
+    function getNoteModelData(){
+        return { id: @Model.Id}
+    }
+</script>

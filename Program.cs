@@ -16,7 +16,13 @@ builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
 builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
 builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
 builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
+builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
+
+//configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
+builder.Services.AddSingleton<IGasHelper, GasHelper>();
+builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
+builder.Services.AddSingleton<ILoginHelper, LoginHelper>();
 
 if (!Directory.Exists("data"))
 {

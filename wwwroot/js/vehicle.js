@@ -1,16 +1,6 @@
 ﻿function returnToGarage() {
     window.location.href = '/Home';
 }
-function saveVehicleNote(vehicleId) {
-    var noteText = $("#noteTextArea").val();
-    $.post('/Vehicle/SaveNoteToVehicle', { vehicleId: vehicleId, noteText: noteText }, function (data) {
-        if (data) {
-            successToast("Note saved successfully.");
-        } else {
-            errorToast("An error has occurred, please try again later.");
-        }
-    })
-}
 $(document).ready(function () {
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
@@ -20,7 +10,7 @@ $(document).ready(function () {
                 getVehicleServiceRecords(vehicleId);
                 break;
             case "notes-tab":
-                getVehicleNote(vehicleId);
+                getVehicleNotes(vehicleId);
                 break;
             case "gas-tab":
                 getVehicleGasRecords(vehicleId);
@@ -36,6 +26,9 @@ $(document).ready(function () {
                 break;
             case "reminder-tab":
                 getVehicleReminders(vehicleId);
+                break;
+            case "upgrade-tab":
+                getVehicleUpgradeRecords(vehicleId);
                 break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
@@ -57,15 +50,21 @@ $(document).ready(function () {
             case "reminder-tab":
                 $("#reminder-tab-pane").html("");
                 break;
+            case "upgrade-tab":
+                $("#upgrade-tab-pane").html("");
+                break;
+            case "notes-tab":
+                $("#notes-tab-pane").html("");
+                break;
         }
     });
     getVehicleServiceRecords(vehicleId);
 });
 
-function getVehicleNote(vehicleId) {
-    $.get(`/Vehicle/GetNoteByVehicleId?vehicleId=${vehicleId}`, function (data) {
+function getVehicleNotes(vehicleId) {
+    $.get(`/Vehicle/GetNotesByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
-            $("#noteTextArea").val(data);
+            $("#notes-tab-pane").html(data);
         }
     });
 }
@@ -75,7 +74,15 @@ function getVehicleServiceRecords(vehicleId) {
             $("#servicerecord-tab-pane").html(data);
             getVehicleHaveImportantReminders(vehicleId);
         }
-    })
+    });
+}
+function getVehicleUpgradeRecords(vehicleId) {
+    $.get(`/Vehicle/GetUpgradeRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#upgrade-tab-pane").html(data);
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
 }
 function getVehicleGasRecords(vehicleId) {
     $.get(`/Vehicle/GetGasRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
@@ -97,7 +104,6 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
-            getVehicleHaveImportantReminders(vehicleId);
         }
     });
 }
@@ -126,6 +132,16 @@ function editVehicle(vehicleId) {
 }
 function hideEditVehicleModal() {
     $('#editVehicleModal').modal('hide');
+}
+function exportVehicleData(mode) {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
+        if (!data) {
+            errorToast("An error occurred, please try again later");
+        } else {
+            window.location.href = data;
+        }
+    });
 }
 function showBulkImportModal(mode) {
     $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {

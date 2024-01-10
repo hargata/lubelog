@@ -3,30 +3,30 @@
     var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
     var hideZero = bool.Parse(Configuration[nameof(UserConfig.HideZero)]);
 }
-@model List<ServiceRecord>
+@model List<UpgradeRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Service Records: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"# of Upgrade Records: {Model.Count()}")</span>
             <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
         </div>
         <div>
             @if (enableCsvImports)
             {
                 <div class="btn-group">
-                    <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Service Record</button>
+                    <button onclick="showAddUpgradeRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Upgrade Record</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ServiceRecord')">Import via CSV</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">Export to CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('UpgradeRecord')">Import via CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('UpgradeRecord')">Export to CSV</a></li>
                     </ul>
                 </div>
             }
             else
             {
-                <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Service Record</button>
+                <button onclick="showAddUpgradeRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Upgrade Record</button>
             }
         </div>
     </div>
@@ -44,14 +44,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (ServiceRecord serviceRecord in Model)
+                @foreach (UpgradeRecord upgradeRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditServiceRecordModal(@serviceRecord.Id)">
-                        <td class="col-1">@serviceRecord.Date.ToShortDateString()</td>
-                        <td class="col-2">@serviceRecord.Mileage</td>
-                        <td class="col-4">@serviceRecord.Description</td>
-                        <td class="col-2">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditUpgradeRecordModal(@upgradeRecord.Id)">
+                        <td class="col-1">@upgradeRecord.Date.ToShortDateString()</td>
+                        <td class="col-2">@upgradeRecord.Mileage</td>
+                        <td class="col-4">@upgradeRecord.Description</td>
+                        <td class="col-2">@((hideZero && upgradeRecord.Cost == default) ? "---" : upgradeRecord.Cost.ToString("C"))</td>
+                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(upgradeRecord.Notes)</td>
                     </tr>
                 }
             </tbody>
@@ -59,11 +59,9 @@
     </div>
 </div>
 
-
-<div class="modal fade" data-bs-focus="false" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="upgradeRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" id="serviceRecordModalContent">
-
+        <div class="modal-content" id="upgradeRecordModalContent">
         </div>
     </div>
 </div>

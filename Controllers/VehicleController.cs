@@ -22,13 +22,18 @@ namespace CarCareTracker.Controllers
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
+        private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfiguration _config;
         private readonly IFileHelper _fileHelper;
+        private readonly IGasHelper _gasHelper;
+        private readonly IReminderHelper _reminderHelper;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
+            IGasHelper gasHelper,
+            IReminderHelper reminderHelper,
             IVehicleDataAccess dataAccess,
             INoteDataAccess noteDataAccess,
             IServiceRecordDataAccess serviceRecordDataAccess,
@@ -36,6 +41,7 @@ namespace CarCareTracker.Controllers
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
+            IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IWebHostEnvironment webEnv,
             IConfiguration config)
         {
@@ -43,11 +49,14 @@ namespace CarCareTracker.Controllers
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
             _fileHelper = fileHelper;
+            _gasHelper = gasHelper;
+            _reminderHelper = reminderHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
+            _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _webEnv = webEnv;
             _config = config;
             _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
@@ -94,38 +103,120 @@ namespace CarCareTracker.Controllers
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
-                _noteDataAccess.DeleteNoteByVehicleId(vehicleId) &&
+                _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
+                _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
-        }
-        [HttpPost]
-        public IActionResult SaveNoteToVehicle(Note newNote)
-        {
-            //check if there is already an existing note for this vehicle.
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(newNote.VehicleId);
-            if (existingNote.Id != default)
-            {
-                newNote.Id = existingNote.Id;
-            }
-            var result = _noteDataAccess.SaveNoteToVehicleId(newNote);
-            return Json(result);
-        }
-        [HttpGet]
-        public IActionResult GetNoteByVehicleId(int vehicleId)
-        {
-            var existingNote = _noteDataAccess.GetNoteByVehicleId(vehicleId);
-            if (existingNote.Id != default)
-            {
-                return Json(existingNote.NoteText);
-            }
-            return Json("");
         }
         #region "Bulk Imports"
         [HttpGet]
         public IActionResult GetBulkImportModalPartialView(ImportMode mode)
         {
             return PartialView("_BulkDataImporter", mode);
+        }
+        [HttpGet]
+        public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
+        {
+            if (vehicleId == default)
+            {
+                return Json(false);
+            }
+            string uploadDirectory = "temp/";
+            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+            if (mode == ImportMode.ServiceRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.RepairRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.UpgradeRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.TaxRecord) {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.GasRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
+                bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+                vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+                var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel { Date = x.Date.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString(), Odometer = x.Mileage.ToString() });
+                using (var writer = new StreamWriter(fullExportFilePath))
+                {
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        csv.WriteRecords(exportData);
+                    }
+                }
+                return Json($"/{fileNameToExport}");
+            }
+            return Json(false);
         }
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
@@ -216,6 +307,19 @@ namespace CarCareTracker.Controllers
                                     };
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                 }
+                                else if (mode == ImportMode.UpgradeRecord)
+                                {
+                                    var convertedRecord = new UpgradeRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                    };
+                                    _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
+                                }
                                 else if (mode == ImportMode.TaxRecord)
                                 {
                                     var convertedRecord = new TaxRecord()
@@ -251,71 +355,7 @@ namespace CarCareTracker.Controllers
             //check if the user uses MPG or Liters per 100km.
             bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
             bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
-            var computedResults = new List<GasRecordViewModel>();
-            int previousMileage = 0;
-            decimal unFactoredConsumption = 0.00M;
-            int unFactoredMileage = 0;
-            //perform computation.
-            for (int i = 0; i < result.Count; i++)
-            {
-                var currentObject = result[i];
-                decimal convertedConsumption;
-                if (useUKMPG && useMPG)
-                {
-                    //if we're using UK MPG and the user wants imperial calculation insteace of l/100km
-                    //if UK MPG is selected then the gas consumption are stored in liters but need to convert into UK gallons for computation.
-                    convertedConsumption = currentObject.Gallons / 4.546M;
-                } else
-                {
-                    convertedConsumption = currentObject.Gallons;
-                }
-                if (i > 0)
-                {
-                    var deltaMileage = currentObject.Mileage - previousMileage;
-                    var gasRecordViewModel = new GasRecordViewModel()
-                    {
-                        Id = currentObject.Id,
-                        VehicleId = currentObject.VehicleId,
-                        Date = currentObject.Date.ToShortDateString(),
-                        Mileage = currentObject.Mileage,
-                        Gallons = convertedConsumption,
-                        Cost = currentObject.Cost,
-                        DeltaMileage = deltaMileage,
-                        CostPerGallon = (currentObject.Cost / convertedConsumption)
-                    };
-                    if (currentObject.IsFillToFull)
-                    {
-                        //if user filled to full.
-                        gasRecordViewModel.MilesPerGallon = useMPG ? ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption)) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
-                        //reset unFactored vars
-                        unFactoredConsumption = 0;
-                        unFactoredMileage = 0;
-                    }
-                    else
-                    {
-                        unFactoredConsumption += convertedConsumption;
-                        unFactoredMileage += deltaMileage;
-                        gasRecordViewModel.MilesPerGallon = 0;
-                    }
-                    computedResults.Add(gasRecordViewModel);
-                }
-                else
-                {
-                    computedResults.Add(new GasRecordViewModel()
-                    {
-                        Id = currentObject.Id,
-                        VehicleId = currentObject.VehicleId,
-                        Date = currentObject.Date.ToShortDateString(),
-                        Mileage = currentObject.Mileage,
-                        Gallons = convertedConsumption,
-                        Cost = currentObject.Cost,
-                        DeltaMileage = 0,
-                        MilesPerGallon = 0,
-                        CostPerGallon = (currentObject.Cost / convertedConsumption)
-                    });
-                }
-                previousMileage = currentObject.Mileage;
-            }
+            var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
             if (_useDescending)
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
@@ -353,7 +393,8 @@ namespace CarCareTracker.Controllers
                 Date = result.Date.ToShortDateString(),
                 Files = result.Files,
                 Gallons = result.Gallons,
-                IsFillToFull = result.IsFillToFull
+                IsFillToFull = result.IsFillToFull,
+                MissedFuelUp = result.MissedFuelUp
             };
             var vehicleIsElectric = _dataAccess.GetVehicleById(convertedResult.VehicleId).IsElectric;
             var viewModel = new GasRecordInputContainer()
@@ -541,19 +582,22 @@ namespace CarCareTracker.Controllers
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             if (year != default)
             {
                 serviceRecords.RemoveAll(x => x.Date.Year != year);
                 gasRecords.RemoveAll(x => x.Date.Year != year);
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
             }
             var viewModel = new CostMakeUpForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
-                TaxRecordSum = taxRecords.Sum(x => x.Cost)
+                TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                UpgradeRecordSum = upgradeRecords.Sum(x=>x.Cost)
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
@@ -591,94 +635,19 @@ namespace CarCareTracker.Controllers
             {
                 numbersArray.Add(gasRecords.Max(x => x.Mileage));
             }
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (upgradeRecords.Any())
+            {
+                numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
+            }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
         private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId)
         {
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
-            foreach (var reminder in reminders)
-            {
-                var reminderViewModel = new ReminderRecordViewModel()
-                {
-                    Id = reminder.Id,
-                    VehicleId = reminder.VehicleId,
-                    Date = reminder.Date,
-                    Mileage = reminder.Mileage,
-                    Description = reminder.Description,
-                    Notes = reminder.Notes,
-                    Metric = reminder.Metric
-                };
-                if (reminder.Metric == ReminderMetric.Both)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        //if less than a week from today or less than 50 miles from current mileage then very urgent.
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        //have to specify by which metric this reminder is urgent.
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Date;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Date)
-                {
-                    if (reminder.Date < DateTime.Now)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(7))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Date < DateTime.Now.AddDays(30))
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                else if (reminder.Metric == ReminderMetric.Odometer)
-                {
-                    if (reminder.Mileage < currentMileage)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.PastDue;
-                        reminderViewModel.Metric = ReminderMetric.Odometer;
-                    }
-                    else if (reminder.Mileage < currentMileage + 50)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
-                    }
-                    else if (reminder.Mileage < currentMileage + 100)
-                    {
-                        reminderViewModel.Urgency = ReminderUrgency.Urgent;
-                    }
-                }
-                reminderViewModels.Add(reminderViewModel);
-            }
-            return reminderViewModels;
+            List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage);
+            return results;
         }
         [HttpGet]
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
@@ -736,6 +705,90 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteReminderRecordById(int reminderRecordId)
         {
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Upgrade Records"
+        [HttpGet]
+        public IActionResult GetUpgradeRecordsByVehicleId(int vehicleId)
+        {
+            var result = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
+            return PartialView("_UpgradeRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
+        {
+            //move files from temp.
+            upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddUpgradeRecordPartialView()
+        {
+            return PartialView("_UpgradeRecordModal", new UpgradeRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
+        {
+            var result = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
+            //convert to Input object.
+            var convertedResult = new UpgradeRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                Mileage = result.Mileage,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_UpgradeRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
+        {
+            var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Notes"
+        [HttpGet]
+        public IActionResult GetNotesByVehicleId(int vehicleId)
+        {
+            var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+            return PartialView("_Notes", result);
+        }
+        [HttpPost]
+        public IActionResult SaveNoteToVehicleId(Note note)
+        {
+            var result = _noteDataAccess.SaveNoteToVehicle(note);
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddNotePartialView()
+        {
+            return PartialView("_NoteModal", new Note());
+        }
+        [HttpGet]
+        public IActionResult GetNoteForEditById(int noteId)
+        {
+            var result = _noteDataAccess.GetNoteById(noteId);
+            return PartialView("_NoteModal", result);
+        }
+        [HttpPost]
+        public IActionResult DeleteNoteById(int noteId)
+        {
+            var result = _noteDataAccess.DeleteNoteById(noteId);
             return Json(result);
         }
         #endregion

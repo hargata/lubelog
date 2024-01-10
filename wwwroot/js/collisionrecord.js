@@ -103,7 +103,7 @@ function getAndValidateCollisionRecordValues() {
     } else {
         $("#collisionRecordDescription").removeClass("is-invalid");
     }
-    if (collisionCost.trim() == '') {
+    if (collisionCost.trim() == '' || !isValidMoney(collisionCost)) {
         hasError = true;
         $("#collisionRecordCost").addClass("is-invalid");
     } else {
