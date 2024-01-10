@@ -23,7 +23,7 @@
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditNoteModal(@note.Id)">
                         <td class="col-3">@note.Description</td>
-                        <td class="col-9 text-truncate">@note.NoteText</td>
+                        <td class="col-9 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
             </tbody>

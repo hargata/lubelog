@@ -58,7 +58,7 @@
                             <td class="col-2">@reminderRecord.Metric</td>
                         }
                         <td class="col-5">@reminderRecord.Description</td>
-                        <td class="col-3 text-truncate">@reminderRecord.Notes</td>
+                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         <td class="col-1 text-truncate">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>
