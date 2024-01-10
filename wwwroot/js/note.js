@@ -32,7 +32,7 @@ function deleteNote(noteId) {
                     hideAddNoteModal();
                     successToast("Note Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
-                    getVehicleNote(vehicleId);
+                    getVehicleNotes(vehicleId);
                 } else {
                     errorToast("An error has occurred, please try again later.");
                 }
@@ -55,7 +55,7 @@ function saveNoteToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Note Updated" : "Note Added.");
             hideAddNoteModal();
-            getVehicleNote(formValues.vehicleId);
+            getVehicleNotes(formValues.vehicleId);
         } else {
             errorToast("An error has occurred, please try again later.");
         }
