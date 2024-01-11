@@ -14,6 +14,7 @@
         public string Price { get; set; }
         public string PartialFuelUp { get; set; }
         public string IsFillToFull { get; set; }
+        public string MissedFuelUp { get; set; }
     }
     public class ServiceRecordExportModel
     {
