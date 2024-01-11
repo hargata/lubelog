@@ -5,7 +5,7 @@
             <div class="col-12">
                 <select class="form-select" id="yearOption" onchange="yearUpdated()">
                     <option value="0">All Time</option>
-                    @foreach(int year in Model.Years)
+                    @foreach (int year in Model.Years)
                     {
                         <option value="@year">@year</option>
                     }
@@ -22,27 +22,23 @@
         <div class="row">
             <div class="col-12 d-flex justify-content-center reportsCheckBoxContainer">
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="allExpenseCheck" value="0" checked>
-                    <label class="form-check-label" for="allExpenseCheck">All</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="serviceExpenseCheck" value="1">
+                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="serviceExpenseCheck" value="1" checked>
                     <label class="form-check-label" for="serviceExpenseCheck">Service</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="repairExpenseCheck" value="2">
+                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="repairExpenseCheck" value="2" checked>
                     <label class="form-check-label" for="repairExpenseCheck">Repairs</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="upgradeExpenseCheck" value="3">
+                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
                     <label class="form-check-label" for="upgradeExpenseCheck">Upgrades</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="gasExpenseCheck" value="4">
+                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="gasExpenseCheck" value="4" checked>
                     <label class="form-check-label" for="gasExpenseCheck">Gas</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="taxExpenseCheck" value="5">
+                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="taxExpenseCheck" value="5" checked>
                     <label class="form-check-label" for="taxExpenseCheck">Tax</label>
                 </div>
             </div>
@@ -80,15 +76,6 @@
     }
     var debounce = null;
     function updateCheck(sender) {
-        if (sender.id == "allExpenseCheck") {
-            $("#serviceExpenseCheck").prop('checked', false);
-            $("#repairExpenseCheck").prop('checked', false);
-            $("#upgradeExpenseCheck").prop('checked', false);
-            $("#gasExpenseCheck").prop('checked', false);
-            $("#taxExpenseCheck").prop('checked', false);
-        } else if ($("#allExpenseCheck").is(':checked')) {
-            $("#allExpenseCheck").prop('checked', false);
-        }
         clearTimeout(debounce);
         debounce = setTimeout(function () {
             refreshBarChart();
@@ -98,25 +85,23 @@
         var selectedMetrics = [];
         var vehicleId = GetVehicleId().vehicleId;
         var year = getYear();
-        if ($("#allExpenseCheck").is(":checked")) {
-            selectedMetrics.push('All');
-        } else {
-            if ($("#serviceExpenseCheck").is(":checked")) {
-                selectedMetrics.push('ServiceRecord');
-            }
-            if ($("#repairExpenseCheck").is(":checked")) {
-                selectedMetrics.push('RepairRecord');
-            }
-            if ($("#upgradeExpenseCheck").is(":checked")) {
-                selectedMetrics.push('UpgradeRecord');
-            }
-            if ($("#gasExpenseCheck").is(":checked")) {
-                selectedMetrics.push('GasRecord');
-            }
-            if ($("#taxExpenseCheck").is(":checked")) {
-                selectedMetrics.push('TaxRecord');
-            }
+
+        if ($("#serviceExpenseCheck").is(":checked")) {
+            selectedMetrics.push('ServiceRecord');
         }
+        if ($("#repairExpenseCheck").is(":checked")) {
+            selectedMetrics.push('RepairRecord');
+        }
+        if ($("#upgradeExpenseCheck").is(":checked")) {
+            selectedMetrics.push('UpgradeRecord');
+        }
+        if ($("#gasExpenseCheck").is(":checked")) {
+            selectedMetrics.push('GasRecord');
+        }
+        if ($("#taxExpenseCheck").is(":checked")) {
+            selectedMetrics.push('TaxRecord');
+        }
+
         $.post('/Vehicle/GetCostByMonthByVehicle',
             {
                 vehicleId: vehicleId,
@@ -124,10 +109,10 @@
                 year: year
             }, function (data) {
                 $("#gasCostByMonthReportContent").html(data);
-                if (callBack != undefined){
+                if (callBack != undefined) {
                     callBack();
                 }
-        });
+            });
     }
     function updateReminderPie() {
         var vehicleId = GetVehicleId().vehicleId;
@@ -140,7 +125,7 @@
     function yearUpdated() {
         var vehicleId = GetVehicleId().vehicleId;
         var year = getYear();
-        $.get(`/Vehicle/GetCostMakeUpForVehicle?vehicleId=${vehicleId}`, {year: year}, function (data) {
+        $.get(`/Vehicle/GetCostMakeUpForVehicle?vehicleId=${vehicleId}`, { year: year }, function (data) {
             $("#costMakeUpReportContent").html(data);
             refreshBarChart();
         })

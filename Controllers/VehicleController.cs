@@ -686,27 +686,27 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
         {
             List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
-            if (selectedMetrics.Contains(ImportMode.ServiceRecord) || selectedMetrics.Contains(ImportMode.All))
+            if (selectedMetrics.Contains(ImportMode.ServiceRecord))
             {
                 var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, year));
             }
-            if (selectedMetrics.Contains(ImportMode.RepairRecord) || selectedMetrics.Contains(ImportMode.All))
+            if (selectedMetrics.Contains(ImportMode.RepairRecord))
             {
                 var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetRepairRecordSum(repairRecords, year));
             }
-            if (selectedMetrics.Contains(ImportMode.UpgradeRecord) || selectedMetrics.Contains(ImportMode.All))
+            if (selectedMetrics.Contains(ImportMode.UpgradeRecord))
             {
                 var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, year));
             }
-            if (selectedMetrics.Contains(ImportMode.GasRecord) || selectedMetrics.Contains(ImportMode.All))
+            if (selectedMetrics.Contains(ImportMode.GasRecord))
             {
                 var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, year));
             }
-            if (selectedMetrics.Contains(ImportMode.TaxRecord) || selectedMetrics.Contains(ImportMode.All))
+            if (selectedMetrics.Contains(ImportMode.TaxRecord))
             {
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year));

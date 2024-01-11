@@ -6,7 +6,6 @@
         RepairRecord = 1,
         GasRecord = 2,
         TaxRecord = 3,
-        UpgradeRecord = 4,
-        All = 5
+        UpgradeRecord = 4
     }
 }
