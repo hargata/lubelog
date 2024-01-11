@@ -277,6 +277,11 @@ namespace CarCareTracker.Controllers
                                         var parsedBool = importModel.IsFillToFull.Trim() == "1" || importModel.IsFillToFull.Trim() == "Full";
                                         convertedRecord.IsFillToFull = parsedBool;
                                     }
+                                    if (!string.IsNullOrWhiteSpace(importModel.MissedFuelUp))
+                                    {
+                                        var parsedBool = importModel.MissedFuelUp.Trim() == "1";
+                                        convertedRecord.MissedFuelUp = parsedBool;
+                                    }
                                     //insert record into db, check to make sure fuelconsumed is not zero so we don't get a divide by zero error.
                                     if (convertedRecord.Gallons > 0)
                                     {
