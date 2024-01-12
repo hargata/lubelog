@@ -697,7 +697,12 @@ namespace CarCareTracker.Controllers
             bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
             vehicleHistory.TotalGasCost = gasRecords.Sum(x => x.Cost);
             vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
-            var averageMPG = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG).Average(x => x.MilesPerGallon);
+            var averageMPG = 0.00M;
+            var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
+            if (gasViewModels.Any())
+            {
+                averageMPG = gasViewModels.Average(x => x.MilesPerGallon);
+            }
             vehicleHistory.MPG = averageMPG;
             //insert servicerecords
             reportData.AddRange(serviceRecords.Select(x => new GenericReportModel
