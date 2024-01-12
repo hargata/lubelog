@@ -133,3 +133,17 @@ html {
     }
 }
 
+/*Media Queries*/
+@media (max-width: 576px){
+    .lubelogger-tab{
+        display:none;
+    }
+    .lubelogger-navbar{
+        justify-content: space-between;
+    }
+}
+@media(min-width: 576px){
+    .lubelogger-navbar-button {
+        display: none;
+    }
+}

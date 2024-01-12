@@ -11,12 +11,18 @@
 }
 <div class="container">
     <div class="row mt-2">
-        <div class="d-flex justify-content-center">
+        <div class="d-flex lubelogger-navbar justify-content-center">
+            <div class="lubelogger-navbar-button">
+                <button class="navbar-toggler" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <img src="/defaults/lubelogger_logo.png"/>
+            <div class="lubelogger-navbar-button"></div>
         </div>
     </div>
     <hr />
-    <ul class="nav nav-tabs" id="homeTab" role="tablist">
+    <ul class="nav nav-tabs lubelogger-tab" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "garage" ? "active" : "")" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
         </li>
