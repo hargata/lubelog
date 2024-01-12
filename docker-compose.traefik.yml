@@ -12,6 +12,7 @@ services:
       - data:/App/data
       - documents:/App/wwwroot/documents
       - images:/App/wwwroot/images
+      - temp:/App/wwwroot/temp
       - log:/App/log
       - keys:/root/.aspnet/DataProtection-Keys
     # expose port and/or use serving via traefik
@@ -42,6 +43,7 @@ volumes:
   data:
   documents:
   images:
+  temp:
   log:
   keys:
 
