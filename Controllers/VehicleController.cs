@@ -604,9 +604,9 @@ namespace CarCareTracker.Controllers
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
             allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
-            viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => x.MonthName).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = x.Key,
+                MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
             //get reminders
@@ -711,9 +711,9 @@ namespace CarCareTracker.Controllers
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year));
             }
-            var groupedRecord = allCosts.GroupBy(x => x.MonthName).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var groupedRecord = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = x.Key,
+                MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);

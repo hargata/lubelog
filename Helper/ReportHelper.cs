@@ -21,6 +21,7 @@ namespace CarCareTracker.Helper
             }
             return serviceRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             });
@@ -33,6 +34,7 @@ namespace CarCareTracker.Helper
             }
             return repairRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             });
@@ -45,6 +47,7 @@ namespace CarCareTracker.Helper
             }
             return upgradeRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             });
@@ -57,6 +60,7 @@ namespace CarCareTracker.Helper
             }
             return gasRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             });
@@ -69,6 +73,7 @@ namespace CarCareTracker.Helper
             }
             return taxRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             });
