@@ -37,6 +37,12 @@ html {
 }
 
 @media print {
+    .hideOnPrint {
+        display:none;
+    }
+    .showOnPrint{
+        display:block !important;
+    }
     .vehicleDetailTabContainer {
         background-color: #fff;
         height: 100%;
@@ -50,9 +56,16 @@ html {
         color: #000 !important;
         overflow: visible;
     }
-
+    ul {
+        border: 0px !important;
+    }
+    li {
+        color: #000 !important;
+        border: 0px !important;
+    }
     td {
         color: #000 !important;
+        border: hidden;
     }
 
         td.col-1 {
@@ -65,6 +78,10 @@ html {
 
     th {
         color: #000 !important;
+    }
+
+    tr{
+        border: hidden;
     }
 }
 

@@ -682,6 +682,64 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ReminderMakeUpReport", viewModel);
         }
+        public IActionResult GetVehicleHistory(int vehicleId)
+        {
+            var vehicleHistory = new VehicleHistoryViewModel();
+            vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
+            vehicleHistory.Odometer = GetMaxMileage(vehicleId).ToString("N0");
+            List<GenericReportModel> reportData = new List<GenericReportModel>();
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
+            bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+            vehicleHistory.TotalGasCost = gasRecords.Sum(x => x.Cost);
+            vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
+            var averageMPG = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG).Average(x => x.MilesPerGallon);
+            vehicleHistory.MPG = averageMPG;
+            //insert servicerecords
+            reportData.AddRange(serviceRecords.Select(x => new GenericReportModel
+            {
+                Date = x.Date,
+                Odometer = x.Mileage,
+                Description = x.Description,
+                Notes = x.Notes,
+                Cost = x.Cost,
+                DataType = ImportMode.ServiceRecord
+            }));
+            //repair records
+            reportData.AddRange(repairRecords.Select(x => new GenericReportModel
+            {
+                Date = x.Date,
+                Odometer = x.Mileage,
+                Description = x.Description,
+                Notes = x.Notes,
+                Cost = x.Cost,
+                DataType = ImportMode.RepairRecord
+            }));
+            reportData.AddRange(upgradeRecords.Select(x => new GenericReportModel
+            {
+                Date = x.Date,
+                Odometer = x.Mileage,
+                Description = x.Description,
+                Notes = x.Notes,
+                Cost = x.Cost,
+                DataType = ImportMode.UpgradeRecord
+            }));
+            reportData.AddRange(taxRecords.Select(x => new GenericReportModel
+            {
+                Date = x.Date,
+                Odometer = 0,
+                Description = x.Description,
+                Notes = x.Notes,
+                Cost = x.Cost,
+                DataType = ImportMode.TaxRecord
+            }));
+            vehicleHistory.VehicleHistory = reportData;
+            return PartialView("_VehicleHistory", vehicleHistory);
+        }
         [HttpPost]
         public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
         {
