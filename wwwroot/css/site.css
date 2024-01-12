@@ -75,6 +75,9 @@ html {
         td.col-1 {
             width: 10%;
         }
+        td.col-4.text-wrap{
+            width: 30%;
+        }
 
     th.col-1 {
         width: 10%;
