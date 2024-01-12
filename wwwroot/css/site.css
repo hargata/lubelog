@@ -48,7 +48,7 @@ html {
         display:block !important;
     }
     .vehicleDetailTabContainer {
-        background-color: #fff;
+        background-color: #fff !important;
         height: 100%;
         width: 100%;
         position: absolute;
@@ -60,16 +60,22 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+    table {
+        background-color: #fff !important;
+    }
     ul {
         border: 0px !important;
+        background-color: #fff !important;
     }
     li {
         color: #000 !important;
         border: 0px !important;
+        background-color: #fff !important;
     }
     td {
         color: #000 !important;
         border: hidden;
+        background-color: #fff !important;
     }
 
         td.col-1 {
@@ -85,6 +91,7 @@ html {
 
     th {
         color: #000 !important;
+        background-color: #fff !important;
     }
 
     tr{

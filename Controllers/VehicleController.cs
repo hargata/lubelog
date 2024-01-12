@@ -742,7 +742,7 @@ namespace CarCareTracker.Controllers
                 Cost = x.Cost,
                 DataType = ImportMode.TaxRecord
             }));
-            vehicleHistory.VehicleHistory = reportData;
+            vehicleHistory.VehicleHistory = reportData.OrderBy(x=>x.Date).ThenBy(x=>x.Odometer).ToList();
             return PartialView("_VehicleHistory", vehicleHistory);
         }
         [HttpPost]
