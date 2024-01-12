@@ -36,6 +36,10 @@ html {
     overflow-x: auto;
 }
 
+.showOnPrint {
+    display:none;
+}
+
 @media print {
     .hideOnPrint {
         display:none;

@@ -68,12 +68,12 @@
     </div>
 </div>
 <hr />
-<div class="row">
+<div class="row hideOnPrint">
     <div class="d-flex justify-content-center">
         <button onclick="generateVehicleHistoryReport()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate and Print Vehicle History Report</button>
     </div>
 </div>
-<div id="vehicleHistoryReport" class="showOnPrint" ></div>
+<div id="vehicleHistoryReport" class="showOnPrint"></div>
 <script>
     function getYear() {
         return $("#yearOption").val();
