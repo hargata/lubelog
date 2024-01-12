@@ -25,15 +25,15 @@ html {
 }
 
 
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
-}
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+    }
 
-.vehicleDetailTabContainer{
-    max-height:65vh;
-    overflow-y:auto;
-    overflow-x:auto;
+.vehicleDetailTabContainer {
+    max-height: 65vh;
+    overflow-y: auto;
+    overflow-x: auto;
 }
 
 @media print {
@@ -50,27 +50,31 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+
     td {
         color: #000 !important;
     }
-    td.col-1{
-        width:10%;
-    }
+
+        td.col-1 {
+            width: 10%;
+        }
+
     th.col-1 {
         width: 10%;
     }
+
     th {
         color: #000 !important;
     }
 }
 
-.chartContainer{
-    height:30vh;
-    overflow:auto;
+.chartContainer {
+    height: 30vh;
+    overflow: auto;
 }
 
-.vehicleNoteContainer{
-    height:40vh;
+.vehicleNoteContainer {
+    height: 40vh;
 }
 
 .display-7 {
@@ -134,15 +138,64 @@ html {
 }
 
 /*Media Queries*/
-@media (max-width: 576px){
-    .lubelogger-tab{
-        display:none;
+@media (max-width: 576px) {
+    .lubelogger-tab {
+        display: none;
     }
-    .lubelogger-navbar{
+
+    .lubelogger-navbar {
         justify-content: space-between;
     }
+
+    .lubelogger-navbar-button {
+        display: flex;
+        align-items: center;
+    }
+
+    .lubelogger-navbar-button > button {
+        padding: 0;
+        font-size: 2rem;
+    }
+
+    .lubelogger-menu-icon {
+        display: inline-block;
+        width: 1.5em;
+        height: 1.5em;
+    }
+
+    .lubelogger-mobile-nav {
+        background-color: var(--bs-body-bg);
+        height: 100vh;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        display: none;
+        z-index: 10;
+    }
+
+    .lubelogger-mobile-nav-show {
+        display: block;
+    }
+    .lubelogger-mobile-nav > ul > li > .nav-link.active {
+        color: #6ea8fe;
+    }
 }
-@media(min-width: 576px){
+
+@media(min-width: 576px) {
+    .lubelogger-mobile-nav-show {
+        display: none;
+    }
+
+    .lubelogger-mobile-nav {
+        display: none;
+    }
+
+    .lubelogger-navbar {
+        justify-content: center;
+    }
+
     .lubelogger-navbar-button {
         display: none;
     }

@@ -13,16 +13,53 @@
     <script src="~/js/note.js" asp-append-version="true"></script>
     <script src="~/lib/chart-js/chart.umd.js"></script>
 }
+<div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
+    <ul class="nav navbar-nav" id="vehicleTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square"></i>Garage</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-fuel-pump me-2"></i>Fuel</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>Taxes</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>Notes</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div id="reminderBellDiv" style="display:inline-flex;"><i id="reminderBell" class="bi bi-bell me-2"></i></div>Reminders</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>Reports</span></button>
+        </li>
+        <li class="nav-item dropdown" role="presentation">
+            <button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><span class="display-3 ms-2"><i class="bi bi-trash me-2"></i>Delete Vehicle</span></button>
+        </li>
+    </ul>
+</div>
 <div class="container">
     <div class="row">
         <div class="d-flex justify-content-between">
-            <button onclick="returnToGarage()" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></button>
+            <button onclick="returnToGarage()" class="lubelogger-tab btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></button>
             <h1 class="text-truncate display-4">@($"{Model.Year} {Model.Make} {Model.Model}")<small class="text-body-secondary">@($"(#{Model.LicensePlate})")</small></h1>
-            <button onclick="editVehicle(@Model.Id)" class="btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
+            <button onclick="editVehicle(@Model.Id)" class="lubelogger-tab btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
+            <div class="lubelogger-navbar-button">
+                <button type="button" class="btn btn-dark" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
+            </div>
         </div>
     </div>
     <hr />
-    <ul class="nav nav-tabs" id="vehicleTab" role="tablist">
+    <ul class="nav nav-tabs lubelogger-tab" id="vehicleTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
         </li>
@@ -87,4 +124,5 @@
     function GetVehicleId() {
         return { vehicleId: @Model.Id};
     }
+    bindWindowResize();
 </script>

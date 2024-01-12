@@ -9,16 +9,29 @@
 @section Scripts {
     <script src="~/js/garage.js" asp-append-version="true"></script>
 }
+<div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
+    <ul class="navbar-nav" id="homeTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>Garage</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
+        </li>
+        @if (enableAuth)
+        {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>Logout</span></button>
+            </li>
+        }
+    </ul>
+</div>
 <div class="container">
     <div class="row mt-2">
-        <div class="d-flex lubelogger-navbar justify-content-center">
+        <div class="d-flex lubelogger-navbar">
+            <img src="/defaults/lubelogger_logo.png" />
             <div class="lubelogger-navbar-button">
-                <button class="navbar-toggler" type="button">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <button type="button" class="btn btn-dark" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
             </div>
-            <img src="/defaults/lubelogger_logo.png"/>
-            <div class="lubelogger-navbar-button"></div>
         </div>
     </div>
     <hr />
@@ -44,7 +57,6 @@
             </div>
         </div>
         <div class="tab-pane fade @(Model == "settings" ? "show active" : "")" id="settings-tab-pane" role="tabpanel" tabindex="0">
-
         </div>
     </div>
 </div>
@@ -52,11 +64,11 @@
 <div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="addVehicleModalContent">
-           
         </div>
     </div>
 </div>
 <script>
     loadGarage();
     loadSettings();
+    bindWindowResize();
 </script>

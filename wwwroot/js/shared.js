@@ -131,3 +131,15 @@ function initDatePicker(input, futureOnly) {
         });
     }
 }
+
+function showMobileNav() {
+    $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
+}
+function hideMobileNav() {
+    $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
+}
+function bindWindowResize() {
+    $(window).resize(function () {
+        hideMobileNav();
+    });
+}
