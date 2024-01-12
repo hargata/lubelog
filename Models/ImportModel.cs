@@ -1,7 +1,7 @@
 ﻿namespace CarCareTracker.Models
 {
     /// <summary>
-    /// Import model used for importing Gas records.
+    /// Import model used for importing records via CSV.
     /// </summary>
     public class ImportModel
     {
@@ -16,6 +16,7 @@
         public string IsFillToFull { get; set; }
         public string MissedFuelUp { get; set; }
     }
+
     public class ServiceRecordExportModel
     {
         public string Date { get; set; }

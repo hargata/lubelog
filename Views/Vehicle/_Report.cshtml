@@ -1,5 +1,5 @@
 ﻿@model ReportViewModel
-<div class="row">
+<div class="row hideOnPrint">
     <div class="col-md-3 col-12 mt-2">
         <div class="row">
             <div class="col-12">
@@ -68,11 +68,26 @@
     </div>
 </div>
 <hr />
-<div class="row">
+<div class="row hideOnPrint">
+    <div class="d-flex justify-content-center">
+        <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate and Print Vehicle Maintenance Report</button>
+    </div>
 </div>
+<div id="vehicleHistoryReport" class="showOnPrint"></div>
 <script>
     function getYear() {
         return $("#yearOption").val();
+    }
+    function generateVehicleHistoryReport(){
+        var vehicleId = GetVehicleId().vehicleId;
+        $.get(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, function(data){
+            if (data) {
+                $("#vehicleHistoryReport").html(data);
+                setTimeout(function () { 
+                    window.print();
+                }, 500);
+            }
+        })
     }
     var debounce = null;
     function updateCheck(sender) {

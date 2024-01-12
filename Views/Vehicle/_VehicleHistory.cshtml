@@ -1,0 +1,108 @@
+﻿@inject IConfiguration Configuration
+@{
+    var hideZero = bool.Parse(Configuration[nameof(UserConfig.HideZero)]);
+    var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
+    var useUKMPG = bool.Parse(Configuration[nameof(UserConfig.UseUKMPG)]);
+    var useKwh = Model.VehicleData.IsElectric;
+    string fuelEconomyUnit;
+    if (useKwh)
+    {
+        fuelEconomyUnit = useMPG ? "mi./kWh" : "kWh/100km";
+    }
+    else if (useMPG && useUKMPG)
+    {
+        fuelEconomyUnit = "mpg";
+    }
+    else if (useUKMPG)
+    {
+        fuelEconomyUnit = "l/100mi.";
+    }
+    else
+    {
+        fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
+    }
+}
+@model VehicleHistoryViewModel
+<div class="vehicleDetailTabContainer">
+    <div class="row mt-2">
+        <div class="d-flex">
+            <img src="/defaults/lubelogger_logo.png" />
+            <span class="display-6 ms-5">Vehicle Maintenance Report</span>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-6">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                </li>
+                <li class="list-group-item">
+                    <span class="lead">@Model.VehicleData.LicensePlate</span>
+                </li>
+                <li class="list-group-item">
+                    @if (Model.VehicleData.IsElectric)
+                    {
+                        <span><i class="bi bi-ev-station"></i> Electric</span>
+                    }
+                    else
+                    {
+                        <span><i class="bi bi-fuel-pump"></i> Gasoline</span>
+                    }
+                </li>
+            </ul>
+        </div>
+        <div class="col-6">
+            <ul class="list-group">
+                <li class="list-group-item">Last Reported Odometer Reading: @Model.Odometer</li>
+                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG.ToString("F")} {fuelEconomyUnit}")</li>
+                <li class="list-group-item">Total Spent(excl. fuel): @Model.TotalCost.ToString("C")</li>
+                <li class="list-group-item">Total Spent on Fuel: @Model.TotalGasCost.ToString("C")</li>
+            </ul>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr class="d-flex">
+                        <th scope="col" class="col-2">Type</th>
+                        <th scope="col" class="col-1">Date</th>
+                        <th scope="col" class="col-1">Odometer</th>
+                        <th scope="col" class="col-3">Description</th>
+                        <th scope="col" class="col-1">Cost</th>
+                        <th scope="col" class="col-4">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (GenericReportModel reportData in Model.VehicleHistory)
+                    {
+                        <tr class="d-flex">
+                            <td class="col-2">
+                                @if(reportData.DataType == ImportMode.ServiceRecord)
+                                {
+                                    <span><i class="bi bi-card-checklist me-2"></i>Service</span>
+                                } else if (reportData.DataType == ImportMode.RepairRecord)
+                                {
+                                    <span><i class="bi bi-exclamation-octagon me-2"></i>Repair</span>
+                                } else if (reportData.DataType == ImportMode.UpgradeRecord)
+                                {
+                                    <span><i class="bi bi-wrench-adjustable me-2"></i>Upgrade</span>
+                                } else if (reportData.DataType == ImportMode.TaxRecord)
+                                {
+                                    <span><i class="bi bi-currency-dollar me-2"></i>Tax</span>
+                                }
+                            </td>
+                            <td class="col-1">@reportData.Date.ToShortDateString()</td>
+                            <td class="col-1">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
+                            <td class="col-3">@reportData.Description</td>
+                            <td class="col-1">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
+                            <td class="col-4 text-wrap">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
