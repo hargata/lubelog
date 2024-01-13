@@ -1,29 +1,36 @@
-﻿@model AdminViewModel
+﻿@{
+    ViewData["Title"] = "Admin";
+}
+@model AdminViewModel
 <div class="container">
     <div class="row">
-        <div class="col-3">
+        <div class="col-5">
             <div class="row">
                 <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate User Token</button>
             </div>
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
-                        <th scope="col" class="col-8">Token</th>
-                        <th scope="col" class="col-4">Delete</th>
+                        <th scope="col" class="col-4">Token</th>
+                        <th scope="col" class="col-6">Issued To</th>
+                        <th scope="col" class="col-2">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (Token token in Model.Tokens)
                     {
-                        <tr class="d-flex" style="cursor:pointer;">
-                            <td class="col-8">@token.Body</td>
-                            <td class="col-4">@token.Id</td>
+                        <tr class="d-flex">
+                            <td class="col-4" style="cursor:pointer;" onclick="copyToClipboard(this)">@token.Body</td>
+                            <td class="col-6 text-truncate">@token.EmailAddress</td>
+                            <td class="col-2">
+                                <button type="button" class="btn btn-danger" onclick="deleteToken(@token.Id, this)"><i class="bi bi-trash"></i></button>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        <div class="col-9">
+        <div class="col-7">
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
@@ -52,10 +59,42 @@
     function reloadPage() {
         window.location.reload();
     }
-    function generateNewToken(){
-        $.get('/Admin/GenerateNewToken', function (data) {
+    function deleteToken(tokenId) {
+        $.post(`/Admin/DeleteToken?tokenId=${tokenId}`, function (data) {
             if (data) {
                 reloadPage();
+            }
+        });
+    }
+    function copyToClipboard(e) {
+        var textToCopy = e.textContent;
+        navigator.clipboard.writeText(textToCopy);
+        successToast("Copied to Clipboard");
+    }
+    function generateNewToken(){
+        Swal.fire({
+            title: 'Generate Token',
+            html: `
+                        <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address">
+                        `,
+            confirmButtonText: 'Generate',
+            focusConfirm: false,
+            preConfirm: () => {
+                const emailAddress = $("#inputEmail").val();
+                if (!emailAddress) {
+                    Swal.showValidationMessage(`Please enter an email address`)
+                }
+                return { emailAddress }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.get('/Admin/GenerateNewToken', {emailAddress: result.value.emailAddress}, function (data) {
+                    if (data) {
+                        reloadPage();
+                    } else {
+                        errorToast("An error occurred, make sure the email address doesn't already have a token generated for it.")
+                    }
+                });
             }
         });
     }

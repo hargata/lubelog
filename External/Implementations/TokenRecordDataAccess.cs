@@ -26,6 +26,15 @@ namespace CarCareTracker.External.Implementations
                 return tokenRecord ?? new Token();
             };
         }
+        public Token GetTokenRecordByEmailAddress(string emailAddress)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<Token>(tableName);
+                var tokenRecord = table.FindOne(Query.EQ(nameof(Token.EmailAddress), emailAddress));
+                return tokenRecord ?? new Token();
+            };
+        }
         public bool CreateNewToken(Token token)
         {
             using (var db = new LiteDatabase(dbName))

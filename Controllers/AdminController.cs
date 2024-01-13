@@ -22,9 +22,14 @@ namespace CarCareTracker.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult GenerateNewToken()
+        public IActionResult GenerateNewToken(string emailAddress)
         {
-            var result = _loginLogic.GenerateUserToken();
+            var result = _loginLogic.GenerateUserToken(emailAddress);
+            return Json(result);
+        }
+        public IActionResult DeleteToken(int tokenId)
+        {
+            var result = _loginLogic.DeleteUserToken(tokenId);
             return Json(result);
         }
     }

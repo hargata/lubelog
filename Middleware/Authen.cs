@@ -99,7 +99,7 @@ namespace CarCareTracker.Middleware
                                 //if cookie is expired
                                 return AuthenticateResult.Fail("Expired credentials");
                             }
-                            else if (authCookie.UserData.Id == default || string.IsNullOrWhiteSpace(authCookie.UserData.UserName))
+                            else if (authCookie.UserData is null || authCookie.UserData.Id == default || string.IsNullOrWhiteSpace(authCookie.UserData.UserName))
                             {
                                 return AuthenticateResult.Fail("Corrupted credentials");
                             }

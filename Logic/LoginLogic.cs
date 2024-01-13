@@ -10,7 +10,8 @@ namespace CarCareTracker.Logic
 {
     public interface ILoginLogic
     {
-        bool GenerateUserToken();
+        bool GenerateUserToken(string emailAddress);
+        bool DeleteUserToken(int tokenId);
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
@@ -33,12 +34,12 @@ namespace CarCareTracker.Logic
         {
             //validate their token.
             var existingToken = _tokenData.GetTokenRecordByBody(credentials.Token);
-            if (existingToken.Id == default)
+            if (existingToken.Id == default || existingToken.EmailAddress != credentials.EmailAddress)
             {
                 return new OperationResponse { Success = false, Message = "Invalid Token" };
             }
             //token is valid, check if username and password is acceptable and that username is unique.
-            if (string.IsNullOrWhiteSpace(credentials.UserName) || string.IsNullOrWhiteSpace(credentials.Password))
+            if (string.IsNullOrWhiteSpace(credentials.EmailAddress) || string.IsNullOrWhiteSpace(credentials.UserName) || string.IsNullOrWhiteSpace(credentials.Password))
             {
                 return new OperationResponse { Success = false, Message = "Neither username nor password can be blank" };
             }
@@ -46,6 +47,11 @@ namespace CarCareTracker.Logic
             if (existingUser.Id != default)
             {
                 return new OperationResponse { Success = false, Message = "Username already taken" };
+            }
+            var existingUserWithEmail = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+            if (existingUserWithEmail.Id != default)
+            {
+                return new OperationResponse { Success = false, Message = "A user with that email already exists" };
             }
             //username is unique then we delete the token and create the user.
             _tokenData.DeleteToken(existingToken.Id);
@@ -58,7 +64,8 @@ namespace CarCareTracker.Logic
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "You will be redirected to the login page briefly." };
-            } else
+            }
+            else
             {
                 return new OperationResponse { Success = false, Message = "Something went wrong, please try again later." };
             }
@@ -78,7 +85,8 @@ namespace CarCareTracker.Logic
                     UserName = credentials.UserName,
                     IsAdmin = true
                 };
-            } else
+            }
+            else
             {
                 //authenticate via DB.
                 var result = _userData.GetUserRecordByUserName(credentials.UserName);
@@ -86,7 +94,8 @@ namespace CarCareTracker.Logic
                 {
                     result.Password = string.Empty;
                     return result;
-                } else
+                }
+                else
                 {
                     return new UserData();
                 }
@@ -103,13 +112,25 @@ namespace CarCareTracker.Logic
             var result = _tokenData.GetTokens();
             return result;
         }
-        public bool GenerateUserToken()
+        public bool GenerateUserToken(string emailAddress)
         {
+            //check if email address already has a token attached to it.
+            var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
+            if (existingToken.Id != default)
+            {
+                return false;
+            }
             var token = new Token()
             {
-                Body = Guid.NewGuid().ToString().Substring(0, 8)
+                Body = Guid.NewGuid().ToString().Substring(0, 8),
+                EmailAddress = emailAddress
             };
             var result = _tokenData.CreateNewToken(token);
+            return result;
+        }
+        public bool DeleteUserToken(int tokenId)
+        {
+            var result = _tokenData.DeleteToken(tokenId);
             return result;
         }
         public OperationResponse ResetUserPassword(LoginModel credentials)
@@ -126,7 +147,8 @@ namespace CarCareTracker.Logic
             if (result)
             {
                 return new OperationResponse { Success = true, Message = newPassword };
-            } else
+            }
+            else
             {
                 return new OperationResponse { Success = false, Message = "Something went wrong, please try again later." };
             }
@@ -150,7 +172,8 @@ namespace CarCareTracker.Logic
             File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
             return true;
         }
-        public bool DeleteRootUserCredentials() {
+        public bool DeleteRootUserCredentials()
+        {
             var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
             var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
             if (existingUserConfig is not null)

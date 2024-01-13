@@ -14,7 +14,8 @@ function performRegistration() {
     var token = $("#inputToken").val();
     var userName = $("#inputUserName").val();
     var userPassword = $("#inputUserPassword").val();
-    $.post('/Login/Register', { userName: userName, password: userPassword, token: token }, function (data) {
+    var userEmail = $("#inputEmail").val();
+    $.post('/Login/Register', { userName: userName, password: userPassword, token: token, emailAddress: userEmail }, function (data) {
         if (data.success) {
             successToast(data.message);
             setTimeout(function () { window.location.href = '/Login/Index' }, 500);

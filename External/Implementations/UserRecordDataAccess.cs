@@ -26,6 +26,15 @@ namespace CarCareTracker.External.Implementations
                 return userRecord ?? new UserData();
             };
         }
+        public UserData GetUserRecordByEmailAddress(string emailAddress)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<UserData>(tableName);
+                var userRecord = table.FindOne(Query.EQ(nameof(UserData.EmailAddress), emailAddress));
+                return userRecord ?? new UserData();
+            };
+        }
         public UserData GetUserRecordById(int userId)
         {
             using (var db = new LiteDatabase(dbName))
