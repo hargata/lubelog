@@ -83,7 +83,8 @@ namespace CarCareTracker.Logic
                 {
                     Id = -1,
                     UserName = credentials.UserName,
-                    IsAdmin = true
+                    IsAdmin = true,
+                    IsRootUser = true
                 };
             }
             else
