@@ -34,5 +34,10 @@ namespace CarCareTracker.Controllers
             var result = _loginLogic.DeleteUserToken(tokenId);
             return Json(result);
         }
+        public IActionResult DeleteUser(int userId)
+        {
+            var result =_loginLogic.DeleteUser(userId);
+            return Json(result);
+        }
     }
 }

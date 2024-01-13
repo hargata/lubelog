@@ -2,6 +2,7 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -12,7 +13,10 @@ namespace CarCareTracker.Logic
     {
         OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
+        bool DeleteUser(int userId);
         OperationResponse RegisterNewUser(LoginModel credentials);
+        OperationResponse RequestResetPassword(LoginModel credentials);
+        OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         bool CreateRootUserCredentials(LoginModel credentials);
@@ -32,6 +36,7 @@ namespace CarCareTracker.Logic
             _tokenData = tokenData;
             _mailHelper = mailHelper;
         }
+        //handles user registration
         public OperationResponse RegisterNewUser(LoginModel credentials)
         {
             //validate their token.
@@ -60,7 +65,8 @@ namespace CarCareTracker.Logic
             var newUser = new UserData()
             {
                 UserName = credentials.UserName,
-                Password = GetHash(credentials.Password)
+                Password = GetHash(credentials.Password),
+                EmailAddress = credentials.EmailAddress
             };
             var result = _userData.SaveUserRecord(newUser);
             if (result)
@@ -70,6 +76,66 @@ namespace CarCareTracker.Logic
             else
             {
                 return new OperationResponse { Success = false, Message = "Something went wrong, please try again later." };
+            }
+        }
+        /// <summary>
+        /// Generates a token and notifies user via email so they can reset their password.
+        /// </summary>
+        /// <param name="credentials"></param>
+        /// <returns></returns>
+        public OperationResponse RequestResetPassword(LoginModel credentials)
+        {
+            var existingUser = _userData.GetUserRecordByUserName(credentials.UserName);
+            if (existingUser.Id != default)
+            {
+                //user exists, generate a token and send email.
+                //check to see if there is an existing token sent to the user.
+                var existingToken = _tokenData.GetTokenRecordByEmailAddress(existingUser.EmailAddress);
+                if (existingToken.Id == default)
+                {
+                    var token = new Token()
+                    {
+                        Body = NewToken(),
+                        EmailAddress = existingUser.EmailAddress
+                    };
+                    var result = _tokenData.CreateNewToken(token);
+                    if (result)
+                    {
+                        result = _mailHelper.NotifyUserForPasswordReset(existingUser.EmailAddress, token.Body).Success;
+                    }
+                }
+            }
+            //for security purposes we want to always return true for this method.
+            //otherwise someone can spam the reset password method to sniff out users.
+            return new OperationResponse { Success = true, Message = "If your user exists in the system you should receive an email shortly with instructions on how to proceed." };
+        }
+        public OperationResponse ResetPasswordByUser(LoginModel credentials)
+        {
+            var existingToken = _tokenData.GetTokenRecordByBody(credentials.Token);
+            if (existingToken.Id == default || existingToken.EmailAddress != credentials.EmailAddress)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid Token" };
+            }
+            if (string.IsNullOrWhiteSpace(credentials.Password))
+            {
+                return new OperationResponse { Success = false, Message = "New Password cannot be blank" };
+            }
+            //if token is valid.
+            var existingUser = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+            if (existingUser.Id == default)
+            {
+                return new OperationResponse { Success = false, Message = "Unable to locate user" };
+            }
+            existingUser.Password = GetHash(credentials.Password);
+            var result = _userData.SaveUserRecord(existingUser);
+            //delete token
+            _tokenData.DeleteToken(existingToken.Id);
+            if (result)
+            {
+                return new OperationResponse { Success = true, Message = "Password resetted, you will be redirected to login page shortly." };
+            } else
+            {
+                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
             }
         }
         /// <summary>
@@ -125,7 +191,7 @@ namespace CarCareTracker.Logic
             }
             var token = new Token()
             {
-                Body = Guid.NewGuid().ToString().Substring(0, 8),
+                Body = NewToken(),
                 EmailAddress = emailAddress
             };
             var result = _tokenData.CreateNewToken(token);
@@ -140,7 +206,8 @@ namespace CarCareTracker.Logic
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Token Generated!" };
-            } else
+            }
+            else
             {
                 return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
             }
@@ -148,6 +215,11 @@ namespace CarCareTracker.Logic
         public bool DeleteUserToken(int tokenId)
         {
             var result = _tokenData.DeleteToken(tokenId);
+            return result;
+        }
+        public bool DeleteUser(int userId)
+        {
+            var result = _userData.DeleteUserRecord(userId);
             return result;
         }
         public OperationResponse ResetUserPassword(LoginModel credentials)
@@ -236,6 +308,10 @@ namespace CarCareTracker.Logic
             }
 
             return Sb.ToString();
+        }
+        private string NewToken()
+        {
+            return Guid.NewGuid().ToString().Substring(0, 8);
         }
     }
 }

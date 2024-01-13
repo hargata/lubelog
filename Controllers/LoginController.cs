@@ -34,6 +34,14 @@ namespace CarCareTracker.Controllers
         {
             return View();
         }
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
         [HttpPost]
         public IActionResult Login(LoginModel credentials)
         {
@@ -70,6 +78,18 @@ namespace CarCareTracker.Controllers
         public IActionResult Register(LoginModel credentials)
         {
             var result = _loginLogic.RegisterNewUser(credentials);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult RequestResetPassword(LoginModel credentials)
+        {
+            var result = _loginLogic.RequestResetPassword(credentials);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult PerformPasswordReset(LoginModel credentials)
+        {
+            var result = _loginLogic.ResetPasswordByUser(credentials);
             return Json(result);
         }
         [Authorize] //User must already be logged in to do this.

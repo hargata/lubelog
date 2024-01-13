@@ -51,7 +51,7 @@
                             <td class="col-4">@userData.UserName</td>
                             <td class="col-2">@userData.Id</td>
                             <td class="col-4">@userData.Id</td>
-                            <td class="col-2">@userData.Id</td>
+                            <td class="col-2"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
                         </tr>
                     }
                 </tbody>
@@ -69,6 +69,13 @@
                 reloadPage();
             }
         });
+    }
+    function deleteUser(userId){
+        $.post(`/Admin/DeleteUser?userId=${userId}`, function(data){
+            if (data){
+                reloadPage();
+            }
+        })
     }
     function copyToClipboard(e) {
         var textToCopy = e.textContent;
