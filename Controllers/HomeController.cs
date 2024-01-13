@@ -9,6 +9,9 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using CarCareTracker.Helper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using CarCareTracker.Logic;
 
 namespace CarCareTracker.Controllers
 {
@@ -17,17 +20,23 @@ namespace CarCareTracker.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
-        private readonly IFileHelper _fileHelper;
+        private readonly IUserLogic _userLogic;
         private readonly IConfiguration _config;
 
-        public HomeController(ILogger<HomeController> logger, IVehicleDataAccess dataAccess, IFileHelper fileHelper, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, 
+            IVehicleDataAccess dataAccess,
+            IUserLogic userLogic,
+            IConfiguration configuration)
         {
             _logger = logger;
             _dataAccess = dataAccess;
-            _fileHelper = fileHelper;
             _config = configuration;
+            _userLogic = userLogic;
         }
-
+        private int GetUserID()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
         public IActionResult Index(string tab = "garage")
         {
             return View(model: tab);
@@ -35,6 +44,10 @@ namespace CarCareTracker.Controllers
         public IActionResult Garage()
         {
             var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
             return PartialView("_GarageDisplay", vehiclesStored);
         }
         public IActionResult Settings()

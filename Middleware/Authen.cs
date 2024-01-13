@@ -74,7 +74,8 @@ namespace CarCareTracker.Middleware
                             var appIdentity = new ClaimsIdentity("Custom");
                             var userIdentity = new List<Claim>
                             {
-                                new(ClaimTypes.Name, splitString[0])
+                                new(ClaimTypes.Name, splitString[0]),
+                                new(ClaimTypes.NameIdentifier, userData.Id.ToString())
                             };
                             if (userData.IsAdmin)
                             {
@@ -113,9 +114,10 @@ namespace CarCareTracker.Middleware
                             {
                                 var appIdentity = new ClaimsIdentity("Custom");
                                 var userIdentity = new List<Claim>
-                            {
-                                new(ClaimTypes.Name, authCookie.UserData.UserName)
-                            };
+                                {
+                                    new(ClaimTypes.Name, authCookie.UserData.UserName),
+                                    new(ClaimTypes.NameIdentifier, authCookie.UserData.Id.ToString())
+                                };
                                 if (authCookie.UserData.IsAdmin)
                                 {
                                     userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));

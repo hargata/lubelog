@@ -29,8 +29,9 @@ builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 builder.Services.AddSingleton<IMailHelper, MailHelper>();
 
-//configur logic
+//configure logic
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
+builder.Services.AddSingleton<IUserLogic, UserLogic>();
 
 if (!Directory.Exists("data"))
 {
