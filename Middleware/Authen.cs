@@ -39,7 +39,8 @@ namespace CarCareTracker.Middleware
                 var appIdentity = new ClaimsIdentity("Custom");
                 var userIdentity = new List<Claim>
                 {
-                    new(ClaimTypes.Name, "admin")
+                    new(ClaimTypes.Name, "admin"),
+                    new(ClaimTypes.Role, nameof(UserData.IsRootUser))
                 };
                 appIdentity.AddClaims(userIdentity);
                 AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
@@ -64,7 +65,8 @@ namespace CarCareTracker.Middleware
                     if (splitString.Count() != 2)
                     {
                         return AuthenticateResult.Fail("Invalid credentials");
-                    } else
+                    }
+                    else
                     {
                         var userData = _loginLogic.ValidateUserCredentials(new LoginModel { UserName = splitString[0], Password = splitString[1] });
                         if (userData.Id != default)
@@ -77,6 +79,10 @@ namespace CarCareTracker.Middleware
                             if (userData.IsAdmin)
                             {
                                 userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));
+                            }
+                            if (userData.IsRootUser)
+                            {
+                                userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsRootUser)));
                             }
                             appIdentity.AddClaims(userIdentity);
                             AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
@@ -113,6 +119,10 @@ namespace CarCareTracker.Middleware
                                 if (authCookie.UserData.IsAdmin)
                                 {
                                     userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));
+                                }
+                                if (authCookie.UserData.IsRootUser)
+                                {
+                                    userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsRootUser)));
                                 }
                                 appIdentity.AddClaims(userIdentity);
                                 AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);

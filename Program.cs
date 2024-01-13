@@ -20,6 +20,7 @@ builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAcces
 builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
 builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
 builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
+builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
