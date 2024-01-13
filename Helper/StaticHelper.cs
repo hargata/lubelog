@@ -7,6 +7,7 @@
     {
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
+        public static string GenericErrorMessage = "An error occurred, please try again later";
 
         public static string TruncateStrings(string input, int maxLength = 25)
         {

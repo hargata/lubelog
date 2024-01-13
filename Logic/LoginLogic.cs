@@ -10,7 +10,7 @@ namespace CarCareTracker.Logic
 {
     public interface ILoginLogic
     {
-        bool GenerateUserToken(string emailAddress);
+        OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
@@ -25,10 +25,12 @@ namespace CarCareTracker.Logic
     {
         private readonly IUserRecordDataAccess _userData;
         private readonly ITokenRecordDataAccess _tokenData;
-        public LoginLogic(IUserRecordDataAccess userData, ITokenRecordDataAccess tokenData)
+        private readonly IMailHelper _mailHelper;
+        public LoginLogic(IUserRecordDataAccess userData, ITokenRecordDataAccess tokenData, IMailHelper mailHelper)
         {
             _userData = userData;
             _tokenData = tokenData;
+            _mailHelper = mailHelper;
         }
         public OperationResponse RegisterNewUser(LoginModel credentials)
         {
@@ -113,13 +115,13 @@ namespace CarCareTracker.Logic
             var result = _tokenData.GetTokens();
             return result;
         }
-        public bool GenerateUserToken(string emailAddress)
+        public OperationResponse GenerateUserToken(string emailAddress, bool autoNotify)
         {
             //check if email address already has a token attached to it.
             var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
             if (existingToken.Id != default)
             {
-                return false;
+                return new OperationResponse { Success = false, Message = "There is an existing token tied to this email address" };
             }
             var token = new Token()
             {
@@ -127,7 +129,21 @@ namespace CarCareTracker.Logic
                 EmailAddress = emailAddress
             };
             var result = _tokenData.CreateNewToken(token);
-            return result;
+            if (result && autoNotify)
+            {
+                result = _mailHelper.NotifyUserForRegistration(emailAddress, token.Body).Success;
+                if (!result)
+                {
+                    return new OperationResponse { Success = false, Message = "Token Generated, but Email failed to send, please check your SMTP settings." };
+                }
+            }
+            if (result)
+            {
+                return new OperationResponse { Success = true, Message = "Token Generated!" };
+            } else
+            {
+                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+            }
         }
         public bool DeleteUserToken(int tokenId)
         {

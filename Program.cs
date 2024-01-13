@@ -26,6 +26,7 @@ builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
+builder.Services.AddSingleton<IMailHelper, MailHelper>();
 
 //configur logic
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();

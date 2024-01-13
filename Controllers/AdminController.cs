@@ -24,43 +24,15 @@ namespace CarCareTracker.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult GenerateNewToken(string emailAddress)
+        public IActionResult GenerateNewToken(string emailAddress, bool autoNotify)
         {
-            var result = _loginLogic.GenerateUserToken(emailAddress);
-            //send an email test block.
-            SendEmail(emailAddress);
+            var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
             return Json(result);
         }
         public IActionResult DeleteToken(int tokenId)
         {
             var result = _loginLogic.DeleteUserToken(tokenId);
             return Json(result);
-        }
-        private bool SendEmail(string emailAddress)
-        {
-            var mailConfig = new MailConfig();
-            string to = emailAddress;
-            string from = mailConfig.EmailFrom;
-            var server = mailConfig.EmailServer;
-            MailMessage message = new MailMessage(from, to);
-            message.Subject = "Using the new SMTP client.";
-            message.Body = @"Using this new feature, you can send an email message from an application very easily.";
-            SmtpClient client = new SmtpClient(server);
-            client.EnableSsl = mailConfig.UseSSL;
-            client.Port = mailConfig.Port;
-            client.Credentials = new NetworkCredential(mailConfig.Username, mailConfig.Password);
-
-            try
-            {
-                client.Send(message);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception caught in CreateTestMessage2(): {0}",
-                    ex.ToString());
-                return false;
-            }
         }
     }
 }

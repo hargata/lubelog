@@ -6,6 +6,10 @@
     <div class="row">
         <div class="col-5">
             <div class="row">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" checked>
+                    <label class="form-check-label" for="enableAutoNotify">Auto Notify(via Email)</label>
+                </div>
                 <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate User Token</button>
             </div>
             <table class="table table-hover">
@@ -88,11 +92,12 @@
             },
         }).then(function (result) {
             if (result.isConfirmed) {
-                $.get('/Admin/GenerateNewToken', {emailAddress: result.value.emailAddress}, function (data) {
-                    if (data) {
+                var autoNotify = $("#enableAutoNotify").is(":checked");
+                $.get('/Admin/GenerateNewToken', {emailAddress: result.value.emailAddress, autoNotify: autoNotify}, function (data) {
+                    if (data.success) {
                         reloadPage();
                     } else {
-                        errorToast("An error occurred, make sure the email address doesn't already have a token generated for it.")
+                        errorToast(data.message)
                     }
                 });
             }
