@@ -1,4 +1,4 @@
-﻿using CarCareTracker.Helper;
+﻿using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Web;
@@ -15,20 +15,20 @@ namespace CarCareTracker.Middleware
     {
         private IHttpContextAccessor _httpContext;
         private IDataProtector _dataProtector;
-        private ILoginHelper _loginHelper;
+        private ILoginLogic _loginLogic;
         private bool enableAuth;
         public Authen(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             UrlEncoder encoder,
             ILoggerFactory logger,
             IConfiguration configuration,
-            ILoginHelper loginHelper,
+            ILoginLogic loginLogic,
             IDataProtectionProvider securityProvider,
             IHttpContextAccessor httpContext) : base(options, logger, encoder)
         {
             _httpContext = httpContext;
             _dataProtector = securityProvider.CreateProtector("login");
-            _loginHelper = loginHelper;
+            _loginLogic = loginLogic;
             enableAuth = bool.Parse(configuration["EnableAuth"]);
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -66,14 +66,18 @@ namespace CarCareTracker.Middleware
                         return AuthenticateResult.Fail("Invalid credentials");
                     } else
                     {
-                        var validUser = _loginHelper.ValidateUserCredentials(new LoginModel { UserName = splitString[0], Password = splitString[1] });
-                        if (validUser)
+                        var userData = _loginLogic.ValidateUserCredentials(new LoginModel { UserName = splitString[0], Password = splitString[1] });
+                        if (userData.Id != default)
                         {
                             var appIdentity = new ClaimsIdentity("Custom");
                             var userIdentity = new List<Claim>
                             {
                                 new(ClaimTypes.Name, splitString[0])
                             };
+                            if (userData.IsAdmin)
+                            {
+                                userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));
+                            }
                             appIdentity.AddClaims(userIdentity);
                             AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
                             return AuthenticateResult.Success(ticket);
@@ -82,32 +86,43 @@ namespace CarCareTracker.Middleware
                 }
                 else if (!string.IsNullOrWhiteSpace(access_token))
                 {
-                    //decrypt the access token.
-                    var decryptedCookie = _dataProtector.Unprotect(access_token);
-                    AuthCookie authCookie = JsonSerializer.Deserialize<AuthCookie>(decryptedCookie);
-                    if (authCookie != null)
+                    try
                     {
-                        //validate auth cookie
-                        if (authCookie.ExpiresOn < DateTime.Now)
+                        //decrypt the access token.
+                        var decryptedCookie = _dataProtector.Unprotect(access_token);
+                        AuthCookie authCookie = JsonSerializer.Deserialize<AuthCookie>(decryptedCookie);
+                        if (authCookie != null)
                         {
-                            //if cookie is expired
-                            return AuthenticateResult.Fail("Expired credentials");
-                        }
-                        else if (authCookie.Id == default || string.IsNullOrWhiteSpace(authCookie.UserName))
-                        {
-                            return AuthenticateResult.Fail("Corrupted credentials");
-                        }
-                        else
-                        {
-                            var appIdentity = new ClaimsIdentity("Custom");
-                            var userIdentity = new List<Claim>
+                            //validate auth cookie
+                            if (authCookie.ExpiresOn < DateTime.Now)
                             {
-                                new(ClaimTypes.Name, authCookie.UserName)
+                                //if cookie is expired
+                                return AuthenticateResult.Fail("Expired credentials");
+                            }
+                            else if (authCookie.UserData.Id == default || string.IsNullOrWhiteSpace(authCookie.UserData.UserName))
+                            {
+                                return AuthenticateResult.Fail("Corrupted credentials");
+                            }
+                            else
+                            {
+                                var appIdentity = new ClaimsIdentity("Custom");
+                                var userIdentity = new List<Claim>
+                            {
+                                new(ClaimTypes.Name, authCookie.UserData.UserName)
                             };
-                            appIdentity.AddClaims(userIdentity);
-                            AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
-                            return AuthenticateResult.Success(ticket);
+                                if (authCookie.UserData.IsAdmin)
+                                {
+                                    userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));
+                                }
+                                appIdentity.AddClaims(userIdentity);
+                                AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
+                                return AuthenticateResult.Success(ticket);
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        return AuthenticateResult.Fail("Corrupted credentials");
                     }
                 }
                 return AuthenticateResult.Fail("Invalid credentials");

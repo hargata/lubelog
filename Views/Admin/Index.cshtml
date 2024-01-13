@@ -1,0 +1,62 @@
+﻿@model AdminViewModel
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <div class="row">
+                <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate User Token</button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr class="d-flex">
+                        <th scope="col" class="col-8">Token</th>
+                        <th scope="col" class="col-4">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Token token in Model.Tokens)
+                    {
+                        <tr class="d-flex" style="cursor:pointer;">
+                            <td class="col-8">@token.Body</td>
+                            <td class="col-4">@token.Id</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-9">
+            <table class="table table-hover">
+                <thead>
+                    <tr class="d-flex">
+                        <th scope="col" class="col-4">UserName</th>
+                        <th scope="col" class="col-2">Is Admin</th>
+                        <th scope="col" class="col-4">Reset Password</th>
+                        <th scope="col" class="col-2">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (UserData userData in Model.Users)
+                    {
+                        <tr class="d-flex" style="cursor:pointer;">
+                            <td class="col-4">@userData.UserName</td>
+                            <td class="col-2">@userData.Id</td>
+                            <td class="col-4">@userData.Id</td>
+                            <td class="col-2">@userData.Id</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    function reloadPage() {
+        window.location.reload();
+    }
+    function generateNewToken(){
+        $.get('/Admin/GenerateNewToken', function (data) {
+            if (data) {
+                reloadPage();
+            }
+        });
+    }
+</script>

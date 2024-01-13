@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -13,19 +14,23 @@ namespace CarCareTracker.Controllers
     public class LoginController : Controller
     {
         private IDataProtector _dataProtector;
-        private ILoginHelper _loginHelper;
+        private ILoginLogic _loginLogic;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,
             IDataProtectionProvider securityProvider,
-            ILoginHelper loginHelper
+            ILoginLogic loginLogic
             ) 
         {
             _dataProtector = securityProvider.CreateProtector("login");
             _logger = logger;
-            _loginHelper = loginHelper;
+            _loginLogic = loginLogic;
         }
         public IActionResult Index()
+        {
+            return View();
+        }
+        public IActionResult Registration()
         {
             return View();
         }
@@ -40,13 +45,12 @@ namespace CarCareTracker.Controllers
             //compare it against hashed credentials
             try
             {
-                var loginIsValid = _loginHelper.ValidateUserCredentials(credentials);
-                if (loginIsValid)
+                var userData = _loginLogic.ValidateUserCredentials(credentials);
+                if (userData.Id != default)
                 {
                     AuthCookie authCookie = new AuthCookie
                     {
-                        Id = 1, //this is hardcoded for now
-                        UserName = credentials.UserName,
+                        UserData = userData,
                         ExpiresOn = DateTime.Now.AddDays(credentials.IsPersistent ? 30 : 1)
                     };
                     var serializedCookie = JsonSerializer.Serialize(authCookie);
@@ -61,26 +65,21 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
+
+        [HttpPost]
+        public IActionResult Register(LoginModel credentials)
+        {
+            var result = _loginLogic.RegisterNewUser(credentials);
+            return Json(result);
+        }
         [Authorize] //User must already be logged in to do this.
         [HttpPost]
         public IActionResult CreateLoginCreds(LoginModel credentials)
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
-                var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
-                if (existingUserConfig is not null)
-                {
-                    //create hashes of the login credentials.
-                    var hashedUserName = Sha256_hash(credentials.UserName);
-                    var hashedPassword = Sha256_hash(credentials.Password);
-                    //copy over settings that are off limits on the settings page.
-                    existingUserConfig.EnableAuth = true;
-                    existingUserConfig.UserNameHash = hashedUserName;
-                    existingUserConfig.UserPasswordHash = hashedPassword;
-                }
-                System.IO.File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
-                return Json(true);
+                var result = _loginLogic.CreateRootUserCredentials(credentials);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -94,19 +93,13 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var configFileContents = System.IO.File.ReadAllText(StaticHelper.UserConfigPath);
-                var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
-                if (existingUserConfig is not null)
-                {
-                    //copy over settings that are off limits on the settings page.
-                    existingUserConfig.EnableAuth = false;
-                    existingUserConfig.UserNameHash = string.Empty;
-                    existingUserConfig.UserPasswordHash = string.Empty;
-                }
-                System.IO.File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
+                var result = _loginLogic.DeleteRootUserCredentials();
                 //destroy any login cookies.
-                Response.Cookies.Delete("ACCESS_TOKEN");
-                return Json(true);
+                if (result)
+                {
+                    Response.Cookies.Delete("ACCESS_TOKEN");
+                }
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -120,21 +113,6 @@ namespace CarCareTracker.Controllers
         {
             Response.Cookies.Delete("ACCESS_TOKEN");
             return Json(true);
-        }
-        private static string Sha256_hash(string value)
-        {
-            StringBuilder Sb = new StringBuilder();
-
-            using (var hash = SHA256.Create())
-            {
-                Encoding enc = Encoding.UTF8;
-                byte[] result = hash.ComputeHash(enc.GetBytes(value));
-
-                foreach (byte b in result)
-                    Sb.Append(b.ToString("x2"));
-            }
-
-            return Sb.ToString();
         }
     }
 }
