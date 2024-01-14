@@ -12,7 +12,6 @@ namespace CarCareTracker.Logic
         bool DeleteCollaboratorFromVehicle(int userId, int vehicleId);
         OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
-        bool UserCanAccessVehicle(int userId, int vehicleId);
         bool UserCanEditVehicle(int userId, int vehicleId);
         bool DeleteAllAccessToVehicle(int vehicleId);
         bool DeleteAllAccessToUser(int userId);
@@ -91,19 +90,6 @@ namespace CarCareTracker.Logic
             {
                 return new List<Vehicle>();
             }
-        }
-        public bool UserCanAccessVehicle(int userId, int vehicleId)
-        {
-            if (userId == -1)
-            {
-                return true;
-            }
-            var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userId, vehicleId);
-            if (userAccess != null)
-            {
-                return true;
-            }
-            return false;
         }
         public bool UserCanEditVehicle(int userId, int vehicleId)
         {
