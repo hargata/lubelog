@@ -10,6 +10,45 @@
         }
     })
 }
+function performRegistration() {
+    var token = $("#inputToken").val();
+    var userName = $("#inputUserName").val();
+    var userPassword = $("#inputUserPassword").val();
+    var userEmail = $("#inputEmail").val();
+    $.post('/Login/Register', { userName: userName, password: userPassword, token: token, emailAddress: userEmail }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+            setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function requestPasswordReset() {
+    var userName = $("#inputUserName").val();
+    $.post('/Login/RequestResetPassword', { userName: userName }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+            setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+        } else {
+            errorToast(data.message);
+        }
+    })
+}
+function performPasswordReset() {
+    var token = $("#inputToken").val();
+    var userPassword = $("#inputUserPassword").val();
+    var userEmail = $("#inputEmail").val();
+    $.post('/Login/PerformPasswordReset', { password: userPassword, token: token, emailAddress: userEmail }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+            setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
 function handlePasswordKeyPress(event) {
     if (event.keyCode == 13) {
         performLogin();

@@ -1,6 +1,7 @@
 using CarCareTracker.External.Implementations;
 using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -17,13 +18,22 @@ builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAcc
 builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
 builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
 builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
+builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
+builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
+builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
+builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
-builder.Services.AddSingleton<ILoginHelper, LoginHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
+builder.Services.AddSingleton<IMailHelper, MailHelper>();
+builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();
+
+//configure logic
+builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
+builder.Services.AddSingleton<IUserLogic, UserLogic>();
 
 if (!Directory.Exists("data"))
 {

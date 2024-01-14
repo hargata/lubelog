@@ -1,8 +1,11 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Filter;
 using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CarCareTracker.Controllers
 {
@@ -19,6 +22,7 @@ namespace CarCareTracker.Controllers
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
+        private readonly IUserLogic _userLogic;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -28,7 +32,8 @@ namespace CarCareTracker.Controllers
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
-            IUpgradeRecordDataAccess upgradeRecordDataAccess) 
+            IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            IUserLogic userLogic) 
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -40,19 +45,28 @@ namespace CarCareTracker.Controllers
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
+            _userLogic = userLogic;
         }
         public IActionResult Index()
         {
             return View();
         }
-
+        private int GetUserID()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
         [HttpGet]
         [Route("/api/vehicles")]
         public IActionResult Vehicles()
         {
             var result = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                result = _userLogic.FilterUserVehicles(result, GetUserID());
+            }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
         public IActionResult ServiceRecords(int vehicleId)
@@ -61,6 +75,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
         public IActionResult RepairRecords(int vehicleId)
@@ -69,6 +84,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
         public IActionResult UpgradeRecords(int vehicleId)
@@ -77,6 +93,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
         public IActionResult TaxRecords(int vehicleId)
@@ -84,6 +101,7 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
         public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
@@ -92,6 +110,7 @@ namespace CarCareTracker.Controllers
             var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG).Select(x => new GasRecordExportModel { Date = x.Date, Odometer = x.Mileage.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString()});
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
         public IActionResult Reminders(int vehicleId)

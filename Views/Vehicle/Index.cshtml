@@ -11,6 +11,7 @@
     <script src="~/js/reminderrecord.js" asp-append-version="true"></script>
     <script src="~/js/upgraderecord.js" asp-append-version="true"></script>
     <script src="~/js/note.js" asp-append-version="true"></script>
+    <script src="~/js/reports.js" asp-append-version="true"></script>
     <script src="~/lib/chart-js/chart.umd.js"></script>
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
@@ -22,7 +23,10 @@
             <button class="nav-link" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square"></i>Edit Vehicle</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
+            <button class="nav-link active" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>Dashboard</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</span></button>
@@ -43,9 +47,6 @@
             <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>Reports</span></button>
-        </li>
-        <li class="nav-item dropdown" role="presentation">
             <button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><span class="display-3 ms-2"><i class="bi bi-trash me-2"></i>Delete Vehicle</span></button>
         </li>
     </ul>
@@ -64,7 +65,10 @@
     <hr />
     <ul class="nav nav-tabs lubelogger-tab" id="vehicleTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
+            <button class="nav-link active" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>Dash</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</button>
@@ -84,9 +88,6 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>Reports</button>
-        </li>
         <li class="nav-item dropdown ms-auto" role="presentation">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Manage Vehicle</a>
             <ul class="dropdown-menu">
@@ -95,13 +96,13 @@
         </li>
     </ul>
     <div class="tab-content" id="vehicleTabContent">
-        <div class="tab-pane fade show active" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
+        <div class="tab-pane fade" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="gas-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="reminder-tab-pane" role="tabpanel" tabindex="0"></div>
-        <div class="tab-pane fade" id="report-tab-pane" role="tabpanel" tabindex="0"></div>
+        <div class="tab-pane fade show active" id="report-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="upgrade-tab-pane" role="tabpanel" tabindex="0"></div>
     </div>
 </div>

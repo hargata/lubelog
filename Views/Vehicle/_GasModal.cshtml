@@ -1,8 +1,9 @@
-﻿@inject IConfiguration Configuration
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
 @model GasRecordInputContainer
 @{
-    var useMPG = bool.Parse(Configuration[nameof(UserConfig.UseMPG)]);
-    var useUKMPG = bool.Parse(Configuration[nameof(UserConfig.UseUKMPG)]);
+    var useMPG = config.GetUserConfig(User).UseMPG;
+    var useUKMPG = config.GetUserConfig(User).UseUKMPG;
     var useKwh = Model.UseKwh;
     var isNew = Model.GasRecord.Id == 0;
     string consumptionUnit;

@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
+        public int MonthId { get; set; }
         public string Date { get; set; }
         /// <summary>
         /// American moment

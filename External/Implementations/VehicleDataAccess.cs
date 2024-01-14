@@ -14,7 +14,7 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<Vehicle>(tableName);
-                table.Upsert(vehicle);
+                var result = table.Upsert(vehicle);
                 return true;
             };
         }

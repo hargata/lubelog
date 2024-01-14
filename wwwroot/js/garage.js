@@ -14,6 +14,7 @@ function hideAddVehicleModal() {
 function loadGarage() {
     $.get('/Home/Garage', function (data) {
         $("#garageContainer").html(data);
+        loadSettings();
     });
 }
 function loadSettings() {

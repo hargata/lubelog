@@ -1,8 +1,10 @@
-﻿<!DOCTYPE html>
-@inject IConfiguration Configuration
+﻿@using CarCareTracker.Helper
+<!DOCTYPE html>
+@inject IConfigHelper config
 @{
-    var useDarkMode = bool.Parse(Configuration["UseDarkMode"]);
-    var enableCsvImports = bool.Parse(Configuration["EnableCsvImports"]);
+    var userConfig = config.GetUserConfig(User);
+    var useDarkMode = userConfig.UseDarkMode;
+    var enableCsvImports = userConfig.EnableCsvImports;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
