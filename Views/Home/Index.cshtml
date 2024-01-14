@@ -14,9 +14,12 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>Garage</span></button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
-        </li>
+        @if (User.IsInRole(nameof(UserData.IsRootUser)))
+        {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
+            </li>
+        }
         @if (enableAuth)
         {
             <li class="nav-item" role="presentation">
@@ -39,12 +42,15 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "garage" ? "active" : "")" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
         </li>
-        <li class="nav-item ms-auto" role="presentation">
-            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
-        </li>
+         @if (User.IsInRole(nameof(UserData.IsRootUser)))
+        {
+            <li class="nav-item ms-auto" role="presentation">
+                <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
+            </li>
+        }
         @if (enableAuth)
         {
-            <li class="nav-item">
+            <li class="nav-item @(!User.IsInRole(nameof(UserData.IsRootUser)) ? "ms-auto" : "")">
                 <button class="nav-link" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
             </li>
         }
