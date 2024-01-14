@@ -20,6 +20,10 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse NotifyUserForRegistration(string emailAddress, string token)
         {
+            if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            {
+                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+            }
             if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token)) {
                 return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };
             }
@@ -36,6 +40,10 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse NotifyUserForPasswordReset(string emailAddress, string token)
         {
+            if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            {
+                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+            }
             if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token))
             {
                 return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };

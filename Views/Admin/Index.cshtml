@@ -1,6 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Admin";
 }
+@inject IConfiguration config;
+@{
+    bool emailServerIsSetup = true;
+    var mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
+    if (mailConfig is null || string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+    {
+        emailServerIsSetup = false;
+    }
+}
 @model AdminViewModel
 <div class="container">
     <div class="row">
@@ -22,7 +31,7 @@
                 </div>
                 <div class="col-6 d-flex align-items-center">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" checked>
+                        <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
                         <label class="form-check-label" for="enableAutoNotify">Auto Notify(via Email)</label>
                     </div>
                 </div>

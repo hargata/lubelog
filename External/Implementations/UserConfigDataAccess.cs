@@ -32,7 +32,8 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserConfigData>(tableName);
-                return table.Delete(userId);
+                table.Delete(userId);
+                return true;
             };
         }
     }
