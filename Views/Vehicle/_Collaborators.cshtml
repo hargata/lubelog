@@ -1,12 +1,72 @@
 ﻿@model List<UserCollaborator>
 <div class="row">
-    <div class="col-12">
+    <div class="col-8">
         <span class="lead">Collaborators</span>
     </div>
+    <div class="col-4">
+        <button onclick="addCollaborator()" class="btn btn-link btn-sm"><i class="bi bi-person-add"></i></button>
+    </div>
 </div>
-<ul>
-    @foreach (UserCollaborator user in Model)
-    {
-        <li>@user.UserName</li>
+<div class="row">
+    <table class="table table-hover">
+        <thead>
+            <tr class="d-flex">
+                <th scope="col" class="col-8">Username</th>
+                <th scope="col" class="col-4">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (UserCollaborator user in Model)
+            {
+                <tr class="d-flex">
+                    <td class="col-8">@user.UserName</td>
+                    <td class="col-4">
+                        @if(User.Identity.Name != user.UserName)
+                        {
+                            <button onclick="deleteCollaborator(@user.UserVehicle.UserId, @user.UserVehicle.VehicleId)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    function deleteCollaborator(userId, vehicleId) {
+        $.post('/Vehicle/DeleteCollaboratorFromVehicle', {userId: userId, vehicleId: vehicleId}, function(data){
+            if (data) {
+                refreshCollaborators();
+            } else {
+                errorToast("An error occurred, please try again later");
+            }
+        })
     }
-</ul>
+    function addCollaborator() {
+        Swal.fire({
+            title: 'Add Collaborator',
+            html: `
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username">
+                            `,
+            confirmButtonText: 'Add',
+            focusConfirm: false,
+            preConfirm: () => {
+                const userName = $("#inputUserName").val();
+                if (!userName) {
+                    Swal.showValidationMessage(`Please enter a username`);
+                }
+                return { userName }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var vehicleId = GetVehicleId().vehicleId;
+                $.post('/Vehicle/AddCollaboratorsToVehicle', { username: result.value.userName, vehicleId: vehicleId }, function (data) {
+                    if (data.success) {
+                        refreshCollaborators();
+                    } else {
+                        errorToast(data.message)
+                    }
+                });
+            }
+        });
+    }
+</script>

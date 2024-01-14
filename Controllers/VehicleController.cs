@@ -688,6 +688,20 @@ namespace CarCareTracker.Controllers
             return PartialView("_Collaborators", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult AddCollaboratorsToVehicle(int vehicleId, string username)
+        {
+            var result = _userLogic.AddCollaboratorToVehicle(vehicleId, username);
+            return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult DeleteCollaboratorFromVehicle(int userId, int vehicleId)
+        {
+            var result = _userLogic.DeleteCollaboratorFromVehicle(userId, vehicleId);
+            return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetCostMakeUpForVehicle(int vehicleId, int year = 0)
         {

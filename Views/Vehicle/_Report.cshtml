@@ -77,7 +77,7 @@
             <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate and Print Vehicle Maintenance Report</button>
         </div>
     </div>
-    <div class="col-md-3 col-12">
+    <div class="col-md-3 col-12" id="collaboratorContent">
         @await Html.PartialAsync("_Collaborators", Model.Collaborators)
     </div>
 </div>
@@ -152,5 +152,11 @@
             $("#costMakeUpReportContent").html(data);
             refreshBarChart();
         })
+    }
+    function refreshCollaborators(){
+        var vehicleId = GetVehicleId().vehicleId;
+        $.get(`/Vehicle/GetCollaboratorsForVehicle?vehicleId=${vehicleId}`, function (data) {
+            $("#collaboratorContent").html(data);
+        });
     }
 </script>

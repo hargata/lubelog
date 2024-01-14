@@ -11,9 +11,11 @@ namespace CarCareTracker.Controllers
     public class AdminController : Controller
     {
         private ILoginLogic _loginLogic;
-        public AdminController(ILoginLogic loginLogic)
+        private IUserLogic _userLogic;
+        public AdminController(ILoginLogic loginLogic, IUserLogic userLogic)
         {
             _loginLogic = loginLogic;
+            _userLogic = userLogic;
         }
         public IActionResult Index()
         {
@@ -36,7 +38,7 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult DeleteUser(int userId)
         {
-            var result =_loginLogic.DeleteUser(userId);
+            var result =_userLogic.DeleteAllAccessToUser(userId) && _loginLogic.DeleteUser(userId);
             return Json(result);
         }
     }

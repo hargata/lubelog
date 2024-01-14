@@ -9,6 +9,7 @@ namespace CarCareTracker.Logic
     {
         List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId);
         bool AddUserAccessToVehicle(int userId, int vehicleId);
+        bool DeleteCollaboratorFromVehicle(int userId, int vehicleId);
         OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
         bool UserCanAccessVehicle(int userId, int vehicleId);
@@ -56,6 +57,11 @@ namespace CarCareTracker.Logic
                 return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
             }
             return new OperationResponse { Success = false, Message = $"Unable to find user {username} in the system" };
+        }
+        public bool DeleteCollaboratorFromVehicle(int userId, int vehicleId)
+        {
+            var result = _userAccess.DeleteUserAccess(userId, vehicleId);
+            return result;
         }
         public bool AddUserAccessToVehicle(int userId, int vehicleId)
         {
