@@ -1,6 +1,7 @@
-﻿@inject IConfiguration Configuration
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
 @{
-    var enableAuth = bool.Parse(Configuration[nameof(UserConfig.EnableAuth)]);
+    var enableAuth = config.GetUserConfig(User).EnableAuth;
 }
 @model string
 @{
@@ -14,13 +15,10 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>Garage</span></button>
         </li>
-        @if (User.IsInRole(nameof(UserData.IsRootUser)))
-        {
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
-            </li>
-        }
-        @if (enableAuth)
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
+        </li>
+        @if (User.IsInRole("CookieAuth"))
         {
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>Logout</span></button>
@@ -42,16 +40,24 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "garage" ? "active" : "")" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
         </li>
-         @if (User.IsInRole(nameof(UserData.IsRootUser)))
+        <li class="nav-item ms-auto" role="presentation">
+            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
+        </li>
+        @if (User.IsInRole("CookieAuth"))
         {
-            <li class="nav-item ms-auto" role="presentation">
-                <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
-            </li>
-        }
-        @if (enableAuth)
-        {
-            <li class="nav-item @(!User.IsInRole(nameof(UserData.IsRootUser)) ? "ms-auto" : "")">
-                <button class="nav-link" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+            <li class="nav-item dropdown" role="presentation">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person me-2"></i>@User.Identity.Name</a>
+                <ul class="dropdown-menu">
+                    @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                    {
+                        <li>
+                            <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>Admin Panel</a>
+                        </li>
+                    }
+                    <li>
+                        <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                    </li>
+                </ul>
             </li>
         }
     </ul>
@@ -75,6 +81,5 @@
 </div>
 <script>
     loadGarage();
-    loadSettings();
     bindWindowResize();
 </script>

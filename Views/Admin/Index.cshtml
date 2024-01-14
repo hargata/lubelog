@@ -4,13 +4,28 @@
 @model AdminViewModel
 <div class="container">
     <div class="row">
-        <div class="col-5">
+        <div class="col-1">
+            <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
+        </div>
+        <div class="col-11">
+            <span class="display-6">Admin Panel</span>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-5 col-12">
+            <span class="lead">Tokens</span>
+            <hr />
             <div class="row">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" checked>
-                    <label class="form-check-label" for="enableAutoNotify">Auto Notify(via Email)</label>
+                <div class="col-6">
+                    <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate User Token</button>
                 </div>
-                <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Generate User Token</button>
+                <div class="col-6 d-flex align-items-center">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" checked>
+                        <label class="form-check-label" for="enableAutoNotify">Auto Notify(via Email)</label>
+                    </div>
+                </div>
             </div>
             <table class="table table-hover">
                 <thead>
@@ -34,11 +49,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-7">
+        <div class="col-12 col-md-7">
+            <span class="lead">Users</span>
+            <hr />
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
-                        <th scope="col" class="col-4">UserName</th>
+                        <th scope="col" class="col-4">Username</th>
                         <th scope="col" class="col-2">Is Admin</th>
                         <th scope="col" class="col-4">Reset Password</th>
                         <th scope="col" class="col-2">Delete</th>
@@ -70,9 +87,9 @@
             }
         });
     }
-    function deleteUser(userId){
-        $.post(`/Admin/DeleteUser?userId=${userId}`, function(data){
-            if (data){
+    function deleteUser(userId) {
+        $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
+            if (data) {
                 reloadPage();
             }
         })
@@ -82,12 +99,12 @@
         navigator.clipboard.writeText(textToCopy);
         successToast("Copied to Clipboard");
     }
-    function generateNewToken(){
+    function generateNewToken() {
         Swal.fire({
             title: 'Generate Token',
             html: `
-                        <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address">
-                        `,
+                            <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address">
+                            `,
             confirmButtonText: 'Generate',
             focusConfirm: false,
             preConfirm: () => {
@@ -100,7 +117,7 @@
         }).then(function (result) {
             if (result.isConfirmed) {
                 var autoNotify = $("#enableAutoNotify").is(":checked");
-                $.get('/Admin/GenerateNewToken', {emailAddress: result.value.emailAddress, autoNotify: autoNotify}, function (data) {
+                $.get('/Admin/GenerateNewToken', { emailAddress: result.value.emailAddress, autoNotify: autoNotify }, function (data) {
                     if (data.success) {
                         reloadPage();
                     } else {

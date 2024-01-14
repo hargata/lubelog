@@ -113,11 +113,17 @@ namespace CarCareTracker.Middleware
                             }
                             else
                             {
+                                if (!_loginLogic.CheckIfUserIsValid(authCookie.UserData.Id))
+                                {
+                                    return AuthenticateResult.Fail("Cookie points to non-existant user.");
+                                }
+                                //validate if user is still valid
                                 var appIdentity = new ClaimsIdentity("Custom");
                                 var userIdentity = new List<Claim>
                                 {
                                     new(ClaimTypes.Name, authCookie.UserData.UserName),
-                                    new(ClaimTypes.NameIdentifier, authCookie.UserData.Id.ToString())
+                                    new(ClaimTypes.NameIdentifier, authCookie.UserData.Id.ToString()),
+                                    new(ClaimTypes.Role, "CookieAuth")
                                 };
                                 if (authCookie.UserData.IsAdmin)
                                 {

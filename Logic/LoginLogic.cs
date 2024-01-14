@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
@@ -19,6 +20,7 @@ namespace CarCareTracker.Logic
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
+        bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
         List<UserData> GetAllUsers();
@@ -30,11 +32,31 @@ namespace CarCareTracker.Logic
         private readonly IUserRecordDataAccess _userData;
         private readonly ITokenRecordDataAccess _tokenData;
         private readonly IMailHelper _mailHelper;
-        public LoginLogic(IUserRecordDataAccess userData, ITokenRecordDataAccess tokenData, IMailHelper mailHelper)
+        private IMemoryCache _cache;
+        public LoginLogic(IUserRecordDataAccess userData, 
+            ITokenRecordDataAccess tokenData, 
+            IMailHelper mailHelper,
+            IMemoryCache memoryCache)
         {
             _userData = userData;
             _tokenData = tokenData;
             _mailHelper = mailHelper;
+            _cache = memoryCache;
+        }
+        public bool CheckIfUserIsValid(int userId)
+        {
+            if (userId == -1)
+            {
+                return true;
+            }
+            var result = _userData.GetUserRecordById(userId);
+            if (result == null)
+            {
+                return false;
+            } else
+            {
+                return result.Id != 0;
+            }
         }
         //handles user registration
         public OperationResponse RegisterNewUser(LoginModel credentials)
@@ -259,6 +281,7 @@ namespace CarCareTracker.Logic
                 existingUserConfig.UserPasswordHash = hashedPassword;
             }
             File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
+            _cache.Remove("userConfig_-1");
             return true;
         }
         public bool DeleteRootUserCredentials()
@@ -272,6 +295,8 @@ namespace CarCareTracker.Logic
                 existingUserConfig.UserNameHash = string.Empty;
                 existingUserConfig.UserPasswordHash = string.Empty;
             }
+            //clear out the cached config for the root user.
+            _cache.Remove("userConfig_-1");
             File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
             return true;
         }
