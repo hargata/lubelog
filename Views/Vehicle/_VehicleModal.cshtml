@@ -8,6 +8,15 @@
 }
 <div class="modal-header">
     <h5 class="modal-title" id="addVehicleModalLabel">@(isNew ? "Add New Vehicle" : "Edit Vehicle")</h5>
+    @if (isNew)
+    {
+        <button type="button" class="btn-close" onclick="hideAddVehicleModal()" aria-label="Close"></button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn-close" onclick="hideEditVehicleModal()" aria-label="Close"></button>
+    }
+    
 </div>
 <div class="modal-body">
     <form class="form-inline">

@@ -36,6 +36,7 @@ namespace CarCareTracker.Helper
                     {
                         Id = currentObject.Id,
                         VehicleId = currentObject.VehicleId,
+                        MonthId = currentObject.Date.Month,
                         Date = currentObject.Date.ToShortDateString(),
                         Mileage = currentObject.Mileage,
                         Gallons = convertedConsumption,
@@ -73,6 +74,7 @@ namespace CarCareTracker.Helper
                     {
                         Id = currentObject.Id,
                         VehicleId = currentObject.VehicleId,
+                        MonthId = currentObject.Date.Month,
                         Date = currentObject.Date.ToShortDateString(),
                         Mileage = currentObject.Mileage,
                         Gallons = convertedConsumption,

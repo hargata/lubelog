@@ -12,6 +12,7 @@ namespace CarCareTracker.Logic
 {
     public interface ILoginLogic
     {
+        bool MakeUserAdmin(int userId, bool isAdmin);
         OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
@@ -193,6 +194,17 @@ namespace CarCareTracker.Logic
             }
         }
         #region "Admin Functions"
+        public bool MakeUserAdmin(int userId, bool isAdmin)
+        {
+            var user = _userData.GetUserRecordById(userId);
+            if (user == default)
+            {
+                return false;
+            }
+            user.IsAdmin = isAdmin;
+            var result = _userData.SaveUserRecord(user);
+            return result;
+        }
         public List<UserData> GetAllUsers()
         {
             var result = _userData.GetUsers();

@@ -76,7 +76,7 @@
                         <tr class="d-flex" style="cursor:pointer;">
                             <td class="col-4">@userData.UserName</td>
                             <td class="col-4">@userData.EmailAddress</td>
-                            <td class="col-2">@userData.Id</td>
+                            <td class="col-2"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "")/></td>
                             <td class="col-2"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
                         </tr>
                     }
@@ -86,7 +86,16 @@
     </div>
 </div>
 <script>
-
+    function updateUserAdmin(userId, sender){
+        var isChecked = $(sender).is(":checked");
+        $.post('/Admin/UpdateUserAdminStatus', { userId: userId, isAdmin: isChecked }, function (data) {
+            if (data){
+                reloadPage();
+            } else {
+                errorToast("An error has occurred, please try again later.");
+            }
+        });
+    }
     function reloadPage() {
         window.location.reload();
     }
@@ -94,6 +103,8 @@
         $.post(`/Admin/DeleteToken?tokenId=${tokenId}`, function (data) {
             if (data) {
                 reloadPage();
+            } else {
+                errorToast("An error has occurred, please try again later.");
             }
         });
     }
@@ -101,6 +112,8 @@
         $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
             if (data) {
                 reloadPage();
+            } else {
+                errorToast("An error has occurred, please try again later.");
             }
         })
     }

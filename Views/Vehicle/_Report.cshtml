@@ -69,13 +69,15 @@
 </div>
 <hr />
 <div class="row hideOnPrint">
-    <div class="col-md-3 col-12" id="collaboratorContent">
+    <div class="col-md-3 col-12 chartContainer" id="collaboratorContent">
         @await Html.PartialAsync("_Collaborators", Model.Collaborators)
     </div>
-    <div class="col-md-6 col-12">
-       
+    <div class="col-md-6 col-12 chartContainer">
+        <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="monthFuelMileageReportContent">
+            @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
+        </div>
     </div>
-    <div class="col-md-3 col-12">
+    <div class="col-md-3 col-12 chartContainer">
         <div class="d-flex justify-content-center">
             <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">Vehicle Maintenance Report<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
         </div>

@@ -19,6 +19,13 @@ function updateCheck(sender) {
         refreshBarChart();
     }, 1000);
 }
+function refreshMPGChart() {
+    var vehicleId = GetVehicleId().vehicleId;
+    var year = getYear();
+    $.post('/Vehicle/GetMonthMPGByVehicle', {vehicleId: vehicleId, year: year}, function (data) {
+        $("#monthFuelMileageReportContent").html(data);
+    })
+}
 function refreshBarChart(callBack) {
     var selectedMetrics = [];
     var vehicleId = GetVehicleId().vehicleId;
@@ -47,9 +54,7 @@ function refreshBarChart(callBack) {
             year: year
         }, function (data) {
             $("#gasCostByMonthReportContent").html(data);
-            if (callBack != undefined) {
-                callBack();
-            }
+                refreshMPGChart();
         });
 }
 function updateReminderPie() {

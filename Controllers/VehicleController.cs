@@ -678,6 +678,16 @@ namespace CarCareTracker.Controllers
             //get collaborators
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
             viewModel.Collaborators = collaborators;
+            //get MPG per month.
+            var userConfig = _config.GetUserConfig(User);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            mileageData.RemoveAll(x => x.MilesPerGallon == default);
+            var monthlyMileageData = mileageData.GroupBy(x=>x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Average(y=>y.MilesPerGallon)
+            }).ToList();
+            viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -804,6 +814,25 @@ namespace CarCareTracker.Controllers
             }));
             vehicleHistory.VehicleHistory = reportData.OrderBy(x=>x.Date).ThenBy(x=>x.Odometer).ToList();
             return PartialView("_VehicleHistory", vehicleHistory);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult GetMonthMPGByVehicle(int vehicleId, int year = 0)
+        {
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            if (year != 0)
+            {
+                mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);
+            }
+            mileageData.RemoveAll(x => x.MilesPerGallon == default);
+            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Average(y => y.MilesPerGallon)
+            }).ToList();
+            return PartialView("_MPGByMonthReport", monthlyMileageData);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]

@@ -34,14 +34,22 @@ namespace CarCareTracker.Controllers
             var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
             return Json(result);
         }
+        [HttpPost]
         public IActionResult DeleteToken(int tokenId)
         {
             var result = _loginLogic.DeleteUserToken(tokenId);
             return Json(result);
         }
+        [HttpPost]
         public IActionResult DeleteUser(int userId)
         {
             var result =_userLogic.DeleteAllAccessToUser(userId) && _configHelper.DeleteUserConfig(userId) && _loginLogic.DeleteUser(userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult UpdateUserAdminStatus(int userId, bool isAdmin)
+        {
+            var result = _loginLogic.MakeUserAdmin(userId, isAdmin);
             return Json(result);
         }
     }
