@@ -8,6 +8,5 @@
     public class UserAccess
     {
         public UserVehicle Id { get; set; }
-        public UserAccessType AccessType { get; set; }
     }
 }

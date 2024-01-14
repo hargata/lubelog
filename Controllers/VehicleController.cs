@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using CarCareTracker.MapProfile;
 using System.Security.Claims;
 using CarCareTracker.Logic;
+using CarCareTracker.Filter;
 
 namespace CarCareTracker.Controllers
 {
@@ -72,13 +73,10 @@ namespace CarCareTracker.Controllers
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult Index(int vehicleId)
         {
-            if (!_userLogic.UserCanAccessVehicle(GetUserID(), vehicleId))
-            {
-                return View("401");
-            }
             var data = _dataAccess.GetVehicleById(vehicleId);
             return View(data);
         }
@@ -87,13 +85,10 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("_VehicleModal", new Vehicle());
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetEditVehiclePartialViewById(int vehicleId)
         {
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
-            {
-                return View("401");
-            }
             var data = _dataAccess.GetVehicleById(vehicleId);
             return PartialView("_VehicleModal", data);
         }
@@ -116,7 +111,7 @@ namespace CarCareTracker.Controllers
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
                 {
-                    _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id, UserAccessType.Editor);
+                    _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
                 }
                 return Json(result);
             }
@@ -126,6 +121,7 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         public IActionResult DeleteVehicle(int vehicleId)
         {
@@ -147,6 +143,7 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("_BulkDataImporter", mode);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
         {
@@ -250,6 +247,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {
@@ -383,6 +381,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Gas Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetGasRecordsByVehicleId(int vehicleId)
         {
@@ -449,6 +448,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Service Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetServiceRecordsByVehicleId(int vehicleId)
         {
@@ -502,6 +502,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Collision Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetCollisionRecordsByVehicleId(int vehicleId)
         {
@@ -555,6 +556,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Tax Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetTaxRecordsByVehicleId(int vehicleId)
         {
@@ -607,6 +609,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Reports"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetReportPartialView(int vehicleId)
         {
@@ -677,6 +680,14 @@ namespace CarCareTracker.Controllers
             viewModel.Collaborators = collaborators;
             return PartialView("_Report", viewModel);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet] 
+        public IActionResult GetCollaboratorsForVehicle(int vehicleId)
+        {
+            var result = _userLogic.GetCollaboratorsForVehicle(vehicleId);
+            return PartialView("_Collaborators", result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetCostMakeUpForVehicle(int vehicleId, int year = 0)
         {
@@ -703,6 +714,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)
         {
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now.AddDays(daysToAdd));
@@ -715,6 +727,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ReminderMakeUpReport", viewModel);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetVehicleHistory(int vehicleId)
         {
             var vehicleHistory = new VehicleHistoryViewModel();
@@ -778,6 +791,7 @@ namespace CarCareTracker.Controllers
             vehicleHistory.VehicleHistory = reportData.OrderBy(x=>x.Date).ThenBy(x=>x.Odometer).ToList();
             return PartialView("_VehicleHistory", vehicleHistory);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
         {
@@ -816,6 +830,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Reminders"
+        [TypeFilter(typeof(CollaboratorFilter))]
         private int GetMaxMileage(int vehicleId)
         {
             var numbersArray = new List<int>();
@@ -848,6 +863,7 @@ namespace CarCareTracker.Controllers
             List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, dateCompare);
             return results;
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
@@ -858,6 +874,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetReminderRecordsByVehicleId(int vehicleId)
         {
@@ -908,6 +925,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Upgrade Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetUpgradeRecordsByVehicleId(int vehicleId)
         {
@@ -961,6 +979,7 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Notes"
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetNotesByVehicleId(int vehicleId)
         {

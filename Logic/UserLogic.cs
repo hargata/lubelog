@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
@@ -7,7 +8,8 @@ namespace CarCareTracker.Logic
     public interface IUserLogic
     {
         List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId);
-        bool AddUserAccessToVehicle(int userId, int vehicleId, UserAccessType accessType);
+        bool AddUserAccessToVehicle(int userId, int vehicleId);
+        OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
         bool UserCanAccessVehicle(int userId, int vehicleId);
         bool UserCanEditVehicle(int userId, int vehicleId);
@@ -33,21 +35,36 @@ namespace CarCareTracker.Logic
                 var userCollaborator = new UserCollaborator
                 {
                     UserName = _userData.GetUserRecordById(userAccess.Id.UserId).UserName,
-                    AccessType = userAccess.AccessType,
                     UserVehicle = userAccess.Id
                 };
                 convertedResult.Add(userCollaborator);
             }
             return convertedResult;
         }
-        public bool AddUserAccessToVehicle(int userId, int vehicleId, UserAccessType accessType)
+        public OperationResponse AddCollaboratorToVehicle(int vehicleId, string username)
+        {
+            //try to find existing user.
+            var existingUser = _userData.GetUserRecordByUserName(username);
+            if (existingUser.Id != default)
+            {
+                //user exists.
+                var result = AddUserAccessToVehicle(existingUser.Id, vehicleId);
+                if (result)
+                {
+                    return new OperationResponse { Success = true, Message = "Collaborator Added" };
+                }
+                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+            }
+            return new OperationResponse { Success = false, Message = $"Unable to find user {username} in the system" };
+        }
+        public bool AddUserAccessToVehicle(int userId, int vehicleId)
         {
             if (userId == -1)
             {
                 return true;
             }
             var userVehicle = new UserVehicle { UserId = userId, VehicleId = vehicleId };
-            var userAccess = new UserAccess { Id = userVehicle, AccessType = accessType };
+            var userAccess = new UserAccess { Id = userVehicle };
             var result = _userAccess.SaveUserAccess(userAccess);
             return result;
         }
@@ -89,7 +106,7 @@ namespace CarCareTracker.Logic
                 return true;
             }
             var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userId, vehicleId);
-            if (userAccess != null && userAccess.AccessType == UserAccessType.Editor)
+            if (userAccess != null)
             {
                 return true;
             }
