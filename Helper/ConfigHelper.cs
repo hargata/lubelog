@@ -32,7 +32,7 @@ namespace CarCareTracker.Helper
             {
                 userId = int.Parse(storedUserId);
             }
-            bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser));
+            bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser)) || userId == -1;
             if (isRootUser)
             {
                 try
@@ -85,6 +85,16 @@ namespace CarCareTracker.Helper
         }
         public UserConfig GetUserConfig(ClaimsPrincipal user)
         {
+            var serverConfig = new UserConfig
+            {
+                EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
+                UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
+                UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
+                UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
+                EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
+                HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
+                UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)])
+            };
             int userId = 0;
             if (user != null)
             {
@@ -95,26 +105,16 @@ namespace CarCareTracker.Helper
                 }
             } else
             {
-                return new UserConfig();
+                return serverConfig;
             }
             return _cache.GetOrCreate<UserConfig>($"userConfig_{userId}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
-                var serverConfig = new UserConfig
-                {
-                    EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
-                    UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
-                    UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
-                    UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
-                    EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
-                    HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
-                    UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)])
-                };
                 if (!user.Identity.IsAuthenticated)
                 {
                     return serverConfig;
                 }
-                bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser));
+                bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser)) || userId == -1;
                 if (isRootUser)
                 {
                     return serverConfig;
