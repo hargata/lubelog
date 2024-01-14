@@ -1,7 +1,8 @@
-﻿@inject IConfiguration Configuration
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
 @{
-    var enableCsvImports = bool.Parse(Configuration[nameof(UserConfig.EnableCsvImports)]);
-    var hideZero = bool.Parse(Configuration[nameof(UserConfig.HideZero)]);
+    var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
+    var hideZero = config.GetUserConfig(User).HideZero;
 }
 @model List<UpgradeRecord>
 <div class="row">

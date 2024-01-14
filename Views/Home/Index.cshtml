@@ -1,6 +1,7 @@
-﻿@inject IConfiguration Configuration
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
 @{
-    var enableAuth = bool.Parse(Configuration[nameof(UserConfig.EnableAuth)]);
+    var enableAuth = config.GetUserConfig(User).EnableAuth;
 }
 @model string
 @{
@@ -17,7 +18,7 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
         </li>
-        @if (enableAuth)
+        @if (User.IsInRole("CookieAuth"))
         {
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>Logout</span></button>
@@ -42,7 +43,7 @@
         <li class="nav-item ms-auto" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
         </li>
-        @if (enableAuth)
+        @if (User.IsInRole("CookieAuth"))
         {
             <li class="nav-item">
                 <button class="nav-link" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
@@ -69,6 +70,5 @@
 </div>
 <script>
     loadGarage();
-    loadSettings();
     bindWindowResize();
 </script>

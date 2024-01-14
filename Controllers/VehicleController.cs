@@ -27,7 +27,7 @@ namespace CarCareTracker.Controllers
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
-        private readonly IConfiguration _config;
+        private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IReminderHelper _reminderHelper;
@@ -49,7 +49,7 @@ namespace CarCareTracker.Controllers
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
-            IConfiguration config)
+            IConfigHelper config)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -67,7 +67,7 @@ namespace CarCareTracker.Controllers
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
-            _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
+            _useDescending = config.GetUserConfig(User).UseDescending;
         }
         private int GetUserID()
         {
@@ -231,8 +231,8 @@ namespace CarCareTracker.Controllers
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
                 var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-                bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
-                bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+                bool useMPG = _config.GetUserConfig(User).UseMPG;
+                bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
                 vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
                 var exportData = convertedRecords.Select(x => new GasRecordExportModel { Date = x.Date.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString(), Odometer = x.Mileage.ToString() });
@@ -389,8 +389,8 @@ namespace CarCareTracker.Controllers
             //need it in ascending order to perform computation.
             result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             //check if the user uses MPG or Liters per 100km.
-            bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
-            bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+            bool useMPG = _config.GetUserConfig(User).UseMPG;
+            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
             var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
             if (_useDescending)
             {
@@ -753,8 +753,8 @@ namespace CarCareTracker.Controllers
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            bool useMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]);
-            bool useUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]);
+            bool useMPG = _config.GetUserConfig(User).UseMPG;
+            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
             vehicleHistory.TotalGasCost = gasRecords.Sum(x => x.Cost);
             vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
             var averageMPG = 0.00M;

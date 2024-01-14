@@ -1,4 +1,5 @@
-﻿using CarCareTracker.Logic;
+﻿using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace CarCareTracker.Controllers
     {
         private ILoginLogic _loginLogic;
         private IUserLogic _userLogic;
-        public AdminController(ILoginLogic loginLogic, IUserLogic userLogic)
+        private IConfigHelper _configHelper;
+        public AdminController(ILoginLogic loginLogic, IUserLogic userLogic, IConfigHelper configHelper)
         {
             _loginLogic = loginLogic;
             _userLogic = userLogic;
+            _configHelper = configHelper;
         }
         public IActionResult Index()
         {
@@ -38,7 +41,7 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult DeleteUser(int userId)
         {
-            var result =_userLogic.DeleteAllAccessToUser(userId) && _loginLogic.DeleteUser(userId);
+            var result =_userLogic.DeleteAllAccessToUser(userId) && _configHelper.DeleteUserConfig(userId) && _loginLogic.DeleteUser(userId);
             return Json(result);
         }
     }

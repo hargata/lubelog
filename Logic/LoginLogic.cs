@@ -19,6 +19,7 @@ namespace CarCareTracker.Logic
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
+        bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
         List<UserData> GetAllUsers();
@@ -35,6 +36,21 @@ namespace CarCareTracker.Logic
             _userData = userData;
             _tokenData = tokenData;
             _mailHelper = mailHelper;
+        }
+        public bool CheckIfUserIsValid(int userId)
+        {
+            if (userId == -1)
+            {
+                return true;
+            }
+            var result = _userData.GetUserRecordById(userId);
+            if (result == null)
+            {
+                return false;
+            } else
+            {
+                return result.Id != 0;
+            }
         }
         //handles user registration
         public OperationResponse RegisterNewUser(LoginModel credentials)

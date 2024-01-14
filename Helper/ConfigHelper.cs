@@ -1,5 +1,6 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
 namespace CarCareTracker.Helper
@@ -7,20 +8,31 @@ namespace CarCareTracker.Helper
     public interface IConfigHelper
     {
         UserConfig GetUserConfig(ClaimsPrincipal user);
-        bool SaveUserConfig(bool isRootUser, int userId, UserConfig configData);
+        bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
     {
         private readonly IConfiguration _config;
         private readonly IUserConfigDataAccess _userConfig;
-        public ConfigHelper(IConfiguration serverConfig, IUserConfigDataAccess userConfig)
+        private IMemoryCache _cache;
+        public ConfigHelper(IConfiguration serverConfig, 
+            IUserConfigDataAccess userConfig,
+            IMemoryCache memoryCache)
         {
             _config = serverConfig;
             _userConfig = userConfig;
+            _cache = memoryCache;
         }
-        public bool SaveUserConfig(bool isRootUser, int userId, UserConfig configData)
+        public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {
+            var storedUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            int userId = 0;
+            if (storedUserId != null)
+            {
+                userId = int.Parse(storedUserId);
+            }
+            bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser));
             if (isRootUser)
             {
                 try
@@ -46,6 +58,7 @@ namespace CarCareTracker.Helper
                         configData.UserPasswordHash = string.Empty;
                     }
                     File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(configData));
+                    _cache.Set<UserConfig>($"userConfig_{userId}", configData);
                     return true;
                 }
                 catch (Exception ex)
@@ -60,46 +73,65 @@ namespace CarCareTracker.Helper
                     UserConfig = configData
                 };
                 var result = _userConfig.SaveUserConfig(userConfig);
+                _cache.Set<UserConfig>($"userConfig_{userId}", configData);
                 return result;
             }
         }
         public bool DeleteUserConfig(int userId)
         {
+            _cache.Remove($"userConfig_{userId}");
             var result = _userConfig.DeleteUserConfig(userId);
             return result;
         }
         public UserConfig GetUserConfig(ClaimsPrincipal user)
         {
-            var serverConfig = new UserConfig
+            int userId = 0;
+            if (user != null)
             {
-                EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
-                UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
-                UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
-                UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
-                EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
-                HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
-                UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)])
-            };
-            if (!user.Identity.IsAuthenticated)
-            {
-                return serverConfig;
-            }
-            bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser));
-            int userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (isRootUser)
-            {
-                return serverConfig;
+                var storedUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (storedUserId != null)
+                {
+                    userId = int.Parse(storedUserId);
+                }
             } else
             {
-                var result = _userConfig.GetUserConfig(userId);
-                if (result == null)
+                return new UserConfig();
+            }
+            return _cache.GetOrCreate<UserConfig>($"userConfig_{userId}", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromHours(1);
+                var serverConfig = new UserConfig
+                {
+                    EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
+                    UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
+                    UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
+                    UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
+                    EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
+                    HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
+                    UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)])
+                };
+                if (!user.Identity.IsAuthenticated)
                 {
                     return serverConfig;
-                } else
-                {
-                    return result.UserConfig;
                 }
-            }
+                bool isRootUser = user.IsInRole(nameof(UserData.IsRootUser));
+                if (isRootUser)
+                {
+                    return serverConfig;
+                }
+                else
+                {
+                    var result = _userConfig.GetUserConfig(userId);
+                    if (result == null)
+                    {
+                        return serverConfig;
+                    }
+                    else
+                    {
+                        return result.UserConfig;
+                    }
+                }
+            });
         }
     }
 }

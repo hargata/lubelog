@@ -52,7 +52,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult WriteToSettings(UserConfig userConfig)
         {
-            var result = _config.SaveUserConfig(User.IsInRole(nameof(UserData.IsRootUser)), GetUserID(), userConfig);
+            var result = _config.SaveUserConfig(User, userConfig);
             return Json(result);
         }
         public IActionResult Privacy()
