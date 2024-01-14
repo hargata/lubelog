@@ -672,6 +672,9 @@ namespace CarCareTracker.Controllers
             {
                 viewModel.Years.Add(DateTime.Now.AddYears(i * -1).Year);
             }
+            //get collaborators
+            var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
+            viewModel.Collaborators = collaborators;
             return PartialView("_Report", viewModel);
         }
         [HttpGet]

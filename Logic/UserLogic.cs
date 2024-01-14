@@ -6,6 +6,7 @@ namespace CarCareTracker.Logic
 {
     public interface IUserLogic
     {
+        List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId);
         bool AddUserAccessToVehicle(int userId, int vehicleId, UserAccessType accessType);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
         bool UserCanAccessVehicle(int userId, int vehicleId);
@@ -16,8 +17,28 @@ namespace CarCareTracker.Logic
     public class UserLogic: IUserLogic
     {
         private readonly IUserAccessDataAccess _userAccess;
-        public UserLogic(IUserAccessDataAccess userAccess) { 
+        private readonly IUserRecordDataAccess _userData;
+        public UserLogic(IUserAccessDataAccess userAccess,
+            IUserRecordDataAccess userData) { 
             _userAccess = userAccess;
+            _userData = userData;
+        }
+        public List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId)
+        {
+            var result = _userAccess.GetUserAccessByVehicleId(vehicleId);
+            var convertedResult = new List<UserCollaborator>();
+            //convert useraccess to usercollaborator
+            foreach(UserAccess userAccess in result)
+            {
+                var userCollaborator = new UserCollaborator
+                {
+                    UserName = _userData.GetUserRecordById(userAccess.Id.UserId).UserName,
+                    AccessType = userAccess.AccessType,
+                    UserVehicle = userAccess.Id
+                };
+                convertedResult.Add(userCollaborator);
+            }
+            return convertedResult;
         }
         public bool AddUserAccessToVehicle(int userId, int vehicleId, UserAccessType accessType)
         {
