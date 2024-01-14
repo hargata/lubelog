@@ -20,6 +20,12 @@
         </li>
         @if (User.IsInRole("CookieAuth"))
         {
+            @if (User.IsInRole(nameof(UserData.IsAdmin)))
+            {
+                <li class="nav-item" role="presentation">
+                    <a class="dropdown-item" href="/Admin"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>Admin Panel</span></a>
+                </li>
+            }
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>Logout</span></button>
             </li>
@@ -48,7 +54,7 @@
             <li class="nav-item dropdown" role="presentation">
                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person me-2"></i>@User.Identity.Name</a>
                 <ul class="dropdown-menu">
-                    @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                    @if (User.IsInRole(nameof(UserData.IsAdmin)))
                     {
                         <li>
                             <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>Admin Panel</a>

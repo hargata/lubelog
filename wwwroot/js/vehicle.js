@@ -58,7 +58,7 @@ $(document).ready(function () {
                 break;
         }
     });
-    getVehicleServiceRecords(vehicleId);
+    getVehicleReport(vehicleId);
 });
 
 function getVehicleNotes(vehicleId) {
