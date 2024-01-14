@@ -9,7 +9,7 @@ namespace CarCareTracker.MapProfile
         {
             Map(m => m.Date).Name(["date", "fuelup_date"]);
             Map(m => m.Odometer).Name(["odometer"]);
-            Map(m => m.FuelConsumed).Name(["gallons", "liters", "litres", "consumption", "quantity", "fueleconomy", "fuelconsumed"]);
+            Map(m => m.FuelConsumed).Name(["gallons", "liters", "litres", "consumption", "quantity", "fuelconsumed"]);
             Map(m => m.Cost).Name(["cost", "total cost", "totalcost", "total price"]);
             Map(m => m.Notes).Name("notes", "note");
             Map(m => m.Price).Name(["price"]);
