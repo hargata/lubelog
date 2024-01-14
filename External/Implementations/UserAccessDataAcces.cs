@@ -47,12 +47,12 @@ namespace CarCareTracker.External.Implementations
                 return true;
             };
         }
-        public bool DeleteUserAccess(int userAccessId)
+        public bool DeleteUserAccess(int userId, int vehicleId)
         {
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserAccess>(tableName);
-                table.Delete(userAccessId);
+                table.DeleteMany(x => x.Id.UserId == userId && x.Id.VehicleId == vehicleId);
                 return true;
             };
         }

@@ -8,7 +8,7 @@ namespace CarCareTracker.External.Interfaces
         UserAccess GetUserAccessByVehicleAndUserId(int userId, int vehicleId);
         List<UserAccess> GetUserAccessByVehicleId(int vehicleId);
         bool SaveUserAccess(UserAccess userAccess);
-        bool DeleteUserAccess(int userAccessId);
+        bool DeleteUserAccess(int userId, int vehicleId);
         bool DeleteAllAccessRecordsByVehicleId(int vehicleId);
         bool DeleteAllAccessRecordsByUserId(int userId);
     }
