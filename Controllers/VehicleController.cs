@@ -7,6 +7,8 @@ using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using CarCareTracker.MapProfile;
+using System.Security.Claims;
+using CarCareTracker.Logic;
 
 namespace CarCareTracker.Controllers
 {
@@ -29,6 +31,7 @@ namespace CarCareTracker.Controllers
         private readonly IGasHelper _gasHelper;
         private readonly IReminderHelper _reminderHelper;
         private readonly IReportHelper _reportHelper;
+        private readonly IUserLogic _userLogic;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -43,6 +46,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfiguration config)
         {
@@ -59,13 +63,22 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
             _useDescending = bool.Parse(config[nameof(UserConfig.UseDescending)]);
         }
+        private int GetUserID()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
         [HttpGet]
         public IActionResult Index(int vehicleId)
         {
+            if (!_userLogic.UserCanAccessVehicle(GetUserID(), vehicleId))
+            {
+                return View("401");
+            }
             var data = _dataAccess.GetVehicleById(vehicleId);
             return View(data);
         }
@@ -77,6 +90,10 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetEditVehiclePartialViewById(int vehicleId)
         {
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+            {
+                return View("401");
+            }
             var data = _dataAccess.GetVehicleById(vehicleId);
             return PartialView("_VehicleModal", data);
         }
@@ -85,10 +102,22 @@ namespace CarCareTracker.Controllers
         {
             try
             {
+                bool isNewAddition = vehicleInput.Id == default;
+                if (!isNewAddition)
+                {
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleInput.Id))
+                    {
+                        return View("401");
+                    }
+                }
                 //move image from temp folder to images folder.
                 vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
+                if (isNewAddition)
+                {
+                    _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id, UserAccessType.Editor);
+                }
                 return Json(result);
             }
             catch (Exception ex)
@@ -108,6 +137,7 @@ namespace CarCareTracker.Controllers
                 _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }

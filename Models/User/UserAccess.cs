@@ -1,10 +1,13 @@
 ﻿namespace CarCareTracker.Models
 {
-    public class UserAccess
+    public class UserVehicle
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
         public int VehicleId { get; set; }
+    }
+    public class UserAccess
+    {
+        public UserVehicle Id { get; set; }
         public UserAccessType AccessType { get; set; }
     }
 }

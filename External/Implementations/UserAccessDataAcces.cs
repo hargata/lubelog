@@ -9,17 +9,6 @@ namespace CarCareTracker.External.Implementations
     {
         private static string dbName = StaticHelper.DbName;
         private static string tableName = "useraccessrecords";
-        public UserAccess GetUserAccessByVehicleAndUserId(int vehicleId, int userId)
-        {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<UserAccess>(tableName);
-                return table.FindOne(Query.And(
-                    Query.EQ(nameof(UserAccess.VehicleId), vehicleId),
-                    Query.EQ(nameof(UserAccess.UserId), userId)
-                    ));
-            };
-        }
         /// <summary>
         /// Gets a list of vehicles user have access to.
         /// </summary>
@@ -30,7 +19,15 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserAccess>(tableName);
-                return table.Find(Query.EQ(nameof(UserAccess.UserId), userId)).ToList();
+                return table.Find(x=>x.Id.UserId == userId).ToList();
+            };
+        }
+        public UserAccess GetUserAccessByVehicleAndUserId(int userId, int vehicleId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var table = db.GetCollection<UserAccess>(tableName);
+                return table.Find(x => x.Id.UserId == userId && x.Id.VehicleId == vehicleId).FirstOrDefault();
             };
         }
         public List<UserAccess> GetUserAccessByVehicleId(int vehicleId)
@@ -38,7 +35,7 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserAccess>(tableName);
-                return table.Find(Query.EQ(nameof(UserAccess.VehicleId), vehicleId)).ToList();
+                return table.Find(x => x.Id.VehicleId == vehicleId).ToList();
             };
         }
         public bool SaveUserAccess(UserAccess userAccess)
@@ -69,7 +66,7 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserAccess>(tableName);
-                table.DeleteMany(Query.EQ(nameof(UserAccess.VehicleId), vehicleId));
+                table.DeleteMany(x=>x.Id.VehicleId == vehicleId);
                 return true;
             };
         }
@@ -83,7 +80,7 @@ namespace CarCareTracker.External.Implementations
             using (var db = new LiteDatabase(dbName))
             {
                 var table = db.GetCollection<UserAccess>(tableName);
-                table.DeleteMany(Query.EQ(nameof(UserAccess.UserId), userId));
+                table.DeleteMany(x => x.Id.UserId == userId);
                 return true;
             };
         }

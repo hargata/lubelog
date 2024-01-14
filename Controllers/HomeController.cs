@@ -1,15 +1,9 @@
 using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
-using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Drawing;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Logging;
 using CarCareTracker.Helper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 

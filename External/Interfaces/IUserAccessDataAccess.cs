@@ -4,8 +4,8 @@ namespace CarCareTracker.External.Interfaces
 {
     public interface IUserAccessDataAccess
     {
-        UserAccess GetUserAccessByVehicleAndUserId(int vehicleId, int userId);
         List<UserAccess> GetUserAccessByUserId(int userId);
+        UserAccess GetUserAccessByVehicleAndUserId(int userId, int vehicleId);
         List<UserAccess> GetUserAccessByVehicleId(int vehicleId);
         bool SaveUserAccess(UserAccess userAccess);
         bool DeleteUserAccess(int userAccessId);
