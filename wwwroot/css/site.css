@@ -231,3 +231,7 @@ html {
         display: none;
     }
 }
+
+.dropdown-menu.show{
+    z-index: 1030;
+}

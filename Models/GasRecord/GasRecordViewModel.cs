@@ -18,5 +18,7 @@
         public int DeltaMileage { get; set; }
         public decimal MilesPerGallon { get; set; }
         public decimal CostPerGallon { get; set; }
+        public bool IsFillToFull { get; set; }
+        public bool MissedFuelUp { get; set; }
     }
 }
