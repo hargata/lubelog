@@ -126,6 +126,7 @@ function getVehicleReport(vehicleId) {
     $.get(`/Vehicle/GetReportPartialView?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#report-tab-pane").html(data);
+            getVehicleHaveImportantReminders(vehicleId);
         }
     })
 }

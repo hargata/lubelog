@@ -128,7 +128,7 @@ function initDatePicker(input, futureOnly) {
             endDate: "+0d",
             format: getShortDatePattern().pattern,
             autoclose: true
-        }).datepicker("setDate", "0"); //default to today for backward looking datepickers but not forward looking ones, this is intentional. ReminderModal's date is set in ReminderInput.cs
+        });
     }
 }
 
