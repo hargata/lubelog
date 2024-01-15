@@ -2,11 +2,12 @@
 @inject IConfigHelper config
 @model GasRecordViewModelContainer
 @{
-    var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
-    var useMPG = config.GetUserConfig(User).UseMPG;
-    var useUKMPG = config.GetUserConfig(User).UseUKMPG;
-    var hideZero = config.GetUserConfig(User).HideZero;
-    var useThreeDecimals = config.GetUserConfig(User).UseThreeDecimalGasCost;
+    var userConfig = config.GetUserConfig(User);
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var useMPG = userConfig.UseMPG;
+    var useUKMPG = userConfig.UseUKMPG;
+    var hideZero = userConfig.HideZero;
+    var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var gasCostFormat = useThreeDecimals ? "C3" : "C2";
     var useKwh = Model.UseKwh;
     string consumptionUnit;
