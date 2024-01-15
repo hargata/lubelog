@@ -93,7 +93,8 @@ namespace CarCareTracker.Helper
                 UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
-                UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)])
+                UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
+                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)])
             };
             int userId = 0;
             if (user != null)
