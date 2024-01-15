@@ -2,6 +2,8 @@
 
 A self-hosted, open-source vehicle service records and maintainence tracker.
 
+Support this project on Patreon: https://patreon.com/LubeLogger
+
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintainence.
 
