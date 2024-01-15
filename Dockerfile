@@ -2,6 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /App
 
 COPY . ./
+ARG TARGETARCH
 RUN dotnet restore -a $TARGETARCH
 RUN dotnet publish -a $TARGETARCH -c Release -o out
 
