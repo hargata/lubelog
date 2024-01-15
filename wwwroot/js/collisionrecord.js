@@ -59,6 +59,7 @@ function saveCollisionRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
             hideAddCollisionRecordModal();
+            saveScrollPosition();
             getVehicleCollisionRecords(formValues.vehicleId);
             if (formValues.addReminderRecord) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);

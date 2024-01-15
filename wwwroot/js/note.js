@@ -55,6 +55,7 @@ function saveNoteToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Note Updated" : "Note Added.");
             hideAddNoteModal();
+            saveScrollPosition();
             getVehicleNotes(formValues.vehicleId);
         } else {
             errorToast("An error has occurred, please try again later.");

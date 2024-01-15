@@ -59,6 +59,7 @@ function saveGasRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Gas Record Updated" : "Gas Record Added.");
             hideAddGasRecordModal();
+            saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
         } else {
             errorToast("An error has occurred, please try again later.");
