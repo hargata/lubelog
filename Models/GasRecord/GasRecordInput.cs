@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
-        public string Date { get; set; }
+        public string Date { get; set; } = DateTime.Now.ToShortDateString();
         /// <summary>
         /// American moment
         /// </summary>
