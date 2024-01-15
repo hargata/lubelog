@@ -107,7 +107,16 @@ namespace CarCareTracker.Controllers
         public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
         {
             var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG).Select(x => new GasRecordExportModel { Date = x.Date, Odometer = x.Mileage.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString()});
+            var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG)
+                .Select(x => new GasRecordExportModel { 
+                    Date = x.Date, 
+                    Odometer = x.Mileage.ToString(), 
+                    Cost = x.Cost.ToString(), 
+                    FuelConsumed = x.Gallons.ToString(), 
+                    FuelEconomy = x.MilesPerGallon.ToString(),
+                    IsFillToFull = x.IsFillToFull.ToString(),
+                    MissedFuelUp = x.MissedFuelUp.ToString()
+                });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
