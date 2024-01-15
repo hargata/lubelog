@@ -59,6 +59,7 @@ function saveTaxRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
+            saveScrollPosition();
             getVehicleTaxRecords(formValues.vehicleId);
             if (formValues.addReminderRecord) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);

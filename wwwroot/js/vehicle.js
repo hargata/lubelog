@@ -65,6 +65,7 @@ function getVehicleNotes(vehicleId) {
     $.get(`/Vehicle/GetNotesByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#notes-tab-pane").html(data);
+            restoreScrollPosition();
         }
     });
 }
@@ -72,6 +73,7 @@ function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#servicerecord-tab-pane").html(data);
+            restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
@@ -80,6 +82,7 @@ function getVehicleUpgradeRecords(vehicleId) {
     $.get(`/Vehicle/GetUpgradeRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#upgrade-tab-pane").html(data);
+            restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
@@ -88,6 +91,7 @@ function getVehicleGasRecords(vehicleId) {
     $.get(`/Vehicle/GetGasRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#gas-tab-pane").html(data);
+            restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
@@ -96,6 +100,7 @@ function getVehicleCollisionRecords(vehicleId) {
     $.get(`/Vehicle/GetCollisionRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#accident-tab-pane").html(data);
+            restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
@@ -104,6 +109,7 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
+            restoreScrollPosition();
         }
     });
 }
@@ -111,6 +117,7 @@ function getVehicleReminders(vehicleId) {
     $.get(`/Vehicle/GetReminderRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#reminder-tab-pane").html(data);
+            restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
@@ -253,4 +260,12 @@ function editFileName(fileLocation, event) {
             uploadedFiles[editFileIndex].name = result.value.newFileName;
         }
     });
+}
+var scrollPosition = 0;
+function saveScrollPosition() {
+    scrollPosition = $(".vehicleDetailTabContainer").scrollTop();
+}
+function restoreScrollPosition() {
+    $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
+    scrollPosition = 0;
 }

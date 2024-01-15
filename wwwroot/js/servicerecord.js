@@ -59,6 +59,7 @@ function saveServiceRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Service Record Updated" : "Service Record Added.");
             hideAddServiceRecordModal();
+            saveScrollPosition();
             getVehicleServiceRecords(formValues.vehicleId);
             if (formValues.addReminderRecord) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);

@@ -59,6 +59,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Upgrade Record Updated" : "Upgrade Record Added.");
             hideAddUpgradeRecordModal();
+            saveScrollPosition();
             getVehicleUpgradeRecords(formValues.vehicleId);
             if (formValues.addReminderRecord) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
