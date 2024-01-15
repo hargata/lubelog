@@ -634,7 +634,6 @@ namespace CarCareTracker.Controllers
             allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, 0));
             allCosts.AddRange(_reportHelper.GetRepairRecordSum(collisionRecords, 0));
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
-            allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
             allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
             viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
