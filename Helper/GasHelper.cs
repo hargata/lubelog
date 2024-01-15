@@ -42,7 +42,9 @@ namespace CarCareTracker.Helper
                         Gallons = convertedConsumption,
                         Cost = currentObject.Cost,
                         DeltaMileage = deltaMileage,
-                        CostPerGallon = currentObject.Cost / convertedConsumption
+                        CostPerGallon = currentObject.Cost / convertedConsumption,
+                        IsFillToFull = currentObject.IsFillToFull,
+                        MissedFuelUp = currentObject.MissedFuelUp
                     };
                     if (currentObject.MissedFuelUp)
                     {
@@ -81,7 +83,9 @@ namespace CarCareTracker.Helper
                         Cost = currentObject.Cost,
                         DeltaMileage = 0,
                         MilesPerGallon = 0,
-                        CostPerGallon = currentObject.Cost / convertedConsumption
+                        CostPerGallon = currentObject.Cost / convertedConsumption,
+                        IsFillToFull = currentObject.IsFillToFull,
+                        MissedFuelUp = currentObject.MissedFuelUp
                     });
                 }
                 previousMileage = currentObject.Mileage;

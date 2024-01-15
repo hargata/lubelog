@@ -235,7 +235,15 @@ namespace CarCareTracker.Controllers
                 bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
                 vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
-                var exportData = convertedRecords.Select(x => new GasRecordExportModel { Date = x.Date.ToString(), Cost = x.Cost.ToString(), FuelConsumed = x.Gallons.ToString(), FuelEconomy = x.MilesPerGallon.ToString(), Odometer = x.Mileage.ToString() });
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel { 
+                    Date = x.Date.ToString(), 
+                    Cost = x.Cost.ToString(), 
+                    FuelConsumed = x.Gallons.ToString(), 
+                    FuelEconomy = x.MilesPerGallon.ToString(), 
+                    Odometer = x.Mileage.ToString(),
+                    IsFillToFull = x.IsFillToFull.ToString(),
+                    MissedFuelUp = x.MissedFuelUp.ToString()
+                });
                 using (var writer = new StreamWriter(fullExportFilePath))
                 {
                     using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -302,12 +310,14 @@ namespace CarCareTracker.Controllers
                                         convertedRecord.IsFillToFull = !parsedBool;
                                     } else if (!string.IsNullOrWhiteSpace(importModel.IsFillToFull))
                                     {
-                                        var parsedBool = importModel.IsFillToFull.Trim() == "1" || importModel.IsFillToFull.Trim() == "Full";
+                                        var possibleFillToFullValues = new List<string> { "1", "true", "full" };
+                                        var parsedBool = possibleFillToFullValues.Contains(importModel.IsFillToFull.Trim().ToLower());
                                         convertedRecord.IsFillToFull = parsedBool;
                                     }
                                     if (!string.IsNullOrWhiteSpace(importModel.MissedFuelUp))
                                     {
-                                        var parsedBool = importModel.MissedFuelUp.Trim() == "1";
+                                        var possibleMissedFuelUpValues = new List<string> { "1", "true" };
+                                        var parsedBool = possibleMissedFuelUpValues.Contains(importModel.MissedFuelUp.Trim().ToLower());
                                         convertedRecord.MissedFuelUp = parsedBool;
                                     }
                                     //insert record into db, check to make sure fuelconsumed is not zero so we don't get a divide by zero error.
@@ -633,7 +643,6 @@ namespace CarCareTracker.Controllers
             List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
             allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, 0));
             allCosts.AddRange(_reportHelper.GetRepairRecordSum(collisionRecords, 0));
-            allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
             allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
