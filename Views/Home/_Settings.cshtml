@@ -32,6 +32,10 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideZero" checked="@Model.HideZero">
             <label class="form-check-label" for="hideZero">Replace @(0.ToString("C")) Costs with ---</label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimal" checked="@Model.UseThreeDecimalGasCost">
+            <label class="form-check-label" for="useThreeDecimal">Use Three Decimals For Gas Cost</label>
+        </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
             <div class="form-check form-switch">
@@ -89,7 +93,8 @@
             useMPG: $("#useMPG").is(':checked'),
             useDescending: $("#useDescending").is(':checked'),
             hideZero: $("#hideZero").is(":checked"),
-            useUKMpg: $("#useUKMPG").is(":checked")
+            useUKMpg: $("#useUKMPG").is(":checked"),
+            useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked")
         }
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
             if (data) {

@@ -6,6 +6,8 @@
     var useMPG = config.GetUserConfig(User).UseMPG;
     var useUKMPG = config.GetUserConfig(User).UseUKMPG;
     var hideZero = config.GetUserConfig(User).HideZero;
+    var useThreeDecimals = config.GetUserConfig(User).UseThreeDecimalGasCost;
+    var gasCostFormat = useThreeDecimals ? "C3" : "C2";
     var useKwh = Model.UseKwh;
     string consumptionUnit;
     string fuelEconomyUnit;
@@ -42,7 +44,7 @@
                 <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
             }
             <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
-            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.GasRecords.Sum(x => x.Cost).ToString("C3")}")</span>
+            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
         </div>
         @if (enableCsvImports)
         {
@@ -87,8 +89,8 @@
                         <td class="col-2">@gasRecord.Mileage</td>
                         <td class="col-2">@gasRecord.Gallons.ToString("F")</td>
                         <td class="col-4">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString("C3"))</td>
-                        <td class="col-1">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString("C3"))</td>
+                        <td class="col-1">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td class="col-1">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
                     </tr>
                 }
             </tbody>
