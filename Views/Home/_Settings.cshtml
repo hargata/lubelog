@@ -22,8 +22,6 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UseUKMPG">
             <label class="form-check-label" for="useUKMPG">Use UK MPG Calculation<br /><small class="text-body-secondary">Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation</small></label>
         </div>
-    </div>
-    <div class="col-12 col-md-6">
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UseDescending">
             <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
@@ -43,6 +41,54 @@
                 <label class="form-check-label" for="enableAuth">Enable Authentication</label>
             </div>
         }
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="row" id="visibleTabs">
+            <div class="col-12">
+                <span class="lead">Visible Tabs</span>
+            </div>
+            <div class="col-12 col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="serviceRecordTab">Service Records</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="repairRecordTab">Repairs</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="UpgradeRecord" id="upgradeRecordTab" @(Model.VisibleTabs.Contains(ImportMode.UpgradeRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="upgradeRecordTab">Upgrades</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="GasRecord" id="gasRecordTab" @(Model.VisibleTabs.Contains(ImportMode.GasRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="gasRecordTab">Fuel</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="TaxRecord" id="taxRecordTab" @(Model.VisibleTabs.Contains(ImportMode.TaxRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="taxRecordTab">Taxes</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="NoteRecord" id="noteRecordTab" @(Model.VisibleTabs.Contains(ImportMode.NoteRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="noteRecordTab">Notes</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ReminderRecord" id="reminderRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ReminderRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="reminderRecordTab">Reminder</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="SupplyRecord" id="supplyRecordTab" @(Model.VisibleTabs.Contains(ImportMode.SupplyRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="supplyRecordTab">Supplies</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+       
     </div>
 </div>
 <div class="row">
@@ -86,7 +132,14 @@
     </div>
 </div>
 <script>
+    function getCheckedTabs() {
+        var visibleTabs = $("#visibleTabs :checked").map(function () {
+            return this.value;
+        });
+        return visibleTabs.toArray();
+    }
     function updateSettings(){
+        var visibleTabs = getCheckedTabs();
         var userConfigObject = {
             useDarkMode: $("#enableDarkMode").is(':checked'),
             enableCsvImports: $("#enableCsvImports").is(':checked'),
@@ -94,9 +147,12 @@
             useDescending: $("#useDescending").is(':checked'),
             hideZero: $("#hideZero").is(":checked"),
             useUKMpg: $("#useUKMPG").is(":checked"),
-            useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked")
+            useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+            visibleTabs: visibleTabs
         }
+        sloader.show();
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
+            sloader.hide();
             if (data) {
                 setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
             } else {
