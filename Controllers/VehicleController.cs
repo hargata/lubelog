@@ -10,6 +10,7 @@ using CarCareTracker.MapProfile;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 using CarCareTracker.Filter;
+using System.Runtime.CompilerServices;
 
 namespace CarCareTracker.Controllers
 {
@@ -25,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
+        private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfigHelper _config;
@@ -47,6 +49,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            ISupplyRecordDataAccess supplyRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
@@ -64,6 +67,7 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _supplyRecordDataAccess = supplyRecordDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
@@ -133,6 +137,7 @@ namespace CarCareTracker.Controllers
                 _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);

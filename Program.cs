@@ -22,6 +22,7 @@ builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
 builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
 builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
 builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
+builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
