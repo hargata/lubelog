@@ -94,7 +94,8 @@ namespace CarCareTracker.Helper
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
                 UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
-                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)])
+                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
+                VisibleTabs = _config.GetSection("VisibleTabs").Get<List<ImportMode>>()
             };
             int userId = 0;
             if (user != null)

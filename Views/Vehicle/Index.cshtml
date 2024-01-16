@@ -1,5 +1,10 @@
-﻿@{
+﻿@using CarCareTracker.Helper
+@{
     ViewData["Title"] = "LubeLogger - View Vehicle";
+}
+@inject IConfigHelper config
+@{
+    var visibleTabs = config.GetUserConfig(User).VisibleTabs;
 }
 @model Vehicle
 @section Scripts {
@@ -26,25 +31,25 @@
             <button class="nav-link active" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>Dashboard</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.ServiceRecord) ? "d-none" : "")" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.RepairRecord) ? "d-none" : "")" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.UpgradeRecord) ? "d-none" : "")" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-fuel-pump me-2"></i>Fuel</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.GasRecord) ? "d-none" : "")" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-fuel-pump me-2"></i>Fuel</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>Taxes</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.TaxRecord) ? "d-none" : "")" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>Taxes</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>Notes</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.NoteRecord) ? "d-none" : "")" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>Notes</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</span></button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.ReminderRecord) ? "d-none" : "")" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><span class="display-3 ms-2"><i class="bi bi-trash me-2"></i>Delete Vehicle</span></button>
@@ -68,25 +73,25 @@
             <button class="nav-link active" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>Dash</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.ServiceRecord) ? "d-none" : "")" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.RepairRecord) ? "d-none" : "")" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon me-2"></i>Repairs</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.UpgradeRecord) ? "d-none" : "")" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench-adjustable me-2"></i>Upgrades</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-fuel-pump me-2"></i>Fuel</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.GasRecord) ? "d-none" : "")" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-fuel-pump me-2"></i>Fuel</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar me-2"></i>Taxes</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.TaxRecord) ? "d-none" : "")" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar me-2"></i>Taxes</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark me-2"></i>Notes</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.NoteRecord) ? "d-none" : "")" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark me-2"></i>Notes</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</button>
+            <button class="nav-link @(!visibleTabs.Contains(ImportMode.ReminderRecord) ? "d-none" : "")" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>Reminders</button>
         </li>
         <li class="nav-item dropdown ms-auto" role="presentation">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Manage Vehicle</a>
