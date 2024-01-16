@@ -1,4 +1,5 @@
-﻿@model UserConfig
+﻿@using CarCareTracker.Helper
+@model UserConfig
 
 <div class="row">
     <div class="d-flex justify-content-center">
@@ -53,6 +54,10 @@
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="serviceRecordTab">Service Records</label>
                     </li>
+                    <li class="list-group-item d-none">
+                        <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="dashboardTab">Dashboard</label>
+                    </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="repairRecordTab">Repairs</label>
@@ -88,7 +93,24 @@
                 </ul>
             </div>
         </div>
-       
+       <div class="row">
+            <div class="col-12">
+                <span class="lead">Default Tab</span>
+            </div>
+            <div class="col-12 col-md-6">
+                <select class="form-select" onchange="updateSettings()" id="defaultTab">
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.Dashboard)) value="Dashboard">Dashboard</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model,ImportMode.ServiceRecord)) value="ServiceRecord">Service Record</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.RepairRecord)) value="RepairRecord">Repairs</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.UpgradeRecord)) value="UpgradeRecord">Upgrades</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.GasRecord)) value="GasRecord">Fuel</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">Tax</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">Notes</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
+                </select>
+            </div>
+       </div>
     </div>
 </div>
 <div class="row">
@@ -140,6 +162,10 @@
     }
     function updateSettings(){
         var visibleTabs = getCheckedTabs();
+        var defaultTab = $("#defaultTab").val();
+        if (!visibleTabs.includes(defaultTab)){
+            defaultTab = "Dashboard"; //default to dashboard.
+        }
         var userConfigObject = {
             useDarkMode: $("#enableDarkMode").is(':checked'),
             enableCsvImports: $("#enableCsvImports").is(':checked'),
@@ -148,7 +174,8 @@
             hideZero: $("#hideZero").is(":checked"),
             useUKMpg: $("#useUKMPG").is(":checked"),
             useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
-            visibleTabs: visibleTabs
+            visibleTabs: visibleTabs,
+            defaultTab: defaultTab
         }
         sloader.show();
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){

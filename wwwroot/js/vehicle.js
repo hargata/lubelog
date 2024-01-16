@@ -58,7 +58,33 @@ $(document).ready(function () {
                 break;
         }
     });
-    getVehicleReport(vehicleId);
+    var defaultTab = GetDefaultTab().tab;
+    switch (defaultTab) {
+        case "ServiceRecord":
+            getVehicleServiceRecords(vehicleId);
+            break;
+        case "NoteRecord":
+            getVehicleNotes(vehicleId);
+            break;
+        case "GasRecord":
+            getVehicleGasRecords(vehicleId);
+            break;
+        case "RepairRecord":
+            getVehicleCollisionRecords(vehicleId);
+            break;
+        case "TaxRecord":
+            getVehicleTaxRecords(vehicleId);
+            break;
+        case "Dashboard":
+            getVehicleReport(vehicleId);
+            break;
+        case "ReminderRecord":
+            getVehicleReminders(vehicleId);
+            break;
+        case "UpgradeRecord":
+            getVehicleUpgradeRecords(vehicleId);
+            break;
+    }
 });
 
 function getVehicleNotes(vehicleId) {

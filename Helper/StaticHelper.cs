@@ -1,4 +1,6 @@
-﻿namespace CarCareTracker.Helper
+﻿using CarCareTracker.Models;
+
+namespace CarCareTracker.Helper
 {
     /// <summary>
     /// helper method for static vars
@@ -18,10 +20,48 @@
             if (input.Length > maxLength)
             {
                 return (input.Substring(0, maxLength) + "...");
-            } else
+            }
+            else
             {
                 return input;
             }
+        }
+        public static string DefaultActiveTab(UserConfig userConfig, ImportMode tab)
+        {
+            var defaultTab = userConfig.DefaultTab;
+            var visibleTabs = userConfig.VisibleTabs;
+            if (visibleTabs.Contains(tab) && tab == defaultTab)
+            {
+                return "active";
+            }
+            else if (!visibleTabs.Contains(tab))
+            {
+                return "d-none";
+            }
+            return "";
+        }
+        public static string DefaultActiveTabContent(UserConfig userConfig, ImportMode tab)
+        {
+            var defaultTab = userConfig.DefaultTab;
+            if (tab == defaultTab)
+            {
+                return "show active";
+            }
+            return "";
+        }
+        public static string DefaultTabSelected(UserConfig userConfig, ImportMode tab)
+        {
+            var defaultTab = userConfig.DefaultTab;
+            var visibleTabs = userConfig.VisibleTabs;
+            if (!visibleTabs.Contains(tab))
+            {
+                return "disabled";
+            }
+            else if (tab == defaultTab)
+            {
+                return "selected";
+            }
+            return "";
         }
     }
 }

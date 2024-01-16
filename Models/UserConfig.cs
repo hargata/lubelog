@@ -12,6 +12,15 @@
         public bool UseThreeDecimalGasCost { get; set; }
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
-        public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>();
+        public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 
+            ImportMode.Dashboard,
+            ImportMode.ServiceRecord, 
+            ImportMode.RepairRecord, 
+            ImportMode.GasRecord, 
+            ImportMode.UpgradeRecord, 
+            ImportMode.TaxRecord, 
+            ImportMode.ReminderRecord, 
+            ImportMode.NoteRecord};
+        public ImportMode DefaultTab { get; set; } = ImportMode.Dashboard;
     }
 }
