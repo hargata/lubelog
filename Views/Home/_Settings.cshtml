@@ -94,10 +94,8 @@
             </div>
         </div>
        <div class="row">
-            <div class="col-12">
-                <span class="lead">Default Tab</span>
-            </div>
             <div class="col-12 col-md-6">
+                <span class="lead">Default Tab</span>
                 <select class="form-select" onchange="updateSettings()" id="defaultTab">
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.Dashboard)) value="Dashboard">Dashboard</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model,ImportMode.ServiceRecord)) value="ServiceRecord">Service Record</!option>
@@ -110,6 +108,21 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
                 </select>
             </div>
+            @if (User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                <div class="col-12 col-md-6">
+                    <span class="lead">Backups</span>
+                    <div class="row">
+                        <div class="col-6 d-grid">
+                            <button onclick="makeBackup()" class="btn btn-primary btn-md">Make</button>
+                        </div>
+                        <div class="col-6 d-grid">
+                            <input onChange="restoreBackup(this)" type="file" accept=".zip" class="d-none" id="inputBackup">
+                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md">Restore</button>
+                        </div>
+                        </div>
+                </div> 
+            }
        </div>
     </div>
 </div>
@@ -186,6 +199,40 @@
                 errorToast("An error occurred, please try again later.")
             }
         })
+    }
+    function makeBackup() {
+        $.get('/Files/MakeBackup', function (data) {
+            window.location.href = data;
+        });
+    }
+    function openRestoreBackup(){
+        $("#inputBackup").click();
+    }
+    function restoreBackup(event) {
+        let formData = new FormData();
+        formData.append("file", event.files[0]);
+        sloader.show();
+        $.ajax({
+            url: "/Files/HandleFileUpload",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                if (response.trim() != '') {
+                    $.post('/Files/RestoreBackup', { fileName : response}, function (data) {
+                        sloader.hide();
+                        if (data){
+                            successToast("Backup Restored");
+                            setTimeout(function () { window.location.href = '/Home/Index' }, 500);
+                        } else {
+                            errorToast("An error occurred, please try again later.");
+                        }
+                    });
+                }
+            }
+        });
     }
     function enableAuthCheckChanged(){
         var enableAuth = $("#enableAuth").is(":checked");
