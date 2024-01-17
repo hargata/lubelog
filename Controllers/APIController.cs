@@ -23,6 +23,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
+        private readonly IFileHelper _fileHelper;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -33,6 +34,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            IFileHelper fileHelper,
             IUserLogic userLogic) 
         {
             _dataAccess = dataAccess;
@@ -46,6 +48,7 @@ namespace CarCareTracker.Controllers
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
+            _fileHelper = fileHelper;
         }
         public IActionResult Index()
         {
@@ -128,6 +131,14 @@ namespace CarCareTracker.Controllers
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
             return Json(results);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        [Route("/api/makebackup")]
+        public IActionResult MakeBackup()
+        {
+            var result = _fileHelper.MakeBackup();
+            return Json(result);
         }
         private int GetMaxMileage(int vehicleId)
         {
