@@ -30,6 +30,9 @@ $(document).ready(function () {
             case "upgrade-tab":
                 getVehicleUpgradeRecords(vehicleId);
                 break;
+            case "supply-tab":
+                getVehicleSupplyRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -56,9 +59,41 @@ $(document).ready(function () {
             case "notes-tab":
                 $("#notes-tab-pane").html("");
                 break;
+            case "supply-tab":
+                $("#supply-tab-pane").html("");
+                break;
         }
     });
-    getVehicleReport(vehicleId);
+    var defaultTab = GetDefaultTab().tab;
+    switch (defaultTab) {
+        case "ServiceRecord":
+            getVehicleServiceRecords(vehicleId);
+            break;
+        case "NoteRecord":
+            getVehicleNotes(vehicleId);
+            break;
+        case "GasRecord":
+            getVehicleGasRecords(vehicleId);
+            break;
+        case "RepairRecord":
+            getVehicleCollisionRecords(vehicleId);
+            break;
+        case "TaxRecord":
+            getVehicleTaxRecords(vehicleId);
+            break;
+        case "Dashboard":
+            getVehicleReport(vehicleId);
+            break;
+        case "ReminderRecord":
+            getVehicleReminders(vehicleId);
+            break;
+        case "UpgradeRecord":
+            getVehicleUpgradeRecords(vehicleId);
+            break;
+        case "SupplyRecord":
+            getVehicleSupplyRecords(vehicleId);
+            break;
+    }
 });
 
 function getVehicleNotes(vehicleId) {
@@ -73,6 +108,15 @@ function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#servicerecord-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehicleSupplyRecords(vehicleId) {
+    $.get(`/Vehicle/GetSupplyRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#supply-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }

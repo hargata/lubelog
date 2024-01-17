@@ -25,6 +25,7 @@ namespace CarCareTracker.Controllers
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
+        private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly bool _useDescending;
         private readonly IConfigHelper _config;
@@ -47,6 +48,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            ISupplyRecordDataAccess supplyRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
@@ -64,6 +66,7 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _supplyRecordDataAccess = supplyRecordDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
@@ -133,6 +136,7 @@ namespace CarCareTracker.Controllers
                 _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
@@ -209,7 +213,33 @@ namespace CarCareTracker.Controllers
                     return Json($"/{fileNameToExport}");
                 }
             }
-            else if (mode == ImportMode.TaxRecord) {
+            else if (mode == ImportMode.SupplyRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new SupplyRecordExportModel { 
+                        Date = x.Date.ToShortDateString(), 
+                        Description = x.Description, 
+                        Cost = x.Cost.ToString("C"), 
+                        PartNumber = x.PartNumber,
+                        PartQuantity = x.Quantity.ToString(),
+                        PartSupplier = x.PartSupplier,
+                        Notes = x.Notes });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.TaxRecord)
+            {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
                 var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
                 var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
@@ -235,11 +265,12 @@ namespace CarCareTracker.Controllers
                 bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
                 vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
-                var exportData = convertedRecords.Select(x => new GasRecordExportModel { 
-                    Date = x.Date.ToString(), 
-                    Cost = x.Cost.ToString(), 
-                    FuelConsumed = x.Gallons.ToString(), 
-                    FuelEconomy = x.MilesPerGallon.ToString(), 
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel
+                {
+                    Date = x.Date.ToString(),
+                    Cost = x.Cost.ToString(),
+                    FuelConsumed = x.Gallons.ToString(),
+                    FuelEconomy = x.MilesPerGallon.ToString(),
                     Odometer = x.Mileage.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString()
@@ -278,7 +309,7 @@ namespace CarCareTracker.Controllers
                     config.PrepareHeaderForMatch = args => { return args.Header.Trim().ToLower(); };
                     using (var csv = new CsvReader(reader, config))
                     {
-                        csv.Context.RegisterClassMap<FuellyMapper>();
+                        csv.Context.RegisterClassMap<ImportMapper>();
                         var records = csv.GetRecords<ImportModel>().ToList();
                         if (records.Any())
                         {
@@ -300,7 +331,8 @@ namespace CarCareTracker.Controllers
                                         //fuelly sometimes exports CSVs without total cost.
                                         var parsedPrice = decimal.Parse(importModel.Price, NumberStyles.Any);
                                         convertedRecord.Cost = convertedRecord.Gallons * parsedPrice;
-                                    } else
+                                    }
+                                    else
                                     {
                                         convertedRecord.Cost = decimal.Parse(importModel.Cost, NumberStyles.Any);
                                     }
@@ -308,7 +340,8 @@ namespace CarCareTracker.Controllers
                                     {
                                         var parsedBool = importModel.PartialFuelUp.Trim() == "1";
                                         convertedRecord.IsFillToFull = !parsedBool;
-                                    } else if (!string.IsNullOrWhiteSpace(importModel.IsFillToFull))
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(importModel.IsFillToFull))
                                     {
                                         var possibleFillToFullValues = new List<string> { "1", "true", "full" };
                                         var parsedBool = possibleFillToFullValues.Contains(importModel.IsFillToFull.Trim().ToLower());
@@ -364,6 +397,21 @@ namespace CarCareTracker.Controllers
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
+                                }
+                                else if (mode == ImportMode.SupplyRecord)
+                                {
+                                    var convertedRecord = new SupplyRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = DateTime.Parse(importModel.Date),
+                                        PartNumber = importModel.PartNumber,
+                                        PartSupplier = importModel.PartSupplier,
+                                        Quantity = decimal.Parse(importModel.PartQuantity, NumberStyles.Any),
+                                        Description = importModel.Description,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        Notes = importModel.Notes
+                                    };
+                                    _supplyRecordDataAccess.SaveSupplyRecordToVehicle(convertedRecord);
                                 }
                                 else if (mode == ImportMode.TaxRecord)
                                 {
@@ -678,9 +726,9 @@ namespace CarCareTracker.Controllers
             {
                 numbersArray.Add(upgradeRecords.Min(x => x.Date.Year));
             }
-            var minYear =  numbersArray.Any() ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
+            var minYear = numbersArray.Any() ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
             var yearDifference = DateTime.Now.Year - minYear + 1;
-            for(int i = 0; i < yearDifference; i++)
+            for (int i = 0; i < yearDifference; i++)
             {
                 viewModel.Years.Add(DateTime.Now.AddYears(i * -1).Year);
             }
@@ -691,16 +739,16 @@ namespace CarCareTracker.Controllers
             var userConfig = _config.GetUserConfig(User);
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
-            var monthlyMileageData = mileageData.GroupBy(x=>x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
             {
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Average(y=>y.MilesPerGallon)
+                Cost = x.Average(y => y.MilesPerGallon)
             }).ToList();
             viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
-        [HttpGet] 
+        [HttpGet]
         public IActionResult GetCollaboratorsForVehicle(int vehicleId)
         {
             var result = _userLogic.GetCollaboratorsForVehicle(vehicleId);
@@ -743,7 +791,7 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
-                UpgradeRecordSum = upgradeRecords.Sum(x=>x.Cost)
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }
@@ -821,7 +869,7 @@ namespace CarCareTracker.Controllers
                 Cost = x.Cost,
                 DataType = ImportMode.TaxRecord
             }));
-            vehicleHistory.VehicleHistory = reportData.OrderBy(x=>x.Date).ThenBy(x=>x.Odometer).ToList();
+            vehicleHistory.VehicleHistory = reportData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
             return PartialView("_VehicleHistory", vehicleHistory);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -1059,6 +1107,62 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteNoteById(int noteId)
         {
             var result = _noteDataAccess.DeleteNoteById(noteId);
+            return Json(result);
+        }
+        #endregion
+        #region "Supply Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
+        {
+            var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ToList();
+            }
+            return PartialView("_SupplyRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
+        {
+            //move files from temp.
+            supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddSupplyRecordPartialView()
+        {
+            return PartialView("_SupplyRecordModal", new SupplyRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
+        {
+            var result = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
+            //convert to Input object.
+            var convertedResult = new SupplyRecordInput
+            {
+                Id = result.Id,
+                Cost = result.Cost,
+                Date = result.Date.ToShortDateString(),
+                Description = result.Description,
+                PartNumber = result.PartNumber,
+                Quantity = result.Quantity,
+                PartSupplier = result.PartSupplier,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_SupplyRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteSupplyRecordById(int supplyRecordId)
+        {
+            var result = _supplyRecordDataAccess.DeleteSupplyRecordById(supplyRecordId);
             return Json(result);
         }
         #endregion

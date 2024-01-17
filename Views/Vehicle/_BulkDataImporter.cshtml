@@ -25,6 +25,9 @@
                     } else if (Model == ImportMode.TaxRecord)
                     {
                         <a class="btn btn-link" href="/defaults/taxrecordsample.csv" target="_blank">Download Sample</a>
+                    } else if (Model == ImportMode.SupplyRecord)
+                    {
+                        <a class="btn btn-link" href="/defaults/supplysample.csv" target="_blank">Download Sample</a>
                     }
                 </div>
             </div>
@@ -62,6 +65,8 @@
                     getVehicleTaxRecords(vehicleId);
                 } else if (mode == "UpgradeRecord") {
                     getVehicleUpgradeRecords(vehicleId);
+                } else if (mode == "SupplyRecord") {
+                    getVehicleSupplyRecords(vehicleId);
                 }
             } else {
                 errorToast("An error has occurred, please double check the data and try again.");
