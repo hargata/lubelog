@@ -13,9 +13,11 @@ namespace CarCareTracker.Helper
     public class FileHelper : IFileHelper
     {
         private readonly IWebHostEnvironment _webEnv;
-        public FileHelper(IWebHostEnvironment webEnv)
+        private readonly ILogger<IFileHelper> _logger;
+        public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger)
         {
             _webEnv = webEnv;
+            _logger = logger;
         }
         public string GetFullFilePath(string currentFilePath, bool mustExist = true)
         {
@@ -90,6 +92,7 @@ namespace CarCareTracker.Helper
                 return true;
             } catch (Exception ex)
             {
+                _logger.LogError(ex, $"Error Restoring Database Backup: {ex.Message}");
                 return false;
             }
         }
