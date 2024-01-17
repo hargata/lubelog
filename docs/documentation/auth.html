@@ -1,0 +1,59 @@
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LubeLogger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .customCarouselCaption{
+            background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
+            padding-top: 3rem;
+            color: #fff !important
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-2">
+            <div class="d-flex justify-content-center">
+                <img src="lubelogger_logo.png"/>
+            </div>
+            <hr />
+            <div class="list-group">
+                <a class="list-group-item list-group-item-action" href="index.html">Getting Started</a>
+                <a class="list-group-item list-group-item-action" href="locale.html">Changing Locale/Culture</a>
+                <a class="list-group-item active list-group-item-action" href="auth.html">Setup Authentication/Multiple Users</a>
+                <a class="list-group-item list-group-item-action" href="share.html">Sharing Vehicles</a>
+                <a class="list-group-item list-group-item-action" href="csv.html">CSV Import/Export</a>
+                <a class="list-group-item list-group-item-action" href="api.html">API</a>
+            </div>
+        </div>
+        <div class="col-10" style="height:65vh; overflow-y:auto;">
+            <span class="display-6">Setup Authentication and Multiple Users</span>
+            <hr />
+            <span class="lead">Root User</span>
+            <p>
+               Authentication is disabled by default in LubeLogger. To enable authentication, navigate to the "Settings" tab and check "Enable Authentication".<br>
+               A dialog will pop up prompting you to enter a Username and Password. These are the credentials for the "Root User", i.e.: the SuperUser.<br>
+               Once you have set up your credentials, the app will you out to a Login screen, login using the credentials you just created.<br>
+               There will now be a dropdown tab to the right of "Settings", click on it and you will see two options: "Admin Panel" and "Logout"
+            </p>
+            <span class="lead">Multiple Users</span>
+            <p>
+                Before you get started, it is highly recommended that you set up a SMTP server(though not required) as it will greatly automate the User's Registration Process.<br>
+                If you have an SMTP server, you can set it up in LubeLogger using the variables within <code>.env</code><br>
+                To set up new users, you must first have their email address on hand as the registration process is invite-only by design.<br>
+                Navigate to the "Admin Panel" and select "Generate New Token". A dialog will prompt you to enter the email address of the user.<br>
+                If you have SMTP set up, there will be a switch right next to the button that says "Auto Notify(via Email)", this switch is only enabled with valid SMTP settings.<br>
+                Enter the user's email address, and a new token will be generated and emailed to them if SMTP is set up, otherwise you will have to send it to them manually.<br>
+                The user can then navigate to your LubeLogger instance, click the "Register" link under the "Login" button and type in their details including the token they received.<br>
+                Note: It is important that their email address matches the email address the token is issued to, otherwise they will receive an Invalid Token error.<br>
+                Once the user has registered their account, they will then be able to login and start adding their own vehicles<br>
+            </p>
+        </div>
+    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

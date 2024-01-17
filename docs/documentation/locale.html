@@ -1,0 +1,57 @@
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LubeLogger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .customCarouselCaption{
+            background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
+            padding-top: 3rem;
+            color: #fff !important
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-2">
+            <div class="d-flex justify-content-center">
+                <img src="lubelogger_logo.png"/>
+            </div>
+            <hr />
+            <div class="list-group">
+                <a class="list-group-item list-group-item-action" href="index.html">Getting Started</a>
+                <a class="list-group-item active list-group-item-action" href="locale.html">Changing Locale/Culture</a>
+                <a class="list-group-item list-group-item-action" href="auth.html">Setup Authentication/Multiple Users</a>
+                <a class="list-group-item list-group-item-action" href="share.html">Sharing Vehicles</a>
+                <a class="list-group-item list-group-item-action" href="csv.html">CSV Import/Export</a>
+                <a class="list-group-item list-group-item-action" href="api.html">API</a>
+            </div>
+        </div>
+        <div class="col-10" style="height:65vh; overflow-y:auto;">
+            <span class="display-6">Changing Locale</span>
+            <hr />
+            <p>
+               The culture/locale for LubeLogger is configured in the <code>.env file</code>
+                <br>
+                You should see the following when you open up the <code>.env</code> file in Notepad<br><br>
+                <code>
+                    LC_ALL=en_US.UTF-8<br>
+                    LANG=en_US.UTF-8
+                </code><br><br>
+                All you have to do is change en_US to any culture you'd like such as <code>de_DE</code><br>
+                Re-build the container and LubeLogger should start displaying currencies and date formats in your culture.
+            </p>
+            <span class="lead">Important Note</span>
+            <p>
+                If you have already set up LubeLogger in en_US culture and have inputted data in it before switching over a culture that uses "," for decimals<br>
+                you will most likely run into issues where existing data in the system gets returned as thousands.<br>
+                The culture should stay consistent for as long as you plan to use LubeLogger.
+            </p>
+        </div>
+    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LubeLogger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .customCarouselCaption{
+            background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
+            padding-top: 3rem;
+            color: #fff !important
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-2">
+            <div class="d-flex justify-content-center">
+                <img src="lubelogger_logo.png"/>
+            </div>
+            <hr />
+            <div class="list-group">
+                <a class="list-group-item active list-group-item-action" href="index.html">Getting Started</a>
+                <a class="list-group-item list-group-item-action" href="locale.html">Changing Locale/Culture</a>
+                <a class="list-group-item list-group-item-action" href="auth.html">Setup Authentication/Multiple Users</a>
+                <a class="list-group-item list-group-item-action" href="share.html">Sharing Vehicles</a>
+                <a class="list-group-item list-group-item-action" href="csv.html">CSV Import/Export</a>
+                <a class="list-group-item list-group-item-action" href="api.html">API</a>
+            </div>
+        </div>
+        <div class="col-10" style="height:65vh; overflow-y:auto;">
+            <span class="display-6">Getting Started</span>
+            <hr />
+            <span class="lead">Docker</span>
+            <p>
+                The Docker container is the most reliable way of getting LubeLogger up and running.<br>
+                To get started, you must first have Docker Desktop installed, which can be found <a href="https://www.docker.com/products/docker-desktop/">here</a>.<br>
+                Once Docker is installed and Virtualization is enabled on your computer(usually at the BIOS level), navigate to <a href="https://github.com/hargata/lubelog">LubeLogger's GitHub Repository</a><br>
+                The two files that you will need to download from the repository are <code>.env</code> and <code>docker-compose.yml</code><br>
+                The .env file contains all of the environment variables LubeLogger uses such as Culture and SMTP setup.<br>
+                The docker-compose.yml file contains instructions that tells Docker how to build the container.<br>
+                <br>
+                To pull(download) the pre-built Docker image and run it, you just have run the following commands:<br>
+                <code>
+                    docker pull ghcr.io/hargata/lubelogger:latest<br>
+                    docker-compose up
+                </code><br><br>
+                LubeLogger's server instance will be started on the default <code>http://localhost:8080</code> and you can navigate to it to continue setting it up.
+            </p>
+            <span class="lead">No Virtualization Solutions</span>
+            <p>
+                Starting 1.0.2 all distribution of LubeLogger is done exclusively through Docker images.<br>
+                Pre-compiled standalone executables for Windows/Mac/Linux can be be requested, <a href="mailto:hargatasoftworks@gmail.com">contact us</a> for more information.
+            </p>
+        </div>
+    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
