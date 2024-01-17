@@ -60,20 +60,30 @@ namespace CarCareTracker.Helper
                 if (Directory.Exists(imagePath))
                 {
                     var existingPath = Path.Combine(_webEnv.WebRootPath, "images");
-                    if (Directory.Exists(existingPath))
+                    if (!Directory.Exists(existingPath))
                     {
-                        Directory.Delete(existingPath, true);
+                        Directory.CreateDirectory(existingPath);
                     }
-                    Directory.Move(imagePath, existingPath);
+                    //copy each files from temp folder to newPath
+                    var filesToUpload = Directory.GetFiles(imagePath);
+                    foreach(string file in filesToUpload)
+                    {
+                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}");
+                    }
                 }
                 if (Directory.Exists(documentPath))
                 {
                     var existingPath = Path.Combine(_webEnv.WebRootPath, "documents");
-                    if (Directory.Exists(existingPath))
+                    if (!Directory.Exists(existingPath))
                     {
-                        Directory.Delete(existingPath, true);
+                        Directory.CreateDirectory(existingPath);
                     }
-                    Directory.Move(documentPath, existingPath);
+                    //copy each files from temp folder to newPath
+                    var filesToUpload = Directory.GetFiles(documentPath);
+                    foreach (string file in filesToUpload)
+                    {
+                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}");
+                    }
                 }
                 if (File.Exists(dataPath))
                 {
