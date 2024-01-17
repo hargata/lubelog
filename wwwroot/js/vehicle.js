@@ -30,6 +30,9 @@ $(document).ready(function () {
             case "upgrade-tab":
                 getVehicleUpgradeRecords(vehicleId);
                 break;
+            case "supply-tab":
+                getVehicleSupplyRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -55,6 +58,9 @@ $(document).ready(function () {
                 break;
             case "notes-tab":
                 $("#notes-tab-pane").html("");
+                break;
+            case "supply-tab":
+                $("#supply-tab-pane").html("");
                 break;
         }
     });
@@ -84,6 +90,9 @@ $(document).ready(function () {
         case "UpgradeRecord":
             getVehicleUpgradeRecords(vehicleId);
             break;
+        case "SupplyRecord":
+            getVehicleSupplyRecords(vehicleId);
+            break;
     }
 });
 
@@ -99,6 +108,15 @@ function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#servicerecord-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehicleSupplyRecords(vehicleId) {
+    $.get(`/Vehicle/GetSupplyRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#supply-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }

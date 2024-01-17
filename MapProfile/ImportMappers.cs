@@ -3,9 +3,9 @@ using CsvHelper.Configuration;
 
 namespace CarCareTracker.MapProfile
 {
-    public class FuellyMapper: ClassMap<ImportModel>
+    public class ImportMapper: ClassMap<ImportModel>
     {
-        public FuellyMapper()
+        public ImportMapper()
         {
             Map(m => m.Date).Name(["date", "fuelup_date"]);
             Map(m => m.Odometer).Name(["odometer"]);
@@ -17,6 +17,9 @@ namespace CarCareTracker.MapProfile
             Map(m => m.IsFillToFull).Name(["isfilltofull", "filled up"]);
             Map(m => m.Description).Name(["description"]);
             Map(m => m.MissedFuelUp).Name(["missed_fuelup", "missedfuelup"]);
+            Map(m => m.PartSupplier).Name(["partsupplier"]);
+            Map(m => m.PartQuantity).Name(["partquantity"]);
+            Map(m => m.PartNumber).Name(["partnumber"]);
         }
     }
 }
