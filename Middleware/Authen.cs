@@ -160,5 +160,18 @@ namespace CarCareTracker.Middleware
             Response.Redirect("/Login/Index");
             return Task.CompletedTask;
         }
+        protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+        {
+            if (Request.RouteValues.TryGetValue("controller", out object value))
+            {
+                if (value.ToString().ToLower() == "api")
+                {
+                    Response.StatusCode = 403;
+                    return Task.CompletedTask;
+                }
+            }
+            Response.Redirect("/Error/401");
+            return Task.CompletedTask;
+        }
     }
 }

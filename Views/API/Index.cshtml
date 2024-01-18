@@ -125,3 +125,20 @@
         vehicleId - Id of Vehicle
     </div>
 </div>
+@if (User.IsInRole(nameof(UserData.IsRootUser)))
+{
+    <div class="row">
+        <div class="col-1">
+            GET
+        </div>
+        <div class="col-5">
+            <code>/api/makebackup</code>
+        </div>
+        <div class="col-3">
+            Creates a snapshot/backup of the DB at the time and returns a URL to download it.
+        </div>
+        <div class="col-3">
+            No Params(must be root user)
+        </div>
+    </div>
+}

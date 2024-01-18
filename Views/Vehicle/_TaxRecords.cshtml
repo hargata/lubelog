@@ -42,8 +42,8 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1">Date</th>
-                    <th scope="col" class="col-6">Description</th>
+                    <th scope="col" class="col-3 col-xl-1">Date</th>
+                    <th scope="col" class="col-4 col-xl-6">Description</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-3">Notes</th>
                 </tr>
@@ -52,8 +52,8 @@
                 @foreach (TaxRecord taxRecord in Model)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditTaxRecordModal(@taxRecord.Id)">
-                        <td class="col-1">@taxRecord.Date.ToShortDateString()</td>
-                        <td class="col-6">@taxRecord.Description</td>
+                        <td class="col-3 col-xl-1">@taxRecord.Date.ToShortDateString()</td>
+                        <td class="col-4 col-xl-6">@taxRecord.Description</td>
                         <td class="col-2">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                     </tr>
