@@ -235,3 +235,11 @@ html {
 .dropdown-menu.show{
     z-index: 1030;
 }
+
+input[type="file"] {
+    max-width:100%;
+}
+
+.uploadedFileName {
+    max-width:75%;
+}
