@@ -27,7 +27,6 @@ namespace CarCareTracker.Controllers
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
-        private readonly bool _useDescending;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
         private readonly IGasHelper _gasHelper;
@@ -70,7 +69,6 @@ namespace CarCareTracker.Controllers
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
-            _useDescending = config.GetUserConfig(User).UseDescending;
         }
         private int GetUserID()
         {
@@ -447,10 +445,11 @@ namespace CarCareTracker.Controllers
             //need it in ascending order to perform computation.
             result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             //check if the user uses MPG or Liters per 100km.
-            bool useMPG = _config.GetUserConfig(User).UseMPG;
-            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
+            var userConfig = _config.GetUserConfig(User);
+            bool useMPG = userConfig.UseMPG;
+            bool useUKMPG = userConfig.UseUKMPG;
             var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
-            if (_useDescending)
+            if (userConfig.UseDescending)
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
@@ -511,6 +510,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetServiceRecordsByVehicleId(int vehicleId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
                 result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
@@ -565,6 +565,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCollisionRecordsByVehicleId(int vehicleId)
         {
             var result = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
                 result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
@@ -619,6 +620,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetTaxRecordsByVehicleId(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
                 result = result.OrderByDescending(x => x.Date).ToList();
@@ -1030,6 +1032,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetUpgradeRecordsByVehicleId(int vehicleId)
         {
             var result = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
                 result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
@@ -1116,6 +1119,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
                 result = result.OrderByDescending(x => x.Date).ToList();
