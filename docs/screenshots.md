@@ -13,7 +13,8 @@
 ## Import/Export from/to CSV (Supports Imports from Fuelly)
 ![image](https://github.com/hargata/lubelog/assets/155338622/d5fbcade-17fd-4b46-95eb-2ecafbbf6614)
 
-## Track Gas Records
+## Track Gas Records(Supports MPG, L/100KM)
+### Even supports British use-cases - Purchase Gas in Liters and Calculates in Miles per UK Gallons
 ![image](https://github.com/hargata/lubelog/assets/155338622/2bb61362-93b3-45c1-a02e-34b65ed883c0)
 
 ## Reminders
