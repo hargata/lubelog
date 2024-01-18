@@ -10,6 +10,9 @@
 ## Attach Files to Records (i.e.: Receipts, Invoices, etc)
 ![image](https://github.com/hargata/lubelog/assets/155338622/1c52c3a3-f750-4327-ae91-0c345f305e52)
 
+## Import/Export from/to CSV (Supports Imports from Fuelly)
+![image](https://github.com/hargata/lubelog/assets/155338622/d5fbcade-17fd-4b46-95eb-2ecafbbf6614)
+
 ## Track Gas Records
 ![image](https://github.com/hargata/lubelog/assets/155338622/2bb61362-93b3-45c1-a02e-34b65ed883c0)
 
