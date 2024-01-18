@@ -42,10 +42,10 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1">Date</th>
+                    <th scope="col" class="col-2 col-xl-1">Date</th>
                     <th scope="col" class="col-2">Part #</th>
                     <th scope="col" class="col-2">Supplier</th>
-                    <th scope="col" class="col-3">Description</th>
+                    <th scope="col" class="col-2 col-xl-3">Description</th>
                     <th scope="col" class="col-1">Quantity</th>
                     <th scope="col" class="col-1">Cost</th>
                     <th scope="col" class="col-2">Notes</th>
@@ -55,10 +55,10 @@
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditSupplyRecordModal(@supplyRecord.Id)">
-                        <td class="col-1">@supplyRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@supplyRecord.PartNumber</td>
                         <td class="col-2">@supplyRecord.PartSupplier</td>
-                        <td class="col-3">@supplyRecord.Description</td>
+                        <td class="col-2 col-xl-3">@supplyRecord.Description</td>
                         <td class="col-1">@supplyRecord.Quantity</td>
                         <td class="col-1">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
                         <td class="col-2 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(supplyRecord.Notes)</td>

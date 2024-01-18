@@ -42,9 +42,9 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1">Date</th>
+                    <th scope="col" class="col-2 col-xl-1">Date</th>
                     <th scope="col" class="col-2">Odometer</th>
-                    <th scope="col" class="col-4">Description</th>
+                    <th scope="col" class="col-3 col-xl-4">Description</th>
                     <th scope="col" class="col-2">Cost</th>
                     <th scope="col" class="col-3">Notes</th>
                 </tr>
@@ -53,9 +53,9 @@
                 @foreach (CollisionRecord collisionRecord in Model)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditCollisionRecordModal(@collisionRecord.Id)">
-                        <td class="col-1">@collisionRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 col-xl-1">@collisionRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@collisionRecord.Mileage</td>
-                        <td class="col-4">@collisionRecord.Description</td>
+                        <td class="col-3 col-xl-4">@collisionRecord.Description</td>
                         <td class="col-2">@((hideZero && collisionRecord.Cost == default) ? "---" : collisionRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
                     </tr>
