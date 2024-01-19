@@ -89,7 +89,7 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordMileage").removeClass("is-invalid");
     }
-    if (gasGallons.trim() == '' || parseInt(gasGallons) < 0) {
+    if (gasGallons.trim() == '' || parseFloat(gasGallons) <= 0) {
         hasError = true;
         $("#gasRecordGallons").addClass("is-invalid");
     } else {
