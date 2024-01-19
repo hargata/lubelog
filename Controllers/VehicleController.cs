@@ -271,7 +271,8 @@ namespace CarCareTracker.Controllers
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     Odometer = x.Mileage.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
-                    MissedFuelUp = x.MissedFuelUp.ToString()
+                    MissedFuelUp = x.MissedFuelUp.ToString(),
+                    Notes = x.Notes
                 });
                 using (var writer = new StreamWriter(fullExportFilePath))
                 {
@@ -321,7 +322,8 @@ namespace CarCareTracker.Controllers
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
                                         Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
-                                        Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any)
+                                        Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
                                     };
                                     if (string.IsNullOrWhiteSpace(importModel.Cost) && !string.IsNullOrWhiteSpace(importModel.Price))
                                     {
@@ -487,7 +489,8 @@ namespace CarCareTracker.Controllers
                 Files = result.Files,
                 Gallons = result.Gallons,
                 IsFillToFull = result.IsFillToFull,
-                MissedFuelUp = result.MissedFuelUp
+                MissedFuelUp = result.MissedFuelUp,
+                Notes = result.Notes
             };
             var vehicleIsElectric = _dataAccess.GetVehicleById(convertedResult.VehicleId).IsElectric;
             var viewModel = new GasRecordInputContainer()

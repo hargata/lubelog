@@ -56,6 +56,7 @@
         public string FuelEconomy { get; set; }
         public string IsFillToFull { get; set; }
         public string MissedFuelUp { get; set; }
+        public string Notes { get; set; }
     }
     public class ReminderExportModel
     {
