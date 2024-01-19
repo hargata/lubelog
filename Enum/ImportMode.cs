@@ -10,6 +10,7 @@
         ReminderRecord = 5,
         NoteRecord = 6,
         SupplyRecord = 7,
-        Dashboard = 8
+        Dashboard = 8,
+        PlanRecord = 9
     }
 }

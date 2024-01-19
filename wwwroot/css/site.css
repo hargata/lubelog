@@ -35,18 +35,39 @@ html {
     overflow-y: auto;
     overflow-x: auto;
 }
+.reportTabContainer {
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.vehicleDetailTabContainer.fixed {
+    height: 65vh;
+}
+
+.swimlane{
+    height:100%;
+}
+.swimlane.mid {
+    border-right-style: solid;
+}
+.swimlane.end {
+        border-left-style: solid;
+    }
 
 .showOnPrint {
-    display:none;
+    display: none;
 }
 
 @media print {
     .hideOnPrint {
-        display:none;
+        display: none;
     }
-    .showOnPrint{
-        display:block !important;
+
+    .showOnPrint {
+        display: block !important;
     }
+
     .vehicleDetailTabContainer {
         background-color: #fff !important;
         height: 100%;
@@ -60,18 +81,22 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+
     table {
         background-color: #fff !important;
     }
+
     ul {
         border: 0px !important;
         background-color: #fff !important;
     }
+
     li {
         color: #000 !important;
         border: 0px !important;
         background-color: #fff !important;
     }
+
     td {
         color: #000 !important;
         border: hidden;
@@ -81,7 +106,8 @@ html {
         td.col-1 {
             width: 10%;
         }
-        td.col-4.text-wrap{
+
+        td.col-4.text-wrap {
             width: 30%;
         }
 
@@ -94,7 +120,7 @@ html {
         background-color: #fff !important;
     }
 
-    tr{
+    tr {
         border: hidden;
     }
 }
@@ -183,10 +209,10 @@ html {
         align-items: center;
     }
 
-    .lubelogger-navbar-button > button {
-        padding: 0;
-        font-size: 2rem;
-    }
+        .lubelogger-navbar-button > button {
+            padding: 0;
+            font-size: 2rem;
+        }
 
     .lubelogger-menu-icon {
         display: inline-block;
@@ -196,7 +222,7 @@ html {
 
     .lubelogger-mobile-nav {
         background-color: var(--bs-body-bg);
-        height: 100vh;
+        height: max(100vh, 100%);
         width: 100%;
         position: absolute;
         top: 0;
@@ -209,6 +235,7 @@ html {
     .lubelogger-mobile-nav-show {
         display: block;
     }
+
     .lubelogger-mobile-nav > ul > li > .nav-link.active {
         color: #6ea8fe;
     }
@@ -232,14 +259,31 @@ html {
     }
 }
 
-.dropdown-menu.show{
+.dropdown-menu.show {
     z-index: 1030;
 }
 
 input[type="file"] {
-    max-width:100%;
+    max-width: 100%;
 }
 
 .uploadedFileName {
-    max-width:75%;
+    max-width: 75%;
+}
+
+.taskCard {
+    height: 10vh;
+    padding:0.5rem;
+    border-radius: 4px;
+    box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
+    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+    cursor: pointer;
+}
+[data-bs-theme=dark] .taskCard {
+    color: #000;
+    background-color: rgba(255,255,255,0.5);
+}
+[data-bs-theme=light] .taskCard {
+    color: #000;
+    background-color: rgba(80,80,80,0.25);
 }

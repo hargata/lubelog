@@ -26,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
+        private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
@@ -48,6 +49,7 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
+            IPlanRecordDataAccess planRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
@@ -66,6 +68,7 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
+            _planRecordDataAccess = planRecordDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
@@ -134,6 +137,7 @@ namespace CarCareTracker.Controllers
                 _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
                 _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
@@ -1170,6 +1174,55 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)
         {
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(supplyRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Plan Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetPlanRecordsByVehicleId(int vehicleId)
+        {
+            var result = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+            return PartialView("_PlanRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
+        {
+            //move files from temp.
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddPlanRecordPartialView()
+        {
+            return PartialView("_PlanRecordModal", new PlanRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetPlanRecordForEditById(int planRecordId)
+        {
+            var result = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            //convert to Input object.
+            var convertedResult = new PlanRecordInput
+            {
+                Id = result.Id,
+                Description = result.Description,
+                DateCreated = result.DateCreated.ToShortDateString(),
+                DateModified = result.DateModified.ToShortDateString(),
+                ImportMode = result.ImportMode,
+                Priority = result.Priority,
+                Progress = result.Progress,
+                Costs = result.Costs,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_PlanRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeletePlanRecordById(int planRecordId)
+        {
+            var result = _planRecordDataAccess.DeletePlanRecordById(planRecordId);
             return Json(result);
         }
         #endregion

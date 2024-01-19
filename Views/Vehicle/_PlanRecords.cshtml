@@ -1,0 +1,112 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
+    var hideZero = config.GetUserConfig(User).HideZero;
+    var backLogItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Backlog).OrderBy(x=>x.Priority);
+    var inProgressItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.InProgress).OrderBy(x => x.Priority);
+    var testingItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Testing).OrderBy(x => x.Priority);
+    var doneItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Done).OrderBy(x => x.Priority);
+}
+@model List<PlanRecord>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success">@($"# of Plan Records: {Model.Count()}")</span>
+        </div>
+        <div>
+            @if (enableCsvImports)
+            {
+                <div class="btn-group">
+                    <button onclick="showAddPlanRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Plan Record</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('PlanRecord')">Import via CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('PlanRecord')">Export to CSV</a></li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button onclick="showAddPlanRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Plan Record</button>
+            }
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer fixed">
+    <div class="col-12">
+        <div class="row mt-2 showOnPrint">
+            <div class="d-flex">
+                <img src="/defaults/lubelogger_logo.png" />
+            </div>
+        </div>
+        <div class="row swimlane">
+            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event)">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
+                        <span class="lead">Planned</span>
+                    </div>
+                </div>
+                    <div class="taskCard" draggable="true" ondragstart="dragStart(event)">
+                        <div class="card-body">
+                            <h5 class="card-title">Test</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">$120</h6>
+                        </div>
+                    </div>
+            </div>
+            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event)">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
+                        <span class="lead">Doing</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event)">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
+                        <span class="lead">Testing</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 d-flex flex-column swimlane end" ondragover="dragOver(event)" ondrop="dropBox(event)">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
+                        <span class="lead">Done</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" data-bs-focus="false" id="planRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="planRecordModalContent">
+        </div>
+    </div>
+</div>
+<script>
+    let dragged = null;
+    function dragEnter(event) {
+        event.preventDefault();
+    }
+    function dragStart(event) {
+        dragged = event.target;
+        event.dataTransfer.setData('text/plain', 1); //to-do replace with actual id.
+    }
+    function dragOver(event) {
+        event.preventDefault();
+    }
+    function dropBox(event) {
+        if ($(event.target).hasClass("swimlane")) {
+            if (dragged.parentElement != event.target && event.target != dragged) {
+                dragged.parentNode.removeChild(dragged);
+                event.target.appendChild(dragged);
+            }
+        }
+        event.preventDefault();
+    }
+</script>
