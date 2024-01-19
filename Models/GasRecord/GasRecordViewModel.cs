@@ -20,5 +20,6 @@
         public decimal CostPerGallon { get; set; }
         public bool IsFillToFull { get; set; }
         public bool MissedFuelUp { get; set; }
+        public string Notes { get; set; }
     }
 }

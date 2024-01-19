@@ -71,8 +71,10 @@ function getAndValidateGasRecordValues() {
     var gasMileage = $("#gasRecordMileage").val();
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
+    var gasCostType = $("#gasCostType").val();
     var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     var gasIsMissed = $("#gasIsMissed").is(":checked");
+    var gasNotes = $("#gasRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //validation
@@ -95,6 +97,17 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordGallons").removeClass("is-invalid");
     }
+    if (gasCostType != undefined && gasCostType == 'unit') {
+        var convertedGasCost = parseFloat(gasCost) * parseFloat(gasGallons);
+        gasCost = convertedGasCost.toFixed(2).toString();
+        if (isNaN(gasCost))
+        {
+            hasError = true;
+            $("#gasRecordCost").addClass("is-invalid");
+        } else {
+            $("#gasRecordCost").removeClass("is-invalid");
+        }
+    }
     if (gasCost.trim() == '' || !isValidMoney(gasCost)) {
         hasError = true;
         $("#gasRecordCost").addClass("is-invalid");
@@ -111,6 +124,7 @@ function getAndValidateGasRecordValues() {
         cost: gasCost,
         files: uploadedFiles,
         isFillToFull: gasIsFillToFull,
-        missedFuelUp: gasIsMissed
+        missedFuelUp: gasIsMissed,
+        notes: gasNotes
     }
 }
