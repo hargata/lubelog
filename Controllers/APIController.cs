@@ -118,7 +118,8 @@ namespace CarCareTracker.Controllers
                     FuelConsumed = x.Gallons.ToString(), 
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
-                    MissedFuelUp = x.MissedFuelUp.ToString()
+                    MissedFuelUp = x.MissedFuelUp.ToString(),
+                    Notes = x.Notes
                 });
             return Json(result);
         }
