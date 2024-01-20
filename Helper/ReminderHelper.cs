@@ -4,10 +4,28 @@ namespace CarCareTracker.Helper
 {
     public interface IReminderHelper
     {
+        ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder);
         List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare);
     }
     public class ReminderHelper: IReminderHelper
     {
+        public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder)
+        {
+            if (existingReminder.Metric == ReminderMetric.Both)
+            {
+                existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+                existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+            }
+            else if (existingReminder.Metric == ReminderMetric.Odometer)
+            {
+                existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+            }
+            else if (existingReminder.Metric == ReminderMetric.Date)
+            {
+                existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+            }
+            return existingReminder;
+        }
         public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare)
         {
             List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
