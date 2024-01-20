@@ -110,6 +110,47 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
+        [Route("/api/vehicle/odometerrecords")]
+        public IActionResult OdometerRecords(int vehicleId)
+        {
+            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Odometer = x.Mileage.ToString(), Notes = x.Notes });
+            return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/odometerrecords/add")]
+        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            try
+            {
+                var odometerRecord = new OdometerRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Mileage = int.Parse(input.Odometer)
+                };
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                response.Success = true;
+                response.Message = "Odometer Record Added";
+                return Json(response);
+            } catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = StaticHelper.GenericErrorMessage;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
         [Route("/api/vehicle/gasrecords")]
         public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
         {
