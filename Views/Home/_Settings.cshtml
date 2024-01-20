@@ -70,6 +70,10 @@
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="GasRecord" id="gasRecordTab" @(Model.VisibleTabs.Contains(ImportMode.GasRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="gasRecordTab">Fuel</label>
                     </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="OdometerRecord" id="odometerRecordTab" @(Model.VisibleTabs.Contains(ImportMode.OdometerRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="odometerRecordTab">Odometer</label>
+                    </li>
                 </ul>
             </div>
             <div class="col-12 col-md-6">
@@ -90,6 +94,10 @@
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="SupplyRecord" id="supplyRecordTab" @(Model.VisibleTabs.Contains(ImportMode.SupplyRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="supplyRecordTab">Supplies</label>
                     </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="PlanRecord" id="planRecordTab" @(Model.VisibleTabs.Contains(ImportMode.PlanRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="planRecordTab">Planner</label>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -106,6 +114,8 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">Notes</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.PlanRecord)) value="PlanRecord">Planner</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.OdometerRecord)) value="OdometerRecord">Odometer</!option>
                 </select>
             </div>
             @if (User.IsInRole(nameof(UserData.IsRootUser)))

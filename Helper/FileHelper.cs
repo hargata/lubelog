@@ -68,7 +68,7 @@ namespace CarCareTracker.Helper
                     var filesToUpload = Directory.GetFiles(imagePath);
                     foreach(string file in filesToUpload)
                     {
-                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}");
+                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}", true);
                     }
                 }
                 if (Directory.Exists(documentPath))
@@ -82,7 +82,7 @@ namespace CarCareTracker.Helper
                     var filesToUpload = Directory.GetFiles(documentPath);
                     foreach (string file in filesToUpload)
                     {
-                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}");
+                        File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}", true);
                     }
                 }
                 if (File.Exists(dataPath))

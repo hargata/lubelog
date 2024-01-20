@@ -8,6 +8,8 @@ namespace CarCareTracker.MapProfile
         public ImportMapper()
         {
             Map(m => m.Date).Name(["date", "fuelup_date"]);
+            Map(m => m.DateCreated).Name(["datecreated"]);
+            Map(m => m.DateModified).Name(["datemodified"]);
             Map(m => m.Odometer).Name(["odometer"]);
             Map(m => m.FuelConsumed).Name(["gallons", "liters", "litres", "consumption", "quantity", "fuelconsumed"]);
             Map(m => m.Cost).Name(["cost", "total cost", "totalcost", "total price"]);
@@ -20,6 +22,9 @@ namespace CarCareTracker.MapProfile
             Map(m => m.PartSupplier).Name(["partsupplier"]);
             Map(m => m.PartQuantity).Name(["partquantity"]);
             Map(m => m.PartNumber).Name(["partnumber"]);
+            Map(m => m.Progress).Name(["progress"]);
+            Map(m => m.Type).Name(["type"]);
+            Map(m => m.Priority).Name(["priority"]);
         }
     }
 }

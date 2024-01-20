@@ -33,6 +33,12 @@ $(document).ready(function () {
             case "supply-tab":
                 getVehicleSupplyRecords(vehicleId);
                 break;
+            case "plan-tab":
+                getVehiclePlanRecords(vehicleId);
+                break;
+            case "odometer-tab":
+                getVehicleOdometerRecords(vehicleId);
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "servicerecord-tab":
@@ -61,6 +67,12 @@ $(document).ready(function () {
                 break;
             case "supply-tab":
                 $("#supply-tab-pane").html("");
+                break;
+            case "plan-tab":
+                $("#plan-tab-pane").html("");
+                break;
+            case "odometer-tab":
+                $("odometer-tab-pane").html("");
                 break;
         }
     });
@@ -93,6 +105,12 @@ $(document).ready(function () {
         case "SupplyRecord":
             getVehicleSupplyRecords(vehicleId);
             break;
+        case "PlanRecord":
+            getVehiclePlanRecords(vehicleId);
+            break;
+        case "OdometerRecord":
+            getVehicleOdometerRecords(vehicleId);
+            break;
     }
 });
 
@@ -108,6 +126,24 @@ function getVehicleServiceRecords(vehicleId) {
     $.get(`/Vehicle/GetServiceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#servicerecord-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehiclePlanRecords(vehicleId) {
+    $.get(`/Vehicle/GetPlanRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#plan-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehicleOdometerRecords(vehicleId) {
+    $.get(`/Vehicle/GetOdometerRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#odometer-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }

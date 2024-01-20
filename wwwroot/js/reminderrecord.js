@@ -69,12 +69,27 @@ function appendMileageToOdometer(increment) {
     reminderMileage += increment;
     $("#reminderMileage").val(reminderMileage);
 }
+
+function enableRecurring() {
+    var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
+    if (reminderIsRecurring) {
+        $("#reminderRecurringMileage").attr('disabled', false);
+        $("#reminderRecurringMonth").attr('disabled', false);
+    } else {
+        $("#reminderRecurringMileage").attr('disabled', true);
+        $("#reminderRecurringMonth").attr('disabled', true);
+    }
+}
+
 function getAndValidateReminderRecordValues() {
     var reminderDate = $("#reminderDate").val();
     var reminderMileage = $("#reminderMileage").val();
     var reminderDescription = $("#reminderDescription").val();
     var reminderNotes = $("#reminderNotes").val();
     var reminderOption = $('#reminderOptions input:radio:checked').val();
+    var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
+    var reminderRecurringMonth = $("#reminderRecurringMonth").val();
+    var reminderRecurringMileage = $("#reminderRecurringMileage").val();
     var vehicleId = GetVehicleId().vehicleId;
     var reminderId = getReminderRecordModelData().id;
     //validation
@@ -118,6 +133,9 @@ function getAndValidateReminderRecordValues() {
         mileage: reminderMileage,
         description: reminderDescription,
         notes: reminderNotes,
-        metric: reminderOption
+        metric: reminderOption,
+        isRecurring: reminderIsRecurring,
+        reminderMileageInterval: reminderRecurringMileage,
+        reminderMonthInterval: reminderRecurringMonth
     }
 }

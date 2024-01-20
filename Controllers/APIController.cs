@@ -1,4 +1,5 @@
-﻿using CarCareTracker.External.Interfaces;
+﻿using CarCareTracker.External.Implementations;
+using CarCareTracker.External.Interfaces;
 using CarCareTracker.Filter;
 using CarCareTracker.Helper;
 using CarCareTracker.Logic;
@@ -20,6 +21,7 @@ namespace CarCareTracker.Controllers
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
+        private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
@@ -34,6 +36,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            IOdometerRecordDataAccess odometerRecordDataAccess,
             IFileHelper fileHelper,
             IUserLogic userLogic) 
         {
@@ -45,6 +48,7 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _odometerRecordDataAccess = odometerRecordDataAccess;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
@@ -106,6 +110,47 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
+        [Route("/api/vehicle/odometerrecords")]
+        public IActionResult OdometerRecords(int vehicleId)
+        {
+            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Odometer = x.Mileage.ToString(), Notes = x.Notes });
+            return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/odometerrecords/add")]
+        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            try
+            {
+                var odometerRecord = new OdometerRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Mileage = int.Parse(input.Odometer)
+                };
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                response.Success = true;
+                response.Message = "Odometer Record Added";
+                return Json(response);
+            } catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = StaticHelper.GenericErrorMessage;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
         [Route("/api/vehicle/gasrecords")]
         public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
         {
@@ -163,6 +208,11 @@ namespace CarCareTracker.Controllers
             if (upgradeRecords.Any())
             {
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
+            }
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Max(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
