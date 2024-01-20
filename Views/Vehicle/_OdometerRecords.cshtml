@@ -1,0 +1,69 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
+    var hideZero = config.GetUserConfig(User).HideZero;
+}
+@model List<OdometerRecord>
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success">@($"# of Odometer Records: {Model.Count()}")</span>
+        </div>
+        <div>
+            @if (enableCsvImports)
+            {
+                <div class="btn-group">
+                    <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Odometer Record</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('OdometerRecord')">Import via CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('OdometerRecord')">Export to CSV</a></li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Odometer Record</button>
+            }
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <div class="row mt-2 showOnPrint">
+            <div class="d-flex">
+                <img src="/defaults/lubelogger_logo.png" />
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead class="sticky-top">
+                <tr class="d-flex">
+                    <th scope="col" class="col-2 col-xl-1">Date</th>
+                    <th scope="col" class="col-3">Odometer</th>
+                    <th scope="col" class="col-7 col-xl-8">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (OdometerRecord odometerRecord in Model)
+                {
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditOdometerRecordModal(@odometerRecord.Id)">
+                        <td class="col-2 col-xl-1">@odometerRecord.Date.ToShortDateString()</td>
+                        <td class="col-3">@odometerRecord.Mileage</td>
+                        <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" data-bs-focus="false" id="odometerRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="odometerRecordModalContent">
+        </div>
+    </div>
+</div>

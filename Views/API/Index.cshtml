@@ -142,3 +142,37 @@
         </div>
     </div>
 }
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/odometerrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of odometer records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/odometerrecords/add</code>
+    </div>
+    <div class="col-3">
+        Returns a list of odometer records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+            date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        notes - notes(optional)<br />
+        }
+    </div>
+</div>

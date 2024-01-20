@@ -31,6 +31,9 @@
                     } else if (Model == ImportMode.PlanRecord)
                     {
                         <a class="btn btn-link" href="/defaults/plansample.csv" target="_blank">Download Sample</a>
+                    } else if (Model == ImportMode.OdometerRecord)
+                    {
+                        <a class="btn btn-link" href="/defaults/odometersample.csv" target="_blank">Download Sample</a>
                     }
                 </div>
             </div>
@@ -72,6 +75,8 @@
                     getVehicleSupplyRecords(vehicleId);
                 } else if (mode == "PlanRecord"){
                     getVehiclePlanRecords(vehicleId);
+                } else if (mode == "OdometerRecord") {
+                    getVehicleOdometerRecords(vehicleId);
                 }
             } else {
                 errorToast("An error has occurred, please double check the data and try again.");
