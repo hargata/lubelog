@@ -1072,19 +1072,7 @@ namespace CarCareTracker.Controllers
                     //update based on recurring intervals.
                     //pull reminderRecord based on ID
                     var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecord.Id);
-                    if (existingReminder.Metric == ReminderMetric.Both)
-                    {
-                        existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
-                        existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
-                    }
-                    else if (existingReminder.Metric == ReminderMetric.Odometer)
-                    {
-                        existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
-                    }
-                    else if (existingReminder.Metric == ReminderMetric.Date)
-                    {
-                        existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
-                    }
+                    existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
                     //save to db.
                     _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
                     //set urgency to not urgent so it gets excluded in count.
@@ -1106,6 +1094,15 @@ namespace CarCareTracker.Controllers
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
+        }
+        [HttpPost]
+        public IActionResult PushbackRecurringReminderRecord(int reminderRecordId)
+        {
+            var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+            //save to db.
+            var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+            return Json(result);
         }
         [HttpPost]
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)

@@ -81,6 +81,19 @@ function enableRecurring() {
     }
 }
 
+function markDoneReminderRecord(reminderRecordId, e) {
+    event.stopPropagation();
+    var vehicleId = GetVehicleId().vehicleId;
+    $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
+        if (data) {
+            successToast("Reminder Updated");
+            getVehicleReminders(vehicleId);
+        } else {
+            errorToast("An error has occurred, please try again later.");
+        }
+    });
+}
+
 function getAndValidateReminderRecordValues() {
     var reminderDate = $("#reminderDate").val();
     var reminderMileage = $("#reminderMileage").val();
