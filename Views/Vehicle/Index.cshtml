@@ -18,6 +18,7 @@
     <script src="~/js/note.js" asp-append-version="true"></script>
     <script src="~/js/reports.js" asp-append-version="true"></script>
     <script src="~/js/supplyrecord.js" asp-append-version="true"></script>
+    <script src="~/js/planrecord.js" asp-append-version="true"></script>
     <script src="~/lib/chart-js/chart.umd.js"></script>
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
@@ -30,6 +31,9 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>Dashboard</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-bar-chart-steps me-2"></i>Planner</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>Service Records</span></button>
@@ -45,9 +49,6 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-shop me-2"></i>Supplies</span></button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-bar-chart-steps me-2"></i>Planner</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>Taxes</span></button>
@@ -80,6 +81,9 @@
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>Dash</button>
         </li>
         <li class="nav-item" role="presentation">
+            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bar-chart-steps me-2"></i>Planner</button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>Service Records</button>
         </li>
         <li class="nav-item" role="presentation">
@@ -93,9 +97,6 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop me-2"></i>Supplies</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bar-chart-steps me-2"></i>Planner</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar me-2"></i>Taxes</button>

@@ -1,4 +1,4 @@
-﻿namespace CarCareTracker.Enum
+﻿namespace CarCareTracker.Models
 {
     public enum PlanProgress
     {

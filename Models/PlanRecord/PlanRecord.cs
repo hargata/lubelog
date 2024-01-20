@@ -1,6 +1,4 @@
-﻿using CarCareTracker.Enum;
-
-namespace CarCareTracker.Models
+﻿namespace CarCareTracker.Models
 {
     public class PlanRecord
     {
@@ -14,6 +12,6 @@ namespace CarCareTracker.Models
         public ImportMode ImportMode { get; set; }
         public PlanPriority Priority { get; set; }
         public PlanProgress Progress { get; set; }
-        public List<PlanCostItem> Costs { get; set; } = new List<PlanCostItem>();
+        public decimal Cost { get; set; }
     }
 }

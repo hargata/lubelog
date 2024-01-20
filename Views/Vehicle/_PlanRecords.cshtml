@@ -3,10 +3,10 @@
 @{
     var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
     var hideZero = config.GetUserConfig(User).HideZero;
-    var backLogItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Backlog).OrderBy(x=>x.Priority);
-    var inProgressItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.InProgress).OrderBy(x => x.Priority);
-    var testingItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Testing).OrderBy(x => x.Priority);
-    var doneItems = Model.Where(x => x.Progress == CarCareTracker.Enum.PlanProgress.Done).OrderBy(x => x.Priority);
+    var backLogItems = Model.Where(x => x.Progress == PlanProgress.Backlog).OrderBy(x=>x.Priority);
+    var inProgressItems = Model.Where(x => x.Progress == PlanProgress.InProgress).OrderBy(x => x.Priority);
+    var testingItems = Model.Where(x => x.Progress == PlanProgress.Testing).OrderBy(x => x.Priority);
+    var doneItems = Model.Where(x => x.Progress == PlanProgress.Done).OrderBy(x => x.Priority);
 }
 @model List<PlanRecord>
 <div class="row">
@@ -43,39 +43,49 @@
             </div>
         </div>
         <div class="row swimlane">
-            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event)">
+            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event, 'Backlog')">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="lead">Planned</span>
                     </div>
                 </div>
-                    <div class="taskCard" draggable="true" ondragstart="dragStart(event)">
-                        <div class="card-body">
-                            <h5 class="card-title">Test</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">$120</h6>
-                        </div>
-                    </div>
+                @foreach (PlanRecord planRecord in backLogItems)
+                {
+                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                }
             </div>
-            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event)">
+            <div class="col-3 d-flex flex-column swimlane mid" ondragover="dragOver(event)" ondrop="dropBox(event, 'InProgress')">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="lead">Doing</span>
                     </div>
                 </div>
+                @foreach (PlanRecord planRecord in inProgressItems)
+                {
+                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                }
             </div>
-            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event)">
+            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Testing')">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="lead">Testing</span>
                     </div>
                 </div>
+                @foreach (PlanRecord planRecord in testingItems)
+                {
+                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                }
             </div>
-            <div class="col-3 d-flex flex-column swimlane end" ondragover="dragOver(event)" ondrop="dropBox(event)">
+            <div class="col-3 d-flex flex-column swimlane end" ondragover="dragOver(event)" ondrop="dropBox(event, 'Done')">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="lead">Done</span>
                     </div>
                 </div>
+                @foreach (PlanRecord planRecord in doneItems)
+                {
+                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                }
             </div>
         </div>
     </div>
@@ -88,25 +98,3 @@
         </div>
     </div>
 </div>
-<script>
-    let dragged = null;
-    function dragEnter(event) {
-        event.preventDefault();
-    }
-    function dragStart(event) {
-        dragged = event.target;
-        event.dataTransfer.setData('text/plain', 1); //to-do replace with actual id.
-    }
-    function dragOver(event) {
-        event.preventDefault();
-    }
-    function dropBox(event) {
-        if ($(event.target).hasClass("swimlane")) {
-            if (dragged.parentElement != event.target && event.target != dragged) {
-                dragged.parentNode.removeChild(dragged);
-                event.target.appendChild(dragged);
-            }
-        }
-        event.preventDefault();
-    }
-</script>

@@ -272,12 +272,18 @@ input[type="file"] {
 }
 
 .taskCard {
-    height: 10vh;
+    max-height: 20vh;
     padding:0.5rem;
+    overflow:hidden;
     border-radius: 4px;
     box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
     transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
     cursor: pointer;
+}
+.taskCard-title{
+    font-size:1.5rem;
+    font-weight:300;
+    max-height:10vh;
 }
 [data-bs-theme=dark] .taskCard {
     color: #000;

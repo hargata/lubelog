@@ -1,0 +1,95 @@
+﻿@model PlanRecordInput
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? "Add New Plan Record" : "Edit Plan Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddPlanRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="planRecordDescription">Description</label>
+                    <input type="text" id="planRecordDescription" class="form-control" placeholder="Describe the Plan" value="@Model.Description">
+                    <label for="planRecordCost">Cost</label>
+                    <input type="text" id="planRecordCost" class="form-control" placeholder="Cost of the Plan" value="@Model.Cost">
+                    <label for="planRecordType">Type</label>
+                    <select class="form-select" id="planRecordType">
+                        <!option value="ServiceRecord" @(Model.ImportMode == ImportMode.ServiceRecord || isNew ? "selected" : "")>Service</!option>
+                        <!option value="RepairRecord" @(Model.ImportMode == ImportMode.RepairRecord ? "selected" : "")>Repair</!option>
+                        <!option value="UpgradeRecord" @(Model.ImportMode == ImportMode.UpgradeRecord ? "selected" : "")>Upgrade</!option>
+                    </select>
+                    <label for="planRecordPriority">Priority</label>
+                    <select class="form-select" id="planRecordPriority">
+                        <!option value="Critical" @(Model.Priority == PlanPriority.Critical ? "selected" : "")>Critical</!option>
+                        <!option value="Normal" @(Model.Priority == PlanPriority.Normal || isNew ? "selected" : "")>Normal</!option>
+                        <!option value="Low" @(Model.Priority == PlanPriority.Low ? "selected" : "")>Low</!option>
+                    </select>
+                    <label for="planRecordProgress">Current Stage</label>
+                    <select class="form-select" id="planRecordProgress">
+                        <!option value="Backlog" @(Model.Progress == PlanProgress.Backlog ||isNew ? "selected" : "")>Planned</!option>
+                        <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>Doing</!option>
+                        <!option value="Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>Testing</!option>
+                        <!option value="Done" @(Model.Progress == PlanProgress.Done ? "selected" : "")>Done</!option>
+                    </select>
+                    @if (!isNew)
+                    {
+                        <label>Date Created: @Model.DateCreated</label>
+                        <label>Last Modified: @Model.DateModified</label>
+                    }
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="planRecordNotes">Notes(optional)</label>
+                    <textarea id="planRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                            <label for="planRecordFiles">Upload more documents</label>
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="planRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="planRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="planRecordFiles">
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deletePlanRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddPlanRecordModal()">Cancel</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="savePlanRecordToVehicle()">Add New Plan Record</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="savePlanRecordToVehicle(true)">Edit Plan Record</button>
+    }
+</div>
+<script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+        }
+    function getPlanRecordModelData() {
+        return { 
+            id: @Model.Id,
+            dateCreated: "@Model.DateCreated"
+        }
+    }
+</script>

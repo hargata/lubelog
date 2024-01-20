@@ -1188,6 +1188,12 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
         {
+            //populate createdDate
+            if (planRecord.Id == default)
+            {
+                planRecord.DateCreated = DateTime.Now.ToString("G");
+            }
+            planRecord.DateModified = DateTime.Now.ToString("G");
             //move files from temp.
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
@@ -1198,6 +1204,15 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("_PlanRecordModal", new PlanRecordInput());
         }
+        [HttpPost]
+        public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress)
+        {
+            var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            existingRecord.Progress = planProgress;
+            existingRecord.DateModified = DateTime.Now;
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
+            return Json(result);
+        }
         [HttpGet]
         public IActionResult GetPlanRecordForEditById(int planRecordId)
         {
@@ -1207,12 +1222,12 @@ namespace CarCareTracker.Controllers
             {
                 Id = result.Id,
                 Description = result.Description,
-                DateCreated = result.DateCreated.ToShortDateString(),
-                DateModified = result.DateModified.ToShortDateString(),
+                DateCreated = result.DateCreated.ToString("G"),
+                DateModified = result.DateModified.ToString("G"),
                 ImportMode = result.ImportMode,
                 Priority = result.Priority,
                 Progress = result.Progress,
-                Costs = result.Costs,
+                Cost = result.Cost,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files
