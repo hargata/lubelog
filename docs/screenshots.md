@@ -1,6 +1,9 @@
 ## Garage
 ![image](https://github.com/hargata/lubelog/assets/155338622/c15a4efb-89d5-4eca-bccd-f148bf063f80)
 
+## Planner(Kanban Board)
+![image](https://github.com/hargata/lubelog/assets/155338622/6775d553-1545-4655-b9f9-259618af283b)
+
 ## Dashboard
 ![image](https://github.com/hargata/lubelog/assets/155338622/970f8e8e-bef9-4de2-b43c-dfa1d43c2d87)
 
@@ -24,7 +27,7 @@
 ![image](https://github.com/hargata/lubelog/assets/155338622/ab326041-9d65-4bd9-9543-1549be80a88b)
 
 ## Settings
-![image](https://github.com/hargata/lubelog/assets/155338622/3906a101-cb5e-45e3-9cfc-96bf75dfb337)
+![image](https://github.com/hargata/lubelog/assets/155338622/c20550ec-c195-40c0-a857-3cbb5479bf78)
 
 ## Admin Panel (Generate Tokens for new users to sign up)
 ![image](https://github.com/hargata/lubelog/assets/155338622/60cd0dc1-3444-4917-aaf9-aa64a5e62202)
