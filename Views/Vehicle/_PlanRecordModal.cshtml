@@ -33,7 +33,6 @@
                         <!option value="Backlog" @(Model.Progress == PlanProgress.Backlog ||isNew ? "selected" : "")>Planned</!option>
                         <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>Doing</!option>
                         <!option value="Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>Testing</!option>
-                        <!option value="Done" @(Model.Progress == PlanProgress.Done ? "selected" : "")>Done</!option>
                     </select>
                     @if (!isNew)
                     {

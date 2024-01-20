@@ -1256,6 +1256,47 @@ namespace CarCareTracker.Controllers
             existingRecord.Progress = planProgress;
             existingRecord.DateModified = DateTime.Now;
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
+            if (planProgress == PlanProgress.Done)
+            {
+                //convert plan record to service/upgrade/repair record.
+                if (existingRecord.ImportMode == ImportMode.ServiceRecord)
+                {
+                    var newRecord = new ServiceRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now,
+                        Mileage = 0,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes
+                    };
+                    _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
+                } else if (existingRecord.ImportMode == ImportMode.RepairRecord)
+                {
+                    var newRecord = new CollisionRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now,
+                        Mileage = 0,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes
+                    };
+                    _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
+                } else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
+                {
+                    var newRecord = new UpgradeRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now,
+                        Mileage = 0,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes
+                    };
+                    _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
+                }
+            }
             return Json(result);
         }
         [HttpGet]
