@@ -1250,7 +1250,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_PlanRecordModal", new PlanRecordInput());
         }
         [HttpPost]
-        public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress)
+        public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress, int odometer = 0)
         {
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             existingRecord.Progress = planProgress;
@@ -1265,10 +1265,11 @@ namespace CarCareTracker.Controllers
                     {
                         VehicleId = existingRecord.VehicleId,
                         Date = DateTime.Now,
-                        Mileage = 0,
+                        Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
-                        Notes = existingRecord.Notes
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
                 } else if (existingRecord.ImportMode == ImportMode.RepairRecord)
@@ -1277,10 +1278,11 @@ namespace CarCareTracker.Controllers
                     {
                         VehicleId = existingRecord.VehicleId,
                         Date = DateTime.Now,
-                        Mileage = 0,
+                        Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
-                        Notes = existingRecord.Notes
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
                 } else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
@@ -1289,10 +1291,11 @@ namespace CarCareTracker.Controllers
                     {
                         VehicleId = existingRecord.VehicleId,
                         Date = DateTime.Now,
-                        Mileage = 0,
+                        Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
-                        Notes = existingRecord.Notes
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
                 }

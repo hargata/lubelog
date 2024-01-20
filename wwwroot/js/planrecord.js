@@ -132,15 +132,47 @@ function dropBox(event, newProgress) {
 }
 function updatePlanRecordProgress(newProgress) {
     if (draggedId > 0) {
-        $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress }, function (data) {
-            if (data) {
-                successToast("Plan Progress Updated");
-                var vehicleId = GetVehicleId().vehicleId;
-                getVehiclePlanRecords(vehicleId);
-            } else {
-                errorToast("An error has occurred, please try again later.");
-            }
-        });
+        if (newProgress == 'Done') {
+            //if user is marking the task as done, we will want them to enter the mileage so that we can auto-convert it.
+            Swal.fire({
+                title: 'Mark Task as Done?',
+                html: `<p>To confirm, please enter the current odometer reading on your vehicle, as we also need the current odometer to auto convert the task into the relevant record.</p>
+                            <input type="text" id="inputOdometer" class="swal2-input" placeholder="Odometer Reading">
+                            `,
+                confirmButtonText: 'Confirm',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const odometer = $("#inputOdometer").val();
+                    if (!odometer || isNaN(odometer)) {
+                        Swal.showValidationMessage(`Please enter an odometer reading`)
+                    }
+                    return { odometer }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress, odometer: result.value.odometer }, function (data) {
+                        if (data) {
+                            successToast("Plan Progress Updated");
+                            var vehicleId = GetVehicleId().vehicleId;
+                            getVehiclePlanRecords(vehicleId);
+                        } else {
+                            errorToast("An error has occurred, please try again later.");
+                        }
+                    });
+                }
+                draggedId = 0;
+            });
+        } else {
+            $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress }, function (data) {
+                if (data) {
+                    successToast("Plan Progress Updated");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    getVehiclePlanRecords(vehicleId);
+                } else {
+                    errorToast("An error has occurred, please try again later.");
+                }
+            });
+            draggedId = 0;
+        }
     }
-    draggedId = 0;
 }
