@@ -140,6 +140,7 @@ function updatePlanRecordProgress(newProgress) {
                             <input type="text" id="inputOdometer" class="swal2-input" placeholder="Odometer Reading">
                             `,
                 confirmButtonText: 'Confirm',
+                showCancelButton: true,
                 focusConfirm: false,
                 preConfirm: () => {
                     const odometer = $("#inputOdometer").val();
