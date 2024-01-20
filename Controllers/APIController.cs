@@ -1,4 +1,5 @@
-﻿using CarCareTracker.External.Interfaces;
+﻿using CarCareTracker.External.Implementations;
+using CarCareTracker.External.Interfaces;
 using CarCareTracker.Filter;
 using CarCareTracker.Helper;
 using CarCareTracker.Logic;
@@ -20,6 +21,7 @@ namespace CarCareTracker.Controllers
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
+        private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
@@ -34,6 +36,7 @@ namespace CarCareTracker.Controllers
             ITaxRecordDataAccess taxRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
+            IOdometerRecordDataAccess odometerRecordDataAccess,
             IFileHelper fileHelper,
             IUserLogic userLogic) 
         {
@@ -45,6 +48,7 @@ namespace CarCareTracker.Controllers
             _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
+            _odometerRecordDataAccess = odometerRecordDataAccess;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
@@ -163,6 +167,11 @@ namespace CarCareTracker.Controllers
             if (upgradeRecords.Any())
             {
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
+            }
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Max(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }

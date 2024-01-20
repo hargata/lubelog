@@ -44,6 +44,12 @@
         public string Notes { get; set; }
         public string Cost { get; set; }
     }
+    public class OdometerRecordExportModel
+    {
+        public string Date { get; set; }
+        public string Odometer { get; set; }
+        public string Notes { get; set; }
+    }
     public class TaxRecordExportModel
     {
         public string Date { get; set; }

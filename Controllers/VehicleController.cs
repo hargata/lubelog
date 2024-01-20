@@ -27,6 +27,7 @@ namespace CarCareTracker.Controllers
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
+        private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
@@ -50,6 +51,7 @@ namespace CarCareTracker.Controllers
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
+            IOdometerRecordDataAccess odometerRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
@@ -69,6 +71,7 @@ namespace CarCareTracker.Controllers
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
+            _odometerRecordDataAccess = odometerRecordDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
@@ -143,7 +146,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
-        #region "Bulk Imports"
+        #region "Bulk Imports and Exports"
         [HttpGet]
         public IActionResult GetBulkImportModalPartialView(ImportMode mode)
         {
@@ -205,6 +208,24 @@ namespace CarCareTracker.Controllers
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
+            else if (mode == ImportMode.OdometerRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -405,6 +426,17 @@ namespace CarCareTracker.Controllers
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
+                                }
+                                else if (mode == ImportMode.OdometerRecord)
+                                {
+                                    var convertedRecord = new OdometerRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Date = DateTime.Parse(importModel.Date),
+                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
+                                    };
+                                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
                                 }
                                 else if (mode == ImportMode.PlanRecord)
                                 {
@@ -1012,6 +1044,11 @@ namespace CarCareTracker.Controllers
             {
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
             }
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Max(x => x.Mileage));
+            }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
         private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId, DateTime dateCompare)
@@ -1366,6 +1403,59 @@ namespace CarCareTracker.Controllers
         public IActionResult DeletePlanRecordById(int planRecordId)
         {
             var result = _planRecordDataAccess.DeletePlanRecordById(planRecordId);
+            return Json(result);
+        }
+        #endregion
+        #region "Odometer Records"
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetOdometerRecordsByVehicleId(int vehicleId)
+        {
+            var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
+            return PartialView("_OdometerRecords", result);
+        }
+        [HttpPost]
+        public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
+        {
+            //move files from temp.
+            odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetAddOdometerRecordPartialView()
+        {
+            return PartialView("_OdometerRecordModal", new OdometerRecordInput());
+        }
+        [HttpGet]
+        public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
+        {
+            var result = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
+            //convert to Input object.
+            var convertedResult = new OdometerRecordInput
+            {
+                Id = result.Id,
+                Date = result.Date.ToShortDateString(),
+                Mileage = result.Mileage,
+                Notes = result.Notes,
+                VehicleId = result.VehicleId,
+                Files = result.Files
+            };
+            return PartialView("_OdometerRecordModal", convertedResult);
+        }
+        [HttpPost]
+        public IActionResult DeleteOdometerRecordById(int odometerRecordId)
+        {
+            var result = _odometerRecordDataAccess.DeleteOdometerRecordById(odometerRecordId);
             return Json(result);
         }
         #endregion
