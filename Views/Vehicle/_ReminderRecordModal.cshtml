@@ -41,6 +41,27 @@
                 <div class="col-md-6 col-12">
                     <label for="reminderNotes">Notes(optional)</label>
                     <textarea id="reminderNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" onChange="enableRecurring()" role="switch" id="reminderIsRecurring" checked="@Model.IsRecurring">
+                        <label class="form-check-label" for="reminderIsRecurring">Is Recurring</label>
+                    </div>
+                    <label for="reminderRecurringMileage">Odometer</label>
+                    <select class="form-select" id="reminderRecurringMileage" @(Model.IsRecurring ? "" : "disabled")>
+                        <!option value="FiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveHundredMiles || isNew ? "selected" : "")>500 mi. / Km</!option>
+                        <!option value="OneThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneThousandMiles ? "selected" : "")>1000 mi. / Km</!option>
+                        <!option value="ThreeThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.ThreeThousandMiles ? "selected" : "")>3000 mi. / Km</!option>
+                        <!option value="FiveThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveThousandMiles || isNew ? "selected" : "")>5000 mi. / Km</!option>
+                        <!option value="SevenThousandFiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.SevenThousandFiveHundredMiles ? "selected" : "")>7500 mi. / Km</!option>
+                        <!option value="TenThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.TenThousandMiles ? "selected" : "")>10000 mi. / Km</!option>
+                        <!option value="FiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyThousandMiles ? "selected" : "")>50000 mi. / Km</!option>
+                    </select>
+                    <label for="reminderRecurringMonth">Month</label>
+                    <select class="form-select" id="reminderRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
+                        <!option value="ThreeMonths" @(Model.ReminderMonthInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>3 Months</!option>
+                        <!option value="SixMonths" @(Model.ReminderMonthInterval == ReminderMonthInterval.SixMonths ? "selected" : "")>6 Months</!option>
+                        <!option value="OneYear" @(Model.ReminderMonthInterval == ReminderMonthInterval.OneYear ? "selected" : "")>1 Year</!option>
+                        <!option value="FiveYears" @(Model.ReminderMonthInterval == ReminderMonthInterval.FiveYears ? "selected" : "")>5 Years</!option>
+                    </select>
                 </div>
             </div>
         </div>

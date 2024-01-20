@@ -222,14 +222,16 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new SupplyRecordExportModel { 
-                        Date = x.Date.ToShortDateString(), 
-                        Description = x.Description, 
-                        Cost = x.Cost.ToString("C"), 
+                    var exportData = vehicleRecords.Select(x => new SupplyRecordExportModel
+                    {
+                        Date = x.Date.ToShortDateString(),
+                        Description = x.Description,
+                        Cost = x.Cost.ToString("C"),
                         PartNumber = x.PartNumber,
                         PartQuantity = x.Quantity.ToString(),
                         PartSupplier = x.PartSupplier,
-                        Notes = x.Notes });
+                        Notes = x.Notes
+                    });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -265,15 +267,17 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new PlanRecordExportModel { 
-                        DateCreated = x.DateCreated.ToString("G"), 
+                    var exportData = vehicleRecords.Select(x => new PlanRecordExportModel
+                    {
+                        DateCreated = x.DateCreated.ToString("G"),
                         DateModified = x.DateModified.ToString("G"),
                         Description = x.Description,
-                        Cost = x.Cost.ToString("C"), 
+                        Cost = x.Cost.ToString("C"),
                         Type = x.ImportMode.ToString(),
                         Priority = x.Priority.ToString(),
                         Progress = x.Progress.ToString(),
-                        Notes = x.Notes });
+                        Notes = x.Notes
+                    });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -1022,7 +1026,37 @@ namespace CarCareTracker.Controllers
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
-            if (result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue).Any())
+            //check for past due reminders that are eligible for recurring.
+            var pastDueAndRecurring = result.Where(x => x.Urgency == ReminderUrgency.PastDue && x.IsRecurring);
+            if (pastDueAndRecurring.Any())
+            {
+                foreach (ReminderRecordViewModel reminderRecord in pastDueAndRecurring)
+                {
+                    //update based on recurring intervals.
+                    //pull reminderRecord based on ID
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecord.Id);
+                    if (existingReminder.Metric == ReminderMetric.Both)
+                    {
+                        existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+                        existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                    }
+                    else if (existingReminder.Metric == ReminderMetric.Odometer)
+                    {
+                        existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                    }
+                    else if (existingReminder.Metric == ReminderMetric.Date)
+                    {
+                        existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+                    }
+                    //save to db.
+                    _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+                    //set urgency to not urgent so it gets excluded in count.
+                    reminderRecord.Urgency = ReminderUrgency.NotUrgent;
+                }
+            }
+            //check for very urgent or past due reminders that were not eligible for recurring.
+            var pastDueAndUrgentReminders = result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue);
+            if (pastDueAndUrgentReminders.Any())
             {
                 return Json(true);
             }
@@ -1067,7 +1101,10 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Mileage = result.Mileage,
-                Metric = result.Metric
+                Metric = result.Metric,
+                IsRecurring = result.IsRecurring,
+                ReminderMileageInterval = result.ReminderMileageInterval,
+                ReminderMonthInterval = result.ReminderMonthInterval
             };
             return PartialView("_ReminderRecordModal", convertedResult);
         }
@@ -1272,7 +1309,8 @@ namespace CarCareTracker.Controllers
                         Files = existingRecord.Files
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
-                } else if (existingRecord.ImportMode == ImportMode.RepairRecord)
+                }
+                else if (existingRecord.ImportMode == ImportMode.RepairRecord)
                 {
                     var newRecord = new CollisionRecord()
                     {
@@ -1285,7 +1323,8 @@ namespace CarCareTracker.Controllers
                         Files = existingRecord.Files
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
-                } else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
+                }
+                else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
                 {
                     var newRecord = new UpgradeRecord()
                     {

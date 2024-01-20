@@ -21,7 +21,8 @@ namespace CarCareTracker.Helper
                     Mileage = reminder.Mileage,
                     Description = reminder.Description,
                     Notes = reminder.Notes,
-                    Metric = reminder.Metric
+                    Metric = reminder.Metric,
+                    IsRecurring = reminder.IsRecurring
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {
