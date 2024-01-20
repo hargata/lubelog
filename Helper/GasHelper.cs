@@ -5,9 +5,23 @@ namespace CarCareTracker.Helper
     public interface IGasHelper
     {
         List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG);
+        string GetAverageGasMileage(List<GasRecordViewModel> results);
     }
     public class GasHelper : IGasHelper
     {
+        public string GetAverageGasMileage(List<GasRecordViewModel> results)
+        {
+            var recordWithCalculatedMPG = results.Where(x => x.MilesPerGallon > 0);
+            if (recordWithCalculatedMPG.Any())
+            {
+                var maxMileage = recordWithCalculatedMPG.Max(x => x.Mileage);
+                var minMileage = recordWithCalculatedMPG.Min(x => x.Mileage);
+                var totalGallonsConsumed = recordWithCalculatedMPG.Sum(x => x.Gallons);
+                var averageGasMileage = (maxMileage - minMileage) / totalGallonsConsumed;
+                return averageGasMileage.ToString("F");
+            }
+            return "0";
+        }
         public List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG)
         {
             var computedResults = new List<GasRecordViewModel>();

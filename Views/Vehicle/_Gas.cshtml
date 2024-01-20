@@ -1,5 +1,6 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject IGasHelper gasHelper
 @model GasRecordViewModelContainer
 @{
     var userConfig = config.GetUserConfig(User);
@@ -40,7 +41,7 @@
             <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.GasRecords.Count()}")</span>
             @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
             {
-                <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Average(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                <span class="ms-2 badge bg-primary">@($"Average Fuel Economy: {gasHelper.GetAverageGasMileage(Model.GasRecords)}")</span>
                 <span class="ms-2 badge bg-primary">@($"Min Fuel Economy: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 <span class="ms-2 badge bg-primary">@($"Max Fuel Economy: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
             }

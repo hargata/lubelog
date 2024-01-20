@@ -56,7 +56,7 @@
         <div class="col-6">
             <ul class="list-group">
                 <li class="list-group-item">Last Reported Odometer Reading: @Model.Odometer</li>
-                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG.ToString("F")} {fuelEconomyUnit}")</li>
+                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG} {fuelEconomyUnit}")</li>
                 <li class="list-group-item">Total Spent(excl. fuel): @Model.TotalCost.ToString("C")</li>
                 <li class="list-group-item">Total Spent on Fuel: @Model.TotalGasCost.ToString("C")</li>
             </ul>
