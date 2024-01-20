@@ -1,12 +1,12 @@
 ﻿@model PlanRecord
-<div class="taskCard user-select-none" draggable="true" ondragstart="dragStart(event, @Model.Id)" onclick="showEditPlanRecordModal(@Model.Id)">
+<div class="taskCard text-dark user-select-none mb-2" draggable="true" ondragstart="dragStart(event, @Model.Id)" onclick="showEditPlanRecordModal(@Model.Id)">
     <div class="card-body">
         <div class="row">
             <div class="col-12 col-lg-8">
                 <span class="taskCard-title text-truncate">@Model.Description</span>
             </div>
             <div class="col-12 col-lg-4 d-flex align-items-center">
-                <span class="text-muted text-truncate">@Model.Cost.ToString("C2")</span>
+                <span class="text-truncate">@Model.Cost.ToString("C2")</span>
             </div>
         </div>
         <div class="row">

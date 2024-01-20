@@ -6,6 +6,11 @@
     public class ImportModel
     {
         public string Date { get; set; }
+        public string DateCreated { get; set; }
+        public string DateModified { get; set; }
+        public string Type { get; set; }
+        public string Priority { get; set; }
+        public string Progress { get; set; }
         public string Odometer { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
@@ -65,4 +70,16 @@
         public string Metric { get; set; }
         public string Notes { get; set; }
     }
+    public class PlanRecordExportModel 
+    {
+        public string DateCreated { get; set; }
+        public string DateModified { get; set; }
+        public string Description { get; set; }
+        public string Notes { get; set; }
+        public string Type { get; set; }
+        public string Priority { get; set; }
+        public string Progress { get; set; }
+        public string Cost { get; set; }
+    }
+
 }

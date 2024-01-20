@@ -286,10 +286,8 @@ input[type="file"] {
     max-height:10vh;
 }
 [data-bs-theme=dark] .taskCard {
-    color: #000;
     background-color: rgba(255,255,255,0.5);
 }
 [data-bs-theme=light] .taskCard {
-    color: #000;
     background-color: rgba(80,80,80,0.25);
 }

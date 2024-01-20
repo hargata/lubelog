@@ -51,12 +51,12 @@
             <div class="col-12 col-md-6">
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="dashboardTab">Dashboard</label>
-                    </li>
-                    <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="serviceRecordTab">Service Records</label>
+                    </li>
+                    <li class="list-group-item d-none">
+                        <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="dashboardTab">Dashboard</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
@@ -69,6 +69,10 @@
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="GasRecord" id="gasRecordTab" @(Model.VisibleTabs.Contains(ImportMode.GasRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="gasRecordTab">Fuel</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="OdometerRecord" id="odometerRecordTab" @(Model.VisibleTabs.Contains(ImportMode.OdometerRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="odometerRecordTab">Odometer</label>
                     </li>
                 </ul>
             </div>
@@ -111,6 +115,7 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.PlanRecord)) value="PlanRecord">Planner</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.OdometerRecord)) value="OdometerRecord">Odometer</!option>
                 </select>
             </div>
             @if (User.IsInRole(nameof(UserData.IsRootUser)))

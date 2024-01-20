@@ -258,6 +258,32 @@ namespace CarCareTracker.Controllers
                     return Json($"/{fileNameToExport}");
                 }
             }
+            else if (mode == ImportMode.PlanRecord)
+            {
+                var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+                var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+                var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new PlanRecordExportModel { 
+                        DateCreated = x.DateCreated.ToString("G"), 
+                        DateModified = x.DateModified.ToString("G"),
+                        Description = x.Description,
+                        Cost = x.Cost.ToString("C"), 
+                        Type = x.ImportMode.ToString(),
+                        Priority = x.Priority.ToString(),
+                        Progress = x.Progress.ToString(),
+                        Notes = x.Notes });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            csv.WriteRecords(exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+            }
             else if (mode == ImportMode.GasRecord)
             {
                 var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
@@ -375,6 +401,25 @@ namespace CarCareTracker.Controllers
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
+                                }
+                                else if (mode == ImportMode.PlanRecord)
+                                {
+                                    var progressIsEnum = Enum.TryParse(importModel.Progress, out PlanProgress parsedProgress);
+                                    var typeIsEnum = Enum.TryParse(importModel.Type, out ImportMode parsedType);
+                                    var priorityIsEnum = Enum.TryParse(importModel.Priority, out PlanPriority parsedPriority);
+                                    var convertedRecord = new PlanRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        DateCreated = DateTime.Parse(importModel.DateCreated),
+                                        DateModified = DateTime.Parse(importModel.DateModified),
+                                        Progress = parsedProgress,
+                                        ImportMode = parsedType,
+                                        Priority = parsedPriority,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Plan Record on {importModel.DateCreated}" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                    };
+                                    _planRecordDataAccess.SavePlanRecordToVehicle(convertedRecord);
                                 }
                                 else if (mode == ImportMode.RepairRecord)
                                 {

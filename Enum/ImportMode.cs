@@ -11,6 +11,7 @@
         NoteRecord = 6,
         SupplyRecord = 7,
         Dashboard = 8,
-        PlanRecord = 9
+        PlanRecord = 9,
+        OdometerRecord = 10
     }
 }
