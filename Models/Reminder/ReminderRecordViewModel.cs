@@ -13,5 +13,9 @@
         /// </summary>
         public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
         public ReminderUrgency Urgency { get; set; } = ReminderUrgency.NotUrgent;
+        /// <summary>
+        /// Recurring Reminders
+        /// </summary>
+        public bool IsRecurring { get; set; } = false;
     }
 }

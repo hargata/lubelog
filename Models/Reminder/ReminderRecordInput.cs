@@ -8,6 +8,9 @@
         public int Mileage { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
+        public bool IsRecurring { get; set; } = false;
+        public ReminderMileageInterval ReminderMileageInterval { get; set; } = ReminderMileageInterval.FiveThousandMiles;
+        public ReminderMonthInterval ReminderMonthInterval { get; set; } = ReminderMonthInterval.OneYear;
         public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
         public ReminderRecord ToReminderRecord() { return new ReminderRecord { 
             Id = Id, 
@@ -16,6 +19,9 @@
             Mileage = Mileage, 
             Description = Description, 
             Metric = Metric,
+            IsRecurring = IsRecurring,
+            ReminderMileageInterval = ReminderMileageInterval,
+            ReminderMonthInterval = ReminderMonthInterval,
             Notes = Notes }; }
     }
 }
