@@ -109,6 +109,46 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/taxrecords/add")]
+        public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Description))
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid description";
+                return Json(response);
+            }
+            try
+            {
+                var taxRecord = new TaxRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
+                response.Success = true;
+                response.Message = "Tax Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
         public IActionResult OdometerRecords(int vehicleId)
@@ -145,7 +185,7 @@ namespace CarCareTracker.Controllers
             } catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = StaticHelper.GenericErrorMessage;
+                response.Message = ex.Message;
                 return Json(response);
             }
         }
