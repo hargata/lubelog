@@ -92,12 +92,17 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
                 return Json(response);
             }
-            if (string.IsNullOrWhiteSpace(input.Description))
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
             {
                 response.Success = false;
-                response.Message = "Must provide a valid description";
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -120,6 +125,7 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
@@ -142,12 +148,17 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
                 return Json(response);
             }
-            if (string.IsNullOrWhiteSpace(input.Description))
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
             {
                 response.Success = false;
-                response.Message = "Must provide a valid description";
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -170,6 +181,7 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
@@ -192,12 +204,17 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
                 return Json(response);
             }
-            if (string.IsNullOrWhiteSpace(input.Description))
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
             {
                 response.Success = false;
-                response.Message = "Must provide a valid description";
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -220,6 +237,7 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
@@ -241,12 +259,16 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
                 return Json(response);
             }
-            if (string.IsNullOrWhiteSpace(input.Description))
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Cost))
             {
                 response.Success = false;
-                response.Message = "Must provide a valid description";
+                response.Message = "Input object invalid, Date, Description, and Cost cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -268,6 +290,7 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
@@ -290,6 +313,15 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Odometer))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date and Odometer cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -309,6 +341,7 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
