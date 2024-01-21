@@ -83,6 +83,53 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/servicerecords/add")]
+        public IActionResult AddServiceRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            try
+            {
+                var serviceRecord = new ServiceRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
+                response.Success = true;
+                response.Message = "Service Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
         public IActionResult RepairRecords(int vehicleId)
@@ -90,6 +137,53 @@ namespace CarCareTracker.Controllers
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/repairrecords/add")]
+        public IActionResult AddRepairRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            try
+            {
+                var repairRecord = new CollisionRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
+                response.Success = true;
+                response.Message = "Repair Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
+                return Json(response);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -101,12 +195,104 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/upgraderecords/add")]
+        public IActionResult AddUpgradeRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            try
+            {
+                var upgradeRecord = new UpgradeRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
+                response.Success = true;
+                response.Message = "Upgrade Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
         public IActionResult TaxRecords(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/taxrecords/add")]
+        public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date, Description, and Cost cannot be empty.";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            try
+            {
+                var taxRecord = new TaxRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
+                response.Success = true;
+                response.Message = "Tax Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
+                return Json(response);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -127,6 +313,15 @@ namespace CarCareTracker.Controllers
             {
                 response.Success = false;
                 response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Odometer))
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date and Odometer cannot be empty.";
+                Response.StatusCode = 400;
                 return Json(response);
             }
             try
@@ -145,7 +340,8 @@ namespace CarCareTracker.Controllers
             } catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = StaticHelper.GenericErrorMessage;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
                 return Json(response);
             }
         }
