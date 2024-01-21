@@ -83,6 +83,47 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/servicerecords/add")]
+        public IActionResult AddServiceRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Description))
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid description";
+                return Json(response);
+            }
+            try
+            {
+                var serviceRecord = new ServiceRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
+                response.Success = true;
+                response.Message = "Service Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
         public IActionResult RepairRecords(int vehicleId)
@@ -92,6 +133,47 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/repairrecords/add")]
+        public IActionResult AddRepairRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Description))
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid description";
+                return Json(response);
+            }
+            try
+            {
+                var repairRecord = new CollisionRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
+                response.Success = true;
+                response.Message = "Repair Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
         public IActionResult UpgradeRecords(int vehicleId)
@@ -99,6 +181,47 @@ namespace CarCareTracker.Controllers
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
             return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/upgraderecords/add")]
+        public IActionResult AddUpgradeRecord(int vehicleId, ServiceRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Description))
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid description";
+                return Json(response);
+            }
+            try
+            {
+                var upgradeRecord = new UpgradeRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Description = input.Description,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
+                response.Success = true;
+                response.Message = "Upgrade Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                return Json(response);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
