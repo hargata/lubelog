@@ -615,6 +615,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
+            if (result)
+            {
+                RequisitionSupplyRecordsByUsage(serviceRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1237,6 +1241,21 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Supply Records"
+        private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage)
+        {
+            foreach(SupplyUsage supply in supplyUsage)
+            {
+                //get supply record.
+                var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
+                var unitCost = (result.Quantity != 0 ) ? result.Cost / result.Quantity : 0;
+                //deduct quantity used.
+                result.Quantity -= supply.Quantity;
+                //deduct cost.
+                result.Cost -= (supply.Quantity * unitCost);
+                //save
+                _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
