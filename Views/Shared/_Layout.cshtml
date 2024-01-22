@@ -65,6 +65,11 @@
             input = input.replace(decimalSeparator, ".");
             return parseFloat(input);
         }
+        function globalFloatToString(input) {
+            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            input = input.replace(".", decimalSeparator);
+            return input;
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>

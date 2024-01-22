@@ -99,12 +99,12 @@ function getAndValidateGasRecordValues() {
     }
     if (gasCostType != undefined && gasCostType == 'unit') {
         var convertedGasCost = globalParseFloat(gasCost) * globalParseFloat(gasGallons);
-        gasCost = convertedGasCost.toFixed(2).toString();
-        if (isNaN(gasCost))
+        if (isNaN(convertedGasCost))
         {
             hasError = true;
             $("#gasRecordCost").addClass("is-invalid");
         } else {
+            gasCost = globalFloatToString(convertedGasCost.toFixed(2).toString());
             $("#gasRecordCost").removeClass("is-invalid");
         }
     }
