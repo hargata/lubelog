@@ -1357,6 +1357,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
+            if (result && planRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(planRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]

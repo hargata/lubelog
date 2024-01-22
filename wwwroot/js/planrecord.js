@@ -102,6 +102,7 @@ function getAndValidatePlanRecordValues() {
         cost: planCost,
         notes: planNotes,
         files: uploadedFiles,
+        supplies: selectedSupplies,
         priority: planPriority,
         progress: planProgress,
         importMode: planType

@@ -1,5 +1,9 @@
 ﻿@model string
-<a onclick="toggleSuppliesDiv()" class="btn btn-link">Choose Supplies</a>
+<div class="row">
+    <div class="col-12">
+        <a onclick="showSuppliesModal()" class="btn btn-link">Choose Supplies</a>
+    </div>
+</div>
 <script>
     resetSuppliesModal();
     function GetCaller() {
@@ -21,6 +25,9 @@
             case "UpgradeRecord":
                 $('#upgradeRecordCost').val(selectedSupplyResult.totalSum);
                 break;
+            case "PlanRecord":
+                $('#planRecordCost').val(selectedSupplyResult.totalSum);
+                break;
         }
         selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
         hideSuppliesModal();
@@ -37,6 +44,9 @@
             case "UpgradeRecord":
                 $('#upgradeRecordModal').modal('hide');
                 break;
+            case "PlanRecord":
+                $('#planRecordModal').modal('hide');
+                break;
         }
     }
     function showParentModal() {
@@ -51,9 +61,12 @@
             case "UpgradeRecord":
                 $('#upgradeRecordModal').modal('show');
                 break;
+            case "PlanRecord":
+                $('#planRecordModal').modal('show');
+                break;
         }
     }
-    function toggleSuppliesDiv(){
+    function showSuppliesModal() {
         if ($("#inputSuppliesModalContent").html() == "") {
             getSupplies();
         } else {

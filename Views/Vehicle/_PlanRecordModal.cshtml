@@ -16,6 +16,10 @@
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="Describe the Plan" value="@Model.Description">
                     <label for="planRecordCost">Cost</label>
                     <input type="text" id="planRecordCost" class="form-control" placeholder="Cost of the Plan" value="@Model.Cost">
+                    @if (isNew)
+                    {
+                        @await Html.PartialAsync("_SupplyStore", "PlanRecord")
+                    }
                     <label for="planRecordType">Type</label>
                     <select class="form-select" id="planRecordType">
                         <!option value="ServiceRecord" @(Model.ImportMode == ImportMode.ServiceRecord || isNew ? "selected" : "")>Service</!option>
@@ -78,6 +82,7 @@
 </div>
 <script>
     var uploadedFiles = [];
+    var selectedSupplies = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)

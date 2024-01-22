@@ -9,6 +9,7 @@
         public string Description { get; set; }
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public ImportMode ImportMode { get; set; }
         public PlanPriority Priority { get; set; }
         public PlanProgress Progress { get; set; }
