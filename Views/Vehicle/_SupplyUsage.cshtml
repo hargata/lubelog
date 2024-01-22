@@ -1,40 +1,57 @@
 ﻿@model List<SupplyRecord>
-<div class="row">
-    <div class="col-12">
-        <table class="table table-hover">
-            <thead class="sticky-top">
-                <tr class="d-flex">
-                    <th scope="col" class="col-1"></th>
-                    <th scope="col" class="col-3">Qty.</th>
-                    <th scope="col" class="col-2">In Stock</th>
-                    <th scope="col" class="col-4">Supply</th>
-                    <th scope="col" class="col-2">Unit Cost</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (SupplyRecord supplyRecord in Model)
-                {
-                    <tr class="d-flex" id="supplyRows">
-                        <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
-                        <td class="col-3"><input type="text" disabled class="form-control"></td>
-                        <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
-                        <td class="col-4">@supplyRecord.Description</td>
-                        <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+<div class="modal-header">
+    <h5 class="modal-title">Select Supplies</h5>
+    <button type="button" class="btn-close" onclick="hideSuppliesModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-hover">
+                <thead class="sticky-top">
+                    <tr class="d-flex">
+                        <th scope="col" class="col-1"></th>
+                        <th scope="col" class="col-2">Quantity.</th>
+                        <th scope="col" class="col-2">In Stock</th>
+                        <th scope="col" class="col-5">Description</th>
+                        <th scope="col" class="col-2">Unit Cost</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (SupplyRecord supplyRecord in Model)
+                    {
+                        <tr class="d-flex" id="supplyRows">
+                            <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
+                            <td class="col-2"><input type="text" disabled onchange="recalculateTotal()" class="form-control"></td>
+                            <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
+                            <td class="col-5">@supplyRecord.Description</td>
+                            <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+<div class="modal-footer">
+    <span id="supplySumLabel" style="margin-right:auto;">Total: 0.00</span>
+    <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">Select</button>
+</div>
 <script>
-    function toggleQuantityFieldDisabled(e){
+    function recalculateTotal() {
+        setDebounce(getSuppliesAndQuantity);
+    }
+    function toggleQuantityFieldDisabled(e) {
         var textField = getTextFieldFromCheckBox(e);
         var isChecked = $(e).is(":checked");
         textField.attr('disabled', !isChecked);
-        getSuppliesAndQuantity();
+        if (!isChecked){
+            textField.removeClass("is-invalid");
+        }
+        recalculateTotal();
     }
-    function getTextFieldFromCheckBox(elem){
-        var textField = $(elem.parentElement.parentElement).find('.col-3 > input[type=text]')[0];
+    function getTextFieldFromCheckBox(elem) {
+        var textField = $(elem.parentElement.parentElement).find('.col-2 > input[type=text]')[0];
         return $(textField);
     }
     function getInStockFieldFromCheckBox(elem) {
@@ -46,29 +63,47 @@
         return $(textField);
     }
     function getSuppliesAndQuantity() {
+        var totalSum = 0;
+        var hasError = false;
         var selectedSupplies = $("#supplyRows :checked").map(function () {
             var textField = getTextFieldFromCheckBox(this);
             var inStock = getInStockFieldFromCheckBox(this);
             var priceField = getPriceFieldFromCheckBox(this);
-            var requestedQuantity = parseFloat(textField.val());
-            var inStockQuantity = parseFloat(inStock.text());
-            var unitPrice = parseFloat(priceField.text());
+            var requestedQuantity = globalParseFloat(textField.val());
+            var inStockQuantity = globalParseFloat(inStock.text());
+            var unitPrice = globalParseFloat(priceField.text());
             //validation
-            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity){
+            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity) {
                 textField.addClass("is-invalid");
+                hasError = true;
             } else {
-                textField.removeClass("is-invalid");
+                textField.removeClass("is-invalid");    
             }
             //calculate sum.
-            console.log(requestedQuantity);
-            console.log(unitPrice);
             var sum = requestedQuantity * unitPrice;
-            return { 
-                supplyId: this.value, 
-                quantity: textField.val(),
-                sum: sum
+            totalSum += sum;
+            return {
+                supplyId: this.value,
+                quantity: textField.val()
             };
         });
-        return selectedSupplies.toArray();
+        if (isNaN(totalSum) || hasError) {
+            $("#supplySumLabel").text(`Total: 0.00`);
+        } else {
+            totalSum = totalSum.toFixed(2);
+            $("#supplySumLabel").text(`Total: ${totalSum}`);
+        }
+        $("#selectSuppliesButton").attr('disabled', (hasError || totalSum == 0));
+        if (!hasError) {
+            return {
+                totalSum: totalSum,
+                selectedSupplies: selectedSupplies.toArray()
+            };
+        } else {
+            return {
+                totalSum: 0,
+                selectedSupplies: []
+            }
+        }
     }
 </script>

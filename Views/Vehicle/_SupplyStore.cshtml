@@ -1,20 +1,59 @@
 ﻿@model string
 <a onclick="toggleSuppliesDiv()" class="btn btn-link">Available Supplies</a>
-<div id="inputSupplies"v style="max-height:30vh; overflow-x:hidden;"></div>
 <script>
+    resetSuppliesModal();
+    function GetCaller() {
+        return { tab: '@Model' };
+    }
+    function resetSuppliesModal() {
+        $("#inputSuppliesModalContent").html("");
+    }
+    function selectSupplies() {
+        var selectedSupplyResult = getSuppliesAndQuantity();
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+        }
+        hideSuppliesModal();
+    }
+    function hideParentModal(){
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('hide');
+                break;
+        }
+    }
+    function showParentModal() {
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('show');
+                break;
+        }
+    }
     function toggleSuppliesDiv(){
-        if ($("#inputSupplies").html() != "") {
-            $("#inputSupplies").html("");
-        } else {
+        if ($("#inputSuppliesModalContent").html() == "") {
             getSupplies();
+        } else {
+            hideParentModal();
+            $('#inputSuppliesModal').modal('show');
         }
     }
     function getSupplies() {
         var vehicleId = GetVehicleId().vehicleId;
         $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
             if (data) {
-                $("#inputSupplies").html(data);
+                hideParentModal();
+                $("#inputSuppliesModalContent").html(data);
+                $('#inputSuppliesModal').modal('show');
             }
         })
+    }
+    function hideSuppliesModal() {
+        $('#inputSuppliesModal').modal('hide');
+        showParentModal();
     }
 </script>

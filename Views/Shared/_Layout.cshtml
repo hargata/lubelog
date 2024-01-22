@@ -6,6 +6,7 @@
     var useDarkMode = userConfig.UseDarkMode;
     var enableCsvImports = userConfig.EnableCsvImports;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
     {
@@ -53,6 +54,16 @@
             return {
                 pattern: "@shortDatePattern"
             }
+        }
+        function globalParseFloat(input){
+            //remove thousands separator.
+            var thousandSeparator = "@numberFormat.NumberGroupSeparator";
+            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            //strip thousands from input.
+            input = input.replace(thousandSeparator, "");
+            //convert to JS format where decimal is only separated by .
+            input = input.replace(decimalSeparator, ".");
+            return parseFloat(input);
         }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
