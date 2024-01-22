@@ -91,20 +91,20 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordMileage").removeClass("is-invalid");
     }
-    if (gasGallons.trim() == '' || parseFloat(gasGallons) <= 0) {
+    if (gasGallons.trim() == '' || globalParseFloat(gasGallons) <= 0) {
         hasError = true;
         $("#gasRecordGallons").addClass("is-invalid");
     } else {
         $("#gasRecordGallons").removeClass("is-invalid");
     }
     if (gasCostType != undefined && gasCostType == 'unit') {
-        var convertedGasCost = parseFloat(gasCost) * parseFloat(gasGallons);
-        gasCost = convertedGasCost.toFixed(2).toString();
-        if (isNaN(gasCost))
+        var convertedGasCost = globalParseFloat(gasCost) * globalParseFloat(gasGallons);
+        if (isNaN(convertedGasCost))
         {
             hasError = true;
             $("#gasRecordCost").addClass("is-invalid");
         } else {
+            gasCost = globalFloatToString(convertedGasCost.toFixed(2).toString());
             $("#gasRecordCost").removeClass("is-invalid");
         }
     }

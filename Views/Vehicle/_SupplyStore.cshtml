@@ -1,0 +1,91 @@
+﻿@model string
+<div class="row">
+    <div class="col-12">
+        <a onclick="showSuppliesModal()" class="btn btn-link">Choose Supplies</a>
+    </div>
+</div>
+<script>
+    resetSuppliesModal();
+    function GetCaller() {
+        return { tab: '@Model' };
+    }
+    function resetSuppliesModal() {
+        $("#inputSuppliesModalContent").html("");
+    }
+    function selectSupplies() {
+        var selectedSupplyResult = getSuppliesAndQuantity();
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+            case "RepairRecord":
+                $('#collisionRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+            case "PlanRecord":
+                $('#planRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+        }
+        selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
+        hideSuppliesModal();
+    }
+    function hideParentModal(){
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('hide');
+                break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('hide');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('hide');
+                break;
+            case "PlanRecord":
+                $('#planRecordModal').modal('hide');
+                break;
+        }
+    }
+    function showParentModal() {
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('show');
+                break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('show');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('show');
+                break;
+            case "PlanRecord":
+                $('#planRecordModal').modal('show');
+                break;
+        }
+    }
+    function showSuppliesModal() {
+        if ($("#inputSuppliesModalContent").html() == "") {
+            getSupplies();
+        } else {
+            hideParentModal();
+            $('#inputSuppliesModal').modal('show');
+        }
+    }
+    function getSupplies() {
+        var vehicleId = GetVehicleId().vehicleId;
+        $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+            if (data) {
+                hideParentModal();
+                $("#inputSuppliesModalContent").html(data);
+                $('#inputSuppliesModal').modal('show');
+            }
+        })
+    }
+    function hideSuppliesModal() {
+        $('#inputSuppliesModal').modal('hide');
+        showParentModal();
+    }
+</script>

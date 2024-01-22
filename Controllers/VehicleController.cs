@@ -615,6 +615,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
+            if (result && serviceRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(serviceRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
@@ -670,6 +674,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
+            if (result && collisionRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(collisionRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1172,6 +1180,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            if (result && upgradeRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1237,6 +1249,21 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Supply Records"
+        private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage)
+        {
+            foreach(SupplyUsage supply in supplyUsage)
+            {
+                //get supply record.
+                var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
+                var unitCost = (result.Quantity != 0 ) ? result.Cost / result.Quantity : 0;
+                //deduct quantity used.
+                result.Quantity -= supply.Quantity;
+                //deduct cost.
+                result.Cost -= (supply.Quantity * unitCost);
+                //save
+                _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
@@ -1252,6 +1279,23 @@ namespace CarCareTracker.Controllers
                 result = result.OrderBy(x => x.Date).ToList();
             }
             return PartialView("_SupplyRecords", result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
+        {
+            var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+            result.RemoveAll(x => x.Quantity <= 0);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ToList();
+            }
+            return PartialView("_SupplyUsage", result);
         }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
@@ -1313,6 +1357,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
+            if (result && planRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(planRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]

@@ -114,6 +114,7 @@ function getAndValidateCollisionRecordValues() {
         cost: collisionCost,
         notes: collisionNotes,
         files: uploadedFiles,
+        supplies: selectedSupplies,
         addReminderRecord: addReminderRecord
     }
 }

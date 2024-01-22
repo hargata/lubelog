@@ -93,7 +93,7 @@ function getAndValidateSupplyRecordValues() {
     } else {
         $("#supplyRecordDescription").removeClass("is-invalid");
     }
-    if (supplyQuantity.trim() == '' || !isValidMoney(supplyQuantity) || parseFloat(supplyQuantity) < 0) {
+    if (supplyQuantity.trim() == '' || !isValidMoney(supplyQuantity) || globalParseFloat(supplyQuantity) < 0) {
         hasError = true;
         $("#supplyRecordQuantity").addClass("is-invalid");
     } else {
