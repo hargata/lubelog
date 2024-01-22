@@ -4,33 +4,50 @@
     <button type="button" class="btn-close" onclick="hideSuppliesModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
-    <div class="row">
-        <div class="col-12">
-            <table class="table table-hover">
-                <thead class="sticky-top">
-                    <tr class="d-flex">
-                        <th scope="col" class="col-1"></th>
-                        <th scope="col" class="col-2">Quantity.</th>
-                        <th scope="col" class="col-2">In Stock</th>
-                        <th scope="col" class="col-5">Description</th>
-                        <th scope="col" class="col-2">Unit Cost</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (SupplyRecord supplyRecord in Model)
-                    {
-                        <tr class="d-flex" id="supplyRows">
-                            <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
-                            <td class="col-2"><input type="text" disabled onchange="recalculateTotal()" class="form-control"></td>
-                            <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
-                            <td class="col-5">@supplyRecord.Description</td>
-                            <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+    @if (Model.Any())
+    {
+        <div class="row">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+                <div class="alert alert-warning" role="alert">
+                    Supplies are requisitioned immediately after the record is created and cannot be modified.
+                    If you have incorrectly entered the amount you needed you will need to correct it in the Supplies tab.
+                </div>
+                <table class="table table-hover">
+                    <thead class="sticky-top">
+                        <tr class="d-flex">
+                            <th scope="col" class="col-1"></th>
+                            <th scope="col" class="col-2">Quantity.</th>
+                            <th scope="col" class="col-2">In Stock</th>
+                            <th scope="col" class="col-5">Description</th>
+                            <th scope="col" class="col-2">Unit Cost</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (SupplyRecord supplyRecord in Model)
+                        {
+                            <tr class="d-flex" id="supplyRows">
+                                <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
+                                <td class="col-2"><input type="text" disabled onchange="recalculateTotal()" class="form-control"></td>
+                                <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
+                                <td class="col-5">@supplyRecord.Description</td>
+                                <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>No supplies with quantities greater than 0 is found.</h4>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 <div class="modal-footer">
     <span id="supplySumLabel" style="margin-right:auto;">Total: 0.00</span>
@@ -45,7 +62,7 @@
         var textField = getTextFieldFromCheckBox(e);
         var isChecked = $(e).is(":checked");
         textField.attr('disabled', !isChecked);
-        if (!isChecked){
+        if (!isChecked) {
             textField.removeClass("is-invalid");
         }
         recalculateTotal();
@@ -77,7 +94,7 @@
                 textField.addClass("is-invalid");
                 hasError = true;
             } else {
-                textField.removeClass("is-invalid");    
+                textField.removeClass("is-invalid");
             }
             //calculate sum.
             var sum = requestedQuantity * unitPrice;
@@ -91,7 +108,8 @@
             $("#supplySumLabel").text(`Total: 0.00`);
         } else {
             totalSum = totalSum.toFixed(2);
-            $("#supplySumLabel").text(`Total: ${totalSum}`);
+            var parsedFloat = globalFloatToString(totalSum);
+            $("#supplySumLabel").text(`Total: ${parsedFloat}`);
         }
         $("#selectSuppliesButton").attr('disabled', (hasError || totalSum == 0));
         if (!hasError) {
