@@ -11,6 +11,7 @@
         FiveThousandMiles = 5000,
         SevenThousandFiveHundredMiles = 7500,
         TenThousandMiles = 10000,
+        FifteenThousandMiles = 15000,
         TwentyThousandMiles = 20000,
         ThirtyThousandMiles = 30000,
         FiftyThousandMiles = 50000,
