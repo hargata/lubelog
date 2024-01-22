@@ -1,5 +1,5 @@
 ﻿@model string
-<a onclick="toggleSuppliesDiv()" class="btn btn-link">Available Supplies</a>
+<a onclick="toggleSuppliesDiv()" class="btn btn-link">Choose Supplies</a>
 <script>
     resetSuppliesModal();
     function GetCaller() {
@@ -15,6 +15,12 @@
             case "ServiceRecord":
                 $('#serviceRecordCost').val(selectedSupplyResult.totalSum);
                 break;
+            case "RepairRecord":
+                $('#collisionRecordCost').val(selectedSupplyResult.totalSum);
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordCost').val(selectedSupplyResult.totalSum);
+                break;
         }
         selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
         hideSuppliesModal();
@@ -25,6 +31,12 @@
             case "ServiceRecord":
                 $('#serviceRecordModal').modal('hide');
                 break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('hide');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('hide');
+                break;
         }
     }
     function showParentModal() {
@@ -32,6 +44,12 @@
         switch (caller) {
             case "ServiceRecord":
                 $('#serviceRecordModal').modal('show');
+                break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('show');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('show');
                 break;
         }
     }

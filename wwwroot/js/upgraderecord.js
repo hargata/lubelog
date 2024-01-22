@@ -114,6 +114,7 @@ function getAndValidateUpgradeRecordValues() {
         cost: upgradeCost,
         notes: upgradeNotes,
         files: uploadedFiles,
+        supplies: selectedSupplies,
         addReminderRecord: addReminderRecord
     }
 }

@@ -615,7 +615,7 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
-            if (result)
+            if (result && serviceRecord.Supplies.Any())
             {
                 RequisitionSupplyRecordsByUsage(serviceRecord.Supplies);
             }
@@ -674,6 +674,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
+            if (result && collisionRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(collisionRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1176,6 +1180,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            if (result && upgradeRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies);
+            }
             return Json(result);
         }
         [HttpGet]
