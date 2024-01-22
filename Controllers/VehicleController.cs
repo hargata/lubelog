@@ -1253,6 +1253,23 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_SupplyRecords", result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
+        {
+            var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+            result.RemoveAll(x => x.Quantity <= 0);
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
+            if (_useDescending)
+            {
+                result = result.OrderByDescending(x => x.Date).ToList();
+            }
+            else
+            {
+                result = result.OrderBy(x => x.Date).ToList();
+            }
+            return PartialView("_SupplyUsage", result);
+        }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {

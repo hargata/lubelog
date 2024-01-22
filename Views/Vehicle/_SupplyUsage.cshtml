@@ -1,0 +1,74 @@
+﻿@model List<SupplyRecord>
+<div class="row">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead class="sticky-top">
+                <tr class="d-flex">
+                    <th scope="col" class="col-1"></th>
+                    <th scope="col" class="col-3">Qty.</th>
+                    <th scope="col" class="col-2">In Stock</th>
+                    <th scope="col" class="col-4">Supply</th>
+                    <th scope="col" class="col-2">Unit Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (SupplyRecord supplyRecord in Model)
+                {
+                    <tr class="d-flex" id="supplyRows">
+                        <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
+                        <td class="col-3"><input type="text" disabled class="form-control"></td>
+                        <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
+                        <td class="col-4">@supplyRecord.Description</td>
+                        <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function toggleQuantityFieldDisabled(e){
+        var textField = getTextFieldFromCheckBox(e);
+        var isChecked = $(e).is(":checked");
+        textField.attr('disabled', !isChecked);
+        getSuppliesAndQuantity();
+    }
+    function getTextFieldFromCheckBox(elem){
+        var textField = $(elem.parentElement.parentElement).find('.col-3 > input[type=text]')[0];
+        return $(textField);
+    }
+    function getInStockFieldFromCheckBox(elem) {
+        var textField = $(elem.parentElement.parentElement).find('.col-2.supplyquantity')[0];
+        return $(textField);
+    }
+    function getPriceFieldFromCheckBox(elem) {
+        var textField = $(elem.parentElement.parentElement).find('.col-2.supplyprice')[0];
+        return $(textField);
+    }
+    function getSuppliesAndQuantity() {
+        var selectedSupplies = $("#supplyRows :checked").map(function () {
+            var textField = getTextFieldFromCheckBox(this);
+            var inStock = getInStockFieldFromCheckBox(this);
+            var priceField = getPriceFieldFromCheckBox(this);
+            var requestedQuantity = parseFloat(textField.val());
+            var inStockQuantity = parseFloat(inStock.text());
+            var unitPrice = parseFloat(priceField.text());
+            //validation
+            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity){
+                textField.addClass("is-invalid");
+            } else {
+                textField.removeClass("is-invalid");
+            }
+            //calculate sum.
+            console.log(requestedQuantity);
+            console.log(unitPrice);
+            var sum = requestedQuantity * unitPrice;
+            return { 
+                supplyId: this.value, 
+                quantity: textField.val(),
+                sum: sum
+            };
+        });
+        return selectedSupplies.toArray();
+    }
+</script>

@@ -1,0 +1,20 @@
+﻿@model string
+<a onclick="toggleSuppliesDiv()" class="btn btn-link">Available Supplies</a>
+<div id="inputSupplies"v style="max-height:30vh; overflow-x:hidden;"></div>
+<script>
+    function toggleSuppliesDiv(){
+        if ($("#inputSupplies").html() != "") {
+            $("#inputSupplies").html("");
+        } else {
+            getSupplies();
+        }
+    }
+    function getSupplies() {
+        var vehicleId = GetVehicleId().vehicleId;
+        $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+            if (data) {
+                $("#inputSupplies").html(data);
+            }
+        })
+    }
+</script>
