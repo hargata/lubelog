@@ -365,6 +365,58 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/gasrecords/add")]
+        public IActionResult AddGasRecord(int vehicleId, GasRecordExportModel input)
+        {
+            var response = new OperationResponse();
+            if (vehicleId == default)
+            {
+                response.Success = false;
+                response.Message = "Must provide a valid vehicle id";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            if (string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.FuelConsumed) ||
+                string.IsNullOrWhiteSpace(input.Cost) ||
+                string.IsNullOrWhiteSpace(input.IsFillToFull) ||
+                string.IsNullOrWhiteSpace(input.MissedFuelUp)
+                )
+            {
+                response.Success = false;
+                response.Message = "Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty.";
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            try
+            {
+                var gasRecord = new GasRecord()
+                {
+                    VehicleId = vehicleId,
+                    Date = DateTime.Parse(input.Date),
+                    Mileage = int.Parse(input.Odometer),
+                    Gallons = decimal.Parse(input.FuelConsumed),
+                    IsFillToFull = bool.Parse(input.IsFillToFull),
+                    MissedFuelUp = bool.Parse(input.MissedFuelUp),
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Cost = decimal.Parse(input.Cost)
+                };
+                _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
+                response.Success = true;
+                response.Message = "Gas Record Added";
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                Response.StatusCode = 500;
+                return Json(response);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
         public IActionResult Reminders(int vehicleId)
