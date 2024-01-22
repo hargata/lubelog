@@ -1,4 +1,8 @@
 ﻿@model List<CostForVehicleByMonth>
+@{
+    var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
+    var sortedByMPG = Model.OrderBy(x => x.Cost).ToList();
+}
 @if (Model.Any())
 {
     <canvas id="bar-chart"></canvas>
@@ -7,11 +11,15 @@
         function renderChart() {
             var barGraphLabels = [];
             var barGraphData = [];
+            //color gradient from high to low
+            var barGraphColors = [];
             var useDarkMode = getGlobalConfig().useDarkMode;
         @foreach (CostForVehicleByMonth gasCost in Model)
         {
             @:barGraphLabels.push("@gasCost.MonthName");
             @:barGraphData.push(@gasCost.Cost);
+            var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
+            @:barGraphColors.push('@barGraphColors[index]');
         }
                 new Chart($("#bar-chart"), {
                     type: 'bar',
@@ -20,14 +28,20 @@
                         datasets: [
                             {
                                 label: "Expenses by Month",
-                                backgroundColor: ["#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f"],
+                                backgroundColor: barGraphColors,
                                 data: barGraphData
                             }
                         ]
                     },
                     options: {
                         plugins: {
+                            title: {
+                                display: true,
+                                color: useDarkMode ? "#fff" : "#000",
+                                text: 'Expenses by Month'
+                            },
                             legend: {
+                                display: false,
                                 labels: {
                                     color: useDarkMode ? "#fff" : "#000"
                                 }
