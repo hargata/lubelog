@@ -41,3 +41,9 @@ With SMTP Configured:
 To generate a new user token, simply click on the "Generate User Token" button and you will be prompted with the user's email address
 
 ![image](https://github.com/hargata/lubelog/assets/155338622/f870d5cd-4d4b-480c-94ea-b1161757793f)
+
+If you have SMTP Configured, the user will then receive an Email that looks similar to this:
+![image](https://github.com/hargata/lubelog/assets/155338622/0d5c1adf-43d1-45a5-ad59-91fb3b1476af)
+
+The user can then proceed to Register for an account at your instance of LubeLogger.
+
