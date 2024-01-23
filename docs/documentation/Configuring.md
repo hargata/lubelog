@@ -8,6 +8,8 @@ Most of the settings are relatively straightforward and self-explanatory.
 
 **Note:** If you are a user in the UK and you wish be able to input Fuel Purchases in Liters but display Fuel Mileage as Miles Per UK Gallons, you will need to enable "Use Imperial Calculation" and "Use UK MPG Calculation"
 
+**Note:** When making changes to Settings as a root user, your settings will be saved and served up as the default server settings for any new users that sign up.
+
 ## Enable Authentication
 It is highly recommended that you secure your LubeLogger instance by enabling authentication.
 To do so, simply check "Enable Authentication" and you will be prompted to enter a Username and Password
