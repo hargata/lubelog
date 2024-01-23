@@ -111,6 +111,13 @@ html {
             width: 30%;
         }
 
+    .col-2.servicehistorytype {
+        width: 13%;
+    }
+    .col-1.servicehistorydate{
+        width: 13%;
+    }
+
     th.col-1 {
         width: 10%;
     }
