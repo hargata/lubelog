@@ -26,3 +26,8 @@ By default the app will start listening at localhost:8080, this port can be conf
 Windows Standalone executables are provided on a request basis, and will usually be included with every other release.
 To run the server, you just have to double click on CarCareTracker.exe
 Occassionally you might run into an issue regarding a missing folder, to fix that, just create a "config" folder where CarCareTracker.exe is located.
+When using this approach, the default port the app will be listening on is 5000, so you will navigate to localhost:5000
+
+Whichever path you choose, once you get the app up and running, just navigate to the IP address and port the server is listening to and you should be able to see the app
+![image](https://github.com/hargata/lubelog/assets/155338622/a32c40ce-271c-406b-a211-c1f2af138418)
+![image](https://github.com/hargata/lubelog/assets/155338622/4e1c913c-001e-43fd-9b56-4ecffdfd4c2e)
