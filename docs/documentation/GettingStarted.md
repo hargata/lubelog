@@ -2,7 +2,9 @@
 ## Docker
 The Docker Container Repository is the most reliable and up-to-date distribution channel for LubeLogger.
 You need to have Docker Windows installed and Virtualization enabled(typically a BIOS setting).
+
 You will then clone the following files onto your computer from the repository _.env_ and _docker-compose.yml_ or _docker-compose-traefik.yml_ if you're using Traefik.
+
 In the .env file you will find the following and here are the explanations for the variables.
 ```
 LC_ALL=en_US.UTF-8 <- Locale and Language Settings, this will affect how numbers, currencies, and dates are formatted.
@@ -24,8 +26,11 @@ By default the app will start listening at localhost:8080, this port can be conf
 
 ## Windows Standalone Executable
 Windows Standalone executables are provided on a request basis, and will usually be included with every other release.
+
 To run the server, you just have to double click on CarCareTracker.exe
+
 Occassionally you might run into an issue regarding a missing folder, to fix that, just create a "config" folder where CarCareTracker.exe is located.
+
 If you wish to set up SMTP when using this approach, you will have to configure the environment settings in appsettings.json located in the same folder as CarCareTracker.exe
 You just have to add the MailConfig section into it, but I provided the full appsettings.json anyways as an example.
 ```
