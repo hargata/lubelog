@@ -1,6 +1,6 @@
 ﻿@model List<ReminderRecordViewModel>
 @{
-    var hasRefresh = Model.Where(x => x.Urgency == ReminderUrgency.VeryUrgent && x.IsRecurring).Any();
+    var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -74,7 +74,7 @@
                         @if (hasRefresh)
                         {
                             <td class="col-1 text-truncate">
-                                @if(reminderRecord.Urgency == ReminderUrgency.VeryUrgent && reminderRecord.IsRecurring)
+                                @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
                                 {
                                     <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
                                 }

@@ -1071,20 +1071,24 @@ namespace CarCareTracker.Controllers
         public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
-            //check for past due reminders that are eligible for recurring.
-            var pastDueAndRecurring = result.Where(x => x.Urgency == ReminderUrgency.PastDue && x.IsRecurring);
-            if (pastDueAndRecurring.Any())
+            //check if user wants auto-refresh past-due reminders
+            if (_config.GetUserConfig(User).EnableAutoReminderRefresh)
             {
-                foreach (ReminderRecordViewModel reminderRecord in pastDueAndRecurring)
+                //check for past due reminders that are eligible for recurring.
+                var pastDueAndRecurring = result.Where(x => x.Urgency == ReminderUrgency.PastDue && x.IsRecurring);
+                if (pastDueAndRecurring.Any())
                 {
-                    //update based on recurring intervals.
-                    //pull reminderRecord based on ID
-                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecord.Id);
-                    existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
-                    //save to db.
-                    _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
-                    //set urgency to not urgent so it gets excluded in count.
-                    reminderRecord.Urgency = ReminderUrgency.NotUrgent;
+                    foreach (ReminderRecordViewModel reminderRecord in pastDueAndRecurring)
+                    {
+                        //update based on recurring intervals.
+                        //pull reminderRecord based on ID
+                        var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecord.Id);
+                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+                        //save to db.
+                        _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+                        //set urgency to not urgent so it gets excluded in count.
+                        reminderRecord.Urgency = ReminderUrgency.NotUrgent;
+                    }
                 }
             }
             //check for very urgent or past due reminders that were not eligible for recurring.
