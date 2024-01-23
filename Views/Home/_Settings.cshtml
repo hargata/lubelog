@@ -35,6 +35,14 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimal" checked="@Model.UseThreeDecimalGasCost">
             <label class="form-check-label" for="useThreeDecimal">Use Three Decimals For Fuel Cost</label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.EnableAutoReminderRefresh">
+            <label class="form-check-label" for="enableAutoReminderRefresh">Auto Refresh Lapsed Recurring Reminders</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.EnableAutoOdometerInsert">
+            <label class="form-check-label" for="enableAutoOdometerInsert">Auto Insert Odometer Records<br /><small class="text-body-secondary">Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan</small></label>
+        </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
             <div class="form-check form-switch">
@@ -203,6 +211,8 @@
             hideZero: $("#hideZero").is(":checked"),
             useUKMpg: $("#useUKMPG").is(":checked"),
             useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+            enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
+            enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
             visibleTabs: visibleTabs,
             defaultTab: defaultTab
         }
