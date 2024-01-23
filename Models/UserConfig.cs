@@ -11,6 +11,7 @@
         public bool UseUKMPG {get;set;}
         public bool UseThreeDecimalGasCost { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
+        public bool EnableAutoOdometerInsert { get; set; }
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
         public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 

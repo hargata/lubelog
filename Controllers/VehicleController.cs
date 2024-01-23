@@ -551,6 +551,16 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {
+            if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                {
+                    Date = DateTime.Parse(gasRecord.Date),
+                    VehicleId = gasRecord.VehicleId,
+                    Mileage = gasRecord.Mileage,
+                    Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}"
+                });
+            }
             gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             return Json(result);
@@ -612,6 +622,16 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
         {
+            if (serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                {
+                    Date = DateTime.Parse(serviceRecord.Date),
+                    VehicleId = serviceRecord.VehicleId,
+                    Mileage = serviceRecord.Mileage,
+                    Notes = $"Auto Insert From Service Record: {serviceRecord.Description}"
+                });
+            }
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
@@ -671,6 +691,16 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
+            if (collisionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                {
+                    Date = DateTime.Parse(collisionRecord.Date),
+                    VehicleId = collisionRecord.VehicleId,
+                    Mileage = collisionRecord.Mileage,
+                    Notes = $"Auto Insert From Repair Record: {collisionRecord.Description}"
+                });
+            }
             //move files from temp.
             collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
@@ -1181,6 +1211,16 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
         {
+            if (upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                {
+                    Date = DateTime.Parse(upgradeRecord.Date),
+                    VehicleId = upgradeRecord.VehicleId,
+                    Mileage = upgradeRecord.Mileage,
+                    Notes = $"Auto Insert From Upgrade Record: {upgradeRecord.Description}"
+                });
+            }
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
@@ -1381,6 +1421,16 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
             if (planProgress == PlanProgress.Done)
             {
+                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                    {
+                        Date = DateTime.Now,
+                        VehicleId = existingRecord.VehicleId,
+                        Mileage = odometer,
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}"
+                    });
+                }
                 //convert plan record to service/upgrade/repair record.
                 if (existingRecord.ImportMode == ImportMode.ServiceRecord)
                 {

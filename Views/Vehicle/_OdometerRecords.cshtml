@@ -52,7 +52,7 @@
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditOdometerRecordModal(@odometerRecord.Id)">
                         <td class="col-2 col-xl-1">@odometerRecord.Date.ToShortDateString()</td>
                         <td class="col-3">@odometerRecord.Mileage</td>
-                        <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes)</td>
+                        <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                     </tr>
                 }
             </tbody>
