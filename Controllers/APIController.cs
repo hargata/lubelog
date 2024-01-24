@@ -22,10 +22,12 @@ namespace CarCareTracker.Controllers
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
+        private readonly ITorqueRecordDataAccess _torqueRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
         private readonly IFileHelper _fileHelper;
+        private readonly IConfigHelper _configHelper;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -37,8 +39,10 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
+            ITorqueRecordDataAccess torqueRecordDataAccess,
+            IConfigHelper configHelper,
             IFileHelper fileHelper,
-            IUserLogic userLogic) 
+            IUserLogic userLogic)
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -49,7 +53,9 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _torqueRecordDataAccess = torqueRecordDataAccess;
             _gasHelper = gasHelper;
+            _configHelper = configHelper;
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
             _fileHelper = fileHelper;
@@ -337,7 +343,8 @@ namespace CarCareTracker.Controllers
                 response.Success = true;
                 response.Message = "Odometer Record Added";
                 return Json(response);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 response.Success = false;
                 response.Message = ex.Message;
@@ -352,11 +359,12 @@ namespace CarCareTracker.Controllers
         {
             var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG)
-                .Select(x => new GasRecordExportModel { 
-                    Date = x.Date, 
-                    Odometer = x.Mileage.ToString(), 
-                    Cost = x.Cost.ToString(), 
-                    FuelConsumed = x.Gallons.ToString(), 
+                .Select(x => new GasRecordExportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage.ToString(),
+                    Cost = x.Cost.ToString(),
+                    FuelConsumed = x.Gallons.ToString(),
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
@@ -423,7 +431,7 @@ namespace CarCareTracker.Controllers
         {
             var currentMileage = GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes });
             return Json(results);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -433,6 +441,62 @@ namespace CarCareTracker.Controllers
         {
             var result = _fileHelper.MakeBackup();
             return Json(result);
+        }
+        [Route("/api/obdii/vehicle/{vehicleId}")]
+        [AllowAnonymous]
+        public IActionResult OBDII(int vehicleId, TorqueRecord record)
+        {
+            if (record.kff1005 != default && record.kff1006 != default && vehicleId != default)
+            {
+                //check if there is an existing session.
+                try
+                {
+                    var existingRecord = _torqueRecordDataAccess.GetTorqueRecordById(record.Session);
+                    if (existingRecord != null)
+                    {
+                        //calculate difference between last coordinates.
+                        var distance = GetDistance(existingRecord.LastLongitude, existingRecord.LastLatitude, record.kff1005, record.kff1006);
+                        var useMPG = _configHelper.GetUserConfig(User).UseMPG;
+                        if (useMPG)
+                        {
+                            distance /= 1609; //get miles.
+                        }
+                        else
+                        {
+                            distance /= 1000;
+                        }
+                        existingRecord.DistanceTraveled += distance;
+                        existingRecord.LastLongitude = record.kff1005;
+                        existingRecord.LastLatitude = record.kff1006;
+                        _torqueRecordDataAccess.SaveTorqueRecord(existingRecord);
+                    }
+                    else
+                    {
+                        //new record.
+                        record.InitialLongitude = record.kff1005;
+                        record.InitialLatitude = record.kff1006;
+                        record.LastLongitude = record.kff1005;
+                        record.LastLatitude = record.kff1006;
+                        _torqueRecordDataAccess.SaveTorqueRecord(record);
+                    }
+                    return Json(true);
+                }
+                catch (Exception ex)
+                {
+                    return Json(false);
+                }
+            }
+            return Json(false);
+        }
+        private double GetDistance(double longitude, double latitude, double otherLongitude, double otherLatitude)
+        {
+            var d1 = latitude * (Math.PI / 180.0);
+            var num1 = longitude * (Math.PI / 180.0);
+            var d2 = otherLatitude * (Math.PI / 180.0);
+            var num2 = otherLongitude * (Math.PI / 180.0) - num1;
+            var d3 = Math.Pow(Math.Sin((d2 - d1) / 2.0), 2.0) + Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0), 2.0);
+
+            return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
         private int GetMaxMileage(int vehicleId)
         {

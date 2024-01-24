@@ -25,6 +25,7 @@ builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
 builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
 builder.Services.AddSingleton<IPlanRecordDataAccess, PlanRecordDataAccess>();
 builder.Services.AddSingleton<IOdometerRecordDataAccess, OdometerRecordDataAccess>();
+builder.Services.AddSingleton<ITorqueRecordDataAccess, TorqueRecordDataAccess>();
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
