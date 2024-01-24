@@ -27,7 +27,13 @@
                 @foreach (Note note in Model)
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditNoteModal(@note.Id)">
-                        <td class="col-3">@note.Description</td>
+                        @if (note.Pinned)
+                        {
+                            <td class="col-3"><i class='bi bi-pin-fill me-2'></i>@note.Description"</td>
+                        } else
+                        {
+                            <td class="col-3">@note.Description</td>
+                        }
                         <td class="col-9 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }

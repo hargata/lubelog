@@ -85,6 +85,7 @@ namespace CarCareTracker.Controllers
         public IActionResult Index(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
+            UpdateRecurringTaxes(vehicleId);
             return View(data);
         }
         [HttpGet]
@@ -757,6 +758,34 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
+        private void UpdateRecurringTaxes(int vehicleId)
+        {
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var recurringFees = result.Where(x => x.IsRecurring);
+            if (recurringFees.Any())
+            {
+                foreach(TaxRecord recurringFee in recurringFees)
+                {
+                    var newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
+                    if (DateTime.Now > newDate){
+                        recurringFee.IsRecurring = false;
+                        var newRecurringFee = new TaxRecord()
+                        {
+                            VehicleId = recurringFee.VehicleId,
+                            Date = newDate,
+                            Description = recurringFee.Description,
+                            Cost = recurringFee.Cost,
+                            IsRecurring = true,
+                            Notes = recurringFee.Notes,
+                            RecurringInterval = recurringFee.RecurringInterval,
+                            Files = recurringFee.Files
+                        };
+                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                        _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
+                    }
+                }
+            }
+        }
         [HttpPost]
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
@@ -783,6 +812,8 @@ namespace CarCareTracker.Controllers
                 Description = result.Description,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
+                IsRecurring = result.IsRecurring,
+                RecurringInterval = result.RecurringInterval,
                 Files = result.Files
             };
             return PartialView("_TaxRecordModal", convertedResult);
