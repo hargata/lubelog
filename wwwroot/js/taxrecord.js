@@ -115,6 +115,8 @@ function getAndValidateTaxRecordValues() {
         description: taxDescription,
         cost: taxCost,
         notes: taxNotes,
+        isRecurring: taxIsRecurring,
+        recurringInterval: taxRecurringMonth,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord
     }
