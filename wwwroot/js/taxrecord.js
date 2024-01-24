@@ -18,6 +18,14 @@ function showEditTaxRecordModal(taxRecordId) {
         }
     });
 }
+function enableTaxRecurring() {
+    var taxIsRecurring = $("#taxIsRecurring").is(":checked");
+    if (taxIsRecurring) {
+        $("#taxRecurringMonth").attr('disabled', false);
+    } else {
+        $("#taxRecurringMonth").attr('disabled', true);
+    }
+}
 function hideAddTaxRecordModal() {
     $('#taxRecordModal').modal('hide');
 }
@@ -76,6 +84,8 @@ function getAndValidateTaxRecordValues() {
     var taxNotes = $("#taxRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var taxRecordId = getTaxRecordModelData().id;
+    var taxIsRecurring = $("#taxIsRecurring").is(":checked");
+    var taxRecurringMonth = $("#taxRecurringMonth").val();
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
