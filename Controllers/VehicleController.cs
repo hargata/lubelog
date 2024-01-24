@@ -847,7 +847,7 @@ namespace CarCareTracker.Controllers
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             //get costbymonth
-            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
             allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, 0));
             allCosts.AddRange(_reportHelper.GetRepairRecordSum(collisionRecords, 0));
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
@@ -898,10 +898,17 @@ namespace CarCareTracker.Controllers
             var userConfig = _config.GetUserConfig(User);
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
-            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
+            monthlyMileageData.AddRange(mileageData.GroupBy(x => x.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                MonthId = x.Key,
                 Cost = x.Average(y => y.MilesPerGallon)
+            }));
+            monthlyMileageData = monthlyMileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthId = x.Key,
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Sum(y=>y.Cost)
             }).ToList();
             viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
             return PartialView("_Report", viewModel);
@@ -1043,10 +1050,17 @@ namespace CarCareTracker.Controllers
                 mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);
             }
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
-            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
+            monthlyMileageData.AddRange(mileageData.GroupBy(x => x.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                MonthId = x.Key,
                 Cost = x.Average(y => y.MilesPerGallon)
+            }));
+            monthlyMileageData = monthlyMileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthId = x.Key,
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_MPGByMonthReport", monthlyMileageData);
         }
@@ -1054,7 +1068,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
         {
-            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
             if (selectedMetrics.Contains(ImportMode.ServiceRecord))
             {
                 var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
