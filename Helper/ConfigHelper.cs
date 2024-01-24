@@ -94,7 +94,11 @@ namespace CarCareTracker.Helper
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
                 UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
-                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)])
+                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
+                EnableAutoReminderRefresh = bool.Parse(_config[nameof(UserConfig.EnableAutoReminderRefresh)]),
+                EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),
+                VisibleTabs = _config.GetSection("VisibleTabs").Get<List<ImportMode>>(),
+                DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)])
             };
             int userId = 0;
             if (user != null)

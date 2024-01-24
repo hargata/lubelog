@@ -23,6 +23,10 @@
                     <input type="text" id="upgradeRecordDescription" class="form-control" placeholder="Description of item(s) upgraded/modded" value="@Model.Description">
                     <label for="upgradeRecordCost">Cost</label>
                     <input type="text" id="upgradeRecordCost" class="form-control" placeholder="Cost of the upgrade/mods" value="@(isNew ? "" : Model.Cost)">
+                    @if (isNew)
+                    {
+                        @await Html.PartialAsync("_SupplyStore", "UpgradeRecord")
+                    }
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="upgradeRecordNotes">Notes(optional)</label>
@@ -71,6 +75,7 @@
 </div>
 <script>
     var uploadedFiles = [];
+    var selectedSupplies = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)

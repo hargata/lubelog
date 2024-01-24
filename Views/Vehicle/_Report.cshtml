@@ -1,4 +1,5 @@
 ﻿@model ReportViewModel
+<div class="container reportTabContainer">
 <div class="row hideOnPrint">
     <div class="col-md-3 col-12 mt-2">
         <div class="row">
@@ -20,28 +21,30 @@
     </div>
     <div class="col-md-6 col-12 mt-2">
         <div class="row">
-            <div class="col-12 d-flex justify-content-center reportsCheckBoxContainer">
+            <div class="col-md-1 d-sm-none d-md-block"></div>
+            <div class="col-12 col-md-10 reportsCheckBoxContainer">
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="serviceExpenseCheck" value="1" checked>
+                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
                     <label class="form-check-label" for="serviceExpenseCheck">Service</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="repairExpenseCheck" value="2" checked>
+                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
                     <label class="form-check-label" for="repairExpenseCheck">Repairs</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
+                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
                     <label class="form-check-label" for="upgradeExpenseCheck">Upgrades</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="gasExpenseCheck" value="4" checked>
+                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
                     <label class="form-check-label" for="gasExpenseCheck">Gas</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck(this)" type="checkbox" id="taxExpenseCheck" value="5" checked>
+                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
                     <label class="form-check-label" for="taxExpenseCheck">Tax</label>
                 </div>
             </div>
+                <div class="col-md-1 d-sm-none d-md-block"></div>
         </div>
         <div class="row">
             <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
@@ -82,5 +85,6 @@
             <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">Vehicle Maintenance Report<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
         </div>
     </div>
+</div>
 </div>
 <div id="vehicleHistoryReport" class="showOnPrint"></div>

@@ -143,3 +143,15 @@ function bindWindowResize() {
         hideMobileNav();
     });
 }
+function decodeHTMLEntities(text) {
+    return $("<textarea/>")
+        .html(text)
+        .text();
+}
+var debounce = null;
+function setDebounce(callBack) {
+    clearTimeout(debounce);
+    debounce = setTimeout(function () {
+        callBack();
+    }, 1000);
+}

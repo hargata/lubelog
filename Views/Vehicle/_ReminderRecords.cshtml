@@ -1,4 +1,7 @@
 ﻿@model List<ReminderRecordViewModel>
+@{
+    var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
+}
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
@@ -25,8 +28,12 @@
                 <tr class="d-flex">
                     <th scope="col" class="col-1">Urgency</th>
                     <th scope="col" class="col-2">Metric</th>
-                    <th scope="col" class="col-5">Description</th>
+                    <th scope="col" class="@(hasRefresh ? "col-4" : "col-5")">Description</th>
                     <th scope="col" class="col-3">Notes</th>
+                    @if (hasRefresh)
+                    {
+                        <th scope="col" class="col-1">Done</th>
+                    }
                     <th scope="col" class="col-1">Delete</th>
                 </tr>
             </thead>
@@ -62,8 +69,17 @@
                         {
                             <td class="col-2">@reminderRecord.Metric</td>
                         }
-                        <td class="col-5">@reminderRecord.Description</td>
+                        <td class="@(hasRefresh ? "col-4" : "col-5")">@reminderRecord.Description</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        @if (hasRefresh)
+                        {
+                            <td class="col-1 text-truncate">
+                                @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
+                                {
+                                    <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
+                                }
+                            </td>
+                        }
                         <td class="col-1 text-truncate">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>

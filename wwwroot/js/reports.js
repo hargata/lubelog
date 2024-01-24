@@ -12,12 +12,8 @@ function generateVehicleHistoryReport() {
         }
     })
 }
-var debounce = null;
-function updateCheck(sender) {
-    clearTimeout(debounce);
-    debounce = setTimeout(function () {
-        refreshBarChart();
-    }, 1000);
+function updateCheck() {
+    setDebounce(refreshBarChart);
 }
 function refreshMPGChart() {
     var vehicleId = GetVehicleId().vehicleId;
@@ -26,7 +22,7 @@ function refreshMPGChart() {
         $("#monthFuelMileageReportContent").html(data);
     })
 }
-function refreshBarChart(callBack) {
+function refreshBarChart() {
     var selectedMetrics = [];
     var vehicleId = GetVehicleId().vehicleId;
     var year = getYear();

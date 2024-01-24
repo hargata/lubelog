@@ -1,4 +1,5 @@
-﻿@model UserConfig
+﻿@using CarCareTracker.Helper
+@model UserConfig
 
 <div class="row">
     <div class="d-flex justify-content-center">
@@ -22,8 +23,6 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UseUKMPG">
             <label class="form-check-label" for="useUKMPG">Use UK MPG Calculation<br /><small class="text-body-secondary">Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation</small></label>
         </div>
-    </div>
-    <div class="col-12 col-md-6">
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UseDescending">
             <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
@@ -36,6 +35,14 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimal" checked="@Model.UseThreeDecimalGasCost">
             <label class="form-check-label" for="useThreeDecimal">Use Three Decimals For Fuel Cost</label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.EnableAutoReminderRefresh">
+            <label class="form-check-label" for="enableAutoReminderRefresh">Auto Refresh Lapsed Recurring Reminders</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.EnableAutoOdometerInsert">
+            <label class="form-check-label" for="enableAutoOdometerInsert">Auto Insert Odometer Records<br /><small class="text-body-secondary">Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan</small></label>
+        </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
             <div class="form-check form-switch">
@@ -43,6 +50,98 @@
                 <label class="form-check-label" for="enableAuth">Enable Authentication</label>
             </div>
         }
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="row" id="visibleTabs">
+            <div class="col-12">
+                <span class="lead">Visible Tabs</span>
+            </div>
+            <div class="col-12 col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="serviceRecordTab">Service Records</label>
+                    </li>
+                    <li class="list-group-item d-none">
+                        <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="dashboardTab">Dashboard</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="repairRecordTab">Repairs</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="UpgradeRecord" id="upgradeRecordTab" @(Model.VisibleTabs.Contains(ImportMode.UpgradeRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="upgradeRecordTab">Upgrades</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="GasRecord" id="gasRecordTab" @(Model.VisibleTabs.Contains(ImportMode.GasRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="gasRecordTab">Fuel</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="OdometerRecord" id="odometerRecordTab" @(Model.VisibleTabs.Contains(ImportMode.OdometerRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="odometerRecordTab">Odometer</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="TaxRecord" id="taxRecordTab" @(Model.VisibleTabs.Contains(ImportMode.TaxRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="taxRecordTab">Taxes</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="NoteRecord" id="noteRecordTab" @(Model.VisibleTabs.Contains(ImportMode.NoteRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="noteRecordTab">Notes</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ReminderRecord" id="reminderRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ReminderRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="reminderRecordTab">Reminder</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="SupplyRecord" id="supplyRecordTab" @(Model.VisibleTabs.Contains(ImportMode.SupplyRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="supplyRecordTab">Supplies</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="PlanRecord" id="planRecordTab" @(Model.VisibleTabs.Contains(ImportMode.PlanRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="planRecordTab">Planner</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+       <div class="row">
+            <div class="col-12 col-md-6">
+                <span class="lead">Default Tab</span>
+                <select class="form-select" onchange="updateSettings()" id="defaultTab">
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.Dashboard)) value="Dashboard">Dashboard</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model,ImportMode.ServiceRecord)) value="ServiceRecord">Service Record</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.RepairRecord)) value="RepairRecord">Repairs</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.UpgradeRecord)) value="UpgradeRecord">Upgrades</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.GasRecord)) value="GasRecord">Fuel</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">Tax</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">Notes</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.PlanRecord)) value="PlanRecord">Planner</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.OdometerRecord)) value="OdometerRecord">Odometer</!option>
+                </select>
+            </div>
+            @if (User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                <div class="col-12 col-md-6">
+                    <span class="lead">Backups</span>
+                    <div class="row">
+                        <div class="col-6 d-grid">
+                            <button onclick="makeBackup()" class="btn btn-primary btn-md">Make</button>
+                        </div>
+                        <div class="col-6 d-grid">
+                            <input onChange="restoreBackup(this)" type="file" accept=".zip" class="d-none" id="inputBackup">
+                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md">Restore</button>
+                        </div>
+                        </div>
+                </div> 
+            }
+       </div>
     </div>
 </div>
 <div class="row">
@@ -54,10 +153,16 @@
         <div class="d-flex justify-content-center">
             <img src="/defaults/lubelogger_logo.png" />
         </div>
+        <div class="d-flex justify-content-center">
+            <small class="text-body-secondary">Version 1.0.7</small>
+        </div>
         <p class="lead">
             Proudly developed in the rural town of Price, Utah by Hargata Softworks.
         </p>
-        <p class="lead">If you enjoyed using this app, please consider spreading the good word.</p>
+        <p class="lead">
+            If you enjoyed using this app, please consider spreading the good word.<br />
+            If you are a commercial user, or if you just want to support the development of this project, consider subscribing to <a class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.patreon.com/LubeLogger" target="_blank">our Patreon</a>
+        </p>
         <div class="d-flex justify-content-center">
             <h6 class="display-7 mt-2">Hometown Shoutout</h6>
         </div>
@@ -86,7 +191,18 @@
     </div>
 </div>
 <script>
+    function getCheckedTabs() {
+        var visibleTabs = $("#visibleTabs :checked").map(function () {
+            return this.value;
+        });
+        return visibleTabs.toArray();
+    }
     function updateSettings(){
+        var visibleTabs = getCheckedTabs();
+        var defaultTab = $("#defaultTab").val();
+        if (!visibleTabs.includes(defaultTab)){
+            defaultTab = "Dashboard"; //default to dashboard.
+        }
         var userConfigObject = {
             useDarkMode: $("#enableDarkMode").is(':checked'),
             enableCsvImports: $("#enableCsvImports").is(':checked'),
@@ -94,15 +210,55 @@
             useDescending: $("#useDescending").is(':checked'),
             hideZero: $("#hideZero").is(":checked"),
             useUKMpg: $("#useUKMPG").is(":checked"),
-            useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked")
+            useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+            enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
+            enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+            visibleTabs: visibleTabs,
+            defaultTab: defaultTab
         }
+        sloader.show();
         $.post('/Home/WriteToSettings', { userConfig: userConfigObject}, function(data){
+            sloader.hide();
             if (data) {
                 setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
             } else {
                 errorToast("An error occurred, please try again later.")
             }
         })
+    }
+    function makeBackup() {
+        $.get('/Files/MakeBackup', function (data) {
+            window.location.href = data;
+        });
+    }
+    function openRestoreBackup(){
+        $("#inputBackup").click();
+    }
+    function restoreBackup(event) {
+        let formData = new FormData();
+        formData.append("file", event.files[0]);
+        sloader.show();
+        $.ajax({
+            url: "/Files/HandleFileUpload",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                if (response.trim() != '') {
+                    $.post('/Files/RestoreBackup', { fileName : response}, function (data) {
+                        sloader.hide();
+                        if (data){
+                            successToast("Backup Restored");
+                            setTimeout(function () { window.location.href = '/Home/Index' }, 500);
+                        } else {
+                            errorToast("An error occurred, please try again later.");
+                        }
+                    });
+                }
+            }
+        });
     }
     function enableAuthCheckChanged(){
         var enableAuth = $("#enableAuth").is(":checked");

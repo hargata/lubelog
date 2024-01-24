@@ -56,9 +56,25 @@
                         <label class="form-check-label" for="gasIsMissed">Missed Fuel Up(Skip MPG Calculation)</label>
                     </div>
                     <label for="GasRecordCost">Cost</label>
-                    <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                    @if (isNew)
+                    {
+                        <div class="input-group">
+                            <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                            <div class="input-group-text">
+                                <select class="form-select form-select-sm" id="gasCostType">
+                                    <option value="total">Total</option>
+                                    <option value="unit">Unit</option>
+                                </select>
+                            </div>
+                        </div>
+                    } else
+                    {
+                        <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                    }
                 </div>
                 <div class="col-md-6 col-12">
+                    <label for="gasRecordNotes">Notes(optional)</label>
+                    <textarea id="gasRecordNotes" class="form-control" rows="5">@Model.GasRecord.Notes</textarea>
                     @if (Model.GasRecord.Files.Any())
                     {
                         <div>

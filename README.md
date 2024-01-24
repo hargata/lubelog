@@ -7,6 +7,9 @@ Support this project on Patreon: https://patreon.com/LubeLogger
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintainence.
 
+## Screenshots
+<a href="/docs/screenshots.md">Screenshots</a>
+
 ## Dependencies
 - Bootstrap
 - LiteDB

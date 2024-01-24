@@ -114,6 +114,7 @@ function getAndValidateServiceRecordValues() {
         cost: serviceCost,
         notes: serviceNotes,
         files: uploadedFiles,
+        supplies: selectedSupplies,
         addReminderRecord: addReminderRecord
     }
 }

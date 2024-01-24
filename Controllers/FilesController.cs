@@ -46,12 +46,25 @@ namespace CarCareTracker.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteFiles(string fileLocation)
+        public IActionResult DeleteFiles(string fileLocation)
         {
             var result = _fileHelper.DeleteFile(fileLocation);
             return Json(result);
         }
-
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult MakeBackup()
+        {
+            var result = _fileHelper.MakeBackup();
+            return Json(result);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult RestoreBackup(string fileName)
+        {
+            var result = _fileHelper.RestoreBackup(fileName);
+            return Json(result);
+        }
         private string UploadFile(IFormFile fileToUpload)
         {
             string uploadDirectory = "temp/";

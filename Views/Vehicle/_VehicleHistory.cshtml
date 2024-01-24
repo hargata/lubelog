@@ -56,7 +56,7 @@
         <div class="col-6">
             <ul class="list-group">
                 <li class="list-group-item">Last Reported Odometer Reading: @Model.Odometer</li>
-                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG.ToString("F")} {fuelEconomyUnit}")</li>
+                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG} {fuelEconomyUnit}")</li>
                 <li class="list-group-item">Total Spent(excl. fuel): @Model.TotalCost.ToString("C")</li>
                 <li class="list-group-item">Total Spent on Fuel: @Model.TotalGasCost.ToString("C")</li>
             </ul>
@@ -68,8 +68,8 @@
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
-                        <th scope="col" class="col-2">Type</th>
-                        <th scope="col" class="col-1">Date</th>
+                        <th scope="col" class="col-2 servicehistorytype">Type</th>
+                        <th scope="col" class="col-1 servicehistorydate">Date</th>
                         <th scope="col" class="col-1">Odometer</th>
                         <th scope="col" class="col-3">Description</th>
                         <th scope="col" class="col-1">Cost</th>
@@ -80,7 +80,7 @@
                     @foreach (GenericReportModel reportData in Model.VehicleHistory)
                     {
                         <tr class="d-flex">
-                            <td class="col-2">
+                            <td class="col-2 servicehistorytype">
                                 @if(reportData.DataType == ImportMode.ServiceRecord)
                                 {
                                     <span><i class="bi bi-card-checklist me-2"></i>Service</span>
@@ -95,7 +95,7 @@
                                     <span><i class="bi bi-currency-dollar me-2"></i>Tax</span>
                                 }
                             </td>
-                            <td class="col-1">@reportData.Date.ToShortDateString()</td>
+                            <td class="col-1 servicehistorydate">@reportData.Date.ToShortDateString()</td>
                             <td class="col-1">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
                             <td class="col-3">@reportData.Description</td>
                             <td class="col-1">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>

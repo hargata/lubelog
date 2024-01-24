@@ -1,4 +1,7 @@
-﻿<div class="row">
+﻿@{
+    ViewData["Title"] = "LubeLogger API";
+}
+<div class="row">
     <div class="d-flex justify-content-center">
         <h6 class="display-6 mt-2">API</h6>
     </div>
@@ -53,6 +56,28 @@
 </div>
 <div class="row">
     <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/servicerecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Service Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        description - Description<br/>
+        cost - Cost<br />
+        notes - notes(optional)<br />
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
         GET
     </div>
     <div class="col-5">
@@ -63,6 +88,28 @@
     </div>
     <div class="col-3">
         vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/repairrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Repair Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        description - Description<br />
+        cost - Cost<br />
+        notes - notes(optional)<br />
+        }
     </div>
 </div>
 <div class="row">
@@ -81,6 +128,28 @@
 </div>
 <div class="row">
     <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/upgraderecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Upgrade Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        description - Description<br />
+        cost - Cost<br />
+        notes - notes(optional)<br />
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
         GET
     </div>
     <div class="col-5">
@@ -91,6 +160,27 @@
     </div>
     <div class="col-3">
         vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/taxrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Tax Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        description - Description<br />
+        cost - Cost<br />
+        notes - notes(optional)<br />
+        }
     </div>
 </div>
 <div class="row">
@@ -113,6 +203,30 @@
 </div>
 <div class="row">
     <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/gasrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Gas Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        fuelConsumed - Fuel Consumed<br />
+        cost - Cost<br />
+        isFillToFull(bool) - Filled To Full<br />
+        missedFuelUp(bool) - Missed Fuel Up<br />
+        notes - notes(optional)<br />
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
         GET
     </div>
     <div class="col-5">
@@ -123,5 +237,56 @@
     </div>
     <div class="col-3">
         vehicleId - Id of Vehicle
+    </div>
+</div>
+@if (User.IsInRole(nameof(UserData.IsRootUser)))
+{
+    <div class="row">
+        <div class="col-1">
+            GET
+        </div>
+        <div class="col-5">
+            <code>/api/makebackup</code>
+        </div>
+        <div class="col-3">
+            Creates a snapshot/backup of the DB at the time and returns a URL to download it.
+        </div>
+        <div class="col-3">
+            No Params(must be root user)
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/odometerrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of odometer records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        POST
+    </div>
+    <div class="col-5">
+        <code>/api/vehicle/odometerrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Odometer Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+            date - Date to be entered<br />
+        odometer - Odometer reading<br />
+        notes - notes(optional)<br />
+        }
     </div>
 </div>

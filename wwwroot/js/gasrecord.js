@@ -71,8 +71,10 @@ function getAndValidateGasRecordValues() {
     var gasMileage = $("#gasRecordMileage").val();
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
+    var gasCostType = $("#gasCostType").val();
     var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     var gasIsMissed = $("#gasIsMissed").is(":checked");
+    var gasNotes = $("#gasRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //validation
@@ -89,11 +91,22 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordMileage").removeClass("is-invalid");
     }
-    if (gasGallons.trim() == '' || parseInt(gasGallons) < 0) {
+    if (gasGallons.trim() == '' || globalParseFloat(gasGallons) <= 0) {
         hasError = true;
         $("#gasRecordGallons").addClass("is-invalid");
     } else {
         $("#gasRecordGallons").removeClass("is-invalid");
+    }
+    if (gasCostType != undefined && gasCostType == 'unit') {
+        var convertedGasCost = globalParseFloat(gasCost) * globalParseFloat(gasGallons);
+        if (isNaN(convertedGasCost))
+        {
+            hasError = true;
+            $("#gasRecordCost").addClass("is-invalid");
+        } else {
+            gasCost = globalFloatToString(convertedGasCost.toFixed(2).toString());
+            $("#gasRecordCost").removeClass("is-invalid");
+        }
     }
     if (gasCost.trim() == '' || !isValidMoney(gasCost)) {
         hasError = true;
@@ -111,6 +124,7 @@ function getAndValidateGasRecordValues() {
         cost: gasCost,
         files: uploadedFiles,
         isFillToFull: gasIsFillToFull,
-        missedFuelUp: gasIsMissed
+        missedFuelUp: gasIsMissed,
+        notes: gasNotes
     }
 }

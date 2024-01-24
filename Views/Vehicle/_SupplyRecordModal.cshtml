@@ -1,0 +1,85 @@
+﻿@model SupplyRecordInput
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? "Add New Supply Record" : "Edit Supply Record")</h5>
+    <button type="button" class="btn-close" onclick="hideAddSupplyRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="supplyRecordDate">Date</label>
+                    <div class="input-group">
+                        <input type="text" id="supplyRecordDate" class="form-control" placeholder="Date purchased" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="supplyRecordPartNumber">Part Number</label>
+                    <input type="text" id="supplyRecordPartNumber" class="form-control" placeholder="Part #/Model #/SKU #" value="@(isNew ? "" : Model.PartNumber)">
+                    <label for="supplyRecordDescription">Description</label>
+                    <input type="text" id="supplyRecordDescription" class="form-control" placeholder="Description of the Part/Supplies" value="@Model.Description">
+                    <label for="supplyRecordSupplier">Supplier/Vendor</label>
+                    <input type="text" id="supplyRecordSupplier" class="form-control" placeholder="Part Supplier" value="@Model.PartSupplier">
+                    <div class="row">
+                        <div class="col-md-6 col-12">
+                            <label for="supplyRecordQuantity">Quantity</label>
+                            <input type="text" id="supplyRecordQuantity" class="form-control" placeholder="Quantity" value="@(isNew ? "1" : Model.Quantity)">
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <label for="supplyRecordCost">Cost</label>
+                            <input type="text" id="supplyRecordCost" class="form-control" placeholder="Cost" value="@(isNew ? "" : Model.Cost)">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="supplyRecordNotes">Notes(optional)</label>
+                    <textarea id="supplyRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                            <label for="supplyRecordFiles">Upload more documents</label>
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="supplyRecordFiles">
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="supplyRecordFiles">Upload documents(optional)</label>
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="supplyRecordFiles">
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteSupplyRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddSupplyRecordModal()">Cancel</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveSupplyRecordToVehicle()">Add New Supply Record</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveSupplyRecordToVehicle(true)">Edit Supply Record</button>
+    }
+</div>
+<script>
+    var uploadedFiles = [];
+    getUploadedFilesFromModel();
+    function getUploadedFilesFromModel() {
+    @foreach (UploadedFiles filesUploaded in Model.Files)
+    {
+        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+    }
+        }
+    function getSupplyRecordModelData() {
+        return { id: @Model.Id}
+    }
+</script>

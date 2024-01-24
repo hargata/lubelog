@@ -5,9 +5,24 @@ namespace CarCareTracker.Helper
     public interface IGasHelper
     {
         List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG);
+        string GetAverageGasMileage(List<GasRecordViewModel> results);
     }
     public class GasHelper : IGasHelper
     {
+        public string GetAverageGasMileage(List<GasRecordViewModel> results)
+        {
+            var recordWithCalculatedMPG = results.Where(x => x.MilesPerGallon > 0);
+            var minMileage = results.Min(x => x.Mileage);
+            if (recordWithCalculatedMPG.Any())
+            {
+                var maxMileage = recordWithCalculatedMPG.Max(x => x.Mileage);
+                var totalGallonsConsumed = recordWithCalculatedMPG.Sum(x => x.Gallons);
+                var deltaMileage = maxMileage - minMileage;
+                var averageGasMileage = (maxMileage - minMileage) / totalGallonsConsumed;
+                return averageGasMileage.ToString("F");
+            }
+            return "0";
+        }
         public List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG)
         {
             var computedResults = new List<GasRecordViewModel>();
@@ -42,9 +57,10 @@ namespace CarCareTracker.Helper
                         Gallons = convertedConsumption,
                         Cost = currentObject.Cost,
                         DeltaMileage = deltaMileage,
-                        CostPerGallon = currentObject.Cost / convertedConsumption,
+                        CostPerGallon = convertedConsumption > 0.00M ? currentObject.Cost / convertedConsumption : 0,
                         IsFillToFull = currentObject.IsFillToFull,
-                        MissedFuelUp = currentObject.MissedFuelUp
+                        MissedFuelUp = currentObject.MissedFuelUp,
+                        Notes = currentObject.Notes
                     };
                     if (currentObject.MissedFuelUp)
                     {
@@ -57,7 +73,10 @@ namespace CarCareTracker.Helper
                     else if (currentObject.IsFillToFull)
                     {
                         //if user filled to full.
-                        gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
+                        if (convertedConsumption > 0.00M)
+                        {
+                            gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
+                        }
                         //reset unFactored vars
                         unFactoredConsumption = 0;
                         unFactoredMileage = 0;
@@ -83,9 +102,10 @@ namespace CarCareTracker.Helper
                         Cost = currentObject.Cost,
                         DeltaMileage = 0,
                         MilesPerGallon = 0,
-                        CostPerGallon = currentObject.Cost / convertedConsumption,
+                        CostPerGallon = convertedConsumption > 0.00M ? currentObject.Cost / convertedConsumption : 0,
                         IsFillToFull = currentObject.IsFillToFull,
-                        MissedFuelUp = currentObject.MissedFuelUp
+                        MissedFuelUp = currentObject.MissedFuelUp,
+                        Notes = currentObject.Notes
                     });
                 }
                 previousMileage = currentObject.Mileage;

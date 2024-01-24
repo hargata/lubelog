@@ -5,7 +5,7 @@
     {
         <li class="list-group-item">
             <div class="d-flex justify-content-between">
-                <a type="button" class="btn btn-link" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
+                <a type="button" class="btn btn-link text-truncate uploadedFileName" href="@filesUploaded.Location" target="_blank">@filesUploaded.Name</a>
                 <div class="d-flex align-items-center">
                     <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="editFileName('@filesUploaded.Location', this)"><i class="bi bi-pencil"></i></button>
                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteFileFromUploadedFiles('@filesUploaded.Location', this)"><i class="bi bi-trash"></i></button>
