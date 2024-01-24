@@ -67,6 +67,7 @@ function getAndValidateNoteValues() {
     var noteText = $("#noteTextArea").val();
     var vehicleId = GetVehicleId().vehicleId;
     var noteId = getNoteModelData().id;
+    var noteIsPinned = $("#noteIsPinned").is(":checked");
     //validation
     var hasError = false;
     if (noteDescription.trim() == '') { //eliminates whitespace.
@@ -86,6 +87,7 @@ function getAndValidateNoteValues() {
         hasError: hasError,
         vehicleId: vehicleId,
         description: noteDescription,
-        noteText: noteText
+        noteText: noteText,
+        pinned: noteIsPinned
     }
 }
