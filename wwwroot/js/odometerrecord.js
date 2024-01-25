@@ -71,7 +71,7 @@ function saveOdometerRecordToVehicle(isEdit) {
 }
 function getAndValidateOdometerRecordValues() {
     var serviceDate = $("#odometerRecordDate").val();
-    var serviceMileage = $("#odometerRecordMileage").val();
+    var serviceMileage = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
     var serviceNotes = $("#odometerRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var odometerRecordId = getOdometerRecordModelData().id;
