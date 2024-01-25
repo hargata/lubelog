@@ -8,7 +8,7 @@ namespace CarCareTracker.Helper
     {
         OperationResponse NotifyUserForRegistration(string emailAddress, string token);
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
-        OperationResponse NotifyUserForReminders(List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
+        OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
     }
     public class MailHelper : IMailHelper
     {
@@ -61,7 +61,7 @@ namespace CarCareTracker.Helper
                 return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
             }
         }
-        public OperationResponse NotifyUserForReminders(List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
+        public OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
         {
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
@@ -77,7 +77,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = $"Vehicle Reminders From LubeLogger - {DateTime.Now.ToShortDateString()}";
             //construct html table.
-            string emailBody = "<table style='width:100%'><tr><th style='padding:8px;'>Urgency</th><th style='padding:8px;'>Description</th></tr>";
+            string emailBody = $"<h4>{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate}</h4><br /><table style='width:100%'><tr><th style='padding:8px;'>Urgency</th><th style='padding:8px;'>Description</th></tr>";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
                 emailBody += $"<tr><td style='padding:8px; text-align:center;'>{reminder.Urgency}</td><td style='padding:8px; text-align:center;'>{reminder.Description}</td></tr>";

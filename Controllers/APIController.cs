@@ -466,7 +466,7 @@ namespace CarCareTracker.Controllers
                 {
                     return Json(new OperationResponse { Success = false, Message = "No recipients could be found with those parameters" });
                 }
-                var result = _mailHelper.NotifyUserForReminders(emailRecipients, results);
+                var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
             }
             if (operationResponses.All(x => x.Success))
