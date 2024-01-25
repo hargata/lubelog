@@ -22,10 +22,13 @@ namespace CarCareTracker.Controllers
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
+        private readonly IUserAccessDataAccess _userAccessDataAccess;
+        private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
         private readonly IFileHelper _fileHelper;
+        private readonly IMailHelper _mailHelper;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -37,6 +40,9 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
+            IUserAccessDataAccess userAccessDataAccess,
+            IUserRecordDataAccess userRecordDataAccess,
+            IMailHelper mailHelper,
             IFileHelper fileHelper,
             IUserLogic userLogic) 
         {
@@ -49,6 +55,9 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _userAccessDataAccess = userAccessDataAccess;
+            _userRecordDataAccess = userRecordDataAccess;
+            _mailHelper = mailHelper;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
@@ -425,6 +434,51 @@ namespace CarCareTracker.Controllers
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
             return Json(results);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        [Route("/api/vehicle/reminders/send")]
+        public IActionResult SendReminders(List<ReminderUrgency> urgencies)
+        {
+            var vehicles = _dataAccess.GetVehicles();
+            List<OperationResponse> operationResponses = new List<OperationResponse>();
+            foreach(Vehicle vehicle in vehicles)
+            {
+                var vehicleId = vehicle.Id;
+                //get reminders
+                var currentMileage = GetMaxMileage(vehicleId);
+                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
+                results.RemoveAll(x => !urgencies.Contains(x.Urgency));
+                if (!results.Any())
+                {
+                    return Json(new OperationResponse { Success = false, Message = "No reminders could be found with those parameters" });
+                }
+                //get list of recipients.
+                var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
+                List<string> emailRecipients = new List<string>();
+                foreach (int userId in userIds)
+                {
+                    var userData = _userRecordDataAccess.GetUserRecordById(userId);
+                    emailRecipients.Add(userData.EmailAddress);
+                };
+                if (!emailRecipients.Any())
+                {
+                    return Json(new OperationResponse { Success = false, Message = "No recipients could be found with those parameters" });
+                }
+                var result = _mailHelper.NotifyUserForReminders(emailRecipients, results);
+                operationResponses.Add(result);
+            }
+            if (operationResponses.All(x => x.Success))
+            {
+                return Json(new OperationResponse { Success = true, Message = "Emails sent" });
+            } else if (operationResponses.All(x => !x.Success))
+            {
+                return Json(new OperationResponse { Success = false, Message = "All emails failed, check SMTP settings" });
+            } else
+            {
+                return Json(new OperationResponse { Success = true, Message = "Some emails sent, some failed, check recipient settings" });
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
