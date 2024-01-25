@@ -5,11 +5,11 @@ namespace CarCareTracker.Helper
     public interface IGasHelper
     {
         List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG);
-        string GetAverageGasMileage(List<GasRecordViewModel> results);
+        string GetAverageGasMileage(List<GasRecordViewModel> results, bool useMPG);
     }
     public class GasHelper : IGasHelper
     {
-        public string GetAverageGasMileage(List<GasRecordViewModel> results)
+        public string GetAverageGasMileage(List<GasRecordViewModel> results, bool useMPG)
         {
             var recordWithCalculatedMPG = results.Where(x => x.MilesPerGallon > 0);
             var minMileage = results.Min(x => x.Mileage);
@@ -19,12 +19,18 @@ namespace CarCareTracker.Helper
                 var totalGallonsConsumed = recordWithCalculatedMPG.Sum(x => x.Gallons);
                 var deltaMileage = maxMileage - minMileage;
                 var averageGasMileage = (maxMileage - minMileage) / totalGallonsConsumed;
+                if (!useMPG)
+                {
+                    averageGasMileage = 100 / averageGasMileage;
+                }
                 return averageGasMileage.ToString("F");
             }
             return "0";
         }
         public List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG)
         {
+            //need to order by to get correct results
+            result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             var computedResults = new List<GasRecordViewModel>();
             int previousMileage = 0;
             decimal unFactoredConsumption = 0.00M;
