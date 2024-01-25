@@ -376,7 +376,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
                                     };
@@ -420,7 +420,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
@@ -433,7 +433,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
                                     };
                                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
@@ -463,7 +463,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
@@ -476,7 +476,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)

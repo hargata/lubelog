@@ -71,7 +71,7 @@ function saveServiceRecordToVehicle(isEdit) {
 }
 function getAndValidateServiceRecordValues() {
     var serviceDate = $("#serviceRecordDate").val();
-    var serviceMileage = $("#serviceRecordMileage").val();
+    var serviceMileage = parseInt(globalParseFloat($("#serviceRecordMileage").val())).toString();
     var serviceDescription = $("#serviceRecordDescription").val();
     var serviceCost = $("#serviceRecordCost").val();
     var serviceNotes = $("#serviceRecordNotes").val();

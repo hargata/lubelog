@@ -96,7 +96,7 @@ function markDoneReminderRecord(reminderRecordId, e) {
 
 function getAndValidateReminderRecordValues() {
     var reminderDate = $("#reminderDate").val();
-    var reminderMileage = $("#reminderMileage").val();
+    var reminderMileage = parseInt(globalParseFloat($("#reminderMileage").val())).toString();
     var reminderDescription = $("#reminderDescription").val();
     var reminderNotes = $("#reminderNotes").val();
     var reminderOption = $('#reminderOptions input:radio:checked').val();

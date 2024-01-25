@@ -71,7 +71,7 @@ function saveCollisionRecordToVehicle(isEdit) {
 }
 function getAndValidateCollisionRecordValues() {
     var collisionDate = $("#collisionRecordDate").val();
-    var collisionMileage = $("#collisionRecordMileage").val();
+    var collisionMileage = parseInt(globalParseFloat($("#collisionRecordMileage").val())).toString();
     var collisionDescription = $("#collisionRecordDescription").val();
     var collisionCost = $("#collisionRecordCost").val();
     var collisionNotes = $("#collisionRecordNotes").val();
