@@ -488,6 +488,14 @@ namespace CarCareTracker.Controllers
             var result = _fileHelper.MakeBackup();
             return Json(result);
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        [Route("/api/demo/restore")]
+        public IActionResult RestoreDemo()
+        {
+            var result = _fileHelper.RestoreBackup("/defaults/demo_default.zip");
+            return Json(result);
+        }
         private int GetMaxMileage(int vehicleId)
         {
             var numbersArray = new List<int>();
