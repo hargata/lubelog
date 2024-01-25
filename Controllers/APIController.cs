@@ -452,7 +452,7 @@ namespace CarCareTracker.Controllers
                 results.RemoveAll(x => !urgencies.Contains(x.Urgency));
                 if (!results.Any())
                 {
-                    return Json(new OperationResponse { Success = false, Message = "No reminders could be found with those parameters" });
+                    continue;
                 }
                 //get list of recipients.
                 var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
@@ -464,7 +464,7 @@ namespace CarCareTracker.Controllers
                 };
                 if (!emailRecipients.Any())
                 {
-                    return Json(new OperationResponse { Success = false, Message = "No recipients could be found with those parameters" });
+                    continue;
                 }
                 var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
