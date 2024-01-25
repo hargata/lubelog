@@ -12,14 +12,14 @@
                     labels: ["Service Records", "Repairs", "Upgrades", "Tax", "Fuel"],
                     datasets: [
                         {
-                            label: "Expenses by Category",
+                            label: "Expenses by Type",
                             backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
                             data: [
-        @Model.ServiceRecordSum,
-        @Model.CollisionRecordSum,
-        @Model.UpgradeRecordSum,
-        @Model.TaxRecordSum,
-        @Model.GasRecordSum
+                                globalParseFloat('@Model.ServiceRecordSum'),
+                                globalParseFloat('@Model.CollisionRecordSum'),
+                                globalParseFloat('@Model.UpgradeRecordSum'),
+                                globalParseFloat('@Model.TaxRecordSum'),
+                                globalParseFloat('@Model.GasRecordSum')
                                         ]
                         }
                     ]

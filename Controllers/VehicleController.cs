@@ -317,7 +317,6 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
                 bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
-                vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
                 var exportData = convertedRecords.Select(x => new GasRecordExportModel
                 {
@@ -530,8 +529,6 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordsByVehicleId(int vehicleId)
         {
             var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            //need it in ascending order to perform computation.
-            result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             //check if the user uses MPG or Liters per 100km.
             var userConfig = _config.GetUserConfig(User);
             bool useMPG = userConfig.UseMPG;
@@ -994,7 +991,7 @@ namespace CarCareTracker.Controllers
             var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
             if (gasViewModels.Any())
             {
-                averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels);
+                averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels, useMPG);
             }
             vehicleHistory.MPG = averageMPG;
             //insert servicerecords
