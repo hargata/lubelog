@@ -8,7 +8,7 @@ namespace CarCareTracker.Helper
         string MoveFileFromTemp(string currentFilePath, string newFolder);
         bool DeleteFile(string currentFilePath);
         string MakeBackup();
-        bool RestoreBackup(string fileName);
+        bool RestoreBackup(string fileName, bool clearExisting = false);
     }
     public class FileHelper : IFileHelper
     {
@@ -38,7 +38,7 @@ namespace CarCareTracker.Helper
                 return string.Empty;
             }
         }
-        public bool RestoreBackup(string fileName)
+        public bool RestoreBackup(string fileName, bool clearExisting = false)
         {
             var fullFilePath = GetFullFilePath(fileName);
             if (string.IsNullOrWhiteSpace(fullFilePath))
@@ -64,9 +64,17 @@ namespace CarCareTracker.Helper
                     {
                         Directory.CreateDirectory(existingPath);
                     }
+                    else if (clearExisting)
+                    {
+                        var filesToDelete = Directory.GetFiles(existingPath);
+                        foreach (string file in filesToDelete)
+                        {
+                            File.Delete(file);
+                        }
+                    }
                     //copy each files from temp folder to newPath
                     var filesToUpload = Directory.GetFiles(imagePath);
-                    foreach(string file in filesToUpload)
+                    foreach (string file in filesToUpload)
                     {
                         File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}", true);
                     }
@@ -77,6 +85,14 @@ namespace CarCareTracker.Helper
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
+                    }
+                    else if (clearExisting)
+                    {
+                        var filesToDelete = Directory.GetFiles(existingPath);
+                        foreach (string file in filesToDelete)
+                        {
+                            File.Delete(file);
+                        }
                     }
                     //copy each files from temp folder to newPath
                     var filesToUpload = Directory.GetFiles(documentPath);
@@ -100,7 +116,8 @@ namespace CarCareTracker.Helper
                     File.Move(configPath, StaticHelper.UserConfigPath, true);
                 }
                 return true;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error Restoring Database Backup: {ex.Message}");
                 return false;
