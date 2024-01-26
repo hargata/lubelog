@@ -43,12 +43,14 @@
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
                             <label for="supplyRecordFiles">Upload more documents</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="supplyRecordFiles">
+                            <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
                         </div>
                     }
                     else
                     {
                         <label for="supplyRecordFiles">Upload documents(optional)</label>
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="supplyRecordFiles">
+                        <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
                     }
                 </div>
             </div>

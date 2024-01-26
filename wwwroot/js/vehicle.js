@@ -278,6 +278,10 @@ function uploadVehicleFilesAsync(event) {
             if (response.length > 0) {
                 uploadedFiles.push.apply(uploadedFiles, response);
             }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.")
         }
     });
 }
