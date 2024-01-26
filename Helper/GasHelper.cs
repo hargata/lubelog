@@ -11,12 +11,13 @@ namespace CarCareTracker.Helper
     {
         public string GetAverageGasMileage(List<GasRecordViewModel> results, bool useMPG)
         {
-            var recordWithCalculatedMPG = results.Where(x => x.MilesPerGallon > 0);
+            var recordsToCalculateGallons = results.Where(x => x.MilesPerGallon > 0 || !x.IsFillToFull);
+            var recordWithCalculatedMPG = recordsToCalculateGallons.Where(x => x.MilesPerGallon > 0);
             var minMileage = results.Min(x => x.Mileage);
             if (recordWithCalculatedMPG.Any())
             {
                 var maxMileage = recordWithCalculatedMPG.Max(x => x.Mileage);
-                var totalGallonsConsumed = recordWithCalculatedMPG.Sum(x => x.Gallons);
+                var totalGallonsConsumed = recordsToCalculateGallons.Sum(x => x.Gallons);
                 var deltaMileage = maxMileage - minMileage;
                 var averageGasMileage = (maxMileage - minMileage) / totalGallonsConsumed;
                 if (!useMPG)
