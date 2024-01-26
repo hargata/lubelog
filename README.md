@@ -2,6 +2,8 @@
 
 A self-hosted, open-source vehicle service records and maintainence tracker.
 
+Visit our website: https://lubelogger.com
+
 Support this project on Patreon: https://patreon.com/LubeLogger
 
 ## Why
@@ -9,6 +11,11 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 
 ## Screenshots
 <a href="/docs/screenshots.md">Screenshots</a>
+
+## Demo
+Try it out before you download it! The live demo resets every 20 minutes.
+
+[Live Demo](https://demo.lubelogger.com) Login using username "test" and password "1234"
 
 ## Dependencies
 - Bootstrap
@@ -22,7 +29,7 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 1. Install Docker
 2. Run `docker pull ghcr.io/hargata/lubelogger:latest`
 3. CHECK culture in .env file, default is en_US, this will change the currency and date formats. You can also setup SMTP Config here.
-4. If not using traefik, use docker-compose-notraefik.yml
+4. If using traefik, use docker-compose.traefik.yml
 5. Run `docker-compose up`
 
 ## Docker Setup (Manual Build)
@@ -31,7 +38,7 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 3. CHECK culture in .env file, default is en_US, also setup SMTP for user management if you want that.
 4. Run `docker build -t lubelogger -f Dockerfile .`
 5. CHECK docker-compose.yml and make sure the mounting directories look correct.
-6. If not using traefik, use docker-compose-notraefik.yml
+6. If using traefik, use docker-compose.traefik.yml
 7. Run `docker-compose up`
 
 ## Additional Docker Instructions
