@@ -108,6 +108,10 @@ function uploadFileAsync(event) {
             if (response.trim() != '') {
                 uploadedFile = response;
             }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.")
         }
     });
 }
