@@ -4,7 +4,7 @@
 {
     foreach (Vehicle vehicle in Model)
     {
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4">
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4" id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
             <div class="card" onclick="viewVehicle(@vehicle.Id)">
                 <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down;" />
                 <div class="card-body">

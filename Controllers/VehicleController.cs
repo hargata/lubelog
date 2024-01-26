@@ -1311,6 +1311,14 @@ namespace CarCareTracker.Controllers
             result = result.OrderByDescending(x => x.Pinned).ToList();
             return PartialView("_Notes", result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetPinnedNotesByVehicleId(int vehicleId)
+        {
+            var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+            result = result.Where(x=>x.Pinned).ToList();
+            return Json(result);
+        }
         [HttpPost]
         public IActionResult SaveNoteToVehicleId(Note note)
         {
