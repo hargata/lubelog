@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Models;
+using System.Globalization;
 
 namespace CarCareTracker.Helper
 {
@@ -62,6 +63,42 @@ namespace CarCareTracker.Helper
                 return "selected";
             }
             return "";
+        }
+        public static List<CostForVehicleByMonth> GetBaseLineCosts()
+        {
+            return new List<CostForVehicleByMonth>()
+            {
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(1), MonthId = 1, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(2), MonthId = 2, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(3), MonthId = 3, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(4), MonthId = 4, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(5), MonthId = 5, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(6), MonthId = 6, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(7), MonthId = 7, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(8), MonthId = 8, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(9), MonthId = 9, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(10), MonthId = 10, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(11), MonthId = 11, Cost = 0M},
+                new CostForVehicleByMonth {MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(12), MonthId = 12, Cost = 0M}
+            };
+        }
+        public static List<CostForVehicleByMonth> GetBaseLineCostsNoMonthName()
+        {
+            return new List<CostForVehicleByMonth>()
+            {
+                new CostForVehicleByMonth { MonthId = 1, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 2, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 3, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 4, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 5, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 6, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 7, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 8, Cost = 0M},
+                new CostForVehicleByMonth {MonthId = 9, Cost = 0M},
+                new CostForVehicleByMonth { MonthId = 10, Cost = 0M},
+                new CostForVehicleByMonth { MonthId = 11, Cost = 0M},
+                new CostForVehicleByMonth { MonthId = 12, Cost = 0M}
+            };
         }
     }
 }

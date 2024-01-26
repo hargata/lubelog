@@ -14,7 +14,9 @@
         FifteenThousandMiles = 15000,
         TwentyThousandMiles = 20000,
         ThirtyThousandMiles = 30000,
+        FortyThousandMiles = 40000,
         FiftyThousandMiles = 50000,
+        SixtyThousandMiles = 60000,
         OneHundredThousandMiles = 100000,
         OneHundredFiftyThousandMiles = 150000
     }

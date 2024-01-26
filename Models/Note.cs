@@ -6,5 +6,6 @@
         public int VehicleId { get; set; }
         public string Description { get; set; }
         public string NoteText { get; set; }
+        public bool Pinned { get; set; }
     }
 }

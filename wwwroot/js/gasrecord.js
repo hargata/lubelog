@@ -68,7 +68,7 @@ function saveGasRecordToVehicle(isEdit) {
 }
 function getAndValidateGasRecordValues() {
     var gasDate = $("#gasRecordDate").val();
-    var gasMileage = $("#gasRecordMileage").val();
+    var gasMileage = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
     var gasCostType = $("#gasCostType").val();

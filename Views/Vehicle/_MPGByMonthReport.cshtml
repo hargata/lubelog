@@ -3,7 +3,7 @@
         var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
         var sortedByMPG = Model.OrderByDescending(x => x.Cost).ToList();
 }
-@if (Model.Any())
+@if (Model.Where(x=>x.Cost > 0).Any())
 {
     
     <canvas id="bar-chart-mpg"></canvas>
@@ -18,7 +18,7 @@
         @foreach (CostForVehicleByMonth gasCost in Model)
         {
             @:barGraphLabels.push("@gasCost.MonthName");
-            @:barGraphData.push(@gasCost.Cost);
+            @:barGraphData.push(globalParseFloat('@gasCost.Cost'));
             var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
             @:barGraphColors.push('@barGraphColors[index]');
         }

@@ -85,6 +85,7 @@ namespace CarCareTracker.Controllers
         public IActionResult Index(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
+            UpdateRecurringTaxes(vehicleId);
             return View(data);
         }
         [HttpGet]
@@ -316,7 +317,6 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
                 bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
-                vehicleRecords = vehicleRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
                 var exportData = convertedRecords.Select(x => new GasRecordExportModel
                 {
@@ -376,7 +376,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
                                     };
@@ -420,7 +420,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
@@ -433,7 +433,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
                                     };
                                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
@@ -463,7 +463,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
@@ -476,7 +476,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = int.Parse(importModel.Odometer, NumberStyles.Any),
+                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
@@ -529,8 +529,6 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordsByVehicleId(int vehicleId)
         {
             var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            //need it in ascending order to perform computation.
-            result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             //check if the user uses MPG or Liters per 100km.
             var userConfig = _config.GetUserConfig(User);
             bool useMPG = userConfig.UseMPG;
@@ -757,6 +755,34 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
+        private void UpdateRecurringTaxes(int vehicleId)
+        {
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var recurringFees = result.Where(x => x.IsRecurring);
+            if (recurringFees.Any())
+            {
+                foreach(TaxRecord recurringFee in recurringFees)
+                {
+                    var newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
+                    if (DateTime.Now > newDate){
+                        recurringFee.IsRecurring = false;
+                        var newRecurringFee = new TaxRecord()
+                        {
+                            VehicleId = recurringFee.VehicleId,
+                            Date = newDate,
+                            Description = recurringFee.Description,
+                            Cost = recurringFee.Cost,
+                            IsRecurring = true,
+                            Notes = recurringFee.Notes,
+                            RecurringInterval = recurringFee.RecurringInterval,
+                            Files = recurringFee.Files
+                        };
+                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                        _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
+                    }
+                }
+            }
+        }
         [HttpPost]
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
@@ -783,6 +809,8 @@ namespace CarCareTracker.Controllers
                 Description = result.Description,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
+                IsRecurring = result.IsRecurring,
+                RecurringInterval = result.RecurringInterval,
                 Files = result.Files
             };
             return PartialView("_TaxRecordModal", convertedResult);
@@ -816,7 +844,7 @@ namespace CarCareTracker.Controllers
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             //get costbymonth
-            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
             allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, 0));
             allCosts.AddRange(_reportHelper.GetRepairRecordSum(collisionRecords, 0));
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
@@ -867,10 +895,17 @@ namespace CarCareTracker.Controllers
             var userConfig = _config.GetUserConfig(User);
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
-            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
+            monthlyMileageData.AddRange(mileageData.GroupBy(x => x.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                MonthId = x.Key,
                 Cost = x.Average(y => y.MilesPerGallon)
+            }));
+            monthlyMileageData = monthlyMileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthId = x.Key,
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Sum(y=>y.Cost)
             }).ToList();
             viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
             return PartialView("_Report", viewModel);
@@ -956,7 +991,7 @@ namespace CarCareTracker.Controllers
             var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
             if (gasViewModels.Any())
             {
-                averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels);
+                averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels, useMPG);
             }
             vehicleHistory.MPG = averageMPG;
             //insert servicerecords
@@ -1012,10 +1047,17 @@ namespace CarCareTracker.Controllers
                 mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);
             }
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
-            var monthlyMileageData = mileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
+            monthlyMileageData.AddRange(mileageData.GroupBy(x => x.MonthId).Select(x => new CostForVehicleByMonth
             {
-                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                MonthId = x.Key,
                 Cost = x.Average(y => y.MilesPerGallon)
+            }));
+            monthlyMileageData = monthlyMileageData.GroupBy(x => x.MonthId).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+            {
+                MonthId = x.Key,
+                MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                Cost = x.Sum(y => y.Cost)
             }).ToList();
             return PartialView("_MPGByMonthReport", monthlyMileageData);
         }
@@ -1023,7 +1065,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetCostByMonthByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
         {
-            List<CostForVehicleByMonth> allCosts = new List<CostForVehicleByMonth>();
+            List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
             if (selectedMetrics.Contains(ImportMode.ServiceRecord))
             {
                 var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
@@ -1266,6 +1308,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetNotesByVehicleId(int vehicleId)
         {
             var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+            result = result.OrderByDescending(x => x.Pinned).ToList();
             return PartialView("_Notes", result);
         }
         [HttpPost]
