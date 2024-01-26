@@ -29,3 +29,26 @@ function performLogOut() {
         }
     })
 }
+function loadPinnedNotes(vehicleId) {
+    var hoveredGrid = $(`#gridVehicle_${vehicleId}`);
+    if (hoveredGrid.attr("data-bs-title") == undefined) {
+        $.get(`/Vehicle/GetPinnedNotesByVehicleId?vehicleId=${vehicleId}`, function (data) {
+            if (data.length > 0) {
+                //converted pinned notes to html.
+                var htmlString = "<ul class='list-group list-group-flush'>";
+                data.forEach(x => {
+                    htmlString += `<li><b>${x.description}</b> : ${x.noteText}</li>`;
+                });
+                htmlString += "</ul>";
+                hoveredGrid.attr("data-bs-title", htmlString);
+                new bootstrap.Tooltip(hoveredGrid);
+                hoveredGrid.tooltip("show");
+            }
+        });
+    } else {
+        hoveredGrid.tooltip("show");
+    }
+}
+function hidePinnedNotes(vehicleId) {
+    $(`#gridVehicle_${vehicleId}`).tooltip("hide");
+}
