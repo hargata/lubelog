@@ -77,10 +77,10 @@
                 <tr class="d-flex">
                     <th scope="col" class="col-2">Date Refueled</th>
                     <th scope="col" class="col-2">Odometer(@(distanceUnit))</th>
-                    <th scope="col" class="col-2">Consumption(@(consumptionUnit))</th>
-                    <th scope="col" class="col-4">Fuel Economy(@(fuelEconomyUnit))</th>
-                    <th scope="col" class="col-1">Cost</th>
-                    <th scope="col" class="col-1">Unit Cost</th>
+                    <th scope="col" class="col-2" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">Consumption(@(consumptionUnit))</th>
+                    <th scope="col" class="col-4" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">Fuel Economy(@(fuelEconomyUnit))</th>
+                    <th scope="col" class="col-1" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">Cost</th>
+                    <th scope="col" class="col-1" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">Unit Cost</th>
                 </tr>
             </thead>
             <tbody>
