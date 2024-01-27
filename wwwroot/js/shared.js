@@ -159,3 +159,60 @@ function setDebounce(callBack) {
         callBack();
     }, 1000);
 }
+var storedTableRowState = null;
+function toggleSort(tabName, sender) {
+    var sortColumn = sender.textContent;
+    var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
+    var sortDescIcon = '<i class="bi bi-sort-numeric-down-alt ms-2"></i>';
+    sender = $(sender);
+    //order of sort - asc, desc, reset
+    if (sender.hasClass('sort-asc')) {
+        sender.removeClass('sort-asc');
+        sender.addClass('sort-desc');
+        sender.html(`${sortColumn}${sortDescIcon}`);
+        sortTable(tabName, sortColumn, true);
+    } else if (sender.hasClass('sort-desc')) {
+        //restore table
+        sender.removeClass('sort-desc');
+        sender.html(`${sortColumn}`);
+        $(`#${tabName} table tbody`).html(storedTableRowState);
+    } else {
+        //first time sorting.
+        //check if table was sorted before by a different column(only relevant to fuel tab)
+        if (storedTableRowState != null && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
+            //restore table state.
+            $(`#${tabName} table tbody`).html(storedTableRowState);
+            //reset other sorted columns
+            if ($(".sort-asc").length > 0) {
+                $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
+                $(".sort-asc").removeClass("sort-asc");
+            }
+            if ($(".sort-desc").length > 0) {
+                $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
+                $(".sort-desc").removeClass("sort-desc");
+            }
+        }
+        sender.addClass('sort-asc');
+        sender.html(`${sortColumn}${sortAscIcon}`);
+        storedTableRowState = null;
+        storedTableRowState = $(`#${tabName} table tbody`).html();
+        sortTable(tabName, sortColumn, false);
+    }
+}
+function sortTable(tabName, columnName, desc) {
+    //get column index.
+    var columns = $(`#${tabName} table th`).toArray().map(x => x.innerText);
+    var colIndex = columns.findIndex(x => x == columnName);
+    //get row data
+    var rowData = $(`#${tabName} table tbody tr`);
+    var sortedRow = rowData.toArray().sort((a, b) => {
+        var currentVal = globalParseFloat(a.children[colIndex].textContent);
+        var nextVal = globalParseFloat(b.children[colIndex].textContent);
+        if (desc) {
+            return nextVal - currentVal;
+        } else {
+            return currentVal - nextVal;
+        }
+    });
+    $(`#${tabName} table tbody`).html(sortedRow);
+}
