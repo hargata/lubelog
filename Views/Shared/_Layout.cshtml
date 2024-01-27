@@ -59,10 +59,16 @@
             //remove thousands separator.
             var thousandSeparator = "@numberFormat.NumberGroupSeparator";
             var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var currencySymbol = "@numberFormat.CurrencySymbol";
+            if (input == "---") {
+                input = "0";
+            }
             //strip thousands from input.
             input = input.replace(thousandSeparator, "");
             //convert to JS format where decimal is only separated by .
             input = input.replace(decimalSeparator, ".");
+            //remove any currency symbol
+            input = input.replace(currencySymbol, "");
             return parseFloat(input);
         }
         function globalFloatToString(input) {
