@@ -354,3 +354,60 @@ function restoreScrollPosition() {
     $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
     scrollPosition = 0;
 }
+function moveRecord(recordId, source, dest) {
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var friendlyDest = "";
+    var hideModalCallBack;
+    var refreshDataCallBack;
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            hideModalCallBack = hideAddServiceRecordModal;
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            hideModalCallBack = hideAddCollisionRecordModal;
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            hideModalCallBack = hideAddUpgradeRecordModal;
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+    }
+    switch (dest) {
+        case "ServiceRecord":
+            friendlyDest = "Service Records";
+            break;
+        case "RepairRecord":
+            friendlyDest = "Repairs";
+            break;
+        case "UpgradeRecord":
+            friendlyDest = "Upgrades";
+            break;
+    }
+    Swal.fire({
+        title: "Confirm Move?",
+        text: `Move this record from ${friendlySource} to ${friendlyDest}?`,
+        showCancelButton: true,
+        confirmButtonText: "Move",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/MoveRecord', {recordId: recordId, source: source, destination: dest }, function (data) {
+                if (data) {
+                    hideModalCallBack();
+                    successToast("Record Moved");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast("An error has occurred, please try again later.");
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
