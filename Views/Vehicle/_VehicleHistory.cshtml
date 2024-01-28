@@ -5,22 +5,24 @@
     var useMPG = config.GetUserConfig(User).UseMPG;
     var useUKMPG = config.GetUserConfig(User).UseUKMPG;
     var useKwh = Model.VehicleData.IsElectric;
+    var useHours = Model.VehicleData.UseHours;
     string fuelEconomyUnit;
     if (useKwh)
     {
-        fuelEconomyUnit = useMPG ? "mi./kWh" : "kWh/100km";
+        var distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
+        fuelEconomyUnit = useMPG ? $"{distanceUnit}/kWh" : $"kWh/100{distanceUnit}";
     }
     else if (useMPG && useUKMPG)
     {
-        fuelEconomyUnit = "mpg";
+        fuelEconomyUnit = useHours ? "h/g" : "mpg";
     }
     else if (useUKMPG)
     {
-        fuelEconomyUnit = "l/100mi.";
+        fuelEconomyUnit = useHours ? "l/100h" : "l/100mi.";
     }
     else
     {
-        fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
+        fuelEconomyUnit = useHours ? (useMPG ? "h/g" : "l/100h") : (useMPG ? "mpg" : "l/100km");
     }
 }
 @model VehicleHistoryViewModel

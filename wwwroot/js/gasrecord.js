@@ -1,5 +1,5 @@
 ﻿function showAddGasRecordModal() {
-    $.get('/Vehicle/GetAddGasRecordPartialView', function (data) {
+    $.get(`/Vehicle/GetAddGasRecordPartialView?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker

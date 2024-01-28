@@ -2,7 +2,8 @@
 {
     public class GasRecordInputContainer
     {
-       public bool UseKwh { get; set; }
-       public GasRecordInput GasRecord { get; set; }
+        public bool UseKwh { get; set; }
+        public bool UseHours { get; set; }
+        public GasRecordInput GasRecord { get; set; }
     }
 }
