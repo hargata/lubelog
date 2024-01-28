@@ -100,5 +100,45 @@ namespace CarCareTracker.Helper
                 new CostForVehicleByMonth { MonthId = 12, Cost = 0M}
             };
         }
+
+        public static ServiceRecord GenericToServiceRecord(GenericRecord input)
+        {
+            return new ServiceRecord
+            {
+                VehicleId = input.VehicleId,
+                Date = input.Date,
+                Description = input.Description,
+                Cost = input.Cost,
+                Mileage = input.Mileage,
+                Files = input.Files,
+                Notes = input.Notes
+            };
+        }
+        public static CollisionRecord GenericToRepairRecord(GenericRecord input)
+        {
+            return new CollisionRecord
+            {
+                VehicleId = input.VehicleId,
+                Date = input.Date,
+                Description = input.Description,
+                Cost = input.Cost,
+                Mileage = input.Mileage,
+                Files = input.Files,
+                Notes = input.Notes
+            };
+        }
+        public static UpgradeRecord GenericToUpgradeRecord(GenericRecord input)
+        {
+            return new UpgradeRecord
+            {
+                VehicleId = input.VehicleId,
+                Date = input.Date,
+                Description = input.Description,
+                Cost = input.Cost,
+                Mileage = input.Mileage,
+                Files = input.Files,
+                Notes = input.Notes
+            };
+        }
     }
 }
