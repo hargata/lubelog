@@ -5,6 +5,7 @@
     var useMPG = config.GetUserConfig(User).UseMPG;
     var useUKMPG = config.GetUserConfig(User).UseUKMPG;
     var useKwh = Model.UseKwh;
+    var useHours = Model.UseHours;
     var isNew = Model.GasRecord.Id == 0;
     string consumptionUnit;
     string distanceUnit;
@@ -19,7 +20,11 @@
     {
         consumptionUnit = useMPG ? "gallons" : "liters";
     }
-    if (useUKMPG)
+    if (useHours)
+    {
+        distanceUnit = "hours";
+    }
+    else if (useUKMPG)
     {
         distanceUnit = "miles";
     }

@@ -11,28 +11,29 @@
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var gasCostFormat = useThreeDecimals ? "C3" : "C2";
     var useKwh = Model.UseKwh;
+    var useHours = Model.UseHours;
     string consumptionUnit;
     string fuelEconomyUnit;
-    string distanceUnit = useMPG ? "mi." : "km";
+    string distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
     if (useKwh)
     {
         consumptionUnit = "kWh";
-        fuelEconomyUnit = useMPG ? "mi./kWh" : "kWh/100km";
+        fuelEconomyUnit = useMPG ? $"{distanceUnit}/kWh" : $"kWh/100{distanceUnit}";
     }
     else if (useMPG && useUKMPG)
     {
         consumptionUnit = "imp gal";
-        fuelEconomyUnit = "mpg";
+        fuelEconomyUnit = useHours ? "h/g" : "mpg";
     } else if (useUKMPG)
     {
-        fuelEconomyUnit = "l/100mi.";
+        fuelEconomyUnit = useHours ? "l/100h" : "l/100mi.";
         consumptionUnit = "l";
-        distanceUnit = "mi.";
+        distanceUnit = useHours ? "h" : "mi.";
     }
     else
     {
         consumptionUnit = useMPG ? "US gal" : "l";
-        fuelEconomyUnit = useMPG ? "mpg" : "l/100km";
+        fuelEconomyUnit = useHours ? (useMPG ? "h/g" : "l/100h") : (useMPG ? "mpg" : "l/100km");
     }
 }
 <div class="row">

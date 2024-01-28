@@ -538,10 +538,13 @@ namespace CarCareTracker.Controllers
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
-            var vehicleIsElectric = _dataAccess.GetVehicleById(vehicleId).IsElectric;
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var vehicleIsElectric = vehicleData.IsElectric;
+            var vehicleUseHours = vehicleData.UseHours;
             var viewModel = new GasRecordViewModelContainer()
             {
                 UseKwh = vehicleIsElectric,
+                UseHours = vehicleUseHours,
                 GasRecords = computedResults
             };
             return PartialView("_Gas", viewModel);
@@ -564,9 +567,12 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpGet]
-        public IActionResult GetAddGasRecordPartialView()
+        public IActionResult GetAddGasRecordPartialView(int vehicleId)
         {
-            return PartialView("_GasModal", new GasRecordInputContainer() { GasRecord = new GasRecordInput() });
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var vehicleIsElectric = vehicleData.IsElectric;
+            var vehicleUseHours = vehicleData.UseHours;
+            return PartialView("_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
@@ -585,10 +591,13 @@ namespace CarCareTracker.Controllers
                 MissedFuelUp = result.MissedFuelUp,
                 Notes = result.Notes
             };
-            var vehicleIsElectric = _dataAccess.GetVehicleById(convertedResult.VehicleId).IsElectric;
+            var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
+            var vehicleIsElectric = vehicleData.IsElectric;
+            var vehicleUseHours = vehicleData.UseHours;
             var viewModel = new GasRecordInputContainer()
             {
                 UseKwh = vehicleIsElectric,
+                UseHours = vehicleUseHours,
                 GasRecord = convertedResult
             };
             return PartialView("_GasModal", viewModel);
