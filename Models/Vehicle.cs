@@ -9,5 +9,6 @@
         public string Model { get; set; }
         public string LicensePlate { get; set; }
         public bool IsElectric { get; set; } = false;
+        public bool UseHours { get; set; } = false;
     }
 }
