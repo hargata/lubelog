@@ -88,7 +88,7 @@
                 <ul class="list-group">
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="TaxRecord" id="taxRecordTab" @(Model.VisibleTabs.Contains(ImportMode.TaxRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="taxRecordTab">Taxes</label>
+                        <label class="form-check-label stretched-link" for="taxRecordTab">Fees</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="NoteRecord" id="noteRecordTab" @(Model.VisibleTabs.Contains(ImportMode.NoteRecord) ? "checked" : "")>
@@ -118,7 +118,7 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.RepairRecord)) value="RepairRecord">Repairs</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.UpgradeRecord)) value="UpgradeRecord">Upgrades</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.GasRecord)) value="GasRecord">Fuel</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">Tax</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">Fees</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">Notes</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
