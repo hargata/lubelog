@@ -1,90 +1,93 @@
 ﻿@model ReportViewModel
 <div class="container reportTabContainer">
-<div class="row hideOnPrint">
-    <div class="col-md-3 col-12 mt-2">
-        <div class="row">
-            <div class="col-12">
-                <select class="form-select" id="yearOption" onchange="yearUpdated()">
-                    <option value="0">All Time</option>
-                    @foreach (int year in Model.Years)
-                    {
-                        <option value="@year">@year</option>
-                    }
-                </select>
+    <div class="row hideOnPrint">
+        <div class="col-md-3 col-12 mt-2">
+            <div class="row">
+                <div class="col-12">
+                    <select class="form-select" id="yearOption" onchange="yearUpdated()">
+                        <option value="0">All Time</option>
+                        @foreach (int year in Model.Years)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="costMakeUpReportContent">
+                    @await Html.PartialAsync("_CostMakeUpReport", Model.CostMakeUpForVehicle)
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="costMakeUpReportContent">
-                @await Html.PartialAsync("_CostMakeUpReport", Model.CostMakeUpForVehicle)
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-12 mt-2">
-        <div class="row">
-            <div class="col-md-1 d-sm-none d-md-block"></div>
-            <div class="col-12 col-md-10 reportsCheckBoxContainer">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
-                    <label class="form-check-label" for="serviceExpenseCheck">Service</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
-                    <label class="form-check-label" for="repairExpenseCheck">Repairs</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
-                    <label class="form-check-label" for="upgradeExpenseCheck">Upgrades</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
-                    <label class="form-check-label" for="gasExpenseCheck">Gas</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
-                    <label class="form-check-label" for="taxExpenseCheck">Tax</label>
-                </div>
-            </div>
+        <div class="col-md-6 col-12 mt-2">
+            <div class="row">
                 <div class="col-md-1 d-sm-none d-md-block"></div>
+                <div class="col-12 col-md-10 reportsCheckBoxContainer">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
+                        <label class="form-check-label" for="serviceExpenseCheck">Service</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
+                        <label class="form-check-label" for="repairExpenseCheck">Repairs</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
+                        <label class="form-check-label" for="upgradeExpenseCheck">Upgrades</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
+                        <label class="form-check-label" for="gasExpenseCheck">Fuel</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
+                        <label class="form-check-label" for="taxExpenseCheck">Taxes</label>
+                    </div>
+                </div>
+                <div class="col-md-1 d-sm-none d-md-block"></div>
+            </div>
+            <div class="row">
+                <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
+                    @await Html.PartialAsync("_GasCostByMonthReport", Model.CostForVehicleByMonth)
+                </div>
+            </div>
         </div>
-        <div class="row">
-            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
-                @await Html.PartialAsync("_GasCostByMonthReport", Model.CostForVehicleByMonth)
+        <div class="col-md-3 col-12 mt-2">
+            <div class="row">
+                <div class="col-12">
+                    <select class="form-select" onchange="updateReminderPie()" id="reminderOption">
+                        <option value="0">As of Today</option>
+                        <option value="30">+30 Days</option>
+                        <option value="60">+60 Days</option>
+                        <option value="90">+90 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="reminderMakeUpReportContent">
+                    @await Html.PartialAsync("_ReminderMakeUpReport", Model.ReminderMakeUpForVehicle)
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-12 mt-2">
-        <div class="row">
-            <div class="col-12">
-                <select class="form-select" onchange="updateReminderPie()" id="reminderOption">
-                    <option value="0">As of Today</option>
-                    <option value="30">+30 Days</option>
-                    <option value="60">+60 Days</option>
-                    <option value="90">+90 Days</option>
-                </select>
+    <hr />
+    <div class="row hideOnPrint">
+        <div class="col-md-3 col-12 chartContainer" id="collaboratorContent">
+            @await Html.PartialAsync("_Collaborators", Model.Collaborators)
+        </div>
+        <div class="col-md-6 col-12 chartContainer">
+            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="monthFuelMileageReportContent">
+                @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
             </div>
         </div>
-        <div class="row">
-            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="reminderMakeUpReportContent">
-                @await Html.PartialAsync("_ReminderMakeUpReport", Model.ReminderMakeUpForVehicle)
+        <div class="col-md-3 col-12 chartContainer">
+            <div class="d-grid">
+                <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">Vehicle Maintenance Report<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+            </div>
+            <div class="d-grid">
+                <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">Export Attachments<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
         </div>
     </div>
-</div>
-<hr />
-<div class="row hideOnPrint">
-    <div class="col-md-3 col-12 chartContainer" id="collaboratorContent">
-        @await Html.PartialAsync("_Collaborators", Model.Collaborators)
-    </div>
-    <div class="col-md-6 col-12 chartContainer">
-        <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="monthFuelMileageReportContent">
-            @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
-        </div>
-    </div>
-    <div class="col-md-3 col-12 chartContainer">
-        <div class="d-flex justify-content-center">
-            <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">Vehicle Maintenance Report<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-        </div>
-    </div>
-</div>
 </div>
 <div id="vehicleHistoryReport" class="showOnPrint"></div>

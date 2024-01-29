@@ -981,6 +981,84 @@ namespace CarCareTracker.Controllers
             return PartialView("_ReminderMakeUpReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult GetVehicleAttachments(int vehicleId, List<ImportMode> exportTabs)
+        {
+            List<GenericReportModel> attachmentData = new List<GenericReportModel>();
+            if (exportTabs.Contains(ImportMode.ServiceRecord)){
+                var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x=>x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.RepairRecord))
+            {
+                var records = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.UpgradeRecord))
+            {
+                var records = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.GasRecord))
+            {
+                var records = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.TaxRecord))
+            {
+                var records = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.OdometerRecord))
+            {
+                var records = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (attachmentData.Any())
+            {
+                attachmentData = attachmentData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
+                var result = _fileHelper.MakeAttachmentsExport(attachmentData);
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                }
+                return Json(new OperationResponse { Success = true, Message = result });
+            } else
+            {
+                return Json(new OperationResponse { Success = false, Message = "No Attachments Found" });
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetVehicleHistory(int vehicleId)
         {
             var vehicleHistory = new VehicleHistoryViewModel();
