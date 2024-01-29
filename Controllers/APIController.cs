@@ -252,16 +252,16 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
-        [Route("/api/vehicle/taxrecords")]
-        public IActionResult TaxRecords(int vehicleId)
+        [Route("/api/vehicle/feerecords")]
+        public IActionResult FeeRecords(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
-        [Route("/api/vehicle/taxrecords/add")]
-        public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
+        [Route("/api/vehicle/feerecords/add")]
+        public IActionResult AddFeeRecord(int vehicleId, TaxRecordExportModel input)
         {
             var response = new OperationResponse();
             if (vehicleId == default)
@@ -292,7 +292,7 @@ namespace CarCareTracker.Controllers
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 response.Success = true;
-                response.Message = "Tax Record Added";
+                response.Message = "Fee Record Added";
                 return Json(response);
             }
             catch (Exception ex)

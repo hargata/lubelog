@@ -33,7 +33,7 @@ function deleteTaxRecord(taxRecordId) {
     $("#workAroundInput").show();
     Swal.fire({
         title: "Confirm Deletion?",
-        text: "Deleted Tax Records cannot be restored.",
+        text: "Deleted Fee Records cannot be restored.",
         showCancelButton: true,
         confirmButtonText: "Delete",
         confirmButtonColor: "#dc3545"
@@ -42,7 +42,7 @@ function deleteTaxRecord(taxRecordId) {
             $.post(`/Vehicle/DeleteTaxRecordById?taxRecordId=${taxRecordId}`, function (data) {
                 if (data) {
                     hideAddTaxRecordModal();
-                    successToast("Tax Record Deleted");
+                    successToast("Fee Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleTaxRecords(vehicleId);
                 } else {
@@ -65,7 +65,7 @@ function saveTaxRecordToVehicle(isEdit) {
     //save to db.
     $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecord: formValues }, function (data) {
         if (data) {
-            successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
+            successToast(isEdit ? "Fee Record Updated" : "Fee Record Added.");
             hideAddTaxRecordModal();
             saveScrollPosition();
             getVehicleTaxRecords(formValues.vehicleId);

@@ -504,7 +504,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {importModel.Date}" : importModel.Description,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Fee Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
                                     };

@@ -3,7 +3,7 @@
     var isNew = Model.Id == 0;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? "Add New Tax Record" : "Edit Tax Record")</h5>
+    <h5 class="modal-title">@(isNew ? "Add New Fee Record" : "Edit Fee Record")</h5>
     <button type="button" class="btn-close" onclick="hideAddTaxRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -14,13 +14,13 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="taxRecordDate">Date</label>
                     <div class="input-group">
-                        <input type="text" id="taxRecordDate" class="form-control" placeholder="Date tax was paid" value="@Model.Date">
+                        <input type="text" id="taxRecordDate" class="form-control" placeholder="Date fee was paid" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="taxRecordDescription">Description</label>
-                    <input type="text" id="taxRecordDescription" class="form-control" placeholder="Description of tax paid(i.e. Registration)" value="@Model.Description">
+                    <input type="text" id="taxRecordDescription" class="form-control" placeholder="Description of fee paid(i.e. Registration)" value="@Model.Description">
                     <label for="taxRecordCost">Cost</label>
-                    <input type="text" id="taxRecordCost" class="form-control" placeholder="Cost of tax paid" value="@(isNew? "" : Model.Cost)">
+                    <input type="text" id="taxRecordCost" class="form-control" placeholder="Cost of fee paid" value="@(isNew? "" : Model.Cost)">
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="taxRecordNotes">Notes(optional)</label>
@@ -76,11 +76,11 @@
     <button type="button" class="btn btn-secondary" onclick="hideAddTaxRecordModal()">Cancel</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle()">Add New Tax Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle()">Add New Fee Record</button>
     }
     else if (!isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle(true)">Edit Tax Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle(true)">Edit Fee Record</button>
     }
 </div>
 <script>
