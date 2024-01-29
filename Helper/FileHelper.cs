@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using CarCareTracker.Models;
+using System.IO.Compression;
 
 namespace CarCareTracker.Helper
 {
@@ -9,6 +10,7 @@ namespace CarCareTracker.Helper
         bool DeleteFile(string currentFilePath);
         string MakeBackup();
         bool RestoreBackup(string fileName, bool clearExisting = false);
+        string MakeAttachmentsExport(List<GenericReportModel> exportData);
     }
     public class FileHelper : IFileHelper
     {
@@ -122,6 +124,30 @@ namespace CarCareTracker.Helper
                 _logger.LogError(ex, $"Error Restoring Database Backup: {ex.Message}");
                 return false;
             }
+        }
+        public string MakeAttachmentsExport(List<GenericReportModel> exportData)
+        {
+            var folderName = Guid.NewGuid();
+            var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{folderName}");
+            if (!Directory.Exists(tempPath))
+                Directory.CreateDirectory(tempPath);
+            int fileIndex = 0;
+            foreach(GenericReportModel reportModel in exportData)
+            {
+                foreach(UploadedFiles file in reportModel.Files)
+                {
+                    var fileToCopy = GetFullFilePath(file.Location);
+                    var destFileName = $"{tempPath}/{fileIndex}{Path.GetExtension(file.Location)}";
+                    File.Copy(fileToCopy, destFileName);
+                    fileIndex++;
+                }
+            }
+            var destFilePath = $"{tempPath}.zip";
+            ZipFile.CreateFromDirectory(tempPath, destFilePath);
+            //delete temp directory
+            Directory.Delete(tempPath, true);
+            var zipFileName = $"/temp/{folderName}.zip";
+            return zipFileName;
         }
         public string MakeBackup()
         {

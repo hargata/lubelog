@@ -75,3 +75,59 @@ function refreshCollaborators() {
         $("#collaboratorContent").html(data);
     });
 }
+function exportAttachments() {
+    Swal.fire({
+        title: 'Export Attachments',
+        html: `
+        <div id='attachmentTabs'>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportServiceRecord" class="form-check-input me-1" value='ServiceRecord'>
+        <label for="exportServiceRecord" class='form-check-label'>Service Record</label>
+        </div>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportRepairRecord" class="form-check-input me-1" value='RepairRecord'>
+        <label for="exportRepairRecord" class='form-check-label'>Repairs</label>
+        </div>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportUpgradeRecord" class="form-check-input me-1" value='UpgradeRecord'>
+        <label for="exportUpgradeRecord" class='form-check-label'>Upgrades</label>
+        </div>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportGasRecord" class="form-check-input me-1" value='GasRecord'>
+        <label for="exportGasRecord" class='form-check-label'>Fuel</label>
+        </div>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportTaxRecord" class="form-check-input me-1" value='TaxRecord'>
+        <label for="exportTaxRecord" class='form-check-label'>Taxes</label>
+        </div>
+         <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportOdometerRecord" class="form-check-input me-1" value='OdometerRecord'>
+        <label for="exportOdometerRecord" class='form-check-label'>Odometer</label>
+        </div>
+        </div>
+        `,
+        confirmButtonText: 'Export',
+        showCancelButton: true,
+        focusConfirm: false,
+        preConfirm: () => {
+            var selectedExportTabs = $("#attachmentTabs :checked").map(function () {
+                return this.value;
+            });
+            if (selectedExportTabs.toArray().length == 0) {
+                Swal.showValidationMessage(`Please make at least one selection`)
+            }
+            return { selectedTabs: selectedExportTabs.toArray() }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var vehicleId = GetVehicleId().vehicleId;
+            $.post('/Vehicle/GetVehicleAttachments', { vehicleId: vehicleId, exportTabs: result.value.selectedTabs }, function (data) {
+                if (data.success) {
+                    window.location.href = data.message;
+                } else {
+                    errorToast(data.message);
+                }
+            })
+        }
+    });
+}
