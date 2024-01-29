@@ -317,7 +317,11 @@ function getVehicleHaveImportantReminders(vehicleId) {
         });
     }, 500);
 }
-
+function printTab() {
+    setTimeout(function () {
+        window.print();
+    }, 500);
+}
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
