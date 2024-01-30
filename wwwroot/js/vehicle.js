@@ -415,8 +415,7 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
-function showLinks(e) {
-    var textAreaName = $(e.parentElement).attr("for");
+function toggleMarkDownOverlay(textAreaName) {
     var textArea = $(`#${textAreaName}`);
     if ($(".markdown-overlay").length > 0) {
         $(".markdown-overlay").remove();
@@ -429,7 +428,11 @@ function showLinks(e) {
     if (text.length > 0) {
         var formatted = markdown(text);
         //var overlay div
-        var overlayDiv = `<div class='markdown-overlay' style="position:absolute; top:${textArea.css('top')}; left:${textArea.css('left')}; width:${textArea.css('width')}; height:${textArea.css('height')}; padding:${textArea.css('padding')}; overflow-y:auto; background-color:var(--bs-modal-bg);">${formatted}</div>`;
-        $(e.parentElement).append(overlayDiv);
+        var overlayDiv = `<div class='markdown-overlay' style="z-index: 1060; position:absolute; top:${textArea.css('top')}; left:${textArea.css('left')}; width:${textArea.css('width')}; height:${textArea.css('height')}; padding:${textArea.css('padding')}; overflow-y:auto; background-color:var(--bs-modal-bg);">${formatted}</div>`;
+        textArea.parent().children(`label[for=${textAreaName}]`).append(overlayDiv);
     }
+}
+function showLinks(e) {
+    var textAreaName = $(e.parentElement).attr("for");
+    toggleMarkDownOverlay(textAreaName);
 }

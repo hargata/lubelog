@@ -15,6 +15,11 @@ function showEditOdometerRecordModal(odometerRecordId) {
             //initiate datepicker
             initDatePicker($('#odometerRecordDate'));
             $('#odometerRecordModal').modal('show');
+            $('#odometerRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("odometerRecordNotes");
+                }
+            });
         }
     });
 }

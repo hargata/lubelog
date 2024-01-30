@@ -15,6 +15,11 @@ function showEditTaxRecordModal(taxRecordId) {
             //initiate datepicker
             initDatePicker($('#taxRecordDate'));
             $('#taxRecordModal').modal('show');
+            $('#taxRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("taxRecordNotes");
+                }
+            });
         }
     });
 }

@@ -15,6 +15,11 @@ function showEditUpgradeRecordModal(upgradeRecordId) {
             //initiate datepicker
             initDatePicker($('#upgradeRecordDate'));
             $('#upgradeRecordModal').modal('show');
+            $('#upgradeRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("upgradeRecordNotes");
+                }
+            });
         }
     });
 }

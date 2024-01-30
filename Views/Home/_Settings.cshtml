@@ -36,6 +36,10 @@
             <label class="form-check-label" for="useThreeDecimal">Use Three Decimals For Fuel Cost</label>
         </div>
         <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UseMarkDownOnSavedNotes">
+            <label class="form-check-label" for="useMarkDownOnSavedNotes">Display Saved Notes in Markdown</label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.EnableAutoReminderRefresh">
             <label class="form-check-label" for="enableAutoReminderRefresh">Auto Refresh Lapsed Recurring Reminders</label>
         </div>
@@ -212,6 +216,7 @@
             hideZero: $("#hideZero").is(":checked"),
             useUKMpg: $("#useUKMPG").is(":checked"),
             useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+            useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
             enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
             enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
             visibleTabs: visibleTabs,

@@ -15,6 +15,11 @@ function showEditCollisionRecordModal(collisionRecordId) {
             //initiate datepicker
             initDatePicker($('#collisionRecordDate'));
             $('#collisionRecordModal').modal('show');
+            $('#collisionRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("collisionRecordNotes");
+                }
+            });
         }
     });
 }

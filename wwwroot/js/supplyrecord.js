@@ -15,6 +15,11 @@ function showEditSupplyRecordModal(supplyRecordId) {
             //initiate datepicker
             initDatePicker($('#supplyRecordDate'));
             $('#supplyRecordModal').modal('show');
+            $('#supplyRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("supplyRecordNotes");
+                }
+            });
         }
     });
 }

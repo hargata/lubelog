@@ -15,6 +15,11 @@ function showEditServiceRecordModal(serviceRecordId) {
             //initiate datepicker
             initDatePicker($('#serviceRecordDate'));
             $('#serviceRecordModal').modal('show');
+            $('#serviceRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("serviceRecordNotes");
+                }
+            });
         }
     });
 }
