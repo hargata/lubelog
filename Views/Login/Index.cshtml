@@ -1,4 +1,9 @@
-﻿@{
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var logoUrl = config.GetLogoUrl();
+}
+@{
     ViewData["Title"] = "LubeLogger - Login";
 }
 @section Scripts {
@@ -7,7 +12,7 @@
 <div class="container d-flex align-items-center justify-content-center" style="height:100vh">
     <div class="row">
         <div class="col-12">
-            <img src="/defaults/lubelogger_logo.png" />
+            <img src="@logoUrl" />
             <div class="form-group">
                 <label for="inputUserName">Username</label>
                 <input type="text" id="inputUserName" class="form-control">
