@@ -9,6 +9,7 @@ namespace CarCareTracker.Helper
     {
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
+        string GetLogoUrl();
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
@@ -23,6 +24,15 @@ namespace CarCareTracker.Helper
             _config = serverConfig;
             _userConfig = userConfig;
             _cache = memoryCache;
+        }
+        public string GetLogoUrl()
+        {
+            var logoUrl = _config["LUBELOGGER_LOGO_URL"];
+            if (string.IsNullOrWhiteSpace(logoUrl))
+            {
+                logoUrl = "/defaults/lubelogger_logo.png";
+            }
+            return logoUrl;
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {
