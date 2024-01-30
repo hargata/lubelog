@@ -24,6 +24,7 @@ Try it out before you download it! The live demo resets every 20 minutes.
 - SweetAlert2
 - CsvHelper
 - Chart.js
+- Drawdown
 
 ## Docker Setup (GHCR)
 1. Install Docker
