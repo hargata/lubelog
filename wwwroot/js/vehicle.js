@@ -415,3 +415,23 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
+function showLinks(e) {
+    $("#workAroundInput").show();
+    var textAreaName = $(e.parentElement).attr("for");
+    var text = $(`#${textAreaName}`).val();
+    if (text == undefined) {
+        $("#workAroundInput").hide();
+        return;
+    }
+    if (text.length > 0) {
+        var formatted = markdown(text);
+        Swal.fire({
+            html: formatted,
+            confirmButtonText: 'Close',
+        }).then(() => {
+            $("#workAroundInput").hide();
+        });
+    } else {
+        $("#workAroundInput").hide();
+    }
+}

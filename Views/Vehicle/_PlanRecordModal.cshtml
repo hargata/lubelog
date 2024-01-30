@@ -45,7 +45,7 @@
                     }
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="planRecordNotes">Notes(optional)</label>
+                    <label for="planRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="planRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
                     @if (Model.Files.Any())
                     {
