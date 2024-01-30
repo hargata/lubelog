@@ -416,22 +416,20 @@ function moveRecord(recordId, source, dest) {
     });
 }
 function showLinks(e) {
-    $("#workAroundInput").show();
     var textAreaName = $(e.parentElement).attr("for");
-    var text = $(`#${textAreaName}`).val();
+    var textArea = $(`#${textAreaName}`);
+    if ($(".markdown-overlay").length > 0) {
+        $(".markdown-overlay").remove();
+        return;
+    }
+    var text = textArea.val();
     if (text == undefined) {
-        $("#workAroundInput").hide();
         return;
     }
     if (text.length > 0) {
         var formatted = markdown(text);
-        Swal.fire({
-            html: formatted,
-            confirmButtonText: 'Close',
-        }).then(() => {
-            $("#workAroundInput").hide();
-        });
-    } else {
-        $("#workAroundInput").hide();
+        //var overlay div
+        var overlayDiv = `<div class='markdown-overlay' style="position:absolute; top:${textArea.css('top')}; left:${textArea.css('left')}; width:${textArea.css('width')}; height:${textArea.css('height')}; padding:${textArea.css('padding')}; overflow-y:auto; background-color:var(--bs-modal-bg);">${formatted}</div>`;
+        $(e.parentElement).append(overlayDiv);
     }
 }
