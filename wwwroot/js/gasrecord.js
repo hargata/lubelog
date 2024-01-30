@@ -15,6 +15,11 @@ function showEditGasRecordModal(gasRecordId) {
             //initiate datepicker
             initDatePicker($('#gasRecordDate'));
             $('#gasRecordModal').modal('show');
+            $('#gasRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("gasRecordNotes");
+                }
+            });
         }
     });
 }

@@ -94,6 +94,7 @@ namespace CarCareTracker.Helper
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
                 UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
+                UseMarkDownOnSavedNotes = bool.Parse(_config[nameof(UserConfig.UseMarkDownOnSavedNotes)]),
                 UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
                 EnableAutoReminderRefresh = bool.Parse(_config[nameof(UserConfig.EnableAutoReminderRefresh)]),
                 EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),

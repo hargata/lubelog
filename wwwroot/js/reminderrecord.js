@@ -4,6 +4,11 @@
             $("#reminderRecordModalContent").html(data); 
             initDatePicker($('#reminderDate'), true);
             $("#reminderRecordModal").modal("show");
+            $('#reminderRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("reminderNotes");
+                }
+            });
         }
     });
 }

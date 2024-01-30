@@ -11,6 +11,11 @@ function showEditNoteModal(noteId) {
         if (data) {
             $("#noteModalContent").html(data);
             $('#noteModal').modal('show');
+            $('#noteModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("noteTextArea");
+                }
+            });
         }
     });
 }

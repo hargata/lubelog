@@ -5,6 +5,7 @@
     var userConfig = config.GetUserConfig(User);
     var useDarkMode = userConfig.UseDarkMode;
     var enableCsvImports = userConfig.EnableCsvImports;
+    var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
     shortDatePattern = shortDatePattern.ToLower();
@@ -47,7 +48,8 @@
         function getGlobalConfig() {
             return {
                 useDarkMode : "@useDarkMode" == "True",
-                enableCsvImport : "@enableCsvImports" == "True"
+                enableCsvImport : "@enableCsvImports" == "True",
+                useMarkDown: "@useMarkDown" == "True"
             }
         }
         function getShortDatePattern() {

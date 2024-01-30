@@ -15,6 +15,11 @@ function showEditPlanRecordModal(planRecordId) {
             //initiate datepicker
             initDatePicker($('#planRecordDate'));
             $('#planRecordModal').modal('show');
+            $('#planRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("planRecordNotes");
+                }
+            });
         }
     });
 }
