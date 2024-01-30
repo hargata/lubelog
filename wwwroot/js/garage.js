@@ -43,6 +43,8 @@ function loadPinnedNotes(vehicleId) {
                 hoveredGrid.attr("data-bs-title", htmlString);
                 new bootstrap.Tooltip(hoveredGrid);
                 hoveredGrid.tooltip("show");
+            } else {
+                hoveredGrid.attr("data-bs-title", "");
             }
         });
     } else {
