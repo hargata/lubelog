@@ -36,6 +36,7 @@ function saveVehicle(isEdit) {
     var vehicleYear = $("#inputYear").val();
     var vehicleMake = $("#inputMake").val();
     var vehicleModel = $("#inputModel").val();
+    var vehicleTags = $("#inputTag").val();
     var vehicleLicensePlate = $("#inputLicensePlate").val();
     var vehicleIsElectric = $("#inputIsElectric").is(":checked");
     var vehicleUseHours = $("#inputUseHours").is(":checked");
@@ -76,6 +77,7 @@ function saveVehicle(isEdit) {
         model: vehicleModel,
         licensePlate: vehicleLicensePlate,
         isElectric: vehicleIsElectric,
+        tags: vehicleTags,
         useHours: vehicleUseHours
     }, function (data) {
         if (data) {
@@ -137,6 +139,9 @@ function initDatePicker(input, futureOnly) {
         });
     }
 }
+function initTagSelector(input) {
+    input.tagsinput();
+}
 
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
@@ -178,6 +183,7 @@ function toggleSort(tabName, sender) {
         sender.removeClass('sort-desc');
         sender.html(`${sortColumn}`);
         $(`#${tabName} table tbody`).html(storedTableRowState);
+        filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
     } else {
         //first time sorting.
         //check if table was sorted before by a different column(only relevant to fuel tab)
@@ -217,4 +223,35 @@ function sortTable(tabName, columnName, desc) {
         }
     });
     $(`#${tabName} table tbody`).html(sortedRow);
+    filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
+}
+function filterTable(tabName, sender, isSort) {
+    var rowData = $(`#${tabName} table tbody tr`);
+    if (sender == undefined) {
+        rowData.removeClass('override-hide');
+        return;
+    }
+    var tagName = sender.textContent;
+    //check for other applied filters
+    if ($(sender).hasClass("bg-primary")) {
+        if (!isSort) {
+            rowData.removeClass('override-hide');
+            $(sender).removeClass('bg-primary');
+            $(sender).addClass('bg-secondary');
+        } else {
+            rowData.addClass('override-hide');
+            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        }
+    } else {
+        //hide table rows.
+        rowData.addClass('override-hide');
+        $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        if ($(".tagfilter.bg-primary").length > 0) {
+            //disabling other filters
+            $(".tagfilter.bg-primary").addClass('bg-secondary');
+            $(".tagfilter.bg-primary").removeClass('bg-primary');
+        }
+        $(sender).addClass('bg-primary');
+        $(sender).removeClass('bg-secondary');
+    }
 }

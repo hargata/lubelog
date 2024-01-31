@@ -37,6 +37,13 @@
                 <input class="form-check-input" type="checkbox" role="switch" id="inputUseHours" checked="@Model.UseHours">
                 <label class="form-check-label" for="inputUseHours">Use Engine Hours</label>
             </div>
+            <label for="inputTag">Tags(optional)</label>
+            <select multiple class="form-select" id="inputTag">
+                @foreach (string tag in Model.Tags)
+                {
+                    <!option value="@tag">@tag</!option>
+                }
+            </select>
             @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
             {
                 <label for="inputImage">Replace picture(optional)</label>
