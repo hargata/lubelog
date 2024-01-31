@@ -15,6 +15,35 @@
 function hideAddReminderRecordModal() {
     $('#reminderRecordModal').modal('hide');
 }
+function checkCustomMileageInterval() {
+    var selectedValue = $("#reminderRecurringMileage").val();
+    if (selectedValue == "Other") {
+        $("#workAroundInput").show();
+        Swal.fire({
+            title: 'Specify Custom Mileage Interval',
+            html: `
+                            <input type="text" id="inputCustomMileage" class="swal2-input" placeholder="Mileage">
+                            `,
+            confirmButtonText: 'Set',
+            focusConfirm: false,
+            preConfirm: () => {
+                const customMileage = $("#inputCustomMileage").val();
+                if (!customMileage || isNaN(parseInt(customMileage)) || parseInt(customMileage) <= 0) {
+                    Swal.showValidationMessage(`Please enter a valid number`);
+                }
+                return { customMileage }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                customMileageInterval = result.value.customMileage;
+                $("option[value='Other']").text(`Other: ${result.value.customMileage}`);
+            } else {
+                $("#reminderRecurringMileage").val(getReminderRecordModelData().mileageInterval);
+            }
+            $("#workAroundInput").hide();
+        });
+    }
+}
 function deleteReminderRecord(reminderRecordId, e) {
     if (e != undefined) {
         event.stopPropagation();
@@ -108,6 +137,7 @@ function getAndValidateReminderRecordValues() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     var reminderRecurringMonth = $("#reminderRecurringMonth").val();
     var reminderRecurringMileage = $("#reminderRecurringMileage").val();
+    var reminderCustomMileageInterval = customMileageInterval;
     var vehicleId = GetVehicleId().vehicleId;
     var reminderId = getReminderRecordModelData().id;
     //validation
@@ -154,6 +184,7 @@ function getAndValidateReminderRecordValues() {
         metric: reminderOption,
         isRecurring: reminderIsRecurring,
         reminderMileageInterval: reminderRecurringMileage,
-        reminderMonthInterval: reminderRecurringMonth
+        reminderMonthInterval: reminderRecurringMonth,
+        customMileageInterval: customMileageInterval
     }
 }

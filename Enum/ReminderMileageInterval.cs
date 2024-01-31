@@ -2,6 +2,7 @@
 {
     public enum ReminderMileageInterval
     {
+        Other = 0,
         FiftyMiles = 50,
         OneHundredMiles = 100,
         FiveHundredMiles = 500,
