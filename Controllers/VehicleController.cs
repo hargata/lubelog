@@ -737,7 +737,8 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
-                Files = result.Files
+                Files = result.Files,
+                Tags = result.Tags
             };
             return PartialView("_CollisionRecordModal", convertedResult);
         }
@@ -1380,7 +1381,8 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
-                Files = result.Files
+                Files = result.Files,
+                Tags = result.Tags
             };
             return PartialView("_UpgradeRecordModal", convertedResult);
         }

@@ -4,6 +4,7 @@
             $("#upgradeRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#upgradeRecordDate'));
+            initTagSelector($("#upgradeRecordTag"));
             $('#upgradeRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditUpgradeRecordModal(upgradeRecordId) {
             $("#upgradeRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#upgradeRecordDate'));
+            initTagSelector($("#upgradeRecordTag"));
             $('#upgradeRecordModal').modal('show');
             $('#upgradeRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -80,6 +82,7 @@ function getAndValidateUpgradeRecordValues() {
     var upgradeDescription = $("#upgradeRecordDescription").val();
     var upgradeCost = $("#upgradeRecordCost").val();
     var upgradeNotes = $("#upgradeRecordNotes").val();
+    var upgradeTags = $("#upgradeRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var upgradeRecordId = getUpgradeRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
@@ -120,6 +123,7 @@ function getAndValidateUpgradeRecordValues() {
         notes: upgradeNotes,
         files: uploadedFiles,
         supplies: selectedSupplies,
+        tags: upgradeTags,
         addReminderRecord: addReminderRecord
     }
 }

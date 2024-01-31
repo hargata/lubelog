@@ -237,25 +237,13 @@ function filterTable(tabName, sender, isSort) {
             $(sender).removeClass('bg-primary');
             $(sender).addClass('bg-secondary');
         } else {
-            rowData.map((index, elem) => {
-                var dataTags = $(elem).attr('data-tags');
-                if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
-                    $(elem).addClass('override-hide');
-                } else {
-                    $(elem).removeClass('override-hide');
-                }
-            });
+            rowData.addClass('override-hide');
+            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
         }
     } else {
         //hide table rows.
-        rowData.map((index, elem) => {
-            var dataTags = $(elem).attr('data-tags');
-            if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
-                $(elem).addClass('override-hide');
-            } else {
-                $(elem).removeClass('override-hide');
-            }
-        });
+        rowData.addClass('override-hide');
+        $(`[data-tags~='${tagName}']`).removeClass('override-hide');
         if ($(".tagfilter.bg-primary").length > 0) {
             //disabling other filters
             $(".tagfilter.bg-primary").addClass('bg-secondary');

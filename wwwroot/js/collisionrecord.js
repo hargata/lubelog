@@ -4,6 +4,7 @@
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#collisionRecordDate'));
+            initTagSelector($("#collisionRecordTag"));
             $('#collisionRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditCollisionRecordModal(collisionRecordId) {
             $("#collisionRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#collisionRecordDate'));
+            initTagSelector($("#collisionRecordTag"));
             $('#collisionRecordModal').modal('show');
             $('#collisionRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -80,6 +82,7 @@ function getAndValidateCollisionRecordValues() {
     var collisionDescription = $("#collisionRecordDescription").val();
     var collisionCost = $("#collisionRecordCost").val();
     var collisionNotes = $("#collisionRecordNotes").val();
+    var collisionTags = $("#collisionRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var collisionRecordId = getCollisionRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
@@ -120,6 +123,7 @@ function getAndValidateCollisionRecordValues() {
         notes: collisionNotes,
         files: uploadedFiles,
         supplies: selectedSupplies,
+        tags: collisionTags,
         addReminderRecord: addReminderRecord
     }
 }

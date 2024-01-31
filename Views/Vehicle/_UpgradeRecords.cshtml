@@ -3,6 +3,7 @@
 @{
     var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
     var hideZero = config.GetUserConfig(User).HideZero;
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
 }
 @model List<UpgradeRecord>
 <div class="row">
@@ -10,6 +11,10 @@
         <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success">@($"# of Upgrade Records: {Model.Count()}")</span>
             <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('upgrade-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
         </div>
         <div>
             @if (enableCsvImports)
@@ -54,7 +59,7 @@
             <tbody>
                 @foreach (UpgradeRecord upgradeRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditUpgradeRecordModal(@upgradeRecord.Id)">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditUpgradeRecordModal(@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
                         <td class="col-2 col-xl-1">@upgradeRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@upgradeRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@upgradeRecord.Description</td>
