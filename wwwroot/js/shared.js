@@ -137,6 +137,9 @@ function initDatePicker(input, futureOnly) {
         });
     }
 }
+function initTagSelector(input) {
+    input.tagsinput();
+}
 
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");

@@ -4,6 +4,7 @@
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#serviceRecordDate'));
+            initTagSelector($("#serviceRecordTag"));
             $('#serviceRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditServiceRecordModal(serviceRecordId) {
             $("#serviceRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#serviceRecordDate'));
+            initTagSelector($("#serviceRecordTag"));
             $('#serviceRecordModal').modal('show');
             $('#serviceRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -80,6 +82,7 @@ function getAndValidateServiceRecordValues() {
     var serviceDescription = $("#serviceRecordDescription").val();
     var serviceCost = $("#serviceRecordCost").val();
     var serviceNotes = $("#serviceRecordNotes").val();
+    var serviceTags = $("#serviceRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var serviceRecordId = getServiceRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
@@ -120,6 +123,7 @@ function getAndValidateServiceRecordValues() {
         notes: serviceNotes,
         files: uploadedFiles,
         supplies: selectedSupplies,
+        tags: serviceTags,
         addReminderRecord: addReminderRecord
     }
 }
