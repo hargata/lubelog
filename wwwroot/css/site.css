@@ -301,3 +301,6 @@ input[type="file"] {
 [data-bs-theme=light] .taskCard {
     background-color: rgba(80,80,80,0.25);
 }
+.override-hide{
+    display: none !important;
+}

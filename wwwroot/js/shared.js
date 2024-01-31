@@ -181,6 +181,7 @@ function toggleSort(tabName, sender) {
         sender.removeClass('sort-desc');
         sender.html(`${sortColumn}`);
         $(`#${tabName} table tbody`).html(storedTableRowState);
+        filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
     } else {
         //first time sorting.
         //check if table was sorted before by a different column(only relevant to fuel tab)
@@ -220,18 +221,47 @@ function sortTable(tabName, columnName, desc) {
         }
     });
     $(`#${tabName} table tbody`).html(sortedRow);
+    filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
 }
-function filterTable(tabName, sender) {
-    var tagName = sender.textContent;
+function filterTable(tabName, sender, isSort) {
     var rowData = $(`#${tabName} table tbody tr`);
-    rowData.map((index, elem) => {
-        var dataTags = $(elem).attr('data-tags');
-        console.log(dataTags);
-        if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
-            $(elem).hide();
+    if (sender == undefined) {
+        rowData.removeClass('override-hide');
+        return;
+    }
+    var tagName = sender.textContent;
+    //check for other applied filters
+    if ($(sender).hasClass("bg-primary")) {
+        if (!isSort) {
+            rowData.removeClass('override-hide');
+            $(sender).removeClass('bg-primary');
+            $(sender).addClass('bg-secondary');
         } else {
-            console.log('show');
-           $(elem).show();
+            rowData.map((index, elem) => {
+                var dataTags = $(elem).attr('data-tags');
+                if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
+                    $(elem).addClass('override-hide');
+                } else {
+                    $(elem).removeClass('override-hide');
+                }
+            });
         }
-    });
+    } else {
+        //hide table rows.
+        rowData.map((index, elem) => {
+            var dataTags = $(elem).attr('data-tags');
+            if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
+                $(elem).addClass('override-hide');
+            } else {
+                $(elem).removeClass('override-hide');
+            }
+        });
+        if ($(".tagfilter.bg-primary").length > 0) {
+            //disabling other filters
+            $(".tagfilter.bg-primary").addClass('bg-secondary');
+            $(".tagfilter.bg-primary").removeClass('bg-primary');
+        }
+        $(sender).addClass('bg-primary');
+        $(sender).removeClass('bg-secondary');
+    }
 }
