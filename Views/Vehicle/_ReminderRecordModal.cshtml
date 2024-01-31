@@ -46,7 +46,8 @@
                         <label class="form-check-label" for="reminderIsRecurring">Is Recurring</label>
                     </div>
                     <label for="reminderRecurringMileage">Odometer</label>
-                    <select class="form-select" id="reminderRecurringMileage" @(Model.IsRecurring ? "" : "disabled")>
+                    <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring ? "" : "disabled")>
+                        <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.CustomMileageInterval > 0 ? $"Other: {Model.CustomMileageInterval}" : "Other")</!option>
                         <!option value="FiftyMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyMiles ? "selected" : "")>50 mi. / Km</!option>
                         <!option value="OneHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredMiles ? "selected" : "")>100 mi. / Km</!option>
                         <!option value="FiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveHundredMiles ? "selected" : "")>500 mi. / Km</!option>
@@ -95,7 +96,8 @@
     }
 </div>
 <script>
+    var customMileageInterval = @Model.CustomMileageInterval;
     function getReminderRecordModelData() {
-        return { id: @Model.Id}
+        return { id: @Model.Id, mileageInterval: '@Model.ReminderMileageInterval.ToString()'}
     }
 </script>

@@ -14,11 +14,24 @@ namespace CarCareTracker.Helper
             if (existingReminder.Metric == ReminderMetric.Both)
             {
                 existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
-                existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                if (existingReminder.ReminderMileageInterval != ReminderMileageInterval.Other)
+                {
+                    existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                }
+                else
+                {
+                    existingReminder.Mileage += existingReminder.CustomMileageInterval;
+                }
             }
             else if (existingReminder.Metric == ReminderMetric.Odometer)
             {
-                existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                if (existingReminder.ReminderMileageInterval != ReminderMileageInterval.Other)
+                {
+                    existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                } else
+                {
+                    existingReminder.Mileage += existingReminder.CustomMileageInterval;
+                }
             }
             else if (existingReminder.Metric == ReminderMetric.Date)
             {
