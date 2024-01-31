@@ -45,15 +45,21 @@ function loadPinnedNotes(vehicleId) {
                 new bootstrap.Tooltip(hoveredGrid);
                 hoveredGrid.tooltip("show");
             } else {
+                //disable the tooltip
+                //hoveredGrid.attr("data-bs-toggle", "");
                 hoveredGrid.attr("data-bs-title", "");
             }
         });
     } else {
-        hoveredGrid.tooltip("show");
+        if (hoveredGrid.attr("data-bs-title") != '') {
+            hoveredGrid.tooltip("show");
+        }
     }
 }
 function hidePinnedNotes(vehicleId) {
-    $(`#gridVehicle_${vehicleId}`).tooltip("hide");
+    if ($(`#gridVehicle_${vehicleId}`).attr('data-bs-title') != '') {
+        $(`#gridVehicle_${vehicleId}`).tooltip("hide");
+    }
 }
 
 function filterGarage(sender) {
