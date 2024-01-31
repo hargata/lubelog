@@ -221,3 +221,17 @@ function sortTable(tabName, columnName, desc) {
     });
     $(`#${tabName} table tbody`).html(sortedRow);
 }
+function filterTable(tabName, sender) {
+    var tagName = sender.textContent;
+    var rowData = $(`#${tabName} table tbody tr`);
+    rowData.map((index, elem) => {
+        var dataTags = $(elem).attr('data-tags');
+        console.log(dataTags);
+        if (dataTags == undefined || !dataTags.split(",").includes(tagName)) {
+            $(elem).hide();
+        } else {
+            console.log('show');
+           $(elem).show();
+        }
+    });
+}
