@@ -46,7 +46,6 @@ function loadPinnedNotes(vehicleId) {
                 hoveredGrid.tooltip("show");
             } else {
                 //disable the tooltip
-                //hoveredGrid.attr("data-bs-toggle", "");
                 hoveredGrid.attr("data-bs-title", "");
             }
         });
