@@ -133,3 +133,108 @@ function getAndValidateGasRecordValues() {
         notes: gasNotes
     }
 }
+
+function toggleUnits(sender) {
+    event.preventDefault();
+    //check which column to convert.
+    sender = $(sender); 
+    if (sender.attr("data-gas") == "consumption") {
+        switch (sender.attr("data-unit")) {
+            case "US gal":
+                $("[data-gas-type='consumption']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
+                    elem.innerText = convertedAmount.toFixed(2);
+                    sender.text(sender.text().replace(sender.attr("data-unit"), "l"));
+                    sender.attr("data-unit", "l");
+                });
+                $("[data-gas-type='unitcost']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
+                    var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                });
+                break;
+            case "l":
+                $("[data-gas-type='consumption']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
+                    elem.innerText = convertedAmount.toFixed(2);
+                    sender.text(sender.text().replace(sender.attr("data-unit"), "imp gal"));
+                    sender.attr("data-unit", "imp gal");
+                });
+                $("[data-gas-type='unitcost']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
+                    var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                });
+                break;
+            case "imp gal":
+                $("[data-gas-type='consumption']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
+                    elem.innerText = convertedAmount.toFixed(2);
+                    sender.text(sender.text().replace(sender.attr("data-unit"), "US gal"));
+                    sender.attr("data-unit", "US gal");
+                });
+                $("[data-gas-type='unitcost']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
+                    var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                });
+                break;
+        }
+    } else if (sender.attr("data-gas") == "fueleconomy") {
+        switch (sender.attr("data-unit")) {
+            case "l/100km":
+                $("[data-gas-type='fueleconomy']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText);
+                    if (convertedAmount > 0) {
+                        convertedAmount = 100 / convertedAmount;
+                        elem.innerText = convertedAmount.toFixed(2);
+                    }
+                    //update labels up top.
+                    var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().replace("Average Fuel Economy: ", ""));
+                    if (newAverage > 0) {
+                        newAverage = 100 / newAverage;
+                        $("#averageFuelMileageLabel").text(`Average Fuel Economy: ${newAverage.toFixed(2)}`)
+                    }
+                    var newMin = globalParseFloat($("#minFuelMileageLabel").text().replace("Min Fuel Economy: ", ""));
+                    if (newMin > 0) {
+                        newMin = 100 / newMin;
+                        $("#minFuelMileageLabel").text(`Min Fuel Economy: ${newMin.toFixed(2)}`)
+                    }
+                    var newMax = globalParseFloat($("#maxFuelMileageLabel").text().replace("Max Fuel Economy: ", ""));
+                    if (newMax > 0) {
+                        newMax = 100 / newMax;
+                        $("#maxFuelMileageLabel").text(`Max Fuel Economy: ${newMax.toFixed(2)}`)
+                    }
+                    sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
+                    sender.attr("data-unit", "km/l");
+                });
+                break;
+            case "km/l":
+                $("[data-gas-type='fueleconomy']").map((index, elem) => {
+                    var convertedAmount = globalParseFloat(elem.innerText);
+                    if (convertedAmount > 0) {
+                        convertedAmount = 100 / convertedAmount;
+                        elem.innerText = convertedAmount.toFixed(2);
+                    }
+                    var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().replace("Average Fuel Economy: ", ""));
+                    if (newAverage > 0) {
+                        newAverage = 100 / newAverage;
+                        $("#averageFuelMileageLabel").text(`Average Fuel Economy: ${newAverage.toFixed(2)}`)
+                    }
+                    var newMin = globalParseFloat($("#minFuelMileageLabel").text().replace("Min Fuel Economy: ", ""));
+                    if (newMin > 0) {
+                        newMin = 100 / newMin;
+                        $("#minFuelMileageLabel").text(`Min Fuel Economy: ${newMin.toFixed(2)}`)
+                    }
+                    var newMax = globalParseFloat($("#maxFuelMileageLabel").text().replace("Max Fuel Economy: ", ""));
+                    if (newMax > 0) {
+                        newMax = 100 / newMax;
+                        $("#maxFuelMileageLabel").text(`Max Fuel Economy: ${newMax.toFixed(2)}`)
+                    }
+                    sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
+                    sender.attr("data-unit", "l/100km");
+                });
+                break;
+        }
+    }
+}

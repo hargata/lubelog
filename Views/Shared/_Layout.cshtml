@@ -6,6 +6,7 @@
     var useDarkMode = userConfig.UseDarkMode;
     var enableCsvImports = userConfig.EnableCsvImports;
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
+    var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
     shortDatePattern = shortDatePattern.ToLower();
@@ -51,7 +52,9 @@
             return {
                 useDarkMode : "@useDarkMode" == "True",
                 enableCsvImport : "@enableCsvImports" == "True",
-                useMarkDown: "@useMarkDown" == "True"
+                useMarkDown: "@useMarkDown" == "True",
+                currencySymbol: "@numberFormat.CurrencySymbol",
+                useThreeDecimals: "@useThreeDecimals" == "True"
             }
         }
         function getShortDatePattern() {
