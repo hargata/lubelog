@@ -81,9 +81,16 @@ namespace CarCareTracker.Helper
                     else if (currentObject.IsFillToFull)
                     {
                         //if user filled to full.
-                        if (convertedConsumption > 0.00M)
+                        if (convertedConsumption > 0.00M && deltaMileage > 0)
                         {
-                            gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
+                            try
+                            {
+                                gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
+                            }
+                            catch (Exception ex)
+                            {
+                                gasRecordViewModel.MilesPerGallon = 0;
+                            }
                         }
                         //reset unFactored vars
                         unFactoredConsumption = 0;
