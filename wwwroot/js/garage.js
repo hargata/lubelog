@@ -3,9 +3,10 @@
     $.get('/Vehicle/AddVehiclePartialView', function (data) {
         if (data) {
             $("#addVehicleModalContent").html(data);
+            initTagSelector($("#inputTag"));
+            $('#addVehicleModal').modal('show');
         }
     })
-    $('#addVehicleModal').modal('show');
 }
 function hideAddVehicleModal() {
     $('#addVehicleModal').modal('hide');
@@ -53,4 +54,25 @@ function loadPinnedNotes(vehicleId) {
 }
 function hidePinnedNotes(vehicleId) {
     $(`#gridVehicle_${vehicleId}`).tooltip("hide");
+}
+
+function filterGarage(sender) {
+    var tagName = sender.textContent;
+    var rowData = $(".garage-item");
+    if ($(sender).hasClass("bg-primary")) {
+            rowData.removeClass('override-hide');
+            $(sender).removeClass('bg-primary');
+            $(sender).addClass('bg-secondary');
+    } else {
+        //hide table rows.
+        rowData.addClass('override-hide');
+        $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        if ($(".tagfilter.bg-primary").length > 0) {
+            //disabling other filters
+            $(".tagfilter.bg-primary").addClass('bg-secondary');
+            $(".tagfilter.bg-primary").removeClass('bg-primary');
+        }
+        $(sender).addClass('bg-primary');
+        $(sender).removeClass('bg-secondary');
+    }
 }
