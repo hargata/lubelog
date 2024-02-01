@@ -17,7 +17,7 @@
         var useDarkMode = getGlobalConfig().useDarkMode;
         @foreach (CostForVehicleByMonth gasCost in Model)
         {
-            @:barGraphLabels.push("@gasCost.MonthName");
+            @:barGraphLabels.push(decodeHTMLEntities("@gasCost.MonthName"));
             @:barGraphData.push(globalParseFloat('@gasCost.Cost'));
             var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
             @:barGraphColors.push('@barGraphColors[index]');
