@@ -4,7 +4,9 @@ A self-hosted, open-source vehicle service records and maintainence tracker.
 
 Visit our website: https://lubelogger.com
 
-Support this project on Patreon: https://patreon.com/LubeLogger
+Support this project on [Patreon](https://patreon.com/LubeLogger)
+
+Alternatively, you can also donate on [Stripe](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
 
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintainence.
