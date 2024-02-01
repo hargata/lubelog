@@ -10,6 +10,12 @@
             {
                 <span onclick="filterGarage(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
         </div>
     </div>
 }

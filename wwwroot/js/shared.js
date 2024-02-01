@@ -139,8 +139,14 @@ function initDatePicker(input, futureOnly) {
         });
     }
 }
-function initTagSelector(input) {
-    input.tagsinput();
+function initTagSelector(input, noDataList) {
+    if (noDataList) {
+        input.tagsinput({
+            useDataList: false
+        });
+    } else {
+        input.tagsinput();
+    }
 }
 
 function showMobileNav() {
