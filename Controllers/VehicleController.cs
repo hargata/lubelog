@@ -608,6 +608,15 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.DeleteGasRecordById(gasRecordId);
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult SaveUserGasTabPreferences(string gasUnit, string fuelMileageUnit)
+        {
+            var currentConfig = _config.GetUserConfig(User);
+            currentConfig.PreferredGasUnit = gasUnit;
+            currentConfig.PreferredGasMileageUnit = fuelMileageUnit;
+            var result = _config.SaveUserConfig(User, currentConfig);
+            return Json(result);
+        }
         #endregion
         #region "Service Records"
         [TypeFilter(typeof(CollaboratorFilter))]
