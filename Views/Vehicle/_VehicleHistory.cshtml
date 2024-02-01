@@ -2,28 +2,6 @@
 @inject IConfigHelper config
 @{
     var hideZero = config.GetUserConfig(User).HideZero;
-    var useMPG = config.GetUserConfig(User).UseMPG;
-    var useUKMPG = config.GetUserConfig(User).UseUKMPG;
-    var useKwh = Model.VehicleData.IsElectric;
-    var useHours = Model.VehicleData.UseHours;
-    string fuelEconomyUnit;
-    if (useKwh)
-    {
-        var distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
-        fuelEconomyUnit = useMPG ? $"{distanceUnit}/kWh" : $"kWh/100{distanceUnit}";
-    }
-    else if (useMPG && useUKMPG)
-    {
-        fuelEconomyUnit = useHours ? "h/g" : "mpg";
-    }
-    else if (useUKMPG)
-    {
-        fuelEconomyUnit = useHours ? "l/100h" : "l/100mi.";
-    }
-    else
-    {
-        fuelEconomyUnit = useHours ? (useMPG ? "h/g" : "l/100h") : (useMPG ? "mpg" : "l/100km");
-    }
 }
 @model VehicleHistoryViewModel
 <div class="vehicleDetailTabContainer">
@@ -58,7 +36,7 @@
         <div class="col-6">
             <ul class="list-group">
                 <li class="list-group-item">Last Reported Odometer Reading: @Model.Odometer</li>
-                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG} {fuelEconomyUnit}")</li>
+                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG}")</li>
                 <li class="list-group-item">Total Spent(excl. fuel): @Model.TotalCost.ToString("C")</li>
                 <li class="list-group-item">Total Spent on Fuel: @Model.TotalGasCost.ToString("C")</li>
             </ul>

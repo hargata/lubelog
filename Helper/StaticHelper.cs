@@ -140,5 +140,28 @@ namespace CarCareTracker.Helper
                 Notes = input.Notes
             };
         }
+
+        public static string GetFuelEconomyUnit(bool useKwh, bool useHours, bool useMPG, bool useUKMPG)
+        {
+            string fuelEconomyUnit;
+            if (useKwh)
+            {
+                var distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
+                fuelEconomyUnit = useMPG ? $"{distanceUnit}/kWh" : $"kWh/100{distanceUnit}";
+            }
+            else if (useMPG && useUKMPG)
+            {
+                fuelEconomyUnit = useHours ? "h/g" : "mpg";
+            }
+            else if (useUKMPG)
+            {
+                fuelEconomyUnit = useHours ? "l/100h" : "l/100mi.";
+            }
+            else
+            {
+                fuelEconomyUnit = useHours ? (useMPG ? "h/g" : "l/100h") : (useMPG ? "mpg" : "l/100km");
+            }
+            return fuelEconomyUnit;
+        }
     }
 }
