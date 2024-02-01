@@ -7,6 +7,8 @@
     </div>
     <hr />
     <div class="col-12 col-md-6">
+        <input id="preferredGasUnit" style="display:none;" value="@Model.PreferredGasUnit"/>
+        <input id="preferredFuelMileageUnit" style="display:none;" value="@Model.PreferredGasMileageUnit" />
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UseDarkMode">
             <label class="form-check-label" for="enableDarkMode">Dark Mode</label>
@@ -219,6 +221,8 @@
             useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
             enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
             enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+            preferredGasUnit: $("#preferredGasUnit").val(),
+            preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
             visibleTabs: visibleTabs,
             defaultTab: defaultTab
         }
