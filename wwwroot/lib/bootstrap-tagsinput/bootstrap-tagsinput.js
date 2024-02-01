@@ -34,18 +34,22 @@
    */
   function TagsInput(element, options) {
     this.itemsArray = [];
-
     this.$element = $(element);
     this.$element.hide();
-
+    
     this.isSelect = (element.tagName === 'SELECT');
     this.multiple = (this.isSelect && element.hasAttribute('multiple'));
     this.objectItems = options && options.itemValue;
     this.placeholderText = element.hasAttribute('placeholder') ? this.$element.attr('placeholder') : '';
     this.inputSize = Math.max(1, this.placeholderText.length);
 
+      var useDataList = true;
+      if (options != undefined && !options.useDataList) {
+          useDataList = false;
+      }
+
     this.$container = $('<div class="form-control bootstrap-tagsinput"></div>');
-    this.$input = $('<input type="text" placeholder="' + this.placeholderText + '"/>').appendTo(this.$container);
+      this.$input = $(`<input type="text" ${!useDataList ? "" : "list='tagList'"}placeholder="` + this.placeholderText + '"/>').appendTo(this.$container);
 
     this.$element.before(this.$container);
 
@@ -421,6 +425,32 @@
             size = textLength + wordSpace + 1;
         $input.attr('size', Math.max(this.inputSize, $input.val().length));
       }, self));
+
+        self.$container.on('input', 'input', $.proxy(function (event) {
+            if (event.originalEvent.data == undefined) {
+                var $input = $(event.target);
+                var text = $input.val(),
+                    maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
+                if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
+                    //check if confirm keys are in input and then replace them.
+                    text = text.replace(String.fromCharCode(event.which), "")
+                    // Only attempt to add a tag if there is data in the field
+                    if (text.length !== 0) {
+                        self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
+                        $input.val('');
+                    }
+
+                    // If the field is empty, let the event triggered fire as usual
+                    if (self.options.cancelConfirmKeysOnEmpty === false) {
+                        event.preventDefault();
+                    }
+                }
+                var textLength = $input.val().length,
+                    wordSpace = Math.ceil(textLength / 5),
+                    size = textLength + wordSpace + 1;
+                $input.attr('size', Math.max(this.inputSize, $input.val().length));
+            };
+        }));
 
       self.$container.on('keypress', 'input', $.proxy(function(event) {
          var $input = $(event.target);

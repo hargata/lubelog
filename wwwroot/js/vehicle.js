@@ -214,7 +214,7 @@ function editVehicle(vehicleId) {
     $.get(`/Vehicle/GetEditVehiclePartialViewById?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#editVehicleModalContent").html(data);
-            initTagSelector($("#inputTag"));
+            initTagSelector($("#inputTag"), true);
             $('#editVehicleModal').modal('show');
         }
     });
