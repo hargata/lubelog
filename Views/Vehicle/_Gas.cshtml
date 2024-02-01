@@ -124,10 +124,10 @@
 <script>
     @if (!string.IsNullOrWhiteSpace(preferredFuelEconomyUnit))
     {
-        @:convertFuelMileageUnits(decodeHTMLEntities('@fuelEconomyUnit'), decodeHTMLEntities('@preferredFuelEconomyUnit'));
+        @:convertFuelMileageUnits(decodeHTMLEntities('@fuelEconomyUnit'), decodeHTMLEntities('@preferredFuelEconomyUnit'), false);
     }
         @if (!string.IsNullOrWhiteSpace(preferredGasUnit))
         {
-        @:convertGasConsumptionUnits(decodeHTMLEntities('@consumptionUnit'), decodeHTMLEntities('@preferredGasUnit'));
+        @:convertGasConsumptionUnits(decodeHTMLEntities('@consumptionUnit'), decodeHTMLEntities('@preferredGasUnit'), false);
     }
 </script>

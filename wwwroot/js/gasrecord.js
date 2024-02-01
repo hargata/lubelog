@@ -144,7 +144,7 @@ function saveUserGasTabPreferences() {
     });
 }
 
-function convertGasConsumptionUnits(currentUnit, destinationUnit) {
+function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
     var sender = $("[data-gas='consumption']");
     if (currentUnit == "US gal") {
         switch (destinationUnit) {
@@ -160,7 +160,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
@@ -174,7 +174,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     } else if (currentUnit == "l") {
@@ -191,7 +191,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
@@ -205,7 +205,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     } else if (currentUnit == "imp gal") {
@@ -222,7 +222,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "l":
                 $("[data-gas-type='consumption']").map((index, elem) => {
@@ -236,13 +236,13 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit) {
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     }
 }
 
-function convertFuelMileageUnits(currentUnit, destinationUnit) {
+function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
     var sender = $("[data-gas='fueleconomy']");
     if (currentUnit == "l/100km") {
         switch (destinationUnit) {
@@ -272,7 +272,7 @@ function convertFuelMileageUnits(currentUnit, destinationUnit) {
                     sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
                     sender.attr("data-unit", "km/l");
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     } else if (currentUnit == "km/l") {
@@ -302,7 +302,7 @@ function convertFuelMileageUnits(currentUnit, destinationUnit) {
                     sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
                     sender.attr("data-unit", "l/100km");
                 });
-                setDebounce(saveUserGasTabPreferences);
+                if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     }
@@ -315,22 +315,22 @@ function toggleUnits(sender) {
     if (sender.attr("data-gas") == "consumption") {
         switch (sender.attr("data-unit")) {
             case "US gal":
-                convertGasConsumptionUnits("US gal", "l");
+                convertGasConsumptionUnits("US gal", "l", true);
                 break;
             case "l":
-                convertGasConsumptionUnits("l", "imp gal");
+                convertGasConsumptionUnits("l", "imp gal", true);
                 break;
             case "imp gal":
-                convertGasConsumptionUnits("imp gal", "US gal");
+                convertGasConsumptionUnits("imp gal", "US gal", true);
                 break;
         }
     } else if (sender.attr("data-gas") == "fueleconomy") {
         switch (sender.attr("data-unit")) {
             case "l/100km":
-                convertFuelMileageUnits("l/100km", "km/l");
+                convertFuelMileageUnits("l/100km", "km/l", true);
                 break;
             case "km/l":
-                convertFuelMileageUnits("km/l", "l/100km");
+                convertFuelMileageUnits("km/l", "l/100km", true);
                 break;
         }
     }
