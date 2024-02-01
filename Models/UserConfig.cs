@@ -13,6 +13,8 @@
         public bool UseMarkDownOnSavedNotes { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
+        public string PreferredGasUnit { get; set; } = string.Empty;
+        public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
         public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 

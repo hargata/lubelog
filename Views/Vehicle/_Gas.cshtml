@@ -12,6 +12,8 @@
     var gasCostFormat = useThreeDecimals ? "C3" : "C2";
     var useKwh = Model.UseKwh;
     var useHours = Model.UseHours;
+    string preferredFuelEconomyUnit = userConfig.PreferredGasMileageUnit;
+    string preferredGasUnit = userConfig.PreferredGasUnit;
     string consumptionUnit;
     string fuelEconomyUnit;
     string distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
@@ -118,3 +120,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    @if (!string.IsNullOrWhiteSpace(preferredFuelEconomyUnit))
+    {
+        @:convertFuelMileageUnits(decodeHTMLEntities('@fuelEconomyUnit'), decodeHTMLEntities('@preferredFuelEconomyUnit'));
+    }
+        @if (!string.IsNullOrWhiteSpace(preferredGasUnit))
+        {
+        @:convertGasConsumptionUnits(decodeHTMLEntities('@consumptionUnit'), decodeHTMLEntities('@preferredGasUnit'));
+    }
+</script>

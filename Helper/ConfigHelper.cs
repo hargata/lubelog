@@ -108,6 +108,8 @@ namespace CarCareTracker.Helper
                 UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
                 EnableAutoReminderRefresh = bool.Parse(_config[nameof(UserConfig.EnableAutoReminderRefresh)]),
                 EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),
+                PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
+                PreferredGasUnit = _config[nameof(UserConfig.PreferredGasUnit)],
                 VisibleTabs = _config.GetSection("VisibleTabs").Get<List<ImportMode>>(),
                 DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)])
             };
