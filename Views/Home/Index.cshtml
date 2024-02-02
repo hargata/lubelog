@@ -45,7 +45,7 @@
     <hr />
     <ul class="nav nav-tabs lubelogger-tab" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link @(Model == "garage" ? "active" : "")" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
+            <button class="nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
         </li>
         <li class="nav-item ms-auto" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>

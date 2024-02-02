@@ -20,14 +20,14 @@
     </div>
 }
 <div class="row">
-    <div class="row gy-3 align-items-stretch">
+    <div class="row gy-3 align-items-stretch vehiclesContainer">
         @foreach (Vehicle vehicle in Model)
         {
             <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4 user-select-none garage-item" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
                 <div class="card" onclick="viewVehicle(@vehicle.Id)">
                     <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down;" />
                     <div class="card-body">
-                        <h5 class="card-title text-truncate">@($"{vehicle.Year}")</h5>
+                        <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
                         <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
                         <h5 class="card-title text-truncate">@($"{vehicle.Model}")</h5>
                         <p class="card-text text-truncate">@vehicle.LicensePlate</p>
@@ -35,7 +35,7 @@
                 </div>
             </div>
         }
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4">
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-4 col-4 garage-item-add">
             <div class="card" onclick="showAddVehicleModal()" style="height:100%;">
                 <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;" />
             </div>

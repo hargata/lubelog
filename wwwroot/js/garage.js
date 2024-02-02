@@ -61,13 +61,22 @@ function hidePinnedNotes(vehicleId) {
     }
 }
 
-function filterGarage(sender) {
-    var tagName = sender.textContent;
+function filterGarage(sender, isSort) {
     var rowData = $(".garage-item");
+    if (sender == undefined) {
+        rowData.removeClass('override-hide');
+        return;
+    }
+    var tagName = sender.textContent;
     if ($(sender).hasClass("bg-primary")) {
+        if (!isSort) {
             rowData.removeClass('override-hide');
             $(sender).removeClass('bg-primary');
             $(sender).addClass('bg-secondary');
+        } else {
+            rowData.addClass('override-hide');
+            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        }
     } else {
         //hide table rows.
         rowData.addClass('override-hide');
@@ -79,5 +88,64 @@ function filterGarage(sender) {
         }
         $(sender).addClass('bg-primary');
         $(sender).removeClass('bg-secondary');
+    }
+}
+function sortVehicles(desc) {
+    //get row data
+    var rowData = $('.garage-item');
+    var sortedRow = rowData.toArray().sort((a, b) => {
+        var currentVal = globalParseFloat($(a).find(".garage-item-year").attr('data-unit'));
+        var nextVal = globalParseFloat($(b).find(".garage-item-year").attr('data-unit'));
+        if (desc) {
+            return nextVal - currentVal;
+        } else {
+            return currentVal - nextVal;
+        }
+    });
+    sortedRow.push($('.garage-item-add'))
+    $('.vehiclesContainer').html(sortedRow);
+}
+function sortGarage(sender) {
+    event.preventDefault();
+    sender = $(sender);
+    if (sender.hasClass("active")) {
+        //do sorting only if garage is the active tab.
+        var sortColumn = sender.text();
+        var garageIcon = '<i class="bi bi-car-front me-2"></i>';
+        var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
+        var sortDescIcon = '<i class="bi bi-sort-numeric-down-alt ms-2"></i>';
+        if (sender.hasClass('sort-asc')) {
+            sender.removeClass('sort-asc');
+            sender.addClass('sort-desc');
+            sender.html(`${garageIcon}${sortColumn}${sortDescIcon}`);
+            sortVehicles(true);
+        } else if (sender.hasClass('sort-desc')) {
+            //restore table
+            sender.removeClass('sort-desc');
+            sender.html(`${garageIcon}${sortColumn}`);
+            $('.vehiclesContainer').html(storedTableRowState);
+            filterGarage($(".tagfilter.bg-primary").get(0), true);
+        } else {
+            //first time sorting.
+            //check if table was sorted before by a different column(only relevant to fuel tab)
+            if (storedTableRowState != null && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
+                //restore table state.
+                $('.vehiclesContainer').html(storedTableRowState);
+                //reset other sorted columns
+                if ($(".sort-asc").length > 0) {
+                    $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
+                    $(".sort-asc").removeClass("sort-asc");
+                }
+                if ($(".sort-desc").length > 0) {
+                    $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
+                    $(".sort-desc").removeClass("sort-desc");
+                }
+            }
+            sender.addClass('sort-asc');
+            sender.html(`${garageIcon}${sortColumn}${sortAscIcon}`);
+            storedTableRowState = null;
+            storedTableRowState = $('.vehiclesContainer').html();
+            sortVehicles(false);
+        }
     }
 }
