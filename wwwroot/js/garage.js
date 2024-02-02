@@ -109,9 +109,10 @@ function sortVehicles(desc) {
 var touchtimer;
 var touchduration = 800;
 function detectLongTouch(sender) {
-    event.preventDefault();
-    if (!touchtimer) {
-        touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
+    if ($(sender).hasClass("active")) {
+        if (!touchtimer) {
+            touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
+        }
     }
 }
 function detectTouchEndPremature(sender) {
