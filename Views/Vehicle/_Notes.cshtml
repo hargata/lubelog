@@ -5,7 +5,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Notes: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Notes: {Model.Count()}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('notes-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -47,7 +47,7 @@
                         {
                             <td class="col-3">@note.Description</td>
                         }
-                        <td class="col-9 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-9 text-truncate" data-record-type="cost">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
             </tbody>

@@ -244,14 +244,17 @@ function filterTable(tabName, sender, isSort) {
             rowData.removeClass('override-hide');
             $(sender).removeClass('bg-primary');
             $(sender).addClass('bg-secondary');
+            updateAggregateLabels();
         } else {
             rowData.addClass('override-hide');
             $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+            updateAggregateLabels();
         }
     } else {
         //hide table rows.
         rowData.addClass('override-hide');
         $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        updateAggregateLabels();
         if ($(".tagfilter.bg-primary").length > 0) {
             //disabling other filters
             $(".tagfilter.bg-primary").addClass('bg-secondary');
@@ -260,4 +263,17 @@ function filterTable(tabName, sender, isSort) {
         $(sender).addClass('bg-primary');
         $(sender).removeClass('bg-secondary');
     }
+}
+
+function updateAggregateLabels() {
+    //Sum
+    var sumLabel = $("[data-aggregate-type='sum']");
+    if (sumLabel.length > 0) {
+        var newSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
+        sumLabel.text(`${sumLabel.text().split(':')[0]}: ${getGlobalConfig().currencySymbol}${newSum}`)
+    }
+    //Count
+    var newCount = $("[data-record-type='cost']").parent(":not('.override-hide')").length;
+    var countLabel = $("[data-aggregate-type='count']");
+    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`)
 }

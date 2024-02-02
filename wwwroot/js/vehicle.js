@@ -72,7 +72,7 @@ $(document).ready(function () {
                 $("#plan-tab-pane").html("");
                 break;
             case "odometer-tab":
-                $("odometer-tab-pane").html("");
+                $("#odometer-tab-pane").html("");
                 break;
         }
     });
