@@ -4,6 +4,7 @@
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#gasRecordDate'));
+            initTagSelector($("#gasRecordTag"));
             $('#gasRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditGasRecordModal(gasRecordId) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#gasRecordDate'));
+            initTagSelector($("#gasRecordTag"));
             $('#gasRecordModal').modal('show');
             $('#gasRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -80,6 +82,7 @@ function getAndValidateGasRecordValues() {
     var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     var gasIsMissed = $("#gasIsMissed").is(":checked");
     var gasNotes = $("#gasRecordNotes").val();
+    var gasTags = $("#gasRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //validation
@@ -128,6 +131,7 @@ function getAndValidateGasRecordValues() {
         gallons: gasGallons,
         cost: gasCost,
         files: uploadedFiles,
+        tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
         notes: gasNotes
