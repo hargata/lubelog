@@ -1,8 +1,21 @@
 ﻿@model List<Note>
+@{
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+}
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success">@($"# of Notes: {Model.Count()}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('notes-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
         </div>
         <div>
                 <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Note</button>
@@ -26,7 +39,7 @@
             <tbody>
                 @foreach (Note note in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditNoteModal(@note.Id)">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditNoteModal(@note.Id)" data-tags='@string.Join(" ", note.Tags)'>
                         @if (note.Pinned)
                         {
                             <td class="col-3"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>

@@ -23,6 +23,15 @@
                     <label for="noteTextArea">Notes<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
                 </div>
+                <div class="col-12">
+                    <label for="noteRecordTag">Tags(optional)</label>
+                    <select multiple class="form-select" id="noteRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
+                </div>
             </div>
         </div>
     </form>

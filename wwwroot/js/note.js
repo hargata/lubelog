@@ -2,6 +2,7 @@
     $.get('/Vehicle/GetAddNotePartialView', function (data) {
         if (data) {
             $("#noteModalContent").html(data);
+            initTagSelector($("#noteRecordTag"));
             $('#noteModal').modal('show');
         }
     });
@@ -10,6 +11,7 @@ function showEditNoteModal(noteId) {
     $.get(`/Vehicle/GetNoteForEditById?noteId=${noteId}`, function (data) {
         if (data) {
             $("#noteModalContent").html(data);
+            initTagSelector($("#noteRecordTag"));
             $('#noteModal').modal('show');
             $('#noteModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -73,6 +75,7 @@ function getAndValidateNoteValues() {
     var vehicleId = GetVehicleId().vehicleId;
     var noteId = getNoteModelData().id;
     var noteIsPinned = $("#noteIsPinned").is(":checked");
+    var noteTags = $("#noteRecordTag").val();
     //validation
     var hasError = false;
     if (noteDescription.trim() == '') { //eliminates whitespace.
@@ -93,6 +96,7 @@ function getAndValidateNoteValues() {
         vehicleId: vehicleId,
         description: noteDescription,
         noteText: noteText,
-        pinned: noteIsPinned
+        pinned: noteIsPinned,
+        tags: noteTags
     }
 }

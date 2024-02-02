@@ -4,6 +4,7 @@
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#taxRecordDate'));
+            initTagSelector($("#taxRecordTag"));
             $('#taxRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditTaxRecordModal(taxRecordId) {
             $("#taxRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#taxRecordDate'));
+            initTagSelector($("#taxRecordTag"));
             $('#taxRecordModal').modal('show');
             $('#taxRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -91,6 +93,7 @@ function getAndValidateTaxRecordValues() {
     var taxRecordId = getTaxRecordModelData().id;
     var taxIsRecurring = $("#taxIsRecurring").is(":checked");
     var taxRecurringMonth = $("#taxRecurringMonth").val();
+    var taxTags = $("#taxRecordTag").val();
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
@@ -122,6 +125,7 @@ function getAndValidateTaxRecordValues() {
         notes: taxNotes,
         isRecurring: taxIsRecurring,
         recurringInterval: taxRecurringMonth,
+        tags: taxTags,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord
     }

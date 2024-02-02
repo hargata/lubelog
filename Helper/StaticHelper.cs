@@ -111,7 +111,8 @@ namespace CarCareTracker.Helper
                 Cost = input.Cost,
                 Mileage = input.Mileage,
                 Files = input.Files,
-                Notes = input.Notes
+                Notes = input.Notes,
+                Tags = input.Tags
             };
         }
         public static CollisionRecord GenericToRepairRecord(GenericRecord input)
@@ -124,7 +125,8 @@ namespace CarCareTracker.Helper
                 Cost = input.Cost,
                 Mileage = input.Mileage,
                 Files = input.Files,
-                Notes = input.Notes
+                Notes = input.Notes,
+                Tags = input.Tags
             };
         }
         public static UpgradeRecord GenericToUpgradeRecord(GenericRecord input)
@@ -137,7 +139,8 @@ namespace CarCareTracker.Helper
                 Cost = input.Cost,
                 Mileage = input.Mileage,
                 Files = input.Files,
-                Notes = input.Notes
+                Notes = input.Notes,
+                Tags = input.Tags
             };
         }
 

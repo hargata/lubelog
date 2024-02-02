@@ -21,6 +21,13 @@
                     <input type="text" id="taxRecordDescription" class="form-control" placeholder="Description of tax paid(i.e. Registration)" value="@Model.Description">
                     <label for="taxRecordCost">Cost</label>
                     <input type="text" id="taxRecordCost" class="form-control" placeholder="Cost of tax paid" value="@(isNew? "" : Model.Cost)">
+                    <label for="taxRecordTag">Tags(optional)</label>
+                    <select multiple class="form-select" id="taxRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="taxRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

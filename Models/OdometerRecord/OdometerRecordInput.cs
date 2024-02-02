@@ -8,6 +8,7 @@
         public int Mileage { get; set; }
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
-        public OdometerRecord ToOdometerRecord() { return new OdometerRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Mileage = Mileage, Notes = Notes, Files = Files }; }
+        public List<string> Tags { get; set; } = new List<string>();
+        public OdometerRecord ToOdometerRecord() { return new OdometerRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Mileage = Mileage, Notes = Notes, Files = Files, Tags = Tags }; }
     }
 }
