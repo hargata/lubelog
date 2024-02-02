@@ -4,6 +4,7 @@
             $("#odometerRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#odometerRecordDate'));
+            initTagSelector($("#odometerRecordTag"));
             $('#odometerRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditOdometerRecordModal(odometerRecordId) {
             $("#odometerRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#odometerRecordDate'));
+            initTagSelector($("#odometerRecordTag"));
             $('#odometerRecordModal').modal('show');
             $('#odometerRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -78,6 +80,7 @@ function getAndValidateOdometerRecordValues() {
     var serviceDate = $("#odometerRecordDate").val();
     var serviceMileage = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
     var serviceNotes = $("#odometerRecordNotes").val();
+    var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var odometerRecordId = getOdometerRecordModelData().id;
     //validation
@@ -101,6 +104,7 @@ function getAndValidateOdometerRecordValues() {
         date: serviceDate,
         mileage: serviceMileage,
         notes: serviceNotes,
+        tags: serviceTags,
         files: uploadedFiles
     }
 }

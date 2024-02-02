@@ -11,6 +11,7 @@
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.ThreeMonths;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<string> Tags { get; set; } = new List<string>();
         public TaxRecord ToTaxRecord() { return new TaxRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
@@ -20,6 +21,8 @@
             Notes = Notes, 
             IsRecurring = IsRecurring,
             RecurringInterval = RecurringInterval,
-            Files = Files }; }
+            Files = Files,
+            Tags = Tags
+        }; }
     }
 }

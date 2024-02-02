@@ -7,5 +7,6 @@
         public string Description { get; set; }
         public string NoteText { get; set; }
         public bool Pinned { get; set; }
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

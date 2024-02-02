@@ -795,7 +795,8 @@ namespace CarCareTracker.Controllers
                             IsRecurring = true,
                             Notes = recurringFee.Notes,
                             RecurringInterval = recurringFee.RecurringInterval,
-                            Files = recurringFee.Files
+                            Files = recurringFee.Files,
+                            Tags = recurringFee.Tags
                         };
                         _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
                         _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
@@ -831,7 +832,8 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 IsRecurring = result.IsRecurring,
                 RecurringInterval = result.RecurringInterval,
-                Files = result.Files
+                Files = result.Files,
+                Tags = result.Tags
             };
             return PartialView("_TaxRecordModal", convertedResult);
         }
@@ -1711,7 +1713,8 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
-                Files = result.Files
+                Files = result.Files,
+                Tags = result.Tags
             };
             return PartialView("_OdometerRecordModal", convertedResult);
         }

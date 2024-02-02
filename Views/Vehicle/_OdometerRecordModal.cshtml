@@ -19,6 +19,13 @@
                     </div>
                     <label for="odometerRecordMileage">Odometer</label>
                     <input type="number" id="odometerRecordMileage" class="form-control" placeholder="Odometer reading" value="@(isNew ? "" : Model.Mileage)">
+                    <label for="odometerRecordTag">Tags(optional)</label>
+                    <select multiple class="form-select" id="odometerRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="odometerRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
