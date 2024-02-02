@@ -105,8 +105,27 @@ function sortVehicles(desc) {
     sortedRow.push($('.garage-item-add'))
     $('.vehiclesContainer').html(sortedRow);
 }
-function sortGarage(sender) {
-    event.preventDefault();
+
+var touchtimer;
+var touchduration = 800;
+function detectLongTouch(sender) {
+    if ($(sender).hasClass("active")) {
+        if (!touchtimer) {
+            touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
+        }
+    }
+}
+function detectTouchEndPremature(sender) {
+    if (touchtimer) {
+        clearTimeout(touchtimer);
+        touchtimer = null;
+    }
+}
+
+function sortGarage(sender, isMobile) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
     sender = $(sender);
     if (sender.hasClass("active")) {
         //do sorting only if garage is the active tab.
@@ -117,12 +136,12 @@ function sortGarage(sender) {
         if (sender.hasClass('sort-asc')) {
             sender.removeClass('sort-asc');
             sender.addClass('sort-desc');
-            sender.html(`${garageIcon}${sortColumn}${sortDescIcon}`);
+            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortDescIcon}</span>` : `${garageIcon}${sortColumn}${sortDescIcon}`);
             sortVehicles(true);
         } else if (sender.hasClass('sort-desc')) {
             //restore table
             sender.removeClass('sort-desc');
-            sender.html(`${garageIcon}${sortColumn}`);
+            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}</span>` : `${garageIcon}${sortColumn}`);
             $('.vehiclesContainer').html(storedTableRowState);
             filterGarage($(".tagfilter.bg-primary").get(0), true);
         } else {
@@ -142,7 +161,7 @@ function sortGarage(sender) {
                 }
             }
             sender.addClass('sort-asc');
-            sender.html(`${garageIcon}${sortColumn}${sortAscIcon}`);
+            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
             storedTableRowState = null;
             storedTableRowState = $('.vehiclesContainer').html();
             sortVehicles(false);
