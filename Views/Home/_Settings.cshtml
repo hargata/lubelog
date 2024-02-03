@@ -1,9 +1,13 @@
 ﻿@using CarCareTracker.Helper
 @model UserConfig
+@inject ITranslationHelper translator
+@{
+    var userLanguage = Model.UserLanguage;
+}
 
 <div class="row">
     <div class="d-flex justify-content-center">
-        <h6 class="display-6 mt-2">Settings</h6>
+        <h6 class="display-6 mt-2">@translator.Translate(userLanguage,"Settings")</h6>
     </div>
     <hr />
     <div class="col-12 col-md-6">
@@ -11,82 +15,82 @@
         <input id="preferredFuelMileageUnit" style="display:none;" value="@Model.PreferredGasMileageUnit" />
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UseDarkMode">
-            <label class="form-check-label" for="enableDarkMode">Dark Mode</label>
+            <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage,"Dark Mode")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.EnableCsvImports">
-            <label class="form-check-label" for="enableCsvImports">Enable CSV Imports</label>
+            <label class="form-check-label" for="enableCsvImports">@translator.Translate(userLanguage,"Enable CSV Imports")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UseMPG">
-            <label class="form-check-label" for="useMPG">Use Imperial Calculation for Fuel Economy Calculations(MPG)<br /><small class="text-body-secondary">This Will Also Change Units to Miles and Gallons</small></label>
+            <label class="form-check-label" for="useMPG">@translator.Translate(userLanguage,"Use Imperial Calculation for Fuel Economy Calculations(MPG)")<br /><small class="text-body-secondary">@translator.Translate(userLanguage,"This Will Also Change Units to Miles and Gallons")</small></label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UseUKMPG">
-            <label class="form-check-label" for="useUKMPG">Use UK MPG Calculation<br /><small class="text-body-secondary">Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation</small></label>
+            <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage,"Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UseDescending">
-            <label class="form-check-label" for="useDescending">Sort lists in Descending Order(Newest to Oldest)</label>
+            <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage,"Sort lists in Descending Order(Newest to Oldest)")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideZero" checked="@Model.HideZero">
-            <label class="form-check-label" for="hideZero">Replace @(0.ToString("C")) Costs with ---</label>
+            <label class="form-check-label" for="hideZero">@translator.Translate(userLanguage,"Replace $0.00 Costs with ---")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimal" checked="@Model.UseThreeDecimalGasCost">
-            <label class="form-check-label" for="useThreeDecimal">Use Three Decimals For Fuel Cost</label>
+            <label class="form-check-label" for="useThreeDecimal">@translator.Translate(userLanguage,"Use Three Decimals For Fuel Cost")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UseMarkDownOnSavedNotes">
-            <label class="form-check-label" for="useMarkDownOnSavedNotes">Display Saved Notes in Markdown</label>
+            <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage,"Display Saved Notes in Markdown")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.EnableAutoReminderRefresh">
-            <label class="form-check-label" for="enableAutoReminderRefresh">Auto Refresh Lapsed Recurring Reminders</label>
+            <label class="form-check-label" for="enableAutoReminderRefresh">@translator.Translate(userLanguage,"Auto Refresh Lapsed Recurring Reminders")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.EnableAutoOdometerInsert">
-            <label class="form-check-label" for="enableAutoOdometerInsert">Auto Insert Odometer Records<br /><small class="text-body-secondary">Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan</small></label>
+            <label class="form-check-label" for="enableAutoOdometerInsert">@translator.Translate(userLanguage,"Auto Insert Odometer Records")<br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
             <div class="form-check form-switch">
                 <input class="form-check-input" onChange="enableAuthCheckChanged()" type="checkbox" role="switch" id="enableAuth" checked="@Model.EnableAuth">
-                <label class="form-check-label" for="enableAuth">Enable Authentication</label>
+                <label class="form-check-label" for="enableAuth">@translator.Translate(userLanguage,"Enable Authentication")</label>
             </div>
         }
     </div>
     <div class="col-12 col-md-6">
         <div class="row" id="visibleTabs">
             <div class="col-12">
-                <span class="lead">Visible Tabs</span>
+                <span class="lead">@translator.Translate(userLanguage,"Visible Tabs")</span>
             </div>
             <div class="col-12 col-md-6">
                 <ul class="list-group">
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="serviceRecordTab">Service Records</label>
+                        <label class="form-check-label stretched-link" for="serviceRecordTab">@translator.Translate(userLanguage,"Service Records")</label>
                     </li>
                     <li class="list-group-item d-none">
                         <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="dashboardTab">Dashboard</label>
+                        <label class="form-check-label stretched-link" for="dashboardTab">@translator.Translate(userLanguage,"Dashboard")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="repairRecordTab">Repairs</label>
+                        <label class="form-check-label stretched-link" for="repairRecordTab">@translator.Translate(userLanguage,"Repairs")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="UpgradeRecord" id="upgradeRecordTab" @(Model.VisibleTabs.Contains(ImportMode.UpgradeRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="upgradeRecordTab">Upgrades</label>
+                        <label class="form-check-label stretched-link" for="upgradeRecordTab">@translator.Translate(userLanguage,"Upgrades")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="GasRecord" id="gasRecordTab" @(Model.VisibleTabs.Contains(ImportMode.GasRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="gasRecordTab">Fuel</label>
+                        <label class="form-check-label stretched-link" for="gasRecordTab">@translator.Translate(userLanguage,"Fuel")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="OdometerRecord" id="odometerRecordTab" @(Model.VisibleTabs.Contains(ImportMode.OdometerRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="odometerRecordTab">Odometer</label>
+                        <label class="form-check-label stretched-link" for="odometerRecordTab">@translator.Translate(userLanguage,"Odometer")</label>
                     </li>
                 </ul>
             </div>
@@ -94,55 +98,55 @@
                 <ul class="list-group">
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="TaxRecord" id="taxRecordTab" @(Model.VisibleTabs.Contains(ImportMode.TaxRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="taxRecordTab">Taxes</label>
+                        <label class="form-check-label stretched-link" for="taxRecordTab">@translator.Translate(userLanguage,"Taxes")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="NoteRecord" id="noteRecordTab" @(Model.VisibleTabs.Contains(ImportMode.NoteRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="noteRecordTab">Notes</label>
+                        <label class="form-check-label stretched-link" for="noteRecordTab">@translator.Translate(userLanguage,"Notes")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ReminderRecord" id="reminderRecordTab" @(Model.VisibleTabs.Contains(ImportMode.ReminderRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="reminderRecordTab">Reminder</label>
+                        <label class="form-check-label stretched-link" for="reminderRecordTab">@translator.Translate(userLanguage,"Reminder")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="SupplyRecord" id="supplyRecordTab" @(Model.VisibleTabs.Contains(ImportMode.SupplyRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="supplyRecordTab">Supplies</label>
+                        <label class="form-check-label stretched-link" for="supplyRecordTab">@translator.Translate(userLanguage,"Supplies")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="PlanRecord" id="planRecordTab" @(Model.VisibleTabs.Contains(ImportMode.PlanRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="planRecordTab">Planner</label>
+                        <label class="form-check-label stretched-link" for="planRecordTab">@translator.Translate(userLanguage,"Planner")</label>
                     </li>
                 </ul>
             </div>
         </div>
        <div class="row">
             <div class="col-12 col-md-6">
-                <span class="lead">Default Tab</span>
+                <span class="lead">@translator.Translate(userLanguage,"Default Tab")</span>
                 <select class="form-select" onchange="updateSettings()" id="defaultTab">
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.Dashboard)) value="Dashboard">Dashboard</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model,ImportMode.ServiceRecord)) value="ServiceRecord">Service Record</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.RepairRecord)) value="RepairRecord">Repairs</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.UpgradeRecord)) value="UpgradeRecord">Upgrades</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.GasRecord)) value="GasRecord">Fuel</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">Tax</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">Notes</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">Reminders</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">Supplies</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.PlanRecord)) value="PlanRecord">Planner</!option>
-                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.OdometerRecord)) value="OdometerRecord">Odometer</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.Dashboard)) value="Dashboard">@translator.Translate(userLanguage,"Dashboard")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model,ImportMode.ServiceRecord)) value="ServiceRecord">@translator.Translate(userLanguage,"Service Record")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.RepairRecord)) value="RepairRecord">@translator.Translate(userLanguage,"Repairs")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.UpgradeRecord)) value="UpgradeRecord">@translator.Translate(userLanguage,"Upgrades")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.GasRecord)) value="GasRecord">@translator.Translate(userLanguage,"Fuel")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.TaxRecord)) value="TaxRecord">@translator.Translate(userLanguage, "Tax")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.NoteRecord)) value="NoteRecord">@translator.Translate(userLanguage, "Notes")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.ReminderRecord)) value="ReminderRecord">@translator.Translate(userLanguage, "Reminders")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.SupplyRecord)) value="SupplyRecord">@translator.Translate(userLanguage, "Supplies")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.PlanRecord)) value="PlanRecord">@translator.Translate(userLanguage, "Planner")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model, ImportMode.OdometerRecord)) value="OdometerRecord">@translator.Translate(userLanguage, "Odometer")</!option>
                 </select>
             </div>
             @if (User.IsInRole(nameof(UserData.IsRootUser)))
             {
                 <div class="col-12 col-md-6">
-                    <span class="lead">Backups</span>
+                    <span class="lead">@translator.Translate(userLanguage, "Backups")</span>
                     <div class="row">
                         <div class="col-6 d-grid">
-                            <button onclick="makeBackup()" class="btn btn-primary btn-md">Make</button>
+                            <button onclick="makeBackup()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Make")</button>
                         </div>
                         <div class="col-6 d-grid">
                             <input onChange="restoreBackup(this)" type="file" accept=".zip" class="d-none" id="inputBackup">
-                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md">Restore</button>
+                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md">@translator.Translate(userLanguage, "Restore")</button>
                         </div>
                         </div>
                 </div> 
@@ -152,7 +156,7 @@
 </div>
 <div class="row">
     <div class="d-flex justify-content-center">
-        <h6 class="display-6 mt-2">About</h6>
+        <h6 class="display-6 mt-2">@translator.Translate(userLanguage, "About")</h6>
     </div>
     <hr />
     <div class="col-12 col-md-6">

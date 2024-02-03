@@ -17,6 +17,7 @@
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
+        public string UserLanguage { get; set; } = "en_US";
         public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 
             ImportMode.Dashboard,
             ImportMode.ServiceRecord, 

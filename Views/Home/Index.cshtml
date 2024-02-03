@@ -1,7 +1,10 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
-    var enableAuth = config.GetUserConfig(User).EnableAuth;
+    var userConfig = config.GetUserConfig(User);
+    var enableAuth = userConfig.EnableAuth;
+    var userLanguage = userConfig.UserLanguage;
     var logoUrl = config.GetLogoUrl();
 }
 @model string
@@ -14,21 +17,21 @@
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="navbar-nav" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link user-select-none @(Model == "garage" ? "active" : "")" ontouchstart="detectLongTouch(this)" ontouchend="detectTouchEndPremature(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>Garage</span></button>
+            <button class="nav-link user-select-none @(Model == "garage" ? "active" : "")" ontouchstart="detectLongTouch(this)" ontouchend="detectTouchEndPremature(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>Settings</span></button>
+            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth"))
         {
             @if (User.IsInRole(nameof(UserData.IsAdmin)))
             {
                 <li class="nav-item" role="presentation">
-                    <a class="dropdown-item" href="/Admin"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>Admin Panel</span></a>
+                    <a class="dropdown-item" href="/Admin"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</span></a>
                 </li>
             }
             <li class="nav-item" role="presentation">
-                <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>Logout</span></button>
+                <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage,"Logout")</span></button>
             </li>
         }
     </ul>
@@ -45,10 +48,10 @@
     <hr />
     <ul class="nav nav-tabs lubelogger-tab" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>Garage</button>
+            <button class="nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</button>
         </li>
         <li class="nav-item ms-auto" role="presentation">
-            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>Settings</button>
+            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</button>
         </li>
         @if (User.IsInRole("CookieAuth"))
         {
@@ -58,11 +61,11 @@
                     @if (User.IsInRole(nameof(UserData.IsAdmin)))
                     {
                         <li>
-                            <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>Admin Panel</a>
+                            <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</a>
                         </li>
                     }
                     <li>
-                        <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                        <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage,"Logout")</button>
                     </li>
                 </ul>
             </li>

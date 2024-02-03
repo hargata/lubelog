@@ -33,6 +33,7 @@ builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 builder.Services.AddSingleton<IMailHelper, MailHelper>();
 builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();
+builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 
 //configure logic
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
