@@ -12,8 +12,8 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Repair Records: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{@translator.Translate(userLanguage,"# of Repair Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{@translator.Translate(userLanguage,"Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('accident-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
