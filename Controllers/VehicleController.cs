@@ -589,7 +589,8 @@ namespace CarCareTracker.Controllers
                 Gallons = result.Gallons,
                 IsFillToFull = result.IsFillToFull,
                 MissedFuelUp = result.MissedFuelUp,
-                Notes = result.Notes
+                Notes = result.Notes,
+                Tags = result.Tags
             };
             var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;

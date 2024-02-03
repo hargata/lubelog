@@ -12,6 +12,7 @@
     var gasCostFormat = useThreeDecimals ? "C3" : "C2";
     var useKwh = Model.UseKwh;
     var useHours = Model.UseHours;
+    var recordTags = Model.GasRecords.SelectMany(x => x.Tags).Distinct();
     string preferredFuelEconomyUnit = userConfig.PreferredGasMileageUnit;
     string preferredGasUnit = userConfig.PreferredGasUnit;
     string consumptionUnit;
@@ -41,7 +42,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Gas Records: {Model.GasRecords.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Gas Records: {Model.GasRecords.Count()}")</span>
             @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
             {
                 <span class="ms-2 badge bg-primary" id="averageFuelMileageLabel">@($"Average Fuel Economy: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
@@ -56,7 +57,17 @@
                 }
             }
             <span class="ms-2 badge bg-success">@($"Total Fuel Consumed: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
-            <span class="ms-2 badge bg-success">@($"Total Cost: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="sum">@($"Total Cost: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="toggleGasFilter(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
         </div>
         @if (enableCsvImports)
         {
@@ -98,12 +109,12 @@
             <tbody>
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
                         <td class="col-2">@gasRecord.Date</td>
-                        <td class="col-2">@gasRecord.Mileage</td>
-                        <td class="col-2" data-gas-type="consumption">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-4" data-gas-type="fueleconomy">@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td class="col-2" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage">@gasRecord.Mileage</td>
+                        <td class="col-2" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
+                        <td class="col-4" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-1" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
                         <td class="col-1" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
                     </tr>
                 }
@@ -130,4 +141,5 @@
         {
         @:convertGasConsumptionUnits(decodeHTMLEntities('@consumptionUnit'), decodeHTMLEntities('@preferredGasUnit'), false);
     }
+
 </script>

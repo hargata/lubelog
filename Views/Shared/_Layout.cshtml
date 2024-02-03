@@ -5,6 +5,7 @@
     var userConfig = config.GetUserConfig(User);
     var useDarkMode = userConfig.UseDarkMode;
     var enableCsvImports = userConfig.EnableCsvImports;
+    var useMPG = userConfig.UseMPG;
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
@@ -54,7 +55,8 @@
                 enableCsvImport : "@enableCsvImports" == "True",
                 useMarkDown: "@useMarkDown" == "True",
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
-                useThreeDecimals: "@useThreeDecimals" == "True"
+                useThreeDecimals: "@useThreeDecimals" == "True",
+                useMPG: "@useMPG" == "True"
             }
         }
         function getShortDatePattern() {
