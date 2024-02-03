@@ -1,9 +1,12 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
-    var enableCsvImports = config.GetUserConfig(User).EnableCsvImports;
-    var hideZero = config.GetUserConfig(User).HideZero;
+    var userConfig = config.GetUserConfig(User);
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var hideZero = userConfig.HideZero;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var userLanguage = userConfig.UserLanguage;
 }
 @model List<CollisionRecord>
 <div class="row">
@@ -26,21 +29,21 @@
             @if (enableCsvImports)
             {
                 <div class="btn-group">
-                    <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+                    <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Repair Record")</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('RepairRecord')">Import via CSV</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('RepairRecord')">Export to CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('RepairRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('RepairRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="printTab()">Print</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
                     </ul>
                 </div>
             }
             else
             {
-                <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Repair Record</button>
+                <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Repair Record")</button>
             }
         </div>
     </div>
@@ -55,10 +58,10 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1">Date</th>
-                    <th scope="col" class="col-2">Odometer</th>
-                    <th scope="col" class="col-3 col-xl-4">Description</th>
-                    <th scope="col" class="col-2" onclick="toggleSort('accident-tab-pane', this)" style="cursor:pointer;">Cost</th>
+                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage,"Date")</th>
+                    <th scope="col" class="col-2">@translator.Translate(userLanguage,"Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4">@translator.Translate(userLanguage,"Description")</th>
+                    <th scope="col" class="col-2" onclick="toggleSort('accident-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage,"Cost")</th>
                     <th scope="col" class="col-3">Notes</th>
                 </tr>
             </thead>
