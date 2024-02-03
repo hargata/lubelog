@@ -1,4 +1,11 @@
-﻿@model ReminderMakeUpForVehicle
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ReminderMakeUpForVehicle
 @if (Model.UrgentCount + Model.VeryUrgentCount + Model.NotUrgentCount + Model.PastDueCount > 0)
 {
     <canvas id="donut-chart"></canvas>
@@ -9,10 +16,10 @@
             new Chart($("#donut-chart"), {
                 type: 'doughnut',
                 data: {
-                    labels: ["Not Urgent", "Urgent", "Very Urgent", "Past Due"],
+                    labels: ['@translator.Translate(userLanguage,"Not Urgent")', '@translator.Translate(userLanguage,"Urgent")', '@translator.Translate(userLanguage,"Very Urgent")', '@translator.Translate(userLanguage,"Past Due")'],
                     datasets: [
                         {
-                            label: "Reminders by Category",
+                            label: '@translator.Translate(userLanguage,"Reminders by Category")',
                             backgroundColor: ["#488f31", "#ffa600", "#de425b", "#cccccc"],
                             data: [
                                 @Model.NotUrgentCount,
@@ -33,7 +40,7 @@
                         },
                         title: {
                             display: true,
-                            text: "Reminders by Urgency",
+                            text: '@translator.Translate(userLanguage,"Reminders by Urgency")',
                             color: useDarkMode ? "#fff" : "#000"
                         },
                     }
@@ -45,6 +52,6 @@
 else
 {
     <div class="text-center">
-        <h4>No data found, create reminders to see visualizations here.</h4>
+        <h4>@translator.Translate(userLanguage,"No data found, create reminders to see visualizations here.")</h4>
     </div>
 }
