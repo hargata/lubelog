@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Models;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 
 namespace CarCareTracker.Helper
@@ -11,10 +12,12 @@ namespace CarCareTracker.Helper
     {
         private readonly IFileHelper _fileHelper;
         private readonly IConfiguration _config;
-        public TranslationHelper(IFileHelper fileHelper, IConfiguration config)
+        private IMemoryCache _cache;
+        public TranslationHelper(IFileHelper fileHelper, IConfiguration config, IMemoryCache memoryCache)
         {
             _fileHelper = fileHelper;
             _config = config;
+            _cache = memoryCache;
         }
         public string Translate(string userLanguage, string text)
         {
@@ -22,22 +25,32 @@ namespace CarCareTracker.Helper
             //transform input text into key.
             string translationKey = text.Replace(" ", "_");
             var translationFilePath = _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
-            if (File.Exists(translationFilePath))
+            var dictionary = _cache.GetOrCreate<Dictionary<string, string>>($"lang_{userLanguage}", entry =>
             {
-                var translationFile = File.ReadAllText(translationFilePath);
-                var translationDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(translationFile);
-                if (translationDictionary != null && translationDictionary.ContainsKey(translationKey))
+                entry.SlidingExpiration = TimeSpan.FromHours(1);
+                if (File.Exists(translationFilePath))
                 {
-                    return translationDictionary[translationKey];
-                } else if (create)
-                {
-                    //create entry
-                    translationDictionary.Add(translationKey, text);
-                    File.WriteAllText(translationFilePath, JsonSerializer.Serialize(translationDictionary));
-                    return text;
+                    var translationFile = File.ReadAllText(translationFilePath);
+                    var translationDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(translationFile);
+                    return translationDictionary ?? new Dictionary<string, string>();
                 }
+                else
+                {
+                    return new Dictionary<string, string>();
+                }
+            });
+            if (dictionary != null && dictionary.ContainsKey(translationKey))
+            {
+                return dictionary[translationKey];
             }
-            return create ? string.Empty : text;
+            else if (create && File.Exists(translationFilePath))
+            {
+                //create entry
+                dictionary.Add(translationKey, text);
+                File.WriteAllText(translationFilePath, JsonSerializer.Serialize(dictionary));
+                return text;
+            }
+            return text;
         }
     }
 }
