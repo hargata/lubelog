@@ -34,6 +34,7 @@ namespace CarCareTracker.Helper
                     //create entry
                     translationDictionary.Add(translationKey, text);
                     File.WriteAllText(translationFilePath, JsonSerializer.Serialize(translationDictionary));
+                    return text;
                 }
             }
             return create ? string.Empty : text;
