@@ -9,7 +9,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Odometer Records: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Odometer Records: {Model.Count()}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('odometer-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -64,7 +64,7 @@
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditOdometerRecordModal(@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
                         <td class="col-2 col-xl-1">@odometerRecord.Date.ToShortDateString()</td>
-                        <td class="col-3">@odometerRecord.Mileage</td>
+                        <td class="col-3" data-record-type="cost">@odometerRecord.Mileage</td>
                         <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                     </tr>
                 }

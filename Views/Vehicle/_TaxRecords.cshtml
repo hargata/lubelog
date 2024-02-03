@@ -9,8 +9,8 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Tax Records: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-primary">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Tax Records: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"Total: {Model.Sum(x => x.Cost).ToString("C")}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('tax-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -67,7 +67,7 @@
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditTaxRecordModal(@taxRecord.Id)" data-tags='@string.Join(" ", taxRecord.Tags)'>
                         <td class="col-3 col-xl-1">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-4 col-xl-6">@taxRecord.Description</td>
-                        <td class="col-2">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
+                        <td class="col-2" data-record-type="cost">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                     </tr>
                 }

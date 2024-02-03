@@ -4,6 +4,7 @@
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#gasRecordDate'));
+            initTagSelector($("#gasRecordTag"));
             $('#gasRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditGasRecordModal(gasRecordId) {
             $("#gasRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#gasRecordDate'));
+            initTagSelector($("#gasRecordTag"));
             $('#gasRecordModal').modal('show');
             $('#gasRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -80,6 +82,7 @@ function getAndValidateGasRecordValues() {
     var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     var gasIsMissed = $("#gasIsMissed").is(":checked");
     var gasNotes = $("#gasRecordNotes").val();
+    var gasTags = $("#gasRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //validation
@@ -90,7 +93,7 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordDate").removeClass("is-invalid");
     }
-    if (gasMileage.trim() == '' || parseInt(gasMileage) < 0) {
+    if (gasMileage.trim() == '' || isNaN(gasMileage) || parseInt(gasMileage) < 0) {
         hasError = true;
         $("#gasRecordMileage").addClass("is-invalid");
     } else {
@@ -128,6 +131,7 @@ function getAndValidateGasRecordValues() {
         gallons: gasGallons,
         cost: gasCost,
         files: uploadedFiles,
+        tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
         notes: gasNotes
@@ -257,17 +261,20 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                     var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().replace("Average Fuel Economy: ", ""));
                     if (newAverage > 0) {
                         newAverage = 100 / newAverage;
-                        $("#averageFuelMileageLabel").text(`Average Fuel Economy: ${newAverage.toFixed(2)}`)
+                        var averageLabel = $("#averageFuelMileageLabel");
+                        averageLabel.text(`${averageLabel.text().split(':')[0]}: ${newAverage.toFixed(2)}`);
                     }
                     var newMin = globalParseFloat($("#minFuelMileageLabel").text().replace("Min Fuel Economy: ", ""));
                     if (newMin > 0) {
                         newMin = 100 / newMin;
-                        $("#minFuelMileageLabel").text(`Min Fuel Economy: ${newMin.toFixed(2)}`)
+                        var minLabel = $("#minFuelMileageLabel");
+                        minLabel.text(`${minLabel.text().split(':')[0]}: ${newMin.toFixed(2)}`);
                     }
                     var newMax = globalParseFloat($("#maxFuelMileageLabel").text().replace("Max Fuel Economy: ", ""));
                     if (newMax > 0) {
                         newMax = 100 / newMax;
-                        $("#maxFuelMileageLabel").text(`Max Fuel Economy: ${newMax.toFixed(2)}`)
+                        var maxLabel = $("#maxFuelMileageLabel");
+                        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${newMax.toFixed(2)}`);
                     }
                     sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
                     sender.attr("data-unit", "km/l");
@@ -287,17 +294,20 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                     var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().replace("Average Fuel Economy: ", ""));
                     if (newAverage > 0) {
                         newAverage = 100 / newAverage;
-                        $("#averageFuelMileageLabel").text(`Average Fuel Economy: ${newAverage.toFixed(2)}`)
+                        var averageLabel = $("#averageFuelMileageLabel");
+                        averageLabel.text(`${averageLabel.text().split(':')[0]}: ${newAverage.toFixed(2)}`);
                     }
                     var newMin = globalParseFloat($("#minFuelMileageLabel").text().replace("Min Fuel Economy: ", ""));
                     if (newMin > 0) {
                         newMin = 100 / newMin;
-                        $("#minFuelMileageLabel").text(`Min Fuel Economy: ${newMin.toFixed(2)}`)
+                        var minLabel = $("#minFuelMileageLabel");
+                        minLabel.text(`${minLabel.text().split(':')[0]}: ${newMin.toFixed(2)}`);
                     }
                     var newMax = globalParseFloat($("#maxFuelMileageLabel").text().replace("Max Fuel Economy: ", ""));
                     if (newMax > 0) {
                         newMax = 100 / newMax;
-                        $("#maxFuelMileageLabel").text(`Max Fuel Economy: ${newMax.toFixed(2)}`)
+                        var maxLabel = $("#maxFuelMileageLabel");
+                        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${newMax.toFixed(2)}`);
                     }
                     sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
                     sender.attr("data-unit", "l/100km");
@@ -305,6 +315,34 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
+    }
+}
+function toggleGasFilter(sender) {
+    filterTable('gas-tab-pane', sender);
+    updateMPGLabels();
+}
+function updateMPGLabels() {
+    var averageLabel = $("#averageFuelMileageLabel");
+    var minLabel = $("#minFuelMileageLabel");
+    var maxLabel = $("#maxFuelMileageLabel");
+    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0) {
+        var rowsToAggregate = $("[data-aggregated='true']").parent(":not('.override-hide')");
+        var rowMPG = rowsToAggregate.children('[data-gas-type="fueleconomy"]').toArray().map(x => globalParseFloat(x.textContent));
+        var maxMPG = rowMPG.length > 0 ? rowMPG.reduce((a, b) => a > b ? a : b) : 0;
+        var minMPG = rowMPG.length > 0 ? rowMPG.filter(x=>x>0).reduce((a, b) => a < b ? a : b) : 0;
+        var totalMilesTraveled = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
+        var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
+        if (totalGasConsumed > 0) {
+            var averageMPG = totalMilesTraveled / totalGasConsumed;
+            if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l' && averageMPG > 0) {
+                averageMPG = 100 / averageMPG;
+            }
+            averageLabel.text(`${averageLabel.text().split(':')[0]}: ${averageMPG.toFixed(2)}`);
+        } else {
+            averageLabel.text(`${averageLabel.text().split(':')[0]}: 0.00`);
+        }
+        minLabel.text(`${minLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
+        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
     }
 }
 
