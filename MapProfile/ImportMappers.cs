@@ -25,6 +25,7 @@ namespace CarCareTracker.MapProfile
             Map(m => m.Progress).Name(["progress"]);
             Map(m => m.Type).Name(["type"]);
             Map(m => m.Priority).Name(["priority"]);
+            Map(m => m.Tags).Name(["tags"]);
         }
     }
 }

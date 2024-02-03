@@ -14,14 +14,20 @@ namespace CarCareTracker.Helper
             var recordsToCalculate = results.Where(x => x.IncludeInAverage);
             if (recordsToCalculate.Any())
             {
-                var totalMileage = recordsToCalculate.Sum(x => x.DeltaMileage);
-                var totalGallons = recordsToCalculate.Sum(x => x.Gallons);
-                var averageGasMileage = totalMileage / totalGallons;
-                if (!useMPG)
+                try
                 {
-                    averageGasMileage = 100 / averageGasMileage;
+                    var totalMileage = recordsToCalculate.Sum(x => x.DeltaMileage);
+                    var totalGallons = recordsToCalculate.Sum(x => x.Gallons);
+                    var averageGasMileage = totalMileage / totalGallons;
+                    if (!useMPG && averageGasMileage > 0)
+                    {
+                        averageGasMileage = 100 / averageGasMileage;
+                    }
+                    return averageGasMileage.ToString("F");
+                } catch (Exception ex)
+                {
+                    return "0";
                 }
-                return averageGasMileage.ToString("F");
             }
             return "0";
         }
