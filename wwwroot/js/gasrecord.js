@@ -93,7 +93,7 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordDate").removeClass("is-invalid");
     }
-    if (gasMileage.trim() == '' || parseInt(gasMileage) < 0) {
+    if (gasMileage.trim() == '' || isNaN(gasMileage) || parseInt(gasMileage) < 0) {
         hasError = true;
         $("#gasRecordMileage").addClass("is-invalid");
     } else {
