@@ -29,7 +29,7 @@
                     <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
                 </div>
                 <div class="col-12">
-                    <label for="noteRecordTag">Tags(optional)</label>
+                    <label for="noteRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="noteRecordTag">
                         @foreach (string tag in Model.Tags)
                         {
@@ -44,7 +44,7 @@
 <div class="modal-footer">
     @if (!isNew)
     {
-        <button type="button" class="btn btn-danger" onclick="deleteNote(@Model.Id)" style="margin-right:auto;">Delete</button>
+        <button type="button" class="btn btn-danger" onclick="deleteNote(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddNoteModal()">@translator.Translate(userLanguage,"Cancel")</button>
     @if (isNew)
