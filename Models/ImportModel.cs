@@ -23,6 +23,7 @@
         public string PartNumber { get; set; }
         public string PartSupplier { get; set; }
         public string PartQuantity { get; set; }
+        public string Tags { get; set; }
     }
 
     public class SupplyRecordExportModel
@@ -43,12 +44,14 @@
         public string Description { get; set; }
         public string Notes { get; set; }
         public string Cost { get; set; }
+        public string Tags { get; set; }
     }
     public class OdometerRecordExportModel
     {
         public string Date { get; set; }
         public string Odometer { get; set; }
         public string Notes { get; set; }
+        public string Tags { get; set; }
     }
     public class TaxRecordExportModel
     {
@@ -56,6 +59,7 @@
         public string Description { get; set; }
         public string Notes { get; set; }
         public string Cost { get; set; }
+        public string Tags { get; set; }
     }
     public class GasRecordExportModel
     {
@@ -67,6 +71,7 @@
         public string IsFillToFull { get; set; }
         public string MissedFuelUp { get; set; }
         public string Notes { get; set; }
+        public string Tags { get; set; }
     }
     public class ReminderExportModel
     {
