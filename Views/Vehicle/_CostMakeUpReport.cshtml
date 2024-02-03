@@ -1,4 +1,11 @@
-﻿@model CostMakeUpForVehicle
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model CostMakeUpForVehicle
 @if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
 {
     <canvas id="pie-chart"></canvas>
@@ -9,10 +16,14 @@
             new Chart($("#pie-chart"), {
                 type: 'pie',
                 data: {
-                    labels: ["Service Records", "Repairs", "Upgrades", "Tax", "Fuel"],
+                    labels: ['@translator.Translate(userLanguage, "Service Records")', 
+                    '@translator.Translate(userLanguage, "Repairs")', 
+                    '@translator.Translate(userLanguage, "Upgrades")', 
+                    '@translator.Translate(userLanguage, "Tax")', 
+                    '@translator.Translate(userLanguage, "Fuel")'],
                     datasets: [
                         {
-                            label: "Expenses by Type",
+                            label: '@translator.Translate(userLanguage,"Expenses by Type")',
                             backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
                             data: [
                                 globalParseFloat('@Model.ServiceRecordSum'),
@@ -34,7 +45,7 @@
                         },
                         title: {
                             display: true,
-                            text: "Expenses by Type",
+                            text: '@translator.Translate(userLanguage, "Expenses by Type")',
                             color: useDarkMode ? "#fff" : "#000"
                         },
                     }
@@ -46,6 +57,6 @@
 else
 {
     <div class="text-center">
-        <h4>No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.</h4>
+        <h4>@translator.Translate(userLanguage, "No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.")</h4>
     </div>
 }

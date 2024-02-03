@@ -1,5 +1,10 @@
-﻿@model List<CostForVehicleByMonth>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<CostForVehicleByMonth>
 @{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
     var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
     var sortedByMPG = Model.OrderBy(x => x.Cost).ToList();
 }
@@ -27,7 +32,7 @@
                         labels: barGraphLabels,
                         datasets: [
                             {
-                                label: "Expenses by Month",
+                                label: '@translator.Translate(userLanguage, "Expenses by Month")',
                                 backgroundColor: barGraphColors,
                                 data: barGraphData
                             }
@@ -38,7 +43,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: 'Expenses by Month'
+                                text: '@translator.Translate(userLanguage,"Expenses by Month")'
                             },
                             legend: {
                                 display: false,
@@ -67,6 +72,6 @@
 } else
 {
     <div class="text-center">
-        <h4>No data found, insert/select some data to see visualizations here.</h4>
+        <h4>@translator.Translate(userLanguage,"No data found, insert/select some data to see visualizations here.")</h4>
     </div>
 }

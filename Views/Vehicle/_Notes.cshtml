@@ -1,11 +1,16 @@
-﻿@model List<Note>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<Note>
 @{
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
 }
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"# of Notes: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Notes")}: {Model.Count()}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('notes-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -18,7 +23,7 @@
             </datalist>
         </div>
         <div>
-                <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Note</button>
+            <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Note")</button>
         </div>
     </div>
 </div>
@@ -32,8 +37,8 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-3">Description</th>
-                    <th scope="col" class="col-9">Note</th>
+                    <th scope="col" class="col-3">@translator.Translate(userLanguage,"Description")</th>
+                    <th scope="col" class="col-9">@translator.Translate(userLanguage,"Note")</th>
                 </tr>
             </thead>
             <tbody>

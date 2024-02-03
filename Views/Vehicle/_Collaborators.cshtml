@@ -1,7 +1,14 @@
-﻿@model List<UserCollaborator>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<UserCollaborator>
 <div class="row">
     <div class="col-8">
-        <span class="lead">Collaborators</span>
+        <span class="lead">@translator.Translate(userLanguage, "Collaborators")</span>
     </div>
     <div class="col-4">
         <button onclick="addCollaborator()" class="btn btn-link btn-sm"><i class="bi bi-person-add"></i></button>
@@ -11,8 +18,8 @@
     <table class="table table-hover">
         <thead>
             <tr class="d-flex">
-                <th scope="col" class="col-8">Username</th>
-                <th scope="col" class="col-4">Delete</th>
+                <th scope="col" class="col-8">@translator.Translate(userLanguage, "Username")</th>
+                <th scope="col" class="col-4">@translator.Translate(userLanguage, "Delete")</th>
             </tr>
         </thead>
         <tbody>
