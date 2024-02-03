@@ -172,7 +172,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -190,7 +190,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -208,7 +208,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    var exportData = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -226,7 +226,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -271,7 +271,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes });
+                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString("C"), Notes = x.Notes, Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -327,7 +327,8 @@ namespace CarCareTracker.Controllers
                     Odometer = x.Mileage.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
-                    Notes = x.Notes
+                    Notes = x.Notes,
+                    Tags = string.Join(" ", x.Tags)
                 });
                 using (var writer = new StreamWriter(fullExportFilePath))
                 {
@@ -378,7 +379,8 @@ namespace CarCareTracker.Controllers
                                         Date = DateTime.Parse(importModel.Date),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
-                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     if (string.IsNullOrWhiteSpace(importModel.Cost) && !string.IsNullOrWhiteSpace(importModel.Price))
                                     {
@@ -423,7 +425,8 @@ namespace CarCareTracker.Controllers
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
                                 }
@@ -434,7 +437,8 @@ namespace CarCareTracker.Controllers
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
-                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
                                 }
@@ -466,7 +470,8 @@ namespace CarCareTracker.Controllers
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                 }
@@ -479,7 +484,8 @@ namespace CarCareTracker.Controllers
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
                                 }
@@ -506,7 +512,8 @@ namespace CarCareTracker.Controllers
                                         Date = DateTime.Parse(importModel.Date),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _taxRecordDataAccess.SaveTaxRecordToVehicle(convertedRecord);
                                 }
