@@ -45,7 +45,7 @@ function deleteGasRecord(gasRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleGasRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -69,7 +69,7 @@ function saveGasRecordToVehicle(isEdit) {
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

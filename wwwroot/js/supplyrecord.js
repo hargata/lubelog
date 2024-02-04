@@ -43,7 +43,7 @@ function deleteSupplyRecord(supplyRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleSupplyRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -70,7 +70,7 @@ function saveSupplyRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

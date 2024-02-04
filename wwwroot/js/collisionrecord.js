@@ -45,7 +45,7 @@ function deleteCollisionRecord(collisionRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleCollisionRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveCollisionRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -94,7 +94,7 @@ function getAndValidateCollisionRecordValues() {
     } else {
         $("#collisionRecordDate").removeClass("is-invalid");
     }
-    if (collisionMileage.trim() == '' || parseInt(collisionMileage) < 0) {
+    if (collisionMileage.trim() == '' || isNaN(collisionMileage) || parseInt(collisionMileage) < 0) {
         hasError = true;
         $("#collisionRecordMileage").addClass("is-invalid");
     } else {

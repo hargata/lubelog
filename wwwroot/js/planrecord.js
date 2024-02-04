@@ -43,7 +43,7 @@ function deletePlanRecord(planRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -70,7 +70,7 @@ function savePlanRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -163,7 +163,7 @@ function updatePlanRecordProgress(newProgress) {
                             var vehicleId = GetVehicleId().vehicleId;
                             getVehiclePlanRecords(vehicleId);
                         } else {
-                            errorToast("An error has occurred, please try again later.");
+                            errorToast(genericErrorMessage());
                         }
                     });
                 }
@@ -176,7 +176,7 @@ function updatePlanRecordProgress(newProgress) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
             draggedId = 0;

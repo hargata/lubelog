@@ -85,6 +85,9 @@
             input = input.replace(".", decimalSeparator);
             return input;
         }
+        function genericErrorMessage(){
+            return "An error has occurred, please try again later";
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>
