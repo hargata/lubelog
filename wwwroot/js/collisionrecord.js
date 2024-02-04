@@ -94,7 +94,7 @@ function getAndValidateCollisionRecordValues() {
     } else {
         $("#collisionRecordDate").removeClass("is-invalid");
     }
-    if (collisionMileage.trim() == '' || parseInt(collisionMileage) < 0) {
+    if (collisionMileage.trim() == '' || isNaN(collisionMileage) || parseInt(collisionMileage) < 0) {
         hasError = true;
         $("#collisionRecordMileage").addClass("is-invalid");
     } else {

@@ -143,7 +143,7 @@ function getAndValidateReminderRecordValues() {
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
-    var reminderMileageIsInvalid = reminderMileage.trim() == '' || parseInt(reminderMileage) < 0;
+    var reminderMileageIsInvalid = reminderMileage.trim() == '' || isNaN(reminderMileage) || parseInt(reminderMileage) < 0;
     if ((reminderOption == "Both" || reminderOption == "Date") && reminderDateIsInvalid) { 
         hasError = true;
         $("#reminderDate").addClass("is-invalid");

@@ -94,7 +94,7 @@ function getAndValidateServiceRecordValues() {
     } else {
         $("#serviceRecordDate").removeClass("is-invalid");
     }
-    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+    if (serviceMileage.trim() == '' || isNaN(serviceMileage) || parseInt(serviceMileage) < 0) {
         hasError = true;
         $("#serviceRecordMileage").addClass("is-invalid");
     } else {

@@ -94,7 +94,7 @@ function getAndValidateUpgradeRecordValues() {
     } else {
         $("#upgradeRecordDate").removeClass("is-invalid");
     }
-    if (upgradeMileage.trim() == '' || parseInt(upgradeMileage) < 0) {
+    if (upgradeMileage.trim() == '' || isNaN(upgradeMileage) || parseInt(upgradeMileage) < 0) {
         hasError = true;
         $("#upgradeRecordMileage").addClass("is-invalid");
     } else {
