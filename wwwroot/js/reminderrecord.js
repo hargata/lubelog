@@ -64,7 +64,7 @@ function deleteReminderRecord(reminderRecordId, e) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleReminders(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -88,7 +88,7 @@ function saveReminderRecordToVehicle(isEdit) {
             saveScrollPosition();
             getVehicleReminders(formValues.vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -123,7 +123,7 @@ function markDoneReminderRecord(reminderRecordId, e) {
             successToast("Reminder Updated");
             getVehicleReminders(vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     });
 }

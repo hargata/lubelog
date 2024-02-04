@@ -45,7 +45,7 @@ function deleteUpgradeRecord(upgradeRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleUpgradeRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

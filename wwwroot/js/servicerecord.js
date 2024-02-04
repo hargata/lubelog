@@ -45,7 +45,7 @@ function deleteServiceRecord(serviceRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleServiceRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveServiceRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

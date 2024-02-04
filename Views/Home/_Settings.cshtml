@@ -232,7 +232,7 @@
             if (data) {
                 setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
             } else {
-                errorToast("An error occurred, please try again later.")
+                errorToast(genericErrorMessage());
             }
         })
     }
@@ -263,7 +263,7 @@
                             successToast("Backup Restored");
                             setTimeout(function () { window.location.href = '/Home/Index' }, 500);
                         } else {
-                            errorToast("An error occurred, please try again later.");
+                            errorToast(genericErrorMessage());
                         }
                     });
                 }
@@ -296,7 +296,7 @@
                         if (data) {
                             setTimeout(function () { window.location.href = '/Login' }, 500);
                         } else {
-                            errorToast("An error occurred, please try again later.");
+                            errorToast(genericErrorMessage());
                         }
                     })
                 }
@@ -306,7 +306,7 @@
                 if (data) {
                     setTimeout(function () { window.location.href = '/Home' }, 1000);
                 } else {
-                    errorToast("An error occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         }

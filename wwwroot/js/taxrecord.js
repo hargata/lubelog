@@ -53,7 +53,7 @@ function deleteTaxRecord(taxRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleTaxRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -80,7 +80,7 @@ function saveTaxRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

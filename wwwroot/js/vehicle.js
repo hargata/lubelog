@@ -226,7 +226,7 @@ function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
     $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
         if (!data) {
-            errorToast("An error occurred, please try again later");
+            errorToast(genericErrorMessage());
         } else {
             window.location.href = data;
         }
@@ -408,7 +408,7 @@ function moveRecord(recordId, source, dest) {
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {

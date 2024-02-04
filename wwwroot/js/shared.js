@@ -92,7 +92,7 @@ function saveVehicle(isEdit) {
                 viewVehicle(vehicleId);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     });
 }
