@@ -49,7 +49,7 @@
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
                             <label for="collisionRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="collisionRecordFiles">
-                            <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                         </div>
                     }
                     else
@@ -76,7 +76,7 @@
     @if (!isNew)
     {
         <div class="btn-group" style="margin-right:auto;">
-            <button type="button" class="btn btn-md mt-1 mb-1 btn-danger" onclick="deleteCollisionRecord(@Model.Id)">Delete</button>
+            <button type="button" class="btn btn-md mt-1 mb-1 btn-danger" onclick="deleteCollisionRecord(@Model.Id)">@translator.Translate(userLanguage,"Delete")</button>
             <button type="button" class="btn btn-md btn-danger btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
