@@ -16,14 +16,14 @@
             new Chart($("#pie-chart"), {
                 type: 'pie',
                 data: {
-                    labels: ['@translator.Translate(userLanguage, "Service Records")', 
-                    '@translator.Translate(userLanguage, "Repairs")', 
-                    '@translator.Translate(userLanguage, "Upgrades")', 
-                    '@translator.Translate(userLanguage, "Tax")', 
-                    '@translator.Translate(userLanguage, "Fuel")'],
+                    labels: [decodeHTMLEntities('@translator.Translate(userLanguage, "Service Records")'),
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Repairs")'),
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Upgrades")'),
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Tax")'),
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel")')],
                     datasets: [
                         {
-                            label: '@translator.Translate(userLanguage,"Expenses by Type")',
+                            label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
                             backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
                             data: [
                                 globalParseFloat('@Model.ServiceRecordSum'),
@@ -31,7 +31,7 @@
                                 globalParseFloat('@Model.UpgradeRecordSum'),
                                 globalParseFloat('@Model.TaxRecordSum'),
                                 globalParseFloat('@Model.GasRecordSum')
-                                        ]
+                            ]
                         }
                     ]
                 },
@@ -45,7 +45,7 @@
                         },
                         title: {
                             display: true,
-                            text: '@translator.Translate(userLanguage, "Expenses by Type")',
+                            text: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
                             color: useDarkMode ? "#fff" : "#000"
                         },
                     }

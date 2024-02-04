@@ -33,7 +33,7 @@
                         labels: barGraphLabels,
                         datasets: [
                             {
-                                label: '@translator.Translate(userLanguage,"Fuel Mileage by Month")',
+                                label: decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel Mileage by Month")'),
                                 backgroundColor: barGraphColors,
                                 data: barGraphData
                             }
@@ -44,7 +44,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: '@translator.Translate(userLanguage,"Fuel Mileage by Month")'
+                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel Mileage by Month")')
                             },
                             legend: {
                                 display: false,

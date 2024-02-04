@@ -32,7 +32,7 @@
                         labels: barGraphLabels,
                         datasets: [
                             {
-                                label: '@translator.Translate(userLanguage, "Expenses by Month")',
+                                label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Month")'),
                                 backgroundColor: barGraphColors,
                                 data: barGraphData
                             }
@@ -43,7 +43,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: '@translator.Translate(userLanguage,"Expenses by Month")'
+                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Month")')
                             },
                             legend: {
                                 display: false,
