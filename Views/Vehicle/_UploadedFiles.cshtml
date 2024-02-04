@@ -1,5 +1,12 @@
-﻿@model List<UploadedFiles>
-<label>Uploaded Documents</label>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<UploadedFiles>
+<label>@translator.Translate(userLanguage, "Uploaded Documents")</label>
 <ul class="list-group">
     @foreach (UploadedFiles filesUploaded in Model)
     {

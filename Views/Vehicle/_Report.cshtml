@@ -1,4 +1,11 @@
-﻿@model ReportViewModel
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ReportViewModel
 <div class="container reportTabContainer">
     <div class="row hideOnPrint">
         <div class="col-md-3 col-12 mt-2">
@@ -25,23 +32,23 @@
                 <div class="col-12 col-md-10 reportsCheckBoxContainer">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
-                        <label class="form-check-label" for="serviceExpenseCheck">Service</label>
+                        <label class="form-check-label" for="serviceExpenseCheck">@translator.Translate(userLanguage,"Service")</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
-                        <label class="form-check-label" for="repairExpenseCheck">Repairs</label>
+                        <label class="form-check-label" for="repairExpenseCheck">@translator.Translate(userLanguage, "Repairs")</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
-                        <label class="form-check-label" for="upgradeExpenseCheck">Upgrades</label>
+                        <label class="form-check-label" for="upgradeExpenseCheck">@translator.Translate(userLanguage, "Upgrades")</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
-                        <label class="form-check-label" for="gasExpenseCheck">Fuel</label>
+                        <label class="form-check-label" for="gasExpenseCheck">@translator.Translate(userLanguage, "Fuel")</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
-                        <label class="form-check-label" for="taxExpenseCheck">Taxes</label>
+                        <label class="form-check-label" for="taxExpenseCheck">@translator.Translate(userLanguage, "Taxes")</label>
                     </div>
                 </div>
                 <div class="col-md-1 d-sm-none d-md-block"></div>
@@ -56,10 +63,10 @@
             <div class="row">
                 <div class="col-12">
                     <select class="form-select" onchange="updateReminderPie()" id="reminderOption">
-                        <option value="0">As of Today</option>
-                        <option value="30">+30 Days</option>
-                        <option value="60">+60 Days</option>
-                        <option value="90">+90 Days</option>
+                        <option value="0">@translator.Translate(userLanguage, "As of Today")</option>
+                        <option value="30">@translator.Translate(userLanguage, "+30 Days")</option>
+                        <option value="60">@translator.Translate(userLanguage, "+60 Days")</option>
+                        <option value="90">@translator.Translate(userLanguage, "+90 Days")</option>
                     </select>
                 </div>
             </div>
@@ -82,10 +89,10 @@
         </div>
         <div class="col-md-3 col-12 chartContainer">
             <div class="d-grid">
-                <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">Vehicle Maintenance Report<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
             <div class="d-grid">
-                <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">Export Attachments<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
         </div>
     </div>

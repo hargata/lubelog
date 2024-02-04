@@ -1,9 +1,14 @@
-﻿@model ServiceRecordInput
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model ServiceRecordInput
 @{
     var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? "Add New Service Record" : "Edit Service Record")</h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage,"Add New Service Record") : translator.Translate(userLanguage,"Edit Service Record"))</h5>
     <button type="button" class="btn-close" onclick="hideAddServiceRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -12,22 +17,22 @@
             <div class="row">
                 <div class="col-md-6 col-12">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
-                    <label for="serviceRecordDate">Date</label>
+                    <label for="serviceRecordDate">@translator.Translate(userLanguage,"Date")</label>
                     <div class="input-group">
-                        <input type="text" id="serviceRecordDate" class="form-control" placeholder="Date service was performed" value="@Model.Date">
+                        <input type="text" id="serviceRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date service was performed")" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="serviceRecordMileage">Odometer</label>
-                    <input type="number" id="serviceRecordMileage" class="form-control" placeholder="Odometer reading when serviced" value="@(isNew ? "" : Model.Mileage)">
-                    <label for="serviceRecordDescription">Description</label>
-                    <input type="text" id="serviceRecordDescription" class="form-control" placeholder="Description of item(s) serviced(i.e. Oil Change)" value="@Model.Description">
-                    <label for="serviceRecordCost">Cost</label>
-                    <input type="text" id="serviceRecordCost" class="form-control" placeholder="Cost of the service" value="@(isNew ? "" : Model.Cost)">
+                    <label for="serviceRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
+                    <input type="number" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew ? "" : Model.Mileage)">
+                    <label for="serviceRecordDescription">@translator.Translate(userLanguage,"Description")</label>
+                    <input type="text" id="serviceRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) serviced(i.e. Oil Change)")" value="@Model.Description">
+                    <label for="serviceRecordCost">@translator.Translate(userLanguage,"Cost")</label>
+                    <input type="text" id="serviceRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the service")" value="@(isNew ? "" : Model.Cost)">
                     @if (isNew)
                     {
                         @await Html.PartialAsync("_SupplyStore", "ServiceRecord")
                     }
-                    <label for="serviceRecordTag">Tags(optional)</label>
+                    <label for="serviceRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="serviceRecordTag">
                         @foreach(string tag in Model.Tags)
                         {
@@ -36,15 +41,15 @@
                         </select>
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="serviceRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <label for="serviceRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="serviceRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
                     @if (Model.Files.Any())
                     {
                         <div>
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            <label for="serviceRecordFiles">Upload more documents</label>
+                            <label for="serviceRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="serviceRecordFiles">
-                            <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                         </div>
                     }
                     else
@@ -54,13 +59,13 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
                                 <label class="form-check-label" for="addReminderCheck">
-                                    Add Reminder
+                                    @translator.Translate(userLanguage,"Add Reminder")
                                 </label>
                             </div>
                         }
-                        <label for="serviceRecordFiles">Upload documents(optional)</label>
+                        <label for="serviceRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="serviceRecordFiles">
-                        <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
                 </div>
             </div>
@@ -71,25 +76,25 @@
     @if (!isNew)
     {
         <div class="btn-group" style="margin-right:auto;">
-            <button type="button" class="btn btn-md mt-1 mb-1 btn-danger" onclick="deleteServiceRecord(@Model.Id)" >Delete</button>
+            <button type="button" class="btn btn-md mt-1 mb-1 btn-danger" onclick="deleteServiceRecord(@Model.Id)">@translator.Translate(userLanguage,"Delete")</button>
             <button type="button" class="btn btn-md btn-danger btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu">
-                <li><h6 class="dropdown-header">Move To</h6></li>
-                <li><a class="dropdown-item" href="#" onclick="moveRecord(@Model.Id, 'ServiceRecord', 'RepairRecord')">Repairs</a></li>
-                <li><a class="dropdown-item" href="#" onclick="moveRecord(@Model.Id, 'ServiceRecord', 'UpgradeRecord')">Upgrades</a></li>
+                <li><h6 class="dropdown-header">@translator.Translate(userLanguage,"Move To")</h6></li>
+                <li><a class="dropdown-item" href="#" onclick="moveRecord(@Model.Id, 'ServiceRecord', 'RepairRecord')">@translator.Translate(userLanguage,"Repairs")</a></li>
+                <li><a class="dropdown-item" href="#" onclick="moveRecord(@Model.Id, 'ServiceRecord', 'UpgradeRecord')">@translator.Translate(userLanguage,"Upgrades")</a></li>
             </ul>
         </div>
     }
-    <button type="button" class="btn btn-secondary" onclick="hideAddServiceRecordModal()">Cancel</button>
+    <button type="button" class="btn btn-secondary" onclick="hideAddServiceRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveServiceRecordToVehicle()">Add New Service Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveServiceRecordToVehicle()">@translator.Translate(userLanguage,"Add New Service Record")</button>
     }
     else if (!isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveServiceRecordToVehicle(true)">Edit Service Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveServiceRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Service Record")</button>
     }
 </div>
 <script>

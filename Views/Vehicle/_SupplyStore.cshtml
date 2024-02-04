@@ -1,7 +1,14 @@
-﻿@model string
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model string
 <div class="row">
     <div class="col-12">
-        <a onclick="showSuppliesModal()" class="btn btn-link">Choose Supplies</a>
+        <a onclick="showSuppliesModal()" class="btn btn-link">@translator.Translate(userLanguage,"Choose Supplies")</a>
     </div>
 </div>
 <script>

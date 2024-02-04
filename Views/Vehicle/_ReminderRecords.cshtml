@@ -1,18 +1,23 @@
-﻿@model List<ReminderRecordViewModel>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<ReminderRecordViewModel>
 @{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
     var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
 }
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"# of Reminders: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-secondary">@($"Past Due: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
-            <span class="ms-2 badge bg-danger">@($"Very Urgent: {Model.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
-            <span class="ms-2 badge bg-warning">@($"Urgent: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
-            <span class="ms-2 badge bg-success">@($"Not Urgent: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "# of Reminders")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-secondary">@($"{translator.Translate(userLanguage, "Past Due")}: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
+            <span class="ms-2 badge bg-danger">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
+            <span class="ms-2 badge bg-warning">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
         </div>
         <div>
-            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>Add Reminder</button>
+            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Reminder")</button>
         </div>
     </div>
 </div>
@@ -26,15 +31,15 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1">Urgency</th>
-                    <th scope="col" class="col-2">Metric</th>
-                    <th scope="col" class="@(hasRefresh ? "col-4" : "col-5")">Description</th>
-                    <th scope="col" class="col-3">Notes</th>
+                    <th scope="col" class="col-1">@translator.Translate(userLanguage, "Urgency")</th>
+                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Metric")</th>
+                    <th scope="col" class="@(hasRefresh ? "col-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
                     {
-                        <th scope="col" class="col-1">Done</th>
+                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Done")</th>
                     }
-                    <th scope="col" class="col-1">Delete</th>
+                    <th scope="col" class="col-1">@translator.Translate(userLanguage, "Delete")</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,19 +48,19 @@
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditReminderRecordModal(@reminderRecord.Id)">
                         @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                         {
-                            <td class="col-1"><span class="badge text-bg-danger">Very Urgent</span></td>
+                            <td class="col-1"><span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span></td>
                         }
                         else if (reminderRecord.Urgency == ReminderUrgency.Urgent)
                         {
-                            <td class="col-1"><span class="badge text-bg-warning">Urgent</span></td>
+                            <td class="col-1"><span class="badge text-bg-warning">@translator.Translate(userLanguage, "Urgent")</span></td>
                         }
                         else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
                         {
-                            <td class="col-1"><span class="badge text-bg-secondary">Past Due</span></td>
+                            <td class="col-1"><span class="badge text-bg-secondary">@translator.Translate(userLanguage, "Past Due")</span></td>
                         }
                         else
                         {
-                            <td class="col-1"><span class="badge text-bg-success">Not Urgent</span></td>
+                            <td class="col-1"><span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span></td>
                         }
                         @if (reminderRecord.Metric == ReminderMetric.Date)
                         {

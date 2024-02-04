@@ -1,6 +1,13 @@
-﻿@model ImportMode
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ImportMode
 <div class="modal-header">
-    <h5 class="modal-title">Import Data from CSV</h5>
+    <h5 class="modal-title">@translator.Translate(userLanguage, "Import Data from CSV")</h5>
     <button type="button" class="btn-close" onclick="hideBulkImportModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -9,37 +16,40 @@
             <div class="form-group">
                 <div class="col-12">
                     <div class="alert alert-warning" role="alert">
-                        In order for this utility to function properly, your CSV file MUST be formatted exactly like the provided sample.
-                        Dates must be supplied in a string.
-                        Numbers must be supplied as numbers without currency formatting.
+                        @translator.Translate(userLanguage, "In order for this utility to function properly, your CSV file MUST be formatted exactly like the provided sample. Dates must be supplied in a string. Numbers must be supplied as numbers without currency formatting.")
                     </div>
                     <div class="alert alert-danger" role="alert">
-                        Failure to format the data correctly can cause data corruption. Please make sure you make a copy of the local database before proceeding.
+                        @translator.Translate(userLanguage, "Failure to format the data correctly can cause data corruption. Please make sure you make a copy of the local database before proceeding.")
                     </div>
                     @if (Model == ImportMode.GasRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/gassample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.ServiceRecord || Model == ImportMode.RepairRecord || Model == ImportMode.UpgradeRecord)
+                        <a class="btn btn-link" href="/defaults/gassample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    }
+                    else if (Model == ImportMode.ServiceRecord || Model == ImportMode.RepairRecord || Model == ImportMode.UpgradeRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/servicerecordsample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.TaxRecord)
+                        <a class="btn btn-link" href="/defaults/servicerecordsample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    }
+                    else if (Model == ImportMode.TaxRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/taxrecordsample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.SupplyRecord)
+                        <a class="btn btn-link" href="/defaults/taxrecordsample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    }
+                    else if (Model == ImportMode.SupplyRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/supplysample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.PlanRecord)
+                        <a class="btn btn-link" href="/defaults/supplysample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    }
+                    else if (Model == ImportMode.PlanRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/plansample.csv" target="_blank">Download Sample</a>
-                    } else if (Model == ImportMode.OdometerRecord)
+                        <a class="btn btn-link" href="/defaults/plansample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    }
+                    else if (Model == ImportMode.OdometerRecord)
                     {
-                        <a class="btn btn-link" href="/defaults/odometersample.csv" target="_blank">Download Sample</a>
+                        <a class="btn btn-link" href="/defaults/odometersample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
                     }
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-12">
-                    <label for="csvFileUploader">Upload CSV File</label>
+                    <label for="csvFileUploader">@translator.Translate(userLanguage, "Upload CSV File")</label>
                     <input onChange="uploadFileAsync(this)" type="file" multiple accept=".csv" class="form-control-file" id="csvFileUploader">
                 </div>
             </div>
@@ -47,8 +57,8 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" onclick="hideBulkImportModal()">Cancel</button>
-    <button type="button" onclick="importFromCsv()" class="btn btn-primary">Import</button>
+    <button type="button" class="btn btn-secondary" onclick="hideBulkImportModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" onclick="importFromCsv()" class="btn btn-primary">@translator.Translate(userLanguage, "Import")</button>
 </div>
 <script>
     var uploadedFile = "";
@@ -73,7 +83,7 @@
                     getVehicleUpgradeRecords(vehicleId);
                 } else if (mode == "SupplyRecord") {
                     getVehicleSupplyRecords(vehicleId);
-                } else if (mode == "PlanRecord"){
+                } else if (mode == "PlanRecord") {
                     getVehiclePlanRecords(vehicleId);
                 } else if (mode == "OdometerRecord") {
                     getVehicleOdometerRecords(vehicleId);

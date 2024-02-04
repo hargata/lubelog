@@ -1,14 +1,17 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
-    var hideZero = config.GetUserConfig(User).HideZero;
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
 }
 @model VehicleHistoryViewModel
 <div class="vehicleDetailTabContainer">
     <div class="row mt-2">
         <div class="d-flex">
             <img src="/defaults/lubelogger_logo.png" />
-            <span class="display-6 ms-5">Vehicle Maintenance Report</span>
+            <span class="display-6 ms-5">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</span>
         </div>
     </div>
     <hr />
@@ -24,21 +27,21 @@
                 <li class="list-group-item">
                     @if (Model.VehicleData.IsElectric)
                     {
-                        <span><i class="bi bi-ev-station"></i> Electric</span>
+                        <span><i class="bi bi-ev-station me-2"></i>@translator.Translate(userLanguage, "Electric")</span>
                     }
                     else
                     {
-                        <span><i class="bi bi-fuel-pump"></i> Gasoline</span>
+                        <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>
                     }
                 </li>
             </ul>
         </div>
         <div class="col-6">
             <ul class="list-group">
-                <li class="list-group-item">Last Reported Odometer Reading: @Model.Odometer</li>
-                <li class="list-group-item">Average Fuel Economy: @($"{Model.MPG}")</li>
-                <li class="list-group-item">Total Spent(excl. fuel): @Model.TotalCost.ToString("C")</li>
-                <li class="list-group-item">Total Spent on Fuel: @Model.TotalGasCost.ToString("C")</li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Last Reported Odometer Reading")}: {Model.Odometer}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {Model.MPG}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent(excl. fuel)")}: {Model.TotalCost.ToString("C")}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent on Fuel")}: {Model.TotalGasCost.ToString("C")}") </li>
             </ul>
         </div>
     </div>
@@ -48,12 +51,12 @@
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
-                        <th scope="col" class="col-2 servicehistorytype">Type</th>
-                        <th scope="col" class="col-1 servicehistorydate">Date</th>
-                        <th scope="col" class="col-1">Odometer</th>
-                        <th scope="col" class="col-3">Description</th>
-                        <th scope="col" class="col-1">Cost</th>
-                        <th scope="col" class="col-4">Notes</th>
+                        <th scope="col" class="col-2 servicehistorytype">@translator.Translate(userLanguage, "Type")</th>
+                        <th scope="col" class="col-1 servicehistorydate">@translator.Translate(userLanguage, "Date")</th>
+                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Odometer")</th>
+                        <th scope="col" class="col-3">@translator.Translate(userLanguage, "Description")</th>
+                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Cost")</th>
+                        <th scope="col" class="col-4">@translator.Translate(userLanguage, "Notes")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,18 +64,21 @@
                     {
                         <tr class="d-flex">
                             <td class="col-2 servicehistorytype">
-                                @if(reportData.DataType == ImportMode.ServiceRecord)
+                                @if (reportData.DataType == ImportMode.ServiceRecord)
                                 {
-                                    <span><i class="bi bi-card-checklist me-2"></i>Service</span>
-                                } else if (reportData.DataType == ImportMode.RepairRecord)
+                                    <span><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.RepairRecord)
                                 {
-                                    <span><i class="bi bi-exclamation-octagon me-2"></i>Repair</span>
-                                } else if (reportData.DataType == ImportMode.UpgradeRecord)
+                                    <span><i class="bi bi-exclamation-octagon me-2"></i>@translator.Translate(userLanguage, "Repair")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.UpgradeRecord)
                                 {
-                                    <span><i class="bi bi-wrench-adjustable me-2"></i>Upgrade</span>
-                                } else if (reportData.DataType == ImportMode.TaxRecord)
+                                    <span><i class="bi bi-wrench-adjustable me-2"></i>@translator.Translate(userLanguage, "Upgrade")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.TaxRecord)
                                 {
-                                    <span><i class="bi bi-currency-dollar me-2"></i>Tax</span>
+                                    <span><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Tax")</span>
                                 }
                             </td>
                             <td class="col-1 servicehistorydate">@reportData.Date.ToShortDateString()</td>

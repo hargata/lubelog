@@ -1,20 +1,25 @@
-﻿@model List<CostForVehicleByMonth>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<CostForVehicleByMonth>
 @{
-        var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
-        var sortedByMPG = Model.OrderByDescending(x => x.Cost).ToList();
+    var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
+    var sortedByMPG = Model.OrderByDescending(x => x.Cost).ToList();
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
 }
-@if (Model.Where(x=>x.Cost > 0).Any())
+@if (Model.Where(x => x.Cost > 0).Any())
 {
-    
+
     <canvas id="bar-chart-mpg"></canvas>
     <script>
         renderChart();
         function renderChart() {
-        var barGraphLabels = [];
-        var barGraphData = [];
-        //color gradient from high to low
-        var barGraphColors = [];
-        var useDarkMode = getGlobalConfig().useDarkMode;
+            var barGraphLabels = [];
+            var barGraphData = [];
+            //color gradient from high to low
+            var barGraphColors = [];
+            var useDarkMode = getGlobalConfig().useDarkMode;
         @foreach (CostForVehicleByMonth gasCost in Model)
         {
             @:barGraphLabels.push(decodeHTMLEntities("@gasCost.MonthName"));
@@ -22,13 +27,13 @@
             var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
             @:barGraphColors.push('@barGraphColors[index]');
         }
-        new Chart($("#bar-chart-mpg"), {
+                new Chart($("#bar-chart-mpg"), {
                     type: 'bar',
                     data: {
                         labels: barGraphLabels,
                         datasets: [
                             {
-                                label: "Fuel Mileage by Month",
+                                label: decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel Mileage by Month")'),
                                 backgroundColor: barGraphColors,
                                 data: barGraphData
                             }
@@ -39,7 +44,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: 'Fuel Mileage by Month'
+                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel Mileage by Month")')
                             },
                             legend: {
                                 display: false,
@@ -65,9 +70,10 @@
                 });
         }
     </script>
-} else
+}
+else
 {
     <div class="text-center">
-        <h4>No data found, insert/select some data to see visualizations here.</h4>
+        <h4>@translator.Translate(userLanguage,"No data found, insert/select some data to see visualizations here.")</h4>
     </div>
 }

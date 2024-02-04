@@ -1,5 +1,10 @@
-﻿@model Vehicle
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model Vehicle
 @{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
     var isNew = Model.Id == 0;
     if (Model.ImageLocation == "/defaults/noimage.png")
     {
@@ -7,7 +12,7 @@
     }
 }
 <div class="modal-header">
-    <h5 class="modal-title" id="addVehicleModalLabel">@(isNew ? "Add New Vehicle" : "Edit Vehicle")</h5>
+    <h5 class="modal-title" id="addVehicleModalLabel">@(isNew ? translator.Translate(userLanguage, "Add New Vehicle") : translator.Translate(userLanguage, "Edit Vehicle"))</h5>
     @if (isNew)
     {
         <button type="button" class="btn-close" onclick="hideAddVehicleModal()" aria-label="Close"></button>
@@ -21,23 +26,23 @@
 <div class="modal-body">
     <form class="form-inline">
         <div class="form-group">
-            <label for="inputYear">Year</label>
-            <input type="number" id="inputYear" class="form-control" placeholder="Year(must be after 1900)" value="@(isNew ? "" : Model.Year)">
-            <label for="inputMake">Make</label>
-            <input type="text" id="inputMake" class="form-control" placeholder="Make" value="@Model.Make">
-            <label for="inputModel">Model</label>
-            <input type="text" id="inputModel" class="form-control" placeholder="Model" value="@Model.Model">
-            <label for="inputLicensePlate">License Plate</label>
-            <input type="text" id="inputLicensePlate" class="form-control" placeholder="License Plate" value="@Model.LicensePlate">
+            <label for="inputYear">@translator.Translate(userLanguage, "Year")</label>
+            <input type="number" id="inputYear" class="form-control" placeholder="@translator.Translate(userLanguage, "Year(must be after 1900)")" value="@(isNew ? "" : Model.Year)">
+            <label for="inputMake">@translator.Translate(userLanguage, "Make")</label>
+            <input type="text" id="inputMake" class="form-control" placeholder="@translator.Translate(userLanguage, "Make")" value="@Model.Make">
+            <label for="inputModel">@translator.Translate(userLanguage, "Model")</label>
+            <input type="text" id="inputModel" class="form-control" placeholder="@translator.Translate(userLanguage, "Model")" value="@Model.Model">
+            <label for="inputLicensePlate">@translator.Translate(userLanguage, "License Plate")</label>
+            <input type="text" id="inputLicensePlate" class="form-control" placeholder="@translator.Translate(userLanguage, "License Plate")" value="@Model.LicensePlate">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="inputIsElectric" checked="@Model.IsElectric">
-                <label class="form-check-label" for="inputIsElectric">Electric Vehicle</label>
+                <label class="form-check-label" for="inputIsElectric">@translator.Translate(userLanguage, "Electric Vehicle")</label>
             </div>
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="inputUseHours" checked="@Model.UseHours">
-                <label class="form-check-label" for="inputUseHours">Use Engine Hours</label>
+                <label class="form-check-label" for="inputUseHours">@translator.Translate(userLanguage, "Use Engine Hours")</label>
             </div>
-            <label for="inputTag">Tags(optional)</label>
+            <label for="inputTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
             <select multiple class="form-select" id="inputTag">
                 @foreach (string tag in Model.Tags)
                 {
@@ -46,11 +51,11 @@
             </select>
             @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
             {
-                <label for="inputImage">Replace picture(optional)</label>
+                <label for="inputImage">@translator.Translate(userLanguage, "Replace picture(optional)")</label>
                 <input onChange="uploadFileAsync(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
             } else
             {
-                <label for="inputImage">Upload a picture(optional)</label>
+                <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
                 <input onChange="uploadFileAsync(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
             }
         </div>
@@ -59,12 +64,12 @@
 <div class="modal-footer">
     @if (isNew)
     {
-        <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">Cancel</button>
-        <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">Add New Vehicle</button>
+        <button type="button" class="btn btn-secondary" onclick="hideAddVehicleModal()">@translator.Translate(userLanguage, "Cancel")</button>
+        <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">@translator.Translate(userLanguage, "Add New Vehicle")</button>
     } else if (!isNew)
     {
-        <button type="button" class="btn btn-secondary" onclick="hideEditVehicleModal()">Cancel</button>
-        <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">Save Vehicle</button>
+        <button type="button" class="btn btn-secondary" onclick="hideEditVehicleModal()">@translator.Translate(userLanguage, "Cancel")</button>
+        <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">@translator.Translate(userLanguage, "Save Vehicle")</button>
     }
 </div>
 <script>

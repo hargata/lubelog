@@ -1,9 +1,12 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @model GasRecordInputContainer
 @{
-    var useMPG = config.GetUserConfig(User).UseMPG;
-    var useUKMPG = config.GetUserConfig(User).UseUKMPG;
+    var userConfig = config.GetUserConfig(User);
+    var useMPG = userConfig.UseMPG;
+    var useUKMPG = userConfig.UseUKMPG;
+    var userLanguage = userConfig.UserLanguage;
     var useKwh = Model.UseKwh;
     var useHours = Model.UseHours;
     var isNew = Model.GasRecord.Id == 0;
@@ -34,7 +37,7 @@
     }
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? "Add New Gas Record" : "Edit Gas Record")</h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage,"Add New Gas Record") : translator.Translate(userLanguage,"Edit Gas Record"))</h5>
     <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -43,40 +46,40 @@
             <div class="row">
                 <div class="col-md-6 col-12">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
-                    <label for="gasRecordDate">Date</label>
+                    <label for="gasRecordDate">@translator.Translate(userLanguage,"Date")</label>
                     <div class="input-group">
-                        <input type="text" id="gasRecordDate" placeholder="Date refueled" class="form-control" value="@Model.GasRecord.Date">
+                        <input type="text" id="gasRecordDate" placeholder="@translator.Translate(userLanguage,"Date refueled")" class="form-control" value="@Model.GasRecord.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="gasRecordMileage">Odometer Reading(@distanceUnit)</label>
-                    <input type="number" id="gasRecordMileage" class="form-control" placeholder="Odometer reading when refueled" value="@(isNew ? "" : Model.GasRecord.Mileage)">
-                    <label for="gasRecordGallons">Fuel Consumption(@(consumptionUnit))</label>
-                    <input type="text" id="gasRecordGallons" class="form-control" placeholder="Amount of gas refueled" value="@(isNew ? "" : Model.GasRecord.Gallons)">
+                    <label for="gasRecordMileage">@($"{translator.Translate(userLanguage,"Odometer Reading")}({distanceUnit})")</label>
+                    <input type="number" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew ? "" : Model.GasRecord.Mileage)">
+                    <label for="gasRecordGallons">@($"{translator.Translate(userLanguage, "Fuel Consumption")}({consumptionUnit})")</label>
+                    <input type="text" id="gasRecordGallons" class="form-control" placeholder="@translator.Translate(userLanguage,"Amount of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Gallons)">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.GasRecord.IsFillToFull">
-                        <label class="form-check-label" for="gasIsFillToFull">Is Filled To Full</label>
+                        <label class="form-check-label" for="gasIsFillToFull">@translator.Translate(userLanguage,"Is Filled To Full")</label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsMissed" checked="@Model.GasRecord.MissedFuelUp">
-                        <label class="form-check-label" for="gasIsMissed">Missed Fuel Up(Skip MPG Calculation)</label>
+                        <label class="form-check-label" for="gasIsMissed">@translator.Translate(userLanguage,"Missed Fuel Up(Skip MPG Calculation)")</label>
                     </div>
-                    <label for="GasRecordCost">Cost</label>
+                    <label for="GasRecordCost">@translator.Translate(userLanguage,"Cost")</label>
                     @if (isNew)
                     {
                         <div class="input-group">
-                            <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                            <input type="text" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                             <div class="input-group-text">
                                 <select class="form-select form-select-sm" id="gasCostType">
-                                    <option value="total">Total</option>
-                                    <option value="unit">Unit</option>
+                                    <option value="total">@translator.Translate(userLanguage,"Total")</option>
+                                    <option value="unit">@translator.Translate(userLanguage,"Unit")</option>
                                 </select>
                             </div>
                         </div>
                     } else
                     {
-                        <input type="text" id="gasRecordCost" class="form-control" placeholder="Cost of gas refueled" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                        <input type="text" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                     }
-                    <label for="gasRecordTag">Tags(optional)</label>
+                    <label for="gasRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="gasRecordTag">
                         @foreach (string tag in Model.GasRecord.Tags)
                         {
@@ -85,22 +88,22 @@
                     </select>
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="gasRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <label for="gasRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="gasRecordNotes" class="form-control" rows="5">@Model.GasRecord.Notes</textarea>
                     @if (Model.GasRecord.Files.Any())
                     {
                         <div>
                             @await Html.PartialAsync("_UploadedFiles", Model.GasRecord.Files)
-                            <label for="gasRecordFiles">Upload more documents</label>
+                            <label for="gasRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="gasRecordFiles">
-                            <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                         </div>
                     }
                     else
                     {
-                        <label for="gasRecordFiles">Upload documents(optional)</label>
+                        <label for="gasRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="gasRecordFiles">
-                        <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
                 </div>
             </div>
@@ -110,16 +113,16 @@
 <div class="modal-footer">
     @if (!isNew)
     {
-        <button type="button" class="btn btn-danger" onclick="deleteGasRecord(@Model.GasRecord.Id)" style="margin-right:auto;">Delete</button>
+        <button type="button" class="btn btn-danger" onclick="deleteGasRecord(@Model.GasRecord.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
-    <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">Cancel</button>
+    <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle()">Add New Gas Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle()">@translator.Translate(userLanguage,"Add New Gas Record")</button>
     }
     else if (!isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">Edit Gas Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Gas Record")</button>
     }
 </div>
 <script>

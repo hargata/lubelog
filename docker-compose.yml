@@ -10,6 +10,7 @@ services:
     volumes:
       - config:/App/config
       - data:/App/data
+      - translations:/App/wwwroot/translations
       - documents:/App/wwwroot/documents
       - images:/App/wwwroot/images
       - temp:/App/wwwroot/temp
@@ -24,6 +25,7 @@ services:
 volumes:
   config:
   data:
+  translations:
   documents:
   images:
   temp:
