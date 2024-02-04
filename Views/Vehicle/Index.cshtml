@@ -28,10 +28,10 @@
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="nav navbar-nav" id="vehicleTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square"></i>@translator.Translate(userLanguage,"Garage")</span></button>
+            <button class="nav-link" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square"></i>@translator.Translate(userLanguage, "Edit Vehicle")</span></button>
+            <button class="nav-link" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Edit Vehicle")</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>@translator.Translate(userLanguage, "Dashboard")</span></button>
