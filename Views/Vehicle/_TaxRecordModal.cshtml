@@ -1,9 +1,14 @@
-﻿@model TaxRecordInput
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model TaxRecordInput
 @{
     var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? "Add New Tax Record" : "Edit Tax Record")</h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage,"Add New Tax Record") : translator.Translate(userLanguage,"Edit Tax Record"))</h5>
     <button type="button" class="btn-close" onclick="hideAddTaxRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -12,16 +17,16 @@
             <div class="row">
                 <div class="col-md-6 col-12">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
-                    <label for="taxRecordDate">Date</label>
+                    <label for="taxRecordDate">@translator.Translate(userLanguage,"Date")</label>
                     <div class="input-group">
-                        <input type="text" id="taxRecordDate" class="form-control" placeholder="Date tax was paid" value="@Model.Date">
+                        <input type="text" id="taxRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date tax was paid")" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="taxRecordDescription">Description</label>
-                    <input type="text" id="taxRecordDescription" class="form-control" placeholder="Description of tax paid(i.e. Registration)" value="@Model.Description">
-                    <label for="taxRecordCost">Cost</label>
-                    <input type="text" id="taxRecordCost" class="form-control" placeholder="Cost of tax paid" value="@(isNew? "" : Model.Cost)">
-                    <label for="taxRecordTag">Tags(optional)</label>
+                    <label for="taxRecordDescription">@translator.Translate(userLanguage,"Description")</label>
+                    <input type="text" id="taxRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of tax paid(i.e. Registration)")" value="@Model.Description">
+                    <label for="taxRecordCost">@translator.Translate(userLanguage,"Cost")</label>
+                    <input type="text" id="taxRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of tax paid")" value="@(isNew? "" : Model.Cost)">
+                    <label for="taxRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="taxRecordTag">
                         @foreach (string tag in Model.Tags)
                         {
@@ -30,29 +35,29 @@
                     </select>
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="taxRecordNotes">Notes(optional)<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <label for="taxRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="taxRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" onChange="enableTaxRecurring()" role="switch" id="taxIsRecurring" checked="@Model.IsRecurring">
-                        <label class="form-check-label" for="taxIsRecurring">Is Recurring</label>
+                        <label class="form-check-label" for="taxIsRecurring">@translator.Translate(userLanguage,"Is Recurring")</label>
                     </div>
-                    <label for="taxRecurringMonth">Month</label>
+                    <label for="taxRecurringMonth">@translator.Translate(userLanguage,"Month")</label>
                     <select class="form-select" id="taxRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
-                        <!option value="OneMonth" @(Model.RecurringInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>1 Month</!option>
-                        <!option value="ThreeMonths" @(Model.RecurringInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>3 Months</!option>
-                        <!option value="SixMonths" @(Model.RecurringInterval == ReminderMonthInterval.SixMonths ? "selected" : "")>6 Months</!option>
-                        <!option value="OneYear" @(Model.RecurringInterval == ReminderMonthInterval.OneYear ? "selected" : "")>1 Year</!option>
-                        <!option value="TwoYears" @(Model.RecurringInterval == ReminderMonthInterval.TwoYears ? "selected" : "")>2 Years</!option>
-                        <!option value="ThreeYears" @(Model.RecurringInterval == ReminderMonthInterval.ThreeYears ? "selected" : "")>3 Years</!option>
-                        <!option value="FiveYears" @(Model.RecurringInterval == ReminderMonthInterval.FiveYears ? "selected" : "")>5 Years</!option>
+                        <!option value="OneMonth" @(Model.RecurringInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>@translator.Translate(userLanguage,"1 Month")</!option>
+                        <!option value="ThreeMonths" @(Model.RecurringInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>@translator.Translate(userLanguage, "3 Months")</!option>
+                        <!option value="SixMonths" @(Model.RecurringInterval == ReminderMonthInterval.SixMonths ? "selected" : "")>@translator.Translate(userLanguage, "6 Months")</!option>
+                        <!option value="OneYear" @(Model.RecurringInterval == ReminderMonthInterval.OneYear ? "selected" : "")>@translator.Translate(userLanguage, "1 Year")</!option>
+                        <!option value="TwoYears" @(Model.RecurringInterval == ReminderMonthInterval.TwoYears ? "selected" : "")>@translator.Translate(userLanguage, "2 Years")</!option>
+                        <!option value="ThreeYears" @(Model.RecurringInterval == ReminderMonthInterval.ThreeYears ? "selected" : "")>@translator.Translate(userLanguage, "3 Years")</!option>
+                        <!option value="FiveYears" @(Model.RecurringInterval == ReminderMonthInterval.FiveYears ? "selected" : "")>@translator.Translate(userLanguage, "5 Years")</!option>
                     </select>
                     @if (Model.Files.Any())
                     {
                         <div>
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            <label for="taxRecordFiles">Upload more documents</label>
+                            <label for="taxRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
                             <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="taxRecordFiles">
-                            <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                         </div>
                     }
                     else
@@ -62,13 +67,13 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
                                 <label class="form-check-label" for="addReminderCheck">
-                                    Add Reminder
+                                    @translator.Translate(userLanguage,"Add Reminder")"
                                 </label>
                             </div>
                         }
-                        <label for="taxRecordFiles">Upload documents(optional)</label>
+                        <label for="taxRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="taxRecordFiles">
-                        <br /><small class="text-body-secondary">Max File Size: 28.6MB</small>
+                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
                 </div>
             </div>
@@ -78,16 +83,16 @@
 <div class="modal-footer">
     @if (!isNew)
     {
-        <button type="button" class="btn btn-danger" onclick="deleteTaxRecord(@Model.Id)" style="margin-right:auto;">Delete</button>
+        <button type="button" class="btn btn-danger" onclick="deleteTaxRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
-    <button type="button" class="btn btn-secondary" onclick="hideAddTaxRecordModal()">Cancel</button>
+    <button type="button" class="btn btn-secondary" onclick="hideAddTaxRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle()">Add New Tax Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle()">@translator.Translate(userLanguage,"Add New Tax Record")</button>
     }
     else if (!isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle(true)">Edit Tax Record</button>
+        <button type="button" class="btn btn-primary" onclick="saveTaxRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Tax Record")</button>
     }
 </div>
 <script>
