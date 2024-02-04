@@ -2,34 +2,50 @@ name: Build and Push Image to Dockerhub and GHCR
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  release:
+    types: ["published"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
           username: "${{ secrets.DH_USER }}"
           password: "${{ secrets.DH_PASS }}"
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
           registry: ghcr.io
           username: "hargata"
           password: "${{ secrets.GHCR_PAT }}"
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
+
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          context: workflow
+          images: |
+            hargata/lubelogger
+            ghcr.io/hargata/lubelogger
+          tags: |
+            type=edge,branch=main
+            type=ref,event=tag
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            hargata/lubelogger:latest
-            ghcr.io/hargata/lubelogger:latest
-              
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
