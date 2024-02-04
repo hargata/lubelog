@@ -19,7 +19,7 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="noteIsPinned" checked="@Model.Pinned">
-                        <label class="form-check-label" for="noteIsPinned">Pinned</label>
+                        <label class="form-check-label" for="noteIsPinned">@translator.Translate(userLanguage,"Pinned")</label>
                     </div>
                     <label for="noteDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="noteDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of the note")" value="@(isNew ? "" : Model.Description)">
