@@ -1,6 +1,13 @@
-﻿@model List<SupplyRecord>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<SupplyRecord>
 <div class="modal-header">
-    <h5 class="modal-title">Select Supplies</h5>
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Select Supplies")</h5>
     <button type="button" class="btn-close" onclick="hideSuppliesModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -9,17 +16,16 @@
         <div class="row">
             <div class="col-12" style="max-height:50vh; overflow-y:auto;">
                 <div class="alert alert-warning" role="alert">
-                    Supplies are requisitioned immediately after the record is created and cannot be modified.
-                    If you have incorrectly entered the amount you needed you will need to correct it in the Supplies tab.
+                    @translator.Translate(userLanguage,"Supplies are requisitioned immediately after the record is created and cannot be modified. If you have incorrectly entered the amount you needed you will need to correct it in the Supplies tab.")
                 </div>
                 <table class="table table-hover">
                     <thead class="sticky-top">
                         <tr class="d-flex">
                             <th scope="col" class="col-1"></th>
-                            <th scope="col" class="col-2">Quantity.</th>
-                            <th scope="col" class="col-2">In Stock</th>
-                            <th scope="col" class="col-5">Description</th>
-                            <th scope="col" class="col-2">Unit Cost</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage,"Quantity")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "In Stock")</th>
+                            <th scope="col" class="col-5">@translator.Translate(userLanguage, "Description")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Unit Cost")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,7 +49,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="text-center">
-                    <h4>No supplies with quantities greater than 0 is found.</h4>
+                    <h4>@translator.Translate(userLanguage, "No supplies with quantities greater than 0 is found.")</h4>
                 </div>
             </div>
         </div>
@@ -51,8 +57,8 @@
 </div>
 <div class="modal-footer">
     <span id="supplySumLabel" style="margin-right:auto;">Total: 0.00</span>
-    <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">Cancel</button>
-    <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">Select</button>
+    <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">@translator.Translate(userLanguage, "Select")</button>
 </div>
 <script>
     function recalculateTotal() {

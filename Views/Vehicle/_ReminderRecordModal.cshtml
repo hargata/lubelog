@@ -52,7 +52,7 @@
                     </div>
                     <label for="reminderRecurringMileage">@translator.Translate(userLanguage,"Odometer")</label>
                     <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring ? "" : "disabled")>
-                        <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.ReminderMileageInterval == ReminderMileageInterval.Other && Model.CustomMileageInterval > 0 ? $"Other: {Model.CustomMileageInterval}" : "Other")</!option>
+                        <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.ReminderMileageInterval == ReminderMileageInterval.Other && Model.CustomMileageInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMileageInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="FiftyMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyMiles ? "selected" : "")>50 mi. / Km</!option>
                         <!option value="OneHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredMiles ? "selected" : "")>100 mi. / Km</!option>
                         <!option value="FiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveHundredMiles ? "selected" : "")>500 mi. / Km</!option>
