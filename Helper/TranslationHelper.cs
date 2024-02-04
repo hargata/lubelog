@@ -30,9 +30,15 @@ namespace CarCareTracker.Helper
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
                 if (File.Exists(translationFilePath))
                 {
-                    var translationFile = File.ReadAllText(translationFilePath);
-                    var translationDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(translationFile);
-                    return translationDictionary ?? new Dictionary<string, string>();
+                    try
+                    {
+                        var translationFile = File.ReadAllText(translationFilePath);
+                        var translationDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(translationFile);
+                        return translationDictionary ?? new Dictionary<string, string>();
+                    } catch (Exception ex)
+                    {
+                        return new Dictionary<string, string>();
+                    }
                 }
                 else
                 {
