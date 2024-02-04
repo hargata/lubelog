@@ -34,6 +34,26 @@ namespace CarCareTracker.Controllers
         }
 
         [HttpPost]
+        public IActionResult HandleTranslationFileUpload(IFormFile file)
+        {
+            var originalFileName = Path.GetFileNameWithoutExtension(file.FileName);
+            if (originalFileName == "en_US")
+            {
+                return Json(new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." });
+            }
+            var fileName = UploadFile(file);
+            //move file from temp to translation folder.
+            var uploadedFilePath = _fileHelper.MoveFileFromTemp(fileName, "translations/");
+            //rename uploaded file so that it preserves original name.
+            if (!string.IsNullOrWhiteSpace(uploadedFilePath))
+            {
+                var result = _fileHelper.RenameFile(uploadedFilePath, originalFileName);
+                return Json(new OperationResponse { Success = result, Message = string.Empty });
+            }
+            return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+        }
+
+        [HttpPost]
         public IActionResult HandleMultipleFileUpload(List<IFormFile> file)
         {
             List<UploadedFiles> uploadedFiles = new List<UploadedFiles>();
@@ -44,7 +64,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(uploadedFiles);
         }
-
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
         public IActionResult DeleteFiles(string fileLocation)
         {

@@ -15,17 +15,20 @@ namespace CarCareTracker.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly IUserLogic _userLogic;
+        private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
 
         public HomeController(ILogger<HomeController> logger, 
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
-            IConfigHelper configuration)
+            IConfigHelper configuration,
+            IFileHelper fileHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _config = configuration;
             _userLogic = userLogic;
+            _fileHelper = fileHelper;
         }
         private int GetUserID()
         {
@@ -47,7 +50,13 @@ namespace CarCareTracker.Controllers
         public IActionResult Settings()
         {
             var userConfig = _config.GetUserConfig(User);
-            return PartialView("_Settings", userConfig);
+            var languages = _fileHelper.GetLanguages();
+            var viewModel = new SettingsViewModel
+            {
+                UserConfig = userConfig,
+                UILanguages = languages
+            };
+            return PartialView("_Settings", viewModel);
         }
         [HttpPost]
         public IActionResult WriteToSettings(UserConfig userConfig)

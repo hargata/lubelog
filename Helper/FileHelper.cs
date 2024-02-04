@@ -7,10 +7,12 @@ namespace CarCareTracker.Helper
     {
         string GetFullFilePath(string currentFilePath, bool mustExist = true);
         string MoveFileFromTemp(string currentFilePath, string newFolder);
+        bool RenameFile(string currentFilePath, string newName);
         bool DeleteFile(string currentFilePath);
         string MakeBackup();
         bool RestoreBackup(string fileName, bool clearExisting = false);
         string MakeAttachmentsExport(List<GenericReportModel> exportData);
+        List<string> GetLanguages();
     }
     public class FileHelper : IFileHelper
     {
@@ -20,6 +22,40 @@ namespace CarCareTracker.Helper
         {
             _webEnv = webEnv;
             _logger = logger;
+        }
+        public List<string> GetLanguages()
+        {
+            var languagePath = Path.Combine(_webEnv.WebRootPath, "translations");
+            var defaultList = new List<string>() { "en_US" };
+            if (Directory.Exists(languagePath))
+            {
+                var listOfLanguages = Directory.GetFiles(languagePath);
+                if (listOfLanguages.Any())
+                {
+                    defaultList.AddRange(listOfLanguages.Select(x => Path.GetFileNameWithoutExtension(x)));
+                }
+            }
+            return defaultList;
+        }
+        public bool RenameFile(string currentFilePath, string newName)
+        {
+            var fullFilePath = GetFullFilePath(currentFilePath);
+            if (!string.IsNullOrWhiteSpace(fullFilePath))
+            {
+                try
+                {
+                    var originalFileName = Path.GetFileNameWithoutExtension(fullFilePath);
+                    var newFilePath = fullFilePath.Replace(originalFileName, newName);
+                    File.Move(fullFilePath, newFilePath);
+                    return true;
+                } 
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return false;
+                }
+            }
+            return false;
         }
         public string GetFullFilePath(string currentFilePath, bool mustExist = true)
         {
@@ -132,9 +168,9 @@ namespace CarCareTracker.Helper
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             int fileIndex = 0;
-            foreach(GenericReportModel reportModel in exportData)
+            foreach (GenericReportModel reportModel in exportData)
             {
-                foreach(UploadedFiles file in reportModel.Files)
+                foreach (UploadedFiles file in reportModel.Files)
                 {
                     var fileToCopy = GetFullFilePath(file.Location);
                     var destFileName = $"{tempPath}/{fileIndex}{Path.GetExtension(file.Location)}";

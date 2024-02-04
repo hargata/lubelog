@@ -110,6 +110,7 @@ namespace CarCareTracker.Helper
                 EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),
                 PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
                 PreferredGasUnit = _config[nameof(UserConfig.PreferredGasUnit)],
+                UserLanguage = _config[nameof(UserConfig.UserLanguage)],
                 VisibleTabs = _config.GetSection("VisibleTabs").Get<List<ImportMode>>(),
                 DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)])
             };
