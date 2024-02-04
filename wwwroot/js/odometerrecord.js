@@ -45,7 +45,7 @@ function deleteOdometerRecord(odometerRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleOdometerRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveOdometerRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -91,7 +91,7 @@ function getAndValidateOdometerRecordValues() {
     } else {
         $("#odometerRecordDate").removeClass("is-invalid");
     }
-    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+    if (serviceMileage.trim() == '' || isNaN(serviceMileage) || parseInt(serviceMileage) < 0) {
         hasError = true;
         $("#odometerRecordMileage").addClass("is-invalid");
     } else {

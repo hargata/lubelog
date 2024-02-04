@@ -41,7 +41,7 @@ function deleteNote(noteId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleNotes(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -65,7 +65,7 @@ function saveNoteToVehicle(isEdit) {
             saveScrollPosition();
             getVehicleNotes(formValues.vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }

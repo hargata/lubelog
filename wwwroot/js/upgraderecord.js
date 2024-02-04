@@ -45,7 +45,7 @@ function deleteUpgradeRecord(upgradeRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleUpgradeRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -94,7 +94,7 @@ function getAndValidateUpgradeRecordValues() {
     } else {
         $("#upgradeRecordDate").removeClass("is-invalid");
     }
-    if (upgradeMileage.trim() == '' || parseInt(upgradeMileage) < 0) {
+    if (upgradeMileage.trim() == '' || isNaN(upgradeMileage) || parseInt(upgradeMileage) < 0) {
         hasError = true;
         $("#upgradeRecordMileage").addClass("is-invalid");
     } else {

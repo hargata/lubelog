@@ -45,7 +45,7 @@ function deleteServiceRecord(serviceRecordId) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleServiceRecords(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -72,7 +72,7 @@ function saveServiceRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -94,7 +94,7 @@ function getAndValidateServiceRecordValues() {
     } else {
         $("#serviceRecordDate").removeClass("is-invalid");
     }
-    if (serviceMileage.trim() == '' || parseInt(serviceMileage) < 0) {
+    if (serviceMileage.trim() == '' || isNaN(serviceMileage) || parseInt(serviceMileage) < 0) {
         hasError = true;
         $("#serviceRecordMileage").addClass("is-invalid");
     } else {

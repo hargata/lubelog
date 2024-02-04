@@ -64,7 +64,7 @@ function deleteReminderRecord(reminderRecordId, e) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleReminders(vehicleId);
                 } else {
-                    errorToast("An error has occurred, please try again later.");
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -88,7 +88,7 @@ function saveReminderRecordToVehicle(isEdit) {
             saveScrollPosition();
             getVehicleReminders(formValues.vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -123,7 +123,7 @@ function markDoneReminderRecord(reminderRecordId, e) {
             successToast("Reminder Updated");
             getVehicleReminders(vehicleId);
         } else {
-            errorToast("An error has occurred, please try again later.");
+            errorToast(genericErrorMessage());
         }
     });
 }
@@ -143,7 +143,7 @@ function getAndValidateReminderRecordValues() {
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
-    var reminderMileageIsInvalid = reminderMileage.trim() == '' || parseInt(reminderMileage) < 0;
+    var reminderMileageIsInvalid = reminderMileage.trim() == '' || isNaN(reminderMileage) || parseInt(reminderMileage) < 0;
     if ((reminderOption == "Both" || reminderOption == "Date") && reminderDateIsInvalid) { 
         hasError = true;
         $("#reminderDate").addClass("is-invalid");
