@@ -1,5 +1,6 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@model string
 @{
     var logoUrl = config.GetLogoUrl();
 }
@@ -37,3 +38,8 @@
         </div>
     </div>
 </div>
+<script>
+    function getRedirectURL(){
+        return { url: decodeHTMLEntities('@Model') };
+    }
+</script>

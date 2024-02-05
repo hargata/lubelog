@@ -157,7 +157,13 @@ namespace CarCareTracker.Middleware
                     return Task.CompletedTask;
                 }
             }
-            Response.Redirect("/Login/Index");
+            if (Request.Path.Value == "/Vehicle/Index" && Request.QueryString.HasValue)
+            {
+                Response.Redirect($"/Login/Index?redirectURL={Request.Path.Value}{Request.QueryString.Value}");
+            } else
+            {
+                Response.Redirect("/Login/Index");
+            }
             return Task.CompletedTask;
         }
         protected override Task HandleForbiddenAsync(AuthenticationProperties properties)

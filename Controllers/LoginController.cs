@@ -26,9 +26,9 @@ namespace CarCareTracker.Controllers
             _logger = logger;
             _loginLogic = loginLogic;
         }
-        public IActionResult Index()
+        public IActionResult Index(string redirectURL = "")
         {
-            return View();
+            return View(model: redirectURL);
         }
         public IActionResult Registration()
         {
