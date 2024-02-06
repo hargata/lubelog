@@ -74,6 +74,79 @@ function savePlanRecordToVehicle(isEdit) {
         }
     })
 }
+function showPlanRecordTemplatesModal() {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.get(`/Vehicle/GetPlanRecordTemplatesForVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#planRecordTemplateModalContent").html(data);
+            hideAddPlanRecordModal();
+            $('#planRecordTemplateModal').modal('show');
+        }
+    });
+}
+function hidePlanRecordTemplatesModal() {
+    $('#planRecordTemplateModal').modal('hide');
+    $('#planRecordModal').modal('show');
+}
+function usePlannerRecordTemplate(planRecordTemplateId) {
+    $.post(`/Vehicle/ConvertPlanRecordTemplateToPlanRecord?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+        if (data.success) {
+            var vehicleId = GetVehicleId().vehicleId;
+            successToast(data.message);
+            $('#planRecordTemplateModal').modal('hide');
+            hideAddPlanRecordModal();
+            saveScrollPosition();
+            getVehiclePlanRecords(vehicleId);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
+function deletePlannerRecordTemplate(planRecordTemplateId) {
+    $("#workAroundInput").show();
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Plan Templates cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/Vehicle/DeletePlanRecordTemplateById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+                $("#workAroundInput").hide();
+                if (data) {
+                    successToast("Template Deleted");
+                    hidePlanRecordTemplatesModal();
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+function savePlanRecordTemplate() {
+    //get values
+    var formValues = getAndValidatePlanRecordValues();
+    //validate
+    if (formValues.hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    //save to db.
+    $.post('/Vehicle/SavePlanRecordTemplateToVehicleId', { planRecord: formValues }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+            hideAddPlanRecordModal();
+            saveScrollPosition();
+            getVehiclePlanRecords(formValues.vehicleId);
+        } else {
+            errorToast(data.message);
+        }
+    })
+}
 function getAndValidatePlanRecordValues() {
     var planDescription = $("#planRecordDescription").val();
     var planCost = $("#planRecordCost").val();
