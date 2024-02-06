@@ -1613,11 +1613,18 @@ namespace CarCareTracker.Controllers
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
             return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetPlanRecordTemplatesForVehicleId(int vehicleId)
         {
             var result = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicleId);
             return PartialView("_PlanRecordTemplateModal", result);
+        }
+        [HttpPost]
+        public IActionResult DeletePlanRecordTemplateById(int planRecordTemplateId)
+        {
+            var result = _planRecordTemplateDataAccess.DeletePlanRecordTemplateById(planRecordTemplateId);
+            return Json(result);
         }
         [HttpPost]
         public IActionResult ConvertPlanRecordTemplateToPlanRecord(int planRecordTemplateId)
@@ -1639,6 +1646,7 @@ namespace CarCareTracker.Controllers
             //populate createdDate
             existingRecord.DateCreated = DateTime.Now.ToString("G");
             existingRecord.DateModified = DateTime.Now.ToString("G");
+            existingRecord.Id = default;
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
             if (result && existingRecord.Supplies.Any())
             {

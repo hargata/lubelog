@@ -1,0 +1,87 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<PlanRecordInput>
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Select Template")</h5>
+    <button type="button" class="btn-close" onclick="hidePlanRecordTemplatesModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (Model.Any())
+    {
+        <div class="row">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+                <table class="table table-hover">
+                    <thead class="sticky-top">
+                        <tr class="d-flex">
+                            <th scope="col" class="col-8">@translator.Translate(userLanguage,"Description")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Use")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (PlanRecordInput planRecordTemplate in Model)
+                        {
+                            <tr class="d-flex" id="supplyRows">
+                                <td class="col-8 text-truncate">
+                                    @StaticHelper.TruncateStrings(planRecordTemplate.Description)
+                                    @if (planRecordTemplate.Files.Any())
+                                    {
+                                        <i class="bi bi-paperclip ms-2"></i>
+                                    }
+                                    @if (planRecordTemplate.Supplies.Any())
+                                    {
+                                        <i class="bi bi-shop ms-2"></i>
+                                    }
+                                    @if (planRecordTemplate.ImportMode == ImportMode.ServiceRecord)
+                                    {
+                                        <i class="bi bi-card-checklist ms-2"></i>
+                                    }
+                                    else if (planRecordTemplate.ImportMode == ImportMode.UpgradeRecord)
+                                    {
+                                        <i class="bi bi-wrench-adjustable ms-2"></i>
+                                    }
+                                    else if (planRecordTemplate.ImportMode == ImportMode.RepairRecord)
+                                    {
+                                        <i class="bi bi-exclamation-octagon ms-2"></i>
+                                    }
+                                    @if (planRecordTemplate.Priority == PlanPriority.Critical)
+                                    {
+                                        <i class="bi bi-fire ms-2"></i>
+                                    }
+                                    else if (planRecordTemplate.Priority == PlanPriority.Normal)
+                                    {
+                                        <i class="bi bi-water ms-2"></i>
+                                    }
+                                    else if (planRecordTemplate.Priority == PlanPriority.Low)
+                                    {
+                                        <i class="bi bi-snow ms-2"></i>
+                                    }
+                                </td>
+                                <td class="col-2"><button type="button" class="btn btn-primary" onclick="usePlannerRecordTemplate(@planRecordTemplate.Id)"><i class="bi bi-plus-square"></i></button></td>
+                                <td class="col-2"><button type="button" class="btn btn-danger" onclick="deletePlannerRecordTemplate(@planRecordTemplate.Id)"><i class="bi bi-trash"></i></button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>@translator.Translate(userLanguage, "No templates are found.")</h4>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hidePlanRecordTemplatesModal()">@translator.Translate(userLanguage, "Cancel")</button>
+</div>

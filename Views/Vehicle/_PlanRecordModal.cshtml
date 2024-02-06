@@ -82,7 +82,16 @@
     <button type="button" class="btn btn-secondary" onclick="hideAddPlanRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="savePlanRecordToVehicle()">@translator.Translate(userLanguage, "Add New Plan Record")</button>
+        <div class="btn-group">
+            <button onclick="savePlanRecordToVehicle()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add New Plan Record")</button>
+            <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="savePlanRecordTemplate()">@translator.Translate(userLanguage, "Save as Template")</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
+            </ul>
+        </div>
     }
     else if (!isNew)
     {
