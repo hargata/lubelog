@@ -1,6 +1,7 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
+@model string
 @{
     var logoUrl = config.GetLogoUrl();
     var userLanguage = config.GetServerLanguage();
@@ -39,3 +40,8 @@
         </div>
     </div>
 </div>
+<script>
+    function getRedirectURL(){
+        return { url: decodeHTMLEntities('@Model') };
+    }
+</script>

@@ -4,7 +4,13 @@
     var isPersistent = $("#inputPersistent").is(":checked");
     $.post('/Login/Login', {userName: userName, password: userPassword, isPersistent: isPersistent}, function (data) {
         if (data) {
-            window.location.href = '/Home';
+            //check for redirectURL
+            var redirectURL = getRedirectURL().url;
+            if (redirectURL.trim() != "") {
+                window.location.href = redirectURL;
+            } else {
+                window.location.href = '/Home';
+            }
         } else {
             errorToast("Invalid Login Credentials, please try again.");
         }
