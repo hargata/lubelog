@@ -1,0 +1,49 @@
+<html>
+<head>
+<style>
+body {
+  font-family: arial, sans-serif;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.VeryUrgent {
+  background-color: #EA9999;
+}
+.Urgent {
+  background-color: #FFE599;
+}
+.NotUrgent {
+  background-color: #B6D7A8;
+}
+.PastDue {
+  background-color: #CCCCCC;
+}
+</style>
+</head>
+<body>
+<h2>{VehicleInformation}</h2>
+<table>
+<tr>
+<th>
+Urgency
+</th>
+<th>
+Description
+</th>
+<th>
+Due
+</th>
+</tr>
+{TableBody}
+</table>
+</body>
+</html>
