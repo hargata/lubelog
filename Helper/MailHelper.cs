@@ -13,11 +13,14 @@ namespace CarCareTracker.Helper
     public class MailHelper : IMailHelper
     {
         private readonly MailConfig mailConfig;
+        private readonly IFileHelper _fileHelper;
         public MailHelper(
-            IConfiguration config
+            IConfiguration config,
+            IFileHelper fileHelper
             ) {
             //load mailConfig from Configuration
             mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
+            _fileHelper = fileHelper;
         }
         public OperationResponse NotifyUserForRegistration(string emailAddress, string token)
         {
@@ -75,14 +78,19 @@ namespace CarCareTracker.Helper
             {
                 return new OperationResponse { Success = false, Message = "No reminders could be found" };
             }
+            //get email template, this file has to exist since it's a static file.
+            var emailTemplatePath = _fileHelper.GetFullFilePath(StaticHelper.ReminderEmailTemplate);
             string emailSubject = $"Vehicle Reminders From LubeLogger - {DateTime.Now.ToShortDateString()}";
             //construct html table.
-            string emailBody = $"<h4>{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate}</h4><br /><table style='width:100%'><tr><th style='padding:8px;'>Urgency</th><th style='padding:8px;'>Description</th></tr>";
+            string emailBody = File.ReadAllText(emailTemplatePath);
+            emailBody = emailBody.Replace("{VehicleInformation}", $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate}");
+            string tableBody = "";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
-                emailBody += $"<tr><td style='padding:8px; text-align:center;'>{reminder.Urgency}</td><td style='padding:8px; text-align:center;'>{reminder.Description}</td></tr>";
+                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
+                tableBody += $"<tr class='{reminder.Urgency}'><td>{StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency)}</td><td>{reminder.Description}</td><td>{dueOn}</td></tr>";
             }
-            emailBody += "</table>";
+            emailBody = emailBody.Replace("{TableBody}", tableBody);
             try
             {
                 foreach (string emailAddress in emailAddresses)

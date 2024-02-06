@@ -11,6 +11,22 @@ namespace CarCareTracker.Helper
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";
+        public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
+
+        public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
+        {
+            switch (input)
+            {
+                case ReminderUrgency.NotUrgent:
+                    return "Not Urgent";
+                case ReminderUrgency.VeryUrgent:
+                    return "Very Urgent";
+                case ReminderUrgency.PastDue:
+                    return "Past Due";
+                default:
+                    return input.ToString();
+            }
+        }
 
         public static string TruncateStrings(string input, int maxLength = 25)
         {
