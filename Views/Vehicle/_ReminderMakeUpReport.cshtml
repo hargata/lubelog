@@ -16,10 +16,15 @@
             new Chart($("#donut-chart"), {
                 type: 'doughnut',
                 data: {
-                    labels: ['@translator.Translate(userLanguage,"Not Urgent")', '@translator.Translate(userLanguage,"Urgent")', '@translator.Translate(userLanguage,"Very Urgent")', '@translator.Translate(userLanguage,"Past Due")'],
+                    labels: [
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Not Urgent")'), 
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent")'), 
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent")'), 
+                    decodeHTMLEntities('@translator.Translate(userLanguage, "Past Due")')
+                    ],
                     datasets: [
                         {
-                            label: '@translator.Translate(userLanguage,"Reminders by Category")',
+                            label: decodeHTMLEntities('@translator.Translate(userLanguage, "Reminders by Category")'),
                             backgroundColor: ["#488f31", "#ffa600", "#de425b", "#cccccc"],
                             data: [
                                 @Model.NotUrgentCount,
@@ -40,7 +45,7 @@
                         },
                         title: {
                             display: true,
-                            text: '@translator.Translate(userLanguage,"Reminders by Urgency")',
+                            text: decodeHTMLEntities('@translator.Translate(userLanguage, "Reminders by Urgency")'),
                             color: useDarkMode ? "#fff" : "#000"
                         },
                     }

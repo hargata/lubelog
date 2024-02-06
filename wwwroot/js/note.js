@@ -96,6 +96,7 @@ function getAndValidateNoteValues() {
         vehicleId: vehicleId,
         description: noteDescription,
         noteText: noteText,
+        files: uploadedFiles,
         pinned: noteIsPinned,
         tags: noteTags
     }
