@@ -27,6 +27,7 @@ namespace CarCareTracker.Controllers
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
+        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
@@ -51,6 +52,7 @@ namespace CarCareTracker.Controllers
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
+            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
@@ -71,6 +73,7 @@ namespace CarCareTracker.Controllers
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
+            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
@@ -142,6 +145,7 @@ namespace CarCareTracker.Controllers
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
+                _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
                 _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
@@ -1467,6 +1471,21 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Supply Records"
+        private List<string> CheckSupplyRecordsAvailability(List<SupplyUsage> supplyUsage)
+        {
+            //returns empty string if all supplies are available
+            var result = new List<string>();
+            foreach (SupplyUsage supply in supplyUsage)
+            {
+                //get supply record.
+                var supplyData = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
+                if (supply.Quantity > supplyData.Quantity)
+                {
+                    result.Add($"Insufficient Quantity for {supplyData.Description}, need: {supply.Quantity}, available: {supplyData.Quantity}");
+                }
+            }
+            return result;
+        }
         private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage)
         {
             foreach(SupplyUsage supply in supplyUsage)
@@ -1580,6 +1599,52 @@ namespace CarCareTracker.Controllers
                 RequisitionSupplyRecordsByUsage(planRecord.Supplies);
             }
             return Json(result);
+        }
+        [HttpPost]
+        public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
+        {
+            //check if template name already taken.
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x=>x.Description == planRecord.Description).Any();
+            if (existingRecord)
+            {
+                return Json(new OperationResponse {  Success = false, Message = "A template with that description already exists for this vehicle"});
+            }
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
+            return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
+        }
+        [HttpGet]
+        public IActionResult GetPlanRecordTemplatesForVehicleId(int vehicleId)
+        {
+            var result = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicleId);
+            return PartialView("_PlanRecordTemplateModal", result);
+        }
+        [HttpPost]
+        public IActionResult ConvertPlanRecordTemplateToPlanRecord(int planRecordTemplateId)
+        {
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (existingRecord.Id == default)
+            {
+                return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
+            }
+            if (existingRecord.Supplies.Any())
+            {
+                //check if all supplies are available
+                var supplyAvailability = CheckSupplyRecordsAvailability(existingRecord.Supplies);
+                if (supplyAvailability.Any())
+                {
+                    return Json(new OperationResponse { Success = false, Message = string.Join("<br>", supplyAvailability) });
+                }
+            }
+            //populate createdDate
+            existingRecord.DateCreated = DateTime.Now.ToString("G");
+            existingRecord.DateModified = DateTime.Now.ToString("G");
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
+            if (result && existingRecord.Supplies.Any())
+            {
+                RequisitionSupplyRecordsByUsage(existingRecord.Supplies);
+            }
+            return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
         }
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
