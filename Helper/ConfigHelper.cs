@@ -10,6 +10,7 @@ namespace CarCareTracker.Helper
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         string GetLogoUrl();
+        string GetServerLanguage();
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
@@ -33,6 +34,11 @@ namespace CarCareTracker.Helper
                 logoUrl = "/defaults/lubelogger_logo.png";
             }
             return logoUrl;
+        }
+        public string GetServerLanguage()
+        {
+            var serverLanguage = _config[nameof(UserConfig.UserLanguage)] ?? "en_US";
+            return serverLanguage;
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {

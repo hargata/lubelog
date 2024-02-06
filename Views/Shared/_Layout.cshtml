@@ -1,6 +1,7 @@
 ﻿@using CarCareTracker.Helper
 <!DOCTYPE html>
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var useDarkMode = userConfig.UseDarkMode;
@@ -10,6 +11,7 @@
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
+    var userLanguage = userConfig.UserLanguage;
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
     {
@@ -86,7 +88,7 @@
             return input;
         }
         function genericErrorMessage(){
-            return "An error has occurred, please try again later";
+            return decodeHTMLEntities('@translator.Translate(userLanguage, "An error has occurred, please try again later")');
         }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
