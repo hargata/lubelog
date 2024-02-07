@@ -342,8 +342,14 @@ function updateMPGLabels() {
         } else {
             averageLabel.text(`${averageLabel.text().split(':')[0]}: 0.00`);
         }
-        minLabel.text(`${minLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
-        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
+        if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l') {
+            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
+            minLabel.text(`${minLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
+        }
+        else {
+            minLabel.text(`${minLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
+            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
+        }
     }
 }
 
