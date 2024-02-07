@@ -371,5 +371,22 @@ function toggleUnits(sender) {
                 convertFuelMileageUnits("km/l", "l/100km", true);
                 break;
         }
+    } else if (sender.attr("data-gas") == "odometer") {
+        switch (sender.attr("data-unit")) {
+            case "odometer":
+                $("[data-gas-type='mileage']").map((index, elem) => {
+                    elem.innerText = $(elem).attr("data-gas-aggregate");
+                });
+                sender.attr("data-unit", "delta");
+                sender.html(`Δ ${sender.html()}`);
+                break;
+            case "delta":
+                $("[data-gas-type='mileage']").map((index, elem) => {
+                    elem.innerText = $(elem).attr("data-gas-original");
+                });
+                sender.attr("data-unit", "odometer");
+                sender.html(sender.html().replace('Δ ', ''));
+                break;
+        }
     }
 }
