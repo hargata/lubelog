@@ -12,7 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
+//data access method
+if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
+    builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
+} else
+{
+    builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
+}
 builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
 builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
 builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
