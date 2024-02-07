@@ -31,6 +31,18 @@ namespace CarCareTracker.External.Implementations
                 {
                     ctext.Parameters.AddWithValue("data", serializedData);
                     vehicle.Id = Convert.ToInt32(ctext.ExecuteScalar());
+                    //update json data
+                    if (vehicle.Id != default)
+                    {
+                        serializedData = JsonSerializer.Serialize(vehicle);
+                        string cmdU = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
+                        using (var ctextU = new NpgsqlCommand(cmdU, pgDataSource))
+                        {
+                            ctextU.Parameters.AddWithValue("id", vehicle.Id);
+                            ctextU.Parameters.AddWithValue("data", serializedData);
+                            return ctextU.ExecuteNonQuery() > 0;
+                        }
+                    }
                     return vehicle.Id != default;
                 }
             } else
