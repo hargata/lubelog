@@ -29,6 +29,7 @@ namespace CarCareTracker.Controllers
         private readonly IUserLogic _userLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IConfigHelper _config;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -44,6 +45,7 @@ namespace CarCareTracker.Controllers
             IUserRecordDataAccess userRecordDataAccess,
             IMailHelper mailHelper,
             IFileHelper fileHelper,
+            IConfigHelper config,
             IUserLogic userLogic) 
         {
             _dataAccess = dataAccess;
@@ -62,6 +64,7 @@ namespace CarCareTracker.Controllers
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
             _fileHelper = fileHelper;
+            _config = config;
         }
         public IActionResult Index()
         {
@@ -126,6 +129,17 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost)
                 };
                 _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
+                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    var odometerRecord = new OdometerRecord()
+                    {
+                        VehicleId = vehicleId,
+                        Date = DateTime.Parse(input.Date),
+                        Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                        Mileage = int.Parse(input.Odometer)
+                    };
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                }
                 response.Success = true;
                 response.Message = "Service Record Added";
                 return Json(response);
@@ -182,6 +196,17 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost)
                 };
                 _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
+                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    var odometerRecord = new OdometerRecord()
+                    {
+                        VehicleId = vehicleId,
+                        Date = DateTime.Parse(input.Date),
+                        Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                        Mileage = int.Parse(input.Odometer)
+                    };
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                }
                 response.Success = true;
                 response.Message = "Repair Record Added";
                 return Json(response);
@@ -238,6 +263,17 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost)
                 };
                 _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
+                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    var odometerRecord = new OdometerRecord()
+                    {
+                        VehicleId = vehicleId,
+                        Date = DateTime.Parse(input.Date),
+                        Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                        Mileage = int.Parse(input.Odometer)
+                    };
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                }
                 response.Success = true;
                 response.Message = "Upgrade Record Added";
                 return Json(response);
@@ -413,6 +449,17 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost)
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
+                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    var odometerRecord = new OdometerRecord()
+                    {
+                        VehicleId = vehicleId,
+                        Date = DateTime.Parse(input.Date),
+                        Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                        Mileage = int.Parse(input.Odometer)
+                    };
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
+                }
                 response.Success = true;
                 response.Message = "Gas Record Added";
                 return Json(response);
