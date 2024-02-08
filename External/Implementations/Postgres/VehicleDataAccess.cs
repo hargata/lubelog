@@ -23,21 +23,20 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "vehicles";
         public bool SaveVehicle(Vehicle vehicle)
         {
-            var serializedData = JsonSerializer.Serialize(vehicle);
             if (vehicle.Id == default)
             {
                 string cmd = $"INSERT INTO app.{tableName} (data) VALUES(CAST(@data AS jsonb)) RETURNING id";
                 using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                 {
-                    ctext.Parameters.AddWithValue("data", serializedData);
+                    ctext.Parameters.AddWithValue("data", "{}");
                     vehicle.Id = Convert.ToInt32(ctext.ExecuteScalar());
                     //update json data
                     if (vehicle.Id != default)
                     {
-                        serializedData = JsonSerializer.Serialize(vehicle);
                         string cmdU = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
                         using (var ctextU = new NpgsqlCommand(cmdU, pgDataSource))
                         {
+                            var serializedData = JsonSerializer.Serialize(vehicle);
                             ctextU.Parameters.AddWithValue("id", vehicle.Id);
                             ctextU.Parameters.AddWithValue("data", serializedData);
                             return ctextU.ExecuteNonQuery() > 0;
@@ -50,6 +49,7 @@ namespace CarCareTracker.External.Implementations
                 string cmd = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
                 using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                 {
+                    var serializedData = JsonSerializer.Serialize(vehicle);
                     ctext.Parameters.AddWithValue("id", vehicle.Id);
                     ctext.Parameters.AddWithValue("data", serializedData);
                     return ctext.ExecuteNonQuery() > 0;
