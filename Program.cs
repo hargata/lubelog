@@ -15,11 +15,13 @@ builder.Services.AddControllersWithViews();
 //data access method
 if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
+    builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
 } else
 {
     builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
+    builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
 }
-builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
+
 builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
 builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
 builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
