@@ -13,6 +13,7 @@
         public bool UseMarkDownOnSavedNotes { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
+        public bool EnableShopSupplies { get; set; }
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public string UserNameHash { get; set; }
