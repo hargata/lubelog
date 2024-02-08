@@ -101,9 +101,10 @@
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2">@translator.Translate(userLanguage,"Date Refueled")</th>
-                    <th scope="col" class="col-2">@($"{translator.Translate(userLanguage,"Odometer")}({distanceUnit})")</th>
+                    <th scope="col" class="col-2">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
+                    <th scope="col" class="col-1" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
                     <th scope="col" class="col-2" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage,"Consumption")}({consumptionUnit})")</th>
-                    <th scope="col" class="col-4" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage,"Fuel Economy")}({fuelEconomyUnit})")</th>
+                    <th scope="col" class="col-3" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage,"Fuel Economy")}({fuelEconomyUnit})")</th>
                     <th scope="col" class="col-1" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage,"Cost")</th>
                     <th scope="col" class="col-1" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage,"Unit Cost")</th>
                 </tr>
@@ -113,9 +114,10 @@
                 {
                     <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
                         <td class="col-2">@gasRecord.Date</td>
-                        <td class="col-2" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage">@gasRecord.Mileage</td>
+                        <td class="col-2" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
+                        <td class="col-1">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
                         <td class="col-2" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-4" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-3" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
                         <td class="col-1" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
                         <td class="col-1" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
                     </tr>
