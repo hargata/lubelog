@@ -18,14 +18,15 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
     builder.Services.AddSingleton<IServiceRecordDataAccess, PGServiceRecordDataAccess>();
+    builder.Services.AddSingleton<IGasRecordDataAccess, PGGasRecordDataAccess>();
 } else
 {
     builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
     builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
+    builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
 }
 
-builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
 builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
 builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
 builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
