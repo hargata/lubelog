@@ -1518,7 +1518,10 @@ namespace CarCareTracker.Controllers
         public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
-            result.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0)); // add shop supplies
+            if (_config.GetServerEnableShopSupplies())
+            {
+                result.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0)); // add shop supplies
+            }
             result.RemoveAll(x => x.Quantity <= 0);
             bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)

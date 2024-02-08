@@ -11,6 +11,7 @@ namespace CarCareTracker.Helper
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         string GetLogoUrl();
         string GetServerLanguage();
+        bool GetServerEnableShopSupplies();
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
@@ -39,6 +40,10 @@ namespace CarCareTracker.Helper
         {
             var serverLanguage = _config[nameof(UserConfig.UserLanguage)] ?? "en_US";
             return serverLanguage;
+        }
+        public bool GetServerEnableShopSupplies()
+        {
+            return bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)] ?? "false");
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {

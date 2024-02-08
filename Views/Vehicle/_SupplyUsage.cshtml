@@ -24,7 +24,8 @@
                             <th scope="col" class="col-1"></th>
                             <th scope="col" class="col-2">@translator.Translate(userLanguage,"Quantity")</th>
                             <th scope="col" class="col-2">@translator.Translate(userLanguage, "In Stock")</th>
-                            <th scope="col" class="col-5">@translator.Translate(userLanguage, "Description")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
+                            <th scope="col" class="col-3">@translator.Translate(userLanguage, "Description")</th>
                             <th scope="col" class="col-2">@translator.Translate(userLanguage, "Unit Cost")</th>
                         </tr>
                     </thead>
@@ -35,7 +36,8 @@
                                 <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
                                 <td class="col-2"><input type="text" disabled onchange="recalculateTotal()" class="form-control"></td>
                                 <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
-                                <td class="col-5">@supplyRecord.Description</td>
+                                <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.PartNumber)</td>
+                                <td class="col-3 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.Description)</td>
                                 <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
                             </tr>
                         }
