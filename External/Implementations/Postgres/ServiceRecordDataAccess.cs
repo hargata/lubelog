@@ -5,12 +5,12 @@ using System.Text.Json;
 
 namespace CarCareTracker.External.Implementations
 {
-    public class PGNoteDataAccess: INoteDataAccess
+    public class PGServiceRecordDataAccess: IServiceRecordDataAccess
     {
         private NpgsqlConnection pgDataSource;
-        private readonly ILogger<PGNoteDataAccess> _logger;
-        private static string tableName = "notes";
-        public PGNoteDataAccess(IConfiguration config, ILogger<PGNoteDataAccess> logger)
+        private readonly ILogger<PGServiceRecordDataAccess> _logger;
+        private static string tableName = "servicerecords";
+        public PGServiceRecordDataAccess(IConfiguration config, ILogger<PGServiceRecordDataAccess> logger)
         {
             pgDataSource = new NpgsqlConnection(config["POSTGRES_CONNECTION"]);
             _logger = logger;
@@ -23,82 +23,102 @@ namespace CarCareTracker.External.Implementations
                 {
                     ctext.ExecuteNonQuery();
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
         }
-        public List<Note> GetNotesByVehicleId(int vehicleId)
+        public List<ServiceRecord> GetServiceRecordsByVehicleId(int vehicleId)
         {
             try
             {
                 string cmd = $"SELECT data FROM app.{tableName} WHERE vehicleId = @vehicleId";
-                var results = new List<Note>();
+                var results = new List<ServiceRecord>();
                 using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                 {
                     ctext.Parameters.AddWithValue("vehicleId", vehicleId);
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            Note note = JsonSerializer.Deserialize<Note>(reader["data"] as string);
-                            results.Add(note);
+                            ServiceRecord serviceRecord = JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string);
+                            results.Add(serviceRecord);
                         }
                 }
                 return results;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return new List<Note>();
+                return new List<ServiceRecord>();
             }
         }
-        public Note GetNoteById(int noteId)
+        public ServiceRecord GetServiceRecordById(int serviceRecordId)
         {
             try
             {
                 string cmd = $"SELECT data FROM app.{tableName} WHERE id = @id";
-                var result = new Note();
+                var result = new ServiceRecord();
                 using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                 {
-                    ctext.Parameters.AddWithValue("id", noteId);
+                    ctext.Parameters.AddWithValue("id", serviceRecordId);
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            Note note = JsonSerializer.Deserialize<Note>(reader["data"] as string);
-                            result = note;
+                            ServiceRecord serviceRecord = JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string);
+                            result = serviceRecord;
                         }
                 }
                 return result;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return new Note();
+                return new ServiceRecord();
             }
         }
-        public bool SaveNoteToVehicle(Note note)
+        public bool DeleteServiceRecordById(int serviceRecordId)
         {
             try
             {
-                if (note.Id == default)
+                string cmd = $"DELETE FROM app.{tableName} WHERE id = @id";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    ctext.Parameters.AddWithValue("id", serviceRecordId);
+                    return ctext.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
+        }
+        public bool SaveServiceRecordToVehicle(ServiceRecord serviceRecord)
+        {
+            try
+            {
+                if (serviceRecord.Id == default)
                 {
                     string cmd = $"INSERT INTO app.{tableName} (vehicleId, data) VALUES(@vehicleId, CAST(@data AS jsonb)) RETURNING id";
                     using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                     {
-                        ctext.Parameters.AddWithValue("vehicleId", note.VehicleId);
+                        ctext.Parameters.AddWithValue("vehicleId", serviceRecord.VehicleId);
                         ctext.Parameters.AddWithValue("data", "{}");
-                        note.Id = Convert.ToInt32(ctext.ExecuteScalar());
+                        serviceRecord.Id = Convert.ToInt32(ctext.ExecuteScalar());
                         //update json data
-                        if (note.Id != default)
+                        if (serviceRecord.Id != default)
                         {
                             string cmdU = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
                             using (var ctextU = new NpgsqlCommand(cmdU, pgDataSource))
                             {
-                                var serializedData = JsonSerializer.Serialize(note);
-                                ctextU.Parameters.AddWithValue("id", note.Id);
+                                var serializedData = JsonSerializer.Serialize(serviceRecord);
+                                ctextU.Parameters.AddWithValue("id", serviceRecord.Id);
                                 ctextU.Parameters.AddWithValue("data", serializedData);
                                 return ctextU.ExecuteNonQuery() > 0;
                             }
                         }
-                        return note.Id != default;
+                        return serviceRecord.Id != default;
                     }
                 }
                 else
@@ -106,35 +126,20 @@ namespace CarCareTracker.External.Implementations
                     string cmd = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
                     using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                     {
-                        var serializedData = JsonSerializer.Serialize(note);
-                        ctext.Parameters.AddWithValue("id", note.Id);
+                        var serializedData = JsonSerializer.Serialize(serviceRecord);
+                        ctext.Parameters.AddWithValue("id", serviceRecord.Id);
                         ctext.Parameters.AddWithValue("data", serializedData);
                         return ctext.ExecuteNonQuery() > 0;
                     }
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return false;
             }
         }
-        public bool DeleteNoteById(int noteId)
-        {
-            try
-            {
-                string cmd = $"DELETE FROM app.{tableName} WHERE id = @id";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
-                {
-                    ctext.Parameters.AddWithValue("id", noteId);
-                    return ctext.ExecuteNonQuery() > 0;
-                }
-            } catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return false;
-            }
-        }
-        public bool DeleteAllNotesByVehicleId(int vehicleId)
+        public bool DeleteAllServiceRecordsByVehicleId(int vehicleId)
         {
             try
             {
@@ -144,7 +149,8 @@ namespace CarCareTracker.External.Implementations
                     ctext.Parameters.AddWithValue("id", vehicleId);
                     return ctext.ExecuteNonQuery() > 0;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return false;
