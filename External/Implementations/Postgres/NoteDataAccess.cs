@@ -1,5 +1,4 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Npgsql;
 using System.Text.Json;
@@ -9,6 +8,7 @@ namespace CarCareTracker.External.Implementations
     public class PGNoteDataAccess: INoteDataAccess
     {
         private NpgsqlConnection pgDataSource;
+        private static string tableName = "notes";
         public PGNoteDataAccess(IConfiguration config)
         {
             pgDataSource = new NpgsqlConnection(config["POSTGRES_CONNECTION"]);
@@ -20,7 +20,6 @@ namespace CarCareTracker.External.Implementations
                 ctext.ExecuteNonQuery();
             }
         }
-        private static string tableName = "notes";
         public List<Note> GetNotesByVehicleId(int vehicleId)
         {
             string cmd = $"SELECT data FROM app.{tableName} WHERE vehicleId = @vehicleId";

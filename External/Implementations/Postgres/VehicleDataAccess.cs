@@ -1,7 +1,6 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using Npgsql;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace CarCareTracker.External.Implementations
@@ -9,6 +8,7 @@ namespace CarCareTracker.External.Implementations
     public class PGVehicleDataAccess: IVehicleDataAccess
     {
         private NpgsqlConnection pgDataSource;
+        private static string tableName = "vehicles";
         public PGVehicleDataAccess(IConfiguration config)
         {
             pgDataSource = new NpgsqlConnection(config["POSTGRES_CONNECTION"]);
@@ -20,9 +20,12 @@ namespace CarCareTracker.External.Implementations
                 ctext.ExecuteNonQuery();
             }
         }
-        private static string tableName = "vehicles";
         public bool SaveVehicle(Vehicle vehicle)
         {
+            if (string.IsNullOrWhiteSpace(vehicle.ImageLocation))
+            {
+                vehicle.ImageLocation = "/defaults/noimage.png";
+            }
             if (vehicle.Id == default)
             {
                 string cmd = $"INSERT INTO app.{tableName} (data) VALUES(CAST(@data AS jsonb)) RETURNING id";
@@ -75,11 +78,6 @@ namespace CarCareTracker.External.Implementations
                 while (reader.Read())
                 {
                     Vehicle vehicle = JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
-                    vehicle.Id = Convert.ToInt32(reader["id"]);
-                    if (string.IsNullOrWhiteSpace(vehicle.ImageLocation))
-                    {
-                            vehicle.ImageLocation = "/defaults/noimage.png";
-                    }
                     results.Add(vehicle);
                 }
             }
@@ -96,11 +94,6 @@ namespace CarCareTracker.External.Implementations
                     while (reader.Read())
                     {
                         vehicle = JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
-                        vehicle.Id = Convert.ToInt32(reader["id"]);
-                        if (string.IsNullOrWhiteSpace(vehicle.ImageLocation))
-                        {
-                            vehicle.ImageLocation = "/defaults/noimage.png";
-                        }
                     }
             }
             return vehicle;
