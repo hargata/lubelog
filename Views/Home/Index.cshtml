@@ -1,6 +1,5 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
-@inject IConfiguration serverConfig
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
@@ -22,7 +21,7 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link user-select-none @(Model == "garage" ? "active" : "")" ontouchstart="detectLongTouch(this)" ontouchend="detectTouchEndPremature(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
-        @if(bool.Parse(serverConfig[nameof(UserConfig.EnableShopSupplies)] ?? "false"))
+        @if(config.GetServerEnableShopSupplies())
         {
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>
@@ -59,7 +58,7 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</button>
         </li>
-        @if (bool.Parse(serverConfig[nameof(UserConfig.EnableShopSupplies)] ?? "false"))
+        @if (config.GetServerEnableShopSupplies())
         {
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>

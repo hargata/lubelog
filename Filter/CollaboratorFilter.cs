@@ -17,10 +17,13 @@ namespace CarCareTracker.Filter
             if (!filterContext.HttpContext.User.IsInRole(nameof(UserData.IsRootUser)))
             {
                 var vehicleId = int.Parse(filterContext.ActionArguments["vehicleId"].ToString());
-                var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-                if (!_userLogic.UserCanEditVehicle(userId, vehicleId))
+                if (vehicleId != default)
                 {
-                    filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+                    if (!_userLogic.UserCanEditVehicle(userId, vehicleId))
+                    {
+                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    }
                 }
             }
         }
