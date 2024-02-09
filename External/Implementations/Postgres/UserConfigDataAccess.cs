@@ -45,6 +45,7 @@ namespace CarCareTracker.External.Implementations
                             result = userConfig;
                         }
                 }
+                if (result.UserConfig == null) { return null; }
                 return result;
             }
             catch (Exception ex)
@@ -58,7 +59,7 @@ namespace CarCareTracker.External.Implementations
             var existingRecord = GetUserConfig(userConfigData.Id);
             try
             {
-                if (existingRecord.Id == default)
+                if (existingRecord == null || existingRecord.Id == default)
                 {
                     string cmd = $"INSERT INTO app.{tableName} (id, data) VALUES(@id, CAST(@data AS jsonb))";
                     using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
