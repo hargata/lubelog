@@ -30,7 +30,7 @@ namespace CarCareTracker.Controllers
                 return View();
             } else
             {
-                return View("401");
+                return new RedirectResult("/Error/Unauthorized");
             }
         }
         private void InitializeTables(NpgsqlConnection conn)
