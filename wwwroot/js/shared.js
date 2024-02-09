@@ -277,3 +277,113 @@ function updateAggregateLabels() {
     var countLabel = $("[data-aggregate-type='count']");
     countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`)
 }
+
+function uploadVehicleFilesAsync(event) {
+    let formData = new FormData();
+    var files = event.files;
+    for (var x = 0; x < files.length; x++) {
+        formData.append("file", files[x]);
+    }
+    sloader.show();
+    $.ajax({
+        url: "/Files/HandleMultipleFileUpload",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (response.length > 0) {
+                uploadedFiles.push.apply(uploadedFiles, response);
+            }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.")
+        }
+    });
+}
+function deleteFileFromUploadedFiles(fileLocation, event) {
+    event.parentElement.parentElement.parentElement.remove();
+    uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+}
+function editFileName(fileLocation, event) {
+    Swal.fire({
+        title: 'Rename File',
+        html: `
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name">
+                    `,
+        confirmButtonText: 'Rename',
+        focusConfirm: false,
+        preConfirm: () => {
+            const newFileName = $("#newFileName").val();
+            if (!newFileName) {
+                Swal.showValidationMessage(`Please enter a valid file name`)
+            }
+            return { newFileName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var linkDisplayObject = $(event.parentElement.parentElement).find('a')[0];
+            linkDisplayObject.text = result.value.newFileName;
+            var editFileIndex = uploadedFiles.findIndex(x => x.location == fileLocation);
+            uploadedFiles[editFileIndex].name = result.value.newFileName;
+        }
+    });
+}
+var scrollPosition = 0;
+function saveScrollPosition() {
+    scrollPosition = $(".vehicleDetailTabContainer").scrollTop();
+}
+function restoreScrollPosition() {
+    $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
+    scrollPosition = 0;
+}
+function toggleMarkDownOverlay(textAreaName) {
+    var textArea = $(`#${textAreaName}`);
+    if ($(".markdown-overlay").length > 0) {
+        $(".markdown-overlay").remove();
+        return;
+    }
+    var text = textArea.val();
+    if (text == undefined) {
+        return;
+    }
+    if (text.length > 0) {
+        var formatted = markdown(text);
+        //var overlay div
+        var overlayDiv = `<div class='markdown-overlay' style="z-index: 1060; position:absolute; top:${textArea.css('top')}; left:${textArea.css('left')}; width:${textArea.css('width')}; height:${textArea.css('height')}; padding:${textArea.css('padding')}; overflow-y:auto; background-color:var(--bs-modal-bg);">${formatted}</div>`;
+        textArea.parent().children(`label[for=${textAreaName}]`).append(overlayDiv);
+    }
+}
+function showLinks(e) {
+    var textAreaName = $(e.parentElement).attr("for");
+    toggleMarkDownOverlay(textAreaName);
+}
+function printTab() {
+    setTimeout(function () {
+        window.print();
+    }, 500);
+}
+function exportVehicleData(mode) {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
+        if (!data) {
+            errorToast(genericErrorMessage());
+        } else {
+            window.location.href = data;
+        }
+    });
+}
+function showBulkImportModal(mode) {
+    $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {
+        if (data) {
+            $("#bulkImportModalContent").html(data);
+            $("#bulkImportModal").modal('show');
+        }
+    })
+}
+function hideBulkImportModal() {
+    $("#bulkImportModal").modal('hide');
+}

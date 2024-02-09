@@ -16,11 +16,37 @@ function loadGarage() {
     $.get('/Home/Garage', function (data) {
         $("#garageContainer").html(data);
         loadSettings();
+        bindTabEvent();
     });
 }
 function loadSettings() {
     $.get('/Home/Settings', function (data) {
         $("#settings-tab-pane").html(data);
+    });
+}
+function getVehicleSupplyRecords() {
+    $.get(`/Vehicle/GetSupplyRecordsByVehicleId?vehicleId=0`, function (data) {
+        if (data) {
+            $("#supply-tab-pane").html(data);
+            restoreScrollPosition();
+        }
+    });
+}
+function GetVehicleId() {
+    return { vehicleId: 0 };
+}
+function bindTabEvent() {
+    $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
+        switch (e.target.id) {
+            case "supply-tab":
+                getVehicleSupplyRecords();
+                break;
+        }
+        switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
+            case "supply-tab":
+                $("#supply-tab-pane").html("");
+                break;
+        }
     });
 }
 function performLogOut() {

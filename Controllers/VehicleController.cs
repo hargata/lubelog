@@ -161,10 +161,6 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
         {
-            if (vehicleId == default)
-            {
-                return Json(false);
-            }
             string uploadDirectory = "temp/";
             string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
             if (!Directory.Exists(uploadPath))
@@ -349,7 +345,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {
-            if (vehicleId == default || string.IsNullOrWhiteSpace(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
                 return Json(false);
             }
@@ -1522,6 +1518,10 @@ namespace CarCareTracker.Controllers
         public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+            if (_config.GetServerEnableShopSupplies())
+            {
+                result.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0)); // add shop supplies
+            }
             result.RemoveAll(x => x.Quantity <= 0);
             bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)

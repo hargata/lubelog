@@ -53,6 +53,10 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.UserConfig.EnableAutoOdometerInsert">
             <label class="form-check-label" for="enableAutoOdometerInsert">@translator.Translate(userLanguage, "Auto Insert Odometer Records")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
         </div>
+        <div class="form-check form-switch @(User.IsInRole(nameof(UserData.IsRootUser)) ? "" : "d-none")">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
+            <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
+        </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
             <div class="form-check form-switch">
@@ -257,6 +261,7 @@
             useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
             enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
             enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+            enableShopSupplies: $("#enableShopSupplies").is(":checked"),
             preferredGasUnit: $("#preferredGasUnit").val(),
             preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
             userLanguage: $("#defaultLanguage").val(),
