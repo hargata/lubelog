@@ -12,22 +12,45 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
-builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
-builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
-builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
-builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
-builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
-builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
-builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
-builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
-builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
-builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
-builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
-builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
-builder.Services.AddSingleton<IPlanRecordDataAccess, PlanRecordDataAccess>();
-builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PlanRecordTemplateDataAccess>();
-builder.Services.AddSingleton<IOdometerRecordDataAccess, OdometerRecordDataAccess>();
+
+//data access method
+if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
+    builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
+    builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
+    builder.Services.AddSingleton<IServiceRecordDataAccess, PGServiceRecordDataAccess>();
+    builder.Services.AddSingleton<IGasRecordDataAccess, PGGasRecordDataAccess>();
+    builder.Services.AddSingleton<ICollisionRecordDataAccess, PGCollisionRecordDataAccess>();
+    builder.Services.AddSingleton<ITaxRecordDataAccess, PGTaxRecordDataAccess>();
+    builder.Services.AddSingleton<IReminderRecordDataAccess, PGReminderRecordDataAccess>();
+    builder.Services.AddSingleton<IUpgradeRecordDataAccess, PGUpgradeRecordDataAccess>();
+    builder.Services.AddSingleton<IOdometerRecordDataAccess, PGOdometerRecordDataAccess>();
+    builder.Services.AddSingleton<ISupplyRecordDataAccess, PGSupplyRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordDataAccess, PGPlanRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PGPlanRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IUserConfigDataAccess, PGUserConfigDataAccess>();
+    builder.Services.AddSingleton<IUserRecordDataAccess, PGUserRecordDataAccess>();
+    builder.Services.AddSingleton<ITokenRecordDataAccess, PGTokenRecordDataAccess>();
+    builder.Services.AddSingleton<IUserAccessDataAccess, PGUserAccessDataAccess>();
+}
+else
+{
+    builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
+    builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
+    builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
+    builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
+    builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
+    builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
+    builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
+    builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
+    builder.Services.AddSingleton<IOdometerRecordDataAccess, OdometerRecordDataAccess>();
+    builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordDataAccess, PlanRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PlanRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
+    builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
+    builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
+    builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
+}
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();

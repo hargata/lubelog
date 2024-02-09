@@ -1,0 +1,88 @@
+﻿@using CarCareTracker.Helper
+@{
+    ViewData["Title"] = "Admin";
+}
+@inject IConfiguration config;
+@inject ITranslationHelper translator
+@{
+    var userLanguage = config[nameof(UserConfig.UserLanguage)] ?? "en_US";
+}
+@model AdminViewModel
+<div class="container">
+    <div class="row">
+        <div class="col-1">
+            <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
+        </div>
+        <div class="col-11">
+            <span class="display-6">@translator.Translate(userLanguage, "Database Migration")</span>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Instructions</li>
+                <li class="list-group-item">Use this tool to migrate data between LiteDB and Postgres</li>
+                <li class="list-group-item">Note that it is recommended that the Postgres DB is empty when importing from LiteDB to prevent primary key errors.</li>
+            </ul>
+        </div>
+    </div>
+    <hr />
+    <div class="row d-flex justify-content-center">
+        <div class="col-3">
+            <div class="d-grid">
+                <input onChange="importPostgresData(this)" type="file" accept=".db" class="d-none" id="inputImport">
+                <button type="button" class="btn btn-warning mt-2" onclick="importToPostgres()"><i class="bi bi-upload me-2"></i>@translator.Translate(userLanguage, "Import To Postgres")</button>
+            </div>
+            <div class="d-grid">
+                <button type="button" class="btn btn-warning mt-2" onclick="exportFromPostgres()"><i class="bi bi-download me-2"></i>@translator.Translate(userLanguage, "Export From Postgres")</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function exportFromPostgres(){
+        sloader.show();
+        $.get('/Migration/Export', function (data) {
+            sloader.hide();
+            if (data.success) {
+                window.location.href = data.message;
+            } else {
+                errorToast(genericErrorMessage());
+            }
+        });
+    }
+    function importPostgresData(event) {
+        let formData = new FormData();
+        formData.append("file", event.files[0]);
+        sloader.show();
+        $.ajax({
+            url: "/Files/HandleFileUpload",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                if (response.trim() != '') {
+                    $.post('/Migration/Import', { fileName: response }, function (data) {
+                        sloader.hide();
+                        if (data.success) {
+                            successToast(data.message);
+                            setTimeout(function () { window.location.href = '/Home/Index' }, 500);
+                        } else {
+                            errorToast(genericErrorMessage());
+                        }
+                    });
+                }
+            },
+            error: function () {
+                sloader.hide();
+                errorToast("An error has occurred, please check the file size and try again later.");
+            }
+        });
+    }
+    function importToPostgres() {
+        $("#inputImport").click();
+    }
+</script>

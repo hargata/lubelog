@@ -17,7 +17,6 @@ namespace CarCareTracker.Filter
         }
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
             if (!filterContext.HttpContext.User.IsInRole(nameof(UserData.IsRootUser)))
             {
                 var vehicleId = int.Parse(filterContext.ActionArguments["vehicleId"].ToString());
@@ -28,14 +27,19 @@ namespace CarCareTracker.Filter
                     {
                         filterContext.Result = new RedirectResult("/Error/Unauthorized");
                     }
-                } else if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                } else
                 {
-                    //user trying to access shop supplies but shop supplies is not enabled by root user.
-                    filterContext.Result = new RedirectResult("/Error/Unauthorized");
-                } else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
-                {
-                    //user trying to access any other endpoints using 0 as vehicle id.
-                    filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
+                    if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                    {
+                        //user trying to access shop supplies but shop supplies is not enabled by root user.
+                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    }
+                    else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
+                    {
+                        //user trying to access any other endpoints using 0 as vehicle id.
+                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    }
                 }
             }
         }
