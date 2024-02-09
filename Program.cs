@@ -20,6 +20,8 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IServiceRecordDataAccess, PGServiceRecordDataAccess>();
     builder.Services.AddSingleton<IGasRecordDataAccess, PGGasRecordDataAccess>();
     builder.Services.AddSingleton<ICollisionRecordDataAccess, PGCollisionRecordDataAccess>();
+    builder.Services.AddSingleton<ITaxRecordDataAccess, PGTaxRecordDataAccess>();
+    builder.Services.AddSingleton<IReminderRecordDataAccess, PGReminderRecordDataAccess>();
 }
 else
 {
@@ -28,10 +30,10 @@ else
     builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
     builder.Services.AddSingleton<IGasRecordDataAccess, GasRecordDataAccess>();
     builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
+    builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
+    builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
 }
 
-builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
-builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
 builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
 builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
 builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();

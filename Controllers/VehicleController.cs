@@ -161,6 +161,10 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
         {
+            if (vehicleId == default && mode != ImportMode.SupplyRecord)
+            {
+                return Json(false);
+            }
             string uploadDirectory = "temp/";
             string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
             if (!Directory.Exists(uploadPath))
@@ -345,6 +349,10 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {
+            if (vehicleId == default && mode != ImportMode.SupplyRecord)
+            {
+                return Json(false);
+            }
             if (string.IsNullOrWhiteSpace(fileName))
             {
                 return Json(false);
