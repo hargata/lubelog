@@ -29,7 +29,7 @@ namespace CarCareTracker.Controllers
                 return View();
             } else
             {
-                return new RedirectResult("/Error/Unauthorized");
+                return View("401");
             }
         }
         private void InitializeTables(NpgsqlConnection conn)
@@ -65,7 +65,7 @@ namespace CarCareTracker.Controllers
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return new RedirectResult("/Error/Unauthorized");
+                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
             }
             var tempPath = $"temp/{Guid.NewGuid}.db";
             var fullFileName = _fileHelper.GetFullFilePath(tempPath, false);
@@ -235,6 +235,164 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 #endregion
+                #region "Part3"
+                cmd = $"SELECT data FROM app.planrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            planrecords.Add(System.Text.Json.JsonSerializer.Deserialize<PlanRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in planrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<PlanRecord>("planrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.planrecordtemplates";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            planrecordtemplates.Add(System.Text.Json.JsonSerializer.Deserialize<PlanRecordInput>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in planrecordtemplates)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<PlanRecordInput>("planrecordtemplates");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.supplyrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            supplyrecords.Add(System.Text.Json.JsonSerializer.Deserialize<SupplyRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in supplyrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<SupplyRecord>("supplyrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.taxrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            taxrecords.Add(System.Text.Json.JsonSerializer.Deserialize<TaxRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in taxrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<TaxRecord>("taxrecords");
+                        table.Upsert(record);
+                    };
+                }
+                #endregion
+                #region "Part4"
+                cmd = $"SELECT id, username, emailaddress, password, isadmin FROM app.userrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            UserData result = new UserData();
+                            result.Id = int.Parse(reader["id"].ToString());
+                            result.UserName = reader["username"].ToString();
+                            result.EmailAddress = reader["emailaddress"].ToString();
+                            result.Password = reader["password"].ToString();
+                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString());
+                            userrecords.Add(result);
+                        }
+                }
+                foreach (var record in userrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<UserData>("userrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT id, emailaddress, body FROM app.tokenrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            Token result = new Token();
+                            result.Id = int.Parse(reader["id"].ToString());
+                            result.EmailAddress = reader["emailaddress"].ToString();
+                            result.Body = reader["body"].ToString();
+                            tokenrecords.Add(result);
+                        }
+                }
+                foreach (var record in tokenrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<Token>("tokenrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.userconfigrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            userconfigrecords.Add(System.Text.Json.JsonSerializer.Deserialize<UserConfigData>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in userconfigrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<UserConfigData>("userconfigrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT userId, vehicleId FROM app.useraccessrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            UserAccess result = new UserAccess()
+                            {
+                                Id = new UserVehicle
+                                {
+                                    UserId = int.Parse(reader["userId"].ToString()),
+                                    VehicleId = int.Parse(reader["vehicleId"].ToString())
+                                }
+                            };
+                            useraccessrecords.Add(result);
+                        }
+                }
+                foreach (var record in useraccessrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<UserAccess>("useraccessrecords");
+                        table.Upsert(record);
+                    };
+                }
+                #endregion
                 return Json(new OperationResponse { Success = true, Message = $"/{tempPath}" });
             }
             catch (Exception ex)
@@ -246,7 +404,7 @@ namespace CarCareTracker.Controllers
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return new RedirectResult("/Error/Unauthorized");
+                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
             }
             var fullFileName = _fileHelper.GetFullFilePath(fileName);
             if (string.IsNullOrWhiteSpace(fullFileName))

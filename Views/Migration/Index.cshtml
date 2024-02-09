@@ -35,12 +35,21 @@
                 <button type="button" class="btn btn-warning mt-2" onclick="importToPostgres()"><i class="bi bi-upload me-2"></i>@translator.Translate(userLanguage, "Import To Postgres")</button>
             </div>
             <div class="d-grid">
-                <button type="button" class="btn btn-warning mt-2" onclick="performLogin()"><i class="bi bi-download me-2"></i>@translator.Translate(userLanguage, "Export From Postgres")</button>
+                <button type="button" class="btn btn-warning mt-2" onclick="exportFromPostgres()"><i class="bi bi-download me-2"></i>@translator.Translate(userLanguage, "Export From Postgres")</button>
             </div>
         </div>
     </div>
 </div>
 <script>
+    function exportFromPostgres(){
+        $.get('/Migration/Export', function (data) {
+            if (data.success) {
+                window.location.href = data.message;
+            } else {
+                errorToast(genericErrorMessage());
+            }
+        });
+    }
     function importPostgresData(event) {
         let formData = new FormData();
         formData.append("file", event.files[0]);
