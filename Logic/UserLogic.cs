@@ -48,6 +48,12 @@ namespace CarCareTracker.Logic
             if (existingUser.Id != default)
             {
                 //user exists.
+                //check if user is already a collaborator
+                var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(existingUser.Id, vehicleId);
+                if (userAccess != null)
+                {
+                    return new OperationResponse { Success = false, Message = "User is already a collaborator" };
+                }
                 var result = AddUserAccessToVehicle(existingUser.Id, vehicleId);
                 if (result)
                 {
