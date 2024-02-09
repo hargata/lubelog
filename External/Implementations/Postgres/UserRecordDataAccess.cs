@@ -1,8 +1,6 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using Npgsql;
-using System.Net.Mail;
-using System.Text.Json;
 
 namespace CarCareTracker.External.Implementations
 {

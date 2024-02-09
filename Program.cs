@@ -29,6 +29,7 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PGPlanRecordTemplateDataAccess>();
     builder.Services.AddSingleton<IUserConfigDataAccess, PGUserConfigDataAccess>();
     builder.Services.AddSingleton<IUserRecordDataAccess, PGUserRecordDataAccess>();
+    builder.Services.AddSingleton<ITokenRecordDataAccess, PGTokenRecordDataAccess>();
 }
 else
 {
@@ -46,10 +47,11 @@ else
     builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PlanRecordTemplateDataAccess>();
     builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
     builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
+    builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
 }
 
 
-builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
+
 builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
 
 //configure helpers
