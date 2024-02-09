@@ -22,6 +22,11 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<ICollisionRecordDataAccess, PGCollisionRecordDataAccess>();
     builder.Services.AddSingleton<ITaxRecordDataAccess, PGTaxRecordDataAccess>();
     builder.Services.AddSingleton<IReminderRecordDataAccess, PGReminderRecordDataAccess>();
+    builder.Services.AddSingleton<IUpgradeRecordDataAccess, PGUpgradeRecordDataAccess>();
+    builder.Services.AddSingleton<IOdometerRecordDataAccess, PGOdometerRecordDataAccess>();
+    builder.Services.AddSingleton<ISupplyRecordDataAccess, PGSupplyRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordDataAccess, PGPlanRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PGPlanRecordTemplateDataAccess>();
 }
 else
 {
@@ -32,17 +37,17 @@ else
     builder.Services.AddSingleton<ICollisionRecordDataAccess, CollisionRecordDataAccess>();
     builder.Services.AddSingleton<ITaxRecordDataAccess, TaxRecordDataAccess>();
     builder.Services.AddSingleton<IReminderRecordDataAccess, ReminderRecordDataAccess>();
+    builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
+    builder.Services.AddSingleton<IOdometerRecordDataAccess, OdometerRecordDataAccess>();
+    builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordDataAccess, PlanRecordDataAccess>();
+    builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PlanRecordTemplateDataAccess>();
 }
 
-builder.Services.AddSingleton<IUpgradeRecordDataAccess, UpgradeRecordDataAccess>();
 builder.Services.AddSingleton<IUserRecordDataAccess, UserRecordDataAccess>();
 builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
 builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
 builder.Services.AddSingleton<IUserConfigDataAccess, UserConfigDataAccess>();
-builder.Services.AddSingleton<ISupplyRecordDataAccess, SupplyRecordDataAccess>();
-builder.Services.AddSingleton<IPlanRecordDataAccess, PlanRecordDataAccess>();
-builder.Services.AddSingleton<IPlanRecordTemplateDataAccess, PlanRecordTemplateDataAccess>();
-builder.Services.AddSingleton<IOdometerRecordDataAccess, OdometerRecordDataAccess>();
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
