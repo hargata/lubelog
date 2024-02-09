@@ -34,7 +34,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"SELECT data FROM app.{tableName} WHERE id = @id";
-                var result = new UserConfigData();
+                UserConfigData result = null;
                 using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
                 {
                     ctext.Parameters.AddWithValue("id", userId);
@@ -45,7 +45,6 @@ namespace CarCareTracker.External.Implementations
                             result = userConfig;
                         }
                 }
-                if (result.UserConfig == null) { return null; }
                 return result;
             }
             catch (Exception ex)
@@ -59,7 +58,7 @@ namespace CarCareTracker.External.Implementations
             var existingRecord = GetUserConfig(userConfigData.Id);
             try
             {
-                if (existingRecord == null || existingRecord.Id == default)
+                if (existingRecord == null)
                 {
                     string cmd = $"INSERT INTO app.{tableName} (id, data) VALUES(@id, CAST(@data AS jsonb))";
                     using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
