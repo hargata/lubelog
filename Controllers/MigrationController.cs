@@ -14,19 +14,17 @@ namespace CarCareTracker.Controllers
     public class MigrationController : Controller
     {
         private IConfigHelper _configHelper;
-        private IConfiguration _serverConfig;
         private IFileHelper _fileHelper;
         private readonly ILogger<MigrationController> _logger;
         public MigrationController(IConfigHelper configHelper, IFileHelper fileHelper, IConfiguration serverConfig, ILogger<MigrationController> logger)
         {
             _configHelper = configHelper;
             _fileHelper = fileHelper;
-            _serverConfig = serverConfig;
             _logger = logger;
         }
         public IActionResult Index()
         {
-            if (_configHelper.GetServerHasPostgresConnection())
+            if (!string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
                 return View();
             } else
@@ -63,9 +61,190 @@ namespace CarCareTracker.Controllers
                 }
             }
         }
+        public IActionResult Export()
+        {
+            if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
+            {
+                return new RedirectResult("/Error/Unauthorized");
+            }
+            var tempPath = $"temp/{Guid.NewGuid}.db";
+            var fullFileName = _fileHelper.GetFullFilePath(tempPath, false);
+            try
+            {
+                var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
+                pgDataSource.Open();
+                InitializeTables(pgDataSource);
+                //pull records
+                var vehicles = new List<Vehicle>();
+                var repairrecords = new List<CollisionRecord>();
+                var upgraderecords = new List<UpgradeRecord>();
+                var servicerecords = new List<ServiceRecord>();
+
+                var gasrecords = new List<GasRecord>();
+                var noterecords = new List<Note>();
+                var odometerrecords = new List<OdometerRecord>();
+                var reminderrecords = new List<ReminderRecord>();
+
+                var planrecords = new List<PlanRecord>();
+                var planrecordtemplates = new List<PlanRecordInput>();
+                var supplyrecords = new List<SupplyRecord>();
+                var taxrecords = new List<TaxRecord>();
+
+                var userrecords = new List<UserData>();
+                var tokenrecords = new List<Token>();
+                var userconfigrecords = new List<UserConfigData>();
+                var useraccessrecords = new List<UserAccess>();
+                #region "Part1"
+                string cmd = $"SELECT data FROM app.vehicles";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            Vehicle vehicle = System.Text.Json.JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
+                            vehicles.Add(vehicle);
+                        }
+                }
+                foreach (var vehicle in vehicles)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<Vehicle>("vehicles");
+                        table.Upsert(vehicle);
+                    };
+                }
+                cmd = $"SELECT data FROM app.collisionrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            repairrecords.Add(System.Text.Json.JsonSerializer.Deserialize<CollisionRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in repairrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<CollisionRecord>("collisionrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.upgraderecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            upgraderecords.Add(System.Text.Json.JsonSerializer.Deserialize<UpgradeRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in upgraderecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<UpgradeRecord>("upgraderecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.servicerecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            servicerecords.Add(System.Text.Json.JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in servicerecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<ServiceRecord>("servicerecords");
+                        table.Upsert(record);
+                    };
+                }
+                #endregion
+                #region "Part2"
+                cmd = $"SELECT data FROM app.gasrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            gasrecords.Add(System.Text.Json.JsonSerializer.Deserialize<GasRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in gasrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<GasRecord>("gasrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.notes";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            noterecords.Add(System.Text.Json.JsonSerializer.Deserialize<Note>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in noterecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<Note>("notes");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.odometerrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            odometerrecords.Add(System.Text.Json.JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in odometerrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<OdometerRecord>("odometerrecords");
+                        table.Upsert(record);
+                    };
+                }
+                cmd = $"SELECT data FROM app.reminderrecords";
+                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                {
+                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            reminderrecords.Add(System.Text.Json.JsonSerializer.Deserialize<ReminderRecord>(reader["data"] as string));
+                        }
+                }
+                foreach (var record in reminderrecords)
+                {
+                    using (var db = new LiteDatabase(fullFileName))
+                    {
+                        var table = db.GetCollection<ReminderRecord>("reminderrecords");
+                        table.Upsert(record);
+                    };
+                }
+                #endregion
+                return Json(new OperationResponse { Success = true, Message = $"/{tempPath}" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+            }
+        }
         public IActionResult Import(string fileName)
         {
-            if (!_configHelper.GetServerHasPostgresConnection())
+            if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
                 return new RedirectResult("/Error/Unauthorized");
             }
@@ -76,7 +255,7 @@ namespace CarCareTracker.Controllers
             }
             try
             {
-                var pgDataSource = new NpgsqlConnection(_serverConfig["POSTGRES_CONNECTION"]);
+                var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
                 pgDataSource.Open();
                 InitializeTables(pgDataSource);
                 //pull records

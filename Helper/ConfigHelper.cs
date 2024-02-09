@@ -12,7 +12,7 @@ namespace CarCareTracker.Helper
         string GetLogoUrl();
         string GetServerLanguage();
         bool GetServerEnableShopSupplies();
-        bool GetServerHasPostgresConnection();
+        string GetServerPostgresConnection();
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
@@ -42,9 +42,15 @@ namespace CarCareTracker.Helper
             var serverLanguage = _config[nameof(UserConfig.UserLanguage)] ?? "en_US";
             return serverLanguage;
         }
-        public bool GetServerHasPostgresConnection()
+        public string GetServerPostgresConnection()
         {
-            return !string.IsNullOrWhiteSpace(_config["POSTGRES_CONNECTION"]);
+            if (!string.IsNullOrWhiteSpace(_config["POSTGRES_CONNECTION"]))
+            {
+                return _config["POSTGRES_CONNECTION"];
+            } else
+            {
+                return string.Empty;
+            }
         }
         public bool GetServerEnableShopSupplies()
         {
