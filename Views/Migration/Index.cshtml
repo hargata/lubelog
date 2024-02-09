@@ -42,7 +42,9 @@
 </div>
 <script>
     function exportFromPostgres(){
+        sloader.show();
         $.get('/Migration/Export', function (data) {
+            sloader.hide();
             if (data.success) {
                 window.location.href = data.message;
             } else {

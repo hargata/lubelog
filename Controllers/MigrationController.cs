@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Data.Common;
+using System.IO.Compression;
 using System.Xml.Linq;
 
 namespace CarCareTracker.Controllers
@@ -67,7 +68,10 @@ namespace CarCareTracker.Controllers
             {
                 return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
             }
-            var tempPath = $"temp/{Guid.NewGuid}.db";
+            var tempFolder = $"temp/{Guid.NewGuid()}";
+            var tempPath = $"{tempFolder}/cartracker.db";
+            var fullFolderPath = _fileHelper.GetFullFilePath(tempFolder, false);
+            Directory.CreateDirectory(fullFolderPath);
             var fullFileName = _fileHelper.GetFullFilePath(tempPath, false);
             try
             {
@@ -393,10 +397,13 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 #endregion
-                return Json(new OperationResponse { Success = true, Message = $"/{tempPath}" });
+                var destFilePath = $"{fullFolderPath}.zip";
+                ZipFile.CreateFromDirectory(fullFolderPath, destFilePath);
+                return Json(new OperationResponse { Success = true, Message = $"/{tempFolder}.zip" });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
             }
         }
