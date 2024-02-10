@@ -7,22 +7,18 @@ namespace CarCareTracker.External.Implementations
 {
     public class PGUserConfigDataAccess: IUserConfigDataAccess
     {
-        private NpgsqlConnection pgDataSource;
+        private NpgsqlDataSource pgDataSource;
         private readonly ILogger<PGUserConfigDataAccess> _logger;
         private static string tableName = "userconfigrecords";
         public PGUserConfigDataAccess(IConfiguration config, ILogger<PGUserConfigDataAccess> logger)
         {
-            pgDataSource = new NpgsqlConnection(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
             _logger = logger;
             try
             {
-                if (pgDataSource.State == System.Data.ConnectionState.Closed)
-                {
-                    pgDataSource.Open();
-                }
                 //create table if not exist.
                 string initCMD = $"CREATE TABLE IF NOT EXISTS app.{tableName} (id INT primary key, data jsonb not null)";
-                using (var ctext = new NpgsqlCommand(initCMD, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(initCMD))
                 {
                     ctext.ExecuteNonQuery();
                 }
@@ -38,7 +34,7 @@ namespace CarCareTracker.External.Implementations
             {
                 string cmd = $"SELECT data FROM app.{tableName} WHERE id = @id";
                 UserConfigData result = null;
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("id", userId);
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
@@ -64,7 +60,7 @@ namespace CarCareTracker.External.Implementations
                 if (existingRecord == null)
                 {
                     string cmd = $"INSERT INTO app.{tableName} (id, data) VALUES(@id, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         var serializedData = JsonSerializer.Serialize(userConfigData);
                         ctext.Parameters.AddWithValue("id", userConfigData.Id);
@@ -75,7 +71,7 @@ namespace CarCareTracker.External.Implementations
                 else
                 {
                     string cmd = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         var serializedData = JsonSerializer.Serialize(userConfigData);
                         ctext.Parameters.AddWithValue("id", userConfigData.Id);
@@ -95,7 +91,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"DELETE FROM app.{tableName} WHERE id = @id";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("id", userId);
                     return ctext.ExecuteNonQuery() > 0;

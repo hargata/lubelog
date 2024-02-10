@@ -33,7 +33,7 @@ namespace CarCareTracker.Controllers
                 return new RedirectResult("/Error/Unauthorized");
             }
         }
-        private void InitializeTables(NpgsqlConnection conn)
+        private void InitializeTables(NpgsqlDataSource conn)
         {
             var cmds = new List<string>
             {
@@ -56,7 +56,7 @@ namespace CarCareTracker.Controllers
             };
             foreach(string cmd in cmds)
             {
-                using (var ctext = new NpgsqlCommand(cmd, conn))
+                using (var ctext = conn.CreateCommand(cmd))
                 {
                     ctext.ExecuteNonQuery();
                 }
@@ -75,11 +75,7 @@ namespace CarCareTracker.Controllers
             var fullFileName = _fileHelper.GetFullFilePath(tempPath, false);
             try
             {
-                var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
-                if (pgDataSource.State == System.Data.ConnectionState.Closed)
-                {
-                    pgDataSource.Open();
-                }
+                var pgDataSource = NpgsqlDataSource.Create(_configHelper.GetServerPostgresConnection());
                 InitializeTables(pgDataSource);
                 //pull records
                 var vehicles = new List<Vehicle>();
@@ -103,7 +99,7 @@ namespace CarCareTracker.Controllers
                 var useraccessrecords = new List<UserAccess>();
                 #region "Part1"
                 string cmd = $"SELECT data FROM app.vehicles";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -121,7 +117,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.collisionrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -138,7 +134,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.upgraderecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -155,7 +151,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.servicerecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -174,7 +170,7 @@ namespace CarCareTracker.Controllers
                 #endregion
                 #region "Part2"
                 cmd = $"SELECT data FROM app.gasrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -191,7 +187,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.notes";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -208,7 +204,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.odometerrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -225,7 +221,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.reminderrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -244,7 +240,7 @@ namespace CarCareTracker.Controllers
                 #endregion
                 #region "Part3"
                 cmd = $"SELECT data FROM app.planrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -261,7 +257,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.planrecordtemplates";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -278,7 +274,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.supplyrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -295,7 +291,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.taxrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -314,7 +310,7 @@ namespace CarCareTracker.Controllers
                 #endregion
                 #region "Part4"
                 cmd = $"SELECT id, username, emailaddress, password, isadmin FROM app.userrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -337,7 +333,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT id, emailaddress, body FROM app.tokenrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -358,7 +354,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT data FROM app.userconfigrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -375,7 +371,7 @@ namespace CarCareTracker.Controllers
                     };
                 }
                 cmd = $"SELECT userId, vehicleId FROM app.useraccessrecords";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
@@ -423,11 +419,7 @@ namespace CarCareTracker.Controllers
             }
             try
             {
-                var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
-                if (pgDataSource.State == System.Data.ConnectionState.Closed)
-                {
-                    pgDataSource.Open();
-                }
+                var pgDataSource = NpgsqlDataSource.Create(_configHelper.GetServerPostgresConnection());
                 InitializeTables(pgDataSource);
                 //pull records
                 var vehicles = new List<Vehicle>();
@@ -458,7 +450,7 @@ namespace CarCareTracker.Controllers
                 foreach(var vehicle in vehicles)
                 {
                     string cmd = $"INSERT INTO app.vehicles (id, data) VALUES(@id, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", vehicle.Id);
                         ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(vehicle));
@@ -473,7 +465,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in repairrecords)
                 {
                     string cmd = $"INSERT INTO app.collisionrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -489,7 +481,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in servicerecords)
                 {
                     string cmd = $"INSERT INTO app.servicerecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -505,7 +497,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in upgraderecords)
                 {
                     string cmd = $"INSERT INTO app.upgraderecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -523,7 +515,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in gasrecords)
                 {
                     string cmd = $"INSERT INTO app.gasrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -539,7 +531,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in noterecords)
                 {
                     string cmd = $"INSERT INTO app.notes (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -555,7 +547,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in odometerrecords)
                 {
                     string cmd = $"INSERT INTO app.odometerrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -571,7 +563,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in reminderrecords)
                 {
                     string cmd = $"INSERT INTO app.reminderrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -589,7 +581,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in planrecords)
                 {
                     string cmd = $"INSERT INTO app.planrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -605,7 +597,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in planrecordtemplates)
                 {
                     string cmd = $"INSERT INTO app.planrecordtemplates (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -621,7 +613,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in supplyrecords)
                 {
                     string cmd = $"INSERT INTO app.supplyrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -637,7 +629,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in taxrecords)
                 {
                     string cmd = $"INSERT INTO app.taxrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
@@ -655,7 +647,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in userrecords)
                 {
                     string cmd = $"INSERT INTO app.userrecords (id, username, emailaddress, password, isadmin) VALUES(@id, @username, @emailaddress, @password, @isadmin)";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("username", record.UserName);
@@ -673,7 +665,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in tokenrecords)
                 {
                     string cmd = $"INSERT INTO app.tokenrecords (id, emailaddress, body) VALUES(@id, @emailaddress, @body)";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("emailaddress", record.EmailAddress);
@@ -689,7 +681,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in userconfigrecords)
                 {
                     string cmd = $"INSERT INTO app.userconfigrecords (id, data) VALUES(@id, CAST(@data AS jsonb))";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
@@ -704,7 +696,7 @@ namespace CarCareTracker.Controllers
                 foreach (var record in useraccessrecords)
                 {
                     string cmd = $"INSERT INTO app.useraccessrecords (userId, vehicleId) VALUES(@userId, @vehicleId)";
-                    using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                    using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("userId", record.Id.UserId);
                         ctext.Parameters.AddWithValue("vehicleId", record.Id.VehicleId);
