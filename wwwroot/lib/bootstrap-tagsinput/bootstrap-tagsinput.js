@@ -273,81 +273,6 @@
       makeOptionItemFunction(self.options, 'itemText');
       makeOptionFunction(self.options, 'tagClass');
 
-      // Typeahead Bootstrap version 2.3.2
-      if (self.options.typeahead) {
-        var typeahead = self.options.typeahead || {};
-
-        makeOptionFunction(typeahead, 'source');
-
-        self.$input.typeahead($.extend({}, typeahead, {
-          source: function (query, process) {
-            function processItems(items) {
-              var texts = [];
-
-              for (var i = 0; i < items.length; i++) {
-                var text = self.options.itemText(items[i]);
-                map[text] = items[i];
-                texts.push(text);
-              }
-              process(texts);
-            }
-
-            this.map = {};
-            var map = this.map,
-                data = typeahead.source(query);
-
-            if ($.isFunction(data.success)) {
-              // support for Angular callbacks
-              data.success(processItems);
-            } else if ($.isFunction(data.then)) {
-              // support for Angular promises
-              data.then(processItems);
-            } else {
-              // support for functions and jquery promises
-              $.when(data)
-               .then(processItems);
-            }
-          },
-          updater: function (text) {
-            self.add(this.map[text]);
-            return this.map[text];
-          },
-          matcher: function (text) {
-            return (text.toLowerCase().indexOf(this.query.trim().toLowerCase()) !== -1);
-          },
-          sorter: function (texts) {
-            return texts.sort();
-          },
-          highlighter: function (text) {
-            var regex = new RegExp( '(' + this.query + ')', 'gi' );
-            return text.replace( regex, "<strong>$1</strong>" );
-          }
-        }));
-      }
-
-      // typeahead.js
-      if (self.options.typeaheadjs) {
-          var typeaheadConfig = null;
-          var typeaheadDatasets = {};
-
-          // Determine if main configurations were passed or simply a dataset
-          var typeaheadjs = self.options.typeaheadjs;
-          if ($.isArray(typeaheadjs)) {
-            typeaheadConfig = typeaheadjs[0];
-            typeaheadDatasets = typeaheadjs[1];
-          } else {
-            typeaheadDatasets = typeaheadjs;
-          }
-
-          self.$input.typeahead(typeaheadConfig, typeaheadDatasets).on('typeahead:selected', $.proxy(function (obj, datum) {
-            if (typeaheadDatasets.valueKey)
-              self.add(datum[typeaheadDatasets.valueKey]);
-            else
-              self.add(datum);
-            self.$input.typeahead('val', '');
-          }, self));
-      }
-
       self.$container.on('click', $.proxy(function(event) {
         if (! self.$element.attr('disabled')) {
           self.$input.removeAttr('disabled');
@@ -423,7 +348,7 @@
         var textLength = $input.val().length,
             wordSpace = Math.ceil(textLength / 5),
             size = textLength + wordSpace + 1;
-        $input.attr('size', Math.max(this.inputSize, $input.val().length));
+        $input.attr('size', Math.max(this.inputSize, size));
       }, self));
 
         self.$container.on('input', 'input', $.proxy(function (event) {
@@ -448,7 +373,7 @@
                 var textLength = $input.val().length,
                     wordSpace = Math.ceil(textLength / 5),
                     size = textLength + wordSpace + 1;
-                $input.attr('size', Math.max(this.inputSize, $input.val().length));
+                $input.attr('size', Math.max(this.inputSize, size));
             };
         }));
 
@@ -480,7 +405,7 @@
          var textLength = $input.val().length,
             wordSpace = Math.ceil(textLength / 5),
             size = textLength + wordSpace + 1;
-         $input.attr('size', Math.max(this.inputSize, $input.val().length));
+         $input.attr('size', Math.max(this.inputSize, size));
       }, self));
 
       // Remove icon clicked

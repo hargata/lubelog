@@ -69,6 +69,10 @@ if (!Directory.Exists("data"))
 {
     Directory.CreateDirectory("data");
 }
+if (!Directory.Exists("config"))
+{
+    Directory.CreateDirectory("config");
+}
 
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
