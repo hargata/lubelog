@@ -9,3 +9,5 @@ wwwroot/temp/
 wwwroot/imports/
 wwwroot/translations/
 config/userConfig.json
+CarCareTracker.csproj.user
+Properties/launchSettings.json
