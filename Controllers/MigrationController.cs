@@ -76,7 +76,10 @@ namespace CarCareTracker.Controllers
             try
             {
                 var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
-                pgDataSource.Open();
+                if (pgDataSource.State == System.Data.ConnectionState.Closed)
+                {
+                    pgDataSource.Open();
+                }
                 InitializeTables(pgDataSource);
                 //pull records
                 var vehicles = new List<Vehicle>();
@@ -421,7 +424,10 @@ namespace CarCareTracker.Controllers
             try
             {
                 var pgDataSource = new NpgsqlConnection(_configHelper.GetServerPostgresConnection());
-                pgDataSource.Open();
+                if (pgDataSource.State == System.Data.ConnectionState.Closed)
+                {
+                    pgDataSource.Open();
+                }
                 InitializeTables(pgDataSource);
                 //pull records
                 var vehicles = new List<Vehicle>();
