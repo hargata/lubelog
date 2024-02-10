@@ -15,6 +15,35 @@
 function hideAddReminderRecordModal() {
     $('#reminderRecordModal').modal('hide');
 }
+function checkCustomMonthInterval() {
+    var selectedValue = $("#reminderRecurringMonth").val();
+    if (selectedValue == "Other") {
+        $("#workAroundInput").show();
+        Swal.fire({
+            title: 'Specify Custom Month Interval',
+            html: `
+                            <input type="text" id="inputCustomMileage" class="swal2-input" placeholder="Months">
+                            `,
+            confirmButtonText: 'Set',
+            focusConfirm: false,
+            preConfirm: () => {
+                const customMonth = $("#inputCustomMileage").val();
+                if (!customMonth || isNaN(parseInt(customMonth)) || parseInt(customMonth) <= 0) {
+                    Swal.showValidationMessage(`Please enter a valid number`);
+                }
+                return { customMonth }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                customMonthInterval = result.value.customMonth;
+                $("#reminderRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth}`);
+            } else {
+                $("#reminderRecurringMonth").val(getReminderRecordModelData().monthInterval);
+            }
+            $("#workAroundInput").hide();
+        });
+    }
+}
 function checkCustomMileageInterval() {
     var selectedValue = $("#reminderRecurringMileage").val();
     if (selectedValue == "Other") {
@@ -36,7 +65,7 @@ function checkCustomMileageInterval() {
         }).then(function (result) {
             if (result.isConfirmed) {
                 customMileageInterval = result.value.customMileage;
-                $("option[value='Other']").text(`Other: ${result.value.customMileage}`);
+                $("#reminderRecurringMileage > option[value='Other']").text(`Other: ${result.value.customMileage}`);
             } else {
                 $("#reminderRecurringMileage").val(getReminderRecordModelData().mileageInterval);
             }
@@ -185,6 +214,7 @@ function getAndValidateReminderRecordValues() {
         isRecurring: reminderIsRecurring,
         reminderMileageInterval: reminderRecurringMileage,
         reminderMonthInterval: reminderRecurringMonth,
-        customMileageInterval: customMileageInterval
+        customMileageInterval: customMileageInterval,
+        customMonthInterval: customMonthInterval
     }
 }
