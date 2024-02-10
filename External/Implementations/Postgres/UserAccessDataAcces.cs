@@ -16,7 +16,10 @@ namespace CarCareTracker.External.Implementations
             _logger = logger;
             try
             {
-                pgDataSource.Open();
+                if (pgDataSource.State == System.Data.ConnectionState.Closed)
+                {
+                    pgDataSource.Open();
+                }
                 //create table if not exist.
                 string initCMD = $"CREATE TABLE IF NOT EXISTS app.{tableName} (userId INT, vehicleId INT, PRIMARY KEY(userId, vehicleId))";
                 using (var ctext = new NpgsqlCommand(initCMD, pgDataSource))
