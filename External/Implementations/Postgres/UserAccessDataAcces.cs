@@ -7,22 +7,18 @@ namespace CarCareTracker.External.Implementations
 {
     public class PGUserAccessDataAccess : IUserAccessDataAccess
     {
-        private NpgsqlConnection pgDataSource;
+        private NpgsqlDataSource pgDataSource;
         private readonly ILogger<PGUserAccessDataAccess> _logger;
         private static string tableName = "useraccessrecords";
         public PGUserAccessDataAccess(IConfiguration config, ILogger<PGUserAccessDataAccess> logger)
         {
-            pgDataSource = new NpgsqlConnection(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
             _logger = logger;
             try
             {
-                if (pgDataSource.State == System.Data.ConnectionState.Closed)
-                {
-                    pgDataSource.Open();
-                }
                 //create table if not exist.
                 string initCMD = $"CREATE TABLE IF NOT EXISTS app.{tableName} (userId INT, vehicleId INT, PRIMARY KEY(userId, vehicleId))";
-                using (var ctext = new NpgsqlCommand(initCMD, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(initCMD))
                 {
                     ctext.ExecuteNonQuery();
                 }
@@ -43,7 +39,7 @@ namespace CarCareTracker.External.Implementations
             {
                 string cmd = $"SELECT userId, vehicleId FROM app.{tableName} WHERE userId = @userId";
                 var results = new List<UserAccess>();
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("userId", userId);
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
@@ -74,7 +70,7 @@ namespace CarCareTracker.External.Implementations
             {
                 string cmd = $"SELECT userId, vehicleId FROM app.{tableName} WHERE userId = @userId AND vehicleId = @vehicleId";
                 UserAccess result = null;
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("userId", userId);
                     ctext.Parameters.AddWithValue("vehicleId", vehicleId);
@@ -106,7 +102,7 @@ namespace CarCareTracker.External.Implementations
             {
                 string cmd = $"SELECT userId, vehicleId FROM app.{tableName} WHERE vehicleId = @vehicleId";
                 var results = new List<UserAccess>();
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("vehicleId", vehicleId);
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
@@ -136,7 +132,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"INSERT INTO app.{tableName} (userId, vehicleId) VALUES(@userId, @vehicleId)";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("userId", userAccess.Id.UserId);
                     ctext.Parameters.AddWithValue("vehicleId", userAccess.Id.VehicleId);
@@ -154,7 +150,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"DELETE FROM app.{tableName} WHERE userId = @userId AND vehicleId = @vehicleId";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("userId", userId);
                     ctext.Parameters.AddWithValue("vehicleId", vehicleId);
@@ -177,7 +173,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"DELETE FROM app.{tableName} WHERE vehicleId = @vehicleId";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("vehicleId", vehicleId);
                     return ctext.ExecuteNonQuery() > 0;
@@ -199,7 +195,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 string cmd = $"DELETE FROM app.{tableName} WHERE userId = @userId";
-                using (var ctext = new NpgsqlCommand(cmd, pgDataSource))
+                using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("userId", userId);
                     return ctext.ExecuteNonQuery() > 0;
