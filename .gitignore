@@ -8,3 +8,4 @@ wwwroot/documents/
 wwwroot/temp/
 wwwroot/imports/
 wwwroot/translations/
+config/userConfig.json
