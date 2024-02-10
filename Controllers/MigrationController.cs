@@ -449,7 +449,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach(var vehicle in vehicles)
                 {
-                    string cmd = $"INSERT INTO app.vehicles (id, data) VALUES(@id, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.vehicles (id, data) VALUES(@id, CAST(@data AS jsonb)); SELECT setval('app.vehicles_id_seq', (SELECT MAX(id) from app.vehicles));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", vehicle.Id);
@@ -464,7 +464,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in repairrecords)
                 {
-                    string cmd = $"INSERT INTO app.collisionrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.collisionrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.collisionrecords_id_seq', (SELECT MAX(id) from app.collisionrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -480,7 +480,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in servicerecords)
                 {
-                    string cmd = $"INSERT INTO app.servicerecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.servicerecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.servicerecords_id_seq', (SELECT MAX(id) from app.servicerecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -496,7 +496,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in upgraderecords)
                 {
-                    string cmd = $"INSERT INTO app.upgraderecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.upgraderecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.upgraderecords_id_seq', (SELECT MAX(id) from app.upgraderecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -514,7 +514,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in gasrecords)
                 {
-                    string cmd = $"INSERT INTO app.gasrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.gasrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.gasrecords_id_seq', (SELECT MAX(id) from app.gasrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -530,7 +530,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in noterecords)
                 {
-                    string cmd = $"INSERT INTO app.notes (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.notes (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.notes_id_seq', (SELECT MAX(id) from app.notes));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -546,7 +546,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in odometerrecords)
                 {
-                    string cmd = $"INSERT INTO app.odometerrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.odometerrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.odometerrecords_id_seq', (SELECT MAX(id) from app.odometerrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -562,7 +562,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in reminderrecords)
                 {
-                    string cmd = $"INSERT INTO app.reminderrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.reminderrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.reminderrecords_id_seq', (SELECT MAX(id) from app.reminderrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -580,7 +580,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in planrecords)
                 {
-                    string cmd = $"INSERT INTO app.planrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.planrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.planrecords_id_seq', (SELECT MAX(id) from app.planrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -596,7 +596,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in planrecordtemplates)
                 {
-                    string cmd = $"INSERT INTO app.planrecordtemplates (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.planrecordtemplates (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.planrecordtemplates_id_seq', (SELECT MAX(id) from app.planrecordtemplates));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -612,7 +612,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in supplyrecords)
                 {
-                    string cmd = $"INSERT INTO app.supplyrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.supplyrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.supplyrecords_id_seq', (SELECT MAX(id) from app.supplyrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -628,7 +628,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in taxrecords)
                 {
-                    string cmd = $"INSERT INTO app.taxrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb))";
+                    string cmd = $"INSERT INTO app.taxrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.taxrecords_id_seq', (SELECT MAX(id) from app.taxrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -646,7 +646,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in userrecords)
                 {
-                    string cmd = $"INSERT INTO app.userrecords (id, username, emailaddress, password, isadmin) VALUES(@id, @username, @emailaddress, @password, @isadmin)";
+                    string cmd = $"INSERT INTO app.userrecords (id, username, emailaddress, password, isadmin) VALUES(@id, @username, @emailaddress, @password, @isadmin); SELECT setval('app.userrecords_id_seq', (SELECT MAX(id) from app.userrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
@@ -664,7 +664,7 @@ namespace CarCareTracker.Controllers
                 };
                 foreach (var record in tokenrecords)
                 {
-                    string cmd = $"INSERT INTO app.tokenrecords (id, emailaddress, body) VALUES(@id, @emailaddress, @body)";
+                    string cmd = $"INSERT INTO app.tokenrecords (id, emailaddress, body) VALUES(@id, @emailaddress, @body); SELECT setval('app.tokenrecords_id_seq', (SELECT MAX(id) from app.tokenrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
