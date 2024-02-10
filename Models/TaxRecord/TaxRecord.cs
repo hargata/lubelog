@@ -10,6 +10,7 @@
         public string Notes { get; set; }
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.OneYear;
+        public int CustomMonthInterval { get; set; } = 0;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
     }

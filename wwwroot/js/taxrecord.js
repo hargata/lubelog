@@ -84,6 +84,35 @@ function saveTaxRecordToVehicle(isEdit) {
         }
     })
 }
+function checkCustomMonthIntervalForTax() {
+    var selectedValue = $("#taxRecurringMonth").val();
+    if (selectedValue == "Other") {
+        $("#workAroundInput").show();
+        Swal.fire({
+            title: 'Specify Custom Month Interval',
+            html: `
+                            <input type="text" id="inputCustomMileage" class="swal2-input" placeholder="Months">
+                            `,
+            confirmButtonText: 'Set',
+            focusConfirm: false,
+            preConfirm: () => {
+                const customMonth = $("#inputCustomMileage").val();
+                if (!customMonth || isNaN(parseInt(customMonth)) || parseInt(customMonth) <= 0) {
+                    Swal.showValidationMessage(`Please enter a valid number`);
+                }
+                return { customMonth }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                customMonthInterval = result.value.customMonth;
+                $("#taxRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth}`);
+            } else {
+                $("#taxRecurringMonth").val(getTaxRecordModelData().monthInterval);
+            }
+            $("#workAroundInput").hide();
+        });
+    }
+}
 function getAndValidateTaxRecordValues() {
     var taxDate = $("#taxRecordDate").val();
     var taxDescription = $("#taxRecordDescription").val();
@@ -125,6 +154,7 @@ function getAndValidateTaxRecordValues() {
         notes: taxNotes,
         isRecurring: taxIsRecurring,
         recurringInterval: taxRecurringMonth,
+        customMonthInterval: customMonthInterval,
         tags: taxTags,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord
