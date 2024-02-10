@@ -799,7 +799,14 @@ namespace CarCareTracker.Controllers
             {
                 foreach(TaxRecord recurringFee in recurringFees)
                 {
-                    var newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
+                    var newDate = new DateTime();
+                    if (recurringFee.RecurringInterval != ReminderMonthInterval.Other)
+                    {
+                        newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
+                    } else
+                    {
+                        newDate = recurringFee.Date.AddMonths(recurringFee.CustomMonthInterval);
+                    }
                     if (DateTime.Now > newDate){
                         recurringFee.IsRecurring = false;
                         var newRecurringFee = new TaxRecord()
@@ -811,6 +818,7 @@ namespace CarCareTracker.Controllers
                             IsRecurring = true,
                             Notes = recurringFee.Notes,
                             RecurringInterval = recurringFee.RecurringInterval,
+                            CustomMonthInterval = recurringFee.CustomMonthInterval,
                             Files = recurringFee.Files,
                             Tags = recurringFee.Tags
                         };
@@ -848,6 +856,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 IsRecurring = result.IsRecurring,
                 RecurringInterval = result.RecurringInterval,
+                CustomMonthInterval = result.CustomMonthInterval,
                 Files = result.Files,
                 Tags = result.Tags
             };
@@ -1352,7 +1361,8 @@ namespace CarCareTracker.Controllers
                 IsRecurring = result.IsRecurring,
                 ReminderMileageInterval = result.ReminderMileageInterval,
                 ReminderMonthInterval = result.ReminderMonthInterval,
-                CustomMileageInterval = result.CustomMileageInterval
+                CustomMileageInterval = result.CustomMileageInterval,
+                CustomMonthInterval = result.CustomMonthInterval
             };
             return PartialView("_ReminderRecordModal", convertedResult);
         }

@@ -42,7 +42,8 @@
                         <label class="form-check-label" for="taxIsRecurring">@translator.Translate(userLanguage,"Is Recurring")</label>
                     </div>
                     <label for="taxRecurringMonth">@translator.Translate(userLanguage,"Month")</label>
-                    <select class="form-select" id="taxRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
+                    <select class="form-select" onchange="checkCustomMonthIntervalForTax()" id="taxRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
+                        <!option value="Other" @(Model.RecurringInterval == ReminderMonthInterval.Other ? "selected" : "")>@(Model.RecurringInterval == ReminderMonthInterval.Other && Model.CustomMonthInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMonthInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="OneMonth" @(Model.RecurringInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>@translator.Translate(userLanguage,"1 Month")</!option>
                         <!option value="ThreeMonths" @(Model.RecurringInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>@translator.Translate(userLanguage, "3 Months")</!option>
                         <!option value="SixMonths" @(Model.RecurringInterval == ReminderMonthInterval.SixMonths ? "selected" : "")>@translator.Translate(userLanguage, "6 Months")</!option>
@@ -97,6 +98,7 @@
 </div>
 <script>
     var uploadedFiles = [];
+    var customMonthInterval = @Model.CustomMonthInterval;
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)
@@ -105,6 +107,6 @@
     }
         }
     function getTaxRecordModelData() {
-        return { id: @Model.Id}
+        return { id: @Model.Id, monthInterval: decodeHTMLEntities('@Model.RecurringInterval.ToString()') }
     }
 </script>
