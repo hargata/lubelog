@@ -20,7 +20,7 @@
                     <label for="planRecordDescription">@translator.Translate(userLanguage, "Description")</label>
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
                     <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
-                    <input type="text" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
+                    <input type="text" inputmode="decimal" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
                     @if (isNew)
                     {
                         @await Html.PartialAsync("_SupplyStore", "PlanRecord")

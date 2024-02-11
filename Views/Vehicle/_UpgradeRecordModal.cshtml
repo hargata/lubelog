@@ -27,7 +27,7 @@
                     <label for="upgradeRecordDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="upgradeRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) upgraded/modded")" value="@Model.Description">
                     <label for="upgradeRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                    <input type="text" id="upgradeRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the upgrade/mods")" value="@(isNew ? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" id="upgradeRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the upgrade/mods")" value="@(isNew ? "" : Model.Cost)">
                     @if (isNew)
                     {
                         @await Html.PartialAsync("_SupplyStore", "UpgradeRecord")
