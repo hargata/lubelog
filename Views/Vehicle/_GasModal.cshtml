@@ -54,7 +54,7 @@
                     <label for="gasRecordMileage">@($"{translator.Translate(userLanguage,"Odometer Reading")}({distanceUnit})")</label>
                     <input type="number" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew ? "" : Model.GasRecord.Mileage)">
                     <label for="gasRecordGallons">@($"{translator.Translate(userLanguage, "Fuel Consumption")}({consumptionUnit})")</label>
-                    <input type="text" id="gasRecordGallons" class="form-control" placeholder="@translator.Translate(userLanguage,"Amount of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Gallons)">
+                    <input type="text" inputmode="decimal" id="gasRecordGallons" class="form-control" placeholder="@translator.Translate(userLanguage,"Amount of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Gallons)">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.GasRecord.IsFillToFull">
                         <label class="form-check-label" for="gasIsFillToFull">@translator.Translate(userLanguage,"Is Filled To Full")</label>
@@ -67,7 +67,7 @@
                     @if (isNew)
                     {
                         <div class="input-group">
-                            <input type="text" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                            <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                             <div class="input-group-text">
                                 <select class="form-select form-select-sm" id="gasCostType">
                                     <option value="total">@translator.Translate(userLanguage,"Total")</option>
@@ -77,7 +77,7 @@
                         </div>
                     } else
                     {
-                        <input type="text" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                        <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                     }
                     <label for="gasRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="gasRecordTag">

@@ -31,11 +31,11 @@
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordQuantity">@translator.Translate(userLanguage,"Quantity")</label>
-                            <input type="text" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "1" : Model.Quantity)">
+                            <input type="text" inputmode="decimal" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "1" : Model.Quantity)">
                         </div>
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                            <input type="text" id="supplyRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost")" value="@(isNew ? "" : Model.Cost)">
+                            <input type="text" inputmode="decimal" id="supplyRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost")" value="@(isNew ? "" : Model.Cost)">
                         </div>
                     </div>
                 </div>
