@@ -15,14 +15,14 @@
     @if (Model.Any())
     {
         <div class="row">
-            <div class="col-12" style="max-height:50vh; overflow-y:auto;" id="suppliesTable">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;" id="supplies-table">
                 <div class="alert alert-warning" role="alert">
                     @translator.Translate(userLanguage,"Supplies are requisitioned immediately after the record is created and cannot be modified. If you have incorrectly entered the amount you needed you will need to correct it in the Supplies tab.")
                 </div>
                 <div class="d-flex align-items-center flex-wrap">
                     @foreach (string recordTag in recordTags)
                     {
-                        <span onclick="filterTable('suppliesTable', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                        <span onclick="filterTable('supplies-table', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
                     }
                 </div>
                 <table class="table table-hover">
