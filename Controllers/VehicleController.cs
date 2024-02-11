@@ -256,7 +256,8 @@ namespace CarCareTracker.Controllers
                         PartNumber = x.PartNumber,
                         PartQuantity = x.Quantity.ToString(),
                         PartSupplier = x.PartSupplier,
-                        Notes = x.Notes
+                        Notes = x.Notes,
+                        Tags = string.Join(" ", x.Tags)
                     });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
@@ -508,7 +509,8 @@ namespace CarCareTracker.Controllers
                                         Quantity = decimal.Parse(importModel.PartQuantity, NumberStyles.Any),
                                         Description = importModel.Description,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
-                                        Notes = importModel.Notes
+                                        Notes = importModel.Notes,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _supplyRecordDataAccess.SaveSupplyRecordToVehicle(convertedRecord);
                                 }
@@ -1493,7 +1495,11 @@ namespace CarCareTracker.Controllers
             {
                 //get supply record.
                 var supplyData = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
-                if (supply.Quantity > supplyData.Quantity)
+                if (supplyData == null)
+                {
+                    result.Add("Missing Supplies, Please Delete This Template and Recreate It.");
+                }
+                else if (supply.Quantity > supplyData.Quantity)
                 {
                     result.Add($"Insufficient Quantity for {supplyData.Description}, need: {supply.Quantity}, available: {supplyData.Quantity}");
                 }
@@ -1581,7 +1587,8 @@ namespace CarCareTracker.Controllers
                 PartSupplier = result.PartSupplier,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
-                Files = result.Files
+                Files = result.Files,
+                Tags = result.Tags
             };
             return PartialView("_SupplyRecordModal", convertedResult);
         }

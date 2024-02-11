@@ -4,6 +4,7 @@
             $("#supplyRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#supplyRecordDate'));
+            initTagSelector($("#supplyRecordTag"));
             $('#supplyRecordModal').modal('show');
         }
     });
@@ -14,6 +15,7 @@ function showEditSupplyRecordModal(supplyRecordId) {
             $("#supplyRecordModalContent").html(data);
             //initiate datepicker
             initDatePicker($('#supplyRecordDate'));
+            initTagSelector($("#supplyRecordTag"));
             $('#supplyRecordModal').modal('show');
             $('#supplyRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -82,6 +84,7 @@ function getAndValidateSupplyRecordValues() {
     var supplyQuantity = $("#supplyRecordQuantity").val();
     var supplyCost = $("#supplyRecordCost").val();
     var supplyNotes = $("#supplyRecordNotes").val();
+    var supplyTags = $("#supplyRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var supplyRecordId = getSupplyRecordModelData().id;
     //validation
@@ -121,6 +124,7 @@ function getAndValidateSupplyRecordValues() {
         cost: supplyCost,
         notes: supplyNotes,
         quantity: supplyQuantity,
-        files: uploadedFiles
+        files: uploadedFiles,
+        tags: supplyTags
     }
 }

@@ -4,6 +4,7 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
 }
 @model List<SupplyRecord>
 <div class="modal-header">
@@ -14,9 +15,15 @@
     @if (Model.Any())
     {
         <div class="row">
-            <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;" id="supplies-table">
                 <div class="alert alert-warning" role="alert">
                     @translator.Translate(userLanguage,"Supplies are requisitioned immediately after the record is created and cannot be modified. If you have incorrectly entered the amount you needed you will need to correct it in the Supplies tab.")
+                </div>
+                <div class="d-flex align-items-center flex-wrap">
+                    @foreach (string recordTag in recordTags)
+                    {
+                        <span onclick="filterTable('supplies-table', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                    }
                 </div>
                 <table class="table table-hover">
                     <thead class="sticky-top">
@@ -32,7 +39,7 @@
                     <tbody>
                         @foreach (SupplyRecord supplyRecord in Model)
                         {
-                            <tr class="d-flex" id="supplyRows">
+                            <tr class="d-flex" id="supplyRows" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                                 <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
                                 <td class="col-2"><input type="text" inputmode="decimal" disabled onchange="recalculateTotal()" class="form-control"></td>
                                 <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
