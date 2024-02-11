@@ -129,7 +129,7 @@
         $("#selectSuppliesButton").attr('disabled', (hasError || totalSum == 0));
         if (!hasError) {
             return {
-                totalSum: totalSum,
+                totalSum: globalFloatToString(totalSum),
                 selectedSupplies: selectedSupplies.toArray()
             };
         } else {
