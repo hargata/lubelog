@@ -6,6 +6,7 @@
     var userLanguage = userConfig.UserLanguage;
     var enableCsvImports = userConfig.EnableCsvImports;
     var hideZero = userConfig.HideZero;
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
 }
 @model List<SupplyRecord>
 <div class="row">
@@ -13,6 +14,16 @@
         <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage,"# of Supply Records")}: {Model.Count()}")</span>
             <span class="ms-2 badge bg-primary">@($"{translator.Translate(userLanguage,"Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('supply-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
         </div>
         <div>
             @if (enableCsvImports)
@@ -59,7 +70,7 @@
             <tbody>
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditSupplyRecordModal(@supplyRecord.Id)">
+                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditSupplyRecordModal(@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                         <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@supplyRecord.PartNumber</td>
                         <td class="col-2">@supplyRecord.PartSupplier</td>

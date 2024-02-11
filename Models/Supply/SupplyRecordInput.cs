@@ -12,6 +12,7 @@
         public decimal Cost { get; set; }
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<string> Tags { get; set; } = new List<string>();
         public SupplyRecord ToSupplyRecord() { return new SupplyRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
@@ -22,6 +23,8 @@
             Quantity = Quantity,
             Description = Description, 
             Notes = Notes, 
-            Files = Files }; }
+            Files = Files,
+            Tags = Tags
+        }; }
     }
 }

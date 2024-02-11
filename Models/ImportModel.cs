@@ -35,6 +35,7 @@
         public string Description { get; set; }
         public string Cost { get; set; }
         public string Notes { get; set; }
+        public string Tags { get; set; }
     }
 
     public class ServiceRecordExportModel

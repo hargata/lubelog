@@ -38,6 +38,13 @@
                             <input type="text" inputmode="decimal" id="supplyRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost")" value="@(isNew ? "" : Model.Cost)">
                         </div>
                     </div>
+                    <label for="supplyRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                    <select multiple class="form-select" id="supplyRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="supplyRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

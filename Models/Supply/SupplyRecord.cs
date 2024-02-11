@@ -33,5 +33,6 @@
         /// </summary>
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }
