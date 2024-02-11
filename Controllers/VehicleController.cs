@@ -1493,7 +1493,11 @@ namespace CarCareTracker.Controllers
             {
                 //get supply record.
                 var supplyData = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
-                if (supply.Quantity > supplyData.Quantity)
+                if (supplyData == null)
+                {
+                    result.Add("Missing Supplies, Please Delete This Template and Recreate It.");
+                }
+                else if (supply.Quantity > supplyData.Quantity)
                 {
                     result.Add($"Insufficient Quantity for {supplyData.Description}, need: {supply.Quantity}, available: {supplyData.Quantity}");
                 }
