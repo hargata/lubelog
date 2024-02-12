@@ -9,5 +9,6 @@
         public string Notes { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public Dictionary<string, string> ExtraFields { get; set; } = new Dictionary<string, string>();
     }
 }
