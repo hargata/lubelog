@@ -400,7 +400,10 @@ function getAndValidateExtraFields() {
         } else {
             extraFieldInput.removeClass("is-invalid");
         }
-        outputData.push({ name: extraFieldName, value: extraFieldValue });
+        //only push fields with value in them
+        if (extraFieldValue.trim() != '') {
+            outputData.push({ name: extraFieldName, value: extraFieldValue });
+        }
     });
     return { hasError: hasError, extraFields: outputData };
 }
