@@ -178,6 +178,16 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <span class="lead">@translator.Translate(userLanguage, "Manage Extra Fields")</span>
+                    <div class="row">
+                        <div class="col-12 d-grid">
+                            <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Manage")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     </div>
 </div>
@@ -229,7 +239,22 @@
         </ul>
     </div>
 </div>
+<div class="modal fade" data-bs-focus="false" id="extraFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="extraFieldModalContent">
+        </div>
+    </div>
+</div>
 <script>
+    function showExtraFieldModal() {
+        $.get(`/Home/GetExtraFieldsModal?importMode=0`, function (data) {
+            $("#extraFieldModalContent").html(data);
+            $("#extraFieldModal").modal('show');
+        });
+    }
+    function hideExtraFieldModal() {
+        $("#extraFieldModal").modal('hide');
+    }
     function getCheckedTabs() {
         var visibleTabs = $("#visibleTabs :checked").map(function () {
             return this.value;
@@ -283,13 +308,13 @@
             window.location.href = data;
         });
     }
-    function openUploadLanguage(){
+    function openUploadLanguage() {
         $("#inputLanguage").click();
     }
     function openRestoreBackup() {
         $("#inputBackup").click();
     }
-    function uploadLanguage(event){
+    function uploadLanguage(event) {
         let formData = new FormData();
         formData.append("file", event.files[0]);
         sloader.show();
@@ -308,7 +333,7 @@
                     errorToast(response.message);
                 }
             },
-            error: function(){
+            error: function () {
                 sloader.hide();
                 errorToast("An error has occurred, please check the file size and try again later.");
             }
@@ -351,9 +376,9 @@
             Swal.fire({
                 title: 'Setup Credentials',
                 html: `
-                        <input type="text" id="authUsername" class="swal2-input" placeholder="Username">
-                        <input type="password" id="authPassword" class="swal2-input" placeholder="Password">
-                        `,
+                                    <input type="text" id="authUsername" class="swal2-input" placeholder="Username">
+                                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password">
+                                    `,
                 confirmButtonText: 'Setup',
                 focusConfirm: false,
                 preConfirm: () => {
