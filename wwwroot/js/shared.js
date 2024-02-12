@@ -387,3 +387,20 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
+function getAndValidateExtraFields() {
+    var hasError = false;
+    var outputData = [];
+    $(".extra-field").map((index, elem) => {
+        var extraFieldName = $(elem).children("label").text();
+        var extraFieldInput = $(elem).children("input");
+        var extraFieldValue = extraFieldInput.val();
+        if (extraFieldInput.hasClass('extra-field-required') && extraFieldValue.trim() == '') {
+            hasError = true;
+            extraFieldInput.addClass("is-invalid");
+        } else {
+            extraFieldInput.removeClass("is-invalid");
+        }
+        outputData.push({ name: extraFieldName, value: extraFieldValue });
+    });
+    return { hasError: hasError, extraFields: outputData };
+}

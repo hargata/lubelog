@@ -13,5 +13,6 @@
         public PlanPriority Priority { get; set; }
         public PlanProgress Progress { get; set; }
         public decimal Cost { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
     }
 }
