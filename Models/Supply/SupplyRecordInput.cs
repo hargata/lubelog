@@ -13,7 +13,7 @@
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
-        public Dictionary<string, string> ExtraFields { get; set; } = new Dictionary<string, string>();
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public SupplyRecord ToSupplyRecord() { return new SupplyRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
