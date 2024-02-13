@@ -166,13 +166,20 @@ namespace CarCareTracker.Helper
 
         public static List<ExtraField> AddExtraFields(List<ExtraField> recordExtraFields, List<ExtraField> templateExtraFields)
         {
-            var fieldNames = recordExtraFields.Select(x => x.Name);
-            foreach(ExtraField field in templateExtraFields)
+            if (!templateExtraFields.Any()) {
+                return new List<ExtraField>();
+            }
+            if (!recordExtraFields.Any())
             {
-                if (!fieldNames.Contains(field.Name))
-                {
-                    recordExtraFields.Add(field);
-                }
+                return templateExtraFields;
+            }
+            var fieldNames = templateExtraFields.Select(x => x.Name);
+            //remove fields that are no longer present in template.
+            recordExtraFields.RemoveAll(x => !fieldNames.Contains(x.Name));
+            //append the fields.
+            foreach(ExtraField extraField in recordExtraFields)
+            {
+                extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
             }
             return recordExtraFields;
         }
