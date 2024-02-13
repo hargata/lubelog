@@ -23,7 +23,7 @@
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="upgradeRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <input type="number" id="upgradeRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when upgraded/modded")" value="@(isNew ? "" : Model.Mileage)">
+                    <input type="number" inputmode="numeric" id="upgradeRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when upgraded/modded")" value="@(isNew ? "" : Model.Mileage)">
                     <label for="upgradeRecordDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="upgradeRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) upgraded/modded")" value="@Model.Description">
                     <label for="upgradeRecordCost">@translator.Translate(userLanguage,"Cost")</label>
