@@ -176,8 +176,12 @@ namespace CarCareTracker.Helper
             var fieldNames = templateExtraFields.Select(x => x.Name);
             //remove fields that are no longer present in template.
             recordExtraFields.RemoveAll(x => !fieldNames.Contains(x.Name));
+            if (!recordExtraFields.Any())
+            {
+                return templateExtraFields;
+            }
             //append the fields.
-            foreach(ExtraField extraField in recordExtraFields)
+            foreach (ExtraField extraField in recordExtraFields)
             {
                 extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
             }
