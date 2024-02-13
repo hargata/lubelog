@@ -99,6 +99,7 @@ namespace CarCareTracker.Controllers
         {
             return View();
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult GetExtraFieldsModal(int importMode = 0)
         {
             var recordExtraFields = _extraFieldDataAccess.GetExtraFieldsById(importMode);
@@ -108,6 +109,7 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_ExtraFields", recordExtraFields);
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult UpdateExtraFields(RecordExtraField record)
         {
             try
