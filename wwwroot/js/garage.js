@@ -62,6 +62,49 @@ function getVehicleCalendarEvents() {
         }
     });
 }
+function generateReminderItem(urgency, description) {
+    if (description.trim() == '') {
+        return;
+    }
+    switch (urgency) {
+        case "VeryUrgent":
+            return `<p class="badge text-wrap bg-danger">${description}</p>`;
+        case "PastDue":
+            return `<p class="badge text-wrap bg-secondary">${description}</p>`;
+        case "Urgent":
+            return `<p class="badge text-wrap bg-warning">${description}</p>`;
+        case "NotUrgent":
+            return `<p class="badge text-wrap bg-success">${description}</p>`;
+    }
+}
+function initCalendar() {
+    if (groupedDates.length == 0) {
+        //group dates
+        eventDates.map(x => {
+            var existingIndex = groupedDates.findIndex(y => y.date.getTime() == x.date.getTime());
+            if (existingIndex == -1) {
+                groupedDates.push({ date: x.date, reminders: [`${generateReminderItem(x.urgency, x.description)}`] });
+            } else if (existingIndex > -1) {
+                groupedDates[existingIndex].reminders.push(`${generateReminderItem(x.urgency, x.description)}`);
+            }
+        });
+    }
+    $(".reminderCalendarViewContent").datepicker({
+        startDate: "+0d",
+        format: getShortDatePattern().pattern,
+        todayHighlight: true,
+        beforeShowDay: function (date) {
+            var reminderDateIndex = groupedDates.findIndex(x => x.date.getTime() == date.getTime());
+            if (reminderDateIndex > -1) {
+                return {
+                    enabled: true,
+                    classes: 'reminder-exist',
+                    content: `<div class='text-wrap'><p>${date.getDate()}</p>${groupedDates[reminderDateIndex].reminders.join('<br>')}</div>`
+                }
+            }
+        }
+    });
+}
 function performLogOut() {
     $.post('/Login/LogOut', function (data) {
         if (data) {
