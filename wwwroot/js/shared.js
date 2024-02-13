@@ -394,7 +394,8 @@ function getAndValidateExtraFields() {
         var extraFieldName = $(elem).children("label").text();
         var extraFieldInput = $(elem).children("input");
         var extraFieldValue = extraFieldInput.val();
-        if (extraFieldInput.hasClass('extra-field-required') && extraFieldValue.trim() == '') {
+        var extraFieldIsRequired = extraFieldInput.hasClass('extra-field-required');
+        if (extraFieldIsRequired && extraFieldValue.trim() == '') {
             hasError = true;
             extraFieldInput.addClass("is-invalid");
         } else {
@@ -402,7 +403,7 @@ function getAndValidateExtraFields() {
         }
         //only push fields with value in them
         if (extraFieldValue.trim() != '') {
-            outputData.push({ name: extraFieldName, value: extraFieldValue });
+            outputData.push({ name: extraFieldName, value: extraFieldValue, isRequired: extraFieldIsRequired });
         }
     });
     return { hasError: hasError, extraFields: outputData };

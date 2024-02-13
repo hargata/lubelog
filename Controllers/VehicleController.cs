@@ -1710,7 +1710,8 @@ namespace CarCareTracker.Controllers
                         Date = DateTime.Now,
                         VehicleId = existingRecord.VehicleId,
                         Mileage = odometer,
-                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}"
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        ExtraFields = existingRecord.ExtraFields
                     });
                 }
                 //convert plan record to service/upgrade/repair record.
@@ -1724,7 +1725,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
                 }
@@ -1738,7 +1740,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
                 }
@@ -1752,7 +1755,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
                 }
