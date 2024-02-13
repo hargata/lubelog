@@ -17,18 +17,20 @@ namespace CarCareTracker.Controllers
         private readonly IUserLogic _userLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
-
-        public HomeController(ILogger<HomeController> logger, 
+        private readonly IExtraFieldDataAccess _extraFieldDataAccess;
+        public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
             IConfigHelper configuration,
-            IFileHelper fileHelper)
+            IFileHelper fileHelper,
+            IExtraFieldDataAccess extraFieldDataAccess)
         {
             _logger = logger;
             _dataAccess = dataAccess;
             _config = configuration;
             _userLogic = userLogic;
             _fileHelper = fileHelper;
+            _extraFieldDataAccess = extraFieldDataAccess;
         }
         private int GetUserID()
         {
@@ -68,7 +70,28 @@ namespace CarCareTracker.Controllers
         {
             return View();
         }
-
+        public IActionResult GetExtraFieldsModal(int importMode = 0)
+        {
+            var recordExtraFields = _extraFieldDataAccess.GetExtraFieldsById(importMode);
+            if (recordExtraFields.Id != importMode)
+            {
+                recordExtraFields.Id = importMode;
+            }
+            return PartialView("_ExtraFields", recordExtraFields);
+        }
+        public IActionResult UpdateExtraFields(RecordExtraField record)
+        {
+            try
+            {
+                var result = _extraFieldDataAccess.SaveExtraFields(record);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            var recordExtraFields = _extraFieldDataAccess.GetExtraFieldsById(record.Id);
+            return PartialView("_ExtraFields", recordExtraFields);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

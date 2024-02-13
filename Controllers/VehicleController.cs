@@ -36,6 +36,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly IReportHelper _reportHelper;
         private readonly IUserLogic _userLogic;
+        private readonly IExtraFieldDataAccess _extraFieldDataAccess;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -54,6 +55,7 @@ namespace CarCareTracker.Controllers
             IPlanRecordDataAccess planRecordDataAccess,
             IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
+            IExtraFieldDataAccess extraFieldDataAccess,
             IUserLogic userLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
@@ -75,6 +77,7 @@ namespace CarCareTracker.Controllers
             _planRecordDataAccess = planRecordDataAccess;
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _extraFieldDataAccess = extraFieldDataAccess;
             _userLogic = userLogic;
             _webEnv = webEnv;
             _config = config;
@@ -589,7 +592,7 @@ namespace CarCareTracker.Controllers
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
-            return PartialView("_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() });
+            return PartialView("_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
@@ -607,7 +610,8 @@ namespace CarCareTracker.Controllers
                 IsFillToFull = result.IsFillToFull,
                 MissedFuelUp = result.MissedFuelUp,
                 Notes = result.Notes,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields)
             };
             var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
@@ -678,7 +682,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddServiceRecordPartialView()
         {
-            return PartialView("_ServiceRecordModal", new ServiceRecordInput());
+            return PartialView("_ServiceRecordModal", new ServiceRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetServiceRecordForEditById(int serviceRecordId)
@@ -695,7 +699,8 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields)
             };
             return PartialView("_ServiceRecordModal", convertedResult);
         }
@@ -748,7 +753,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddCollisionRecordPartialView()
         {
-            return PartialView("_CollisionRecordModal", new CollisionRecordInput());
+            return PartialView("_CollisionRecordModal", new CollisionRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetCollisionRecordForEditById(int collisionRecordId)
@@ -765,7 +770,8 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields)
             };
             return PartialView("_CollisionRecordModal", convertedResult);
         }
@@ -822,7 +828,8 @@ namespace CarCareTracker.Controllers
                             RecurringInterval = recurringFee.RecurringInterval,
                             CustomMonthInterval = recurringFee.CustomMonthInterval,
                             Files = recurringFee.Files,
-                            Tags = recurringFee.Tags
+                            Tags = recurringFee.Tags,
+                            ExtraFields = recurringFee.ExtraFields
                         };
                         _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
                         _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
@@ -841,7 +848,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddTaxRecordPartialView()
         {
-            return PartialView("_TaxRecordModal", new TaxRecordInput());
+            return PartialView("_TaxRecordModal", new TaxRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetTaxRecordForEditById(int taxRecordId)
@@ -860,7 +867,8 @@ namespace CarCareTracker.Controllers
                 RecurringInterval = result.RecurringInterval,
                 CustomMonthInterval = result.CustomMonthInterval,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields)
             };
             return PartialView("_TaxRecordModal", convertedResult);
         }
@@ -1417,7 +1425,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddUpgradeRecordPartialView()
         {
-            return PartialView("_UpgradeRecordModal", new UpgradeRecordInput());
+            return PartialView("_UpgradeRecordModal", new UpgradeRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
@@ -1434,7 +1442,8 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields)
             };
             return PartialView("_UpgradeRecordModal", convertedResult);
         }
@@ -1569,7 +1578,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddSupplyRecordPartialView()
         {
-            return PartialView("_SupplyRecordModal", new SupplyRecordInput());
+            return PartialView("_SupplyRecordModal", new SupplyRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
@@ -1588,7 +1597,8 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields)
             };
             return PartialView("_SupplyRecordModal", convertedResult);
         }
@@ -1682,7 +1692,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
         {
-            return PartialView("_PlanRecordModal", new PlanRecordInput());
+            return PartialView("_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
         }
         [HttpPost]
         public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress, int odometer = 0)
@@ -1700,7 +1710,8 @@ namespace CarCareTracker.Controllers
                         Date = DateTime.Now,
                         VehicleId = existingRecord.VehicleId,
                         Mileage = odometer,
-                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}"
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        ExtraFields = existingRecord.ExtraFields
                     });
                 }
                 //convert plan record to service/upgrade/repair record.
@@ -1714,7 +1725,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
                 }
@@ -1728,7 +1740,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
                 }
@@ -1742,7 +1755,8 @@ namespace CarCareTracker.Controllers
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
-                        Files = existingRecord.Files
+                        Files = existingRecord.Files,
+                        ExtraFields = existingRecord.ExtraFields
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
                 }
@@ -1766,7 +1780,8 @@ namespace CarCareTracker.Controllers
                 Cost = result.Cost,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
-                Files = result.Files
+                Files = result.Files,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields)
             };
             return PartialView("_PlanRecordModal", convertedResult);
         }
@@ -1805,7 +1820,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddOdometerRecordPartialView()
         {
-            return PartialView("_OdometerRecordModal", new OdometerRecordInput());
+            return PartialView("_OdometerRecordModal", new OdometerRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
@@ -1820,7 +1835,8 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
-                Tags = result.Tags
+                Tags = result.Tags,
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields)
             };
             return PartialView("_OdometerRecordModal", convertedResult);
         }

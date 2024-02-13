@@ -387,3 +387,24 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
+function getAndValidateExtraFields() {
+    var hasError = false;
+    var outputData = [];
+    $(".extra-field").map((index, elem) => {
+        var extraFieldName = $(elem).children("label").text();
+        var extraFieldInput = $(elem).children("input");
+        var extraFieldValue = extraFieldInput.val();
+        var extraFieldIsRequired = extraFieldInput.hasClass('extra-field-required');
+        if (extraFieldIsRequired && extraFieldValue.trim() == '') {
+            hasError = true;
+            extraFieldInput.addClass("is-invalid");
+        } else {
+            extraFieldInput.removeClass("is-invalid");
+        }
+        //only push fields with value in them
+        if (extraFieldValue.trim() != '') {
+            outputData.push({ name: extraFieldName, value: extraFieldValue, isRequired: extraFieldIsRequired });
+        }
+    });
+    return { hasError: hasError, extraFields: outputData };
+}

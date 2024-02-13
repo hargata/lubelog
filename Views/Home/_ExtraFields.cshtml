@@ -1,0 +1,124 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model RecordExtraField
+<script>
+    var extraFields = [];
+</script>
+<div class="modal-header">
+    <h5 class="modal-title">@(translator.Translate(userLanguage, "Manage Extra Fields"))</h5>
+    <button type="button" class="btn-close" onclick="hideExtraFieldModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <select class="form-select" onchange="refreshExtraFieldModal()" id="extraFieldTab">
+                        <!option @(Model.Id == (int)ImportMode.ServiceRecord ? "selected" : "") value="@((int)ImportMode.ServiceRecord)">@translator.Translate(userLanguage, "Service Record")</!option>
+                        <!option @(Model.Id == (int)ImportMode.RepairRecord ? "selected" : "") value="@((int)ImportMode.RepairRecord)">@translator.Translate(userLanguage, "Repairs")</!option>
+                        <!option @(Model.Id == (int)ImportMode.UpgradeRecord ? "selected" : "") value="@((int)ImportMode.UpgradeRecord)">@translator.Translate(userLanguage, "Upgrades")</!option>
+                        <!option @(Model.Id == (int)ImportMode.GasRecord ? "selected" : "") value="@((int)ImportMode.GasRecord)">@translator.Translate(userLanguage, "Fuel")</!option>
+                        <!option @(Model.Id == (int)ImportMode.TaxRecord ? "selected" : "") value="@((int)ImportMode.TaxRecord)">@translator.Translate(userLanguage, "Tax")</!option>
+                        <!option @(Model.Id == (int)ImportMode.SupplyRecord ? "selected" : "") value="@((int)ImportMode.SupplyRecord)">@translator.Translate(userLanguage, "Supplies")</!option>
+                        <!option @(Model.Id == (int)ImportMode.PlanRecord ? "selected" : "") value="@((int)ImportMode.PlanRecord)">@translator.Translate(userLanguage, "Planner")</!option>
+                        <!option @(Model.Id == (int)ImportMode.OdometerRecord ? "selected" : "") value="@((int)ImportMode.OdometerRecord)">@translator.Translate(userLanguage, "Odometer")</!option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-hover">
+                        <thead class="sticky-top">
+                            <tr class="d-flex">
+                                <th scope="col" class="col-8">@translator.Translate(userLanguage, "Name")</th>
+                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Required")</th>
+                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ExtraFields != null)
+                            {
+                                @foreach (ExtraField extraField in Model.ExtraFields)
+                                {
+                                    <script>
+                                        extraFields.push({ name: decodeHTMLEntities('@extraField.Name'), isRequired: @extraField.IsRequired.ToString().ToLower()});
+                                    </script>
+                                    <tr class="d-flex">
+                                        <td class="col-8">@extraField.Name</td>
+                                        <td class="col-2"><input class="form-check-input" type="checkbox" onchange="updateExtraFieldIsRequired(decodeHTMLEntities('@extraField.Name'), this)" value="" @(extraField.IsRequired ? "checked" : "") /></td>
+                                        <td class="col-2"><button type="button" onclick="deleteExtraField(decodeHTMLEntities('@extraField.Name'))" class="btn btn-danger"><i class="bi bi-trash"></i></button></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideExtraFieldModal()">@translator.Translate(userLanguage, "Close")</button>
+    <button type="button" class="btn btn-primary" onclick="addExtraField()">@translator.Translate(userLanguage, "Add New Field")</button>
+</div>
+<script>
+    var importMode = @Model.Id;
+    function addExtraField() {
+        Swal.fire({
+            title: 'Field Name',
+            html: `
+                                <input type="text" id="inputExtraFieldName" class="swal2-input" placeholder="Field Name">
+                                `,
+            confirmButtonText: 'Add',
+            focusConfirm: false,
+            preConfirm: () => {
+                const extraFieldName = $("#inputExtraFieldName").val();
+                if (!extraFieldName || extraFieldName.trim() == '') {
+                    Swal.showValidationMessage(`Field names cannot be blank`);
+                } else if (extraFields.filter(x => x.name == extraFieldName).length > 0) {
+                    Swal.showValidationMessage(`Field names must be unique`);
+                }
+                return { extraFieldName }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                extraFields.push({ name: result.value.extraFieldName, isRequired: false});
+                updateExtraFields();
+            }
+        });
+    }
+    function updateExtraFieldIsRequired(fieldId, checkbox){
+        var indexToEdit = extraFields.findIndex(x => x.name == fieldId);
+        var extraFieldToEdit = extraFields[indexToEdit];
+        extraFieldToEdit.isRequired = $(checkbox).is(":checked");
+        updateExtraFields();
+    }
+    function deleteExtraField(fieldId) {
+        extraFields = extraFields.filter(x => x.name != fieldId);
+        updateExtraFields();
+    }
+    function refreshExtraFieldModal() {
+        var selectedExtraFieldTab = $("#extraFieldTab").val();
+        $.post(`/Home/GetExtraFieldsModal?importMode=${selectedExtraFieldTab}`, function (data) {
+            if (data) {
+                $("#extraFieldModalContent").html(data);
+            } else {
+                errorToast(genericErrorMessage());
+            }
+        });
+    }
+    function updateExtraFields() {
+        $.post('/Home/UpdateExtraFields', { id: importMode, extraFields: extraFields }, function (data) {
+            if (data) {
+                $("#extraFieldModalContent").html(data);
+            } else {
+                errorToast(genericErrorMessage());
+            }
+        });
+    }
+</script>

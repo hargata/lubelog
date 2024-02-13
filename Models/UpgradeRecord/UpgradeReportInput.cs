@@ -12,6 +12,7 @@
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public List<string> Tags { get; set; } = new List<string>();
-        public UpgradeRecord ToUpgradeRecord() { return new UpgradeRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes, Files = Files, Tags = Tags }; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public UpgradeRecord ToUpgradeRecord() { return new UpgradeRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes, Files = Files, Tags = Tags, ExtraFields = ExtraFields }; }
     }
 }

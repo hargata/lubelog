@@ -13,5 +13,6 @@
         public int CustomMonthInterval { get; set; } = 0;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
     }
 }

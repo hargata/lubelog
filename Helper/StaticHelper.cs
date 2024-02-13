@@ -1,5 +1,6 @@
 ﻿using CarCareTracker.Models;
 using System.Globalization;
+using System.Linq;
 
 namespace CarCareTracker.Helper
 {
@@ -128,7 +129,8 @@ namespace CarCareTracker.Helper
                 Mileage = input.Mileage,
                 Files = input.Files,
                 Notes = input.Notes,
-                Tags = input.Tags
+                Tags = input.Tags,
+                ExtraFields = input.ExtraFields
             };
         }
         public static CollisionRecord GenericToRepairRecord(GenericRecord input)
@@ -142,7 +144,8 @@ namespace CarCareTracker.Helper
                 Mileage = input.Mileage,
                 Files = input.Files,
                 Notes = input.Notes,
-                Tags = input.Tags
+                Tags = input.Tags,
+                ExtraFields = input.ExtraFields
             };
         }
         public static UpgradeRecord GenericToUpgradeRecord(GenericRecord input)
@@ -156,8 +159,29 @@ namespace CarCareTracker.Helper
                 Mileage = input.Mileage,
                 Files = input.Files,
                 Notes = input.Notes,
-                Tags = input.Tags
+                Tags = input.Tags,
+                ExtraFields = input.ExtraFields
             };
+        }
+
+        public static List<ExtraField> AddExtraFields(List<ExtraField> recordExtraFields, List<ExtraField> templateExtraFields)
+        {
+            if (!templateExtraFields.Any()) {
+                return new List<ExtraField>();
+            }
+            if (!recordExtraFields.Any())
+            {
+                return templateExtraFields;
+            }
+            var fieldNames = templateExtraFields.Select(x => x.Name);
+            //remove fields that are no longer present in template.
+            recordExtraFields.RemoveAll(x => !fieldNames.Contains(x.Name));
+            //append the fields.
+            foreach(ExtraField extraField in recordExtraFields)
+            {
+                extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
+            }
+            return recordExtraFields;
         }
 
         public static string GetFuelEconomyUnit(bool useKwh, bool useHours, bool useMPG, bool useUKMPG)

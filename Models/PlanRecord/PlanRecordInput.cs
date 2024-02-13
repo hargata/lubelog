@@ -14,6 +14,7 @@
         public PlanPriority Priority { get; set; }
         public PlanProgress Progress { get; set; }
         public decimal Cost { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public PlanRecord ToPlanRecord() { return new PlanRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
@@ -25,7 +26,8 @@
             ImportMode = ImportMode,
             Cost = Cost,
             Priority = Priority,
-            Progress = Progress
+            Progress = Progress,
+            ExtraFields = ExtraFields
         }; }
     }
 }

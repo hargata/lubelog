@@ -87,6 +87,10 @@ function getAndValidateGasRecordValues() {
     var gasRecordId = getGasRecordModelData().id;
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (gasDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#gasRecordDate").addClass("is-invalid");
@@ -134,7 +138,8 @@ function getAndValidateGasRecordValues() {
         tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
-        notes: gasNotes
+        notes: gasNotes,
+        extraFields: extraFields.extraFields
     }
 }
 

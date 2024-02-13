@@ -88,6 +88,10 @@ function getAndValidateUpgradeRecordValues() {
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (upgradeDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#upgradeRecordDate").addClass("is-invalid");
@@ -124,6 +128,7 @@ function getAndValidateUpgradeRecordValues() {
         files: uploadedFiles,
         supplies: selectedSupplies,
         tags: upgradeTags,
-        addReminderRecord: addReminderRecord
+        addReminderRecord: addReminderRecord,
+        extraFields: extraFields.extraFields
     }
 }

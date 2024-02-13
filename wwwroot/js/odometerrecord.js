@@ -85,6 +85,10 @@ function getAndValidateOdometerRecordValues() {
     var odometerRecordId = getOdometerRecordModelData().id;
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (serviceDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#odometerRecordDate").addClass("is-invalid");
@@ -105,6 +109,7 @@ function getAndValidateOdometerRecordValues() {
         mileage: serviceMileage,
         notes: serviceNotes,
         tags: serviceTags,
-        files: uploadedFiles
+        files: uploadedFiles,
+        extraFields: extraFields.extraFields
     }
 }

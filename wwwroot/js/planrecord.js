@@ -159,6 +159,10 @@ function getAndValidatePlanRecordValues() {
     var planRecordId = getPlanRecordModelData().id;
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (planDescription.trim() == '') {
         hasError = true;
         $("#planRecordDescription").addClass("is-invalid");
@@ -183,7 +187,8 @@ function getAndValidatePlanRecordValues() {
         supplies: selectedSupplies,
         priority: planPriority,
         progress: planProgress,
-        importMode: planType
+        importMode: planType,
+        extraFields: extraFields.extraFields
     }
 }
 //drag and drop stuff.

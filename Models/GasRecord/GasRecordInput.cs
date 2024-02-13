@@ -19,6 +19,7 @@
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public GasRecord ToGasRecord() { return new GasRecord { 
             Id = Id, 
             Cost = Cost, 
@@ -30,7 +31,8 @@
             IsFillToFull = IsFillToFull,
             MissedFuelUp = MissedFuelUp,
             Notes = Notes,
-            Tags = Tags
+            Tags = Tags,
+            ExtraFields = ExtraFields
         }; }
     }
 }
