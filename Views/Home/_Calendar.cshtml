@@ -36,6 +36,9 @@
 <script>
     initCalendar();
     function generateReminderItem(urgency, description) {
+        if (description.trim() == '') {
+            return;
+        }
         switch (urgency) {
             case "VeryUrgent":
                 return `<p class="badge text-wrap bg-danger">${description}</p>`;
@@ -66,14 +69,10 @@
             beforeShowDay: function (date) {
                 var reminderDateIndex = groupedDates.findIndex(x => x.date.getTime() == date.getTime());
                 if (reminderDateIndex > -1) {
-                    var reminderHtml = "";
-                    groupedDates[reminderDateIndex].reminders.map(x => {
-                        reminderHtml += `<p class="badge text-wrap text-bg-danger">${x}</p>`;
-                    });
                     return {
                         enabled: true,
                         classes: 'reminder-exist',
-                        content: `<div class='text-wrap'><p>${date.getDate()}</p>${reminderHtml}</div>`
+                        content: `<div class='text-wrap'><p>${date.getDate()}</p>${groupedDates[reminderDateIndex].reminders.join('<br>')}</div>`
                     }
                 }
             }
