@@ -57,7 +57,12 @@ namespace CarCareTracker.External.Implementations
         {
             try
             {
+                var existingRecord = GetExtraFieldsById(record.Id);
                 string cmd = $"INSERT INTO app.{tableName} (id, data) VALUES(@id, CAST(@data AS jsonb))";
+                if (existingRecord.ExtraFields != null)
+                {
+                    cmd = $"UPDATE app.{tableName} SET data = CAST(@data AS jsonb) WHERE id = @id";
+                }
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("id", record.Id);
