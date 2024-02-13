@@ -28,6 +28,9 @@
             </li>
         }
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth"))
@@ -64,6 +67,9 @@
                 <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>
             </li>
         }
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</button>
+        </li>
         <li class="nav-item ms-auto" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</button>
         </li>
@@ -92,6 +98,8 @@
             </div>
         </div>
         <div class="tab-pane fade" id="supply-tab-pane" role="tabpanel" tabindex="0">
+        </div>
+        <div class="tab-pane fade" id="calendar-tab-pane" role="tabpanel" tabindex="0">
         </div>
         <div class="tab-pane fade @(Model == "settings" ? "show active" : "")" id="settings-tab-pane" role="tabpanel" tabindex="0">
         </div>
