@@ -41,11 +41,24 @@ function bindTabEvent() {
             case "supply-tab":
                 getVehicleSupplyRecords();
                 break;
+            case "calendar-tab":
+                getVehicleCalendarEvents();
+                break;
         }
         switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
             case "supply-tab":
                 $("#supply-tab-pane").html("");
                 break;
+            case "calendar-tab":
+                $("#calendar-tab-pane").html("");
+                break;
+        }
+    });
+}
+function getVehicleCalendarEvents() {
+    $.get('/Home/Calendar', function (data) {
+        if (data) {
+            $("#calendar-tab-pane").html(data);
         }
     });
 }

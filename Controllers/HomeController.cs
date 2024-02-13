@@ -18,12 +18,16 @@ namespace CarCareTracker.Controllers
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
+        private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
+        private readonly IReminderHelper _reminderHelper;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
             IConfigHelper configuration,
             IFileHelper fileHelper,
-            IExtraFieldDataAccess extraFieldDataAccess)
+            IExtraFieldDataAccess extraFieldDataAccess,
+            IReminderRecordDataAccess reminderRecordDataAccess,
+            IReminderHelper reminderHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -31,6 +35,8 @@ namespace CarCareTracker.Controllers
             _userLogic = userLogic;
             _fileHelper = fileHelper;
             _extraFieldDataAccess = extraFieldDataAccess;
+            _reminderRecordDataAccess = reminderRecordDataAccess;
+            _reminderHelper = reminderHelper;
         }
         private int GetUserID()
         {
@@ -48,6 +54,29 @@ namespace CarCareTracker.Controllers
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
             return PartialView("_GarageDisplay", vehiclesStored);
+        }
+        public IActionResult Calendar()
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            List<ReminderRecordViewModel> reminders = new List<ReminderRecordViewModel>();
+            foreach(Vehicle vehicle in vehiclesStored)
+            {
+                var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
+                vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
+                //we don't care about mileages so we can basically fake the current vehicle mileage.
+                if (vehicleReminders.Any())
+                {
+                    var maxMileage = vehicleReminders.Max(x => x.Mileage) + 1000;
+                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, maxMileage, DateTime.Now);
+                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
+                    reminders.AddRange(reminderUrgency);
+                }
+            }
+            return PartialView("_Calendar", reminders);
         }
         public IActionResult Settings()
         {
