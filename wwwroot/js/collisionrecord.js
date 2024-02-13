@@ -88,6 +88,10 @@ function getAndValidateCollisionRecordValues() {
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (collisionDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#collisionRecordDate").addClass("is-invalid");
@@ -124,6 +128,7 @@ function getAndValidateCollisionRecordValues() {
         files: uploadedFiles,
         supplies: selectedSupplies,
         tags: collisionTags,
-        addReminderRecord: addReminderRecord
+        addReminderRecord: addReminderRecord,
+        extraFields: extraFields.extraFields
     }
 }

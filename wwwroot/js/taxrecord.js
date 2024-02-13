@@ -126,6 +126,10 @@ function getAndValidateTaxRecordValues() {
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (taxDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#taxRecordDate").addClass("is-invalid");
@@ -157,6 +161,7 @@ function getAndValidateTaxRecordValues() {
         customMonthInterval: customMonthInterval,
         tags: taxTags,
         files: uploadedFiles,
-        addReminderRecord: addReminderRecord
+        addReminderRecord: addReminderRecord,
+        extraFields: extraFields.extraFields
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CarCareTracker.Models;
 using System.Globalization;
+using System.Linq;
 
 namespace CarCareTracker.Helper
 {
@@ -161,6 +162,19 @@ namespace CarCareTracker.Helper
                 Tags = input.Tags,
                 ExtraFields = input.ExtraFields
             };
+        }
+
+        public static List<ExtraField> AddExtraFields(List<ExtraField> recordExtraFields, List<ExtraField> templateExtraFields)
+        {
+            var fieldNames = recordExtraFields.Select(x => x.Name);
+            foreach(ExtraField field in templateExtraFields)
+            {
+                if (!fieldNames.Contains(field.Name))
+                {
+                    recordExtraFields.Add(field);
+                }
+            }
+            return recordExtraFields;
         }
 
         public static string GetFuelEconomyUnit(bool useKwh, bool useHours, bool useMPG, bool useUKMPG)

@@ -89,6 +89,10 @@ function getAndValidateSupplyRecordValues() {
     var supplyRecordId = getSupplyRecordModelData().id;
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (supplyDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#supplyRecordDate").addClass("is-invalid");
@@ -125,6 +129,7 @@ function getAndValidateSupplyRecordValues() {
         notes: supplyNotes,
         quantity: supplyQuantity,
         files: uploadedFiles,
-        tags: supplyTags
+        tags: supplyTags,
+        extraFields: extraFields.extraFields
     }
 }

@@ -73,6 +73,10 @@ namespace CarCareTracker.Controllers
         public IActionResult GetExtraFieldsModal(int importMode = 0)
         {
             var recordExtraFields = _extraFieldDataAccess.GetExtraFieldsById(importMode);
+            if (recordExtraFields.Id != importMode)
+            {
+                recordExtraFields.Id = importMode;
+            }
             return PartialView("_ExtraFields", recordExtraFields);
         }
         public IActionResult UpdateExtraFields(RecordExtraField record)

@@ -88,6 +88,10 @@ function getAndValidateServiceRecordValues() {
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (serviceDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#serviceRecordDate").addClass("is-invalid");
@@ -124,6 +128,7 @@ function getAndValidateServiceRecordValues() {
         files: uploadedFiles,
         supplies: selectedSupplies,
         tags: serviceTags,
-        addReminderRecord: addReminderRecord
+        addReminderRecord: addReminderRecord,
+        extraFields: extraFields.extraFields
     }
 }
