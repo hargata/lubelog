@@ -27,7 +27,7 @@
     <form class="form-inline">
         <div class="form-group">
             <label for="inputYear">@translator.Translate(userLanguage, "Year")</label>
-            <input type="number" id="inputYear" class="form-control" placeholder="@translator.Translate(userLanguage, "Year(must be after 1900)")" value="@(isNew ? "" : Model.Year)">
+            <input type="number" inputmode="numeric" id="inputYear" class="form-control" placeholder="@translator.Translate(userLanguage, "Year(must be after 1900)")" value="@(isNew ? "" : Model.Year)">
             <label for="inputMake">@translator.Translate(userLanguage, "Make")</label>
             <input type="text" id="inputMake" class="form-control" placeholder="@translator.Translate(userLanguage, "Make")" value="@Model.Make">
             <label for="inputModel">@translator.Translate(userLanguage, "Model")</label>
