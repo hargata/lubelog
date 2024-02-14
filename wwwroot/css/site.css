@@ -307,4 +307,18 @@ input[type="file"] {
 .reminderCalendarViewContent + .datepicker, .datepicker-inline, .datepicker-days, .table-condensed {
     width: 100%;
     height: 100%;
+    table-layout: fixed;
+    cursor: default;
+}
+.reminder-exist{
+    overflow:auto;
+}
+.reminderCalendarViewContent .datepicker table tr td.day {
+    cursor: default;
+}
+.reminderCalendarViewContent .datepicker table tr td.day:hover {
+    cursor: default;
+}
+.reminder-calendar-item{
+    cursor: pointer;
 }

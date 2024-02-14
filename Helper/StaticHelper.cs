@@ -210,5 +210,9 @@ namespace CarCareTracker.Helper
             }
             return fuelEconomyUnit;
         }
+        public static long GetEpochFromDateTime(DateTime date)
+        {
+            return new DateTimeOffset(date).ToUnixTimeMilliseconds();
+        }
     }
 }

@@ -1,10 +1,11 @@
-﻿@model List<ReminderRecordViewModel>
+﻿@using CarCareTracker.Helper
+@model List<ReminderRecordViewModel>
 <script>
     var eventDates = [];
     var groupedDates = [];
     @foreach(ReminderRecordViewModel reminderRecord in Model)
     {
-    @:eventDates.push({date: new Date(Date.parse(decodeHTMLEntities('@reminderRecord.Date.ToShortDateString()'))), description: decodeHTMLEntities('@reminderRecord.Description'), urgency: decodeHTMLEntities('@reminderRecord.Urgency.ToString()')});
+        @:eventDates.push({ id: @reminderRecord.Id, date: decodeHTMLEntities('@StaticHelper.GetEpochFromDateTime(reminderRecord.Date)'), description: decodeHTMLEntities('@reminderRecord.Description'), urgency: decodeHTMLEntities('@reminderRecord.Urgency.ToString()') });
     }
 </script>
 <div class="row vehicleDetailTabContainer">

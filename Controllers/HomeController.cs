@@ -72,7 +72,7 @@ namespace CarCareTracker.Controllers
                 {
                     var maxMileage = vehicleReminders.Max(x => x.Mileage) + 1000;
                     var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, maxMileage, DateTime.Now);
-                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
+                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
                     reminders.AddRange(reminderUrgency);
                 }
             }
