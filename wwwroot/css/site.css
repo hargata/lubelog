@@ -312,6 +312,10 @@ input[type="file"] {
 }
 .reminder-exist{
     overflow:auto;
+    vertical-align:top;
+}
+.reminder-exist p{
+    margin:0;
 }
 .reminderCalendarViewContent .datepicker table tr td.day {
     cursor: default;

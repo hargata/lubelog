@@ -1,0 +1,42 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model ReminderRecordViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(translator.Translate(userLanguage, "View Reminder"))</h5>
+    <button type="button" class="btn-close" onclick="hideCalendarReminderModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12" id="reminderOptions">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="reminderDescription">@translator.Translate(userLanguage, "Date")</label>
+                    <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Date.ToShortDateString()">
+                    <label for="reminderDescription">@translator.Translate(userLanguage,"Description")</label>
+                    <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Description">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="reminderNotes">@translator.Translate(userLanguage,"Notes")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="reminderNotes" readonly class="form-control" rows="5">@Model.Notes</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger" onclick="deleteCalendarReminderRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
+    <button type="button" class="btn btn-secondary" onclick="hideCalendarReminderModal()">@translator.Translate(userLanguage, "Close")</button>
+    @if (Model.IsRecurring && (Model.Urgency == ReminderUrgency.VeryUrgent || Model.Urgency == ReminderUrgency.PastDue))
+    {
+        <button type="button" class="btn btn-primary" onclick="markDoneCalendarReminderRecord(@Model.Id)">@translator.Translate(userLanguage, "Mark as Done")</button>
+    }
+</div>
+<script>
+
+</script>

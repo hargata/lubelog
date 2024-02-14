@@ -78,6 +78,12 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_Calendar", reminders);
         }
+        public IActionResult ViewCalendarReminder(int reminderId)
+        {
+            var reminder = _reminderRecordDataAccess.GetReminderRecordById(reminderId);
+            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, reminder.Mileage + 1000, DateTime.Now).FirstOrDefault();
+            return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
+        }
         public IActionResult Settings()
         {
             var userConfig = _config.GetUserConfig(User);
