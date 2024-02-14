@@ -68,13 +68,13 @@ function generateReminderItem(urgency, description) {
     }
     switch (urgency) {
         case "VeryUrgent":
-            return `<p class="badge text-wrap bg-danger">${description}</p>`;
+            return `<p class="badge text-wrap bg-danger">${encodeHTMLInput(description)}</p>`;
         case "PastDue":
-            return `<p class="badge text-wrap bg-secondary">${description}</p>`;
+            return `<p class="badge text-wrap bg-secondary">${encodeHTMLInput(description) }</p>`;
         case "Urgent":
-            return `<p class="badge text-wrap bg-warning">${description}</p>`;
+            return `<p class="badge text-wrap bg-warning">${encodeHTMLInput(description) }</p>`;
         case "NotUrgent":
-            return `<p class="badge text-wrap bg-success">${description}</p>`;
+            return `<p class="badge text-wrap bg-success">${encodeHTMLInput(description) }</p>`;
     }
 }
 function initCalendar() {

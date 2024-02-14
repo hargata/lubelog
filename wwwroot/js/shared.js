@@ -160,6 +160,11 @@ function bindWindowResize() {
         hideMobileNav();
     });
 }
+function encodeHTMLInput(input) {
+    const encoded = document.createElement('div');
+    encoded.innerText = input;
+    return encoded.innerHTML;
+}
 function decodeHTMLEntities(text) {
     return $("<textarea/>")
         .html(text)
