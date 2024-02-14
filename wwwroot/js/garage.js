@@ -62,30 +62,86 @@ function getVehicleCalendarEvents() {
         }
     });
 }
-function generateReminderItem(urgency, description) {
+function showCalendarReminderModal(id) {
+    event.stopPropagation();
+    $.get(`/Home/ViewCalendarReminder?reminderId=${id}`, function (data) {
+        if (data) {
+            $("#reminderRecordCalendarModalContent").html(data);
+            $("#reminderRecordCalendarModal").modal('show');
+            $('#reminderRecordCalendarModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("reminderNotes");
+                }
+            });
+        }
+    })
+}
+function hideCalendarReminderModal() {
+    $("#reminderRecordCalendarModal").modal('hide');
+}
+function generateReminderItem(id, urgency, description) {
     if (description.trim() == '') {
         return;
     }
     switch (urgency) {
         case "VeryUrgent":
-            return `<p class="badge text-wrap bg-danger">${encodeHTMLInput(description)}</p>`;
+            return `<p class="badge text-wrap bg-danger reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
         case "PastDue":
-            return `<p class="badge text-wrap bg-secondary">${encodeHTMLInput(description) }</p>`;
+            return `<p class="badge text-wrap bg-secondary reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
         case "Urgent":
-            return `<p class="badge text-wrap bg-warning">${encodeHTMLInput(description) }</p>`;
+            return `<p class="badge text-wrap bg-warning reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
         case "NotUrgent":
-            return `<p class="badge text-wrap bg-success">${encodeHTMLInput(description) }</p>`;
+            return `<p class="badge text-wrap bg-success reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
     }
+}
+function markDoneCalendarReminderRecord(reminderRecordId, e) {
+    event.stopPropagation();
+    $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
+        if (data) {
+            hideCalendarReminderModal();
+            successToast("Reminder Updated");
+            getVehicleCalendarEvents();
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    });
+}
+function deleteCalendarReminderRecord(reminderRecordId, e) {
+    if (e != undefined) {
+        event.stopPropagation();
+    }
+    $("#workAroundInput").show();
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Reminders cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
+                if (data) {
+                    hideCalendarReminderModal();
+                    successToast("Reminder Deleted");
+                    getVehicleCalendarEvents();
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
 }
 function initCalendar() {
     if (groupedDates.length == 0) {
         //group dates
         eventDates.map(x => {
-            var existingIndex = groupedDates.findIndex(y => y.date.getTime() == x.date.getTime());
+            var existingIndex = groupedDates.findIndex(y => y.date == x.date);
             if (existingIndex == -1) {
-                groupedDates.push({ date: x.date, reminders: [`${generateReminderItem(x.urgency, x.description)}`] });
+                groupedDates.push({ date: x.date, reminders: [`${generateReminderItem(x.id, x.urgency, x.description)}`] });
             } else if (existingIndex > -1) {
-                groupedDates[existingIndex].reminders.push(`${generateReminderItem(x.urgency, x.description)}`);
+                groupedDates[existingIndex].reminders.push(`${generateReminderItem(x.id, x.urgency, x.description)}`);
             }
         });
     }
@@ -94,12 +150,12 @@ function initCalendar() {
         format: getShortDatePattern().pattern,
         todayHighlight: true,
         beforeShowDay: function (date) {
-            var reminderDateIndex = groupedDates.findIndex(x => x.date.getTime() == date.getTime());
+            var reminderDateIndex = groupedDates.findIndex(x => x.date == date.getTime());
             if (reminderDateIndex > -1) {
                 return {
                     enabled: true,
                     classes: 'reminder-exist',
-                    content: `<div class='text-wrap'><p>${date.getDate()}</p>${groupedDates[reminderDateIndex].reminders.join('<br>')}</div>`
+                    content: `<div class='text-wrap' style='height:20px;'><p>${date.getDate()}</p>${groupedDates[reminderDateIndex].reminders.join('<br>')}</div>`
                 }
             }
         }

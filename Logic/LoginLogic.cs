@@ -280,19 +280,32 @@ namespace CarCareTracker.Logic
         #region "Root User"
         public bool CreateRootUserCredentials(LoginModel credentials)
         {
-            var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
-            var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
-            if (existingUserConfig is not null)
+            //check if file exists
+            if (File.Exists(StaticHelper.UserConfigPath))
             {
-                //create hashes of the login credentials.
-                var hashedUserName = GetHash(credentials.UserName);
-                var hashedPassword = GetHash(credentials.Password);
-                //copy over settings that are off limits on the settings page.
-                existingUserConfig.EnableAuth = true;
-                existingUserConfig.UserNameHash = hashedUserName;
-                existingUserConfig.UserPasswordHash = hashedPassword;
+                var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
+                var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
+                if (existingUserConfig is not null)
+                {
+                    //create hashes of the login credentials.
+                    var hashedUserName = GetHash(credentials.UserName);
+                    var hashedPassword = GetHash(credentials.Password);
+                    //copy over settings that are off limits on the settings page.
+                    existingUserConfig.EnableAuth = true;
+                    existingUserConfig.UserNameHash = hashedUserName;
+                    existingUserConfig.UserPasswordHash = hashedPassword;
+                }
+                File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
+            } else
+            {
+                var newUserConfig = new UserConfig()
+                {
+                    EnableAuth = true,
+                    UserNameHash = GetHash(credentials.UserName),
+                    UserPasswordHash = GetHash(credentials.Password)
+                };
+                File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(newUserConfig));
             }
-            File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
             _cache.Remove("userConfig_-1");
             return true;
         }
