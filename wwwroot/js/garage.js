@@ -150,7 +150,7 @@ function initCalendar() {
         format: getShortDatePattern().pattern,
         todayHighlight: true,
         beforeShowDay: function (date) {
-            var reminderDateIndex = groupedDates.findIndex(x => x.date == date.getTime());
+            var reminderDateIndex = groupedDates.findIndex(x => (x.date == date.getTime() || x.date == (date.getTime() - date.getTimezoneOffset() * 60000))); //take into account server timezone offset
             if (reminderDateIndex > -1) {
                 return {
                     enabled: true,
