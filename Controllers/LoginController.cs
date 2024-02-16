@@ -4,6 +4,8 @@ using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,16 +17,19 @@ namespace CarCareTracker.Controllers
     {
         private IDataProtector _dataProtector;
         private ILoginLogic _loginLogic;
+        private IConfigHelper _config;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,
             IDataProtectionProvider securityProvider,
-            ILoginLogic loginLogic
-            ) 
+            ILoginLogic loginLogic,
+            IConfigHelper config
+            )
         {
             _dataProtector = securityProvider.CreateProtector("login");
             _logger = logger;
             _loginLogic = loginLogic;
+            _config = config;
         }
         public IActionResult Index(string redirectURL = "")
         {
@@ -41,6 +46,66 @@ namespace CarCareTracker.Controllers
         public IActionResult ResetPassword()
         {
             return View();
+        }
+        public IActionResult GetRemoteLoginLink()
+        {
+            var remoteAuthURL = _config.GetOpenIDConfig().RemoteAuthURL;
+            return Json(remoteAuthURL);
+        }
+        public async Task<IActionResult> RemoteAuth(string code)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(code))
+                {
+                    //received code from OIDC provider
+                    //create http client to retrieve user token from OIDC
+                    var httpClient = new HttpClient();
+                    var openIdConfig = _config.GetOpenIDConfig();
+                    var httpParams = new List<KeyValuePair<string, string>>
+                {
+                     new KeyValuePair<string, string>("code", code),
+                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                     new KeyValuePair<string, string>("client_id", openIdConfig.ClientId),
+                     new KeyValuePair<string, string>("client_secret", openIdConfig.ClientSecret),
+                     new KeyValuePair<string, string>("redirect_uri", openIdConfig.RedirectURL)
+                };
+                    var httpRequest = new HttpRequestMessage(HttpMethod.Post, openIdConfig.TokenURL)
+                    {
+                        Content = new FormUrlEncodedContent(httpParams)
+                    };
+                    var tokenResult = await httpClient.SendAsync(httpRequest).Result.Content.ReadAsStringAsync();
+                    var userJwt = JsonSerializer.Deserialize<OpenIDResult>(tokenResult)?.id_token ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    {
+                        //validate JWT token
+                        var tokenParser = new JwtSecurityTokenHandler();
+                        var parsedToken = tokenParser.ReadJwtToken(userJwt);
+                        var userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                        {
+                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                            if (userData.Id != default)
+                            {
+                                AuthCookie authCookie = new AuthCookie
+                                {
+                                    UserData = userData,
+                                    ExpiresOn = DateTime.Now.AddDays(1)
+                                };
+                                var serializedCookie = JsonSerializer.Serialize(authCookie);
+                                var encryptedCookie = _dataProtector.Protect(serializedCookie);
+                                Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                                return new RedirectResult("/Home");
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return new RedirectResult("/Login");
+            }
+            return new RedirectResult("/Login");
         }
         [HttpPost]
         public IActionResult Login(LoginModel credentials)

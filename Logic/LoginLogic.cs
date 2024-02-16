@@ -21,6 +21,7 @@ namespace CarCareTracker.Logic
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
+        UserData ValidateOpenIDUser(LoginModel credentials);
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
@@ -191,6 +192,19 @@ namespace CarCareTracker.Logic
                 {
                     return new UserData();
                 }
+            }
+        }
+        public UserData ValidateOpenIDUser(LoginModel credentials)
+        {
+            var result = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+            if (result.Id != default)
+            {
+                result.Password = string.Empty;
+                return result;
+            }
+            else
+            {
+                return new UserData();
             }
         }
         #region "Admin Functions"

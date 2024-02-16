@@ -7,6 +7,7 @@ namespace CarCareTracker.Helper
 {
     public interface IConfigHelper
     {
+        OpenIDConfig GetOpenIDConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         string GetLogoUrl();
@@ -27,6 +28,11 @@ namespace CarCareTracker.Helper
             _config = serverConfig;
             _userConfig = userConfig;
             _cache = memoryCache;
+        }
+        public OpenIDConfig GetOpenIDConfig()
+        {
+            OpenIDConfig openIdConfig = _config.GetSection("OpenID").Get<OpenIDConfig>() ?? new OpenIDConfig();
+            return openIdConfig;
         }
         public string GetLogoUrl()
         {
