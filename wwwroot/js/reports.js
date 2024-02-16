@@ -12,8 +12,15 @@ function generateVehicleHistoryReport() {
         }
     })
 }
+function updateCheckAll() {
+    var isChecked = $("#selectAllExpenseCheck").is(":checked");
+    $(".reportCheckBox").prop('checked', isChecked);
+    setDebounce(refreshBarChart);
+}
 function updateCheck() {
     setDebounce(refreshBarChart);
+    var allIsChecked = $(".reportCheckBox:checked").length == 6;
+    $("#selectAllExpenseCheck").prop("checked", allIsChecked);
 }
 function refreshMPGChart() {
     var vehicleId = GetVehicleId().vehicleId;
