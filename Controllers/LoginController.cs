@@ -98,7 +98,7 @@ namespace CarCareTracker.Controllers
                                 return new RedirectResult("/Home");
                             } else
                             {
-                                _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered in LubeLogger.");
+                                _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
                             }
                         }
                     }
