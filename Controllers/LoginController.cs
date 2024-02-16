@@ -99,6 +99,7 @@ namespace CarCareTracker.Controllers
                             } else
                             {
                                 _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
+                                return View("OpenIDRegistration", model: userEmailAddress);
                             }
                         }
                     }
@@ -146,6 +147,12 @@ namespace CarCareTracker.Controllers
         public IActionResult Register(LoginModel credentials)
         {
             var result = _loginLogic.RegisterNewUser(credentials);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult RegisterOpenIdUser(LoginModel credentials)
+        {
+            var result = _loginLogic.RegisterOpenIdUser(credentials);
             return Json(result);
         }
         [HttpPost]

@@ -1,0 +1,50 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var logoUrl = config.GetLogoUrl();
+    var userLanguage = config.GetServerLanguage();
+}
+@model string
+@{
+    ViewData["Title"] = "LubeLogger - Register";
+}
+@section Scripts {
+    <script src="~/js/login.js"></script>
+}
+<div class="container d-flex align-items-center justify-content-center" style="height:100vh">
+    <div class="row">
+        <div class="col-12">
+            <img src="@logoUrl" />
+            <div class="form-group">
+                <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
+                <input type="text" id="inputToken" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
+                <input type="text" id="inputUserName" class="form-control" value="@Model">
+            </div>
+            <div class="d-grid">
+                <button type="button" class="btn btn-warning mt-2" onclick="performOpenIdRegistration()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Register")</button>
+            </div>
+            <div class="d-grid">
+                <a href="/Login/Index" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Back to Login")</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function performOpenIdRegistration() {
+        var token = $("#inputToken").val();
+        var userName = $("#inputUserName").val();
+        var userEmail = decodeHTMLEntities('@Model');
+        $.post('/Login/RegisterOpenIdUser', { userName: userName, token: token, emailAddress: userEmail }, function (data) {
+            if (data.success) {
+                successToast(data.message);
+                setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+            } else {
+                errorToast(data.message);
+            }
+        });
+    }
+</script>
