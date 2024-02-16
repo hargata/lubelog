@@ -10,6 +10,7 @@
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    var firstDayOfWeek = (int)System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
     var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
     shortDatePattern = shortDatePattern.ToLower();
@@ -58,7 +59,8 @@
                 useMarkDown: "@useMarkDown" == "True",
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
                 useThreeDecimals: "@useThreeDecimals" == "True",
-                useMPG: "@useMPG" == "True"
+                useMPG: "@useMPG" == "True",
+                firstDayOfWeek: @firstDayOfWeek
             }
         }
         function getShortDatePattern() {
