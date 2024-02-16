@@ -96,6 +96,9 @@ namespace CarCareTracker.Controllers
                                 var encryptedCookie = _dataProtector.Protect(serializedCookie);
                                 Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                                 return new RedirectResult("/Home");
+                            } else
+                            {
+                                _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered in LubeLogger.");
                             }
                         }
                     }
