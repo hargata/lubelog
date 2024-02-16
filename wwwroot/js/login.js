@@ -60,3 +60,11 @@ function handlePasswordKeyPress(event) {
         performLogin();
     }
 }
+
+function remoteLogin() {
+    $.get('/Login/GetRemoteLoginLink', function (data) {
+        if (data) {
+            window.location.href = data;
+        }
+    })
+}

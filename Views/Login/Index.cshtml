@@ -5,6 +5,7 @@
 @{
     var logoUrl = config.GetLogoUrl();
     var userLanguage = config.GetServerLanguage();
+    var openIdConfigName = config.GetOpenIDConfig().Name;
 }
 @{
     ViewData["Title"] = "LubeLogger - Login";
@@ -31,6 +32,12 @@
             <div class="d-grid">
                 <button type="button" class="btn btn-warning mt-2" onclick="performLogin()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Login")</button>
             </div>
+            @if (!string.IsNullOrWhiteSpace(openIdConfigName))
+            {
+                <div class="d-grid">
+                    <button type="button" class="btn btn-secondary mt-2" onclick="remoteLogin()"><i class="bi bi-box-arrow-in-right me-2"></i>@($"{translator.Translate(userLanguage, "Login via")} {openIdConfigName}")</button>
+                </div>
+            }
             <div class="d-grid">
                 <a href="/Login/ForgotPassword" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Forgot Password")</a>
             </div>
@@ -41,7 +48,7 @@
     </div>
 </div>
 <script>
-    function getRedirectURL(){
+    function getRedirectURL() {
         return { url: decodeHTMLEntities('@Model') };
     }
 </script>
