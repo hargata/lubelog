@@ -29,26 +29,49 @@
         <div class="col-md-6 col-12 mt-2">
             <div class="row">
                 <div class="col-md-1 d-sm-none d-md-block"></div>
-                <div class="col-12 col-md-10 reportsCheckBoxContainer">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
-                        <label class="form-check-label" for="serviceExpenseCheck">@translator.Translate(userLanguage,"Service")</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
-                        <label class="form-check-label" for="repairExpenseCheck">@translator.Translate(userLanguage, "Repairs")</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
-                        <label class="form-check-label" for="upgradeExpenseCheck">@translator.Translate(userLanguage, "Upgrades")</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
-                        <label class="form-check-label" for="gasExpenseCheck">@translator.Translate(userLanguage, "Fuel")</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
-                        <label class="form-check-label" for="taxExpenseCheck">@translator.Translate(userLanguage, "Taxes")</label>
+                <div class="col-12 col-md-10">
+                    <div class="dropdown d-grid">
+                        <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Metrics
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="odometerExpenseCheck" value="6" checked>
+                                    <label class="form-check-label" for="odometerExpenseCheck">@translator.Translate(userLanguage, "Odometer")</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
+                                    <label class="form-check-label" for="serviceExpenseCheck">@translator.Translate(userLanguage, "Service")</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
+                                    <label class="form-check-label" for="repairExpenseCheck">@translator.Translate(userLanguage, "Repairs")</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
+                                    <label class="form-check-label" for="upgradeExpenseCheck">@translator.Translate(userLanguage, "Upgrades")</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
+                                    <label class="form-check-label" for="gasExpenseCheck">@translator.Translate(userLanguage, "Fuel")</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-item">
+                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
+                                    <label class="form-check-label" for="taxExpenseCheck">@translator.Translate(userLanguage, "Taxes")</label>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="col-md-1 d-sm-none d-md-block"></div>
