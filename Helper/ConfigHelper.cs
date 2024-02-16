@@ -31,7 +31,7 @@ namespace CarCareTracker.Helper
         }
         public OpenIDConfig GetOpenIDConfig()
         {
-            OpenIDConfig openIdConfig = _config.GetSection("OpenID").Get<OpenIDConfig>() ?? new OpenIDConfig();
+            OpenIDConfig openIdConfig = _config.GetSection("OpenIDConfig").Get<OpenIDConfig>() ?? new OpenIDConfig();
             return openIdConfig;
         }
         public string GetLogoUrl()
