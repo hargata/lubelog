@@ -153,6 +153,21 @@ namespace CarCareTracker.Controllers
         public IActionResult RegisterOpenIdUser(LoginModel credentials)
         {
             var result = _loginLogic.RegisterOpenIdUser(credentials);
+            if (result.Success)
+            {
+                var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = credentials.EmailAddress });
+                if (userData.Id != default)
+                {
+                    AuthCookie authCookie = new AuthCookie
+                    {
+                        UserData = userData,
+                        ExpiresOn = DateTime.Now.AddDays(1)
+                    };
+                    var serializedCookie = JsonSerializer.Serialize(authCookie);
+                    var encryptedCookie = _dataProtector.Protect(serializedCookie);
+                    Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                }
+            }
             return Json(result);
         }
         [HttpPost]

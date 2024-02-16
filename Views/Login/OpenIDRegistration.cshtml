@@ -41,7 +41,7 @@
         $.post('/Login/RegisterOpenIdUser', { userName: userName, token: token, emailAddress: userEmail }, function (data) {
             if (data.success) {
                 successToast(data.message);
-                setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+                setTimeout(function () { window.location.href = '/Home' }, 500);
             } else {
                 errorToast(data.message);
             }

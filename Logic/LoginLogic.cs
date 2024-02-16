@@ -93,7 +93,7 @@ namespace CarCareTracker.Logic
             var result = _userData.SaveUserRecord(newUser);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "You will be redirected to the login page briefly." };
+                return new OperationResponse { Success = true, Message = "You will be logged in briefly." };
             }
             else
             {
