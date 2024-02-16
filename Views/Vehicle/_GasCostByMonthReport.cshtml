@@ -8,7 +8,7 @@
     var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
     var sortedByMPG = Model.OrderBy(x => x.Cost).ToList();
 }
-@if (Model.Where(x=>x.Cost > 0).Any())
+@if (Model.Where(x=>x.Cost > 0).Any() || Model.Where(x=>x.DistanceTraveled > 0).Any())
 {
     <canvas id="bar-chart"></canvas>
     <script>
@@ -16,6 +16,7 @@
         function renderChart() {
             var barGraphLabels = [];
             var barGraphData = [];
+            var lineChartData = [];
             //color gradient from high to low
             var barGraphColors = [];
             var useDarkMode = getGlobalConfig().useDarkMode;
@@ -23,6 +24,7 @@
         {
             @:barGraphLabels.push(decodeHTMLEntities("@gasCost.MonthName"));
             @:barGraphData.push(globalParseFloat('@gasCost.Cost'));
+            @:lineChartData.push(globalParseFloat('@gasCost.DistanceTraveled'));
             var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
             @:barGraphColors.push('@barGraphColors[index]');
         }
@@ -34,7 +36,18 @@
                             {
                                 label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Month")'),
                                 backgroundColor: barGraphColors,
-                                data: barGraphData
+                                data: barGraphData,
+                                order: 1,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: decodeHTMLEntities('@translator.Translate(userLanguage, "Distance Traveled by Month")'),
+                                data: lineChartData,
+                                borderColor: useDarkMode ? "#fff" : "#000",
+                                backgroundColor: useDarkMode ? "#000" : "#fff",
+                                type: 'line',
+                                order: 0,
+                                yAxisID: 'y1',
                             }
                         ]
                     },
@@ -43,7 +56,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Month")')
+                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses and Distance Traveled by Month")')
                             },
                             legend: {
                                 display: false,
@@ -55,6 +68,13 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                ticks: {
+                                    color: useDarkMode ? "#fff" : "#000"
+                                }
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
                                 ticks: {
                                     color: useDarkMode ? "#fff" : "#000"
                                 }

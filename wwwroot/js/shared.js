@@ -129,13 +129,15 @@ function initDatePicker(input, futureOnly) {
         input.datepicker({
             startDate: "+0d",
             format: getShortDatePattern().pattern,
-            autoclose: true
+            autoclose: true,
+            weekStart: getGlobalConfig().firstDayOfWeek
         });
     } else {
         input.datepicker({
             endDate: "+0d",
             format: getShortDatePattern().pattern,
-            autoclose: true
+            autoclose: true,
+            weekStart: getGlobalConfig().firstDayOfWeek
         });
     }
 }

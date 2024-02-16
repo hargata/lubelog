@@ -42,6 +42,9 @@ function refreshBarChart() {
     if ($("#taxExpenseCheck").is(":checked")) {
         selectedMetrics.push('TaxRecord');
     }
+    if ($("#odometerExpenseCheck").is(":checked")) {
+        selectedMetrics.push('OdometerRecord');
+    }
 
     $.post('/Vehicle/GetCostByMonthByVehicle',
         {

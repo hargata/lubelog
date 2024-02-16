@@ -890,6 +890,7 @@ namespace CarCareTracker.Controllers
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             var viewModel = new ReportViewModel();
             //get totalCostMakeUp
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
@@ -907,10 +908,12 @@ namespace CarCareTracker.Controllers
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
             allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
+            allCosts.AddRange(_reportHelper.GetOdometerRecordSum(odometerRecords, 0));
             viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
                 MonthName = x.Key.MonthName,
-                Cost = x.Sum(y => y.Cost)
+                Cost = x.Sum(y => y.Cost),
+                DistanceTraveled = x.Any(y=>y.MinMileage != default) ? x.Max(y=>y.MaxMileage) - x.Where(y=>y.MinMileage != default).Min(y=>y.MinMileage) : 0
             }).ToList();
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
@@ -1239,10 +1242,16 @@ namespace CarCareTracker.Controllers
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year));
             }
+            if (selectedMetrics.Contains(ImportMode.OdometerRecord))
+            {
+                var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetOdometerRecordSum(odometerRecords, year));
+            }
             var groupedRecord = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
                 MonthName = x.Key.MonthName,
-                Cost = x.Sum(y => y.Cost)
+                Cost = x.Sum(y => y.Cost),
+                DistanceTraveled = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);
         }

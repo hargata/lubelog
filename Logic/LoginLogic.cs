@@ -16,6 +16,7 @@ namespace CarCareTracker.Logic
         OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
+        OperationResponse RegisterOpenIdUser(LoginModel credentials);
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
@@ -58,6 +59,45 @@ namespace CarCareTracker.Logic
             } else
             {
                 return result.Id != 0;
+            }
+        }
+        public OperationResponse RegisterOpenIdUser(LoginModel credentials)
+        {
+            //validate their token.
+            var existingToken = _tokenData.GetTokenRecordByBody(credentials.Token);
+            if (existingToken.Id == default || existingToken.EmailAddress != credentials.EmailAddress)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid Token" };
+            }
+            if (string.IsNullOrWhiteSpace(credentials.EmailAddress) || string.IsNullOrWhiteSpace(credentials.UserName))
+            {
+                return new OperationResponse { Success = false, Message = "Username cannot be blank" };
+            }
+            var existingUser = _userData.GetUserRecordByUserName(credentials.UserName);
+            if (existingUser.Id != default)
+            {
+                return new OperationResponse { Success = false, Message = "Username already taken" };
+            }
+            var existingUserWithEmail = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+            if (existingUserWithEmail.Id != default)
+            {
+                return new OperationResponse { Success = false, Message = "A user with that email already exists" };
+            }
+            _tokenData.DeleteToken(existingToken.Id);
+            var newUser = new UserData()
+            {
+                UserName = credentials.UserName,
+                Password = GetHash(NewToken()), //generate a password for OpenID User
+                EmailAddress = credentials.EmailAddress
+            };
+            var result = _userData.SaveUserRecord(newUser);
+            if (result)
+            {
+                return new OperationResponse { Success = true, Message = "You will be logged in briefly." };
+            }
+            else
+            {
+                return new OperationResponse { Success = false, Message = "Something went wrong, please try again later." };
             }
         }
         //handles user registration
