@@ -172,7 +172,7 @@ namespace CarCareTracker.Controllers
                         }
                     } else
                     {
-                        return Json(new OperationResponse { Success = false, Message = "All collaborators already exist in destination vehicle" });
+                        return Json(new OperationResponse { Success = false, Message = "Both vehicles already have identical collaborators" });
                     }
                 }
                 return Json(new OperationResponse { Success = true, Message = "Collaborators Copied"});
