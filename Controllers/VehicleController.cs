@@ -154,6 +154,34 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult DuplicateVehicleCollaborators(int sourceVehicleId, int destVehicleId)
+        {
+            try
+            {
+                //retrieve collaborators for both source and destination vehicle id.
+                if (_userLogic.UserCanEditVehicle(GetUserID(), sourceVehicleId) && _userLogic.UserCanEditVehicle(GetUserID(), destVehicleId))
+                {
+                    var sourceCollaborators = _userLogic.GetCollaboratorsForVehicle(sourceVehicleId).Select(x => x.UserVehicle.UserId).ToList();
+                    var destCollaborators = _userLogic.GetCollaboratorsForVehicle(destVehicleId).Select(x => x.UserVehicle.UserId).ToList();
+                    sourceCollaborators.RemoveAll(x => destCollaborators.Contains(x));
+                    if (sourceCollaborators.Any()) {
+                        foreach (int collaboratorId in sourceCollaborators)
+                        {
+                            _userLogic.AddUserAccessToVehicle(collaboratorId, destVehicleId);
+                        }
+                    } else
+                    {
+                        return Json(new OperationResponse { Success = false, Message = "All collaborators already exist in destination vehicle" });
+                    }
+                }
+                return Json(new OperationResponse { Success = true, Message = "Collaborators Copied"});
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+            }
+        }
         #region "Bulk Imports and Exports"
         [HttpGet]
         public IActionResult GetBulkImportModalPartialView(ImportMode mode)
@@ -1906,5 +1934,6 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         #endregion
+
     }
 }

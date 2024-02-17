@@ -307,3 +307,47 @@ function sortGarage(sender, isMobile) {
         }
     }
 }
+
+let dragged = null;
+let draggedId = 0;
+function dragEnter(event) {
+    event.preventDefault();
+}
+function dragStart(event, vehicleId) {
+    dragged = event.target;
+    draggedId = vehicleId;
+    event.dataTransfer.setData('text/plain', draggedId);
+}
+function dragOver(event) {
+    event.preventDefault();
+}
+function dropBox(event, targetVehicleId) {
+    if (dragged.parentElement != event.target && event.target != dragged && draggedId != targetVehicleId) {
+        copyContributors(draggedId, targetVehicleId);
+    }
+    event.preventDefault();
+}
+function copyContributors(sourceVehicleId, destVehicleId) {
+    var sourceVehicleName = $(`#gridVehicle_${sourceVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
+    var destVehicleName = $(`#gridVehicle_${destVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
+    Swal.fire({
+        title: "Copy Collaborators?",
+        text: `Copy collaborators over from ${sourceVehicleName} to ${destVehicleName}?`,
+        showCancelButton: true,
+        confirmButtonText: "Copy",
+        confirmButtonColor: "#0d6efd"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DuplicateVehicleCollaborators', { sourceVehicleId: sourceVehicleId, destVehicleId: destVehicleId }, function (data) {
+                if (data.success) {
+                    successToast("Collaborators Copied");
+                    loadGarage();
+                } else {
+                    errorToast(data.message);
+                }
+            })
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
