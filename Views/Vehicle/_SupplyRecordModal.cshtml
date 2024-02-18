@@ -80,6 +80,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.UsageHistory.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="showSupplyUsageHistory()"><i class="bi bi-clock-history"></i></button>
+        }
         <button type="button" class="btn btn-danger" onclick="deleteSupplyRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddSupplyRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
@@ -94,13 +98,18 @@
 </div>
 <script>
     var uploadedFiles = [];
+    var supplyUsageHistory = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
-    @foreach (UploadedFiles filesUploaded in Model.Files)
-    {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
-    }
+        @foreach (UploadedFiles filesUploaded in Model.Files)
+        {
+            @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
         }
+    }
+    @foreach(SupplyUsageHistory usageHistory in Model.UsageHistory)
+    {
+        @:supplyUsageHistory.push({date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("C2")")})
+    }
     function getSupplyRecordModelData() {
         return { id: @Model.Id}
     }

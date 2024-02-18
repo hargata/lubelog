@@ -703,7 +703,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             if (result && serviceRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(serviceRecord.Supplies);
+                RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
             }
             return Json(result);
         }
@@ -774,7 +774,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result && collisionRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(collisionRecord.Supplies);
+                RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
             }
             return Json(result);
         }
@@ -1455,7 +1455,7 @@ namespace CarCareTracker.Controllers
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             if (result && upgradeRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies);
+                RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
             }
             return Json(result);
         }
@@ -1552,7 +1552,7 @@ namespace CarCareTracker.Controllers
             }
             return result;
         }
-        private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage)
+        private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage, DateTime dateRequisitioned, string usageDescription)
         {
             foreach(SupplyUsage supply in supplyUsage)
             {
@@ -1563,6 +1563,12 @@ namespace CarCareTracker.Controllers
                 result.Quantity -= supply.Quantity;
                 //deduct cost.
                 result.Cost -= (supply.Quantity * unitCost);
+                result.UsageHistory.Add(new SupplyUsageHistory { 
+                    Date = dateRequisitioned, 
+                    Description = usageDescription, 
+                    Quantity = supply.Quantity, 
+                    Cost = (supply.Quantity * unitCost) 
+                });
                 //save
                 _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
             }
@@ -1635,6 +1641,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                UsageHistory = result.UsageHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields)
             };
             return PartialView("_SupplyRecordModal", convertedResult);
@@ -1668,7 +1675,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result && planRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(planRecord.Supplies);
+                RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
             }
             return Json(result);
         }
@@ -1722,7 +1729,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
             if (result && existingRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(existingRecord.Supplies);
+                RequisitionSupplyRecordsByUsage(existingRecord.Supplies, DateTime.Parse(existingRecord.DateCreated), existingRecord.Description);
             }
             return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
         }
