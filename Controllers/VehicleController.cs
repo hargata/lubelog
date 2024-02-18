@@ -1740,6 +1740,15 @@ namespace CarCareTracker.Controllers
                     return Json(new OperationResponse { Success = false, Message = string.Join("<br>", supplyAvailability) });
                 }
             }
+            if (existingRecord.ReminderRecordId != default)
+            {
+                //check if reminder still exists and is still recurring.
+                var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
+                if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                {
+                    return Json(new OperationResponse { Success = false, Message = "Missing or Non-recurring Reminder, Please Delete This Template and Recreate It." });
+                }
+            }
             //populate createdDate
             existingRecord.DateCreated = DateTime.Now.ToString("G");
             existingRecord.DateModified = DateTime.Now.ToString("G");
@@ -1839,14 +1848,14 @@ namespace CarCareTracker.Controllers
                 if (existingRecord.ReminderRecordId != default)
                 {
                     var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
-                    if (existingReminder is not null && existingReminder.Id != default)
+                    if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                     {
                         existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
                         //save to db.
                         var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
                         if (!reminderUpdateResult)
                         {
-                            _logger.LogError("Unable to update reminder");
+                            _logger.LogError("Unable to update reminder either because the reminder no longer exists or is no longer recurring");
                         }
                     } else
                     {
