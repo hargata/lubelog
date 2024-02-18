@@ -1,0 +1,72 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<SupplyUsageHistory>
+<script>
+    var supplyUsageHistory = [];
+</script>
+<div id="supplyUsageHistoryModalContainer" class="d-none">
+    <div class="modal-header">
+        <h5 class="modal-title">@translator.Translate(userLanguage, "Supply Requisition History")</h5>
+    </div>
+    <div class="modal-body">
+        @if (Model.Any())
+        {
+            <div class="row">
+                <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+                    <table class="table table-hover">
+                        <thead class="sticky-top">
+                            <tr class="d-flex">
+                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Date")</th>
+                                @if(Model.Any(x=>!string.IsNullOrWhiteSpace(x.PartNumber))){
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
+                                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Description")</th>
+                                } else
+                                {
+                                    <th scope="col" class="col-6">@translator.Translate(userLanguage, "Description")</th>
+                                }
+                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Quantity")</th>
+                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Cost")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SupplyUsageHistory usageHistory in Model)
+                            {
+                                <script>
+                                    supplyUsageHistory.push({ date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), partNumber: decodeHTMLEntities('@usageHistory.PartNumber'), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")") })
+                                </script>
+                                <tr class="d-flex">
+                                    <td class="col-2">@StaticHelper.TruncateStrings(usageHistory.Date.ToShortDateString())</td>
+                                    @if (!string.IsNullOrWhiteSpace(usageHistory.PartNumber))
+                                    {
+                                        <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(usageHistory.PartNumber)</td>
+                                        <td class="col-4 text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description)</td>
+                                    } else
+                                    {
+                                        <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description, 50)</td>
+                                    }
+                                    <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
+                                    <td class="col-2">@usageHistory.Cost.ToString("C2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center">
+                        <h4>@translator.Translate(userLanguage, "No supply requisitions in history")</h4>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

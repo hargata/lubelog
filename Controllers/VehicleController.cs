@@ -700,11 +700,11 @@ namespace CarCareTracker.Controllers
             }
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
-            if (result && serviceRecord.Supplies.Any())
+            if (serviceRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(serviceRecord.Supplies);
+                serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
             }
+            var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             return Json(result);
         }
         [HttpGet]
@@ -728,6 +728,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields)
             };
             return PartialView("_ServiceRecordModal", convertedResult);
@@ -771,11 +772,11 @@ namespace CarCareTracker.Controllers
             }
             //move files from temp.
             collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
-            if (result && collisionRecord.Supplies.Any())
+            if (collisionRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(collisionRecord.Supplies);
+                collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
             }
+            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());        
             return Json(result);
         }
         [HttpGet]
@@ -799,6 +800,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields)
             };
             return PartialView("_CollisionRecordModal", convertedResult);
@@ -1452,11 +1454,11 @@ namespace CarCareTracker.Controllers
             }
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
-            if (result && upgradeRecord.Supplies.Any())
+            if (upgradeRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies);
+                upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
             }
+            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             return Json(result);
         }
         [HttpGet]
@@ -1480,6 +1482,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields)
             };
             return PartialView("_UpgradeRecordModal", convertedResult);
@@ -1552,8 +1555,9 @@ namespace CarCareTracker.Controllers
             }
             return result;
         }
-        private void RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage)
+        private List<SupplyUsageHistory> RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage, DateTime dateRequisitioned, string usageDescription)
         {
+            List<SupplyUsageHistory> results = new List<SupplyUsageHistory>();
             foreach(SupplyUsage supply in supplyUsage)
             {
                 //get supply record.
@@ -1563,9 +1567,29 @@ namespace CarCareTracker.Controllers
                 result.Quantity -= supply.Quantity;
                 //deduct cost.
                 result.Cost -= (supply.Quantity * unitCost);
+                //check decimal places to ensure that it always has a max of 3 decimal places.
+                var roundedDecimal = decimal.Round(result.Cost, 3);
+                if (roundedDecimal != result.Cost)
+                {
+                    //Too many decimals
+                    result.Cost = roundedDecimal;
+                }
+                //create new requisitionrrecord
+                var requisitionRecord = new SupplyUsageHistory
+                {
+                    Date = dateRequisitioned,
+                    Description = usageDescription,
+                    Quantity = supply.Quantity,
+                    Cost = (supply.Quantity * unitCost)
+                };
+                result.RequisitionHistory.Add(requisitionRecord);
                 //save
                 _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
+                requisitionRecord.Description = result.Description; //change the name of the description for plan/service/repair/upgrade records
+                requisitionRecord.PartNumber = result.PartNumber; //populate part number if not displayed in supplies modal.
+                results.Add(requisitionRecord);
             }
+            return results;
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -1635,6 +1659,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields)
             };
             return PartialView("_SupplyRecordModal", convertedResult);
@@ -1665,11 +1690,11 @@ namespace CarCareTracker.Controllers
             planRecord.DateModified = DateTime.Now.ToString("G");
             //move files from temp.
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
-            if (result && planRecord.Supplies.Any())
+            if (planRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(planRecord.Supplies);
+                planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
             }
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             return Json(result);
         }
         [HttpPost]
@@ -1719,11 +1744,11 @@ namespace CarCareTracker.Controllers
             existingRecord.DateCreated = DateTime.Now.ToString("G");
             existingRecord.DateModified = DateTime.Now.ToString("G");
             existingRecord.Id = default;
-            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
-            if (result && existingRecord.Supplies.Any())
+            if (existingRecord.Supplies.Any())
             {
-                RequisitionSupplyRecordsByUsage(existingRecord.Supplies);
+                existingRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(existingRecord.Supplies, DateTime.Parse(existingRecord.DateCreated), existingRecord.Description);
             }
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());    
             return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
         }
         [HttpGet]
@@ -1763,6 +1788,7 @@ namespace CarCareTracker.Controllers
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
                         Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
@@ -1778,6 +1804,7 @@ namespace CarCareTracker.Controllers
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
                         Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
@@ -1793,6 +1820,7 @@ namespace CarCareTracker.Controllers
                         Cost = existingRecord.Cost,
                         Notes = existingRecord.Notes,
                         Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
@@ -1818,6 +1846,7 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
                 Files = result.Files,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields)
             };
             return PartialView("_PlanRecordModal", convertedResult);

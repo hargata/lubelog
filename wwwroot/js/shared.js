@@ -415,3 +415,11 @@ function getAndValidateExtraFields() {
     });
     return { hasError: hasError, extraFields: outputData };
 }
+function toggleSupplyUsageHistory() {
+    var container = $("#supplyUsageHistoryModalContainer");
+    if (container.hasClass("d-none")) {
+        container.removeClass("d-none");
+    } else {
+        container.addClass("d-none");
+    }
+}

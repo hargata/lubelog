@@ -130,6 +130,7 @@ function getAndValidateSupplyRecordValues() {
         quantity: supplyQuantity,
         files: uploadedFiles,
         tags: supplyTags,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory
     }
 }

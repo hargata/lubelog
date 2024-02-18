@@ -83,6 +83,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.RequisitionHistory.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-shop"></i></button>
+        }
         <div class="btn-group" style="margin-right:auto;">
             <button type="button" class="btn btn-md mt-1 mb-1 btn-danger" onclick="deleteCollisionRecord(@Model.Id)">@translator.Translate(userLanguage,"Delete")</button>
             <button type="button" class="btn btn-md btn-danger btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
@@ -105,6 +109,7 @@
         <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Repair Record")</button>
     }
 </div>
+@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
@@ -114,7 +119,7 @@
     {
         @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
     }
-        }
+    }
     function getCollisionRecordModelData() {
         return { id: @Model.Id}
     }

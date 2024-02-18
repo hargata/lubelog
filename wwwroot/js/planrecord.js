@@ -188,7 +188,8 @@ function getAndValidatePlanRecordValues() {
         priority: planPriority,
         progress: planProgress,
         importMode: planType,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory
     }
 }
 //drag and drop stuff.
