@@ -80,7 +80,7 @@
 <div class="modal-footer">
     @if (!isNew)
     {
-        @if (Model.UsageHistory.Any())
+        @if (Model.RequisitionHistory.Any())
         {
             <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-clock-history"></i></button>
         }
@@ -96,51 +96,7 @@
         <button type="button" class="btn btn-primary" onclick="saveSupplyRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Supply Record")</button>
     }
 </div>
-<div id="supplyUsageHistoryModalContainer" class="d-none">
-    <div class="modal-header">
-        <h5 class="modal-title">@translator.Translate(userLanguage, "Supply Requisition History")</h5>
-    </div>
-    <div class="modal-body">
-        @if (Model.UsageHistory.Any())
-        {
-            <div class="row">
-                <div class="col-12" style="max-height:50vh; overflow-y:auto;">
-                    <table class="table table-hover">
-                        <thead class="sticky-top">
-                            <tr class="d-flex">
-                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Date")</th>
-                                <th scope="col" class="col-6">@translator.Translate(userLanguage, "Description")</th>
-                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Quantity")</th>
-                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Cost")</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (SupplyUsageHistory usageHistory in Model.UsageHistory)
-                            {
-                                <tr class="d-flex">
-                                    <td class="col-2">@StaticHelper.TruncateStrings(usageHistory.Date.ToShortDateString())</td>
-                                    <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description, 50)</td>
-                                    <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
-                                    <td class="col-2">@usageHistory.Cost.ToString("C2")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="row">
-                <div class="col-12">
-                    <div class="text-center">
-                        <h4>@translator.Translate(userLanguage, "No supply requisitions in history")</h4>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</div>
+@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
 <script>
     var uploadedFiles = [];
     getUploadedFilesFromModel();
@@ -149,11 +105,6 @@
         {
             @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
         }
-    }
-    var supplyUsageHistory = [];
-    @foreach(SupplyUsageHistory usageHistory in Model.UsageHistory)
-    {
-        @:supplyUsageHistory.push({date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")")})
     }
     function getSupplyRecordModelData() {
         return { id: @Model.Id}

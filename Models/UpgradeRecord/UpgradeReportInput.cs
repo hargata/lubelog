@@ -13,6 +13,20 @@
         public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
-        public UpgradeRecord ToUpgradeRecord() { return new UpgradeRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Cost = Cost, Mileage = Mileage, Description = Description, Notes = Notes, Files = Files, Tags = Tags, ExtraFields = ExtraFields }; }
+        public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public UpgradeRecord ToUpgradeRecord() { return new UpgradeRecord { 
+            Id = Id, 
+            VehicleId = VehicleId, 
+            Date = DateTime.Parse(Date), 
+            Cost = Cost, 
+            Mileage = Mileage, 
+            Description = Description, 
+            Notes = Notes, 
+            Files = Files, 
+            Tags = Tags, 
+            ExtraFields = ExtraFields,
+            RequisitionHistory = RequisitionHistory
+        }; 
+        }
     }
 }

@@ -14,5 +14,6 @@
         public PlanProgress Progress { get; set; }
         public decimal Cost { get; set; }
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
     }
 }

@@ -129,6 +129,7 @@ function getAndValidateCollisionRecordValues() {
         supplies: selectedSupplies,
         tags: collisionTags,
         addReminderRecord: addReminderRecord,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory
     }
 }

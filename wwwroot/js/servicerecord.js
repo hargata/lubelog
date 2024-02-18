@@ -129,6 +129,7 @@ function getAndValidateServiceRecordValues() {
         supplies: selectedSupplies,
         tags: serviceTags,
         addReminderRecord: addReminderRecord,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory
     }
 }
