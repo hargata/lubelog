@@ -16,7 +16,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-6 col-md-1">
+            @if (Model.ReminderRecordId != default)
+            {
+                <div class="col-4 col-md-1">
+                    <i class="bi bi-bell"></i>
+                </div>
+            }
+            <div class="@(Model.ReminderRecordId != default ? "col-4" : "col-6") col-md-1">
                 @if (Model.ImportMode == ImportMode.ServiceRecord)
                 {
                     <i class="bi bi-card-checklist"></i>
@@ -30,7 +36,7 @@
                     <i class="bi bi-exclamation-octagon"></i>
                 }
             </div>
-            <div class="col-6 col-md-1">
+            <div class="@(Model.ReminderRecordId != default ? "col-4" : "col-6") col-md-1">
                 @if (Model.Priority == PlanPriority.Critical)
                 {
                     <i class="bi bi-fire"></i>

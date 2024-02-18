@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
+        public int ReminderRecordId { get; set; }
         public string DateCreated { get; set; } = DateTime.Now.ToShortDateString();
         public string DateModified { get; set; } = DateTime.Now.ToShortDateString();
         public string Description { get; set; }
@@ -19,6 +20,7 @@
         public PlanRecord ToPlanRecord() { return new PlanRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
+            ReminderRecordId = ReminderRecordId,
             DateCreated = DateTime.Parse(DateCreated), 
             DateModified = DateTime.Parse(DateModified),
             Description = Description, 
@@ -31,5 +33,9 @@
             ExtraFields = ExtraFields,
             RequisitionHistory = RequisitionHistory
         }; }
+        /// <summary>
+        /// only used to hide view template button on plan create modal.
+        /// </summary>
+        public bool CreatedFromReminder { get; set; }
     }
 }

@@ -25,6 +25,10 @@ function showEditPlanRecordModal(planRecordId) {
 }
 function hideAddPlanRecordModal() {
     $('#planRecordModal').modal('hide');
+    if (getPlanRecordModelData().createdFromReminder) {
+        //show reminder Modal
+        $("#reminderRecordModal").modal("show");
+    }
 }
 function deletePlanRecord(planRecordId) {
     $("#workAroundInput").show();
@@ -64,10 +68,12 @@ function savePlanRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Plan Record Updated" : "Plan Record Added.");
             hideAddPlanRecordModal();
-            saveScrollPosition();
-            getVehiclePlanRecords(formValues.vehicleId);
-            if (formValues.addReminderRecord) {
-                setTimeout(function () { showAddReminderModal(formValues); }, 500);
+            if (!getPlanRecordModelData().createdFromReminder) {
+                saveScrollPosition();
+                getVehiclePlanRecords(formValues.vehicleId);
+                if (formValues.addReminderRecord) {
+                    setTimeout(function () { showAddReminderModal(formValues); }, 500);
+                }
             }
         } else {
             errorToast(genericErrorMessage());
@@ -139,9 +145,6 @@ function savePlanRecordTemplate() {
     $.post('/Vehicle/SavePlanRecordTemplateToVehicleId', { planRecord: formValues }, function (data) {
         if (data.success) {
             successToast(data.message);
-            hideAddPlanRecordModal();
-            saveScrollPosition();
-            getVehiclePlanRecords(formValues.vehicleId);
         } else {
             errorToast(data.message);
         }
@@ -157,6 +160,7 @@ function getAndValidatePlanRecordValues() {
     var planDateCreated = getPlanRecordModelData().dateCreated;
     var vehicleId = GetVehicleId().vehicleId;
     var planRecordId = getPlanRecordModelData().id;
+    var reminderRecordId = getPlanRecordModelData().reminderRecordId;
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();
@@ -189,7 +193,8 @@ function getAndValidatePlanRecordValues() {
         progress: planProgress,
         importMode: planType,
         extraFields: extraFields.extraFields,
-        requisitionHistory: supplyUsageHistory
+        requisitionHistory: supplyUsageHistory,
+        reminderRecordId: reminderRecordId
     }
 }
 //drag and drop stuff.

@@ -101,7 +101,10 @@
             </button>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="savePlanRecordTemplate()">@translator.Translate(userLanguage, "Save as Template")</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
+                @if (!Model.CreatedFromReminder)
+                {
+                    <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
+                }
             </ul>
         </div>
     }
@@ -124,7 +127,9 @@
     function getPlanRecordModelData() {
         return {
             id: @Model.Id,
-            dateCreated: decodeHTMLEntities('@(Model.DateCreated)')
+            dateCreated: decodeHTMLEntities('@(Model.DateCreated)'),
+            reminderRecordId: decodeHTMLEntities('@Model.ReminderRecordId'),
+            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower()
         }
     }
 </script>

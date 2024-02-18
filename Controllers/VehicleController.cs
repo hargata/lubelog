@@ -1757,6 +1757,16 @@ namespace CarCareTracker.Controllers
             return PartialView("_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
         }
         [HttpPost]
+        public IActionResult GetAddPlanRecordPartialView(PlanRecordInput? planModel)
+        {
+            if (planModel is not null)
+            {
+                planModel.ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields;
+                return PartialView("_PlanRecordModal", planModel);
+            }
+            return PartialView("_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
+        }
+        [HttpPost]
         public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress, int odometer = 0)
         {
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
@@ -1825,6 +1835,24 @@ namespace CarCareTracker.Controllers
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
                 }
+                //push back any reminders
+                if (existingRecord.ReminderRecordId != default)
+                {
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
+                    if (existingReminder is not null && existingReminder.Id != default)
+                    {
+                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+                        //save to db.
+                        var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+                        if (!reminderUpdateResult)
+                        {
+                            _logger.LogError("Unable to update reminder");
+                        }
+                    } else
+                    {
+                        _logger.LogError("Unable to update reminder because it no longer exists.");
+                    }
+                }
             }
             return Json(result);
         }
@@ -1847,6 +1875,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 RequisitionHistory = result.RequisitionHistory,
+                ReminderRecordId = result.ReminderRecordId,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields)
             };
             return PartialView("_PlanRecordModal", convertedResult);

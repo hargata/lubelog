@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
+        public int ReminderRecordId { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public string Description { get; set; }
