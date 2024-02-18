@@ -90,6 +90,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.IsRecurring)
+        {
+            <button type="button" class="btn btn-warning" onclick="createPlanRecordFromReminder(@Model.Id)">@translator.Translate(userLanguage, "Plan")</button>
+        }
         <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddReminderRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>

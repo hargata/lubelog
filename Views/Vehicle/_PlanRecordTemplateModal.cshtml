@@ -29,6 +29,10 @@
                             <tr class="d-flex" id="supplyRows">
                                 <td class="col-8 text-truncate">
                                     @StaticHelper.TruncateStrings(planRecordTemplate.Description)
+                                    @if(planRecordTemplate.ReminderRecordId != default)
+                                    {
+                                        <i class="bi bi-bell ms-2"></i>
+                                    }
                                     @if (planRecordTemplate.Files.Any())
                                     {
                                         <i class="bi bi-paperclip ms-2"></i>
