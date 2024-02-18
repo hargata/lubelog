@@ -328,11 +328,3 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
-function toggleSupplyUsageHistory() {
-    var container = $("#supplyUsageHistoryModalContainer");
-    if (container.hasClass("d-none")) {
-        container.removeClass("d-none");
-    } else {
-        container.addClass("d-none");
-    }
-}
