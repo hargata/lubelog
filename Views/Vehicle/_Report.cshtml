@@ -37,37 +37,43 @@
                         <ul class="dropdown-menu" style="width:100%;">
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="odometerExpenseCheck" value="6" checked>
+                                    <input class="form-check-input" onChange="updateCheckAll()" type="checkbox" id="selectAllExpenseCheck" value="0" checked>
+                                    <label class="form-check-label stretched-link" for="selectAllExpenseCheck">@translator.Translate(userLanguage, "Select All")</label>
+                                </div>
+                            </li>
+                            <li class="dropdown-item">
+                                <div class="list-group-item">
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="odometerExpenseCheck" value="6" checked>
                                     <label class="form-check-label stretched-link" for="odometerExpenseCheck">@translator.Translate(userLanguage, "Odometer")</label>
                                 </div>
                             </li>
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="serviceExpenseCheck" value="1" checked>
                                     <label class="form-check-label stretched-link" for="serviceExpenseCheck">@translator.Translate(userLanguage, "Service")</label>
                                 </div>
                             </li>
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="repairExpenseCheck" value="2" checked>
                                     <label class="form-check-label stretched-link" for="repairExpenseCheck">@translator.Translate(userLanguage, "Repairs")</label>
                                 </div>
                             </li>
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="upgradeExpenseCheck" value="3" checked>
                                     <label class="form-check-label stretched-link" for="upgradeExpenseCheck">@translator.Translate(userLanguage, "Upgrades")</label>
                                 </div>
                             </li>
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="gasExpenseCheck" value="4" checked>
                                     <label class="form-check-label stretched-link" for="gasExpenseCheck">@translator.Translate(userLanguage, "Fuel")</label>
                                 </div>
                             </li>
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
+                                    <input class="form-check-input reportCheckBox" onChange="updateCheck()" type="checkbox" id="taxExpenseCheck" value="5" checked>
                                     <label class="form-check-label stretched-link" for="taxExpenseCheck">@translator.Translate(userLanguage, "Taxes")</label>
                                 </div>
                             </li>
