@@ -328,3 +328,57 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
+var selectedRow = [];
+var isDragging = false;
+$(window).on('mouseup', function (e) {
+    rangeMouseUp(e);
+});
+$(window).on('mousedown', function (e) {
+    rangeMouseDown(e);
+});
+$(window).on('keydown', function (e) {
+    if (e.ctrlKey && e.which == 65) {
+        e.preventDefault();
+        e.stopPropagation();
+        selectedRow = [];
+        $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
+        $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
+            selectedRow.push($(elem).attr('data-rowId'));
+        });
+    }
+})
+function rangeMouseDown(e) {
+    if (isRightClick(e)) {
+        return;
+    }
+    if (!e.ctrlKey) {
+        selectedRow = [];
+        $('.table tr').removeClass('table-active');
+    }
+    isDragging = true;
+
+    document.documentElement.onselectstart = function () { return false; };
+}
+function isRightClick(e) {
+    if (e.which) {
+        return (e.which == 3);
+    } else if (e.button) {
+        return (e.button == 2);
+    }
+    return false;
+}
+function rangeMouseUp(e) {
+    if (isRightClick(e)) {
+        return;
+    }
+    isDragging = false;
+    document.documentElement.onselectstart = function () { return true; };
+}
+function rangeMouseMove(e) {
+    if (isDragging) {
+        if (!$(e).hasClass('table-active')) {
+            selectedRow.push($(e).attr('data-rowId'));
+            $(e).addClass('table-active');
+        }
+    }
+}

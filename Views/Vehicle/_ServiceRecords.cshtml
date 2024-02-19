@@ -68,7 +68,7 @@
             <tbody>
                 @foreach (ServiceRecord serviceRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditServiceRecordModal(@serviceRecord.Id)" data-tags='@string.Join(" ",serviceRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@serviceRecord.Id" onmousemove="rangeMouseMove(this)" onclick="showEditServiceRecordModal(@serviceRecord.Id)" data-tags='@string.Join(" ", serviceRecord.Tags)'>
                         <td class="col-2 col-xl-1">@serviceRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@serviceRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@serviceRecord.Description</td>

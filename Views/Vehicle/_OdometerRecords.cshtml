@@ -12,7 +12,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Odometer Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count()}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('odometer-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -28,21 +28,21 @@
             @if (enableCsvImports)
             {
                 <div class="btn-group">
-                    <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Odometer Record")</button>
+                    <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Odometer Record")</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('OdometerRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('OdometerRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('OdometerRecord')">@translator.Translate(userLanguage, "Import via CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('OdometerRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
                     </ul>
                 </div>
             }
             else
             {
-                <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Odometer Record")</button>
+                <button onclick="showAddOdometerRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Odometer Record")</button>
             }
         </div>
     </div>
@@ -57,15 +57,15 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage,"Date")</th>
-                    <th scope="col" class="col-3">@translator.Translate(userLanguage,"Odometer")</th>
-                    <th scope="col" class="col-7 col-xl-8">@translator.Translate(userLanguage,"Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-7 col-xl-8">@translator.Translate(userLanguage, "Notes")</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (OdometerRecord odometerRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditOdometerRecordModal(@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@odometerRecord.Id" onmousemove="rangeMouseMove(this)" onclick="showEditOdometerRecordModal(@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
                         <td class="col-2 col-xl-1">@odometerRecord.Date.ToShortDateString()</td>
                         <td class="col-3" data-record-type="cost">@odometerRecord.Mileage</td>
                         <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
