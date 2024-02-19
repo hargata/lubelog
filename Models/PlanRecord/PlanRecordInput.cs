@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
+        public int ReminderRecordId { get; set; }
         public string DateCreated { get; set; } = DateTime.Now.ToShortDateString();
         public string DateModified { get; set; } = DateTime.Now.ToShortDateString();
         public string Description { get; set; }
@@ -15,9 +16,11 @@
         public PlanProgress Progress { get; set; }
         public decimal Cost { get; set; }
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
         public PlanRecord ToPlanRecord() { return new PlanRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
+            ReminderRecordId = ReminderRecordId,
             DateCreated = DateTime.Parse(DateCreated), 
             DateModified = DateTime.Parse(DateModified),
             Description = Description, 
@@ -27,7 +30,12 @@
             Cost = Cost,
             Priority = Priority,
             Progress = Progress,
-            ExtraFields = ExtraFields
+            ExtraFields = ExtraFields,
+            RequisitionHistory = RequisitionHistory
         }; }
+        /// <summary>
+        /// only used to hide view template button on plan create modal.
+        /// </summary>
+        public bool CreatedFromReminder { get; set; }
     }
 }

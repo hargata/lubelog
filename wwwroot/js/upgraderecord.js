@@ -129,6 +129,7 @@ function getAndValidateUpgradeRecordValues() {
         supplies: selectedSupplies,
         tags: upgradeTags,
         addReminderRecord: addReminderRecord,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory
     }
 }

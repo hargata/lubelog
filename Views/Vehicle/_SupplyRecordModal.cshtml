@@ -80,6 +80,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.RequisitionHistory.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-clock-history"></i></button>
+        }
         <button type="button" class="btn btn-danger" onclick="deleteSupplyRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddSupplyRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
@@ -92,15 +96,16 @@
         <button type="button" class="btn btn-primary" onclick="saveSupplyRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Supply Record")</button>
     }
 </div>
+@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
 <script>
     var uploadedFiles = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
-    @foreach (UploadedFiles filesUploaded in Model.Files)
-    {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
-    }
+        @foreach (UploadedFiles filesUploaded in Model.Files)
+        {
+            @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
         }
+    }
     function getSupplyRecordModelData() {
         return { id: @Model.Id}
     }

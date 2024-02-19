@@ -218,3 +218,25 @@ function getAndValidateReminderRecordValues() {
         customMonthInterval: customMonthInterval
     }
 }
+function createPlanRecordFromReminder(reminderRecordId) {
+    //get values
+    var formValues = getAndValidateReminderRecordValues();
+    //validate
+    if (formValues.hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var planModelInput = {
+        id: 0,
+        createdFromReminder: true,
+        vehicleId: formValues.vehicleId,
+        reminderRecordId: reminderRecordId,
+        description: formValues.description,
+        notes: formValues.notes
+    };
+    $.post('/Vehicle/GetAddPlanRecordPartialView', { planModel: planModelInput }, function (data) {
+        $("#reminderRecordModal").modal("hide");
+        $("#planRecordModalContent").html(data);
+        $("#planRecordModal").modal("show");
+    });
+}
