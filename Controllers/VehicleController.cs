@@ -454,6 +454,16 @@ namespace CarCareTracker.Controllers
                                     if (convertedRecord.Gallons > 0)
                                     {
                                         _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+                                        if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                                        {
+                                            _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                            {
+                                                Date = convertedRecord.Date,
+                                                VehicleId = convertedRecord.VehicleId,
+                                                Mileage = convertedRecord.Mileage,
+                                                Notes = $"Auto Insert From Gas Record via CSV Import. {convertedRecord.Notes}"
+                                            });
+                                        }
                                     }
                                 }
                                 else if (mode == ImportMode.ServiceRecord)
@@ -469,6 +479,16 @@ namespace CarCareTracker.Controllers
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
+                                    if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                                    {
+                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        {
+                                            Date = convertedRecord.Date,
+                                            VehicleId = convertedRecord.VehicleId,
+                                            Mileage = convertedRecord.Mileage,
+                                            Notes = $"Auto Insert From Service Record via CSV Import. {convertedRecord.Notes}"
+                                        });
+                                    }
                                 }
                                 else if (mode == ImportMode.OdometerRecord)
                                 {
@@ -514,6 +534,16 @@ namespace CarCareTracker.Controllers
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
+                                    if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                                    {
+                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        {
+                                            Date = convertedRecord.Date,
+                                            VehicleId = convertedRecord.VehicleId,
+                                            Mileage = convertedRecord.Mileage,
+                                            Notes = $"Auto Insert From Repair Record via CSV Import. {convertedRecord.Notes}"
+                                        });
+                                    }
                                 }
                                 else if (mode == ImportMode.UpgradeRecord)
                                 {
@@ -528,6 +558,16 @@ namespace CarCareTracker.Controllers
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
                                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
+                                    if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
+                                    {
+                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        {
+                                            Date = convertedRecord.Date,
+                                            VehicleId = convertedRecord.VehicleId,
+                                            Mileage = convertedRecord.Mileage,
+                                            Notes = $"Auto Insert From Upgrade Record via CSV Import. {convertedRecord.Notes}"
+                                        });
+                                    }
                                 }
                                 else if (mode == ImportMode.SupplyRecord)
                                 {
