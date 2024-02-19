@@ -1277,41 +1277,63 @@ namespace CarCareTracker.Controllers
                 var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetOdometerRecordSum(odometerRecords, year));
             }
-            var groupedRecord = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
+            var groupedRecord = _reportHelper.InterpolateDistanceTraveled(allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
+                MonthId = x.Key.MonthId,
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0
-            }).ToList();
+                MinMileage = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0,
+                MaxMileage = x.Max(y=>y.MaxMileage)
+            }).ToList(), year, GetMaxMileage(vehicleId, year - 1));
             return PartialView("_GasCostByMonthReport", groupedRecord);
         }
         #endregion
         #region "Reminders"
         [TypeFilter(typeof(CollaboratorFilter))]
-        private int GetMaxMileage(int vehicleId)
+        private int GetMaxMileage(int vehicleId, int year = 0)
         {
             var numbersArray = new List<int>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                serviceRecords.RemoveAll(x => x.Date.Year != year);
+            }
             if (serviceRecords.Any())
             {
                 numbersArray.Add(serviceRecords.Max(x => x.Mileage));
             }
             var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                repairRecords.RemoveAll(x => x.Date.Year != year);
+            }
             if (repairRecords.Any())
             {
                 numbersArray.Add(repairRecords.Max(x => x.Mileage));
             }
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+            }
             if (gasRecords.Any())
             {
                 numbersArray.Add(gasRecords.Max(x => x.Mileage));
             }
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
+            }
             if (upgradeRecords.Any())
             {
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
             }
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                odometerRecords.RemoveAll(x => x.Date.Year != year);
+            }
             if (odometerRecords.Any())
             {
                 numbersArray.Add(odometerRecords.Max(x => x.Mileage));
