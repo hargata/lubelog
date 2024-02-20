@@ -70,7 +70,7 @@
             <tbody>
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@supplyRecord.Id" onmousemove="rangeMouseMove(this)" onclick="showEditSupplyRecordModal(@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="showEditSupplyRecordModal(@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                         <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@supplyRecord.PartNumber</td>
                         <td class="col-2">@supplyRecord.PartSupplier</td>
@@ -92,3 +92,7 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>

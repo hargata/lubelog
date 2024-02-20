@@ -335,23 +335,19 @@ function moveRecords(ids, source, dest) {
     $("#workAroundInput").show();
     var friendlySource = "";
     var friendlyDest = "";
-    var hideModalCallBack;
     var refreshDataCallBack;
     var recordVerbiage = selectedRow.length > 1 ? "these records" : "this record";
     switch (source) {
         case "ServiceRecord":
             friendlySource = "Service Records";
-            hideModalCallBack = hideAddServiceRecordModal;
             refreshDataCallBack = getVehicleServiceRecords;
             break;
         case "RepairRecord":
             friendlySource = "Repairs";
-            hideModalCallBack = hideAddCollisionRecordModal;
             refreshDataCallBack = getVehicleCollisionRecords;
             break;
         case "UpgradeRecord":
             friendlySource = "Upgrades";
-            hideModalCallBack = hideAddUpgradeRecordModal;
             refreshDataCallBack = getVehicleUpgradeRecords;
             break;
     }
@@ -377,8 +373,72 @@ function moveRecords(ids, source, dest) {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
                 if (data) {
-                    hideModalCallBack();
                     successToast("Records Moved");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+function deleteRecords(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = selectedRow.length > 1 ? "these records" : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "TaxRecord":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            break;
+        case "SupplyRecord":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            break;
+        case "NoteRecord":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "ReminderRecord":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            break;
+    }
+
+    Swal.fire({
+        title: "Confirm Delete?",
+        text: `Delete ${recordVerbiage} from ${friendlySource}?`,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
+                if (data) {
+                    successToast("Records Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {

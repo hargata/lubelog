@@ -67,7 +67,7 @@
             <tbody>
                 @foreach (TaxRecord taxRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@taxRecord.Id" onmousemove="rangeMouseMove(this)" onclick="showEditTaxRecordModal(@taxRecord.Id)" data-tags='@string.Join(" ", taxRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@taxRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="showEditTaxRecordModal(@taxRecord.Id)" data-tags='@string.Join(" ", taxRecord.Tags)'>
                         <td class="col-3 col-xl-1">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-4 col-xl-6">@taxRecord.Description</td>
                         <td class="col-2" data-record-type="cost">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
@@ -86,3 +86,7 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'TaxRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>
