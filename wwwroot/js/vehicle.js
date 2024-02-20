@@ -328,6 +328,68 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
+function moveRecords(ids, source, dest) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var friendlyDest = "";
+    var hideModalCallBack;
+    var refreshDataCallBack;
+    var recordVerbiage = selectedRow.length > 1 ? "these records" : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            hideModalCallBack = hideAddServiceRecordModal;
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            hideModalCallBack = hideAddCollisionRecordModal;
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            hideModalCallBack = hideAddUpgradeRecordModal;
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+    }
+    switch (dest) {
+        case "ServiceRecord":
+            friendlyDest = "Service Records";
+            break;
+        case "RepairRecord":
+            friendlyDest = "Repairs";
+            break;
+        case "UpgradeRecord":
+            friendlyDest = "Upgrades";
+            break;
+    }
+
+    Swal.fire({
+        title: "Confirm Move?",
+        text: `Move ${recordVerbiage} from ${friendlySource} to ${friendlyDest}?`,
+        showCancelButton: true,
+        confirmButtonText: "Move",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
+                if (data) {
+                    hideModalCallBack();
+                    successToast("Records Moved");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
 var selectedRow = [];
 var isDragging = false;
 $(window).on('mouseup', function (e) {
@@ -337,23 +399,26 @@ $(window).on('mousedown', function (e) {
     rangeMouseDown(e);
 });
 $(window).on('keydown', function (e) {
-    if (e.ctrlKey && e.which == 65) {
-        e.preventDefault();
-        e.stopPropagation();
-        selectedRow = [];
-        $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
-        $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
-            selectedRow.push($(elem).attr('data-rowId'));
-        });
+    var userOnInput = $(e.target).is("input") || $(e.target).is("textarea");
+    if (!userOnInput) {
+        if (e.ctrlKey && e.which == 65) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearSelectedRows();
+            $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
+            $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
+                addToSelectedRows($(elem).attr('data-rowId'));
+            });
+        }
     }
 })
 function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    if (!e.ctrlKey) {
-        selectedRow = [];
-        $('.table tr').removeClass('table-active');
+    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item")
+    if (!e.ctrlKey && !contextMenuAction) {
+        clearSelectedRows();
     }
     isDragging = true;
 
@@ -368,6 +433,9 @@ function isRightClick(e) {
     return false;
 }
 function rangeMouseUp(e) {
+    if ($(".table-context-menu").length > 0) {
+        $(".table-context-menu").hide();
+    }
     if (isRightClick(e)) {
         return;
     }
@@ -377,8 +445,44 @@ function rangeMouseUp(e) {
 function rangeMouseMove(e) {
     if (isDragging) {
         if (!$(e).hasClass('table-active')) {
-            selectedRow.push($(e).attr('data-rowId'));
+            addToSelectedRows($(e).attr('data-rowId'));
             $(e).addClass('table-active');
         }
     }
+}
+function addToSelectedRows(id) {
+    if (selectedRow.findIndex(x=> x == id) == -1) {
+        selectedRow.push(id);
+    }
+}
+function clearSelectedRows() {
+    selectedRow = [];
+    $('.table tr').removeClass('table-active');
+}
+function showTableContextMenu(e) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    $(".table-context-menu").show();
+    $(".table-context-menu").css({
+        position: "absolute",
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
+    if (!$(e).hasClass('table-active')) {
+        clearSelectedRows();
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+    }
+}
+function getMenuPosition(mouse, direction, scrollDir) {
+    var win = $(window)[direction](),
+        scroll = $(window)[scrollDir](),
+        menu = $(".table-context-menu")[direction](),
+        position = mouse + scroll;
+
+    // opening menu would pass the side of the page
+    if (mouse + menu > win && menu < mouse)
+        position -= menu;
+    return position;
 }

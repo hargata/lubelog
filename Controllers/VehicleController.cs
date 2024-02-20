@@ -2040,6 +2040,57 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        public IActionResult MoveRecords(List<int> recordIds, ImportMode source, ImportMode destination)
+        {
+            var genericRecord = new GenericRecord();
+            bool result = false;
+            foreach(int recordId in recordIds)
+            {
+                //get
+                switch (source)
+                {
+                    case ImportMode.ServiceRecord:
+                        genericRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                        break;
+                    case ImportMode.RepairRecord:
+                        genericRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        genericRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                        break;
+                }
+                //save
+                switch (destination)
+                {
+                    case ImportMode.ServiceRecord:
+                        result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(StaticHelper.GenericToServiceRecord(genericRecord));
+                        break;
+                    case ImportMode.RepairRecord:
+                        result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(StaticHelper.GenericToRepairRecord(genericRecord));
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(StaticHelper.GenericToUpgradeRecord(genericRecord));
+                        break;
+                }
+                //delete
+                if (result)
+                {
+                    switch (source)
+                    {
+                        case ImportMode.ServiceRecord:
+                            _serviceRecordDataAccess.DeleteServiceRecordById(recordId);
+                            break;
+                        case ImportMode.RepairRecord:
+                            _collisionRecordDataAccess.DeleteCollisionRecordById(recordId);
+                            break;
+                        case ImportMode.UpgradeRecord:
+                            _upgradeRecordDataAccess.DeleteUpgradeRecordById(recordId);
+                            break;
+                    }
+                }
+            }
+            return Json(result);
+        }
         #endregion
 
     }

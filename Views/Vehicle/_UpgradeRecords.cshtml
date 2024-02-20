@@ -68,7 +68,7 @@
             <tbody>
                 @foreach (UpgradeRecord upgradeRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@upgradeRecord.Id" onmousemove="rangeMouseMove(this)" onclick="showEditUpgradeRecordModal(@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@upgradeRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="showEditUpgradeRecordModal(@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
                         <td class="col-2 col-xl-1">@upgradeRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@upgradeRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@upgradeRecord.Description</td>
@@ -87,3 +87,9 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Move To")</h6></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'UpgradeRecord', 'ServiceRecord')">@translator.Translate(userLanguage, "Service Records")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'UpgradeRecord', 'RepairRecord')">@translator.Translate(userLanguage, "Repairs")</a></li>
+</ul>
