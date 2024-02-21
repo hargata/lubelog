@@ -700,6 +700,9 @@ function showTableContextMenu(e) {
     if (event != undefined) {
         event.preventDefault();
     }
+    if (navigator.maxTouchPoints > 0) {
+        return;
+    }
     $(".table-context-menu").show();
     determineContextMenuItems();
     $(".table-context-menu").css({
