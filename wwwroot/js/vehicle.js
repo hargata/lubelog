@@ -515,6 +515,12 @@ function addToSelectedRows(id) {
         selectedRow.push(id);
     }
 }
+function removeFromSelectedRows(id) {
+    var rowIndex = selectedRow.findIndex(x => x == id)
+    if (rowIndex != -1) {
+        selectedRow.splice(rowIndex, 1);
+    }
+}
 function clearSelectedRows() {
     selectedRow = [];
     $('.table tr').removeClass('table-active');
@@ -545,4 +551,15 @@ function getMenuPosition(mouse, direction, scrollDir) {
     if (mouse + menu > win && menu < mouse)
         position -= menu;
     return position;
+}
+function handleTableRowClick(e, callBack, rowId) {
+    if (!event.ctrlKey) {
+        callBack(rowId);
+    } else if (!$(e).hasClass('table-active')) {
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+    } else if ($(e).hasClass('table-active')){
+        removeFromSelectedRows($(e).attr('data-rowId'));
+        $(e).removeClass('table-active');
+    }
 }

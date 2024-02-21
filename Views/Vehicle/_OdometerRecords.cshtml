@@ -65,7 +65,7 @@
             <tbody>
                 @foreach (OdometerRecord odometerRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="showEditOdometerRecordModal(@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
+                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditOdometerRecordModal,@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
                         <td class="col-2 col-xl-1">@odometerRecord.Date.ToShortDateString()</td>
                         <td class="col-3" data-record-type="cost">@odometerRecord.Mileage</td>
                         <td class="col-7 col-xl-8 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
