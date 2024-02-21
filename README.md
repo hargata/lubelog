@@ -1,13 +1,13 @@
 ![image](https://github.com/hargata/lubelog/assets/155338622/545debcd-d80a-44da-b892-4c652ab0384a)
 
-A self-hosted, open-source vehicle service records and maintainence tracker.
+A self-hosted, open-source vehicle service records and maintenance tracker.
 
 Visit our website: https://lubelogger.com
 
 Support this project by [Subscribing on Patreon](https://patreon.com/LubeLogger) or [Making a Donation](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
 
 ## Why
-Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintainence.
+Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintenance.
 
 ## Screenshots
 <a href="/docs/screenshots.md">Screenshots</a>
@@ -20,6 +20,7 @@ Try it out before you download it! The live demo resets every 20 minutes.
 ## Dependencies
 - Bootstrap
 - LiteDB
+- Npgsql
 - Bootstrap-DatePicker
 - SweetAlert2
 - CsvHelper
