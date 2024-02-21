@@ -470,8 +470,8 @@ $(window).on('keydown', function (e) {
 })
 function selectAllRows() {
     clearSelectedRows();
-    $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
-    $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
+    $('.vehicleDetailTabContainer .table tbody tr:visible').addClass('table-active');
+    $('.vehicleDetailTabContainer .table tbody tr:visible').map((index, elem) => {
         addToSelectedRows($(elem).attr('data-rowId'));
     });
 }
@@ -546,7 +546,7 @@ function showTableContextMenu(e) {
     }
 }
 function determineContextMenuItems() {
-    var tableRows = $('.table tbody tr');
+    var tableRows = $('.table tbody tr:visible');
     var tableRowsActive = $('.table tr.table-active');
     if (tableRowsActive.length == 1) {
         //only one row selected
