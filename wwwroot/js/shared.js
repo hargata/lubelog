@@ -468,7 +468,7 @@ function moveRecords(ids, source, dest) {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
                 if (data) {
-                    successToast(`${ids.length} Records Moved`);
+                    successToast(`${ids.length} Record(s) Moved`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
@@ -537,7 +537,7 @@ function deleteRecords(ids, source) {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
                 if (data) {
-                    successToast(`${ids.length} Records Deleted`);
+                    successToast(`${ids.length} Record(s) Deleted`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
@@ -606,7 +606,7 @@ function duplicateRecords(ids, source) {
         if (result.isConfirmed) {
             $.post('/Vehicle/DuplicateRecords', { recordIds: ids, importMode: source }, function (data) {
                 if (data) {
-                    successToast(`${ids.length} Records Duplicated`);
+                    successToast(`${ids.length} Record(s) Duplicated`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
@@ -810,4 +810,7 @@ function detectRowTouchEndPremature(sender) {
         clearTimeout(rowTouchTimer);
         rowTouchTimer = null;
     }
+}
+function editMultipleRecords(ids) {
+
 }
