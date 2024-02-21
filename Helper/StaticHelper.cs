@@ -130,7 +130,8 @@ namespace CarCareTracker.Helper
                 Files = input.Files,
                 Notes = input.Notes,
                 Tags = input.Tags,
-                ExtraFields = input.ExtraFields
+                ExtraFields = input.ExtraFields,
+                RequisitionHistory = input.RequisitionHistory
             };
         }
         public static CollisionRecord GenericToRepairRecord(GenericRecord input)
@@ -145,7 +146,8 @@ namespace CarCareTracker.Helper
                 Files = input.Files,
                 Notes = input.Notes,
                 Tags = input.Tags,
-                ExtraFields = input.ExtraFields
+                ExtraFields = input.ExtraFields,
+                RequisitionHistory = input.RequisitionHistory
             };
         }
         public static UpgradeRecord GenericToUpgradeRecord(GenericRecord input)
@@ -160,7 +162,8 @@ namespace CarCareTracker.Helper
                 Files = input.Files,
                 Notes = input.Notes,
                 Tags = input.Tags,
-                ExtraFields = input.ExtraFields
+                ExtraFields = input.ExtraFields,
+                RequisitionHistory = input.RequisitionHistory
             };
         }
 

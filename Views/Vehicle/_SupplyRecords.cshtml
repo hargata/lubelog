@@ -70,7 +70,7 @@
             <tbody>
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditSupplyRecordModal(@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                         <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@supplyRecord.PartNumber</td>
                         <td class="col-2">@supplyRecord.PartSupplier</td>
@@ -92,3 +92,11 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>

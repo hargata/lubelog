@@ -423,3 +423,394 @@ function toggleSupplyUsageHistory() {
         container.addClass("d-none");
     }
 }
+function moveRecords(ids, source, dest) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var friendlyDest = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+    }
+    switch (dest) {
+        case "ServiceRecord":
+            friendlyDest = "Service Records";
+            break;
+        case "RepairRecord":
+            friendlyDest = "Repairs";
+            break;
+        case "UpgradeRecord":
+            friendlyDest = "Upgrades";
+            break;
+    }
+
+    Swal.fire({
+        title: "Confirm Move?",
+        text: `Move ${recordVerbiage} from ${friendlySource} to ${friendlyDest}?`,
+        showCancelButton: true,
+        confirmButtonText: "Move",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
+                if (data) {
+                    successToast(`${ids.length} Record(s) Moved`);
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+function deleteRecords(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "TaxRecord":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            break;
+        case "SupplyRecord":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            break;
+        case "NoteRecord":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "ReminderRecord":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    Swal.fire({
+        title: "Confirm Delete?",
+        text: `Delete ${recordVerbiage} from ${friendlySource}?`,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
+                if (data) {
+                    successToast(`${ids.length} Record(s) Deleted`);
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+function duplicateRecords(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "TaxRecord":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            break;
+        case "SupplyRecord":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            break;
+        case "NoteRecord":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "ReminderRecord":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    Swal.fire({
+        title: "Confirm Duplicate?",
+        text: `Duplicate ${recordVerbiage}?`,
+        showCancelButton: true,
+        confirmButtonText: "Duplicate",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DuplicateRecords', { recordIds: ids, importMode: source }, function (data) {
+                if (data) {
+                    successToast(`${ids.length} Record(s) Duplicated`);
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+var selectedRow = [];
+var isDragging = false;
+$(window).on('mouseup', function (e) {
+    rangeMouseUp(e);
+});
+$(window).on('mousedown', function (e) {
+    rangeMouseDown(e);
+});
+$(window).on('keydown', function (e) {
+    var userOnInput = $(e.target).is("input") || $(e.target).is("textarea");
+    if (!userOnInput) {
+        if (e.ctrlKey && e.which == 65) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectAllRows();
+        }
+    }
+})
+function selectAllRows() {
+    clearSelectedRows();
+    $('.vehicleDetailTabContainer .table tbody tr:visible').addClass('table-active');
+    $('.vehicleDetailTabContainer .table tbody tr:visible').map((index, elem) => {
+        addToSelectedRows($(elem).attr('data-rowId'));
+    });
+}
+function rangeMouseDown(e) {
+    if (isRightClick(e)) {
+        return;
+    }
+    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item")
+    if (!e.ctrlKey && !contextMenuAction) {
+        clearSelectedRows();
+    }
+    isDragging = true;
+
+    document.documentElement.onselectstart = function () { return false; };
+}
+function isRightClick(e) {
+    if (e.which) {
+        return (e.which == 3);
+    } else if (e.button) {
+        return (e.button == 2);
+    }
+    return false;
+}
+function rangeMouseUp(e) {
+    if ($(".table-context-menu").length > 0) {
+        $(".table-context-menu").hide();
+    }
+    if (isRightClick(e)) {
+        return;
+    }
+    isDragging = false;
+    document.documentElement.onselectstart = function () { return true; };
+}
+function rangeMouseMove(e) {
+    if (isDragging) {
+        if (!$(e).hasClass('table-active')) {
+            addToSelectedRows($(e).attr('data-rowId'));
+            $(e).addClass('table-active');
+        }
+    }
+}
+function addToSelectedRows(id) {
+    if (selectedRow.findIndex(x => x == id) == -1) {
+        selectedRow.push(id);
+    }
+}
+function removeFromSelectedRows(id) {
+    var rowIndex = selectedRow.findIndex(x => x == id)
+    if (rowIndex != -1) {
+        selectedRow.splice(rowIndex, 1);
+    }
+}
+function clearSelectedRows() {
+    selectedRow = [];
+    $('.table tr').removeClass('table-active');
+}
+function getDeviceIsTouchOnly() {
+    if (navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function showTableContextMenu(e) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    if (getDeviceIsTouchOnly()) {
+        return;
+    }
+    $(".table-context-menu").show();
+    determineContextMenuItems();
+    $(".table-context-menu").css({
+        position: "absolute",
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
+    if (!$(e).hasClass('table-active')) {
+        clearSelectedRows();
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+    }
+}
+function determineContextMenuItems() {
+    var tableRows = $('.table tbody tr:visible');
+    var tableRowsActive = $('.table tr.table-active');
+    if (tableRowsActive.length == 1) {
+        //only one row selected
+        $(".context-menu-active-single").show();
+        $(".context-menu-active-multiple").hide();
+    } else if (tableRowsActive.length > 1) {
+        //multiple rows selected
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").show();
+    } else {
+        //nothing was selected, bug case.
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").hide();
+    }
+    if (tableRows.length > 1) {
+        $(".context-menu-multiple").show();
+        if (tableRows.length == tableRowsActive.length) {
+            //all rows are selected, show deselect all button.
+            $(".context-menu-deselect-all").show();
+            $(".context-menu-select-all").hide();
+        } else if (tableRows.length != tableRowsActive.length) {
+            //not all rows are selected, show select all button.
+            $(".context-menu-select-all").show();
+            $(".context-menu-deselect-all").hide();
+        }
+    } else {
+        $(".context-menu-multiple").hide();
+    }
+}
+function getMenuPosition(mouse, direction, scrollDir) {
+    var win = $(window)[direction](),
+        scroll = $(window)[scrollDir](),
+        menu = $(".table-context-menu")[direction](),
+        position = mouse + scroll;
+
+    // opening menu would pass the side of the page
+    if (mouse + menu > win && menu < mouse)
+        position -= menu;
+    return position;
+}
+function handleTableRowClick(e, callBack, rowId) {
+    if (!event.ctrlKey) {
+        callBack(rowId);
+    } else if (!$(e).hasClass('table-active')) {
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+    } else if ($(e).hasClass('table-active')) {
+        removeFromSelectedRows($(e).attr('data-rowId'));
+        $(e).removeClass('table-active');
+    }
+}
+
+function showTableContextMenuForMobile(e, xPosition, yPosition) {
+    if (!$(e).hasClass('table-active')) {
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+        shakeTableRow(e);
+    } else {
+        $(".table-context-menu").show();
+        determineContextMenuItems();
+        $(".table-context-menu").css({
+            position: "absolute",
+            left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
+            top: getMenuPosition(yPosition, 'height', 'scrollTop')
+        });
+    }
+}
+function shakeTableRow(e) {
+    $(e).addClass('tablerow-shake');
+    setTimeout(function () { $(e).removeClass('tablerow-shake'); }, 1200)
+}
+var rowTouchTimer;
+var rowTouchDuration = 800;
+function detectRowLongTouch(sender) {
+    var touchX = event.touches[0].clientX;
+    var touchY = event.touches[0].clientY;
+    if (!rowTouchTimer) {
+        rowTouchTimer = setTimeout(function () { showTableContextMenuForMobile(sender, touchX, touchY); detectRowTouchEndPremature(sender); }, rowTouchDuration);
+    }
+}
+function detectRowTouchEndPremature(sender) {
+    if (rowTouchTimer) {
+        clearTimeout(rowTouchTimer);
+        rowTouchTimer = null;
+    }
+}
+function editMultipleRecords(ids) {
+
+}

@@ -45,7 +45,7 @@
             <tbody>
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditReminderRecordModal(@reminderRecord.Id)">
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)">
                         @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                         {
                             <td class="col-1"><span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span></td>
@@ -100,3 +100,11 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>

@@ -26,6 +26,14 @@
                     <input type="number" inputmode="numeric" id="upgradeRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when upgraded/modded")" value="@(isNew ? "" : Model.Mileage)">
                     <label for="upgradeRecordDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="upgradeRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) upgraded/modded")" value="@Model.Description">
+                    @if (isNew)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <a onclick="showRecurringReminderSelector('upgradeRecordDescription')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
+                            </div>
+                        </div>
+                    }
                     <label for="upgradeRecordCost">@translator.Translate(userLanguage,"Cost")</label>
                     <input type="text" inputmode="decimal" id="upgradeRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the upgrade/mods")" value="@(isNew ? "" : Model.Cost)">
                     @if (isNew)
@@ -113,6 +121,7 @@
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
+    var recurringReminderRecordId = 0;
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)

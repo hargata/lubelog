@@ -68,7 +68,7 @@
             <tbody>
                 @foreach (ServiceRecord serviceRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditServiceRecordModal(@serviceRecord.Id)" data-tags='@string.Join(" ",serviceRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@serviceRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditServiceRecordModal,@serviceRecord.Id)" data-tags='@string.Join(" ", serviceRecord.Tags)'>
                         <td class="col-2 col-xl-1">@serviceRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@serviceRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@serviceRecord.Description</td>
@@ -89,3 +89,15 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Move To")</h6></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'ServiceRecord', 'RepairRecord')">@translator.Translate(userLanguage, "Repairs")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'ServiceRecord', 'UpgradeRecord')">@translator.Translate(userLanguage, "Upgrades")</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>

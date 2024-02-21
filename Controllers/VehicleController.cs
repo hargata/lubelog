@@ -165,18 +165,21 @@ namespace CarCareTracker.Controllers
                     var sourceCollaborators = _userLogic.GetCollaboratorsForVehicle(sourceVehicleId).Select(x => x.UserVehicle.UserId).ToList();
                     var destCollaborators = _userLogic.GetCollaboratorsForVehicle(destVehicleId).Select(x => x.UserVehicle.UserId).ToList();
                     sourceCollaborators.RemoveAll(x => destCollaborators.Contains(x));
-                    if (sourceCollaborators.Any()) {
+                    if (sourceCollaborators.Any())
+                    {
                         foreach (int collaboratorId in sourceCollaborators)
                         {
                             _userLogic.AddUserAccessToVehicle(collaboratorId, destVehicleId);
                         }
-                    } else
+                    }
+                    else
                     {
                         return Json(new OperationResponse { Success = false, Message = "Both vehicles already have identical collaborators" });
                     }
                 }
-                return Json(new OperationResponse { Success = true, Message = "Collaborators Copied"});
-            } catch (Exception ex)
+                return Json(new OperationResponse { Success = true, Message = "Collaborators Copied" });
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
@@ -744,6 +747,11 @@ namespace CarCareTracker.Controllers
             {
                 serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
             }
+            //push back any reminders
+            if (serviceRecord.ReminderRecordId != default)
+            {
+                PushbackRecurringReminderRecordWithChecks(serviceRecord.ReminderRecordId);
+            }
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             return Json(result);
         }
@@ -816,7 +824,12 @@ namespace CarCareTracker.Controllers
             {
                 collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
             }
-            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());        
+            //push back any reminders
+            if (collisionRecord.ReminderRecordId != default)
+            {
+                PushbackRecurringReminderRecordWithChecks(collisionRecord.ReminderRecordId);
+            }
+            var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             return Json(result);
         }
         [HttpGet]
@@ -875,17 +888,19 @@ namespace CarCareTracker.Controllers
             var recurringFees = result.Where(x => x.IsRecurring);
             if (recurringFees.Any())
             {
-                foreach(TaxRecord recurringFee in recurringFees)
+                foreach (TaxRecord recurringFee in recurringFees)
                 {
                     var newDate = new DateTime();
                     if (recurringFee.RecurringInterval != ReminderMonthInterval.Other)
                     {
                         newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
-                    } else
+                    }
+                    else
                     {
                         newDate = recurringFee.Date.AddMonths(recurringFee.CustomMonthInterval);
                     }
-                    if (DateTime.Now > newDate){
+                    if (DateTime.Now > newDate)
+                    {
                         recurringFee.IsRecurring = false;
                         var newRecurringFee = new TaxRecord()
                         {
@@ -912,6 +927,11 @@ namespace CarCareTracker.Controllers
         {
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            //push back any reminders
+            if (taxRecord.ReminderRecordId != default)
+            {
+                PushbackRecurringReminderRecordWithChecks(taxRecord.ReminderRecordId);
+            }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
             return Json(result);
         }
@@ -983,7 +1003,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = x.Any(y=>y.MinMileage != default) ? x.Max(y=>y.MaxMileage) - x.Where(y=>y.MinMileage != default).Min(y=>y.MinMileage) : 0
+                DistanceTraveled = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0
             }).ToList();
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
@@ -1035,7 +1055,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y=>y.Cost)
+                Cost = x.Sum(y => y.Cost)
             }).ToList();
             viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
             return PartialView("_Report", viewModel);
@@ -1106,8 +1126,9 @@ namespace CarCareTracker.Controllers
         public IActionResult GetVehicleAttachments(int vehicleId, List<ImportMode> exportTabs)
         {
             List<GenericReportModel> attachmentData = new List<GenericReportModel>();
-            if (exportTabs.Contains(ImportMode.ServiceRecord)){
-                var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x=>x.Files.Any());
+            if (exportTabs.Contains(ImportMode.ServiceRecord))
+            {
+                var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     Date = x.Date,
@@ -1174,7 +1195,8 @@ namespace CarCareTracker.Controllers
                     return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
                 }
                 return Json(new OperationResponse { Success = true, Message = result });
-            } else
+            }
+            else
             {
                 return Json(new OperationResponse { Success = false, Message = "No Attachments Found" });
             }
@@ -1406,14 +1428,47 @@ namespace CarCareTracker.Controllers
             result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }
+        [HttpGet]
+        public IActionResult GetRecurringReminderRecordsByVehicleId(int vehicleId)
+        {
+            var result = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+            result.RemoveAll(x => !x.IsRecurring);
+            return PartialView("_RecurringReminderSelector", result);
+        }
         [HttpPost]
         public IActionResult PushbackRecurringReminderRecord(int reminderRecordId)
         {
-            var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
-            existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
-            //save to db.
-            var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+            var result = PushbackRecurringReminderRecordWithChecks(reminderRecordId);
             return Json(result);
+        }
+        private bool PushbackRecurringReminderRecordWithChecks(int reminderRecordId)
+        {
+            try
+            {
+                var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+                if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
+                {
+                    existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+                    //save to db.
+                    var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+                    if (!reminderUpdateResult)
+                    {
+                        _logger.LogError("Unable to update reminder either because the reminder no longer exists or is no longer recurring");
+                        return false;
+                    }
+                    return true;
+                }
+                else
+                {
+                    _logger.LogError("Unable to update reminder because it no longer exists.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
         }
         [HttpPost]
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
@@ -1498,6 +1553,11 @@ namespace CarCareTracker.Controllers
             {
                 upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
             }
+            //push back any reminders
+            if (upgradeRecord.ReminderRecordId != default)
+            {
+                PushbackRecurringReminderRecordWithChecks(upgradeRecord.ReminderRecordId);
+            }
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             return Json(result);
         }
@@ -1548,7 +1608,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPinnedNotesByVehicleId(int vehicleId)
         {
             var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
-            result = result.Where(x=>x.Pinned).ToList();
+            result = result.Where(x => x.Pinned).ToList();
             return Json(result);
         }
         [HttpPost]
@@ -1598,11 +1658,11 @@ namespace CarCareTracker.Controllers
         private List<SupplyUsageHistory> RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage, DateTime dateRequisitioned, string usageDescription)
         {
             List<SupplyUsageHistory> results = new List<SupplyUsageHistory>();
-            foreach(SupplyUsage supply in supplyUsage)
+            foreach (SupplyUsage supply in supplyUsage)
             {
                 //get supply record.
                 var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
-                var unitCost = (result.Quantity != 0 ) ? result.Cost / result.Quantity : 0;
+                var unitCost = (result.Quantity != 0) ? result.Cost / result.Quantity : 0;
                 //deduct quantity used.
                 result.Quantity -= supply.Quantity;
                 //deduct cost.
@@ -1741,10 +1801,10 @@ namespace CarCareTracker.Controllers
         public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
         {
             //check if template name already taken.
-            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x=>x.Description == planRecord.Description).Any();
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
             if (existingRecord)
             {
-                return Json(new OperationResponse {  Success = false, Message = "A template with that description already exists for this vehicle"});
+                return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
@@ -1797,7 +1857,7 @@ namespace CarCareTracker.Controllers
             {
                 existingRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(existingRecord.Supplies, DateTime.Parse(existingRecord.DateCreated), existingRecord.Description);
             }
-            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());    
+            var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
             return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
         }
         [HttpGet]
@@ -1887,20 +1947,7 @@ namespace CarCareTracker.Controllers
                 //push back any reminders
                 if (existingRecord.ReminderRecordId != default)
                 {
-                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
-                    if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
-                    {
-                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
-                        //save to db.
-                        var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
-                        if (!reminderUpdateResult)
-                        {
-                            _logger.LogError("Unable to update reminder either because the reminder no longer exists or is no longer recurring");
-                        }
-                    } else
-                    {
-                        _logger.LogError("Unable to update reminder because it no longer exists.");
-                    }
+                    PushbackRecurringReminderRecordWithChecks(existingRecord.ReminderRecordId);
                 }
             }
             return Json(result);
@@ -2035,6 +2082,169 @@ namespace CarCareTracker.Controllers
                         break;
                     case ImportMode.UpgradeRecord:
                         _upgradeRecordDataAccess.DeleteUpgradeRecordById(recordId);
+                        break;
+                }
+            }
+            return Json(result);
+        }
+        public IActionResult MoveRecords(List<int> recordIds, ImportMode source, ImportMode destination)
+        {
+            var genericRecord = new GenericRecord();
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                //get
+                switch (source)
+                {
+                    case ImportMode.ServiceRecord:
+                        genericRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                        break;
+                    case ImportMode.RepairRecord:
+                        genericRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        genericRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                        break;
+                }
+                //save
+                switch (destination)
+                {
+                    case ImportMode.ServiceRecord:
+                        result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(StaticHelper.GenericToServiceRecord(genericRecord));
+                        break;
+                    case ImportMode.RepairRecord:
+                        result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(StaticHelper.GenericToRepairRecord(genericRecord));
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(StaticHelper.GenericToUpgradeRecord(genericRecord));
+                        break;
+                }
+                //delete
+                if (result)
+                {
+                    switch (source)
+                    {
+                        case ImportMode.ServiceRecord:
+                            _serviceRecordDataAccess.DeleteServiceRecordById(recordId);
+                            break;
+                        case ImportMode.RepairRecord:
+                            _collisionRecordDataAccess.DeleteCollisionRecordById(recordId);
+                            break;
+                        case ImportMode.UpgradeRecord:
+                            _upgradeRecordDataAccess.DeleteUpgradeRecordById(recordId);
+                            break;
+                    }
+                }
+            }
+            return Json(result);
+        }
+        public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        result = _serviceRecordDataAccess.DeleteServiceRecordById(recordId);
+                        break;
+                    case ImportMode.RepairRecord:
+                        result = _collisionRecordDataAccess.DeleteCollisionRecordById(recordId);
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(recordId);
+                        break;
+                    case ImportMode.GasRecord:
+                        result = _gasRecordDataAccess.DeleteGasRecordById(recordId);
+                        break;
+                    case ImportMode.TaxRecord:
+                        result = _taxRecordDataAccess.DeleteTaxRecordById(recordId);
+                        break;
+                    case ImportMode.SupplyRecord:
+                        result = _supplyRecordDataAccess.DeleteSupplyRecordById(recordId);
+                        break;
+                    case ImportMode.NoteRecord:
+                        result = _noteDataAccess.DeleteNoteById(recordId);
+                        break;
+                    case ImportMode.OdometerRecord:
+                        result = _odometerRecordDataAccess.DeleteOdometerRecordById(recordId);
+                        break;
+                    case ImportMode.ReminderRecord:
+                        result = _reminderRecordDataAccess.DeleteReminderRecordById(recordId);
+                        break;
+                }
+            }
+            return Json(result);
+        }
+        public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.TaxRecord:
+                        {
+                            var existingRecord = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.SupplyRecord:
+                        {
+                            var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.NoteRecord:
+                        {
+                            var existingRecord = _noteDataAccess.GetNoteById(recordId);
+                            existingRecord.Id = default;
+                            result = _noteDataAccess.SaveNoteToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.ReminderRecord:
+                        {
+                            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
+                        }
                         break;
                 }
             }

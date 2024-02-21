@@ -241,7 +241,7 @@ function deleteVehicle(vehicleId) {
 }
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
-        $.post('/Vehicle/GetAddReminderRecordPartialView', {reminderModel: reminderModalInput}, function (data) {
+        $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
             $("#reminderRecordModal").modal("show");
@@ -313,7 +313,7 @@ function moveRecord(recordId, source, dest) {
         confirmButtonColor: "#dc3545"
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('/Vehicle/MoveRecord', {recordId: recordId, source: source, destination: dest }, function (data) {
+            $.post('/Vehicle/MoveRecord', { recordId: recordId, source: source, destination: dest }, function (data) {
                 if (data) {
                     hideModalCallBack();
                     successToast("Record Moved");
@@ -327,4 +327,35 @@ function moveRecord(recordId, source, dest) {
             $("#workAroundInput").hide();
         }
     });
+}
+function showRecurringReminderSelector(descriptionFieldName) {
+    $.get(`/Vehicle/GetRecurringReminderRecordsByVehicleId?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (data) {
+            //prompt user to select a recurring reminder
+            Swal.fire({
+                title: 'Select Recurring Reminder',
+                html: data,
+                confirmButtonText: 'Select',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const selectedRecurringReminder = $("#recurringReminderInput").val();
+                    const selectedRecurringReminderText = $("#recurringReminderInput option:selected").text();
+                    if (!selectedRecurringReminder || parseInt(selectedRecurringReminder) == 0) {
+                        Swal.showValidationMessage(`You must select a recurring reminder`);
+                    }
+                    return { selectedRecurringReminder, selectedRecurringReminderText }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    recurringReminderRecordId = result.value.selectedRecurringReminder;
+                    var descriptionField = $(`#${descriptionFieldName}`);
+                    if (descriptionField.length > 0) {
+                        descriptionField.val(result.value.selectedRecurringReminderText.trim());
+                    }
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
 }

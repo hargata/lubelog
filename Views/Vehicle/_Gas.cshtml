@@ -112,7 +112,7 @@
             <tbody>
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" onclick="showEditGasRecordModal(@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
                         <td class="col-1">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
@@ -135,6 +135,14 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+</ul>
 
 <script>
     @if (!string.IsNullOrWhiteSpace(preferredFuelEconomyUnit))

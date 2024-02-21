@@ -130,6 +130,7 @@ function getAndValidateCollisionRecordValues() {
         tags: collisionTags,
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
-        requisitionHistory: supplyUsageHistory
+        requisitionHistory: supplyUsageHistory,
+        reminderRecordId: recurringReminderRecordId
     }
 }
