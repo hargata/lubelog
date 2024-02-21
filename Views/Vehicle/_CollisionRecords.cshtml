@@ -68,7 +68,7 @@
             <tbody>
                 @foreach (CollisionRecord collisionRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@collisionRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditCollisionRecordModal,@collisionRecord.Id)" data-tags='@string.Join(" ", collisionRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@collisionRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditCollisionRecordModal,@collisionRecord.Id)" data-tags='@string.Join(" ", collisionRecord.Tags)'>
                         <td class="col-2 col-xl-1">@collisionRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@collisionRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@collisionRecord.Description</td>

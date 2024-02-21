@@ -112,7 +112,7 @@
             <tbody>
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
                         <td class="col-2">@gasRecord.Date</td>
                         <td class="col-2" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
                         <td class="col-1">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>

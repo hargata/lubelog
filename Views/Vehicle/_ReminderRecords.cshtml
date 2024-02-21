@@ -45,7 +45,7 @@
             <tbody>
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
-                    <tr class="d-flex" style="cursor:pointer;" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)">
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)">
                         @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                         {
                             <td class="col-1"><span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span></td>

@@ -241,7 +241,7 @@ function deleteVehicle(vehicleId) {
 }
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
-        $.post('/Vehicle/GetAddReminderRecordPartialView', {reminderModel: reminderModalInput}, function (data) {
+        $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
             $("#reminderRecordModal").modal("show");
@@ -313,7 +313,7 @@ function moveRecord(recordId, source, dest) {
         confirmButtonColor: "#dc3545"
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('/Vehicle/MoveRecord', {recordId: recordId, source: source, destination: dest }, function (data) {
+            $.post('/Vehicle/MoveRecord', { recordId: recordId, source: source, destination: dest }, function (data) {
                 if (data) {
                     hideModalCallBack();
                     successToast("Record Moved");
@@ -464,14 +464,17 @@ $(window).on('keydown', function (e) {
         if (e.ctrlKey && e.which == 65) {
             e.preventDefault();
             e.stopPropagation();
-            clearSelectedRows();
-            $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
-            $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
-                addToSelectedRows($(elem).attr('data-rowId'));
-            });
+            selectAllRows();
         }
     }
 })
+function selectAllRows() {
+    clearSelectedRows();
+    $('.vehicleDetailTabContainer .table tbody tr').addClass('table-active');
+    $('.vehicleDetailTabContainer .table tbody tr').map((index, elem) => {
+        addToSelectedRows($(elem).attr('data-rowId'));
+    });
+}
 function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
@@ -511,7 +514,7 @@ function rangeMouseMove(e) {
     }
 }
 function addToSelectedRows(id) {
-    if (selectedRow.findIndex(x=> x == id) == -1) {
+    if (selectedRow.findIndex(x => x == id) == -1) {
         selectedRow.push(id);
     }
 }
@@ -530,6 +533,7 @@ function showTableContextMenu(e) {
         event.preventDefault();
     }
     $(".table-context-menu").show();
+    determineContextMenuItems();
     $(".table-context-menu").css({
         position: "absolute",
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
@@ -539,6 +543,37 @@ function showTableContextMenu(e) {
         clearSelectedRows();
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
+    }
+}
+function determineContextMenuItems() {
+    var tableRows = $('.table tbody tr');
+    var tableRowsActive = $('.table tr.table-active');
+    if (tableRowsActive.length == 1) {
+        //only one row selected
+        $(".context-menu-active-single").show();
+        $(".context-menu-active-multiple").hide();
+    } else if (tableRowsActive.length > 1) {
+        //multiple rows selected
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").show();
+    } else {
+        //nothing was selected, bug case.
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").hide();
+    }
+    if (tableRows.length > 1) {
+        $(".context-menu-multiple").show();
+        if (tableRows.length == tableRowsActive.length) {
+            //all rows are selected, show deselect all button.
+            $(".context-menu-deselect-all").show();
+            $(".context-menu-select-all").hide();
+        } else if (tableRows.length != tableRowsActive.length) {
+            //not all rows are selected, show select all button.
+            $(".context-menu-select-all").show();
+            $(".context-menu-deselect-all").hide();
+        }
+    } else {
+        $(".context-menu-multiple").hide();
     }
 }
 function getMenuPosition(mouse, direction, scrollDir) {
@@ -558,7 +593,7 @@ function handleTableRowClick(e, callBack, rowId) {
     } else if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
-    } else if ($(e).hasClass('table-active')){
+    } else if ($(e).hasClass('table-active')) {
         removeFromSelectedRows($(e).attr('data-rowId'));
         $(e).removeClass('table-active');
     }
@@ -593,4 +628,38 @@ function showRecurringReminderSelector(descriptionFieldName) {
             errorToast(genericErrorMessage());
         }
     })
+}
+function showTableContextMenuForMobile(e, xPosition, yPosition) {
+    if (!$(e).hasClass('table-active')) {
+        addToSelectedRows($(e).attr('data-rowId'));
+        $(e).addClass('table-active');
+        shakeTableRow(e);
+    } else {
+        $(".table-context-menu").show();
+        determineContextMenuItems();
+        $(".table-context-menu").css({
+            position: "absolute",
+            left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
+            top: getMenuPosition(yPosition, 'height', 'scrollTop')
+        });
+    }
+}
+function shakeTableRow(e) {
+    $(e).addClass('tablerow-shake');
+    setTimeout(function () { $(e).removeClass('tablerow-shake'); }, 1200)
+}
+var rowTouchTimer;
+var rowTouchDuration = 800;
+function detectRowLongTouch(sender) {
+    var touchX = event.touches[0].clientX;
+    var touchY = event.touches[0].clientY;
+    if (!rowTouchTimer) {
+        rowTouchTimer = setTimeout(function () { showTableContextMenuForMobile(sender, touchX, touchY); detectRowTouchEndPremature(sender); }, rowTouchDuration);
+    }
+}
+function detectRowTouchEndPremature(sender) {
+    if (rowTouchTimer) {
+        clearTimeout(rowTouchTimer);
+        rowTouchTimer = null;
+    }
 }
