@@ -336,7 +336,7 @@ function moveRecords(ids, source, dest) {
     var friendlySource = "";
     var friendlyDest = "";
     var refreshDataCallBack;
-    var recordVerbiage = selectedRow.length > 1 ? "these records" : "this record";
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
     switch (source) {
         case "ServiceRecord":
             friendlySource = "Service Records";
@@ -373,7 +373,7 @@ function moveRecords(ids, source, dest) {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
                 if (data) {
-                    successToast("Records Moved");
+                    successToast(`${ids.length} Records Moved`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
@@ -392,7 +392,7 @@ function deleteRecords(ids, source) {
     $("#workAroundInput").show();
     var friendlySource = "";
     var refreshDataCallBack;
-    var recordVerbiage = selectedRow.length > 1 ? "these records" : "this record";
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
     switch (source) {
         case "ServiceRecord":
             friendlySource = "Service Records";
@@ -438,7 +438,7 @@ function deleteRecords(ids, source) {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
                 if (data) {
-                    successToast("Records Deleted");
+                    successToast(`${ids.length} Records Deleted`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
