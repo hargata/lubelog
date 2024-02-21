@@ -1463,7 +1463,8 @@ namespace CarCareTracker.Controllers
                     _logger.LogError("Unable to update reminder because it no longer exists.");
                     return false;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return false;
@@ -2139,7 +2140,6 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
         {
-            var genericRecord = new GenericRecord();
             bool result = false;
             foreach (int recordId in recordIds)
             {
@@ -2171,6 +2171,80 @@ namespace CarCareTracker.Controllers
                         break;
                     case ImportMode.ReminderRecord:
                         result = _reminderRecordDataAccess.DeleteReminderRecordById(recordId);
+                        break;
+                }
+            }
+            return Json(result);
+        }
+        public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.TaxRecord:
+                        {
+                            var existingRecord = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.SupplyRecord:
+                        {
+                            var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.NoteRecord:
+                        {
+                            var existingRecord = _noteDataAccess.GetNoteById(recordId);
+                            existingRecord.Id = default;
+                            result = _noteDataAccess.SaveNoteToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.ReminderRecord:
+                        {
+                            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(recordId);
+                            existingRecord.Id = default;
+                            result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
+                        }
                         break;
                 }
             }
