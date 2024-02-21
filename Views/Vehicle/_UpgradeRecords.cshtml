@@ -89,6 +89,9 @@
 </div>
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Move To")</h6></li>
     <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'UpgradeRecord', 'ServiceRecord')">@translator.Translate(userLanguage, "Service Records")</a></li>
     <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'UpgradeRecord', 'RepairRecord')">@translator.Translate(userLanguage, "Repairs")</a></li>
