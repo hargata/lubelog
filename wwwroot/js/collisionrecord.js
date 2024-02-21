@@ -131,6 +131,6 @@ function getAndValidateCollisionRecordValues() {
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
-        recurringReminderId: recurringReminderRecordId
+        reminderRecordId: recurringReminderRecordId
     }
 }

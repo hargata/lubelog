@@ -162,6 +162,7 @@ function getAndValidateTaxRecordValues() {
         tags: taxTags,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        reminderRecordId: recurringReminderRecordId
     }
 }
