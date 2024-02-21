@@ -130,6 +130,7 @@ function getAndValidateUpgradeRecordValues() {
         tags: upgradeTags,
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
-        requisitionHistory: supplyUsageHistory
+        requisitionHistory: supplyUsageHistory,
+        recurringReminderId: recurringReminderRecordId
     }
 }

@@ -1,0 +1,13 @@
+﻿@model List<ReminderRecord>
+<select class="form-select" id="recurringReminderInput">
+    @if (Model.Any())
+    {
+        @foreach (ReminderRecord reminderRecord in Model)
+        {
+            <!option value="@reminderRecord.Id">@reminderRecord.Description</!option>
+        }
+    } else
+    {
+        <!option value="0">No Recurring Reminders Found</!option>
+    }
+</select>

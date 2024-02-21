@@ -130,6 +130,7 @@ function getAndValidateServiceRecordValues() {
         tags: serviceTags,
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
-        requisitionHistory: supplyUsageHistory
+        requisitionHistory: supplyUsageHistory,
+        recurringReminderId: recurringReminderRecordId
     }
 }
