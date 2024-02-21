@@ -696,11 +696,18 @@ function clearSelectedRows() {
     selectedRow = [];
     $('.table tr').removeClass('table-active');
 }
+function getDeviceIsTouchOnly() {
+    if (navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function showTableContextMenu(e) {
     if (event != undefined) {
         event.preventDefault();
     }
-    if (navigator.maxTouchPoints > 0) {
+    if (getDeviceIsTouchOnly()) {
         return;
     }
     $(".table-context-menu").show();
