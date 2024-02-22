@@ -158,7 +158,7 @@ function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
 }
 function bindWindowResize() {
-    $(window).resize(function () {
+    $(window).on('resize', function () {
         hideMobileNav();
     });
 }

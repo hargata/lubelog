@@ -1,5 +1,4 @@
-﻿using CarCareTracker.Models;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 
 namespace CarCareTracker.Helper

@@ -24,11 +24,11 @@
         @if(config.GetServerEnableShopSupplies())
         {
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>
+                <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</span></button>
             </li>
         }
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</button>
+            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</span></button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>

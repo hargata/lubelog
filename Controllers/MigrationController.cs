@@ -1,13 +1,10 @@
-﻿using CarCareTracker.External.Implementations;
-using CarCareTracker.Helper;
+﻿using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Data.Common;
 using System.IO.Compression;
-using System.Xml.Linq;
 
 namespace CarCareTracker.Controllers
 {
