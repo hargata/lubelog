@@ -355,3 +355,7 @@ input[type="file"] {
 .reminder-calendar-item{
     cursor: pointer;
 }
+.zero-y-padding{
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}

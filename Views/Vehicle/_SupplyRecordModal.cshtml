@@ -31,7 +31,12 @@
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordQuantity">@translator.Translate(userLanguage,"Quantity")</label>
-                            <input type="text" inputmode="decimal" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "1" : Model.Quantity)">
+                            <div class="input-group">
+                                <input type="text" inputmode="decimal" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "1" : Model.Quantity)">
+                                <div class="input-group-text">
+                                    <button type="button" class="btn btn-sm zero-y-padding btn-primary" onclick="replenishSupplies()">+</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordCost">@translator.Translate(userLanguage,"Cost")</label>

@@ -891,3 +891,52 @@ function getAndValidateGenericRecordValues() {
         }
     }
 }
+
+function replenishSupplies() {
+    Swal.fire({
+        title: 'Replenish Supplies',
+        html: `
+                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
+                            <br />
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost">
+                            <br />
+                            <span class='small'>leave blank to use unit cost calculation</span>
+              `,
+        confirmButtonText: 'Replenish',
+        focusConfirm: false,
+        preConfirm: () => {
+            const replquantity = globalParseFloat($("#inputSupplyAddQuantity").val());
+            const replcost = $("#inputSupplyAddCost").val();
+            const parsedReplCost = globalParseFloat(replcost);
+            var quantitybeforeRepl = globalParseFloat($('#supplyRecordQuantity').val());
+            if (isNaN(replquantity) || (replcost.trim() != '' && isNaN(parsedReplCost))) {
+                Swal.showValidationMessage(`Please enter a valid quantity and cost`);
+            } else if (replcost.trim() == '' && (isNaN(quantitybeforeRepl) || quantitybeforeRepl == 0)){
+                Swal.showValidationMessage(`Unable to use unit cost calculation, please provide cost`);
+            }
+            return { replquantity, replcost, parsedReplCost }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var replenishedCost = result.value.replcost;
+            var parsedReplenishedCost = result.value.parsedReplCost;
+            var replenishedQuantity = result.value.replquantity;
+            var currentCost = globalParseFloat($('#supplyRecordCost').val())
+            var currentQuantity = globalParseFloat($('#supplyRecordQuantity').val());
+            var newQuantity = currentQuantity + replenishedQuantity;
+            if (replenishedCost.trim() == '') {
+
+                var unitCost = currentCost / currentQuantity;
+                var newCost = newQuantity * unitCost;
+                //set text fields.
+                $('#supplyRecordCost').val(globalFloatToString(newCost.toFixed(3).toString()));
+                $('#supplyRecordQuantity').val(globalFloatToString(newQuantity.toFixed(3).toString()));
+            } else {
+                var newCost = currentCost + parsedReplenishedCost;
+                //set text fields.
+                $('#supplyRecordCost').val(globalFloatToString(newCost.toFixed(3).toString()));
+                $('#supplyRecordQuantity').val(globalFloatToString(newQuantity.toFixed(3).toString()));
+            }
+        }
+    });
+}
