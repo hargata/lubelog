@@ -2264,6 +2264,15 @@ namespace CarCareTracker.Controllers
             var costIsEdited = genericRecordEditModel.EditRecord.Cost != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(genericRecordEditModel.EditRecord.Notes);
             var tagsIsEdited = genericRecordEditModel.EditRecord.Tags.Any();
+            //handle clear overrides
+            if (tagsIsEdited && genericRecordEditModel.EditRecord.Tags.Contains("---"))
+            {
+                genericRecordEditModel.EditRecord.Tags = new List<string>();
+            }
+            if (noteIsEdited && genericRecordEditModel.EditRecord.Notes == "---")
+            {
+                genericRecordEditModel.EditRecord.Notes = "";
+            }
             bool result = false;
             foreach (int recordId in genericRecordEditModel.RecordIds)
             {
