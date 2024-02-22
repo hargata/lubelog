@@ -1,0 +1,55 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model GenericRecordEditModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Edit Multiple Records")</h5>
+    <button type="button" class="btn-close" onclick="hideGenericRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <label for="genericRecordDate">@translator.Translate(userLanguage,"Date")</label>
+                    <div class="input-group">
+                        <input type="text" id="genericRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="genericRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
+                    <input type="number" inputmode="numeric" id="genericRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="genericRecordDescription">@translator.Translate(userLanguage, "Description")</label>
+                    <input type="text" id="genericRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="genericRecordCost">@translator.Translate(userLanguage, "Cost")</label>
+                    <input type="text" inputmode="decimal" id="genericRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="genericRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                    <select multiple class="form-select" id="genericRecordTag"></select>
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="genericRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="genericRecordNotes" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideGenericRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" onclick="saveGenericRecord()">@translator.Translate(userLanguage,"Edit")</button>
+</div>
+<script>
+    var recordsToEdit = [];
+    @foreach(int recordId in Model.RecordIds)
+        {
+        @:recordsToEdit.push(@recordId);
+    }
+    function getGenericRecordEditModelData(){
+        return {
+            dataType: decodeHTMLEntities('@Model.DataType.ToString()')
+        }
+    }
+</script>
