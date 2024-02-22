@@ -1634,6 +1634,24 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(noteId);
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult PinNotes(List<int> noteIds, bool isToggle = false, bool pinStatus = false)
+        {
+            var result = false;
+            foreach(int noteId in noteIds)
+            {
+                var existingNote = _noteDataAccess.GetNoteById(noteId);
+                if (isToggle)
+                {
+                    existingNote.Pinned = !existingNote.Pinned;
+                } else 
+                {
+                    existingNote.Pinned = pinStatus;
+                }
+                result = _noteDataAccess.SaveNoteToVehicle(existingNote);
+            }
+            return Json(result);
+        }
         #endregion
         #region "Supply Records"
         private List<string> CheckSupplyRecordsAvailability(List<SupplyUsage> supplyUsage)

@@ -811,87 +811,6 @@ function detectRowTouchEndPremature(sender) {
         rowTouchTimer = null;
     }
 }
-function editMultipleRecords(ids, dataType) {
-    $.post('/Vehicle/GetGenericRecordModal', { recordIds: ids, dataType: dataType }, function (data) {
-        if (data) {
-            $("#genericRecordEditModalContent").html(data);
-            initDatePicker($('#genericRecordDate'));
-            initTagSelector($("#genericRecordTag"));
-            $("#genericRecordEditModal").modal('show');
-        }
-    });
-}
-function hideGenericRecordModal() {
-    $("#genericRecordEditModal").modal('hide');
-}
-function saveGenericRecord() {
-    //get values
-    var formValues = getAndValidateGenericRecordValues();
-    //validate
-    if (formValues.hasError) {
-        errorToast("Please check the form data");
-        return;
-    }
-    var refreshDataCallBack;
-    switch (formValues.dataType) {
-        case "ServiceRecord":
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-    }
-    //save to db.
-    $.post('/Vehicle/EditMultipleRecords', { genericRecordEditModel: formValues }, function (data) {
-        if (data) {
-            successToast(formValues.recordIds.length > 1 ? "Records Updated" : "Record Updated.");
-            hideGenericRecordModal();
-            refreshDataCallBack(GetVehicleId().vehicleId);
-        } else {
-            errorToast(genericErrorMessage());
-        }
-    })
-}
-function getAndValidateGenericRecordValues() {
-    var genericDate = $("#genericRecordDate").val();
-    var genericMileage = $("#genericRecordMileage").val();
-    var genericMileageToParse = parseInt(globalParseFloat($("#genericRecordMileage").val())).toString();
-    var genericDescription = $("#genericRecordDescription").val();
-    var genericCost = $("#genericRecordCost").val();
-    var genericNotes = $("#genericRecordNotes").val();
-    var genericTags = $("#genericRecordTag").val();
-    //validation
-    var hasError = false;
-    if (genericMileage.trim() != '' && (isNaN(genericMileageToParse) || parseInt(genericMileageToParse) < 0)) {
-        hasError = true;
-        $("#genericRecordMileage").addClass("is-invalid");
-    } else {
-        $("#genericRecordMileage").removeClass("is-invalid");
-    }
-    if (genericCost.trim() != '' && !isValidMoney(genericCost)) {
-        hasError = true;
-        $("#genericRecordCost").addClass("is-invalid");
-    } else {
-        $("#genericRecordCost").removeClass("is-invalid");
-    }
-    return {
-        hasError: hasError,
-        dataType: getGenericRecordEditModelData().dataType,
-        recordIds: recordsToEdit,
-        editRecord: {
-            date: genericDate,
-            mileage: genericMileageToParse,
-            description: genericDescription,
-            cost: genericCost,
-            notes: genericNotes,
-            tags: genericTags
-        }
-    }
-}
-
 function replenishSupplies() {
     Swal.fire({
         title: 'Replenish Supplies',
@@ -922,6 +841,9 @@ function replenishSupplies() {
             var parsedReplenishedCost = result.value.parsedReplCost;
             var replenishedQuantity = result.value.replquantity;
             var currentCost = globalParseFloat($('#supplyRecordCost').val())
+            if (isNaN(currentCost)) {
+                currentCost = 0;
+            }
             var currentQuantity = globalParseFloat($('#supplyRecordQuantity').val());
             var newQuantity = currentQuantity + replenishedQuantity;
             if (replenishedCost.trim() == '') {
