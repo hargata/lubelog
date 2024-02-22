@@ -3,8 +3,6 @@ using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Net.Mail;
 
 namespace CarCareTracker.Controllers
 {

@@ -2,8 +2,6 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net;
-using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;

@@ -1,7 +1,6 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
-using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace CarCareTracker.Logic
 {

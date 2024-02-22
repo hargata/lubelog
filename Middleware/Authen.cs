@@ -1,9 +1,7 @@
 ﻿using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
