@@ -101,3 +101,11 @@ function getAndValidateNoteValues() {
         tags: noteTags
     }
 }
+function pinNotes(ids, toggle, pinStatus) {
+    $.post('/Vehicle/PinNotes', { noteIds: ids, isToggle: toggle, pinStatus: pinStatus  }, function (data) {
+        if (data) {
+            successToast(ids.length > 1 ? `${ids.length} Notes Updated` : "Note Updated.");
+            getVehicleNotes(GetVehicleId().vehicleId);
+        }
+    })
+}
