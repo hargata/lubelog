@@ -2250,6 +2250,119 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult GetGenericRecordModal(List<int> recordIds, ImportMode dataType)
+        {
+            return PartialView("_GenericRecordModal", new GenericRecordEditModel() { DataType = dataType, RecordIds = recordIds });
+        }
+        [HttpPost]
+        public IActionResult EditMultipleRecords(GenericRecordEditModel genericRecordEditModel)
+        {
+            var dateIsEdited = genericRecordEditModel.EditRecord.Date != default;
+            var descriptionIsEdited = !string.IsNullOrWhiteSpace(genericRecordEditModel.EditRecord.Description);
+            var mileageIsEdited = genericRecordEditModel.EditRecord.Mileage != default;
+            var costIsEdited = genericRecordEditModel.EditRecord.Cost != default;
+            var noteIsEdited = !string.IsNullOrWhiteSpace(genericRecordEditModel.EditRecord.Notes);
+            var tagsIsEdited = genericRecordEditModel.EditRecord.Tags.Any();
+            bool result = false;
+            foreach (int recordId in genericRecordEditModel.RecordIds)
+            {
+                switch (genericRecordEditModel.DataType)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            if (dateIsEdited)
+                            {
+                                existingRecord.Date = genericRecordEditModel.EditRecord.Date;
+                            }
+                            if (descriptionIsEdited)
+                            {
+                                existingRecord.Description = genericRecordEditModel.EditRecord.Description;
+                            }
+                            if (mileageIsEdited)
+                            {
+                                existingRecord.Mileage = genericRecordEditModel.EditRecord.Mileage;
+                            }
+                            if (costIsEdited)
+                            {
+                                existingRecord.Cost = genericRecordEditModel.EditRecord.Cost;
+                            }
+                            if (noteIsEdited)
+                            {
+                                existingRecord.Notes = genericRecordEditModel.EditRecord.Notes;
+                            }
+                            if (tagsIsEdited)
+                            {
+                                existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
+                            }
+                            result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            if (dateIsEdited)
+                            {
+                                existingRecord.Date = genericRecordEditModel.EditRecord.Date;
+                            }
+                            if (descriptionIsEdited)
+                            {
+                                existingRecord.Description = genericRecordEditModel.EditRecord.Description;
+                            }
+                            if (mileageIsEdited)
+                            {
+                                existingRecord.Mileage = genericRecordEditModel.EditRecord.Mileage;
+                            }
+                            if (costIsEdited)
+                            {
+                                existingRecord.Cost = genericRecordEditModel.EditRecord.Cost;
+                            }
+                            if (noteIsEdited)
+                            {
+                                existingRecord.Notes = genericRecordEditModel.EditRecord.Notes;
+                            }
+                            if (tagsIsEdited)
+                            {
+                                existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
+                            }
+                            result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            if (dateIsEdited)
+                            {
+                                existingRecord.Date = genericRecordEditModel.EditRecord.Date;
+                            }
+                            if (descriptionIsEdited)
+                            {
+                                existingRecord.Description = genericRecordEditModel.EditRecord.Description;
+                            }
+                            if (mileageIsEdited)
+                            {
+                                existingRecord.Mileage = genericRecordEditModel.EditRecord.Mileage;
+                            }
+                            if (costIsEdited)
+                            {
+                                existingRecord.Cost = genericRecordEditModel.EditRecord.Cost;
+                            }
+                            if (noteIsEdited)
+                            {
+                                existingRecord.Notes = genericRecordEditModel.EditRecord.Notes;
+                            }
+                            if (tagsIsEdited)
+                            {
+                                existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
+                            }
+                            result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                        }
+                        break;
+                }
+            }
+            return Json(result);
+        }
         #endregion
 
     }
