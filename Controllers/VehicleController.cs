@@ -10,7 +10,6 @@ using CarCareTracker.MapProfile;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 using CarCareTracker.Filter;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace CarCareTracker.Controllers
 {
