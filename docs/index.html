@@ -2,6 +2,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>LubeLogger</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
@@ -30,7 +31,7 @@
                 <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#features">Features</a></div>
                 <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#demo">Demo</a></div>
                 <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#download">Download</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://docs.lubelogger.com">Docs</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://docs.lubelogger.com">Documentation</a></div>
                 <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://github.com/hargata/lubelog">GitHub Repo</a></div>
             </div>
 			<hr>
@@ -94,11 +95,11 @@
                       </div>
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#carouselGallery" data-bs-slide="prev">
-                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="carousel-control-prev-icon" style='filter:inherit;' aria-hidden="true"></span>
                       <span class="visually-hidden">Previous</span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#carouselGallery" data-bs-slide="next">
-                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="carousel-control-next-icon" style='filter:inherit;' aria-hidden="true"></span>
                       <span class="visually-hidden">Next</span>
                     </button>
                   </div>
@@ -141,7 +142,7 @@
             </div>
             <div class="col-12 d-flex justify-content-center">
                 <p class="lead">
-                    Live demo available <a href="https://demo.lubelogger.com">here</a>
+                    Live demo available <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://demo.lubelogger.com">here</a>
                 </p>
             </div>
             <div class="col-12 d-flex justify-content-center">
@@ -151,43 +152,19 @@
             <hr>
             <div class="row" id="download">
                 <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Where to Download</h6>
+                    <h6 class="display-6 text-center">Download</h6>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 d-flex justify-content-center">
                     <p class="lead">
-                        LubeLogger is released exclusively as a Docker Image via the GitHub Container Repository(GHCR)
+                        LubeLogger is available as both a Docker Image and a Windows Standalone Executable(EXE)
                     </p>
                 </div>
                 <div class="col-12 d-flex justify-content-center">
                     <p class="lead">
-                        To pull down the Docker Image, run
+                        Read this <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='https://docs.lubelogger.com/Getting%20Started'>Getting Started Guide</a> on how to download either of them
                     </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p><code>docker pull ghcr.io/hargata/lubelogger:latest</code></p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">
-                        Check the <a href="https://github.com/hargata/lubelog/" target="_blank">GitHub repository</a> and clone the "docker-compose.yml" and ".env" file onto your computer.
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">
-                        Navigate to the directory where those two files are located, then run
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p><code>docker-compose up</code></p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">
-                        Navigate to the URL the service is listening on, the default is
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p><code>http://localhost:8080</code></p>
                 </div>
             </div>
             <hr>
@@ -196,15 +173,11 @@
                     <h6 class="display-6 text-center">About</h6>
                 </div>
                 <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">LubeLogger is proudly developed in Price Utah by Hargata Softworks.
+                    <p class="lead">LubeLogger is proudly developed in <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://www.visitutah.com/Places-To-Go/Cities-and-Towns/Price" target="_blank">Price Utah</a> by <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='mailto:hargatasoftworks@gmail.com'>Hargata Softworks</a>
                     </p>
                 </div>
                 <div class="col-12 d-flex justify-content-center">
-                    <p class="lead"><a href="https://www.patreon.com/LubeLogger">Support us on Patreon</a>
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">For more information regarding Price Utah, click <a href="https://www.visitutah.com/Places-To-Go/Cities-and-Towns/Price" target="_blank">here</a>
+                    <p class="lead"><a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://www.patreon.com/LubeLogger">Support us on Patreon</a> or <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='https://buy.stripe.com/aEU9Egc8DdMc9bO144'>Donate on Stripe</a>
                     </p>
                 </div>
             </div>
