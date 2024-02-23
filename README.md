@@ -19,10 +19,10 @@ Because nobody should have to deal with a homemade spreadsheet or a shoebox full
 ## Demo
 Try it out before you download it! The live demo resets every 20 minutes.
 
-[Live Demo - Latest Stable](https://demo.lubelogger.com) Login using username "test" and password "1234"
+[Live Demo](https://demo.lubelogger.com) Login using username "test" and password "1234"
 
 ## Download
-LubeLogger is distributed both as a Docker image or a Windows Standalone Executable.
+LubeLogger is available as both a Docker image and a Windows Standalone Executable.
 
 Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started) on how to download either of them
 
