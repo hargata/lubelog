@@ -31,6 +31,13 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started)
 6. If using traefik, use docker-compose.traefik.yml
 7. Run `docker-compose up`
 
+### Need Help?
+[Documentation](https://docs.lubelogger.com/)
+
+[Troubleshooting Guide](https://docs.lubelogger.com/Troubleshooting)
+
+[Search Existing Issues](https://github.com/hargata/lubelog/issues)
+
 ## Dependencies
 - Bootstrap
 - LiteDB
