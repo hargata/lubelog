@@ -363,6 +363,13 @@
                     }, 250);
                 }
                 break;
+            //ENTER EVENT
+            case 13:
+            case 32:
+                var tagToAdd = $input.val();
+                $input.val('');
+                self.add(tagToAdd);
+                break;
          default:
              // ignore
          }
@@ -374,53 +381,18 @@
         $input.attr('size', Math.max(this.inputSize, size));
       }, self));
 
-        self.$container.on('input', 'input', $.proxy(function (event) {
-            if (event.originalEvent.data == undefined) {
-                var $input = $(event.target);
-                var text = $input.val(),
-                    maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
-                if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
-                    //check if confirm keys are in input and then replace them.
-                    event.preventDefault();
-                    text = text.replace(String.fromCharCode(event.which), "")
-                    // Only attempt to add a tag if there is data in the field
-                    if (text.length !== 0) {
-                        self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
-                        $input.val('');
-                    }
-                }
-                var textLength = $input.val().length,
-                    wordSpace = Math.ceil(textLength / 5),
-                    size = textLength + wordSpace + 1;
-                $input.attr('size', Math.max(this.inputSize, size));
-            };
-        }));
-
-      self.$container.on('keypress', 'input', $.proxy(function(event) {
-         var $input = $(event.target);
-
-         if (self.$element.attr('disabled')) {
-            self.$input.attr('disabled', 'disabled');
-            return;
-         }
-         var text = $input.val(),
-         maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
-         if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
-             //check if confirm keys are in input and then replace them.
-             event.preventDefault();
-             text = text.replace(String.fromCharCode(event.which), "");
-             // Only attempt to add a tag if there is data in the field
-             if (text.length !== 0) {
-               self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
-               $input.val('');
-            }
-         }
-
-         // Reset internal input's size
-         var textLength = $input.val().length,
-            wordSpace = Math.ceil(textLength / 5),
-            size = textLength + wordSpace + 1;
-         $input.attr('size', Math.max(this.inputSize, size));
+      self.$container.on('input', 'input', $.proxy(function(event) {
+          var $input = $(event.target);
+          //check if the previous inserted value was a space.
+          var text = $input.val();
+          if (text.length > 0) {
+              var lastChar = text.charAt(text.length - 1);
+              if (lastChar == " ") {
+                  text = text.replace(" ", "");
+                  self.add(text);
+                  $input.val('');
+              }
+          }
       }, self));
 
       // Remove icon clicked
@@ -576,34 +548,5 @@
       iCaretPos = oField.selectionStart;
     }
     return (iCaretPos);
-  }
-
-  /**
-    * Returns boolean indicates whether user has pressed an expected key combination.
-    * @param object keyPressEvent: JavaScript event object, refer
-    *     http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
-    * @param object lookupList: expected key combinations, as in:
-    *     [13, {which: 188, shiftKey: true}]
-    */
-  function keyCombinationInList(keyPressEvent, lookupList) {
-      var found = false;
-      $.each(lookupList, function (index, keyCombination) {
-          if (typeof (keyCombination) === 'number' && keyPressEvent.which === keyCombination) {
-              found = true;
-              return false;
-          }
-
-          if (keyPressEvent.which === keyCombination.which) {
-              var alt = !keyCombination.hasOwnProperty('altKey') || keyPressEvent.altKey === keyCombination.altKey,
-                  shift = !keyCombination.hasOwnProperty('shiftKey') || keyPressEvent.shiftKey === keyCombination.shiftKey,
-                  ctrl = !keyCombination.hasOwnProperty('ctrlKey') || keyPressEvent.ctrlKey === keyCombination.ctrlKey;
-              if (alt && shift && ctrl) {
-                  found = true;
-                  return false;
-              }
-          }
-      });
-
-      return found;
   }
 })(window.jQuery);
