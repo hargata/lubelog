@@ -299,8 +299,7 @@
         if (self.$element.attr('disabled')) {
           self.$input.attr('disabled', 'disabled');
           return;
-        }
-
+          }
         switch (event.which) {
           // BACKSPACE
           case 8:
@@ -339,7 +338,31 @@
               $nextTag.after($inputWrapper);
               $input.focus();
             }
-            break;
+                break;
+            //COPY EVENT
+            case 67:
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    navigator.clipboard.writeText(self.itemsArray.join(" "));
+                }
+                break;
+            //PASTE EVENT
+            case 86:
+                if (event.ctrlKey) {
+                    setTimeout(function () {
+                        var pastedString = $input.val();
+                        //clear pasted string.
+                        $input.val('');
+                        //process input one by one.
+                        if (pastedString.length > 0) {
+                            var tagsToAdd = pastedString.split(" ");
+                            tagsToAdd.forEach(x => {
+                                self.add(x);
+                            })
+                        }
+                    }, 250);
+                }
+                break;
          default:
              // ignore
          }
@@ -358,16 +381,12 @@
                     maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
                 if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
                     //check if confirm keys are in input and then replace them.
+                    event.preventDefault();
                     text = text.replace(String.fromCharCode(event.which), "")
                     // Only attempt to add a tag if there is data in the field
                     if (text.length !== 0) {
                         self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
                         $input.val('');
-                    }
-
-                    // If the field is empty, let the event triggered fire as usual
-                    if (self.options.cancelConfirmKeysOnEmpty === false) {
-                        event.preventDefault();
                     }
                 }
                 var textLength = $input.val().length,
@@ -388,16 +407,12 @@
          maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
          if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
              //check if confirm keys are in input and then replace them.
-             text = text.replace(String.fromCharCode(event.which), "")
+             event.preventDefault();
+             text = text.replace(String.fromCharCode(event.which), "");
              // Only attempt to add a tag if there is data in the field
              if (text.length !== 0) {
                self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
                $input.val('');
-            }
-
-            // If the field is empty, let the event triggered fire as usual
-            if (self.options.cancelConfirmKeysOnEmpty === false) {
-               event.preventDefault();
             }
          }
 
