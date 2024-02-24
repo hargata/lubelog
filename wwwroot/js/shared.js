@@ -663,6 +663,9 @@ function isRightClick(e) {
     }
     return false;
 }
+function stopEvent() {
+    event.stopPropagation();
+}
 function rangeMouseUp(e) {
     if ($(".table-context-menu").length > 0) {
         $(".table-context-menu").hide();

@@ -70,7 +70,7 @@
             <tbody>
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
-                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                         <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@supplyRecord.PartNumber</td>
                         <td class="col-2">@supplyRecord.PartSupplier</td>
