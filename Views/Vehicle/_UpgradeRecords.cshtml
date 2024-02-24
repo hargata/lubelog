@@ -68,7 +68,7 @@
             <tbody>
                 @foreach (UpgradeRecord upgradeRecord in Model)
                 {
-                    <tr class="d-flex user-select-none" style="cursor:pointer;" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@upgradeRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditUpgradeRecordModal,@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@upgradeRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditUpgradeRecordModal,@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
                         <td class="col-2 col-xl-1">@upgradeRecord.Date.ToShortDateString()</td>
                         <td class="col-2">@upgradeRecord.Mileage</td>
                         <td class="col-3 col-xl-4">@upgradeRecord.Description</td>
