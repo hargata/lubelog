@@ -45,10 +45,17 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult GetRemoteLoginLink()
         {
-            var remoteAuthURL = _config.GetOpenIDConfig().RemoteAuthURL;
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
+            remoteAuthConfig.State = generatedState;
+            if (remoteAuthConfig.ValidateState)
+            {
+                Response.Cookies.Append("OIDC_STATE", remoteAuthConfig.State, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+            }
+            var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
         }
-        public async Task<IActionResult> RemoteAuth(string code)
+        public async Task<IActionResult> RemoteAuth(string code, string state = "")
         {
             try
             {
@@ -58,6 +65,20 @@ namespace CarCareTracker.Controllers
                     //create http client to retrieve user token from OIDC
                     var httpClient = new HttpClient();
                     var openIdConfig = _config.GetOpenIDConfig();
+                    //check if validate state is enabled.
+                    if (openIdConfig.ValidateState)
+                    {
+                        var storedStateValue = Request.Cookies["OIDC_STATE"];
+                        if (!string.IsNullOrWhiteSpace(storedStateValue))
+                        {
+                            Response.Cookies.Delete("OIDC_STATE");
+                        }
+                        if (string.IsNullOrWhiteSpace(storedStateValue) || string.IsNullOrWhiteSpace(state) || storedStateValue != state)
+                        {
+                            _logger.LogInformation("Failed OIDC State Validation - Try disabling state validation if you are confident this is not a malicious attempt.");
+                            return new RedirectResult("/Login");
+                        }
+                    }
                     var httpParams = new List<KeyValuePair<string, string>>
                 {
                      new KeyValuePair<string, string>("code", code),
