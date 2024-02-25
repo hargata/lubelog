@@ -99,6 +99,11 @@ namespace CarCareTracker.Controllers
                         var tokenParser = new JwtSecurityTokenHandler();
                         var parsedToken = tokenParser.ReadJwtToken(userJwt);
                         var userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        var userNickName = parsedToken.Claims.First(x => x.Type == "nickname").Value;
+                        UserData data = new UserData(){
+                            UserName = userNickName,
+                            EmailAddress = userEmailAddress
+                        };
                         if (!string.IsNullOrWhiteSpace(userEmailAddress))
                         {
                             var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
@@ -116,7 +121,7 @@ namespace CarCareTracker.Controllers
                             } else
                             {
                                 _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
-                                return View("OpenIDRegistration", model: userEmailAddress);
+                                return View("OpenIDRegistration", model: data);
                             }
                         }
                     }

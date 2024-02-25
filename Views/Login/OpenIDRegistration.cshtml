@@ -5,7 +5,7 @@
     var logoUrl = config.GetLogoUrl();
     var userLanguage = config.GetServerLanguage();
 }
-@model string
+@model UserData
 @{
     ViewData["Title"] = "LubeLogger - Register";
 }
@@ -22,7 +22,7 @@
             </div>
             <div class="form-group">
                 <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
-                <input type="text" id="inputUserName" class="form-control" value="@Model">
+                <input type="text" id="inputUserName" class="form-control" value="@Model.UserName">
             </div>
             <div class="d-grid">
                 <button type="button" class="btn btn-warning mt-2" onclick="performOpenIdRegistration()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Register")</button>
@@ -37,7 +37,7 @@
     function performOpenIdRegistration() {
         var token = $("#inputToken").val();
         var userName = $("#inputUserName").val();
-        var userEmail = decodeHTMLEntities('@Model');
+        var userEmail = decodeHTMLEntities('@Model.EmailAddress');
         $.post('/Login/RegisterOpenIdUser', { userName: userName, token: token, emailAddress: userEmail }, function (data) {
             if (data.success) {
                 successToast(data.message);
