@@ -15,6 +15,7 @@ namespace CarCareTracker.Logic
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
         OperationResponse RegisterOpenIdUser(LoginModel credentials);
+        OperationResponse UpdateUserDetails(int userId, LoginModel credentials, string oldPassword = "");
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
@@ -58,6 +59,46 @@ namespace CarCareTracker.Logic
             {
                 return result.Id != 0;
             }
+        }
+        public OperationResponse UpdateUserDetails(int userId, LoginModel credentials, string oldPassword = "")
+        {
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid user" };
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.UserName) && existingUser.UserName != credentials.UserName)
+            {
+                //check if new username is already taken.
+                var existingUserWithUserName = _userData.GetUserRecordByUserName(credentials.UserName);
+                if (existingUserWithUserName.Id != default)
+                {
+                    return new OperationResponse { Success = false, Message = "Username already taken" };
+                }
+                existingUser.UserName = credentials.UserName;
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.EmailAddress) && existingUser.EmailAddress != credentials.EmailAddress)
+            {
+                //check if email address already exists
+                var existingUserWithEmailAddress = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+                if (existingUserWithEmailAddress.Id != default)
+                {
+                    return new OperationResponse { Success = false, Message = "A user with that email already exists" };
+                }
+                existingUser.EmailAddress = credentials.EmailAddress;
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.Password) && !string.IsNullOrWhiteSpace(oldPassword))
+            {
+                //verify that old password matches the password we have on file.
+                if (GetHash(oldPassword) != GetHash(existingUser.Password))
+                {
+                    return new OperationResponse { Success = false, Message = "Invalid Password" };
+                }
+                //update password
+                existingUser.Password = GetHash(credentials.Password);
+            }
+            var result = _userData.SaveUserRecord(existingUser);
+            return new OperationResponse { Success = result, Message = result ? "User Updated" : StaticHelper.GenericErrorMessage };
         }
         public OperationResponse RegisterOpenIdUser(LoginModel credentials)
         {
