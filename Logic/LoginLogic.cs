@@ -246,7 +246,8 @@ namespace CarCareTracker.Logic
                     Id = -1,
                     UserName = credentials.UserName,
                     IsAdmin = true,
-                    IsRootUser = true
+                    IsRootUser = true,
+                    EmailAddress = string.Empty
                 };
             }
             else

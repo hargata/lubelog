@@ -1,0 +1,35 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model UserData
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="addVehicleModalLabel">@translator.Translate(userLanguage, "Update Profile")</h5>
+    <button type="button" class="btn-close" onclick="hideAccountInformationModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="inputUsername">@translator.Translate(userLanguage, "Username")</label>
+            <input type="text" id="inputUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Account Username")" value="@Model.UserName">
+            <label for="inputEmail">@translator.Translate(userLanguage, "Email Address")</label>
+            <input type="text" id="inputEmail" class="form-control" placeholder="@translator.Translate(userLanguage, "Email Address")" value="@Model.EmailAddress">
+            <label for="inputPassword">@translator.Translate(userLanguage, "New Password")</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "New Password")" value="">
+            <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
+            <input type="text" id="inputToken" class="form-control" placeholder="@translator.Translate(userLanguage, "Token")" value="">
+            <div class="row">
+                <div class="col-12">
+                    <a onclick="generateTokenForUser()" class="btn btn-link">@translator.Translate(userLanguage, "Send Token")</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAccountInformationModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" onclick="validateAndSaveUserAccount()" class="btn btn-primary">@translator.Translate(userLanguage, "Update")</button>
+</div>

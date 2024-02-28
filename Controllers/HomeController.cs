@@ -151,6 +151,32 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
         }
+        [HttpPost]
+        public IActionResult UpdateUserAccount(LoginModel userAccount)
+        {
+            try
+            {
+                var userId = GetUserID();
+                if (userId > 0)
+                {
+                    var result = _loginLogic.UpdateUserDetails(userId, userAccount);
+                    return Json(result);
+                }
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+            }
+        }
+        [HttpGet]
+        public IActionResult GetUserAccountInformationModal()
+        {
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+            var userName = User.Identity.Name;
+            return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

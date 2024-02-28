@@ -84,6 +84,12 @@
                             <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</a>
                         </li>
                     }
+                    @if (!User.IsInRole(nameof(UserData.IsRootUser)))
+                    {
+                        <li>
+                            <button class="dropdown-item" onclick="showAccountInformationModal()"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</button>
+                        </li>
+                    }
                     <li>
                         <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage,"Logout")</button>
                     </li>
@@ -115,6 +121,12 @@
 <div class="modal fade" id="bulkImportModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="bulkImportModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="accountInformationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="accountInformationModalContent">
         </div>
     </div>
 </div>

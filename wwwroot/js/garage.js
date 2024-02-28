@@ -351,3 +351,62 @@ function copyContributors(sourceVehicleId, destVehicleId) {
         }
     });
 }
+
+function showAccountInformationModal() {
+    $.get('/Home/GetUserAccountInformationModal', function (data) {
+        $('#accountInformationModalContent').html(data);
+        $('#accountInformationModal').modal('show');
+    })
+}
+function hideAccountInformationModal() {
+    $('#accountInformationModal').modal('hide');
+}
+function validateAndSaveUserAccount() {
+    var hasError = false;
+    if ($('#inputUsername').val().trim() == '') {
+        $('#inputUsername').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputUsername').removeClass("is-invalid");
+    }
+    if ($('#inputEmail').val().trim() == '') {
+        $('#inputEmail').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputEmail').removeClass("is-invalid");
+    }
+    if ($('#inputToken').val().trim() == '') {
+        $('#inputToken').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputToken').removeClass("is-invalid");
+    }
+    if (hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var userAccountInfo = {
+        userName: $('#inputUsername').val(),
+        password: $('#inputPassword').val(),
+        emailAddress: $('#inputEmail').val(),
+        token: $('#inputToken').val()
+    }
+    $.post('/Home/UpdateUserAccount', { userAccount: userAccountInfo }, function (data) {
+        if (data.success) {
+            //hide modal
+            hideAccountInformationModal();
+            successToast('Profile Updated')
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function generateTokenForUser() {
+    $.post('/Home/GenerateTokenForUser', function (data) {
+        if (data) {
+            successToast('Token sent');
+        } else {
+            errorToast(genericErrorMessage())
+        }
+    });
+}
