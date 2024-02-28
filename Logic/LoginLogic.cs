@@ -15,7 +15,7 @@ namespace CarCareTracker.Logic
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
         OperationResponse RegisterOpenIdUser(LoginModel credentials);
-        OperationResponse UpdateUserDetails(int userId, LoginModel credentials, string oldPassword = "");
+        OperationResponse UpdateUserDetails(int userId, LoginModel credentials);
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
@@ -60,13 +60,22 @@ namespace CarCareTracker.Logic
                 return result.Id != 0;
             }
         }
-        public OperationResponse UpdateUserDetails(int userId, LoginModel credentials, string oldPassword = "")
+        public OperationResponse UpdateUserDetails(int userId, LoginModel credentials)
         {
+            //get current user details
             var existingUser = _userData.GetUserRecordById(userId);
             if (existingUser.Id == default)
             {
                 return new OperationResponse { Success = false, Message = "Invalid user" };
             }
+            //validate user token
+            var existingToken = _tokenData.GetTokenRecordByBody(credentials.Token);
+            if (existingToken.Id == default || existingToken.EmailAddress != existingUser.EmailAddress)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid Token" };
+            }
+            //token is valid, delete it.
+            _tokenData.DeleteToken(existingToken.Id);
             if (!string.IsNullOrWhiteSpace(credentials.UserName) && existingUser.UserName != credentials.UserName)
             {
                 //check if new username is already taken.
@@ -87,13 +96,8 @@ namespace CarCareTracker.Logic
                 }
                 existingUser.EmailAddress = credentials.EmailAddress;
             }
-            if (!string.IsNullOrWhiteSpace(credentials.Password) && !string.IsNullOrWhiteSpace(oldPassword))
+            if (!string.IsNullOrWhiteSpace(credentials.Password))
             {
-                //verify that old password matches the password we have on file.
-                if (GetHash(oldPassword) != GetHash(existingUser.Password))
-                {
-                    return new OperationResponse { Success = false, Message = "Invalid Password" };
-                }
                 //update password
                 existingUser.Password = GetHash(credentials.Password);
             }
