@@ -25,6 +25,7 @@ namespace CarCareTracker.Logic
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
+        bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
 
@@ -196,21 +197,7 @@ namespace CarCareTracker.Logic
             if (existingUser.Id != default)
             {
                 //user exists, generate a token and send email.
-                //check to see if there is an existing token sent to the user.
-                var existingToken = _tokenData.GetTokenRecordByEmailAddress(existingUser.EmailAddress);
-                if (existingToken.Id == default)
-                {
-                    var token = new Token()
-                    {
-                        Body = NewToken(),
-                        EmailAddress = existingUser.EmailAddress
-                    };
-                    var result = _tokenData.CreateNewToken(token);
-                    if (result)
-                    {
-                        result = _mailHelper.NotifyUserForPasswordReset(existingUser.EmailAddress, token.Body).Success;
-                    }
-                }
+                GenerateTokenForEmailAddress(existingUser.EmailAddress, true);
             }
             //for security purposes we want to always return true for this method.
             //otherwise someone can spam the reset password method to sniff out users.
@@ -459,6 +446,31 @@ namespace CarCareTracker.Logic
         private string NewToken()
         {
             return Guid.NewGuid().ToString().Substring(0, 8);
+        }
+        public bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
+        {
+            bool result = false;
+            //check if there is already a token tied to this email address.
+            var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
+            if (existingToken.Id == default)
+            {
+                //no token, generate one and send.
+                var token = new Token()
+                {
+                    Body = NewToken(),
+                    EmailAddress = emailAddress
+                };
+                result = _tokenData.CreateNewToken(token);
+                if (result)
+                {
+                    result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, token.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, token.Body).Success;
+                }
+            } else
+            {
+                //token exists, send it again.
+                result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, existingToken.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, existingToken.Body).Success;
+            }
+            return result;
         }
     }
 }
