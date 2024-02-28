@@ -8,6 +8,7 @@ namespace CarCareTracker.Helper
     {
         OperationResponse NotifyUserForRegistration(string emailAddress, string token);
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
+        OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token);
         OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
     }
     public class MailHelper : IMailHelper
@@ -54,6 +55,28 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your Password Reset Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please reset your password for LubeLogger using the token: {token}";
+            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            if (result)
+            {
+                return new OperationResponse { Success = true, Message = "Email Sent!" };
+            }
+            else
+            {
+                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+            }
+        }
+        public OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token)
+        {
+            if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            {
+                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+            }
+            if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token))
+            {
+                return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };
+            }
+            string emailSubject = "Your User Account Update Token for LubeLogger";
+            string emailBody = $"A token has been generated on your behalf, please update your account for LubeLogger using the token: {token}";
             var result = SendEmail(emailAddress, emailSubject, emailBody);
             if (result)
             {

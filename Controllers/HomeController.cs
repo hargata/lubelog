@@ -15,6 +15,7 @@ namespace CarCareTracker.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly IUserLogic _userLogic;
+        private readonly ILoginLogic _loginLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
@@ -23,6 +24,7 @@ namespace CarCareTracker.Controllers
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
+            ILoginLogic loginLogic,
             IConfigHelper configuration,
             IFileHelper fileHelper,
             IExtraFieldDataAccess extraFieldDataAccess,
@@ -37,6 +39,7 @@ namespace CarCareTracker.Controllers
             _extraFieldDataAccess = extraFieldDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
+            _loginLogic = loginLogic;
         }
         private int GetUserID()
         {
@@ -63,7 +66,7 @@ namespace CarCareTracker.Controllers
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
             List<ReminderRecordViewModel> reminders = new List<ReminderRecordViewModel>();
-            foreach(Vehicle vehicle in vehiclesStored)
+            foreach (Vehicle vehicle in vehiclesStored)
             {
                 var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
                 vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
@@ -128,6 +131,51 @@ namespace CarCareTracker.Controllers
             }
             var recordExtraFields = _extraFieldDataAccess.GetExtraFieldsById(record.Id);
             return PartialView("_ExtraFields", recordExtraFields);
+        }
+        [HttpPost]
+        public IActionResult GenerateTokenForUser()
+        {
+            try
+            {
+                //get current user email address.
+                var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+                if (!string.IsNullOrWhiteSpace(emailAddress))
+                {
+                    var result = _loginLogic.GenerateTokenForEmailAddress(emailAddress, false);
+                    return Json(result);
+                }
+                return Json(false);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(false);
+            }
+        }
+        [HttpPost]
+        public IActionResult UpdateUserAccount(LoginModel userAccount)
+        {
+            try
+            {
+                var userId = GetUserID();
+                if (userId > 0)
+                {
+                    var result = _loginLogic.UpdateUserDetails(userId, userAccount);
+                    return Json(result);
+                }
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+            }
+        }
+        [HttpGet]
+        public IActionResult GetUserAccountInformationModal()
+        {
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+            var userName = User.Identity.Name;
+            return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

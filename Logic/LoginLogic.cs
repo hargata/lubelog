@@ -15,6 +15,7 @@ namespace CarCareTracker.Logic
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
         OperationResponse RegisterOpenIdUser(LoginModel credentials);
+        OperationResponse UpdateUserDetails(int userId, LoginModel credentials);
         OperationResponse RegisterNewUser(LoginModel credentials);
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
@@ -24,6 +25,7 @@ namespace CarCareTracker.Logic
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
+        bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
 
@@ -58,6 +60,50 @@ namespace CarCareTracker.Logic
             {
                 return result.Id != 0;
             }
+        }
+        public OperationResponse UpdateUserDetails(int userId, LoginModel credentials)
+        {
+            //get current user details
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid user" };
+            }
+            //validate user token
+            var existingToken = _tokenData.GetTokenRecordByBody(credentials.Token);
+            if (existingToken.Id == default || existingToken.EmailAddress != existingUser.EmailAddress)
+            {
+                return new OperationResponse { Success = false, Message = "Invalid Token" };
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.UserName) && existingUser.UserName != credentials.UserName)
+            {
+                //check if new username is already taken.
+                var existingUserWithUserName = _userData.GetUserRecordByUserName(credentials.UserName);
+                if (existingUserWithUserName.Id != default)
+                {
+                    return new OperationResponse { Success = false, Message = "Username already taken" };
+                }
+                existingUser.UserName = credentials.UserName;
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.EmailAddress) && existingUser.EmailAddress != credentials.EmailAddress)
+            {
+                //check if email address already exists
+                var existingUserWithEmailAddress = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
+                if (existingUserWithEmailAddress.Id != default)
+                {
+                    return new OperationResponse { Success = false, Message = "A user with that email already exists" };
+                }
+                existingUser.EmailAddress = credentials.EmailAddress;
+            }
+            if (!string.IsNullOrWhiteSpace(credentials.Password))
+            {
+                //update password
+                existingUser.Password = GetHash(credentials.Password);
+            }
+            //delete token
+            _tokenData.DeleteToken(existingToken.Id);
+            var result = _userData.SaveUserRecord(existingUser);
+            return new OperationResponse { Success = result, Message = result ? "User Updated" : StaticHelper.GenericErrorMessage };
         }
         public OperationResponse RegisterOpenIdUser(LoginModel credentials)
         {
@@ -151,21 +197,7 @@ namespace CarCareTracker.Logic
             if (existingUser.Id != default)
             {
                 //user exists, generate a token and send email.
-                //check to see if there is an existing token sent to the user.
-                var existingToken = _tokenData.GetTokenRecordByEmailAddress(existingUser.EmailAddress);
-                if (existingToken.Id == default)
-                {
-                    var token = new Token()
-                    {
-                        Body = NewToken(),
-                        EmailAddress = existingUser.EmailAddress
-                    };
-                    var result = _tokenData.CreateNewToken(token);
-                    if (result)
-                    {
-                        result = _mailHelper.NotifyUserForPasswordReset(existingUser.EmailAddress, token.Body).Success;
-                    }
-                }
+                GenerateTokenForEmailAddress(existingUser.EmailAddress, true);
             }
             //for security purposes we want to always return true for this method.
             //otherwise someone can spam the reset password method to sniff out users.
@@ -214,7 +246,8 @@ namespace CarCareTracker.Logic
                     Id = -1,
                     UserName = credentials.UserName,
                     IsAdmin = true,
-                    IsRootUser = true
+                    IsRootUser = true,
+                    EmailAddress = string.Empty
                 };
             }
             else
@@ -414,6 +447,31 @@ namespace CarCareTracker.Logic
         private string NewToken()
         {
             return Guid.NewGuid().ToString().Substring(0, 8);
+        }
+        public bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
+        {
+            bool result = false;
+            //check if there is already a token tied to this email address.
+            var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
+            if (existingToken.Id == default)
+            {
+                //no token, generate one and send.
+                var token = new Token()
+                {
+                    Body = NewToken(),
+                    EmailAddress = emailAddress
+                };
+                result = _tokenData.CreateNewToken(token);
+                if (result)
+                {
+                    result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, token.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, token.Body).Success;
+                }
+            } else
+            {
+                //token exists, send it again.
+                result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, existingToken.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, existingToken.Body).Success;
+            }
+            return result;
         }
     }
 }

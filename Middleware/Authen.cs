@@ -121,6 +121,7 @@ namespace CarCareTracker.Middleware
                                 {
                                     new(ClaimTypes.Name, authCookie.UserData.UserName),
                                     new(ClaimTypes.NameIdentifier, authCookie.UserData.Id.ToString()),
+                                    new(ClaimTypes.Email, authCookie.UserData.EmailAddress),
                                     new(ClaimTypes.Role, "CookieAuth")
                                 };
                                 if (authCookie.UserData.IsAdmin)
