@@ -75,8 +75,6 @@ namespace CarCareTracker.Logic
             {
                 return new OperationResponse { Success = false, Message = "Invalid Token" };
             }
-            //token is valid, delete it.
-            _tokenData.DeleteToken(existingToken.Id);
             if (!string.IsNullOrWhiteSpace(credentials.UserName) && existingUser.UserName != credentials.UserName)
             {
                 //check if new username is already taken.
@@ -102,6 +100,8 @@ namespace CarCareTracker.Logic
                 //update password
                 existingUser.Password = GetHash(credentials.Password);
             }
+            //delete token
+            _tokenData.DeleteToken(existingToken.Id);
             var result = _userData.SaveUserRecord(existingUser);
             return new OperationResponse { Success = result, Message = result ? "User Updated" : StaticHelper.GenericErrorMessage };
         }

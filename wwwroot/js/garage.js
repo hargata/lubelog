@@ -395,7 +395,8 @@ function validateAndSaveUserAccount() {
         if (data.success) {
             //hide modal
             hideAccountInformationModal();
-            successToast('Profile Updated')
+            successToast('Profile Updated');
+            performLogOut();
         } else {
             errorToast(data.message);
         }
