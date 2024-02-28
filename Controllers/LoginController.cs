@@ -118,8 +118,17 @@ namespace CarCareTracker.Controllers
                                 _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
                                 return View("OpenIDRegistration", model: userEmailAddress);
                             }
+                        } else
+                        {
+                            _logger.LogInformation("OpenID Provider did not provide a valid email address for the user");
                         }
+                    } else
+                    {
+                        _logger.LogInformation("OpenID Provider did not provide a valid id_token");
                     }
+                } else
+                {
+                    _logger.LogInformation("OpenID Provider did not provide a code.");
                 }
             } catch (Exception ex)
             {
