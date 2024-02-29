@@ -7,15 +7,19 @@
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
-    var extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
 }
 @model List<ServiceRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Service Records")}: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage,"Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
-            @foreach(string recordTag in recordTags)
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Service Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('servicerecord-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
@@ -30,15 +34,15 @@
             @if (enableCsvImports)
             {
                 <div class="btn-group">
-                    <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Service Record")</button>
+                    <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Service Record")</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ServiceRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ServiceRecord')">@translator.Translate(userLanguage, "Import via CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                         <li class="dropdown-item">
@@ -86,7 +90,7 @@
             }
             else
             {
-                <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Service Record")</button>
+                <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Service Record")</button>
             }
         </div>
     </div>
@@ -106,7 +110,7 @@
                     <th scope="col" class="col-3 col-xl-4" data-column="description">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2" data-column="cost" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-3" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
-                    @foreach(string extraFieldColumn in extraFields)
+                    @foreach (string extraFieldColumn in extraFields)
                     {
                         <th scope="col" style='display:none;' class="col-2" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
@@ -136,7 +140,6 @@
 <div class="modal fade" data-bs-focus="false" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="serviceRecordModalContent">
-
         </div>
     </div>
 </div>
@@ -153,26 +156,3 @@
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
-
-<script>
-    function showTableColumns(e, isExtraField){
-        //logic for extra field since we dont hardcode the data-column type
-        if (isExtraField) {
-            var showColumn = $(e).is(':checked');
-            var columnName = $(e).parent().find('.form-check-label').text();
-            if (showColumn) {
-                $(`[data-column='${columnName}']`).show();
-            } else {
-                $(`[data-column='${columnName}']`).hide();
-            }
-        } else {
-            var showColumn = $(e).is(':checked');
-            var columnName = $(e).attr('data-column-toggle');
-            if (showColumn) {
-                $(`[data-column='${columnName}']`).show();
-            } else {
-                $(`[data-column='${columnName}']`).hide();
-            }
-        }
-    }
-</script>

@@ -439,3 +439,23 @@ function getAndValidateGenericRecordValues() {
         }
     }
 }
+function showTableColumns(e, isExtraField) {
+    //logic for extra field since we dont hardcode the data-column type
+    if (isExtraField) {
+        var showColumn = $(e).is(':checked');
+        var columnName = $(e).parent().find('.form-check-label').text();
+        if (showColumn) {
+            $(`[data-column='${columnName}']`).show();
+        } else {
+            $(`[data-column='${columnName}']`).hide();
+        }
+    } else {
+        var showColumn = $(e).is(':checked');
+        var columnName = $(e).attr('data-column-toggle');
+        if (showColumn) {
+            $(`[data-column='${columnName}']`).show();
+        } else {
+            $(`[data-column='${columnName}']`).hide();
+        }
+    }
+}

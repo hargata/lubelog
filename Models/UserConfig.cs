@@ -14,6 +14,7 @@
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
         public bool EnableShopSupplies { get; set; }
+        public bool EnableExtraFieldColumns { get; set; }
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public string UserNameHash { get; set; }
