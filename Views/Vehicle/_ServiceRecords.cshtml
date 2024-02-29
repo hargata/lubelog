@@ -39,6 +39,48 @@
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='date' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Date" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='odometer' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Odometer" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='description' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='cost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Cost" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='notes' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            var elementId = Guid.NewGuid();
+                            <li class="dropdown-item">
+                                <div class="list-group-item">
+                                    <input class="form-check-input" onChange="showTableColumns(this, true)" type="checkbox" id="@elementId">
+                                    <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                                </div>
+                            </li>
+                        }
                     </ul>
                 </div>
             }
@@ -59,14 +101,14 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage,"Date")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-3 col-xl-4">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2" data-column="cost" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-3" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach(string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" class="col-2">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -74,14 +116,14 @@
                 @foreach (ServiceRecord serviceRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@serviceRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditServiceRecordModal,@serviceRecord.Id)" data-tags='@string.Join(" ", serviceRecord.Tags)'>
-                        <td class="col-2 col-xl-1">@serviceRecord.Date.ToShortDateString()</td>
-                        <td class="col-2">@serviceRecord.Mileage</td>
-                        <td class="col-3 col-xl-4">@serviceRecord.Description</td>
-                        <td class="col-2" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
+                        <td class="col-2 col-xl-1" data-column="date">@serviceRecord.Date.ToShortDateString()</td>
+                        <td class="col-2" data-column="odometer">@serviceRecord.Mileage</td>
+                        <td class="col-3 col-xl-4" data-column="description">@serviceRecord.Description</td>
+                        <td class="col-2" data-column="cost" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
+                        <td class="col-3 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2">@(serviceRecord.ExtraFields.Where(x=>x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "---")</td>
+                            <td class="col-2 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(serviceRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
                         }
                     </tr>
                 }
@@ -111,3 +153,26 @@
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
+
+<script>
+    function showTableColumns(e, isExtraField){
+        //logic for extra field since we dont hardcode the data-column type
+        if (isExtraField) {
+            var showColumn = $(e).is(':checked');
+            var columnName = $(e).parent().find('.form-check-label').text();
+            if (showColumn) {
+                $(`[data-column='${columnName}']`).show();
+            } else {
+                $(`[data-column='${columnName}']`).hide();
+            }
+        } else {
+            var showColumn = $(e).is(':checked');
+            var columnName = $(e).attr('data-column-toggle');
+            if (showColumn) {
+                $(`[data-column='${columnName}']`).show();
+            } else {
+                $(`[data-column='${columnName}']`).hide();
+            }
+        }
+    }
+</script>
