@@ -7,6 +7,11 @@
     var enableCsvImports = userConfig.EnableCsvImports;
     var hideZero = userConfig.HideZero;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
 }
 @model List<SupplyRecord>
 <div class="row">
@@ -38,6 +43,60 @@
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('SupplyRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='date' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Date" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='partnumber' onChange="showTableColumns(this)" type="checkbox" id="chkCol_PartNumber" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_PartNumber">@translator.Translate(userLanguage, "Part Number")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='supplier' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Supplier" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Supplier">@translator.Translate(userLanguage, "Supplier")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='description' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='quantity' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Quantity" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Quantity">@translator.Translate(userLanguage, "Quantity")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='cost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Cost" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='notes' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            var elementId = Guid.NewGuid();
+                            <li class="dropdown-item">
+                                <div class="list-group-item">
+                                    <input class="form-check-input" onChange="showTableColumns(this, true)" type="checkbox" id="@elementId">
+                                    <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                                </div>
+                            </li>
+                        }
                     </ul>
                 </div>
             }
@@ -58,26 +117,34 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage,"Date")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part #")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Supplier")</th>
-                    <th scope="col" class="col-2 col-xl-3">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-1" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Quantity")</th>
-                    <th scope="col" class="col-1" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2" data-column="partnumber">@translator.Translate(userLanguage, "Part #")</th>
+                    <th scope="col" class="col-2" data-column="supplier">@translator.Translate(userLanguage, "Supplier")</th>
+                    <th scope="col" class="col-2 col-xl-3" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-1" data-column="quantity" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Quantity")</th>
+                    <th scope="col" class="col-1" data-column="cost" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-2" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" style='display:none;' class="col-2" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
-                        <td class="col-2 col-xl-1">@supplyRecord.Date.ToShortDateString()</td>
-                        <td class="col-2">@supplyRecord.PartNumber</td>
-                        <td class="col-2">@supplyRecord.PartSupplier</td>
-                        <td class="col-2 col-xl-3">@supplyRecord.Description</td>
-                        <td class="col-1">@supplyRecord.Quantity</td>
-                        <td class="col-1" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
-                        <td class="col-2 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
+                        <td class="col-2 col-xl-1" data-column="date">@supplyRecord.Date.ToShortDateString()</td>
+                        <td class="col-2" data-column="partnumber">@supplyRecord.PartNumber</td>
+                        <td class="col-2" data-column="supplier">@supplyRecord.PartSupplier</td>
+                        <td class="col-2 col-xl-3" data-column="description">@supplyRecord.Description</td>
+                        <td class="col-1" data-column="quantity">@supplyRecord.Quantity</td>
+                        <td class="col-1" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
+                        <td class="col-2 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(supplyRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
+                        }
                     </tr>
                 }
             </tbody>
