@@ -182,10 +182,19 @@ namespace CarCareTracker.Helper
             {
                 return templateExtraFields;
             }
-            //append the fields.
+            var recordFieldNames = recordExtraFields.Select(x => x.Name);
+            //update isrequired setting
             foreach (ExtraField extraField in recordExtraFields)
             {
                 extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
+            }
+            //append extra fields
+            foreach(ExtraField extraField in templateExtraFields)
+            {
+                if (!recordFieldNames.Contains(extraField.Name))
+                {
+                    recordExtraFields.Add(extraField);
+                }
             }
             return recordExtraFields;
         }

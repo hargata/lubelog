@@ -7,7 +7,7 @@
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
-    var extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name);
+    var extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
 }
 @model List<ServiceRecord>
 <div class="row">
