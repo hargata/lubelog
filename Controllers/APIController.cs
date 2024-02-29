@@ -341,6 +341,14 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
+        [Route("/api/vehicle/odometerrecords/latest")]
+        public IActionResult LastOdometer(int vehicleId)
+        {
+            var result = GetMaxMileage(vehicleId);
+            return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
         public IActionResult OdometerRecords(int vehicleId)
         {
