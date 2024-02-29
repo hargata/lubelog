@@ -71,7 +71,8 @@ namespace CarCareTracker.Helper
                         IsFillToFull = currentObject.IsFillToFull,
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
-                        Tags = currentObject.Tags
+                        Tags = currentObject.Tags,
+                        ExtraFields = currentObject.ExtraFields
                     };
                     if (currentObject.MissedFuelUp)
                     {
@@ -124,7 +125,8 @@ namespace CarCareTracker.Helper
                         IsFillToFull = currentObject.IsFillToFull,
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
-                        Tags = currentObject.Tags
+                        Tags = currentObject.Tags,
+                        ExtraFields = currentObject.ExtraFields
                     });
                 }
                 previousMileage = currentObject.Mileage;

@@ -22,6 +22,7 @@
         public bool MissedFuelUp { get; set; }
         public string Notes { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public bool IncludeInAverage { get { return MilesPerGallon > 0 || (!IsFillToFull && !MissedFuelUp); } }
     }
 }

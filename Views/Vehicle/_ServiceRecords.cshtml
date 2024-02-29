@@ -7,14 +7,19 @@
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
 }
 @model List<ServiceRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Service Records")}: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage,"Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
-            @foreach(string recordTag in recordTags)
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Service Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('servicerecord-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
@@ -29,21 +34,63 @@
             @if (enableCsvImports)
             {
                 <div class="btn-group">
-                    <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Service Record")</button>
+                    <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Service Record")</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ServiceRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ServiceRecord')">@translator.Translate(userLanguage, "Import via CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ServiceRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='date' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Date" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='odometer' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Odometer" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='description' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='cost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Cost" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input" data-column-toggle='notes' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            var elementId = Guid.NewGuid();
+                            <li class="dropdown-item">
+                                <div class="list-group-item">
+                                    <input class="form-check-input" onChange="showTableColumns(this, true)" type="checkbox" id="@elementId">
+                                    <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                                </div>
+                            </li>
+                        }
                     </ul>
                 </div>
             }
             else
             {
-                <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Service Record")</button>
+                <button onclick="showAddServiceRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Service Record")</button>
             }
         </div>
     </div>
@@ -58,22 +105,30 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1">@translator.Translate(userLanguage,"Date")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-3 col-xl-4">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2" data-column="cost" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-3" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" style='display:none;' class="col-2" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @foreach (ServiceRecord serviceRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@serviceRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditServiceRecordModal,@serviceRecord.Id)" data-tags='@string.Join(" ", serviceRecord.Tags)'>
-                        <td class="col-2 col-xl-1">@serviceRecord.Date.ToShortDateString()</td>
-                        <td class="col-2">@serviceRecord.Mileage</td>
-                        <td class="col-3 col-xl-4">@serviceRecord.Description</td>
-                        <td class="col-2" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
+                        <td class="col-2 col-xl-1" data-column="date">@serviceRecord.Date.ToShortDateString()</td>
+                        <td class="col-2" data-column="odometer">@serviceRecord.Mileage</td>
+                        <td class="col-3 col-xl-4" data-column="description">@serviceRecord.Description</td>
+                        <td class="col-2" data-column="cost" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
+                        <td class="col-3 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(serviceRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -85,7 +140,6 @@
 <div class="modal fade" data-bs-focus="false" id="serviceRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="serviceRecordModalContent">
-
         </div>
     </div>
 </div>
