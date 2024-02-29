@@ -7,6 +7,7 @@
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name);
 }
 @model List<ServiceRecord>
 <div class="row">
@@ -63,6 +64,10 @@
                     <th scope="col" class="col-3 col-xl-4">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-3">@translator.Translate(userLanguage, "Notes")</th>
+                    @foreach(string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" class="col-2">@extraFieldColumn</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -74,6 +79,10 @@
                         <td class="col-3 col-xl-4">@serviceRecord.Description</td>
                         <td class="col-2" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2">@(serviceRecord.ExtraFields.Where(x=>x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "---")</td>
+                        }
                     </tr>
                 }
             </tbody>
