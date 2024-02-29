@@ -885,3 +885,16 @@ function showTableColumns(e, isExtraField) {
         }
     }
 }
+
+function searchTableRows(tabName, searchString) {
+    var rowData = $(`#${tabName} table tbody tr`);
+    var filteredRows = $(`#${tabName} table tbody tr:contains('${searchString}')`);
+    if (searchString.trim() == '') {
+        rowData.removeClass('override-hide');
+    } else {
+        rowData.addClass('override-hide');
+        filteredRows.removeClass('override-hide');
+    }
+    $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
+    updateAggregateLabels();
+}
