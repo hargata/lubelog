@@ -276,7 +276,11 @@ function updateAggregateLabels() {
     //Sum
     var sumLabel = $("[data-aggregate-type='sum']");
     if (sumLabel.length > 0) {
-        var newSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
+        var labelsToSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray();
+        var newSum = 0;
+        if (labelsToSum.length > 0) {
+            newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
+        }
         sumLabel.text(`${sumLabel.text().split(':')[0]}: ${getGlobalConfig().currencySymbol}${newSum}`)
     }
     //Count
@@ -885,16 +889,30 @@ function showTableColumns(e, isExtraField) {
         }
     }
 }
-
-function searchTableRows(tabName, searchString) {
-    var rowData = $(`#${tabName} table tbody tr`);
-    var filteredRows = $(`#${tabName} table tbody tr:contains('${searchString}')`);
-    if (searchString.trim() == '') {
-        rowData.removeClass('override-hide');
-    } else {
-        rowData.addClass('override-hide');
-        filteredRows.removeClass('override-hide');
-    }
-    $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
-    updateAggregateLabels();
+function searchTableRows(tabName) {
+    Swal.fire({
+        title: 'Search Records',
+        html: `
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)">
+                            `,
+        confirmButtonText: 'Search',
+        focusConfirm: false,
+        preConfirm: () => {
+            const searchString = $("#inputSearch").val();
+            return { searchString }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var rowData = $(`#${tabName} table tbody tr`);
+            var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
+            if (result.value.searchString.trim() == '') {
+                rowData.removeClass('override-hide');
+            } else {
+                rowData.addClass('override-hide');
+                filteredRows.removeClass('override-hide');
+            }
+            $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
+            updateAggregateLabels();
+        }
+    });
 }
