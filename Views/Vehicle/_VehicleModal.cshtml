@@ -49,6 +49,14 @@
                     <!option value="@tag">@tag</!option>
                 }
             </select>
+            @foreach (ExtraField field in Model.ExtraFields)
+            {
+                var elementId = Guid.NewGuid();
+                <div class="extra-field">
+                    <label for="@elementId">@field.Name</label>
+                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                </div>
+            }
             @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
             {
                 <label for="inputImage">@translator.Translate(userLanguage, "Replace picture(optional)")</label>

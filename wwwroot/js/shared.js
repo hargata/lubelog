@@ -40,8 +40,12 @@ function saveVehicle(isEdit) {
     var vehicleLicensePlate = $("#inputLicensePlate").val();
     var vehicleIsElectric = $("#inputIsElectric").is(":checked");
     var vehicleUseHours = $("#inputUseHours").is(":checked");
+    var extraFields = getAndValidateExtraFields(true);
     //validate
     var hasError = false;
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (vehicleYear.trim() == '' || parseInt(vehicleYear) < 1900) {
         hasError = true;
         $("#inputYear").addClass("is-invalid");
@@ -78,7 +82,8 @@ function saveVehicle(isEdit) {
         licensePlate: vehicleLicensePlate,
         isElectric: vehicleIsElectric,
         tags: vehicleTags,
-        useHours: vehicleUseHours
+        useHours: vehicleUseHours,
+        extraFields: extraFields.extraFields
     }, function (data) {
         if (data) {
             if (!isEdit) {
@@ -398,10 +403,11 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
-function getAndValidateExtraFields() {
+function getAndValidateExtraFields(isVehicle) {
     var hasError = false;
     var outputData = [];
-    $(".extra-field").map((index, elem) => {
+    var fieldName = isVehicle ? '#addVehicleModalContent .extra-field,#editVehicleModalContent .extra-field' : '.extra-field:not(#addVehicleModalContent .extra-field, #editVehicleModalContent .extra-field)';
+    $(`${fieldName}`).map((index, elem) => {
         var extraFieldName = $(elem).children("label").text();
         var extraFieldInput = $(elem).children("input");
         var extraFieldValue = extraFieldInput.val();
