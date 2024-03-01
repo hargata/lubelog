@@ -1,0 +1,10 @@
+﻿@model List<ExtraField>
+@if (Model.Any())
+{
+    <ul class='list-group list-group-flush'>
+        @foreach (ExtraField field in Model)
+        {
+            <li><b>@field.Name</b> : @field.Value</li>
+        }
+    </ul>
+}
