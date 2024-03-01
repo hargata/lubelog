@@ -1207,7 +1207,26 @@ namespace CarCareTracker.Controllers
         {
             var vehicleHistory = new VehicleHistoryViewModel();
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
-            vehicleHistory.Odometer = GetMaxMileage(vehicleId).ToString("N0");
+            var maxMileage = GetMaxMileage(vehicleId);
+            vehicleHistory.Odometer = maxMileage.ToString("N0");
+            var minMileage = GetMinMileage(vehicleId);
+            var distanceTraveled = maxMileage - minMileage;
+            if (!string.IsNullOrWhiteSpace(vehicleHistory.VehicleData.PurchaseDate))
+            {
+                var endDate = vehicleHistory.VehicleData.SoldDate;
+                if (string.IsNullOrWhiteSpace(endDate))
+                {
+                    endDate = DateTime.Now.ToShortDateString();
+                }
+                try
+                {
+                    vehicleHistory.DaysOwned = (DateTime.Parse(endDate) - DateTime.Parse(vehicleHistory.VehicleData.PurchaseDate)).Days.ToString("N0");
+                } catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    vehicleHistory.DaysOwned = string.Empty;
+                }
+            }
             List<GenericReportModel> reportData = new List<GenericReportModel>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
@@ -1217,8 +1236,15 @@ namespace CarCareTracker.Controllers
             bool useMPG = _config.GetUserConfig(User).UseMPG;
             bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
+            vehicleHistory.DistanceUnit = vehicleHistory.VehicleData.UseHours ? "h" : useMPG ? "mi." : "km";
             vehicleHistory.TotalGasCost = gasRecords.Sum(x => x.Cost);
             vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
+            if (distanceTraveled != default)
+            {
+                vehicleHistory.DistanceTraveled = distanceTraveled.ToString("N0");
+                vehicleHistory.TotalCostPerMile = vehicleHistory.TotalCost / distanceTraveled;
+                vehicleHistory.TotalGasCostPerMile = vehicleHistory.TotalGasCost / distanceTraveled;
+            }
             var averageMPG = "0";
             var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
             if (gasViewModels.Any())
@@ -1380,6 +1406,37 @@ namespace CarCareTracker.Controllers
                 numbersArray.Add(odometerRecords.Max(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        private int GetMinMileage(int vehicleId)
+        {
+            var numbersArray = new List<int>();
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x=>x.Mileage != default);
+            if (serviceRecords.Any())
+            {
+                numbersArray.Add(serviceRecords.Min(x => x.Mileage));
+            }
+            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
+            if (repairRecords.Any())
+            {
+                numbersArray.Add(repairRecords.Min(x => x.Mileage));
+            }
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
+            if (gasRecords.Any())
+            {
+                numbersArray.Add(gasRecords.Min(x => x.Mileage));
+            }
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
+            if (upgradeRecords.Any())
+            {
+                numbersArray.Add(upgradeRecords.Min(x => x.Mileage));
+            }
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Min(x => x.Mileage));
+            }
+            return numbersArray.Any() ? numbersArray.Min() : 0;
         }
         private List<ReminderRecordViewModel> GetRemindersAndUrgency(int vehicleId, DateTime dateCompare)
         {

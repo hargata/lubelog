@@ -385,3 +385,33 @@ function toggleUnits(sender) {
         }
     }
 }
+
+function searchGasTableRows() {
+    var tabName = 'gas-tab-pane';
+    Swal.fire({
+        title: 'Search Records',
+        html: `
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)">
+                            `,
+        confirmButtonText: 'Search',
+        focusConfirm: false,
+        preConfirm: () => {
+            const searchString = $("#inputSearch").val();
+            return { searchString }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var rowData = $(`#${tabName} table tbody tr`);
+            var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
+            if (result.value.searchString.trim() == '') {
+                rowData.removeClass('override-hide');
+            } else {
+                rowData.addClass('override-hide');
+                filteredRows.removeClass('override-hide');
+            }
+            $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
+            updateAggregateLabels();
+            updateMPGLabels();
+        }
+    });
+}
