@@ -34,6 +34,10 @@
             <input type="text" id="inputModel" class="form-control" placeholder="@translator.Translate(userLanguage, "Model")" value="@Model.Model">
             <label for="inputLicensePlate">@translator.Translate(userLanguage, "License Plate")</label>
             <input type="text" id="inputLicensePlate" class="form-control" placeholder="@translator.Translate(userLanguage, "License Plate")" value="@Model.LicensePlate">
+            <label for="inputPurchaseDate">@translator.Translate(userLanguage, "Purchased Date(optional)")</label>
+            <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
+            <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
+            <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="inputIsElectric" checked="@Model.IsElectric">
                 <label class="form-check-label" for="inputIsElectric">@translator.Translate(userLanguage, "Electric Vehicle")</label>

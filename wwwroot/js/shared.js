@@ -37,6 +37,8 @@ function saveVehicle(isEdit) {
     var vehicleMake = $("#inputMake").val();
     var vehicleModel = $("#inputModel").val();
     var vehicleTags = $("#inputTag").val();
+    var vehiclePurchaseDate = $("#inputPurchaseDate").val();
+    var vehicleSoldDate = $("#inputSoldDate").val();
     var vehicleLicensePlate = $("#inputLicensePlate").val();
     var vehicleIsElectric = $("#inputIsElectric").is(":checked");
     var vehicleUseHours = $("#inputUseHours").is(":checked");
@@ -83,7 +85,9 @@ function saveVehicle(isEdit) {
         isElectric: vehicleIsElectric,
         tags: vehicleTags,
         useHours: vehicleUseHours,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        purchaseDate: vehiclePurchaseDate,
+        soldDate: vehicleSoldDate
     }, function (data) {
         if (data) {
             if (!isEdit) {

@@ -215,6 +215,8 @@ function editVehicle(vehicleId) {
         if (data) {
             $("#editVehicleModalContent").html(data);
             initTagSelector($("#inputTag"), true);
+            initDatePicker($('#inputPurchaseDate'));
+            initDatePicker($('#inputSoldDate'));
             $('#editVehicleModal').modal('show');
         }
     });
