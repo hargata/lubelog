@@ -25,14 +25,30 @@
                     <span class="lead">@Model.VehicleData.LicensePlate</span>
                 </li>
                 <li class="list-group-item">
-                    @if (Model.VehicleData.IsElectric)
-                    {
-                        <span><i class="bi bi-ev-station me-2"></i>@translator.Translate(userLanguage, "Electric")</span>
-                    }
-                    else
-                    {
-                        <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>
-                    }
+                    <div class="row">
+                        <div class="col-4">
+                            @if (Model.VehicleData.IsElectric)
+                            {
+                                <span><i class="bi bi-ev-station me-2"></i>@translator.Translate(userLanguage, "Electric")</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.DaysOwned))
+                        {
+                            <div class="col-4">
+                                <span><i class="bi bi-calendar-range me-2"></i>@($"{Model.DaysOwned} {translator.Translate(userLanguage, "Days")}")</span>
+                            </div>
+                        }
+                        @if (Model.DistanceTraveled != default)
+                        {
+                            <div class="col-4">
+                                <span><i class="bi bi-speedometer me-2"></i>@($"{Model.DistanceTraveled} {Model.DistanceUnit}")</span>
+                            </div>
+                        }
+                    </div>
                 </li>
             </ul>
         </div>
@@ -40,8 +56,8 @@
             <ul class="list-group">
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Last Reported Odometer Reading")}: {Model.Odometer}") </li>
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {Model.MPG}") </li>
-                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent(excl. fuel)")}: {Model.TotalCost.ToString("C")}") </li>
-                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent on Fuel")}: {Model.TotalGasCost.ToString("C")}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent(excl. fuel)")}: {Model.TotalCost.ToString("C")} ({Model.TotalCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent on Fuel")}: {Model.TotalGasCost.ToString("C")} ({Model.TotalGasCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
             </ul>
         </div>
     </div>

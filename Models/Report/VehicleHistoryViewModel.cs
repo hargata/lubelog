@@ -8,5 +8,10 @@
         public string MPG { get; set; }
         public decimal TotalCost { get; set; }
         public decimal TotalGasCost { get; set; }
+        public string DaysOwned { get; set; }
+        public string DistanceTraveled { get; set; }
+        public decimal TotalCostPerMile { get; set; }
+        public decimal TotalGasCostPerMile { get; set; }
+        public string DistanceUnit { get; set; }
     }
 }
