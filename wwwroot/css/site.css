@@ -359,3 +359,11 @@ input[type="file"] {
     padding-top: 0rem;
     padding-bottom: 0rem;
 }
+.vehicle-sold-banner {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    z-index: 10;
+}

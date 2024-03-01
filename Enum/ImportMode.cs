@@ -12,6 +12,7 @@
         SupplyRecord = 7,
         Dashboard = 8,
         PlanRecord = 9,
-        OdometerRecord = 10
+        OdometerRecord = 10,
+        VehicleRecord = 11
     }
 }

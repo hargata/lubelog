@@ -34,6 +34,10 @@
             <input type="text" id="inputModel" class="form-control" placeholder="@translator.Translate(userLanguage, "Model")" value="@Model.Model">
             <label for="inputLicensePlate">@translator.Translate(userLanguage, "License Plate")</label>
             <input type="text" id="inputLicensePlate" class="form-control" placeholder="@translator.Translate(userLanguage, "License Plate")" value="@Model.LicensePlate">
+            <label for="inputPurchaseDate">@translator.Translate(userLanguage, "Purchased Date(optional)")</label>
+            <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
+            <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
+            <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="inputIsElectric" checked="@Model.IsElectric">
                 <label class="form-check-label" for="inputIsElectric">@translator.Translate(userLanguage, "Electric Vehicle")</label>
@@ -49,6 +53,14 @@
                     <!option value="@tag">@tag</!option>
                 }
             </select>
+            @foreach (ExtraField field in Model.ExtraFields)
+            {
+                var elementId = Guid.NewGuid();
+                <div class="extra-field">
+                    <label for="@elementId">@field.Name</label>
+                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                </div>
+            }
             @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
             {
                 <label for="inputImage">@translator.Translate(userLanguage, "Replace picture(optional)")</label>

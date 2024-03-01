@@ -97,13 +97,14 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult AddVehiclePartialView()
         {
-            return PartialView("_VehicleModal", new Vehicle());
+            return PartialView("_VehicleModal", new Vehicle() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.VehicleRecord).ExtraFields });
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetEditVehiclePartialViewById(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
+            data.ExtraFields = StaticHelper.AddExtraFields(data.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.VehicleRecord).ExtraFields);
             return PartialView("_VehicleModal", data);
         }
         [HttpPost]

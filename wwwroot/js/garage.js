@@ -4,6 +4,8 @@
         if (data) {
             $("#addVehicleModalContent").html(data);
             initTagSelector($("#inputTag"));
+            initDatePicker($('#inputPurchaseDate'));
+            initDatePicker($('#inputSoldDate'));
             $('#addVehicleModal').modal('show');
         }
     })
