@@ -101,6 +101,10 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult WriteToSettings(UserConfig userConfig)
         {
+            //retrieve existing userConfig.
+            var existingConfig = _config.GetUserConfig(User);
+            //copy over stuff that persists
+            userConfig.UserColumnPreferences = existingConfig.UserColumnPreferences;
             var result = _config.SaveUserConfig(User, userConfig);
             return Json(result);
         }

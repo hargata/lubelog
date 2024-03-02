@@ -879,7 +879,7 @@ function replenishSupplies() {
         }
     });
 }
-function showTableColumns(e) {
+function showTableColumns(e, tabName) {
     //logic for extra field since we dont hardcode the data-column type
     var showColumn = $(e).is(':checked');
     var columnName = $(e).attr('data-column-toggle');
@@ -888,6 +888,7 @@ function showTableColumns(e) {
     } else {
         $(`[data-column='${columnName}']`).hide();
     }
+    saveUserColumnPreferences(tabName);
 }
 function searchTableRows(tabName) {
     Swal.fire({
@@ -931,6 +932,18 @@ function loadUserColumnPreferences(columns) {
         if (defaultColumn.length > 0) {
             defaultColumn.prop("checked", true);
             $(`[data-column='${x}']`).show();
+        }
+    });
+}
+function saveUserColumnPreferences(importMode) {
+    var visibleColumns = $('.col-visible-toggle:checked').map((index, elem) => $(elem).attr('data-column-toggle')).toArray();
+    var columnPreference = {
+        tab: importMode,
+        visibleColumns: visibleColumns
+    };
+    $.post('/Vehicle/SaveUserColumnPreferences', { columnPreference: columnPreference }, function (data) {
+        if (!data) {
+            errorToast(genericErrorMessage());
         }
     });
 }

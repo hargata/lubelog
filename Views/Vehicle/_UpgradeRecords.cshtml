@@ -12,6 +12,7 @@
     {
         extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.UpgradeRecord);
 }
 @model List<UpgradeRecord>
 <div class="row">
@@ -48,31 +49,31 @@
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Date" checked>
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="chkCol_Date" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
                             </div>
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Odometer" checked>
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="chkCol_Odometer" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
                             </div>
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Description" checked>
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="chkCol_Description" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
                             </div>
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Cost" checked>
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="chkCol_Cost" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
                             </div>
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Notes" checked>
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="chkCol_Notes" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
                             </div>
                         </li>
@@ -81,7 +82,7 @@
                             var elementId = Guid.NewGuid();
                             <li class="dropdown-item">
                                 <div class="list-group-item">
-                                    <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this)" type="checkbox" id="@elementId">
+                                    <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'UpgradeRecord')" type="checkbox" id="@elementId">
                                     <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
                                 </div>
                             </li>
@@ -156,3 +157,7 @@
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'UpgradeRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'UpgradeRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
