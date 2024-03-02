@@ -170,17 +170,17 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
-                    <th scope="col" class="col-2" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
-                    <th scope="col" class="col-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
-                    <th scope="col" class="col-2" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
-                    <th scope="col" class="col-3" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
-                    <th scope="col" class="col-1" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-1" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
-                    <th scope="col" class="col-3" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 flex-grow-1" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
+                    <th scope="col" class="col-2 flex-grow-1" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
+                    <th scope="col" class="col-3 flex-grow-1" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
+                    <th scope="col" class="col-3 flex-grow-1" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -188,17 +188,17 @@
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
-                        <td class="col-2" data-column="daterefueled">@gasRecord.Date</td>
-                        <td class="col-2" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
-                        <td class="col-1" data-column="delta">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
-                        <td class="col-2" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-3" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
-                        <td class="col-1" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
-                        <td class="col-3 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
+                        <td class="col-2 flex-grow-1" data-column="daterefueled">@gasRecord.Date</td>
+                        <td class="col-2 flex-grow-1" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
+                        <td class="col-1 flex-grow-1" data-column="delta">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
+                        <td class="col-2 flex-grow-1" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
+                        <td class="col-3 flex-grow-1" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-1 flex-grow-1" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td class="col-1 flex-grow-1" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        <td class="col-3 flex-grow-1 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(gasRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
+                            <td class="col-2 flex-grow-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(gasRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
                         }
                     </tr>
                 }
