@@ -10,6 +10,7 @@ namespace CarCareTracker.Helper
         OpenIDConfig GetOpenIDConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
+        bool AuthenticateRootUser(string username, string password);
         string GetLogoUrl();
         string GetServerLanguage();
         bool GetServerEnableShopSupplies();
@@ -42,6 +43,12 @@ namespace CarCareTracker.Helper
                 logoUrl = "/defaults/lubelogger_logo.png";
             }
             return logoUrl;
+        }
+        public bool AuthenticateRootUser(string username, string password)
+        {
+            var rootUsername = _config["UserNameHash"];
+            var rootPassword = _config["UserPasswordHash"];
+            return username == rootUsername && password == rootPassword;
         }
         public string GetServerLanguage()
         {

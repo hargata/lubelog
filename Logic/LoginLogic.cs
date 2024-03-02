@@ -35,15 +35,18 @@ namespace CarCareTracker.Logic
         private readonly IUserRecordDataAccess _userData;
         private readonly ITokenRecordDataAccess _tokenData;
         private readonly IMailHelper _mailHelper;
+        private readonly IConfigHelper _configHelper;
         private IMemoryCache _cache;
         public LoginLogic(IUserRecordDataAccess userData, 
             ITokenRecordDataAccess tokenData, 
             IMailHelper mailHelper,
+            IConfigHelper configHelper,
             IMemoryCache memoryCache)
         {
             _userData = userData;
             _tokenData = tokenData;
             _mailHelper = mailHelper;
+            _configHelper = configHelper;
             _cache = memoryCache;
         }
         public bool CheckIfUserIsValid(int userId)
@@ -412,21 +415,9 @@ namespace CarCareTracker.Logic
         }
         private bool UserIsRoot(LoginModel credentials)
         {
-            var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
-            var existingUserConfig = JsonSerializer.Deserialize<UserConfig>(configFileContents);
-            if (existingUserConfig is not null)
-            {
-                //create hashes of the login credentials.
-                var hashedUserName = GetHash(credentials.UserName);
-                var hashedPassword = GetHash(credentials.Password);
-                //compare against stored hash.
-                if (hashedUserName == existingUserConfig.UserNameHash &&
-                    hashedPassword == existingUserConfig.UserPasswordHash)
-                {
-                    return true;
-                }
-            }
-            return false;
+            var hashedUserName = GetHash(credentials.UserName);
+            var hashedPassword = GetHash(credentials.Password);
+            return _configHelper.AuthenticateRootUser(hashedUserName, hashedPassword);
         }
         #endregion
         private static string GetHash(string value)
