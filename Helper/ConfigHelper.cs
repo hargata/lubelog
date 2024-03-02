@@ -46,8 +46,8 @@ namespace CarCareTracker.Helper
         }
         public bool AuthenticateRootUser(string username, string password)
         {
-            var rootUsername = _config["UserNameHash"];
-            var rootPassword = _config["UserPasswordHash"];
+            var rootUsername = _config[nameof(UserConfig.UserNameHash)] ?? string.Empty;
+            var rootPassword = _config[nameof(UserConfig.UserPasswordHash)] ?? string.Empty;
             if (string.IsNullOrWhiteSpace(rootUsername) || string.IsNullOrWhiteSpace(rootPassword))
             {
                 return false;
@@ -92,20 +92,9 @@ namespace CarCareTracker.Helper
                         File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(new UserConfig()));
                     }
                     var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
-                    var existingUserConfig = System.Text.Json.JsonSerializer.Deserialize<UserConfig>(configFileContents);
-                    if (existingUserConfig is not null)
-                    {
-                        //copy over settings that are off limits on the settings page.
-                        configData.EnableAuth = existingUserConfig.EnableAuth;
-                        configData.UserNameHash = existingUserConfig.UserNameHash;
-                        configData.UserPasswordHash = existingUserConfig.UserPasswordHash;
-                    }
-                    else
-                    {
-                        configData.EnableAuth = false;
-                        configData.UserNameHash = string.Empty;
-                        configData.UserPasswordHash = string.Empty;
-                    }
+                    configData.EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)] ?? "false");
+                    configData.UserNameHash = _config[nameof(UserConfig.UserNameHash)] ?? string.Empty;
+                    configData.UserPasswordHash = _config[nameof(UserConfig.UserPasswordHash)] ?? string.Empty;
                     File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(configData));
                     _cache.Set<UserConfig>($"userConfig_{userId}", configData);
                     return true;
