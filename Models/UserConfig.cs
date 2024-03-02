@@ -17,6 +17,7 @@
         public bool EnableExtraFieldColumns { get; set; }
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
+        public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
         public string UserLanguage { get; set; } = "en_US";

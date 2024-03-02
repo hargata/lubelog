@@ -2448,7 +2448,29 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult SaveUserColumnPreferences(UserColumnPreference columnPreference)
+        {
+            try
+            {
+                var userConfig = _config.GetUserConfig(User);
+                var existingUserColumnPreference = userConfig.UserColumnPreferences.Where(x => x.Tab == columnPreference.Tab);
+                if (existingUserColumnPreference.Any())
+                {
+                    var existingPreference = existingUserColumnPreference.Single();
+                    existingPreference.VisibleColumns = columnPreference.VisibleColumns;
+                } else
+                {
+                    userConfig.UserColumnPreferences.Add(columnPreference);
+                }
+                var result = _config.SaveUserConfig(User, userConfig);
+                return Json(result);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(false);
+            }
+        }
         #endregion
-
     }
 }

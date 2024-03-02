@@ -46,6 +46,7 @@
     {
         extraFields = Model.GasRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -95,49 +96,49 @@
                     <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='daterefueled' onChange="showTableColumns(this)" type="checkbox" id="chkCol_DateRefueled" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='daterefueled' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_DateRefueled" checked>
                             <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@translator.Translate(userLanguage, "Date Refueled")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='odometer' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Odometer" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Odometer" checked>
                             <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='delta' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Delta" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='delta' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Delta" checked>
                             <label class="form-check-label stretched-link" for="chkCol_Delta">@translator.Translate(userLanguage, "Delta")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='consumption' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Consumption" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='consumption' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Consumption" checked>
                             <label class="form-check-label stretched-link" for="chkCol_Consumption">@translator.Translate(userLanguage, "Consumption")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='fueleconomy' onChange="showTableColumns(this)" type="checkbox" id="chkCol_FuelEconomy" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='fueleconomy' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_FuelEconomy" checked>
                             <label class="form-check-label stretched-link" for="chkCol_FuelEconomy">@translator.Translate(userLanguage, "Fuel Economy")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='cost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Cost" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Cost" checked>
                             <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='unitcost' onChange="showTableColumns(this)" type="checkbox" id="chkCol_UnitCost" checked>
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='unitcost' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_UnitCost" checked>
                             <label class="form-check-label stretched-link" for="chkCol_UnitCost">@translator.Translate(userLanguage, "Unit Cost")</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
                         <div class="list-group-item">
-                            <input class="form-check-input" data-column-toggle='notes' onChange="showTableColumns(this)" type="checkbox" id="chkCol_Notes">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Notes">
                             <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
                         </div>
                     </li>
@@ -146,7 +147,7 @@
                         var elementId = Guid.NewGuid();
                         <li class="dropdown-item">
                             <div class="list-group-item">
-                                <input class="form-check-input" onChange="showTableColumns(this, true)" type="checkbox" id="@elementId">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="@elementId">
                                 <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
                             </div>
                         </li>
@@ -222,7 +223,10 @@
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
-
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
 <script>
     @if (!string.IsNullOrWhiteSpace(preferredFuelEconomyUnit))
     {
