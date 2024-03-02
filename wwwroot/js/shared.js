@@ -847,7 +847,7 @@ function replenishSupplies() {
             var quantitybeforeRepl = globalParseFloat($('#supplyRecordQuantity').val());
             if (isNaN(replquantity) || (replcost.trim() != '' && isNaN(parsedReplCost))) {
                 Swal.showValidationMessage(`Please enter a valid quantity and cost`);
-            } else if (replcost.trim() == '' && (isNaN(quantitybeforeRepl) || quantitybeforeRepl == 0)){
+            } else if (replcost.trim() == '' && (isNaN(quantitybeforeRepl) || quantitybeforeRepl == 0)) {
                 Swal.showValidationMessage(`Unable to use unit cost calculation, please provide cost`);
             }
             return { replquantity, replcost, parsedReplCost }
@@ -879,24 +879,14 @@ function replenishSupplies() {
         }
     });
 }
-function showTableColumns(e, isExtraField) {
+function showTableColumns(e) {
     //logic for extra field since we dont hardcode the data-column type
-    if (isExtraField) {
-        var showColumn = $(e).is(':checked');
-        var columnName = $(e).parent().find('.form-check-label').text();
-        if (showColumn) {
-            $(`[data-column='${columnName}']`).show();
-        } else {
-            $(`[data-column='${columnName}']`).hide();
-        }
+    var showColumn = $(e).is(':checked');
+    var columnName = $(e).attr('data-column-toggle');
+    if (showColumn) {
+        $(`[data-column='${columnName}']`).show();
     } else {
-        var showColumn = $(e).is(':checked');
-        var columnName = $(e).attr('data-column-toggle');
-        if (showColumn) {
-            $(`[data-column='${columnName}']`).show();
-        } else {
-            $(`[data-column='${columnName}']`).hide();
-        }
+        $(`[data-column='${columnName}']`).hide();
     }
 }
 function searchTableRows(tabName) {
@@ -923,6 +913,24 @@ function searchTableRows(tabName) {
             }
             $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
             updateAggregateLabels();
+        }
+    });
+}
+function loadUserColumnPreferences(columns) {
+    if (columns.length == 0) {
+        //user has no preference saved, reset to default
+        return;
+    }
+    //uncheck all columns
+    $(".col-visible-toggle").prop("checked", false);
+    //hide all columns
+    $('[data-column]').hide();
+    //toggle visibility of each column
+    columns.map(x => {
+        var defaultColumn = $(`[data-column-toggle='${x}'].col-visible-toggle`);
+        if (defaultColumn.length > 0) {
+            defaultColumn.prop("checked", true);
+            $(`[data-column='${x}']`).show();
         }
     });
 }
