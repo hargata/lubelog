@@ -48,6 +48,10 @@ namespace CarCareTracker.Helper
         {
             var rootUsername = _config["UserNameHash"];
             var rootPassword = _config["UserPasswordHash"];
+            if (string.IsNullOrWhiteSpace(rootUsername) || string.IsNullOrWhiteSpace(rootPassword))
+            {
+                return false;
+            }
             return username == rootUsername && password == rootPassword;
         }
         public string GetServerLanguage()
