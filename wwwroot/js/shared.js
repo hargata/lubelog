@@ -678,6 +678,9 @@ function isRightClick(e) {
     return false;
 }
 function stopEvent() {
+    if (isDragging) {
+        isDragging = false;
+    }
     event.stopPropagation();
 }
 function rangeMouseUp(e) {
