@@ -188,10 +188,13 @@
             </div>
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <span class="lead">@translator.Translate(userLanguage, "Manage Extra Fields")</span>
+                    <span class="lead">@translator.Translate(userLanguage, "Server-wide Settings")</span>
                     <div class="row">
-                        <div class="col-12 d-grid">
-                            <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Add/Remove Extra Fields")</button>
+                        <div class="col-6 d-grid">
+                            <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Extra Fields")</button>
+                        </div>
+                        <div class="col-6 d-grid">
+                            <button onclick="showReminderUrgencyThresholdModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Reminders")</button>
                         </div>
                     </div>
                 </div>
@@ -254,6 +257,53 @@
     </div>
 </div>
 <script>
+    function showReminderUrgencyThresholdModal(){
+        Swal.fire({
+            title: 'Configure Reminder Urgency Thresholds',
+            html: `
+                        <form>
+                                <div class='d-flex flex-row align-items-center'>
+                        <label class='form-label me-auto'>Urgent(Days)</label>
+                        <input type="text" id="inputUrgentDays" class="form-control" style='width:40%' placeholder="Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDays'>
+                        </div>
+                            <div class='d-flex flex-row align-items-center mt-2'>
+                                <label class='form-label me-auto'>Very Urgent(Days)</label>
+                                <input type="text" id="inputVeryUrgentDays" class="form-control" style='width:40%' placeholder="Very Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDays'>
+                            </div>
+                            <div class='d-flex flex-row align-items-center mt-2'>
+                                    <label class='form-label me-auto'>Urgent(Distance)</label>
+                                <input type="text" id="inputUrgentDistance" class="form-control" style='width:40%' placeholder="Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDistance'>
+                           </div>
+                               <div class='d-flex flex-row align-items-center mt-2'>
+                                <label class='form-label me-auto'>Very Urgent(Distance)</label>
+                            <input type="text" id="inputVeryUrgentDistance" class="form-control" style='width:40%' placeholder="Very Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDistance'>
+                        </div>
+                        </form>
+                    `,
+            confirmButtonText: 'Save',
+            focusConfirm: false,
+            preConfirm: () => {
+                const urgentDays = $("#inputUrgentDays").val();
+                const veryUrgentDays = $("#inputVeryUrgentDays").val();
+                const urgentDistance = $("#inputUrgentDistance").val();
+                const veryUrgentDistance = $("#inputVeryUrgentDistance").val();
+                if (!urgentDays || isNaN(urgentDays) || !veryUrgentDays || isNaN(veryUrgentDays) || !urgentDistance || isNaN(urgentDistance) || !veryUrgentDistance || isNaN(veryUrgentDistance)) {
+                    Swal.showValidationMessage(`Invalid parameters`)
+                }
+                return { urgentDays, veryUrgentDays, urgentDistance, veryUrgentDistance }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.post('/Home/SaveReminderUrgencyThreshold', { urgentDays: result.value.urgentDays, veryUrgentDays: result.value.veryUrgentDays, urgentDistance: result.value.urgentDistance, veryUrgentDistance: result.value.veryUrgentDistance }, function (data) {
+                    if (data) {
+                        setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+                    } else {
+                        errorToast(genericErrorMessage());
+                    }
+                })
+            }
+        });
+    }
     function showExtraFieldModal() {
         $.get(`/Home/GetExtraFieldsModal?importMode=0`, function (data) {
             $("#extraFieldModalContent").html(data);
