@@ -64,7 +64,7 @@
                         <div>
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
                             <label for="collisionRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
-                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="collisionRecordFiles">
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="collisionRecordFiles">
                             <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                         </div>
                     }
@@ -80,7 +80,7 @@
                             </div>
                         }
                         <label for="collisionRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
-                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx" class="form-control-file" id="collisionRecordFiles">
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="collisionRecordFiles">
                         <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
                 </div>
