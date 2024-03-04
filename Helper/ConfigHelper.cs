@@ -148,6 +148,7 @@ namespace CarCareTracker.Helper
                 PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
                 PreferredGasUnit = _config[nameof(UserConfig.PreferredGasUnit)],
                 UserLanguage = _config[nameof(UserConfig.UserLanguage)],
+                HideSoldVehicles = bool.Parse(_config[nameof(UserConfig.HideSoldVehicles)]),
                 EnableShopSupplies = bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)]),
                 EnableExtraFieldColumns = bool.Parse(_config[nameof(UserConfig.EnableExtraFieldColumns)]),
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),

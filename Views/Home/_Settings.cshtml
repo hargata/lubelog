@@ -57,6 +57,10 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
             <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Enabling this may cause performance issues")</small></label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideSoldVehicles" checked="@Model.UserConfig.HideSoldVehicles">
+            <label class="form-check-label" for="hideSoldVehicles">@translator.Translate(userLanguage, "Hide Sold Vehicles")</label>
+        </div>
         <div class="form-check form-switch @(User.IsInRole(nameof(UserData.IsRootUser)) ? "" : "d-none")">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
             <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
@@ -292,6 +296,7 @@
             enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
             enableShopSupplies: $("#enableShopSupplies").is(":checked"),
             enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
+            hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
             preferredGasUnit: $("#preferredGasUnit").val(),
             preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
             userLanguage: $("#defaultLanguage").val(),
