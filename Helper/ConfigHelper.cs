@@ -15,6 +15,7 @@ namespace CarCareTracker.Helper
         string GetServerLanguage();
         bool GetServerEnableShopSupplies();
         string GetServerPostgresConnection();
+        string GetAllowedFileUploadExtensions();
         public bool DeleteUserConfig(int userId);
     }
     public class ConfigHelper : IConfigHelper
@@ -43,6 +44,14 @@ namespace CarCareTracker.Helper
                 logoUrl = "/defaults/lubelogger_logo.png";
             }
             return logoUrl;
+        }
+        public string GetAllowedFileUploadExtensions()
+        {
+            var allowedFileExtensions = _config["LUBELOGGER_ALLOWED_FILE_EXTENSIONS"];
+            if (string.IsNullOrWhiteSpace(allowedFileExtensions)){
+                return ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
+            }
+            return allowedFileExtensions;
         }
         public bool AuthenticateRootUser(string username, string password)
         {

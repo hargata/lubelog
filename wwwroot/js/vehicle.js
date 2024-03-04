@@ -441,3 +441,37 @@ function getAndValidateGenericRecordValues() {
         }
     }
 }
+function getRecordsDeltaStats(recordIds) {
+    if (recordIds.length < 2) {
+        return;
+    }
+    var odometerReadings = [];
+    var dateReadings = [];
+    //get all of the odometer readings
+    recordIds.map(x => {
+        var odometerReading = parseInt($(`tr[data-rowId='${x}'] td[data-column='odometer']`).text());
+        if (!isNaN(odometerReading)) {
+            odometerReadings.push(odometerReading);
+        }
+        var dateReading = parseInt($(`tr[data-rowId=${x}] td[data-column='date']`).attr('data-date'));
+        if (!isNaN(dateReading)) {
+            dateReadings.push(dateReading);
+        }
+    });
+    //get max stats
+    var maxOdo = odometerReadings.length > 0 ? odometerReadings.reduce((a, b) => a > b ? a : b) : 0;
+    var maxDate = dateReadings.length > 0 ? dateReadings.reduce((a, b) => a > b ? a : b) : 0;
+    //get min stats
+    var minOdo = odometerReadings.length > 0 ? odometerReadings.reduce((a, b) => a < b ? a : b) : 0;
+    var minDate = dateReadings.length > 0 ? dateReadings.reduce((a, b) => a < b ? a : b) : 0;
+    var diffOdo = maxOdo - minOdo;
+    var diffDate = maxDate - minDate;
+    var divisibleCount = recordIds.length - 1;
+    var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : 0;
+    var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : 0;
+    Swal.fire({
+        title: "Record Statistics",
+        html: `<p>Average Distance Traveled between Records: ${averageOdo}</p><br /><p>Average Days between Records: ${averageDays}</p>`,
+        icon: "info"
+    });
+}
