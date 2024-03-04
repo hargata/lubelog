@@ -8,6 +8,7 @@ namespace CarCareTracker.Helper
     public interface IConfigHelper
     {
         OpenIDConfig GetOpenIDConfig();
+        ReminderUrgencyConfig GetReminderUrgencyConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool AuthenticateRootUser(string username, string password);
@@ -35,6 +36,11 @@ namespace CarCareTracker.Helper
         {
             OpenIDConfig openIdConfig = _config.GetSection("OpenIDConfig").Get<OpenIDConfig>() ?? new OpenIDConfig();
             return openIdConfig;
+        }
+        public ReminderUrgencyConfig GetReminderUrgencyConfig()
+        {
+            ReminderUrgencyConfig reminderUrgencyConfig = _config.GetSection("ReminderUrgencyConfig").Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig();
+            return reminderUrgencyConfig;
         }
         public string GetLogoUrl()
         {
@@ -148,10 +154,12 @@ namespace CarCareTracker.Helper
                 PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
                 PreferredGasUnit = _config[nameof(UserConfig.PreferredGasUnit)],
                 UserLanguage = _config[nameof(UserConfig.UserLanguage)],
+                HideSoldVehicles = bool.Parse(_config[nameof(UserConfig.HideSoldVehicles)]),
                 EnableShopSupplies = bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)]),
                 EnableExtraFieldColumns = bool.Parse(_config[nameof(UserConfig.EnableExtraFieldColumns)]),
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
+                ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)])
             };
             int userId = 0;

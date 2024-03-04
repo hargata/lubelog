@@ -9,6 +9,11 @@ namespace CarCareTracker.Helper
     }
     public class ReminderHelper: IReminderHelper
     {
+        private readonly IConfigHelper _config;
+        public ReminderHelper(IConfigHelper config)
+        {
+            _config = config;
+        }
         public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder)
         {
             if (existingReminder.Metric == ReminderMetric.Both)
@@ -56,6 +61,7 @@ namespace CarCareTracker.Helper
         public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare)
         {
             List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
+            var reminderUrgencyConfig = _config.GetReminderUrgencyConfig();
             foreach (var reminder in reminders)
             {
                 var reminderViewModel = new ReminderRecordViewModel()
@@ -81,24 +87,24 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                    else if (reminder.Date < dateCompare.AddDays(7))
+                    else if (reminder.Date < dateCompare.AddDays(reminderUrgencyConfig.VeryUrgentDays))
                     {
                         //if less than a week from today or less than 50 miles from current mileage then very urgent.
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                         //have to specify by which metric this reminder is urgent.
                         reminderViewModel.Metric = ReminderMetric.Date;
                     }
-                    else if (reminder.Mileage < currentMileage + 50)
+                    else if (reminder.Mileage < currentMileage + reminderUrgencyConfig.VeryUrgentDistance)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                    else if (reminder.Date < dateCompare.AddDays(30))
+                    else if (reminder.Date < dateCompare.AddDays(reminderUrgencyConfig.UrgentDays))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Date;
                     }
-                    else if (reminder.Mileage < currentMileage + 100)
+                    else if (reminder.Mileage < currentMileage + reminderUrgencyConfig.UrgentDistance)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
@@ -110,11 +116,11 @@ namespace CarCareTracker.Helper
                     {
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                     }
-                    else if (reminder.Date < dateCompare.AddDays(7))
+                    else if (reminder.Date < dateCompare.AddDays(reminderUrgencyConfig.VeryUrgentDays))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                     }
-                    else if (reminder.Date < dateCompare.AddDays(30))
+                    else if (reminder.Date < dateCompare.AddDays(reminderUrgencyConfig.UrgentDays))
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
@@ -126,11 +132,11 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.PastDue;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
-                    else if (reminder.Mileage < currentMileage + 50)
+                    else if (reminder.Mileage < currentMileage + reminderUrgencyConfig.VeryUrgentDistance)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.VeryUrgent;
                     }
-                    else if (reminder.Mileage < currentMileage + 100)
+                    else if (reminder.Mileage < currentMileage + reminderUrgencyConfig.UrgentDistance)
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }

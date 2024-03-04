@@ -73,8 +73,7 @@ namespace CarCareTracker.Controllers
                 //we don't care about mileages so we can basically fake the current vehicle mileage.
                 if (vehicleReminders.Any())
                 {
-                    var maxMileage = vehicleReminders.Max(x => x.Mileage) + 1000;
-                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, maxMileage, DateTime.Now);
+                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, 0, DateTime.Now);
                     reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
                     reminders.AddRange(reminderUrgency);
                 }
@@ -84,7 +83,7 @@ namespace CarCareTracker.Controllers
         public IActionResult ViewCalendarReminder(int reminderId)
         {
             var reminder = _reminderRecordDataAccess.GetReminderRecordById(reminderId);
-            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, reminder.Mileage + 1000, DateTime.Now).FirstOrDefault();
+            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, 0, DateTime.Now).FirstOrDefault();
             return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
         }
         public IActionResult Settings()
@@ -105,7 +104,17 @@ namespace CarCareTracker.Controllers
             var existingConfig = _config.GetUserConfig(User);
             //copy over stuff that persists
             userConfig.UserColumnPreferences = existingConfig.UserColumnPreferences;
+            userConfig.ReminderUrgencyConfig = existingConfig.ReminderUrgencyConfig;
             var result = _config.SaveUserConfig(User, userConfig);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult SaveReminderUrgencyThreshold(ReminderUrgencyConfig reminderUrgencyConfig)
+        {
+            //retrieve existing userConfig.
+            var existingConfig = _config.GetUserConfig(User);
+            existingConfig.ReminderUrgencyConfig = reminderUrgencyConfig;
+            var result = _config.SaveUserConfig(User, existingConfig);
             return Json(result);
         }
         public IActionResult Privacy()

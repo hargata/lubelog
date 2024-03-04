@@ -15,9 +15,11 @@
         public bool EnableAutoOdometerInsert { get; set; }
         public bool EnableShopSupplies { get; set; }
         public bool EnableExtraFieldColumns { get; set; }
+        public bool HideSoldVehicles { get; set; }
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
+        public ReminderUrgencyConfig ReminderUrgencyConfig { get; set; } = new ReminderUrgencyConfig();
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
         public string UserLanguage { get; set; } = "en_US";
