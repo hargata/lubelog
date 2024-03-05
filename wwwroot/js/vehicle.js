@@ -447,6 +447,7 @@ function getRecordsDeltaStats(recordIds) {
     }
     var odometerReadings = [];
     var dateReadings = [];
+    var costReadings = [];
     //get all of the odometer readings
     recordIds.map(x => {
         var odometerReading = parseInt($(`tr[data-rowId='${x}'] td[data-column='odometer']`).text());
@@ -457,6 +458,10 @@ function getRecordsDeltaStats(recordIds) {
         if (!isNaN(dateReading)) {
             dateReadings.push(dateReading);
         }
+        var costReading = globalParseFloat($(`tr[data-rowId='${x}'] td[data-column='cost']`).text());
+        if (costReading > 0) {
+            costReadings.push(costReading);
+        }
     });
     //get max stats
     var maxOdo = odometerReadings.length > 0 ? odometerReadings.reduce((a, b) => a > b ? a : b) : 0;
@@ -464,14 +469,25 @@ function getRecordsDeltaStats(recordIds) {
     //get min stats
     var minOdo = odometerReadings.length > 0 ? odometerReadings.reduce((a, b) => a < b ? a : b) : 0;
     var minDate = dateReadings.length > 0 ? dateReadings.reduce((a, b) => a < b ? a : b) : 0;
+    //get sum of costs
+    var costSum = costReadings.length > 0 ? costReadings.reduce((a, b) => a + b) : 0;
     var diffOdo = maxOdo - minOdo;
     var diffDate = maxDate - minDate;
     var divisibleCount = recordIds.length - 1;
     var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : 0;
     var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : 0;
+    var averageSum = costSum > 0 ? (costSum / divisibleCount).toFixed(2) : 0;
+    costSum = costSum.toFixed(2);
     Swal.fire({
         title: "Record Statistics",
-        html: `<p>Average Distance Traveled between Records: ${averageOdo}</p><br /><p>Average Days between Records: ${averageDays}</p>`,
+        html: `<p>Average Distance Traveled between Records: ${averageOdo}</p>
+                <br />
+                <p>Average Days between Records: ${averageDays}</p>
+                <br />
+                <p>Total Cost: ${getGlobalConfig().currencySymbol} ${costSum}</p>
+                <br />
+                <p>Average Cost: ${getGlobalConfig().currencySymbol} ${averageSum}</p>`
+        ,
         icon: "info"
     });
 }
