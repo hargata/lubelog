@@ -909,12 +909,13 @@ function searchTableRows(tabName) {
         if (result.isConfirmed) {
             var rowData = $(`#${tabName} table tbody tr`);
             var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
-            if (result.value.searchString.includes('=') && result.value.searchString.split('=').length == 2) {
+            var splitSearchString = result.value.searchString.split('=');
+            if (result.value.searchString.includes('=') && splitSearchString.length == 2) {
                 //column specific search.
                 //get column index
                 var columns = $(`#${tabName} table th`).toArray().map(x => x.innerText);
-                var columnName = result.value.searchString.split('=')[0];
-                var colSearchString = result.value.searchString.split('=')[1];
+                var columnName = splitSearchString[0];
+                var colSearchString = splitSearchString[1];
                 var colIndex = columns.findIndex(x => x == columnName) + 1;
                 filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):contains('${colSearchString}')`).parent();
             }
