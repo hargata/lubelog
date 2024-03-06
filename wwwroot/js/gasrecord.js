@@ -403,6 +403,16 @@ function searchGasTableRows() {
         if (result.isConfirmed) {
             var rowData = $(`#${tabName} table tbody tr`);
             var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
+            var splitSearchString = result.value.searchString.split('=');
+            if (result.value.searchString.includes('=') && splitSearchString.length == 2) {
+                //column specific search.
+                //get column index
+                var columns = $(`#${tabName} table th`).toArray().map(x => x.innerText);
+                var columnName = splitSearchString[0];
+                var colSearchString = splitSearchString[1];
+                var colIndex = columns.findIndex(x => x == columnName) + 1;
+                filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):contains('${colSearchString}')`).parent();
+            }
             if (result.value.searchString.trim() == '') {
                 rowData.removeClass('override-hide');
             } else {
