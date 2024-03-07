@@ -12,6 +12,7 @@ namespace CarCareTracker.Helper
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool AuthenticateRootUser(string username, string password);
+        string GetMOTD();
         string GetLogoUrl();
         string GetServerLanguage();
         bool GetServerEnableShopSupplies();
@@ -31,6 +32,15 @@ namespace CarCareTracker.Helper
             _config = serverConfig;
             _userConfig = userConfig;
             _cache = memoryCache;
+        }
+        public string GetMOTD()
+        {
+            var motd = _config["LUBELOGGER_MOTD"];
+            if (string.IsNullOrWhiteSpace(motd))
+            {
+                motd = "";
+            }
+            return motd;
         }
         public OpenIDConfig GetOpenIDConfig()
         {
@@ -55,7 +65,7 @@ namespace CarCareTracker.Helper
         {
             var allowedFileExtensions = _config["LUBELOGGER_ALLOWED_FILE_EXTENSIONS"];
             if (string.IsNullOrWhiteSpace(allowedFileExtensions)){
-                return ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
+                return StaticHelper.DefaultAllowedFileExtensions;
             }
             return allowedFileExtensions;
         }

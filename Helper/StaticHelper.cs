@@ -8,10 +8,12 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
+        public static string VersionNumber = "1.2.5";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";
         public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
+        public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
 
         public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
         {
@@ -224,6 +226,23 @@ namespace CarCareTracker.Helper
         public static long GetEpochFromDateTime(DateTime date)
         {
             return new DateTimeOffset(date).ToUnixTimeMilliseconds();
+        }
+        public static void InitMessage(IConfiguration config)
+        {
+            Console.WriteLine($"LubeLogger {VersionNumber}");
+            Console.WriteLine("Website: https://lubelogger.com");
+            Console.WriteLine("Documentation: https://docs.lubelogger.com");
+            Console.WriteLine("GitHub: https://github.com/hargata/lubelog");
+            var mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
+            if (mailConfig != null && !string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            {
+                Console.WriteLine($"SMTP Configured for {mailConfig.EmailServer}");
+            } else
+            {
+                Console.WriteLine("SMTP Not Configured");
+            }
+            var motd = config["LUBELOGGER_MOTD"] ?? "Not Configured";
+            Console.WriteLine($"Message Of The Day: {motd}");
         }
     }
 }
