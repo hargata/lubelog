@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Print Messages
+StaticHelper.InitMessage(builder.Configuration);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

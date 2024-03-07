@@ -212,7 +212,7 @@
             <img src="/defaults/lubelogger_logo.png" />
         </div>
         <div class="d-flex justify-content-center">
-            <small class="text-body-secondary">Version 1.2.5</small>
+            <small class="text-body-secondary">@($"{translator.Translate(userLanguage, "Version")} {StaticHelper.VersionNumber}")</small>
         </div>
         <p class="lead">
             Proudly developed in the rural town of Price, Utah by Hargata Softworks.
@@ -259,28 +259,28 @@
 <script>
     function showReminderUrgencyThresholdModal(){
         Swal.fire({
-            title: 'Configure Reminder Urgency Thresholds',
+            title: decodeHTMLEntities('@translator.Translate(userLanguage, "Configure Reminder Urgency Thresholds")'),
             html: `
                         <form>
                                 <div class='d-flex flex-row align-items-center'>
-                        <label class='form-label me-auto'>Urgent(Days)</label>
-                        <input type="text" id="inputUrgentDays" class="form-control" style='width:40%' placeholder="Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDays'>
+                        <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent(Days)")')}</label>
+                        <input type="text" id="inputUrgentDays" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDays'>
                         </div>
                             <div class='d-flex flex-row align-items-center mt-2'>
-                                <label class='form-label me-auto'>Very Urgent(Days)</label>
-                                <input type="text" id="inputVeryUrgentDays" class="form-control" style='width:40%' placeholder="Very Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDays'>
+                                <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent(Days)")')}</label>
+                                <input type="text" id="inputVeryUrgentDays" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDays'>
                             </div>
                             <div class='d-flex flex-row align-items-center mt-2'>
-                                    <label class='form-label me-auto'>Urgent(Distance)</label>
-                                <input type="text" id="inputUrgentDistance" class="form-control" style='width:40%' placeholder="Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDistance'>
+                                    <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent(Distance)")')}</label>
+                                <input type="text" id="inputUrgentDistance" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDistance'>
                            </div>
                                <div class='d-flex flex-row align-items-center mt-2'>
-                                <label class='form-label me-auto'>Very Urgent(Distance)</label>
-                            <input type="text" id="inputVeryUrgentDistance" class="form-control" style='width:40%' placeholder="Very Urgent" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDistance'>
+                                <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent(Distance)")')}</label>
+                            <input type="text" id="inputVeryUrgentDistance" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDistance'>
                         </div>
                         </form>
                     `,
-            confirmButtonText: 'Save',
+            confirmButtonText: decodeHTMLEntities('@translator.Translate(userLanguage, "Save")'),
             focusConfirm: false,
             preConfirm: () => {
                 const urgentDays = $("#inputUrgentDays").val();
