@@ -82,6 +82,10 @@ html {
         overflow: visible;
     }
 
+    body {
+        background-color: #fff !important;
+    }
+
     table {
         background-color: #fff !important;
     }
