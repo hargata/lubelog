@@ -173,7 +173,7 @@ namespace CarCareTracker.Helper
                 foreach (UploadedFiles file in reportModel.Files)
                 {
                     var fileToCopy = GetFullFilePath(file.Location);
-                    var destFileName = $"{tempPath}/{fileIndex}{Path.GetExtension(file.Location)}";
+                    var destFileName = $"{tempPath}/{fileIndex}_{reportModel.DataType}_{reportModel.Date.ToString("yyyy-MM-dd")}_{file.Name}{Path.GetExtension(file.Location)}";
                     File.Copy(fileToCopy, destFileName);
                     fileIndex++;
                 }
