@@ -171,7 +171,7 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
@@ -189,7 +189,7 @@
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="daterefueled">@gasRecord.Date</td>
+                        <td class="col-2 flex-grow-1" data-column="daterefueled">@gasRecord.Date</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1" data-column="delta">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
