@@ -1132,6 +1132,7 @@ namespace CarCareTracker.Controllers
                 var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.ServiceRecord,
                     Date = x.Date,
                     Odometer = x.Mileage,
                     Files = x.Files
@@ -1142,6 +1143,7 @@ namespace CarCareTracker.Controllers
                 var records = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.RepairRecord,
                     Date = x.Date,
                     Odometer = x.Mileage,
                     Files = x.Files
@@ -1152,6 +1154,7 @@ namespace CarCareTracker.Controllers
                 var records = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.UpgradeRecord,
                     Date = x.Date,
                     Odometer = x.Mileage,
                     Files = x.Files
@@ -1162,6 +1165,7 @@ namespace CarCareTracker.Controllers
                 var records = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.GasRecord,
                     Date = x.Date,
                     Odometer = x.Mileage,
                     Files = x.Files
@@ -1172,6 +1176,7 @@ namespace CarCareTracker.Controllers
                 var records = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.TaxRecord,
                     Date = x.Date,
                     Odometer = 0,
                     Files = x.Files
@@ -1182,6 +1187,7 @@ namespace CarCareTracker.Controllers
                 var records = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
+                    DataType = ImportMode.OdometerRecord,
                     Date = x.Date,
                     Odometer = x.Mileage,
                     Files = x.Files
