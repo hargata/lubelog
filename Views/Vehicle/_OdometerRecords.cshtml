@@ -94,12 +94,12 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1 flex-grow-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-3 flex-grow-1" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-7 col-xl-8 flex-grow-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 flex-shrink-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-7 col-xl-8 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -107,12 +107,12 @@
                 @foreach (OdometerRecord odometerRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditOdometerRecordModal,@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
-                        <td class="col-2 col-xl-1 flex-grow-1" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
-                        <td class="col-3 flex-grow-1" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
-                        <td class="col-7 col-xl-8 flex-grow-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
+                        <td class="col-2 col-xl-1 flex-grow-1 flex-shrink-1" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
+                        <td class="col-7 col-xl-8 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 flex-grow-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
+                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>
                         }
                     </tr>
                 }
