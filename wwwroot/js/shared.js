@@ -960,3 +960,8 @@ function saveUserColumnPreferences(importMode) {
         }
     });
 }
+function copyToClipboard(e) {
+    var textToCopy = e.textContent;
+    navigator.clipboard.writeText(textToCopy);
+    successToast("Copied to Clipboard");
+}
