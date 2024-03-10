@@ -961,7 +961,7 @@ function saveUserColumnPreferences(importMode) {
     });
 }
 function copyToClipboard(e) {
-    var textToCopy = e.textContent;
+    var textToCopy = e.textContent.trim();
     navigator.clipboard.writeText(textToCopy);
     successToast("Copied to Clipboard");
 }

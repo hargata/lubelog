@@ -503,7 +503,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        InitialMileage = decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
+                                        InitialMileage = string.IsNullOrWhiteSpace(importModel.InitialOdometer) ? 0 : decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
