@@ -25,8 +25,7 @@ namespace CarCareTracker.Helper
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = 0,
-                MaxMileage = x.Max(y => y.Mileage),
-                MinMileage = x.Min(y => y.Mileage)
+                DistanceTraveled = x.Sum(y=>y.DistanceTraveled)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetServiceRecordSum(List<ServiceRecord> serviceRecords, int year = 0)
@@ -39,9 +38,7 @@ namespace CarCareTracker.Helper
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y => y.Cost),
-                MaxMileage = x.Max(y=>y.Mileage),
-                MinMileage = x.Min(y=>y.Mileage)
+                Cost = x.Sum(y => y.Cost)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetRepairRecordSum(List<CollisionRecord> repairRecords, int year = 0)
@@ -54,9 +51,7 @@ namespace CarCareTracker.Helper
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y => y.Cost),
-                MaxMileage = x.Max(y => y.Mileage),
-                MinMileage = x.Min(y => y.Mileage)
+                Cost = x.Sum(y => y.Cost)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetUpgradeRecordSum(List<UpgradeRecord> upgradeRecords, int year = 0)
@@ -69,9 +64,7 @@ namespace CarCareTracker.Helper
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y => y.Cost),
-                MaxMileage = x.Max(y => y.Mileage),
-                MinMileage = x.Min(y => y.Mileage)
+                Cost = x.Sum(y => y.Cost)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetGasRecordSum(List<GasRecord> gasRecords, int year = 0)
@@ -84,9 +77,7 @@ namespace CarCareTracker.Helper
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = x.Sum(y => y.Cost),
-                MaxMileage = x.Max(y => y.Mileage),
-                MinMileage = x.Min(y => y.Mileage)
+                Cost = x.Sum(y => y.Cost)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetTaxRecordSum(List<TaxRecord> taxRecords, int year = 0)

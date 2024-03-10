@@ -120,11 +120,6 @@
             }
         })
     }
-    function copyToClipboard(e) {
-        var textToCopy = e.textContent;
-        navigator.clipboard.writeText(textToCopy);
-        successToast("Copied to Clipboard");
-    }
     function generateNewToken() {
         Swal.fire({
             title: 'Generate Token',

@@ -69,6 +69,7 @@ builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 //configure logic
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
+builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 
 if (!Directory.Exists("data"))
 {

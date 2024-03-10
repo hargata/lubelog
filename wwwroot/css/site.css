@@ -371,3 +371,6 @@ input[type="file"] {
     position: absolute;
     z-index: 10;
 }
+.copyable{
+    cursor: pointer;
+}

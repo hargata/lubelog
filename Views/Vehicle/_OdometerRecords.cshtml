@@ -19,6 +19,7 @@
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
             <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-primary" data-aggregate-type="sum-distance">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.Sum(x => x.DistanceTraveled)}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('odometer-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -54,8 +55,20 @@
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='initialodometer' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_InitialOdometer" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_InitialOdometer">@translator.Translate(userLanguage, "Initial Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Odometer" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='distance' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Distance" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Distance">@translator.Translate(userLanguage, "Distance")</label>
                             </div>
                         </li>
                         <li class="dropdown-item">
@@ -95,8 +108,10 @@
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2 col-xl-1 flex-grow-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="initialodometer">@translator.Translate(userLanguage, "Initial Odometer")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-7 col-xl-8 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="distance" onclick="toggleSort('odometer-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Distance")</th>
+                    <th scope="col" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
                         <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
@@ -108,8 +123,10 @@
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditOdometerRecordModal,@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
                         <td class="col-2 col-xl-1 flex-grow-1" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
-                        <td class="col-7 col-xl-8 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="initialodometer">@odometerRecord.InitialMileage</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer">@odometerRecord.Mileage</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
+                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">@(odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "")</td>

@@ -11,6 +11,7 @@
         public string Type { get; set; }
         public string Priority { get; set; }
         public string Progress { get; set; }
+        public string InitialOdometer { get; set; }
         public string Odometer { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
@@ -50,6 +51,7 @@
     public class OdometerRecordExportModel
     {
         public string Date { get; set; }
+        public string InitialOdometer { get; set; }
         public string Odometer { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
