@@ -2096,10 +2096,6 @@ namespace CarCareTracker.Controllers
         {
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            if (odometerRecord.InitialMileage == default)
-            {
-                odometerRecord.InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(odometerRecord.VehicleId, new List<OdometerRecord>());
-            }
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             return Json(result);
         }
