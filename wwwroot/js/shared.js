@@ -292,6 +292,16 @@ function updateAggregateLabels() {
         }
         sumLabel.text(`${sumLabel.text().split(':')[0]}: ${getGlobalConfig().currencySymbol}${newSum}`)
     }
+    //Sum Distance
+    var sumDistanceLabel = $("[data-aggregate-type='sum-distance']");
+    if (sumDistanceLabel.length > 0) {
+        var distanceLabelsToSum = $("[data-record-type='distance']").parent(":not('.override-hide')").children("[data-record-type='distance']").toArray();
+        var newDistanceSum = 0;
+        if (distanceLabelsToSum.length > 0) {
+            newDistanceSum = distanceLabelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(0);
+        }
+        sumDistanceLabel.text(`${sumDistanceLabel.text().split(':')[0]}: ${newDistanceSum}`)
+    }
     //Count
     var newCount = $("[data-record-type='cost']").parent(":not('.override-hide')").length;
     var countLabel = $("[data-aggregate-type='count']");
