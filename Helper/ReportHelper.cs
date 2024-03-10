@@ -24,7 +24,8 @@ namespace CarCareTracker.Helper
             {
                 MonthId = x.Key,
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                Cost = 0
+                Cost = 0,
+                DistanceTraveled = x.Sum(y=>y.DistanceTraveled)
             });
         }
         public IEnumerable<CostForVehicleByMonth> GetServiceRecordSum(List<ServiceRecord> serviceRecords, int year = 0)

@@ -1008,7 +1008,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = 0
+                DistanceTraveled = x.Max(y=>y.DistanceTraveled)
             }).ToList();
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
@@ -1380,7 +1380,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = 0
+                DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);
         }
