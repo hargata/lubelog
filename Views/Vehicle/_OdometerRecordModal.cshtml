@@ -22,6 +22,8 @@
                         <input type="text" id="odometerRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date recorded")" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
+                    <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
+                    <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
                     <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
                     <label for="odometerRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>

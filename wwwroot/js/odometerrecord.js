@@ -1,5 +1,5 @@
 ﻿function showAddOdometerRecordModal() {
-    $.get('/Vehicle/GetAddOdometerRecordPartialView', function (data) {
+    $.get(`/Vehicle/GetAddOdometerRecordPartialView?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
             $("#odometerRecordModalContent").html(data);
             //initiate datepicker
@@ -78,6 +78,7 @@ function saveOdometerRecordToVehicle(isEdit) {
 }
 function getAndValidateOdometerRecordValues() {
     var serviceDate = $("#odometerRecordDate").val();
+    var initialOdometerMileage = parseInt(globalParseFloat($("#initialOdometerRecordMileage").val())).toString();
     var serviceMileage = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
     var serviceNotes = $("#odometerRecordNotes").val();
     var serviceTags = $("#odometerRecordTag").val();
@@ -101,11 +102,18 @@ function getAndValidateOdometerRecordValues() {
     } else {
         $("#odometerRecordMileage").removeClass("is-invalid");
     }
+    if (isNaN(initialOdometerMileage) || parseInt(initialOdometerMileage) < 0) {
+        hasError = true;
+        $("#initialOdometerRecordMileage").addClass("is-invalid");
+    } else {
+        $("#initialOdometerRecordMileage").removeClass("is-invalid");
+    }
     return {
         id: odometerRecordId,
         hasError: hasError,
         vehicleId: vehicleId,
         date: serviceDate,
+        initialMileage: initialOdometerMileage,
         mileage: serviceMileage,
         notes: serviceNotes,
         tags: serviceTags,

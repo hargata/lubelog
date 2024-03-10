@@ -36,6 +36,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly IReportHelper _reportHelper;
         private readonly IUserLogic _userLogic;
+        private readonly IOdometerLogic _odometerLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
 
         public VehicleController(ILogger<VehicleController> logger,
@@ -57,6 +58,7 @@ namespace CarCareTracker.Controllers
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IExtraFieldDataAccess extraFieldDataAccess,
             IUserLogic userLogic,
+            IOdometerLogic odometerLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config)
         {
@@ -79,6 +81,7 @@ namespace CarCareTracker.Controllers
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _extraFieldDataAccess = extraFieldDataAccess;
             _userLogic = userLogic;
+            _odometerLogic = odometerLogic;
             _webEnv = webEnv;
             _config = config;
         }
@@ -265,7 +268,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
+                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), Notes = x.Notes, InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Tags = string.Join(" ", x.Tags) });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -460,7 +463,7 @@ namespace CarCareTracker.Controllers
                                         _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
                                         if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
                                         {
-                                            _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                            _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                                             {
                                                 Date = convertedRecord.Date,
                                                 VehicleId = convertedRecord.VehicleId,
@@ -485,7 +488,7 @@ namespace CarCareTracker.Controllers
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
                                     {
-                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                                         {
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
@@ -500,6 +503,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
+                                        InitialMileage = decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
@@ -540,7 +544,7 @@ namespace CarCareTracker.Controllers
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
                                     {
-                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                                         {
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
@@ -564,7 +568,7 @@ namespace CarCareTracker.Controllers
                                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
                                     {
-                                        _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                                        _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                                         {
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
@@ -646,7 +650,7 @@ namespace CarCareTracker.Controllers
         {
             if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
-                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(gasRecord.Date),
                     VehicleId = gasRecord.VehicleId,
@@ -734,7 +738,7 @@ namespace CarCareTracker.Controllers
         {
             if (serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
-                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(serviceRecord.Date),
                     VehicleId = serviceRecord.VehicleId,
@@ -811,7 +815,7 @@ namespace CarCareTracker.Controllers
         {
             if (collisionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
-                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(collisionRecord.Date),
                     VehicleId = collisionRecord.VehicleId,
@@ -1004,7 +1008,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0
+                DistanceTraveled = 0
             }).ToList();
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
@@ -1376,7 +1380,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = x.Any(y => y.MinMileage != default) ? x.Max(y => y.MaxMileage) - x.Where(y => y.MinMileage != default).Min(y => y.MinMileage) : 0
+                DistanceTraveled = 0
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);
         }
@@ -1603,7 +1607,7 @@ namespace CarCareTracker.Controllers
         {
             if (upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
-                _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(upgradeRecord.Date),
                     VehicleId = upgradeRecord.VehicleId,
@@ -1968,7 +1972,7 @@ namespace CarCareTracker.Controllers
             {
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
                 {
-                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
+                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                     {
                         Date = DateTime.Now,
                         VehicleId = existingRecord.VehicleId,
@@ -2071,6 +2075,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetOdometerRecordsByVehicleId(int vehicleId)
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            //determine if conversion is needed.
+            if (result.All(x=>x.InitialMileage == default))
+            {
+                result = _odometerLogic.AutoConvertOdometerRecord(result);
+            }
             bool _useDescending = _config.GetUserConfig(User).UseDescending;
             if (_useDescending)
             {
@@ -2087,13 +2096,17 @@ namespace CarCareTracker.Controllers
         {
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            if (odometerRecord.InitialMileage == default)
+            {
+                odometerRecord.InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(odometerRecord.VehicleId, new List<OdometerRecord>());
+            }
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             return Json(result);
         }
         [HttpGet]
-        public IActionResult GetAddOdometerRecordPartialView()
+        public IActionResult GetAddOdometerRecordPartialView(int vehicleId)
         {
-            return PartialView("_OdometerRecordModal", new OdometerRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
+            return PartialView("_OdometerRecordModal", new OdometerRecordInput() { InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()), ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
@@ -2104,6 +2117,7 @@ namespace CarCareTracker.Controllers
             {
                 Id = result.Id,
                 Date = result.Date.ToShortDateString(),
+                InitialMileage = result.InitialMileage,
                 Mileage = result.Mileage,
                 Notes = result.Notes,
                 VehicleId = result.VehicleId,
