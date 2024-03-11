@@ -2071,6 +2071,14 @@ namespace CarCareTracker.Controllers
         #endregion
         #region "Odometer Records"
         [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult ForceRecalculateDistanceByVehicleId(int vehicleId)
+        {
+            var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            result = _odometerLogic.AutoConvertOdometerRecord(result);
+            return Json(result.Any());
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetOdometerRecordsByVehicleId(int vehicleId)
         {

@@ -121,3 +121,17 @@ function getAndValidateOdometerRecordValues() {
         extraFields: extraFields.extraFields
     }
 }
+
+function recalculateDistance() {
+    //force distance recalculation
+    //reserved for when data is incoherent with negative distances due to non-chronologica order of odometer records.
+    var vehicleId = GetVehicleId().vehicleId
+    $.post(`/Vehicle/ForceRecalculateDistanceByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            successToast("Odometer Records Updated")
+            getVehicleOdometerRecords(vehicleId);
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    });
+}
