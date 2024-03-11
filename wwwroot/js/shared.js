@@ -653,7 +653,7 @@ $(window).on('mousedown', function (e) {
 $(window).on('keydown', function (e) {
     var userOnInput = $(e.target).is("input") || $(e.target).is("textarea");
     if (!userOnInput) {
-        if (e.ctrlKey && e.which == 65) {
+        if ((e.ctrlKey || e.metaKey) && e.which == 65) {
             e.preventDefault();
             e.stopPropagation();
             selectAllRows();
@@ -672,7 +672,7 @@ function rangeMouseDown(e) {
         return;
     }
     var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item")
-    if (!e.ctrlKey && !contextMenuAction) {
+    if (!(e.ctrlKey || e.metaKey) && !contextMenuAction) {
         clearSelectedRows();
     }
     isDragging = true;
@@ -796,7 +796,7 @@ function getMenuPosition(mouse, direction, scrollDir) {
     return position;
 }
 function handleTableRowClick(e, callBack, rowId) {
-    if (!event.ctrlKey) {
+    if (!(event.ctrlKey || event.metaKey)) {
         callBack(rowId);
     } else if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
