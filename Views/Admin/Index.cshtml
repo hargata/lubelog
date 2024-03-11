@@ -15,11 +15,11 @@
 }
 @model AdminViewModel
 <div class="container">
-    <div class="row">
-        <div class="col-1">
+    <div class="row d-flex align-items-center justify-content-between justify-content-md-start">
+        <div class="col-2 col-md-1">
             <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
         </div>
-        <div class="col-11">
+        <div class="col-6 col-md-5 text-end text-md-start">
             <span class="display-6">@translator.Translate(userLanguage, "Admin Panel")</span>
         </div>
     </div>
