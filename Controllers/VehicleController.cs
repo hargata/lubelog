@@ -1008,7 +1008,7 @@ namespace CarCareTracker.Controllers
             {
                 MonthName = x.Key.MonthName,
                 Cost = x.Sum(y => y.Cost),
-                DistanceTraveled = x.Max(y=>y.DistanceTraveled)
+                DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
@@ -1231,7 +1231,8 @@ namespace CarCareTracker.Controllers
                 try
                 {
                     vehicleHistory.DaysOwned = (DateTime.Parse(endDate) - DateTime.Parse(vehicleHistory.VehicleData.PurchaseDate)).Days.ToString("N0");
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
                     vehicleHistory.DaysOwned = string.Empty;
@@ -1421,7 +1422,7 @@ namespace CarCareTracker.Controllers
         private int GetMinMileage(int vehicleId)
         {
             var numbersArray = new List<int>();
-            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x=>x.Mileage != default);
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
             if (serviceRecords.Any())
             {
                 numbersArray.Add(serviceRecords.Min(x => x.Mileage));
@@ -1706,13 +1707,14 @@ namespace CarCareTracker.Controllers
         public IActionResult PinNotes(List<int> noteIds, bool isToggle = false, bool pinStatus = false)
         {
             var result = false;
-            foreach(int noteId in noteIds)
+            foreach (int noteId in noteIds)
             {
                 var existingNote = _noteDataAccess.GetNoteById(noteId);
                 if (isToggle)
                 {
                     existingNote.Pinned = !existingNote.Pinned;
-                } else 
+                }
+                else
                 {
                     existingNote.Pinned = pinStatus;
                 }
@@ -2084,7 +2086,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             //determine if conversion is needed.
-            if (result.All(x=>x.InitialMileage == default))
+            if (result.All(x => x.InitialMileage == default))
             {
                 result = _odometerLogic.AutoConvertOdometerRecord(result);
             }
@@ -2111,6 +2113,56 @@ namespace CarCareTracker.Controllers
         public IActionResult GetAddOdometerRecordPartialView(int vehicleId)
         {
             return PartialView("_OdometerRecordModal", new OdometerRecordInput() { InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()), ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
+        }
+        [HttpPost]
+        public IActionResult GetOdometerRecordsEditModal(List<int> recordIds)
+        {
+            return PartialView("_OdometerRecordsModal", new OdometerRecordEditModel { RecordIds = recordIds });
+        }
+        [HttpPost]
+        public IActionResult SaveMultipleOdometerRecords(OdometerRecordEditModel editModel)
+        {
+            var dateIsEdited = editModel.EditRecord.Date != default;
+            var initialMileageIsEdited = editModel.EditRecord.InitialMileage != default;
+            var mileageIsEdited = editModel.EditRecord.Mileage != default;
+            var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
+            var tagsIsEdited = editModel.EditRecord.Tags.Any();
+            //handle clear overrides
+            if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
+            {
+                editModel.EditRecord.Tags = new List<string>();
+            }
+            if (noteIsEdited && editModel.EditRecord.Notes == "---")
+            {
+                editModel.EditRecord.Notes = "";
+            }
+            bool result = false;
+            foreach (int recordId in editModel.RecordIds)
+            {
+                var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                if (dateIsEdited)
+                {
+                    existingRecord.Date = editModel.EditRecord.Date;
+                }
+                if (initialMileageIsEdited)
+                {
+                    existingRecord.InitialMileage = editModel.EditRecord.InitialMileage;
+                }
+                if (mileageIsEdited)
+                {
+                    existingRecord.Mileage = editModel.EditRecord.Mileage;
+                }
+                if (noteIsEdited)
+                {
+                    existingRecord.Notes = editModel.EditRecord.Notes;
+                }
+                if (tagsIsEdited)
+                {
+                    existingRecord.Tags = editModel.EditRecord.Tags;
+                }
+                result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+            }
+            return Json(result);
         }
         [HttpGet]
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
@@ -2483,13 +2535,15 @@ namespace CarCareTracker.Controllers
                 {
                     var existingPreference = existingUserColumnPreference.Single();
                     existingPreference.VisibleColumns = columnPreference.VisibleColumns;
-                } else
+                }
+                else
                 {
                     userConfig.UserColumnPreferences.Add(columnPreference);
                 }
                 var result = _config.SaveUserConfig(User, userConfig);
                 return Json(result);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return Json(false);
