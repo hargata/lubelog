@@ -1,0 +1,48 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model OdometerRecordEditModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Edit Multiple Odometer Records")</h5>
+    <button type="button" class="btn-close" onclick="hideAddOdometerRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <label for="odometerRecordDate">@translator.Translate(userLanguage, "Date")</label>
+                    <div class="input-group">
+                        <input type="text" id="odometerRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
+                    <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="odometerRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
+                    <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="odometerRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
+                    <select multiple class="form-select" id="odometerRecordTag"></select>
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="odometerRecordNotes">@translator.Translate(userLanguage, "Notes(use --- to clear all existing notes)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="odometerRecordNotes" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAddOdometerRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" onclick="saveMultipleOdometerRecordsToVehicle()">@translator.Translate(userLanguage, "Edit")</button>
+</div>
+<script>
+    var recordsToEdit = [];
+    @foreach(int recordId in Model.RecordIds)
+        {
+        @:recordsToEdit.push(@recordId);
+    }
+</script>

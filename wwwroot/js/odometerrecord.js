@@ -135,3 +135,62 @@ function recalculateDistance() {
         }
     });
 }
+
+function editMultipleOdometerRecords(ids) {
+    $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids }, function (data) {
+        if (data) {
+            $("#odometerRecordModalContent").html(data);
+            //initiate datepicker
+            initDatePicker($('#odometerRecordDate'));
+            initTagSelector($("#odometerRecordTag"));
+            $('#odometerRecordModal').modal('show');
+        }
+    });
+}
+function saveMultipleOdometerRecordsToVehicle() {
+    var odometerDate = $("#odometerRecordDate").val();
+    var initialOdometerMileage = $("#initialOdometerRecordMileage").val();
+    var odometerMileage = $("#odometerRecordMileage").val();
+    var initialOdometerMileageToParse = parseInt(globalParseFloat($("#initialOdometerRecordMileage").val())).toString();
+    var odometerMileageToParse = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
+    var odometerNotes = $("#odometerRecordNotes").val();
+    var odometerTags = $("#odometerRecordTag").val();
+    //validation
+    var hasError = false;
+    if (odometerMileage.trim() != '' && (isNaN(odometerMileageToParse) || parseInt(odometerMileageToParse) < 0)) {
+        hasError = true;
+        $("#odometerRecordMileage").addClass("is-invalid");
+    } else {
+        $("#odometerRecordMileage").removeClass("is-invalid");
+    }
+    if (initialOdometerMileage.trim() != '' && (isNaN(initialOdometerMileageToParse) || parseInt(initialOdometerMileageToParse) < 0)) {
+        hasError = true;
+        $("#odometerRecordMileage").addClass("is-invalid");
+    } else {
+        $("#odometerRecordMileage").removeClass("is-invalid");
+    }
+    if (hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var formValues = {
+        recordIds: recordsToEdit,
+        editRecord: {
+            date: odometerDate,
+            initialMileage: initialOdometerMileageToParse,
+            mileage: odometerMileageToParse,
+            notes: odometerNotes,
+            tags: odometerTags
+        }
+    }
+    $.post('/Vehicle/SaveMultipleOdometerRecords', { editModel: formValues }, function (data) {
+        if (data) {
+            successToast("Odometer Records Updated");
+            hideAddOdometerRecordModal();
+            saveScrollPosition();
+            getVehicleOdometerRecords(GetVehicleId().vehicleId);
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
