@@ -159,6 +159,8 @@
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
     <li><hr class="context-menu-active-multiple dropdown-divider"></li>
     <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="getRecordsDeltaStats(selectedRow)">@translator.Translate(userLanguage, "Statistics")</a></li>
+    <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
+    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'ServiceRecord')">@translator.Translate(userLanguage, "Adjust Odometer")</a></li>
 </ul>
 @if (userColumnPreferences.Any())
 {

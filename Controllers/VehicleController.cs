@@ -2425,6 +2425,65 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult AdjustRecordsOdometer(List<int> recordIds, int vehicleId, ImportMode importMode)
+        {
+            bool result = false;
+            //get vehicle's odometer adjustments
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
+                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
+                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
+                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
+                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
+                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+                        }
+                        break;
+                }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+            }
+            return Json(result);
+        }
         public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
         {
             bool result = false;

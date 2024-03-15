@@ -502,3 +502,56 @@ function GetAdjustedOdometer(id, odometerInput) {
     adjustedOdometer *= globalParseFloat(GetVehicleId().odometerMultiplier);
     return adjustedOdometer.toFixed(0);
 }
+function adjustRecordsOdometer(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    Swal.fire({
+        title: "Adjust Odometer?",
+        text: `Apply Odometer Adjustments to ${recordVerbiage}?`,
+        showCancelButton: true,
+        confirmButtonText: "Adjust",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/AdjustRecordsOdometer', { recordIds: ids, vehicleId: GetVehicleId().vehicleId, importMode: source }, function (data) {
+                if (data) {
+                    successToast(`${ids.length} Record(s) Updated`);
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
