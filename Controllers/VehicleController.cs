@@ -130,10 +130,10 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, "added new vehicle");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"added new vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
                 } else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, "edited vehicle");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"edited vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
                 }
                 return Json(result);
             }
