@@ -813,7 +813,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted service record id: {serviceRecordId}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted service record id {serviceRecordId}");
             }
             return Json(result);
         }
