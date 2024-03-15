@@ -86,6 +86,8 @@ function getAndValidateServiceRecordValues() {
     var vehicleId = GetVehicleId().vehicleId;
     var serviceRecordId = getServiceRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
+    //Odometer Adjustments
+    serviceMileage = GetAdjustedOdometer(serviceRecordId, serviceMileage);
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();

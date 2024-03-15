@@ -85,6 +85,8 @@ function getAndValidateGasRecordValues() {
     var gasTags = $("#gasRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
+    //Odometer Adjustments
+    gasMileage = GetAdjustedOdometer(gasRecordId, gasMileage);
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();

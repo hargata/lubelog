@@ -491,3 +491,14 @@ function getRecordsDeltaStats(recordIds) {
         icon: "info"
     });
 }
+function GetAdjustedOdometer(id, odometerInput) {
+    //if editing an existing record or vehicle does not have odometer adjustment or input is NaN then just return the original input.
+    if (id > 0 || !GetVehicleId().hasOdometerAdjustment || isNaN(odometerInput)) {
+        return odometerInput;
+    }
+    //apply odometer adjustments first.
+    var adjustedOdometer = parseInt(odometerInput) + parseInt(GetVehicleId().odometerDifference);
+    //apply odometer multiplier.
+    adjustedOdometer *= globalParseFloat(GetVehicleId().odometerMultiplier);
+    return adjustedOdometer.toFixed(0);
+}

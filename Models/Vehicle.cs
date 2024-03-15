@@ -14,5 +14,14 @@
         public bool UseHours { get; set; } = false;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<string> Tags { get; set; } = new List<string>();
+        public bool HasOdometerAdjustment { get; set; } = false;
+        /// <summary>
+        /// Primarily used for vehicles with odometer units different from user's settings.
+        /// </summary>
+        public string OdometerMultiplier { get; set; } = "1";
+        /// <summary>
+        /// Primarily used for vehicles where the odometer does not reflect actual mileage.
+        /// </summary>
+        public string OdometerDifference { get; set; } = "0";
     }
 }

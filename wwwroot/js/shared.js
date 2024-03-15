@@ -42,6 +42,9 @@ function saveVehicle(isEdit) {
     var vehicleLicensePlate = $("#inputLicensePlate").val();
     var vehicleIsElectric = $("#inputIsElectric").is(":checked");
     var vehicleUseHours = $("#inputUseHours").is(":checked");
+    var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
+    var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
+    var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
     var extraFields = getAndValidateExtraFields(true);
     //validate
     var hasError = false;
@@ -72,6 +75,23 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputLicensePlate").removeClass("is-invalid");
     }
+    if (vehicleHasOdometerAdjustment) {
+        //validate odometer adjustments
+        //validate multiplier
+        if (vehicleOdometerMultiplier.trim() == '' || !isValidMoney(vehicleOdometerMultiplier)) {
+            hasError = true;
+            $("#inputOdometerMultiplier").addClass("is-invalid");
+        } else {
+            $("#inputOdometerMultiplier").removeClass("is-invalid");
+        }
+        //validate difference
+        if (vehicleOdometerDifference.trim() == '' || isNaN(vehicleOdometerDifference)) {
+            hasError = true;
+            $("#inputOdometerDifference").addClass("is-invalid");
+        } else {
+            $("#inputOdometerDifference").removeClass("is-invalid");
+        }
+    }
     if (hasError) {
         return;
     }
@@ -87,7 +107,10 @@ function saveVehicle(isEdit) {
         useHours: vehicleUseHours,
         extraFields: extraFields.extraFields,
         purchaseDate: vehiclePurchaseDate,
-        soldDate: vehicleSoldDate
+        soldDate: vehicleSoldDate,
+        hasOdometerAdjustment: vehicleHasOdometerAdjustment,
+        odometerMultiplier: vehicleOdometerMultiplier,
+        odometerDifference: vehicleOdometerDifference
     }, function (data) {
         if (data) {
             if (!isEdit) {
@@ -104,6 +127,14 @@ function saveVehicle(isEdit) {
             errorToast(genericErrorMessage());
         }
     });
+}
+function toggleOdometerAdjustment() {
+    var isChecked = $("#inputHasOdometerAdjustment").is(':checked');
+    if (isChecked) {
+        $("#odometerAdjustments").collapse('show');
+    } else {
+        $("#odometerAdjustments").collapse('hide');
+    }
 }
 function uploadFileAsync(event) {
     let formData = new FormData();
