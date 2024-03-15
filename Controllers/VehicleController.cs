@@ -1584,6 +1584,10 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), reminderRecord.VehicleId, User.Identity.Name, $"saved reminder {reminderRecord.Description}");
+            }
             return Json(result);
         }
         [HttpPost]
@@ -1624,6 +1628,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteReminderRecordById(int reminderRecordId)
         {
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted reminder id {reminderRecordId}");
+            }
             return Json(result);
         }
         #endregion
