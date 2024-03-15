@@ -130,6 +130,10 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, "added new vehicle");
+                } else
+                {
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, "edited vehicle");
                 }
                 return Json(result);
             }
@@ -157,6 +161,10 @@ namespace CarCareTracker.Controllers
                 _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
                 _dataAccess.DeleteVehicle(vehicleId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, "deleted vehicle");
+            }
             return Json(result);
         }
         [HttpPost]
@@ -661,6 +669,10 @@ namespace CarCareTracker.Controllers
             }
             gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), gasRecord.VehicleId, User.Identity.Name, $"saved gas record {gasRecord.Mileage.ToString()}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -705,6 +717,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteGasRecordById(int gasRecordId)
         {
             var result = _gasRecordDataAccess.DeleteGasRecordById(gasRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted gas record id {gasRecordId}");
+            }
             return Json(result);
         }
         [HttpPost]
@@ -759,6 +775,10 @@ namespace CarCareTracker.Controllers
                 PushbackRecurringReminderRecordWithChecks(serviceRecord.ReminderRecordId);
             }
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), serviceRecord.VehicleId, User.Identity.Name, $"saved service record {serviceRecord.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -791,6 +811,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteServiceRecordById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted service record id: {serviceRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -836,6 +860,10 @@ namespace CarCareTracker.Controllers
                 PushbackRecurringReminderRecordWithChecks(collisionRecord.ReminderRecordId);
             }
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), collisionRecord.VehicleId, User.Identity.Name, $"saved repair record {collisionRecord.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -868,6 +896,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(collisionRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted repair record id {collisionRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -939,6 +971,10 @@ namespace CarCareTracker.Controllers
                 PushbackRecurringReminderRecordWithChecks(taxRecord.ReminderRecordId);
             }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), taxRecord.VehicleId, User.Identity.Name, $"saved tax record {taxRecord.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -972,6 +1008,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteTaxRecordById(int taxRecordId)
         {
             var result = _taxRecordDataAccess.DeleteTaxRecordById(taxRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted tax record {taxRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -1629,6 +1669,10 @@ namespace CarCareTracker.Controllers
                 PushbackRecurringReminderRecordWithChecks(upgradeRecord.ReminderRecordId);
             }
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), upgradeRecord.VehicleId, User.Identity.Name, $"saved upgrade record {upgradeRecord.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1661,6 +1705,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
         {
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted upgrade record id {upgradeRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -1685,6 +1733,10 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveNoteToVehicleId(Note note)
         {
             var result = _noteDataAccess.SaveNoteToVehicle(note);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), note.VehicleId, User.Identity.Name, $"saved note {note.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1702,6 +1754,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteNoteById(int noteId)
         {
             var result = _noteDataAccess.DeleteNoteById(noteId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted note id {noteId}");
+            }
             return Json(result);
         }
         [HttpPost]
@@ -1823,6 +1879,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), supplyRecord.VehicleId, User.Identity.Name, $"saved supply record {supplyRecord.Description}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -1857,6 +1917,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)
         {
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(supplyRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted supply record id {supplyRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -1884,6 +1948,10 @@ namespace CarCareTracker.Controllers
                 planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), planRecord.VehicleId, User.Identity.Name, $"saved plan record {planRecord.Description}");
+            }
             return Json(result);
         }
         [HttpPost]
@@ -2069,6 +2137,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeletePlanRecordById(int planRecordId)
         {
             var result = _planRecordDataAccess.DeletePlanRecordById(planRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted plan record {planRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -2108,6 +2180,10 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), odometerRecord.VehicleId, User.Identity.Name, $"saved odometer record {odometerRecord.Mileage.ToString()}");
+            }
             return Json(result);
         }
         [HttpGet]
@@ -2188,6 +2264,10 @@ namespace CarCareTracker.Controllers
         public IActionResult DeleteOdometerRecordById(int odometerRecordId)
         {
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(odometerRecordId);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted odometer record {odometerRecordId}");
+            }
             return Json(result);
         }
         #endregion
@@ -2289,6 +2369,10 @@ namespace CarCareTracker.Controllers
                     }
                 }
             }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"moved multiple {source.ToString()} to {destination.ToString()} {string.Join(",", recordIds)}");
+            }
             return Json(result);
         }
         public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
@@ -2326,6 +2410,10 @@ namespace CarCareTracker.Controllers
                         result = _reminderRecordDataAccess.DeleteReminderRecordById(recordId);
                         break;
                 }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"deleted multiple {importMode.ToString()} {string.Join(",", recordIds)}");
             }
             return Json(result);
         }
@@ -2400,6 +2488,10 @@ namespace CarCareTracker.Controllers
                         }
                         break;
                 }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"duplicated multiple {importMode.ToString()} {string.Join(",", recordIds)}");
             }
             return Json(result);
         }
