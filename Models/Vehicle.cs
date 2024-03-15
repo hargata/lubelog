@@ -14,5 +14,7 @@
         public bool UseHours { get; set; } = false;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<string> Tags { get; set; } = new List<string>();
+        public string OdometerModifier { get; set; } = "1";
+        public string OdometerAdjustment { get; set; } = "0";
     }
 }
