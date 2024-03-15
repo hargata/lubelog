@@ -86,6 +86,8 @@ function getAndValidateCollisionRecordValues() {
     var vehicleId = GetVehicleId().vehicleId;
     var collisionRecordId = getCollisionRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
+    //Odometer Adjustments
+    collisionMileage = GetAdjustedOdometer(collisionRecordId, collisionMileage);
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();

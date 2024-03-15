@@ -241,7 +241,9 @@ function updatePlanRecordProgress(newProgress) {
                 },
             }).then(function (result) {
                 if (result.isConfirmed) {
-                    $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress, odometer: result.value.odometer }, function (data) {
+                    //Odometer Adjustments
+                    var adjustedOdometer = GetAdjustedOdometer(0, result.value.odometer);
+                    $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress, odometer: adjustedOdometer }, function (data) {
                         if (data) {
                             successToast("Plan Progress Updated");
                             var vehicleId = GetVehicleId().vehicleId;

@@ -86,6 +86,8 @@ function getAndValidateUpgradeRecordValues() {
     var vehicleId = GetVehicleId().vehicleId;
     var upgradeRecordId = getUpgradeRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
+    //Odometer Adjustments
+    upgradeMileage = GetAdjustedOdometer(upgradeRecordId, upgradeMileage);
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();

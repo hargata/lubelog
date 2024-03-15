@@ -169,7 +169,12 @@
 </div>
 <script>
     function GetVehicleId() {
-        return { vehicleId: @Model.Id};
+        return { 
+            vehicleId: @Model.Id, 
+            hasOdometerAdjustment: @Model.HasOdometerAdjustment.ToString().ToLower(),
+            odometerDifference: decodeHTMLEntities('@Model.OdometerDifference'),
+            odometerMultiplier: decodeHTMLEntities('@Model.OdometerMultiplier')
+        };
     }
     function GetDefaultTab() {
         return { tab: "@userConfig.DefaultTab" };

@@ -84,6 +84,8 @@ function getAndValidateOdometerRecordValues() {
     var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var odometerRecordId = getOdometerRecordModelData().id;
+    //Odometer Adjustments
+    serviceMileage = GetAdjustedOdometer(odometerRecordId, serviceMileage);
     //validation
     var hasError = false;
     var extraFields = getAndValidateExtraFields();
