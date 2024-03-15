@@ -244,5 +244,20 @@ namespace CarCareTracker.Helper
             var motd = config["LUBELOGGER_MOTD"] ?? "Not Configured";
             Console.WriteLine($"Message Of The Day: {motd}");
         }
+        public static async void NotifyAsync(string webhookURL, int vehicleId, string username, string action)
+        {
+            if (string.IsNullOrWhiteSpace(webhookURL))
+            {
+                return;
+            }
+            var httpClient = new HttpClient();
+            var httpParams = new Dictionary<string, string>
+                {
+                { "vehicleId", vehicleId.ToString() },
+                     { "username", username },
+                     { "action", action },
+                };
+            httpClient.PostAsJsonAsync(webhookURL, httpParams);
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace CarCareTracker.Helper
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool AuthenticateRootUser(string username, string password);
+        string GetWebHookUrl();
         string GetMOTD();
         string GetLogoUrl();
         string GetServerLanguage();
@@ -32,6 +33,15 @@ namespace CarCareTracker.Helper
             _config = serverConfig;
             _userConfig = userConfig;
             _cache = memoryCache;
+        }
+        public string GetWebHookUrl()
+        {
+            var webhook = _config["LUBELOGGER_WEBHOOK"];
+            if (string.IsNullOrWhiteSpace(webhook))
+            {
+                webhook = "";
+            }
+            return webhook;
         }
         public string GetMOTD()
         {
