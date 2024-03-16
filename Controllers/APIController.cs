@@ -143,7 +143,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added service record via API {serviceRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Service Record via API - Description: {serviceRecord.Description}");
                 response.Success = true;
                 response.Message = "Service Record Added";
                 return Json(response);
@@ -211,7 +211,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added repair record via API {repairRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Repair Record via API - Description: {repairRecord.Description}");
                 response.Success = true;
                 response.Message = "Repair Record Added";
                 return Json(response);
@@ -279,7 +279,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added upgrade record via API {upgradeRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Upgrade Record via API - Description: {upgradeRecord.Description}");
                 response.Success = true;
                 response.Message = "Upgrade Record Added";
                 return Json(response);
@@ -333,7 +333,7 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost)
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added tax record via API {taxRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
                 response.Success = true;
                 response.Message = "Tax Record Added";
                 return Json(response);
@@ -400,7 +400,7 @@ namespace CarCareTracker.Controllers
                     Mileage = int.Parse(input.Odometer)
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added odometer record via API {odometerRecord.Mileage.ToString()}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Odometer Record via API - Mileage: {odometerRecord.Mileage.ToString()}");
                 response.Success = true;
                 response.Message = "Odometer Record Added";
                 return Json(response);
@@ -482,7 +482,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"added gas record via API {gasRecord.Mileage.ToString()}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Gas record via API - Mileage: {gasRecord.Mileage.ToString()}");
                 response.Success = true;
                 response.Message = "Gas Record Added";
                 return Json(response);

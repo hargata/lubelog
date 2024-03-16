@@ -814,6 +814,11 @@ function determineContextMenuItems() {
     } else {
         $(".context-menu-multiple").hide();
     }
+    if (GetVehicleId().hasOdometerAdjustment) {
+        $(".context-menu-odometer-adjustment").show();
+    } else {
+        $(".context-menu-odometer-adjustment").hide();
+    }
 }
 function getMenuPosition(mouse, direction, scrollDir) {
     var win = $(window)[direction](),

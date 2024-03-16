@@ -35,7 +35,7 @@ function getVehicleSupplyRecords() {
     });
 }
 function GetVehicleId() {
-    return { vehicleId: 0 };
+    return { vehicleId: 0, hasOdometerAdjustment: false };
 }
 function bindTabEvent() {
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
