@@ -12,8 +12,8 @@
     ViewData["Title"] = "LubeLogger";
 }
 @section Scripts {
-    <script src="~/js/garage.js"></script>
-    <script src="~/js/supplyrecord.js"></script>
+    <script src="~/js/garage.js?v=@StaticHelper.VersionNumber"></script>
+    <script src="~/js/supplyrecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/lib/drawdown/drawdown.js"></script>
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">

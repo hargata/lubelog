@@ -156,7 +156,7 @@ namespace CarCareTracker.Helper
                         }
                     }
                     //copy each files from temp folder to newPath
-                    var filesToUpload = Directory.GetFiles(documentPath);
+                    var filesToUpload = Directory.GetFiles(translationPath);
                     foreach (string file in filesToUpload)
                     {
                         File.Copy(file, $"{existingPath}/{Path.GetFileName(file)}", true);
