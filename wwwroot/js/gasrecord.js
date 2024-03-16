@@ -427,3 +427,68 @@ function searchGasTableRows() {
         }
     });
 }
+function editMultipleGasRecords(ids) {
+    $.post('/Vehicle/GetGasRecordsEditModal', { recordIds: ids }, function (data) {
+        if (data) {
+            $("#gasRecordModalContent").html(data);
+            //initiate datepicker
+            initDatePicker($('#gasRecordDate'));
+            initTagSelector($("#gasRecordTag"));
+            $('#gasRecordModal').modal('show');
+        }
+    });
+}
+function saveMultipleGasRecordsToVehicle() {
+    var gasDate = $("#gasRecordDate").val();
+    var gasMileage = $("#gasRecordMileage").val();
+    var gasMileageToParse = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
+    var gasConsumption = $("#gasRecordConsumption").val();
+    var gasCost = $("#gasRecordCost").val();
+    var gasNotes = $("#gasRecordNotes").val();
+    var gasTags = $("#gasRecordTag").val();
+    //validation
+    var hasError = false;
+    if (gasMileage.trim() != '' && (isNaN(gasMileageToParse) || parseInt(gasMileageToParse) < 0)) {
+        hasError = true;
+        $("#gasRecordMileage").addClass("is-invalid");
+    } else {
+        $("#gasRecordMileage").removeClass("is-invalid");
+    }
+    if (gasConsumption.trim() != '' && !isValidMoney(gasConsumption)) {
+        hasError = true;
+        $("#gasRecordConsumption").addClass("is-invalid");
+    } else {
+        $("#gasRecordConsumption").removeClass("is-invalid");
+    }
+    if (gasCost.trim() != '' && !isValidMoney(gasCost)) {
+        hasError = true;
+        $("#gasRecordCost").addClass("is-invalid");
+    } else {
+        $("#gasRecordCost").removeClass("is-invalid");
+    }
+    if (hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var formValues = {
+        recordIds: recordsToEdit,
+        editRecord: {
+            date: gasDate,
+            mileage: gasMileageToParse,
+            gallons: gasConsumption,
+            cost: gasCost,
+            notes: gasNotes,
+            tags: gasTags
+        }
+    }
+    $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {
+        if (data) {
+            successToast("Gas Records Updated");
+            hideAddGasRecordModal();
+            saveScrollPosition();
+            getVehicleGasRecords(GetVehicleId().vehicleId);
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}

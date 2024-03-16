@@ -732,6 +732,61 @@ namespace CarCareTracker.Controllers
             var result = _config.SaveUserConfig(User, currentConfig);
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult GetGasRecordsEditModal(List<int> recordIds)
+        {
+            return PartialView("_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds });
+        }
+        [HttpPost]
+        public IActionResult SaveMultipleGasRecords(GasRecordEditModel editModel)
+        {
+            var dateIsEdited = editModel.EditRecord.Date != default;
+            var mileageIsEdited = editModel.EditRecord.Mileage != default;
+            var consumptionIsEdited = editModel.EditRecord.Gallons != default;
+            var costIsEdited = editModel.EditRecord.Cost != default;
+            var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
+            var tagsIsEdited = editModel.EditRecord.Tags.Any();
+            //handle clear overrides
+            if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
+            {
+                editModel.EditRecord.Tags = new List<string>();
+            }
+            if (noteIsEdited && editModel.EditRecord.Notes == "---")
+            {
+                editModel.EditRecord.Notes = "";
+            }
+            bool result = false;
+            foreach (int recordId in editModel.RecordIds)
+            {
+                var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                if (dateIsEdited)
+                {
+                    existingRecord.Date = editModel.EditRecord.Date;
+                }
+                if (consumptionIsEdited)
+                {
+                    existingRecord.Gallons = editModel.EditRecord.Gallons;
+                }
+                if (costIsEdited)
+                {
+                    existingRecord.Cost = editModel.EditRecord.Cost;
+                }
+                if (mileageIsEdited)
+                {
+                    existingRecord.Mileage = editModel.EditRecord.Mileage;
+                }
+                if (noteIsEdited)
+                {
+                    existingRecord.Notes = editModel.EditRecord.Notes;
+                }
+                if (tagsIsEdited)
+                {
+                    existingRecord.Tags = editModel.EditRecord.Tags;
+                }
+                result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+            }
+            return Json(result);
+        }
         #endregion
         #region "Service Records"
         [TypeFilter(typeof(CollaboratorFilter))]
