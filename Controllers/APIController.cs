@@ -1,5 +1,4 @@
-﻿using CarCareTracker.External.Implementations;
-using CarCareTracker.External.Interfaces;
+﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Filter;
 using CarCareTracker.Helper;
 using CarCareTracker.Logic;

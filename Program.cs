@@ -107,7 +107,21 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/Home/Error");
-app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.Context.Request.Path.StartsWithSegments("/images") || ctx.Context.Request.Path.StartsWithSegments("/documents"))
+        {
+            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            if (!ctx.Context.User.Identity.IsAuthenticated)
+            {
+                ctx.Context.Response.Redirect("/Login");
+            }
+        }
+    }
+});
 
 app.UseRouting();
 
