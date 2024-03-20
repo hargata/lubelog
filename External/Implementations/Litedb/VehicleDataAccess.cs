@@ -16,12 +16,15 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<Vehicle>(tableName);
             var result = table.Upsert(vehicle);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteVehicle(int vehicleId)
         {
             var table = db.GetCollection<Vehicle>(tableName);
-            return table.Delete(vehicleId);
+            var result = table.Delete(vehicleId);
+            db.Checkpoint();
+            return result;
         }
         public List<Vehicle> GetVehicles()
         {

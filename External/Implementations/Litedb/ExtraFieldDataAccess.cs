@@ -21,6 +21,7 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<RecordExtraField>(tableName);
             table.Upsert(record);
+            db.Checkpoint();
             return true;
         }
     }

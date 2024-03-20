@@ -36,12 +36,14 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<UserAccess>(tableName);
             table.Upsert(userAccess);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteUserAccess(int userId, int vehicleId)
         {
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.UserId == userId && x.Id.VehicleId == vehicleId);
+            db.Checkpoint();
             return true;
         }
         /// <summary>
@@ -53,6 +55,7 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.VehicleId == vehicleId);
+            db.Checkpoint();
             return true;
         }
         /// <summary>
@@ -64,6 +67,7 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.UserId == userId);
+            db.Checkpoint();
             return true;
         }
     }
