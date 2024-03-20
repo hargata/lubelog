@@ -1011,3 +1011,6 @@ function copyToClipboard(e) {
     navigator.clipboard.writeText(textToCopy);
     successToast("Copied to Clipboard");
 }
+function noPropagation() {
+    event.stopPropagation();
+}
