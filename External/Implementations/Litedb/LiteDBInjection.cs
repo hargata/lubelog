@@ -5,18 +5,34 @@ namespace CarCareTracker.External.Implementations
 {
     public interface ILiteDBInjection
     {
-        LiteDatabase GetLiteDB();    
+        LiteDatabase GetLiteDB();
+        void DisposeLiteDB();
     }
     public class LiteDBInjection: ILiteDBInjection
     {
         public LiteDatabase db { get; set; }
         public LiteDBInjection()
         {
-            db = new LiteDatabase(StaticHelper.DbName);
+            if (db == null)
+            {
+                db = new LiteDatabase(StaticHelper.DbName);
+            }
         }
         public LiteDatabase GetLiteDB()
         {
+            if (db == null)
+            {
+                db = new LiteDatabase(StaticHelper.DbName);
+            }
             return db;
+        }
+        public void DisposeLiteDB()
+        {
+            if (db != null)
+            {
+                db.Dispose();
+                db = null;
+            }
         }
     }
 }

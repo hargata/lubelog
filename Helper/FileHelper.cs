@@ -1,4 +1,5 @@
-﻿using CarCareTracker.Models;
+﻿using CarCareTracker.External.Implementations;
+using CarCareTracker.Models;
 using System.IO.Compression;
 
 namespace CarCareTracker.Helper
@@ -18,10 +19,12 @@ namespace CarCareTracker.Helper
     {
         private readonly IWebHostEnvironment _webEnv;
         private readonly ILogger<IFileHelper> _logger;
-        public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger)
+        private ILiteDBInjection _liteDB;
+        public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger, ILiteDBInjection liteDB)
         {
             _webEnv = webEnv;
             _logger = logger;
+            _liteDB = liteDB;
         }
         public List<string> GetLanguages()
         {
@@ -164,6 +167,8 @@ namespace CarCareTracker.Helper
                 }
                 if (File.Exists(dataPath))
                 {
+                    //Relinquish current DB file lock
+                    _liteDB.DisposeLiteDB();
                     //data path will always exist as it is created on startup if not.
                     File.Move(dataPath, StaticHelper.DbName, true);
                 }
