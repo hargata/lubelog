@@ -38,6 +38,7 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
 }
 else
 {
+    builder.Services.AddSingleton<ILiteDBInjection, LiteDBInjection>();
     builder.Services.AddSingleton<IVehicleDataAccess, VehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, NoteDataAccess>();
     builder.Services.AddSingleton<IServiceRecordDataAccess, ServiceRecordDataAccess>();
