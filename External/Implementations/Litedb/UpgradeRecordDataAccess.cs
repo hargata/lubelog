@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,25 +7,28 @@ namespace CarCareTracker.External.Implementations
 {
     public class UpgradeRecordDataAccess : IUpgradeRecordDataAccess
     {
-        private LiteDatabase db { get; set; }
-        public UpgradeRecordDataAccess(ILiteDBInjection liteDB)
+        private ILiteDBHelper _liteDB { get; set; }
+        public UpgradeRecordDataAccess(ILiteDBHelper liteDB)
         {
-            db = liteDB.GetLiteDB();
+           _liteDB = liteDB;
         }
         private static string tableName = "upgraderecords";
         public List<UpgradeRecord> GetUpgradeRecordsByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
             var upgradeRecords = table.Find(Query.EQ(nameof(UpgradeRecord.VehicleId), vehicleId));
             return upgradeRecords.ToList() ?? new List<UpgradeRecord>();
         }
         public UpgradeRecord GetUpgradeRecordById(int upgradeRecordId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
             return table.FindById(upgradeRecordId);
         }
         public bool DeleteUpgradeRecordById(int upgradeRecordId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
             table.Delete(upgradeRecordId);
             db.Checkpoint();
@@ -32,6 +36,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool SaveUpgradeRecordToVehicle(UpgradeRecord upgradeRecord)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
             table.Upsert(upgradeRecord);
             db.Checkpoint();
@@ -39,6 +44,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool DeleteAllUpgradeRecordsByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
             var upgradeRecords = table.DeleteMany(Query.EQ(nameof(UpgradeRecord.VehicleId), vehicleId));
             db.Checkpoint();

@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,14 +7,15 @@ namespace CarCareTracker.External.Implementations
 {
     public class VehicleDataAccess : IVehicleDataAccess
     {
-        private LiteDatabase db { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "vehicles";
-        public VehicleDataAccess(ILiteDBInjection liteDB)
+        public VehicleDataAccess(ILiteDBHelper liteDB)
         {
-            db = liteDB.GetLiteDB();
+           _liteDB = liteDB;
         }
         public bool SaveVehicle(Vehicle vehicle)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Vehicle>(tableName);
             var result = table.Upsert(vehicle);
             db.Checkpoint();
@@ -21,6 +23,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool DeleteVehicle(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Vehicle>(tableName);
             var result = table.Delete(vehicleId);
             db.Checkpoint();
@@ -28,11 +31,13 @@ namespace CarCareTracker.External.Implementations
         }
         public List<Vehicle> GetVehicles()
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Vehicle>(tableName);
             return table.FindAll().ToList();
         }
         public Vehicle GetVehicleById(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Vehicle>(tableName);
             return table.FindById(vehicleId);
         }

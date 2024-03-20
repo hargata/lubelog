@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,11 +7,11 @@ namespace CarCareTracker.External.Implementations
 {
     public class UserAccessDataAccess : IUserAccessDataAccess
     {
-        private LiteDatabase db { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "useraccessrecords";
-        public UserAccessDataAccess(ILiteDBInjection liteDB)
+        public UserAccessDataAccess(ILiteDBHelper liteDB)
         {
-            db = liteDB.GetLiteDB();
+           _liteDB = liteDB;
         }
         /// <summary>
         /// Gets a list of vehicles user have access to.
@@ -19,21 +20,25 @@ namespace CarCareTracker.External.Implementations
         /// <returns></returns>
         public List<UserAccess> GetUserAccessByUserId(int userId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             return table.Find(x => x.Id.UserId == userId).ToList();
         }
         public UserAccess GetUserAccessByVehicleAndUserId(int userId, int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             return table.Find(x => x.Id.UserId == userId && x.Id.VehicleId == vehicleId).FirstOrDefault();
         }
         public List<UserAccess> GetUserAccessByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             return table.Find(x => x.Id.VehicleId == vehicleId).ToList();
         }
         public bool SaveUserAccess(UserAccess userAccess)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             table.Upsert(userAccess);
             db.Checkpoint();
@@ -41,6 +46,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool DeleteUserAccess(int userId, int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.UserId == userId && x.Id.VehicleId == vehicleId);
             db.Checkpoint();
@@ -53,6 +59,7 @@ namespace CarCareTracker.External.Implementations
         /// <returns></returns>
         public bool DeleteAllAccessRecordsByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.VehicleId == vehicleId);
             db.Checkpoint();
@@ -65,6 +72,7 @@ namespace CarCareTracker.External.Implementations
         /// <returns></returns>
         public bool DeleteAllAccessRecordsByUserId(int userId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UserAccess>(tableName);
             table.DeleteMany(x => x.Id.UserId == userId);
             db.Checkpoint();

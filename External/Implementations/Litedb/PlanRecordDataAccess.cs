@@ -1,30 +1,34 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
+using CarCareTracker.Helper;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class PlanRecordDataAccess : IPlanRecordDataAccess
     {
-        private LiteDatabase db { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "planrecords";
-        public PlanRecordDataAccess(ILiteDBInjection liteDB)
+        public PlanRecordDataAccess(ILiteDBHelper liteDB)
         {
-            db = liteDB.GetLiteDB();
+           _liteDB = liteDB;
         }
         public List<PlanRecord> GetPlanRecordsByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
             var planRecords = table.Find(Query.EQ(nameof(PlanRecord.VehicleId), vehicleId));
             return planRecords.ToList() ?? new List<PlanRecord>();
         }
         public PlanRecord GetPlanRecordById(int planRecordId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
             return table.FindById(planRecordId);
         }
         public bool DeletePlanRecordById(int planRecordId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
             table.Delete(planRecordId);
             db.Checkpoint();
@@ -32,6 +36,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool SavePlanRecordToVehicle(PlanRecord planRecord)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
             table.Upsert(planRecord);
             db.Checkpoint();
@@ -39,6 +44,7 @@ namespace CarCareTracker.External.Implementations
         }
         public bool DeleteAllPlanRecordsByVehicleId(int vehicleId)
         {
+            var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
             var planRecords = table.DeleteMany(Query.EQ(nameof(PlanRecord.VehicleId), vehicleId));
             db.Checkpoint();
