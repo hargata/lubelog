@@ -7,51 +7,40 @@ namespace CarCareTracker.External.Implementations
 {
     public class SupplyRecordDataAccess : ISupplyRecordDataAccess
     {
-        private static string dbName = StaticHelper.DbName;
+        private LiteDatabase db { get; set; }
         private static string tableName = "supplyrecords";
+        public SupplyRecordDataAccess(ILiteDBInjection liteDB)
+        {
+            db = liteDB.GetLiteDB();
+        }
         public List<SupplyRecord> GetSupplyRecordsByVehicleId(int vehicleId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<SupplyRecord>(tableName);
-                var supplyRecords = table.Find(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
-                return supplyRecords.ToList() ?? new List<SupplyRecord>();
-            };
+            var table = db.GetCollection<SupplyRecord>(tableName);
+            var supplyRecords = table.Find(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
+            return supplyRecords.ToList() ?? new List<SupplyRecord>();
         }
         public SupplyRecord GetSupplyRecordById(int supplyRecordId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<SupplyRecord>(tableName);
-                return table.FindById(supplyRecordId);
-            };
+            var table = db.GetCollection<SupplyRecord>(tableName);
+            return table.FindById(supplyRecordId);
         }
         public bool DeleteSupplyRecordById(int supplyRecordId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<SupplyRecord>(tableName);
-                table.Delete(supplyRecordId);
-                return true;
-            };
+            var table = db.GetCollection<SupplyRecord>(tableName);
+            table.Delete(supplyRecordId);
+            return true;
         }
         public bool SaveSupplyRecordToVehicle(SupplyRecord supplyRecord)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<SupplyRecord>(tableName);
-                table.Upsert(supplyRecord);
-                return true;
-            };
+            var table = db.GetCollection<SupplyRecord>(tableName);
+            table.Upsert(supplyRecord);
+            return true;
         }
         public bool DeleteAllSupplyRecordsByVehicleId(int vehicleId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<SupplyRecord>(tableName);
-                var supplyRecords = table.DeleteMany(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
-                return true;
-            };
+            var table = db.GetCollection<SupplyRecord>(tableName);
+            var supplyRecords = table.DeleteMany(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
+            return true;
         }
     }
 }

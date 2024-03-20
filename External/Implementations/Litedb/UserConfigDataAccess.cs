@@ -1,39 +1,33 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
-    public class UserConfigDataAccess: IUserConfigDataAccess
+    public class UserConfigDataAccess : IUserConfigDataAccess
     {
-        private static string dbName = StaticHelper.DbName;
+        private LiteDatabase db { get; set; }
         private static string tableName = "userconfigrecords";
+        public UserConfigDataAccess(ILiteDBInjection liteDB)
+        {
+            db = liteDB.GetLiteDB();
+        }
         public UserConfigData GetUserConfig(int userId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<UserConfigData>(tableName);
-                return table.FindById(userId);
-            };
+            var table = db.GetCollection<UserConfigData>(tableName);
+            return table.FindById(userId);
         }
         public bool SaveUserConfig(UserConfigData userConfigData)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<UserConfigData>(tableName);
-                table.Upsert(userConfigData);
-                return true;
-            };
+            var table = db.GetCollection<UserConfigData>(tableName);
+            table.Upsert(userConfigData);
+            return true;
         }
         public bool DeleteUserConfig(int userId)
         {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var table = db.GetCollection<UserConfigData>(tableName);
-                table.Delete(userId);
-                return true;
-            };
+            var table = db.GetCollection<UserConfigData>(tableName);
+            table.Delete(userId);
+            return true;
         }
     }
 }
