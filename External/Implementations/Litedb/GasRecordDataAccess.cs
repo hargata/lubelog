@@ -27,18 +27,21 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<GasRecord>(tableName);
             table.Delete(gasRecordId);
+            db.Checkpoint();
             return true;
         }
         public bool SaveGasRecordToVehicle(GasRecord gasRecord)
         {
             var table = db.GetCollection<GasRecord>(tableName);
             table.Upsert(gasRecord);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteAllGasRecordsByVehicleId(int vehicleId)
         {
             var table = db.GetCollection<GasRecord>(tableName);
             var gasRecords = table.DeleteMany(Query.EQ(nameof(GasRecord.VehicleId), vehicleId));
+            db.Checkpoint();
             return true;
         }
     }

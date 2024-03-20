@@ -21,12 +21,14 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<UserConfigData>(tableName);
             table.Upsert(userConfigData);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteUserConfig(int userId)
         {
             var table = db.GetCollection<UserConfigData>(tableName);
             table.Delete(userId);
+            db.Checkpoint();
             return true;
         }
     }

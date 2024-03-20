@@ -33,12 +33,14 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<Token>(tableName);
             table.Insert(token);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteToken(int tokenId)
         {
             var table = db.GetCollection<Token>(tableName);
             table.Delete(tokenId);
+            db.Checkpoint();
             return true;
         }
     }

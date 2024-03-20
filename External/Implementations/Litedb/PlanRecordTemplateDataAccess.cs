@@ -27,18 +27,21 @@ namespace CarCareTracker.External.Implementations
         {
             var table = db.GetCollection<PlanRecordInput>(tableName);
             table.Delete(planRecordId);
+            db.Checkpoint();
             return true;
         }
         public bool SavePlanRecordTemplateToVehicle(PlanRecordInput planRecord)
         {
             var table = db.GetCollection<PlanRecordInput>(tableName);
             table.Upsert(planRecord);
+            db.Checkpoint();
             return true;
         }
         public bool DeleteAllPlanRecordTemplatesByVehicleId(int vehicleId)
         {
             var table = db.GetCollection<PlanRecord>(tableName);
             var planRecords = table.DeleteMany(Query.EQ(nameof(PlanRecordInput.VehicleId), vehicleId));
+            db.Checkpoint();
             return true;
         }
     }
