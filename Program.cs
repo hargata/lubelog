@@ -17,7 +17,7 @@ StaticHelper.InitMessage(builder.Configuration);
 builder.Services.AddControllersWithViews();
 
 //LiteDB is always injected even if user uses Postgres.
-builder.Services.AddSingleton<ILiteDBInjection, LiteDBInjection>();
+builder.Services.AddSingleton<ILiteDBHelper, LiteDBHelper>();
 
 //data access method
 if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){

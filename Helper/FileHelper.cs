@@ -1,5 +1,4 @@
-﻿using CarCareTracker.External.Implementations;
-using CarCareTracker.Models;
+﻿using CarCareTracker.Models;
 using System.IO.Compression;
 
 namespace CarCareTracker.Helper
@@ -19,8 +18,8 @@ namespace CarCareTracker.Helper
     {
         private readonly IWebHostEnvironment _webEnv;
         private readonly ILogger<IFileHelper> _logger;
-        private ILiteDBInjection _liteDB;
-        public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger, ILiteDBInjection liteDB)
+        private ILiteDBHelper _liteDB;
+        public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger, ILiteDBHelper liteDB)
         {
             _webEnv = webEnv;
             _logger = logger;

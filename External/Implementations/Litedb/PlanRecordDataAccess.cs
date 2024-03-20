@@ -1,14 +1,15 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
+using CarCareTracker.Helper;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class PlanRecordDataAccess : IPlanRecordDataAccess
     {
-        private ILiteDBInjection _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "planrecords";
-        public PlanRecordDataAccess(ILiteDBInjection liteDB)
+        public PlanRecordDataAccess(ILiteDBHelper liteDB)
         {
            _liteDB = liteDB;
         }

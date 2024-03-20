@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,9 +7,9 @@ namespace CarCareTracker.External.Implementations
 {
     public class SupplyRecordDataAccess : ISupplyRecordDataAccess
     {
-        private ILiteDBInjection _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "supplyrecords";
-        public SupplyRecordDataAccess(ILiteDBInjection liteDB)
+        public SupplyRecordDataAccess(ILiteDBHelper liteDB)
         {
            _liteDB = liteDB;
         }

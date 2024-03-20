@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,9 +7,9 @@ namespace CarCareTracker.External.Implementations
 {
     public class TokenRecordDataAccess : ITokenRecordDataAccess
     {
-        private ILiteDBInjection _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; set; }
         private static string tableName = "tokenrecords";
-        public TokenRecordDataAccess(ILiteDBInjection liteDB)
+        public TokenRecordDataAccess(ILiteDBHelper liteDB)
         {
            _liteDB = liteDB;
         }

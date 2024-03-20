@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using LiteDB;
 
@@ -6,8 +7,8 @@ namespace CarCareTracker.External.Implementations
 {
     public class UpgradeRecordDataAccess : IUpgradeRecordDataAccess
     {
-        private ILiteDBInjection _liteDB { get; set; }
-        public UpgradeRecordDataAccess(ILiteDBInjection liteDB)
+        private ILiteDBHelper _liteDB { get; set; }
+        public UpgradeRecordDataAccess(ILiteDBHelper liteDB)
         {
            _liteDB = liteDB;
         }
