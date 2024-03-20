@@ -167,7 +167,7 @@ function initCalendar() {
 function performLogOut() {
     $.post('/Login/LogOut', function (data) {
         if (data) {
-            window.location.href = '/Login';
+            window.location.href = data;
         }
     })
 }

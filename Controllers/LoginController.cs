@@ -29,6 +29,18 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult Index(string redirectURL = "")
         {
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
+            {
+                var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
+                remoteAuthConfig.State = generatedState;
+                if (remoteAuthConfig.ValidateState)
+                {
+                    Response.Cookies.Append("OIDC_STATE", remoteAuthConfig.State, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+                }
+                var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
+                return Redirect(remoteAuthURL);
+            }
             return View(model: redirectURL);
         }
         public IActionResult Registration()
@@ -248,7 +260,12 @@ namespace CarCareTracker.Controllers
         public IActionResult LogOut()
         {
             Response.Cookies.Delete("ACCESS_TOKEN");
-            return Json(true);
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
+            {
+                return Json(remoteAuthConfig.LogOutURL);
+            }
+            return Json("/Login");
         }
     }
 }
