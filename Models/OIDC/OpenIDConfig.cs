@@ -11,6 +11,8 @@
         public string Scope { get; set; }
         public string State { get; set; }
         public bool ValidateState { get; set; } = false;
+        public bool DisableRegularLogin { get; set; } = false;
+        public string LogOutURL { get; set; } = "";
         public string RemoteAuthURL { get { return $"{AuthURL}?client_id={ClientId}&response_type=code&redirect_uri={RedirectURL}&scope={Scope}&state={State}"; } }
     }
 }
