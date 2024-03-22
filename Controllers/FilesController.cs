@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             }
             var fileName = UploadFile(file);
             //move file from temp to translation folder.
-            var uploadedFilePath = _fileHelper.MoveFileFromTemp(fileName, "translations/");
+            var uploadedFilePath = _fileHelper.MoveFileFromTemp(fileName, StaticHelper.TranslationPath);
             //rename uploaded file so that it preserves original name.
             if (!string.IsNullOrWhiteSpace(uploadedFilePath))
             {

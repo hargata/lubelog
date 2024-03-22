@@ -271,6 +271,12 @@ namespace CarCareTracker.Helper
             Directory.Delete(tempPath, true);
             return $"/temp/{folderName}.zip";
         }
+        /// <summary>
+        /// Moves file from TEMP to Data Folder
+        /// </summary>
+        /// <param name="currentFilePath"></param>
+        /// <param name="newFolder"></param>
+        /// <returns></returns>
         public string MoveFileFromTemp(string currentFilePath, string newFolder)
         {
             string tempPath = "temp/";
@@ -282,11 +288,8 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, newFolder);
             string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-            string newFileUploadPath = oldFilePath.Replace(tempPath, newFolder);
+            string newFileUploadPath = $"{newFolder}{Path.GetFileName(oldFilePath)}";
             if (File.Exists(oldFilePath))
             {
                 File.Move(oldFilePath, newFileUploadPath);

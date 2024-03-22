@@ -123,7 +123,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 //move image from temp folder to images folder.
-                vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
+                vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, StaticHelper.ImagePath);
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
@@ -666,7 +666,7 @@ namespace CarCareTracker.Controllers
                     Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}"
                 });
             }
-            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             if (result)
             {
@@ -818,7 +818,7 @@ namespace CarCareTracker.Controllers
                 });
             }
             //move files from temp.
-            serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             if (serviceRecord.Supplies.Any())
             {
                 serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
@@ -903,7 +903,7 @@ namespace CarCareTracker.Controllers
                 });
             }
             //move files from temp.
-            collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             if (collisionRecord.Supplies.Any())
             {
                 collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
@@ -1018,7 +1018,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
             //move files from temp.
-            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             //push back any reminders
             if (taxRecord.ReminderRecordId != default)
             {
@@ -1720,7 +1720,7 @@ namespace CarCareTracker.Controllers
                 });
             }
             //move files from temp.
-            upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             if (upgradeRecord.Supplies.Any())
             {
                 upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
@@ -1939,7 +1939,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
             //move files from temp.
-            supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
@@ -2004,7 +2004,7 @@ namespace CarCareTracker.Controllers
             }
             planRecord.DateModified = DateTime.Now.ToString("G");
             //move files from temp.
-            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             if (planRecord.Supplies.Any())
             {
                 planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
@@ -2025,7 +2025,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
             }
-            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
             return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
         }
@@ -2240,7 +2240,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {
             //move files from temp.
-            odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, StaticHelper.DocPath) }; }).ToList();
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             if (result)
             {

@@ -23,7 +23,7 @@ namespace CarCareTracker.Helper
             bool create = bool.Parse(_config["LUBELOGGER_TRANSLATOR"] ?? "false");
             //transform input text into key.
             string translationKey = text.Replace(" ", "_");
-            var translationFilePath = userLanguage == "en_US" ? _fileHelper.GetFullFilePath($"/defaults/en_US.json") : _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
+            var translationFilePath = userLanguage == "en_US" ? _fileHelper.GetFullFilePath($"/defaults/en_US.json") : $"{StaticHelper.TranslationPath}{userLanguage}.json";
             var dictionary = _cache.GetOrCreate<Dictionary<string, string>>($"lang_{userLanguage}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);

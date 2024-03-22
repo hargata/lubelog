@@ -5,8 +5,10 @@ using CarCareTracker.Logic;
 using CarCareTracker.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,7 @@ builder.Services.AddControllersWithViews();
 //LiteDB is always injected even if user uses Postgres.
 builder.Services.AddSingleton<ILiteDBHelper, LiteDBHelper>();
 
-//data access method
+//Configure Data Access
 if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
@@ -60,7 +62,7 @@ else
     builder.Services.AddSingleton<IExtraFieldDataAccess, ExtraFieldDataAccess>();
 }
 
-//configure helpers
+//Configure Helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
@@ -69,25 +71,38 @@ builder.Services.AddSingleton<IMailHelper, MailHelper>();
 builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();
 builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 
-//configure logic
+//Configure Logic
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 
+//Create Folders
 if (!Directory.Exists("data"))
 {
     Directory.CreateDirectory("data");
 }
-if (!Directory.Exists("config"))
+if (!Directory.Exists(StaticHelper.KeysPath))
 {
-    Directory.CreateDirectory("config");
+    Directory.CreateDirectory(StaticHelper.KeysPath);
+}
+if (!Directory.Exists(StaticHelper.ImagePath))
+{
+    Directory.CreateDirectory(StaticHelper.ImagePath);
+}
+if (!Directory.Exists(StaticHelper.DocPath))
+{
+    Directory.CreateDirectory(StaticHelper.DocPath);
+}
+if (!Directory.Exists(StaticHelper.TranslationPath))
+{
+    Directory.CreateDirectory(StaticHelper.TranslationPath);
 }
 
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 
 //Configure Auth
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(StaticHelper.KeysPath));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
 builder.Services.AddAuthorization(options =>
@@ -110,7 +125,31 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/Home/Error");
-
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, StaticHelper.ImagePath)),
+    RequestPath = "/images"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, StaticHelper.ImagePath)),
+    RequestPath = "/data/images"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, StaticHelper.DocPath)),
+    RequestPath = "/documents"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, StaticHelper.DocPath)),
+    RequestPath = "/data/documents"
+});
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
