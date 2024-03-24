@@ -121,7 +121,7 @@
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
-    var recurringReminderRecordId = 0;
+    var recurringReminderRecordId = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)
