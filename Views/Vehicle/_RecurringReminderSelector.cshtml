@@ -19,11 +19,13 @@
     }
 </select>
 <div id="recurringMultipleReminders" style="display:none;">
-    @foreach (ReminderRecord reminderRecord in Model)
-    {
-        <div>
-            <input class="form-check-input" type="checkbox" value="@reminderRecord.Id" id="recurringReminder_@reminderRecord.Id">
-            <label class="form-check-label" for="recurringReminder_@reminderRecord.Id">@reminderRecord.Description</label>
-        </div>
-    }
+    <ul class="list-group">
+        @foreach (ReminderRecord reminderRecord in Model)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input" type="checkbox" value="@reminderRecord.Id" id="recurringReminder_@reminderRecord.Id">
+                <label class="form-check-label stretched-link" for="recurringReminder_@reminderRecord.Id">@reminderRecord.Description</label>
+            </li>
+        }
+    </ul>
 </div>
