@@ -8,7 +8,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public static string VersionNumber = "1.2.8";
+        public static string VersionNumber = "1.2.9";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";

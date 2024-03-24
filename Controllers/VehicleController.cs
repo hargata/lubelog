@@ -824,9 +824,12 @@ namespace CarCareTracker.Controllers
                 serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
             }
             //push back any reminders
-            if (serviceRecord.ReminderRecordId != default)
+            if (serviceRecord.ReminderRecordId.Any())
             {
-                PushbackRecurringReminderRecordWithChecks(serviceRecord.ReminderRecordId);
+                foreach(int reminderRecordId in serviceRecord.ReminderRecordId)
+                {
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                }
             }
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             if (result)
@@ -909,9 +912,12 @@ namespace CarCareTracker.Controllers
                 collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
             }
             //push back any reminders
-            if (collisionRecord.ReminderRecordId != default)
+            if (collisionRecord.ReminderRecordId.Any())
             {
-                PushbackRecurringReminderRecordWithChecks(collisionRecord.ReminderRecordId);
+                foreach (int reminderRecordId in collisionRecord.ReminderRecordId)
+                {
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                }
             }
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result)
@@ -1020,9 +1026,12 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             //push back any reminders
-            if (taxRecord.ReminderRecordId != default)
+            if (taxRecord.ReminderRecordId.Any())
             {
-                PushbackRecurringReminderRecordWithChecks(taxRecord.ReminderRecordId);
+                foreach (int reminderRecordId in taxRecord.ReminderRecordId)
+                {
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                }
             }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
             if (result)
@@ -1726,9 +1735,12 @@ namespace CarCareTracker.Controllers
                 upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
             }
             //push back any reminders
-            if (upgradeRecord.ReminderRecordId != default)
+            if (upgradeRecord.ReminderRecordId.Any())
             {
-                PushbackRecurringReminderRecordWithChecks(upgradeRecord.ReminderRecordId);
+                foreach (int reminderRecordId in upgradeRecord.ReminderRecordId)
+                {
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                }
             }
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             if (result)

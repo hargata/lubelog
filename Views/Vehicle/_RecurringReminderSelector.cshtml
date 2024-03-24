@@ -1,4 +1,11 @@
 ﻿@model List<ReminderRecord>
+@if (Model.Count() > 1)
+{
+    <div class="mb-2">
+        <input class="form-check-input" type="checkbox" onchange="showMultipleRemindersSelector()" id="multipleRemindersCheck">
+        <label class="form-check-label" for="multipleRemindersCheck">Multiple</label>
+    </div>
+}
 <select class="form-select" id="recurringReminderInput">
     @if (Model.Any())
     {
@@ -11,3 +18,14 @@
         <!option value="0">No Recurring Reminders Found</!option>
     }
 </select>
+<div id="recurringMultipleReminders" style="display:none;">
+    <ul class="list-group">
+        @foreach (ReminderRecord reminderRecord in Model)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input" type="checkbox" value="@reminderRecord.Id" id="recurringReminder_@reminderRecord.Id">
+                <label class="form-check-label stretched-link" for="recurringReminder_@reminderRecord.Id">@reminderRecord.Description</label>
+            </li>
+        }
+    </ul>
+</div>
