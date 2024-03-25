@@ -6,7 +6,7 @@
         public int VehicleId { get; set; }
         public List<int> ReminderRecordId { get; set; } = new List<int>();
         public string Date { get; set; } = DateTime.Now.ToShortDateString();
-        public int Mileage { get; set; }
+        public decimal Mileage { get; set; }
         public string Description { get; set; }
         public decimal Cost { get; set; }
         public string Notes { get; set; }

@@ -5,7 +5,7 @@ namespace CarCareTracker.Helper
     public interface IReminderHelper
     {
         ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder);
-        List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare);
+        List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, decimal currentMileage, DateTime dateCompare);
     }
     public class ReminderHelper: IReminderHelper
     {
@@ -58,7 +58,7 @@ namespace CarCareTracker.Helper
             }
             return existingReminder;
         }
-        public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, int currentMileage, DateTime dateCompare)
+        public List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, decimal currentMileage, DateTime dateCompare)
         {
             List<ReminderRecordViewModel> reminderViewModels = new List<ReminderRecordViewModel>();
             var reminderUrgencyConfig = _config.GetReminderUrgencyConfig();

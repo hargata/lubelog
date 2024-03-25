@@ -36,9 +36,9 @@ namespace CarCareTracker.Helper
             //need to order by to get correct results
             result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             var computedResults = new List<GasRecordViewModel>();
-            int previousMileage = 0;
+            decimal previousMileage = 0.00M;
             decimal unFactoredConsumption = 0.00M;
-            int unFactoredMileage = 0;
+            decimal unFactoredMileage = 0.00M;
             //perform computation.
             for (int i = 0; i < result.Count; i++)
             {

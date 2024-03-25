@@ -432,7 +432,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
+                                        Mileage = decimal.Parse(importModel.Odometer, NumberStyles.Any),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
@@ -487,7 +487,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
+                                        Mileage = decimal.Parse(importModel.Odometer, NumberStyles.Any),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
@@ -511,8 +511,8 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        InitialMileage = string.IsNullOrWhiteSpace(importModel.InitialOdometer) ? 0 : decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
-                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
+                                        InitialMileage = string.IsNullOrWhiteSpace(importModel.InitialOdometer) ? 0 : decimal.Parse(importModel.InitialOdometer, NumberStyles.Any),
+                                        Mileage = decimal.Parse(importModel.Odometer, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
                                     };
@@ -543,7 +543,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
+                                        Mileage = decimal.Parse(importModel.Odometer, NumberStyles.Any),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
@@ -567,7 +567,7 @@ namespace CarCareTracker.Controllers
                                     {
                                         VehicleId = vehicleId,
                                         Date = DateTime.Parse(importModel.Date),
-                                        Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
+                                        Mileage = decimal.Parse(importModel.Odometer, NumberStyles.Any),
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
@@ -1492,9 +1492,9 @@ namespace CarCareTracker.Controllers
         #endregion
         #region "Reminders"
         [TypeFilter(typeof(CollaboratorFilter))]
-        private int GetMaxMileage(int vehicleId)
+        private decimal GetMaxMileage(int vehicleId)
         {
-            var numbersArray = new List<int>();
+            var numbersArray = new List<decimal>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             if (serviceRecords.Any())
             {
@@ -1523,9 +1523,9 @@ namespace CarCareTracker.Controllers
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
         [TypeFilter(typeof(CollaboratorFilter))]
-        private int GetMinMileage(int vehicleId)
+        private decimal GetMinMileage(int vehicleId)
         {
-            var numbersArray = new List<int>();
+            var numbersArray = new List<decimal>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Mileage != default);
             if (serviceRecords.Any())
             {
@@ -2506,7 +2506,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
                             existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
-                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            existingRecord.Mileage = existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any);
                             result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
                         }
                         break;
@@ -2514,7 +2514,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
                             existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
-                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            existingRecord.Mileage = existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any);
                             result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
                         }
                         break;
@@ -2522,7 +2522,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
                             existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
-                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            existingRecord.Mileage = existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any);
                             result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
                         }
                         break;
@@ -2530,7 +2530,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
                             existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
-                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            existingRecord.Mileage = existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any);
                             result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
                         }
                         break;
@@ -2538,7 +2538,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
                             existingRecord.Mileage += int.Parse(vehicleData.OdometerDifference);
-                            existingRecord.Mileage = decimal.ToInt32(existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any));
+                            existingRecord.Mileage = existingRecord.Mileage * decimal.Parse(vehicleData.OdometerMultiplier, NumberStyles.Any);
                             result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
                         }
                         break;

@@ -9,13 +9,13 @@
         /// <summary>
         /// American moment
         /// </summary>
-        public int Mileage { get; set; }
+        public decimal Mileage { get; set; }
         /// <summary>
         /// Wtf is a kilometer?
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
-        public int DeltaMileage { get; set; }
+        public decimal DeltaMileage { get; set; }
         public decimal MilesPerGallon { get; set; }
         public decimal CostPerGallon { get; set; }
         public bool IsFillToFull { get; set; }

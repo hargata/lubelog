@@ -7,7 +7,7 @@
     {
         public ImportMode DataType { get; set; }
         public DateTime Date { get; set; }
-        public int Odometer { get; set; }
+        public decimal Odometer { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
         public decimal Cost { get; set; }

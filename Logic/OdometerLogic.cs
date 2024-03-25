@@ -5,7 +5,7 @@ namespace CarCareTracker.Logic
 {
     public interface IOdometerLogic
     {
-        int GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords);
+        decimal GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords);
         bool AutoInsertOdometerRecord(OdometerRecord odometer);
         List<OdometerRecord> AutoConvertOdometerRecord(List<OdometerRecord> odometerRecords);
     }
@@ -18,7 +18,7 @@ namespace CarCareTracker.Logic
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _logger = logger;
         }
-        public int GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords)
+        public decimal GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords)
         {
             if (!odometerRecords.Any())
             {
@@ -43,7 +43,7 @@ namespace CarCareTracker.Logic
         {
             //perform ordering
             odometerRecords = odometerRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
-            int previousMileage = 0;
+            decimal previousMileage = 0.00M;
             for (int i = 0; i < odometerRecords.Count; i++)
             {
                 var currentObject = odometerRecords[i];

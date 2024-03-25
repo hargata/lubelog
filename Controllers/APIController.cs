@@ -565,9 +565,9 @@ namespace CarCareTracker.Controllers
             var result = _fileHelper.RestoreBackup("/defaults/demo_default.zip", true);
             return Json(result);
         }
-        private int GetMaxMileage(int vehicleId)
+        private decimal GetMaxMileage(int vehicleId)
         {
-            var numbersArray = new List<int>();
+            var numbersArray = new List<decimal>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             if (serviceRecords.Any())
             {

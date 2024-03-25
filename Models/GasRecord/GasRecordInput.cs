@@ -8,7 +8,7 @@
         /// <summary>
         /// American moment
         /// </summary>
-        public int Mileage { get; set; }
+        public decimal Mileage { get; set; }
         /// <summary>
         /// Wtf is a kilometer?
         /// </summary>
