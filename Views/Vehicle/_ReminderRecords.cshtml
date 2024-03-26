@@ -11,14 +11,14 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "# of Reminders")}: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-secondary">@($"{translator.Translate(userLanguage, "Past Due")}: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
-            <span class="ms-2 badge bg-danger">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
-            <span class="ms-2 badge bg-warning">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
-            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Reminders")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-secondary" data-aggregate-type="pastdue-count">@($"{translator.Translate(userLanguage, "Past Due")}: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
+            <span class="ms-2 badge bg-danger" data-aggregate-type="veryurgent-count">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
+            <span class="ms-2 badge text-bg-warning" data-aggregate-type="urgent-count">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="noturgent-count">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
             @foreach (string recordTag in recordTags)
             {
-                <span onclick="filterTable('reminder-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                <span onclick="filterReminderTable(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
             <datalist id="tagList">
                 @foreach (string recordTag in recordTags)
@@ -85,7 +85,7 @@
                         {
                             <td class="col-2">@reminderRecord.Metric</td>
                         }
-                        <td class="@(hasRefresh ? "col-4" : "col-5")">@reminderRecord.Description</td>
+                        <td class="@(hasRefresh ? "col-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
                         <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {

@@ -243,3 +243,54 @@ function createPlanRecordFromReminder(reminderRecordId) {
         $("#planRecordModal").modal("show");
     });
 }
+
+function filterReminderTable(sender) {
+    var rowData = $(`#reminder-tab-pane table tbody tr`);
+    if (sender == undefined) {
+        rowData.removeClass('override-hide');
+        return;
+    }
+    var tagName = sender.textContent;
+    //check for other applied filters
+    if ($(sender).hasClass("bg-primary")) {
+            rowData.removeClass('override-hide');
+            $(sender).removeClass('bg-primary');
+            $(sender).addClass('bg-secondary');
+            updateReminderAggregateLabels();
+    } else {
+        //hide table rows.
+        rowData.addClass('override-hide');
+        $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        updateReminderAggregateLabels();
+        if ($(".tagfilter.bg-primary").length > 0) {
+            //disabling other filters
+            $(".tagfilter.bg-primary").addClass('bg-secondary');
+            $(".tagfilter.bg-primary").removeClass('bg-primary');
+        }
+        $(sender).addClass('bg-primary');
+        $(sender).removeClass('bg-secondary');
+    }
+}
+function updateReminderAggregateLabels() {
+    //update main count
+    var newCount = $("[data-record-type='cost']").parent(":not('.override-hide')").length;
+    var countLabel = $("[data-aggregate-type='count']");
+    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`);
+    //update labels
+    //paste due
+    var pastDueCount = $("tr td span.badge.text-bg-secondary").parents("tr:not('.override-hide')").length;
+    var pastDueLabel = $('[data-aggregate-type="pastdue-count"]');
+    pastDueLabel.text(`${pastDueLabel.text().split(':')[0]}: ${pastDueCount}`);
+    //very urgent
+    var veryUrgentCount = $("tr td span.badge.text-bg-danger").parents("tr:not('.override-hide')").length;
+    var veryUrgentLabel = $('[data-aggregate-type="veryurgent-count"]');
+    veryUrgentLabel.text(`${veryUrgentLabel.text().split(':')[0]}: ${veryUrgentCount}`);
+    //urgent
+    var urgentCount = $("tr td span.badge.text-bg-warning").parents("tr:not('.override-hide')").length;
+    var urgentLabel = $('[data-aggregate-type="urgent-count"]');
+    urgentLabel.text(`${urgentLabel.text().split(':')[0]}: ${urgentCount}`);
+    //not urgent
+    var notUrgentCount = $("tr td span.badge.text-bg-success").parents("tr:not('.override-hide')").length;
+    var notUrgentLabel = $('[data-aggregate-type="noturgent-count"]');
+    notUrgentLabel.text(`${notUrgentLabel.text().split(':')[0]}: ${notUrgentCount}`);
+}
