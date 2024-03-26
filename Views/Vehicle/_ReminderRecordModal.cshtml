@@ -42,6 +42,14 @@
                         <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="@(ReminderMetric.Both)" checked="@(Model.Metric == ReminderMetric.Both)">
                         <label class="form-check-label" for="reminderMetricBoth">@translator.Translate(userLanguage,"Whichever comes first")</label>
                     </div>
+                    <div class="d-grid"></div>
+                    <label for="reminderRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                    <select multiple class="form-select" id="reminderRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="reminderNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

@@ -73,7 +73,8 @@ namespace CarCareTracker.Helper
                     Description = reminder.Description,
                     Notes = reminder.Notes,
                     Metric = reminder.Metric,
-                    IsRecurring = reminder.IsRecurring
+                    IsRecurring = reminder.IsRecurring,
+                    Tags = reminder.Tags
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {

@@ -17,5 +17,6 @@
         /// Recurring Reminders
         /// </summary>
         public bool IsRecurring { get; set; } = false;
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

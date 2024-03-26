@@ -336,7 +336,7 @@ function updateAggregateLabels() {
     //Count
     var newCount = $("[data-record-type='cost']").parent(":not('.override-hide')").length;
     var countLabel = $("[data-aggregate-type='count']");
-    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`)
+    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`);
 }
 
 function uploadVehicleFilesAsync(event) {
