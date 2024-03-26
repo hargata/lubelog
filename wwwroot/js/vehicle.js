@@ -246,12 +246,14 @@ function showAddReminderModal(reminderModalInput) {
         $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
+            initTagSelector($("#reminderRecordTag"));
             $("#reminderRecordModal").modal("show");
         });
     } else {
         $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
+            initTagSelector($("#reminderRecordTag"));
             $("#reminderRecordModal").modal("show");
         });
     }

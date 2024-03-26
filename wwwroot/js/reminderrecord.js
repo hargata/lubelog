@@ -3,6 +3,7 @@
         if (data) {
             $("#reminderRecordModalContent").html(data); 
             initDatePicker($('#reminderDate'), true);
+            initTagSelector($("#reminderRecordTag"));
             $("#reminderRecordModal").modal("show");
             $('#reminderRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
@@ -166,6 +167,7 @@ function getAndValidateReminderRecordValues() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     var reminderRecurringMonth = $("#reminderRecurringMonth").val();
     var reminderRecurringMileage = $("#reminderRecurringMileage").val();
+    var reminderTags = $("#reminderRecordTag").val();
     var reminderCustomMileageInterval = customMileageInterval;
     var vehicleId = GetVehicleId().vehicleId;
     var reminderId = getReminderRecordModelData().id;
@@ -215,7 +217,8 @@ function getAndValidateReminderRecordValues() {
         reminderMileageInterval: reminderRecurringMileage,
         reminderMonthInterval: reminderRecurringMonth,
         customMileageInterval: customMileageInterval,
-        customMonthInterval: customMonthInterval
+        customMonthInterval: customMonthInterval,
+        tags: reminderTags
     }
 }
 function createPlanRecordFromReminder(reminderRecordId) {

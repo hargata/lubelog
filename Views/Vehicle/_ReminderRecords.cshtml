@@ -6,6 +6,7 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -15,6 +16,16 @@
             <span class="ms-2 badge bg-danger">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Where(x=>x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
             <span class="ms-2 badge bg-warning">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
             <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('reminder-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
         </div>
         <div>
             <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Reminder")</button>
@@ -45,7 +56,7 @@
             <tbody>
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
-                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)">
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)" data-tags='@string.Join(" ", reminderRecord.Tags)'>
                         @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                         {
                             <td class="col-1"><span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span></td>

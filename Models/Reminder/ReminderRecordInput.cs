@@ -14,6 +14,7 @@
         public ReminderMileageInterval ReminderMileageInterval { get; set; } = ReminderMileageInterval.FiveThousandMiles;
         public ReminderMonthInterval ReminderMonthInterval { get; set; } = ReminderMonthInterval.OneYear;
         public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
+        public List<string> Tags { get; set; } = new List<string>();
         public ReminderRecord ToReminderRecord()
         {
             return new ReminderRecord
@@ -29,7 +30,8 @@
                 ReminderMonthInterval = ReminderMonthInterval,
                 CustomMileageInterval = CustomMileageInterval,
                 CustomMonthInterval = CustomMonthInterval,
-                Notes = Notes
+                Notes = Notes,
+                Tags = Tags
             };
         }
     }
