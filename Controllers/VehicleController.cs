@@ -1336,18 +1336,35 @@ namespace CarCareTracker.Controllers
             if (!string.IsNullOrWhiteSpace(vehicleHistory.VehicleData.PurchaseDate))
             {
                 var endDate = vehicleHistory.VehicleData.SoldDate;
+                int daysOwned = 0;
                 if (string.IsNullOrWhiteSpace(endDate))
                 {
                     endDate = DateTime.Now.ToShortDateString();
                 }
                 try
                 {
-                    vehicleHistory.DaysOwned = (DateTime.Parse(endDate) - DateTime.Parse(vehicleHistory.VehicleData.PurchaseDate)).Days.ToString("N0");
+                    daysOwned = (DateTime.Parse(endDate) - DateTime.Parse(vehicleHistory.VehicleData.PurchaseDate)).Days;
+                    vehicleHistory.DaysOwned = daysOwned.ToString("N0");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
                     vehicleHistory.DaysOwned = string.Empty;
+                }
+                //calculate depreciation
+                var totalDepreciation = vehicleHistory.VehicleData.PurchasePrice - vehicleHistory.VehicleData.SoldPrice;
+                //we only calculate depreciation if a sold price is provided.
+                if (totalDepreciation != default && vehicleHistory.VehicleData.SoldPrice != default)
+                {
+                    vehicleHistory.TotalDepreciation = totalDepreciation;
+                    if (daysOwned != default)
+                    {
+                        vehicleHistory.DepreciationPerDay = Math.Abs(totalDepreciation / daysOwned);
+                    }
+                    if (distanceTraveled != default)
+                    {
+                        vehicleHistory.DepreciationPerMile = Math.Abs(totalDepreciation / distanceTraveled);
+                    }
                 }
             }
             List<GenericReportModel> reportData = new List<GenericReportModel>();

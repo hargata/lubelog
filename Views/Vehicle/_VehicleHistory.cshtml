@@ -62,6 +62,30 @@
         </div>
     </div>
     <hr />
+    @if (Model.TotalDepreciation != default)
+    {
+            <div class="row">
+                <div class="col-3">
+                    @(Model.TotalDepreciation > 0 ? translator.Translate(userLanguage, "Depreciation") : translator.Translate(userLanguage, "Appreciation"))
+                </div>
+                <div class="col-3">
+                    <span><i class="bi @(Model.TotalDepreciation > 0 ? "bi-graph-down-arrow" : "bi-graph-up-arrow") me-2"></i>@Math.Abs(Model.TotalDepreciation).ToString("C")</span>
+                </div>
+                @if (Model.DepreciationPerDay != default)
+                {
+                    <div class="col-3">
+                        <span><i class="bi bi-calendar-event me-2"></i>@($"{Model.DepreciationPerDay.ToString("C")}/{translator.Translate(userLanguage, "day")}")</span>
+                    </div>
+                }
+                @if (Model.DepreciationPerMile != default)
+                {
+                    <div class="col-3">
+                        <span><i class="bi bi-speedometer me-2"></i>@($"{Model.DepreciationPerMile.ToString("C")}/{Model.DistanceUnit}")</span>
+                    </div>
+                }
+            </div>
+        <hr />
+    }
     <div class="row">
         <div class="col-12">
             <table class="table table-hover">
