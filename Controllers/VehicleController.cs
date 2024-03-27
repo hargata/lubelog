@@ -822,6 +822,10 @@ namespace CarCareTracker.Controllers
             if (serviceRecord.Supplies.Any())
             {
                 serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
+                if (serviceRecord.CopySuppliesAttachment)
+                {
+                    serviceRecord.Files.AddRange(GetSuppliesAttachments(serviceRecord.Supplies));
+                }
             }
             //push back any reminders
             if (serviceRecord.ReminderRecordId.Any())
@@ -910,6 +914,10 @@ namespace CarCareTracker.Controllers
             if (collisionRecord.Supplies.Any())
             {
                 collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
+                if (collisionRecord.CopySuppliesAttachment)
+                {
+                    collisionRecord.Files.AddRange(GetSuppliesAttachments(collisionRecord.Supplies));
+                }
             }
             //push back any reminders
             if (collisionRecord.ReminderRecordId.Any())
@@ -1734,6 +1742,10 @@ namespace CarCareTracker.Controllers
             if (upgradeRecord.Supplies.Any())
             {
                 upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
+                if (upgradeRecord.CopySuppliesAttachment)
+                {
+                    upgradeRecord.Files.AddRange(GetSuppliesAttachments(upgradeRecord.Supplies));
+                }
             }
             //push back any reminders
             if (upgradeRecord.ReminderRecordId.Any())
@@ -1874,6 +1886,16 @@ namespace CarCareTracker.Controllers
                 }
             }
             return result;
+        }
+        private List<UploadedFiles> GetSuppliesAttachments(List<SupplyUsage> supplyUsage)
+        {
+            List<UploadedFiles> results = new List<UploadedFiles>();
+            foreach(SupplyUsage supply in supplyUsage)
+            {
+                var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
+                results.AddRange(result.Files);
+            }
+            return results;
         }
         private List<SupplyUsageHistory> RequisitionSupplyRecordsByUsage(List<SupplyUsage> supplyUsage, DateTime dateRequisitioned, string usageDescription)
         {
@@ -2021,6 +2043,10 @@ namespace CarCareTracker.Controllers
             if (planRecord.Supplies.Any())
             {
                 planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
+                if (planRecord.CopySuppliesAttachment)
+                {
+                    planRecord.Files.AddRange(GetSuppliesAttachments(planRecord.Supplies));
+                }
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
@@ -2039,6 +2065,10 @@ namespace CarCareTracker.Controllers
                 return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            if (planRecord.Supplies.Any() && planRecord.CopySuppliesAttachment)
+            {
+                planRecord.Files.AddRange(GetSuppliesAttachments(planRecord.Supplies));
+            }
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
             return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
         }

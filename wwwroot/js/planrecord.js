@@ -194,7 +194,8 @@ function getAndValidatePlanRecordValues() {
         importMode: planType,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
-        reminderRecordId: reminderRecordId
+        reminderRecordId: reminderRecordId,
+        copySuppliesAttachment: copySuppliesAttachments
     }
 }
 //drag and drop stuff.

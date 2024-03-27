@@ -133,6 +133,7 @@ function getAndValidateServiceRecordValues() {
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
-        reminderRecordId: recurringReminderRecordId
+        reminderRecordId: recurringReminderRecordId,
+        copySuppliesAttachment: copySuppliesAttachments
     }
 }
