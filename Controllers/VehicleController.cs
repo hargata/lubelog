@@ -1568,9 +1568,7 @@ namespace CarCareTracker.Controllers
             List<ReminderRecordViewModel> results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, dateCompare);
             return results;
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
-        [HttpGet]
-        public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
+        private bool GetAndUpdateVehicleUrgentOrPastDueReminders(int vehicleId)
         {
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             //check if user wants auto-refresh past-due reminders
@@ -1597,9 +1595,16 @@ namespace CarCareTracker.Controllers
             var pastDueAndUrgentReminders = result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue);
             if (pastDueAndUrgentReminders.Any())
             {
-                return Json(true);
+                return true;
             }
-            return Json(false);
+            return false;
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetVehicleHaveUrgentOrPastDueReminders(int vehicleId)
+        {
+            var result = GetAndUpdateVehicleUrgentOrPastDueReminders(vehicleId);
+            return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]

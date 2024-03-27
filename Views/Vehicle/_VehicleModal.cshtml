@@ -46,10 +46,6 @@
                     }
                 </div>
                 <div class="col-12 col-md-6">
-                    <label for="inputPurchaseDate">@translator.Translate(userLanguage, "Purchased Date(optional)")</label>
-                    <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
-                    <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
-                    <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="inputIsElectric" checked="@Model.IsElectric">
                         <label class="form-check-label" for="inputIsElectric">@translator.Translate(userLanguage, "Electric Vehicle")</label>
@@ -68,6 +64,25 @@
                             <input type="text" id="inputOdometerMultiplier" class="form-control" placeholder="@translator.Translate(userLanguage, "Odometer Multiplier")" value="@Model.OdometerMultiplier">
                             <label for="inputOdometerDifference">@translator.Translate(userLanguage, "Odometer Difference")</label>
                             <input type="text" id="inputOdometerDifference" class="form-control" placeholder="@translator.Translate(userLanguage, "Odometer Difference")" value="@Model.OdometerDifference">
+                        </div>
+                    </div>
+                    <div class="accordion accordion-flush" id="vehicleModalAccordion">
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button skinny collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePurchaseInfo">
+                                    @translator.Translate(userLanguage, "Purchase/Sold Information(optional)")
+                                </button>
+                            </div>
+                            <div id="collapsePurchaseInfo" class="accordion-collapse collapse" data-bs-parent="#vehicleModalAccordion">
+                                <label for="inputPurchaseDate">@translator.Translate(userLanguage, "Purchased Date(optional)")</label>
+                                <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
+                                <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
+                                <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
+                                <label for="inputPurchasePrice">@translator.Translate(userLanguage, "Purchased Price(optional)")</label>
+                                <input type="text" inputmode="decimal" id="inputPurchasePrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Price")" value="@(Model.PurchasePrice == default ? "" : Model.PurchasePrice)">
+                                <label for="inputSoldPrice">@translator.Translate(userLanguage, "Sold Price(optional)")</label>
+                                <input type="text" inputmode="decimal" id="inputSoldPrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Price")" value="@(Model.SoldPrice == default ? "" : Model.SoldPrice)">
+                            </div>
                         </div>
                     </div>
                     <label for="inputTag">@translator.Translate(userLanguage, "Tags(optional)")</label>

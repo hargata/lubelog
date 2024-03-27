@@ -374,3 +374,7 @@ input[type="file"] {
 .copyable{
     cursor: pointer;
 }
+.accordion-button.skinny {
+    padding: 0.438rem 0rem !important;
+    background-color: inherit !important;
+}
