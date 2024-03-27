@@ -45,6 +45,8 @@ function saveVehicle(isEdit) {
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
+    var vehiclePurchasePrice = $("#inputPurchasePrice").val();
+    var vehicleSoldPrice = $("#inputSoldPrice").val();
     var extraFields = getAndValidateExtraFields(true);
     //validate
     var hasError = false;
@@ -92,6 +94,20 @@ function saveVehicle(isEdit) {
             $("#inputOdometerDifference").removeClass("is-invalid");
         }
     }
+    if (vehiclePurchasePrice.trim() != '' && !isValidMoney(vehiclePurchasePrice)) {
+        hasError = true;
+        $("#inputPurchasePrice").addClass("is-invalid");
+        $("#collapsePurchaseInfo").collapse('show');
+    } else {
+        $("#inputPurchasePrice").removeClass("is-invalid");
+    }
+    if (vehicleSoldPrice.trim() != '' && !isValidMoney(vehicleSoldPrice)) {
+        hasError = true;
+        $("#inputSoldPrice").addClass("is-invalid");
+        $("#collapsePurchaseInfo").collapse('show');
+    } else {
+        $("#inputSoldPrice").removeClass("is-invalid");
+    }
     if (hasError) {
         return;
     }
@@ -110,7 +126,9 @@ function saveVehicle(isEdit) {
         soldDate: vehicleSoldDate,
         hasOdometerAdjustment: vehicleHasOdometerAdjustment,
         odometerMultiplier: vehicleOdometerMultiplier,
-        odometerDifference: vehicleOdometerDifference
+        odometerDifference: vehicleOdometerDifference,
+        purchasePrice: vehiclePurchasePrice,
+        soldPrice: vehicleSoldPrice
     }, function (data) {
         if (data) {
             if (!isEdit) {
