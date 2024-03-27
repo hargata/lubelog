@@ -832,7 +832,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach(int reminderRecordId in serviceRecord.ReminderRecordId)
                 {
-                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(serviceRecord.Date), serviceRecord.Mileage);
                 }
             }
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
@@ -924,7 +924,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach (int reminderRecordId in collisionRecord.ReminderRecordId)
                 {
-                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(collisionRecord.Date), collisionRecord.Mileage);
                 }
             }
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
@@ -1038,7 +1038,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach (int reminderRecordId in taxRecord.ReminderRecordId)
                 {
-                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(taxRecord.Date), null);
                 }
             }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
@@ -1600,7 +1600,7 @@ namespace CarCareTracker.Controllers
                         //update based on recurring intervals.
                         //pull reminderRecord based on ID
                         var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecord.Id);
-                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder, null, null);
                         //save to db.
                         _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
                         //set urgency to not urgent so it gets excluded in count.
@@ -1641,17 +1641,17 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult PushbackRecurringReminderRecord(int reminderRecordId)
         {
-            var result = PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+            var result = PushbackRecurringReminderRecordWithChecks(reminderRecordId, null, null);
             return Json(result);
         }
-        private bool PushbackRecurringReminderRecordWithChecks(int reminderRecordId)
+        private bool PushbackRecurringReminderRecordWithChecks(int reminderRecordId, DateTime? currentDate, int? currentMileage)
         {
             try
             {
                 var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
                 if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                 {
-                    existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder);
+                    existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder, currentDate, currentMileage);
                     //save to db.
                     var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
                     if (!reminderUpdateResult)
@@ -1774,7 +1774,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach (int reminderRecordId in upgradeRecord.ReminderRecordId)
                 {
-                    PushbackRecurringReminderRecordWithChecks(reminderRecordId);
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Mileage);
                 }
             }
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
@@ -2231,7 +2231,7 @@ namespace CarCareTracker.Controllers
                 //push back any reminders
                 if (existingRecord.ReminderRecordId != default)
                 {
-                    PushbackRecurringReminderRecordWithChecks(existingRecord.ReminderRecordId);
+                    PushbackRecurringReminderRecordWithChecks(existingRecord.ReminderRecordId, DateTime.Now, odometer);
                 }
             }
             return Json(result);
