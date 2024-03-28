@@ -26,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
+        private readonly IVehicleLogic _vehicleLogic;
         private readonly IOdometerLogic _odometerLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IMailHelper _mailHelper;
@@ -47,6 +48,7 @@ namespace CarCareTracker.Controllers
             IFileHelper fileHelper,
             IConfigHelper config,
             IUserLogic userLogic,
+            IVehicleLogic vehicleLogic,
             IOdometerLogic odometerLogic) 
         {
             _dataAccess = dataAccess;
@@ -65,6 +67,7 @@ namespace CarCareTracker.Controllers
             _reminderHelper = reminderHelper;
             _userLogic = userLogic;
             _odometerLogic = odometerLogic;
+            _vehicleLogic = vehicleLogic;
             _fileHelper = fileHelper;
             _config = config;
         }
@@ -350,7 +353,7 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/odometerrecords/latest")]
         public IActionResult LastOdometer(int vehicleId)
         {
-            var result = GetMaxMileage(vehicleId);
+            var result = _vehicleLogic.GetMaxMileage(vehicleId);
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -499,7 +502,7 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/reminders")]
         public IActionResult Reminders(int vehicleId)
         {
-            var currentMileage = GetMaxMileage(vehicleId);
+            var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes});
             return Json(results);
@@ -515,7 +518,7 @@ namespace CarCareTracker.Controllers
             {
                 var vehicleId = vehicle.Id;
                 //get reminders
-                var currentMileage = GetMaxMileage(vehicleId);
+                var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
                 var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
                 var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
                 results.RemoveAll(x => !urgencies.Contains(x.Urgency));
@@ -564,36 +567,6 @@ namespace CarCareTracker.Controllers
         {
             var result = _fileHelper.RestoreBackup("/defaults/demo_default.zip", true);
             return Json(result);
-        }
-        private int GetMaxMileage(int vehicleId)
-        {
-            var numbersArray = new List<int>();
-            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            if (serviceRecords.Any())
-            {
-                numbersArray.Add(serviceRecords.Max(x => x.Mileage));
-            }
-            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            if (repairRecords.Any())
-            {
-                numbersArray.Add(repairRecords.Max(x => x.Mileage));
-            }
-            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            if (gasRecords.Any())
-            {
-                numbersArray.Add(gasRecords.Max(x => x.Mileage));
-            }
-            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            if (upgradeRecords.Any())
-            {
-                numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
-            }
-            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
-            if (odometerRecords.Any())
-            {
-                numbersArray.Add(odometerRecords.Max(x => x.Mileage));
-            }
-            return numbersArray.Any() ? numbersArray.Max() : 0;
         }
     }
 }

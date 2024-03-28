@@ -1,7 +1,7 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
-@model List<Vehicle>
+@model List<VehicleViewModel>
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
@@ -26,7 +26,7 @@
 }
 <div class="row">
     <div class="row gy-3 align-items-stretch vehiclesContainer">
-        @foreach (Vehicle vehicle in Model)
+        @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
@@ -36,6 +36,22 @@
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
                             <div class="vehicle-sold-banner"><p class='display-6 mb-0'>@translator.Translate(userLanguage, "SOLD")</p></div>
+                        } else if (vehicle.LastReportedMileage != default)
+                        {
+                            <div class="vehicle-sold-banner">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <span class="ms-2"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
+                                     </div>
+                                    @if (vehicle.HasReminders)
+                                    {
+                                        <div>
+                                            <span class="me-2"><i class="bi bi bi-bell-fill text-warning"></i></span>
+                                        </div>
+                                    }
+                                </div>
+                                <span></span>
+                            </div>
                         }
                         <div class="card-body">
                             <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
