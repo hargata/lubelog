@@ -16,6 +16,7 @@ namespace CarCareTracker.Controllers
         private readonly IVehicleDataAccess _dataAccess;
         private readonly IUserLogic _userLogic;
         private readonly ILoginLogic _loginLogic;
+        private readonly IVehicleLogic _vehicleLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
@@ -25,6 +26,7 @@ namespace CarCareTracker.Controllers
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
             ILoginLogic loginLogic,
+            IVehicleLogic vehicleLogic,
             IConfigHelper configuration,
             IFileHelper fileHelper,
             IExtraFieldDataAccess extraFieldDataAccess,
@@ -40,6 +42,7 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
             _loginLogic = loginLogic;
+            _vehicleLogic = vehicleLogic;
         }
         private int GetUserID()
         {
@@ -56,7 +59,23 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            return PartialView("_GarageDisplay", vehiclesStored);
+            var vehicleViewModels = vehiclesStored.Select(x => new VehicleViewModel
+            {
+                Id = x.Id,
+                ImageLocation = x.ImageLocation,
+                Year = x.Year,
+                Make = x.Make,
+                Model = x.Model,
+                LicensePlate = x.LicensePlate,
+                SoldDate = x.SoldDate,
+                IsElectric = x.IsElectric,
+                UseHours = x.UseHours,
+                ExtraFields = x.ExtraFields,
+                Tags = x.Tags,
+                LastReportedMileage = _vehicleLogic.GetMaxMileage(x.Id),
+                HasReminders = _vehicleLogic.GetVehicleHasUrgentOrPastDueReminders(x.Id)
+            }).ToList();
+            return PartialView("_GarageDisplay", vehicleViewModels);
         }
         public IActionResult Calendar()
         {
