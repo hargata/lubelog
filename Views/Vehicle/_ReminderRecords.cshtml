@@ -44,13 +44,13 @@
                 <tr class="d-flex">
                     <th scope="col" class="col-1">@translator.Translate(userLanguage, "Urgency")</th>
                     <th scope="col" class="col-2">@translator.Translate(userLanguage, "Metric")</th>
-                    <th scope="col" class="@(hasRefresh ? "col-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="@(hasRefresh ? "col-3 col-md-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 col-md-3">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
                     {
-                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Done")</th>
+                        <th scope="col" class="col-2 col-md-1">@translator.Translate(userLanguage, "Done")</th>
                     }
-                    <th scope="col" class="col-1">@translator.Translate(userLanguage, "Delete")</th>
+                    <th scope="col" class="col-2 col-md-1">@translator.Translate(userLanguage, "Delete")</th>
                 </tr>
             </thead>
             <tbody>
@@ -85,18 +85,18 @@
                         {
                             <td class="col-2">@reminderRecord.Metric</td>
                         }
-                        <td class="@(hasRefresh ? "col-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
-                        <td class="col-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        <td class="@(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
+                        <td class="col-2 col-md-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
-                            <td class="col-1 text-truncate">
+                            <td class="col-2 col-md-1 text-truncate">
                                 @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
                                 {
                                     <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
                                 }
                             </td>
                         }
-                        <td class="col-1 text-truncate">
+                        <td class="col-2 col-md-1 text-truncate">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
