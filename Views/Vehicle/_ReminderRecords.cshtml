@@ -59,19 +59,19 @@
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)" data-tags='@string.Join(" ", reminderRecord.Tags)'>
                         @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                         {
-                            <td class="col-1"><span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span></td>
+                            <td class="col-1"><span class="text-danger d-inline-block d-md-none"><i class="bi bi-hourglass-split h3"></i></span><span class="badge text-bg-danger d-none d-md-inline-block">@translator.Translate(userLanguage, "Very Urgent")</span></td>
                         }
                         else if (reminderRecord.Urgency == ReminderUrgency.Urgent)
                         {
-                            <td class="col-1"><span class="badge text-bg-warning">@translator.Translate(userLanguage, "Urgent")</span></td>
+                            <td class="col-1"><span class="text-warning d-inline-block d-md-none"><i class="bi bi-hourglass-split h3"></i></span><span class="badge text-bg-warning d-none d-md-inline-block">@translator.Translate(userLanguage, "Urgent")</span></td>
                         }
                         else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
                         {
-                            <td class="col-1"><span class="badge text-bg-secondary">@translator.Translate(userLanguage, "Past Due")</span></td>
+                            <td class="col-1"><span class="text-secondary d-inline-block d-md-none"><i class="bi bi-hourglass-bottom h3"></i></span><span class="badge text-bg-secondary d-none d-md-inline-block">@translator.Translate(userLanguage, "Past Due")</span></td>
                         }
                         else
                         {
-                            <td class="col-1"><span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span></td>
+                            <td class="col-1"><span class="text-success d-inline-block d-md-none"><i class="bi bi-hourglass-top h3"></i></span><span class="badge text-bg-success d-none d-md-inline-block">@translator.Translate(userLanguage, "Not Urgent")</span></td>
                         }
                         @if (reminderRecord.Metric == ReminderMetric.Date)
                         {
