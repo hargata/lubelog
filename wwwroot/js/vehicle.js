@@ -608,3 +608,37 @@ function getAndValidateSelectedRecurringReminder() {
         }
     }
 }
+function getLastOdometerReadingAndIncrement(odometerFieldName) {
+    Swal.fire({
+        title: 'Increment Last Reported Odometer Reading',
+        html: `
+                            <input type="text" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment">
+              `,
+        confirmButtonText: 'Add',
+        focusConfirm: false,
+        preConfirm: () => {
+            const odometerIncrement = parseInt(globalParseFloat($("#inputOdometerIncrement").val()));
+            if (isNaN(odometerIncrement) || odometerIncrement <= 0) {
+                Swal.showValidationMessage(`Please enter a non-zero amount to increment`);
+            }
+            return { odometerIncrement }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var amountToIncrement = result.value.odometerIncrement;
+            $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+                var newAmount = data + amountToIncrement;
+                if (!isNaN(newAmount)) {
+                    var odometerField = $(`#${odometerFieldName}`);
+                    if (odometerField.length > 0) {
+                        odometerField.val(newAmount);
+                    } else {
+                        errorToast(genericErrorMessage());
+                    }
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        }
+    });
+}

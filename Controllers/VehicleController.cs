@@ -2340,6 +2340,12 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Shared Methods"
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult GetMaxMileage(int vehicleId)
+        {
+            var result = _vehicleLogic.GetMaxMileage(vehicleId);
+            return Json(result);
+        }
         public IActionResult MoveRecord(int recordId, ImportMode source, ImportMode destination)
         {
             var genericRecord = new GenericRecord();
