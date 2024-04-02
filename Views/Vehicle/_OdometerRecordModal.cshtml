@@ -25,7 +25,15 @@
                     <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
                     <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
+                    <div class="input-group">
+                        <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
+                        @if (isNew)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')">+</button>
+                            </div>
+                        }
+                    </div>
                     <label for="odometerRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="odometerRecordTag">
                         @foreach (string tag in Model.Tags)

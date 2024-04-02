@@ -34,9 +34,12 @@
                     </div>     
                     <div class="input-group">
                         <input type="number" inputmode="numeric" id="reminderMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Future Odometer Reading")" value="@(isNew ? "" : Model.Mileage)">
-                        <div class="input-group-text">
-                            <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="appendMileageToOdometer(500)">+500</button>
-                        </div>
+                        @if (isNew)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('reminderMileage')">+</button>
+                            </div>
+                        }
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="@(ReminderMetric.Both)" checked="@(Model.Metric == ReminderMetric.Both)">

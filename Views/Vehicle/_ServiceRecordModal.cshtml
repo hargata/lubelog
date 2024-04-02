@@ -22,8 +22,16 @@
                         <input type="text" id="serviceRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date service was performed")" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="serviceRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <input type="number" inputmode="numeric" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew ? "" : Model.Mileage)">
+                    <label for="serviceRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
+                    <div class="input-group">
+                        <input type="number" inputmode="numeric" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew ? "" : Model.Mileage)">
+                        @if (isNew)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('serviceRecordMileage')">+</button>
+                            </div>
+                        }
+                    </div>
                     <label for="serviceRecordDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="serviceRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) serviced(i.e. Oil Change)")" value="@Model.Description">
                     @if (isNew)
