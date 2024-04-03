@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditServiceRecordModal(serviceRecordId) {
+function showEditServiceRecordModal(serviceRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#serviceRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getServiceRecordModelData().id;
+            if (existingId == serviceRecordId) {
+                $('#serviceRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetServiceRecordForEditById?serviceRecordId=${serviceRecordId}`, function (data) {
         if (data) {
             $("#serviceRecordModalContent").html(data);

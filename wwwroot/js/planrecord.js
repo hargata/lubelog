@@ -8,7 +8,19 @@
         }
     });
 }
-function showEditPlanRecordModal(planRecordId) {
+function showEditPlanRecordModal(planRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#planRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getPlanRecordModelData().id;
+            if (existingId == planRecordId) {
+                $('#planRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetPlanRecordForEditById?planRecordId=${planRecordId}`, function (data) {
         if (data) {
             $("#planRecordModalContent").html(data);

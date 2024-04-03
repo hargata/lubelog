@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditGasRecordModal(gasRecordId) {
+function showEditGasRecordModal(gasRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#gasRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getGasRecordModelData().id;
+            if (existingId == gasRecordId) {
+                $('#gasRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetGasRecordForEditById?gasRecordId=${gasRecordId}`, function (data) {
         if (data) {
             $("#gasRecordModalContent").html(data);

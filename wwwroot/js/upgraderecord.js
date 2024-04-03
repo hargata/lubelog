@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditUpgradeRecordModal(upgradeRecordId) {
+function showEditUpgradeRecordModal(upgradeRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#upgradeRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getUpgradeRecordModelData().id;
+            if (existingId == upgradeRecordId) {
+                $('#upgradeRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetUpgradeRecordForEditById?upgradeRecordId=${upgradeRecordId}`, function (data) {
         if (data) {
             $("#upgradeRecordModalContent").html(data);

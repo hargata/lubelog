@@ -753,6 +753,7 @@ function showModalForCurrentTab() {
         var modalContent = $(`#${modalName} .modal-content`);
         if (modalContent.html().trim() != '' && $(".modal.fade.show").length == 0) {
             $(`#${modalName}`).modal('show');
+            $('.cached-banner').show();
         }
     }
 }

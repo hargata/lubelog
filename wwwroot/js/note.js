@@ -7,7 +7,19 @@
         }
     });
 }
-function showEditNoteModal(noteId) {
+function showEditNoteModal(noteId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#noteModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getNoteModelData().id;
+            if (existingId == noteId) {
+                $('#noteModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetNoteForEditById?noteId=${noteId}`, function (data) {
         if (data) {
             $("#noteModalContent").html(data);
