@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditCollisionRecordModal(collisionRecordId) {
+function showEditCollisionRecordModal(collisionRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#collisionRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getCollisionRecordModelData().id;
+            if (existingId == collisionRecordId) {
+                $('#collisionRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetCollisionRecordForEditById?collisionRecordId=${collisionRecordId}`, function (data) {
         if (data) {
             $("#collisionRecordModalContent").html(data);

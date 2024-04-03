@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditOdometerRecordModal(odometerRecordId) {
+function showEditOdometerRecordModal(odometerRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#odometerRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getOdometerRecordModelData().id;
+            if (existingId == odometerRecordId) {
+                $('#odometerRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetOdometerRecordForEditById?odometerRecordId=${odometerRecordId}`, function (data) {
         if (data) {
             $("#odometerRecordModalContent").html(data);

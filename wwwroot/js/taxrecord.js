@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditTaxRecordModal(taxRecordId) {
+function showEditTaxRecordModal(taxRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#taxRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getTaxRecordModelData().id;
+            if (existingId == taxRecordId) {
+                $('#taxRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetTaxRecordForEditById?taxRecordId=${taxRecordId}`, function (data) {
         if (data) {
             $("#taxRecordModalContent").html(data);
