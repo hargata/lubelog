@@ -9,6 +9,7 @@ using CarCareTracker.MapProfile;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 using CarCareTracker.Filter;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -2340,6 +2341,83 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Shared Methods"
+        [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult SearchRecords(int vehicleId, string searchQuery)
+        {
+            List<SearchResult> searchResults = new List<SearchResult>();
+            if (string.IsNullOrWhiteSpace(searchQuery))
+            {
+                return Json(searchResults);
+            }
+            foreach(ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
+            {
+                switch (visibleTab)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var results = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ServiceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var results = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.RepairRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var results = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.UpgradeRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.TaxRecord:
+                        {
+                            var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.TaxRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.SupplyRecord:
+                        {
+                            var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.SupplyRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.PlanRecord:
+                        {
+                            var results = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.PlanRecord, Description = $"{x.DateCreated.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var results = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.OdometerRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var results = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.GasRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
+                        }
+                        break;
+                    case ImportMode.NoteRecord:
+                        {
+                            var results = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.NoteRecord, Description = $"{x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.ReminderRecord:
+                        {
+                            var results = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                            searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ReminderRecord, Description = $"{x.Description}" }));
+                        }
+                        break;
+                }
+            }
+            return PartialView("_GlobalSearchResult", searchResults);
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetMaxMileage(int vehicleId)
         {

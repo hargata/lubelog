@@ -118,10 +118,26 @@
         </div>
         <div class="col-md-3 col-12 chartContainer">
             <div class="d-grid">
+                <button onclick="showGlobalSearch()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Search")<i class="bi ms-2 bi-search"></i></button>
+            </div>
+            <div class="d-grid">
                 <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
             <div class="d-grid">
                 <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="globalSearchModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="globalSearchModalContent">
+            <div class="modal-body">
+                <div class="input-group input-group-lg">
+                    <input type="text" id="globalSearchInput" onkeyup="handleGlobalSearchKeyPress(event)" class="form-control" placeholder="@translator.Translate(userLanguage,"Search by Keyword(Case Sensitive)")">
+                    <button type="button" class="btn btn-outline-secondary" onclick="performGlobalSearch()"><i class="bi bi-search"></i></button>
+                </div>
+                <div id="globalSearchModalResults"></div>
             </div>
         </div>
     </div>

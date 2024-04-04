@@ -259,5 +259,33 @@ namespace CarCareTracker.Helper
                 };
             httpClient.PostAsJsonAsync(webhookURL, httpParams);
         }
+        public static string GetImportModeIcon(ImportMode importMode)
+        {
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    return "bi-card-checklist";
+                case ImportMode.RepairRecord:
+                    return "bi-exclamation-octagon";
+                case ImportMode.UpgradeRecord:
+                    return "bi-wrench-adjustable";
+                case ImportMode.TaxRecord:
+                    return "bi-currency-dollar";
+                case ImportMode.SupplyRecord:
+                    return "bi-shop";
+                case ImportMode.PlanRecord:
+                    return "bi-bar-chart-steps";
+                case ImportMode.OdometerRecord:
+                    return "bi-speedometer";
+                case ImportMode.GasRecord:
+                    return "bi-fuel-pump";
+                case ImportMode.NoteRecord:
+                    return "bi-journal-bookmark";
+                case ImportMode.ReminderRecord:
+                    return "bi-bell";
+                default:
+                    return "bi-file-bar-graph";
+            }
+        }
     }
 }
