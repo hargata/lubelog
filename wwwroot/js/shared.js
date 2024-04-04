@@ -1080,3 +1080,13 @@ function copyToClipboard(e) {
 function noPropagation() {
     event.stopPropagation();
 }
+var checkExist;
+
+function waitForElement(element, callBack, callBackParameter) {
+    checkExist = setInterval(function () {
+        if ($(`${element}`).length) {
+            callBack(callBackParameter);
+            clearInterval(checkExist);
+        }
+    }, 100); // check every 100ms
+}
