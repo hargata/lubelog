@@ -159,7 +159,9 @@ function performGlobalSearch() {
     });
 }
 function handleGlobalSearchKeyPress(event) {
-    if (event.keyCode == 13) {
+    if ($('#globalSearchAutoSearchCheck').is(':checked')){
+        setDebounce(performGlobalSearch);
+    } else if (event.keyCode == 13) {
         performGlobalSearch();
     }
 }

@@ -134,8 +134,12 @@
         <div class="modal-content" id="globalSearchModalContent">
             <div class="modal-body">
                 <div class="input-group input-group-lg">
-                    <input type="text" id="globalSearchInput" onkeyup="handleGlobalSearchKeyPress(event)" class="form-control" placeholder="@translator.Translate(userLanguage,"Search by Keyword(Case Sensitive)")">
+                    <input type="text" id="globalSearchInput" autocomplete="off" onkeyup="handleGlobalSearchKeyPress(event)" class="form-control" placeholder="@translator.Translate(userLanguage,"Search by Keyword(Case Sensitive)")">
                     <button type="button" class="btn btn-outline-secondary" onclick="performGlobalSearch()"><i class="bi bi-search"></i></button>
+                </div>
+                <div class="form-check form-switch mt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="globalSearchAutoSearchCheck" checked>
+                    <label class="form-check-label" for="globalSearchAutoSearchCheck">@translator.Translate(userLanguage, "Incremental Search")</label>
                 </div>
                 <div id="globalSearchModalResults"></div>
             </div>
