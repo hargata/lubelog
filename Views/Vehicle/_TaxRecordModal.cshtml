@@ -8,7 +8,7 @@
     var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Tax Record") : translator.Translate(userLanguage, "Edit Tax Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-body-secondary" onclick='@(isNew ? "" : $"showEditTaxRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Cached")</small></h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Tax Record") : translator.Translate(userLanguage, "Edit Tax Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-body-secondary" onclick='@(isNew ? "" : $"showEditTaxRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddTaxRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">

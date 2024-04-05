@@ -706,56 +706,11 @@ $(window).on('keydown', function (e) {
             e.preventDefault();
             e.stopPropagation();
             selectAllRows();
-        } else if ((e.ctrlKey || e.metaKey) && e.which == 90) {
-            e.preventDefault();
-            e.stopPropagation();
-            showModalForCurrentTab();
         }
     }
 });
 function getCurrentTab() {
     return $(".tab-pane.active.show").attr('id');
-}
-function showModalForCurrentTab() {
-    var currentTab = getCurrentTab();
-    var modalName = "";
-    switch (currentTab) {
-        case "servicerecord-tab-pane":
-            modalName = "serviceRecordModal";
-            break;
-        case "gas-tab-pane":
-            modalName = "gasRecordModal";
-            break;
-        case "tax-tab-pane":
-            modalName = "taxRecordModal";
-            break;
-        case "notes-tab-pane":
-            modalName = "noteModal";
-            break;
-        case "accident-tab-pane":
-            modalName = "collisionRecordModal";
-            break;
-        case "upgrade-tab-pane":
-            modalName = "upgradeRecordModal";
-            break;
-        case "supply-tab-pane":
-            modalName = "supplyRecordModal";
-            break;
-        case "plan-tab-pane":
-            modalName = "planRecordModal";
-            break;
-        case "odometer-tab-pane":
-            modalName = "odometerRecordModal";
-            break;
-    }
-    if (modalName != '') {
-        //check if modal has content and no other modal is currently showing.
-        var modalContent = $(`#${modalName} .modal-content`);
-        if (modalContent.html().trim() != '' && $(".modal.fade.show").length == 0) {
-            $(`#${modalName}`).modal('show');
-            $('.cached-banner').show();
-        }
-    }
 }
 function selectAllRows() {
     clearSelectedRows();
@@ -1089,4 +1044,13 @@ function waitForElement(element, callBack, callBackParameter) {
             clearInterval(checkExist);
         }
     }, 100); // check every 100ms
+}
+function bindModalInputChanges(modalName) {
+    //bind text inputs
+    $(`#${modalName} input[type='text'], #${modalName} input[type='number'], #${modalName} textarea`).off('input').on('input', function (e) {
+        $(e.currentTarget).attr('data-changed', true);
+    });
+    $(`#${modalName} select, #${modalName} input[type='checkbox']`).off('input').on('input', function (e) {
+        $(e.currentTarget).attr('data-changed', true);
+    });
 }

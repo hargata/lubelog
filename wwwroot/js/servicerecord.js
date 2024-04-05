@@ -15,7 +15,7 @@ function showEditServiceRecordModal(serviceRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getServiceRecordModelData().id;
-            if (existingId == serviceRecordId) {
+            if (existingId == serviceRecordId && $('[data-changed=true]').length > 0) {
                 $('#serviceRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditServiceRecordModal(serviceRecordId, nocache) {
             initDatePicker($('#serviceRecordDate'));
             initTagSelector($("#serviceRecordTag"));
             $('#serviceRecordModal').modal('show');
+            bindModalInputChanges('serviceRecordModal');
             $('#serviceRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("serviceRecordNotes");

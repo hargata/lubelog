@@ -14,7 +14,7 @@ function showEditPlanRecordModal(planRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getPlanRecordModelData().id;
-            if (existingId == planRecordId) {
+            if (existingId == planRecordId && $('[data-changed=true]').length > 0) {
                 $('#planRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -27,6 +27,7 @@ function showEditPlanRecordModal(planRecordId, nocache) {
             //initiate datepicker
             initDatePicker($('#planRecordDate'));
             $('#planRecordModal').modal('show');
+            bindModalInputChanges('planRecordModal');
             $('#planRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("planRecordNotes");
