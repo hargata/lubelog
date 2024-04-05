@@ -15,7 +15,7 @@ function showEditOdometerRecordModal(odometerRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getOdometerRecordModelData().id;
-            if (existingId == odometerRecordId) {
+            if (existingId == odometerRecordId && $('[data-changed=true]').length > 0) {
                 $('#odometerRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditOdometerRecordModal(odometerRecordId, nocache) {
             initDatePicker($('#odometerRecordDate'));
             initTagSelector($("#odometerRecordTag"));
             $('#odometerRecordModal').modal('show');
+            bindModalInputChanges('odometerRecordModal');
             $('#odometerRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("odometerRecordNotes");

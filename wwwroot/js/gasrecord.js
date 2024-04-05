@@ -15,7 +15,7 @@ function showEditGasRecordModal(gasRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getGasRecordModelData().id;
-            if (existingId == gasRecordId) {
+            if (existingId == gasRecordId && $('[data-changed=true]').length > 0) {
                 $('#gasRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditGasRecordModal(gasRecordId, nocache) {
             initDatePicker($('#gasRecordDate'));
             initTagSelector($("#gasRecordTag"));
             $('#gasRecordModal').modal('show');
+            bindModalInputChanges('gasRecordModal');
             $('#gasRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("gasRecordNotes");

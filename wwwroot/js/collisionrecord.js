@@ -15,7 +15,7 @@ function showEditCollisionRecordModal(collisionRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getCollisionRecordModelData().id;
-            if (existingId == collisionRecordId) {
+            if (existingId == collisionRecordId && $('[data-changed=true]').length > 0) {
                 $('#collisionRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditCollisionRecordModal(collisionRecordId, nocache) {
             initDatePicker($('#collisionRecordDate'));
             initTagSelector($("#collisionRecordTag"));
             $('#collisionRecordModal').modal('show');
+            bindModalInputChanges('collisionRecordModal');
             $('#collisionRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("collisionRecordNotes");

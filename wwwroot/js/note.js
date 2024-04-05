@@ -13,7 +13,7 @@ function showEditNoteModal(noteId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getNoteModelData().id;
-            if (existingId == noteId) {
+            if (existingId == noteId && $('[data-changed=true]').length > 0) {
                 $('#noteModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -25,6 +25,7 @@ function showEditNoteModal(noteId, nocache) {
             $("#noteModalContent").html(data);
             initTagSelector($("#noteRecordTag"));
             $('#noteModal').modal('show');
+            bindModalInputChanges('noteModal');
             $('#noteModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("noteTextArea");

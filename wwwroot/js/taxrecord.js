@@ -15,7 +15,7 @@ function showEditTaxRecordModal(taxRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getTaxRecordModelData().id;
-            if (existingId == taxRecordId) {
+            if (existingId == taxRecordId && $('[data-changed=true]').length > 0) {
                 $('#taxRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditTaxRecordModal(taxRecordId, nocache) {
             initDatePicker($('#taxRecordDate'));
             initTagSelector($("#taxRecordTag"));
             $('#taxRecordModal').modal('show');
+            bindModalInputChanges('taxRecordModal');
             $('#taxRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("taxRecordNotes");

@@ -15,7 +15,7 @@ function showEditUpgradeRecordModal(upgradeRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getUpgradeRecordModelData().id;
-            if (existingId == upgradeRecordId) {
+            if (existingId == upgradeRecordId && $('[data-changed=true]').length > 0) {
                 $('#upgradeRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -29,6 +29,7 @@ function showEditUpgradeRecordModal(upgradeRecordId, nocache) {
             initDatePicker($('#upgradeRecordDate'));
             initTagSelector($("#upgradeRecordTag"));
             $('#upgradeRecordModal').modal('show');
+            bindModalInputChanges('upgradeRecordModal');
             $('#upgradeRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("upgradeRecordNotes");
