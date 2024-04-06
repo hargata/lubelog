@@ -101,10 +101,6 @@
             </button>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="savePlanRecordTemplate()">@translator.Translate(userLanguage, "Save as Template")</a></li>
-                @if (!Model.CreatedFromReminder)
-                {
-                    <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
-                }
             </ul>
         </div>
     }

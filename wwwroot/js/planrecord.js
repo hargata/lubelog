@@ -98,22 +98,19 @@ function showPlanRecordTemplatesModal() {
     $.get(`/Vehicle/GetPlanRecordTemplatesForVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#planRecordTemplateModalContent").html(data);
-            hideAddPlanRecordModal();
             $('#planRecordTemplateModal').modal('show');
         }
     });
 }
 function hidePlanRecordTemplatesModal() {
     $('#planRecordTemplateModal').modal('hide');
-    $('#planRecordModal').modal('show');
 }
 function usePlannerRecordTemplate(planRecordTemplateId) {
     $.post(`/Vehicle/ConvertPlanRecordTemplateToPlanRecord?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
         if (data.success) {
             var vehicleId = GetVehicleId().vehicleId;
             successToast(data.message);
-            $('#planRecordTemplateModal').modal('hide');
-            hideAddPlanRecordModal();
+            hidePlanRecordTemplatesModal();
             saveScrollPosition();
             getVehiclePlanRecords(vehicleId);
         } else {
