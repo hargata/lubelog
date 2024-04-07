@@ -95,6 +95,9 @@
                     $("#inputSuppliesModalContent").html(data);
                     $('#inputSuppliesModal').modal('show');
                     recalculateTotal();
+                    if (copySuppliesAttachments) {
+                        $('#inputCopySuppliesAttachments').attr('checked', true);
+                    }
                 }
             });
         } else {
