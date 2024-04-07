@@ -4,15 +4,15 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
-    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var recordTags = Model.Supplies.SelectMany(x => x.Tags).Distinct();
 }
-@model List<SupplyRecord>
+@model SupplyUsageViewModel
 <div class="modal-header">
     <h5 class="modal-title">@translator.Translate(userLanguage,"Select Supplies")</h5>
     <button type="button" class="btn-close" onclick="hideSuppliesModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
-    @if (Model.Any())
+    @if (Model.Supplies.Any())
     {
         <div class="row">
             <div class="col-12" style="max-height:50vh; overflow-y:auto;" id="supplies-table">
@@ -37,11 +37,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (SupplyRecord supplyRecord in Model)
+                        @foreach (SupplyRecord supplyRecord in Model.Supplies)
                         {
+                            var supplyUsage = Model.Usage.Where(x => x.SupplyId == supplyRecord.Id).SingleOrDefault();
                             <tr class="d-flex" id="supplyRows" data-tags='@string.Join(" ", supplyRecord.Tags)'>
-                                <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id"></td>
-                                <td class="col-2"><input type="text" inputmode="decimal" disabled onchange="recalculateTotal()" class="form-control"></td>
+                                <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")></td>
+                                <td class="col-2"><input type="text" inputmode="decimal" @(supplyUsage == default ? "disabled" : $"value='{supplyUsage.Quantity}'") onchange="recalculateTotal()" class="form-control"></td>
                                 <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
                                 <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.PartNumber)</td>
                                 <td class="col-3 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.Description)</td>

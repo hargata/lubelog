@@ -83,14 +83,26 @@
         }
     }
     function getSupplies() {
-        var vehicleId = GetVehicleId().vehicleId;
-        $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
-            if (data) {
-                hideParentModal();
-                $("#inputSuppliesModalContent").html(data);
-                $('#inputSuppliesModal').modal('show');
-            }
-        })
+        var caller = GetCaller().tab;
+        if (caller == 'PlanRecordTemplate') {
+            var planRecordTemplateId = getPlanRecordModelData().id;
+            $.get(`/Vehicle/GetSupplyRecordsForPlanRecordTemplate?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                }
+            });
+        } else {
+            var vehicleId = GetVehicleId().vehicleId;
+            $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                }
+            })
+        }
     }
     function hideSuppliesModal() {
         $('#inputSuppliesModal').modal('hide');

@@ -36,6 +36,9 @@ function showEditPlanRecordModal(planRecordId, nocache) {
         }
     });
 }
+function showEditPlanRecordTemplateModal(planRecordTemplateId, nocache) {
+
+}
 function hideAddPlanRecordModal() {
     $('#planRecordModal').modal('hide');
     if (getPlanRecordModelData().createdFromReminder) {

@@ -1913,6 +1913,33 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_SupplyRecords", result);
         }
+        [HttpGet]
+        public IActionResult GetSupplyRecordsForPlanRecordTemplate(int planRecordTemplateId)
+        {
+            var viewModel = new SupplyUsageViewModel();
+            var planRecordTemplate = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (planRecordTemplate != default && planRecordTemplate.VehicleId != default)
+            {
+                var supplies = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(planRecordTemplate.VehicleId);
+                if (_config.GetServerEnableShopSupplies())
+                {
+                    supplies.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0)); // add shop supplies
+                }
+                supplies.RemoveAll(x => x.Quantity <= 0);
+                bool _useDescending = _config.GetUserConfig(User).UseDescending;
+                if (_useDescending)
+                {
+                    supplies = supplies.OrderByDescending(x => x.Date).ToList();
+                }
+                else
+                {
+                    supplies = supplies.OrderBy(x => x.Date).ToList();
+                }
+                viewModel.Supplies = supplies;
+                viewModel.Usage = planRecordTemplate.Supplies;
+            }
+            return PartialView("_SupplyUsage", viewModel);
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
@@ -1932,7 +1959,11 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ToList();
             }
-            return PartialView("_SupplyUsage", result);
+            var viewModel = new SupplyUsageViewModel
+            {
+                Supplies = result
+            };
+            return PartialView("_SupplyUsage", viewModel);
         }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
