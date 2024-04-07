@@ -1913,6 +1913,33 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_SupplyRecords", result);
         }
+        [HttpGet]
+        public IActionResult GetSupplyRecordsForPlanRecordTemplate(int planRecordTemplateId)
+        {
+            var viewModel = new SupplyUsageViewModel();
+            var planRecordTemplate = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (planRecordTemplate != default && planRecordTemplate.VehicleId != default)
+            {
+                var supplies = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(planRecordTemplate.VehicleId);
+                if (_config.GetServerEnableShopSupplies())
+                {
+                    supplies.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0)); // add shop supplies
+                }
+                supplies.RemoveAll(x => x.Quantity <= 0);
+                bool _useDescending = _config.GetUserConfig(User).UseDescending;
+                if (_useDescending)
+                {
+                    supplies = supplies.OrderByDescending(x => x.Date).ToList();
+                }
+                else
+                {
+                    supplies = supplies.OrderBy(x => x.Date).ToList();
+                }
+                viewModel.Supplies = supplies;
+                viewModel.Usage = planRecordTemplate.Supplies;
+            }
+            return PartialView("_SupplyUsage", viewModel);
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsForRecordsByVehicleId(int vehicleId)
@@ -1932,7 +1959,11 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ToList();
             }
-            return PartialView("_SupplyUsage", result);
+            var viewModel = new SupplyUsageViewModel
+            {
+                Supplies = result
+            };
+            return PartialView("_SupplyUsage", viewModel);
         }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
@@ -2024,15 +2055,11 @@ namespace CarCareTracker.Controllers
         {
             //check if template name already taken.
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
-            if (existingRecord)
+            if (planRecord.Id == default && existingRecord)
             {
                 return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            if (planRecord.Supplies.Any() && planRecord.CopySuppliesAttachment)
-            {
-                planRecord.Files.AddRange(GetSuppliesAttachments(planRecord.Supplies));
-            }
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
             return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
         }
@@ -2082,6 +2109,10 @@ namespace CarCareTracker.Controllers
             if (existingRecord.Supplies.Any())
             {
                 existingRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(existingRecord.Supplies, DateTime.Parse(existingRecord.DateCreated), existingRecord.Description);
+                if (existingRecord.CopySuppliesAttachment)
+                {
+                    existingRecord.Files.AddRange(GetSuppliesAttachments(existingRecord.Supplies));
+                }
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
             return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
@@ -2177,6 +2208,12 @@ namespace CarCareTracker.Controllers
                 }
             }
             return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetPlanRecordTemplateForEditById(int planRecordTemplateId)
+        {
+            var result = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            return PartialView("_PlanRecordTemplateEditModal", result);
         }
         [HttpGet]
         public IActionResult GetPlanRecordForEditById(int planRecordId)

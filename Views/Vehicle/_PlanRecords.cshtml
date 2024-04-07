@@ -28,6 +28,8 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('PlanRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('PlanRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
                     </ul>
                 </div>
             }
@@ -102,7 +104,7 @@
     </div>
 </div>
 
-<div class="modal fade" data-bs-focus="false" id="planRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" data-bs-focus="false" id="planRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="planRecordTemplateModalContent">
         </div>
