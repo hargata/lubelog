@@ -126,7 +126,8 @@
             id: @Model.Id,
             dateCreated: decodeHTMLEntities('@(Model.DateCreated)'),
             reminderRecordId: decodeHTMLEntities('@Model.ReminderRecordId'),
-            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower()
+            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower(),
+            isTemplate: false
         }
     }
 </script>

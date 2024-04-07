@@ -21,10 +21,7 @@
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
                     <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
                     <input type="text" inputmode="decimal" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
-                    @if (isNew)
-                    {
-                        @await Html.PartialAsync("_SupplyStore", "PlanRecordTemplate")
-                    }
+                    @await Html.PartialAsync("_SupplyStore", "PlanRecordTemplate")
                     <label for="planRecordType">@translator.Translate(userLanguage, "Type")</label>
                     <select class="form-select" id="planRecordType">
                         <!option value="ServiceRecord" @(Model.ImportMode == ImportMode.ServiceRecord || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Service")</!option>
@@ -84,44 +81,37 @@
         {
             <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-shop"></i></button>
         }
-        <button type="button" class="btn btn-danger" onclick="deletePlanRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
+        <button type="button" class="btn btn-danger" onclick="deletePlannerRecordTemplate(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddPlanRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
-    @if (isNew)
-    {
-        <div class="btn-group">
-            <button onclick="savePlanRecordToVehicle()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add New Plan Record")</button>
-            <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="visually-hidden">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="savePlanRecordTemplate()">@translator.Translate(userLanguage, "Save as Template")</a></li>
-            </ul>
-        </div>
-    }
-    else if (!isNew)
-    {
-        <button type="button" class="btn btn-primary" onclick="savePlanRecordToVehicle(true)">@translator.Translate(userLanguage, "Edit Plan Record")</button>
-    }
+    <button type="button" class="btn btn-primary" onclick="savePlanRecordTemplate(true)">@translator.Translate(userLanguage, "Edit Plan Record Template")</button>
 </div>
 @await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
-    var copySuppliesAttachments = false;
+    var copySuppliesAttachments = @Model.CopySuppliesAttachment.ToString().ToLower();
     getUploadedFilesFromModel();
+    getSelectedSuppliesFromModel();
     function getUploadedFilesFromModel() {
-    @foreach (UploadedFiles filesUploaded in Model.Files)
-    {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+        @foreach (UploadedFiles filesUploaded in Model.Files)
+        {
+            @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+        }
     }
-            }
+    function getSelectedSuppliesFromModel() {
+        @foreach(SupplyUsage supplyUsage in Model.Supplies)
+        {
+        @:selectedSupplies.push({supplyId: @supplyUsage.SupplyId, quantity: @supplyUsage.Quantity})
+        }
+    }
     function getPlanRecordModelData() {
         return {
             id: @Model.Id,
             dateCreated: decodeHTMLEntities('@(Model.DateCreated)'),
             reminderRecordId: decodeHTMLEntities('@Model.ReminderRecordId'),
-            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower()
+            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower(),
+            isTemplate: true
         }
     }
 </script>

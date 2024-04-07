@@ -14,7 +14,8 @@ function showEditPlanRecordModal(planRecordId, nocache) {
         if (existingContent.trim() != '') {
             //check if id is same.
             var existingId = getPlanRecordModelData().id;
-            if (existingId == planRecordId && $('[data-changed=true]').length > 0) {
+            var isNotTemplate = !getPlanRecordModelData().isTemplate;
+            if (existingId == planRecordId && isNotTemplate && $('[data-changed=true]').length > 0) {
                 $('#planRecordModal').modal('show');
                 $('.cached-banner').show();
                 return;
@@ -37,7 +38,34 @@ function showEditPlanRecordModal(planRecordId, nocache) {
     });
 }
 function showEditPlanRecordTemplateModal(planRecordTemplateId, nocache) {
-
+    hidePlanRecordTemplatesModal();
+    if (!nocache) {
+        var existingContent = $("#planRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getPlanRecordModelData().id;
+            var isTemplate = getPlanRecordModelData().isTemplate;
+            if (existingId == planRecordTemplateId && isTemplate && $('[data-changed=true]').length > 0) {
+                $('#planRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
+    $.get(`/Vehicle/GetPlanRecordTemplateForEditById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+        if (data) {
+            $("#planRecordModalContent").html(data);
+            //initiate datepicker
+            initDatePicker($('#planRecordDate'));
+            $('#planRecordModal').modal('show');
+            bindModalInputChanges('planRecordModal');
+            $('#planRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if (getGlobalConfig().useMarkDown) {
+                    toggleMarkDownOverlay("planRecordNotes");
+                }
+            });
+        }
+    });
 }
 function hideAddPlanRecordModal() {
     $('#planRecordModal').modal('hide');
@@ -136,6 +164,7 @@ function deletePlannerRecordTemplate(planRecordTemplateId) {
                 $("#workAroundInput").hide();
                 if (data) {
                     successToast("Template Deleted");
+                    hideAddPlanRecordModal();
                     hidePlanRecordTemplatesModal();
                 } else {
                     errorToast(genericErrorMessage());
@@ -146,7 +175,7 @@ function deletePlannerRecordTemplate(planRecordTemplateId) {
         }
     });
 }
-function savePlanRecordTemplate() {
+function savePlanRecordTemplate(isEdit) {
     //get values
     var formValues = getAndValidatePlanRecordValues();
     //validate
@@ -157,7 +186,13 @@ function savePlanRecordTemplate() {
     //save to db.
     $.post('/Vehicle/SavePlanRecordTemplateToVehicleId', { planRecord: formValues }, function (data) {
         if (data.success) {
-            successToast(data.message);
+            if (isEdit) {
+                hideAddPlanRecordModal();
+                showPlanRecordTemplatesModal();
+                successToast('Plan Template Updated');
+            } else {
+                successToast('Plan Template Added');
+            }
         } else {
             errorToast(data.message);
         }

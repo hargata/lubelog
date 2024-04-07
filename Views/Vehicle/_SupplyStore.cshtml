@@ -33,6 +33,7 @@
                 $('#upgradeRecordCost').val(selectedSupplyResult.totalSum);
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordCost').val(selectedSupplyResult.totalSum);
                 break;
         }
@@ -53,6 +54,7 @@
                 $('#upgradeRecordModal').modal('hide');
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordModal').modal('hide');
                 break;
         }
@@ -70,6 +72,7 @@
                 $('#upgradeRecordModal').modal('show');
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordModal').modal('show');
                 break;
         }
@@ -91,6 +94,7 @@
                     hideParentModal();
                     $("#inputSuppliesModalContent").html(data);
                     $('#inputSuppliesModal').modal('show');
+                    recalculateTotal();
                 }
             });
         } else {
@@ -101,7 +105,7 @@
                     $("#inputSuppliesModalContent").html(data);
                     $('#inputSuppliesModal').modal('show');
                 }
-            })
+            });
         }
     }
     function hideSuppliesModal() {
