@@ -22,15 +22,6 @@ LubeLogger is available as both a Docker Image and a Windows Standalone Executab
 
 Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started) on how to download either of them
 
-### Docker Setup (Manual Build for Advanced Users)
-1. Install Docker
-2. Clone this repo
-3. CHECK culture in .env file, default is en_US, also setup SMTP for user management if you want that.
-4. Run `docker build -t lubelogger -f Dockerfile .`
-5. CHECK docker-compose.yml and make sure the mounting directories look correct.
-6. If using traefik, use docker-compose.traefik.yml
-7. Run `docker-compose up`
-
 ### Need Help?
 [Documentation](https://docs.lubelogger.com/)
 
