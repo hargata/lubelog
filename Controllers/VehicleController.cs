@@ -2145,7 +2145,7 @@ namespace CarCareTracker.Controllers
                 {
                     _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                     {
-                        Date = DateTime.Now,
+                        Date = DateTime.Now.Date,
                         VehicleId = existingRecord.VehicleId,
                         Mileage = odometer,
                         Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
@@ -2158,7 +2158,7 @@ namespace CarCareTracker.Controllers
                     var newRecord = new ServiceRecord()
                     {
                         VehicleId = existingRecord.VehicleId,
-                        Date = DateTime.Now,
+                        Date = DateTime.Now.Date,
                         Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
@@ -2174,7 +2174,7 @@ namespace CarCareTracker.Controllers
                     var newRecord = new CollisionRecord()
                     {
                         VehicleId = existingRecord.VehicleId,
-                        Date = DateTime.Now,
+                        Date = DateTime.Now.Date,
                         Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
@@ -2190,7 +2190,7 @@ namespace CarCareTracker.Controllers
                     var newRecord = new UpgradeRecord()
                     {
                         VehicleId = existingRecord.VehicleId,
-                        Date = DateTime.Now,
+                        Date = DateTime.Now.Date,
                         Mileage = odometer,
                         Description = existingRecord.Description,
                         Cost = existingRecord.Cost,
