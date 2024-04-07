@@ -73,6 +73,9 @@ function hideAddPlanRecordModal() {
         //show reminder Modal
         $("#reminderRecordModal").modal("show");
     }
+    if (getPlanRecordModelData().isTemplate) {
+        showPlanRecordTemplatesModal();
+    }
 }
 function deletePlanRecord(planRecordId) {
     $("#workAroundInput").show();
@@ -189,6 +192,7 @@ function savePlanRecordTemplate(isEdit) {
             if (isEdit) {
                 hideAddPlanRecordModal();
                 showPlanRecordTemplatesModal();
+                $('[data-changed=true]').attr('data-changed', false)
                 successToast('Plan Template Updated');
             } else {
                 successToast('Plan Template Added');
