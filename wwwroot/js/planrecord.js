@@ -69,15 +69,15 @@ function showEditPlanRecordTemplateModal(planRecordTemplateId, nocache) {
 }
 function hideAddPlanRecordModal() {
     $('#planRecordModal').modal('hide');
-    if (getPlanRecordModelData().createdFromReminder) {
-        //show reminder Modal
-        $("#reminderRecordModal").modal("show");
-    }
-    if (getPlanRecordModelData().isTemplate) {
-        showPlanRecordTemplatesModal();
-    }
+        if (getPlanRecordModelData().createdFromReminder) {
+            //show reminder Modal
+            $("#reminderRecordModal").modal("show");
+        }
+        if (getPlanRecordModelData().isTemplate) {
+            showPlanRecordTemplatesModal();
+        }
 }
-function deletePlanRecord(planRecordId) {
+function deletePlanRecord(planRecordId, noModal) {
     $("#workAroundInput").show();
     Swal.fire({
         title: "Confirm Deletion?",
@@ -89,7 +89,9 @@ function deletePlanRecord(planRecordId) {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordById?planRecordId=${planRecordId}`, function (data) {
                 if (data) {
-                    hideAddPlanRecordModal();
+                    if (!noModal) {
+                        hideAddPlanRecordModal();
+                    }
                     successToast("Plan Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
@@ -166,9 +168,8 @@ function deletePlannerRecordTemplate(planRecordTemplateId) {
             $.post(`/Vehicle/DeletePlanRecordTemplateById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();
                 if (data) {
-                    successToast("Template Deleted");
+                    successToast("Plan Template Deleted");
                     hideAddPlanRecordModal();
-                    hidePlanRecordTemplatesModal();
                 } else {
                     errorToast(genericErrorMessage());
                 }
