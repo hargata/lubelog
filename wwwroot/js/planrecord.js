@@ -69,12 +69,14 @@ function showEditPlanRecordTemplateModal(planRecordTemplateId, nocache) {
 }
 function hideAddPlanRecordModal() {
     $('#planRecordModal').modal('hide');
-    if (getPlanRecordModelData().createdFromReminder) {
-        //show reminder Modal
-        $("#reminderRecordModal").modal("show");
-    }
-    if (getPlanRecordModelData().isTemplate) {
-        showPlanRecordTemplatesModal();
+    if (getPlanRecordModelData != undefined) {
+        if (getPlanRecordModelData().createdFromReminder) {
+            //show reminder Modal
+            $("#reminderRecordModal").modal("show");
+        }
+        if (getPlanRecordModelData().isTemplate) {
+            showPlanRecordTemplatesModal();
+        }
     }
 }
 function deletePlanRecord(planRecordId) {
