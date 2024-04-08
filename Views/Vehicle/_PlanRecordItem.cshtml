@@ -1,5 +1,5 @@
 ﻿@model PlanRecord
-<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id})" : $"showEditPlanRecordModal({Model.Id})")">
+<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")">
     <div class="card-body">
         <div class="row">
             <div class="col-12 col-lg-8 text-truncate">
