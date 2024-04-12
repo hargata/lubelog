@@ -486,13 +486,13 @@ function getRecordsDeltaStats(recordIds) {
     costSum = costSum.toFixed(2);
     Swal.fire({
         title: "Record Statistics",
-        html: `<p>Average Distance Traveled between Records: ${averageOdo}</p>
+        html: `<p>Average Distance Traveled between Records: ${globalFloatToString(averageOdo)}</p>
                 <br />
                 <p>Average Days between Records: ${averageDays}</p>
                 <br />
-                <p>Total Cost: ${getGlobalConfig().currencySymbol} ${costSum}</p>
+                <p>Total Cost: ${getGlobalConfig().currencySymbol} ${globalFloatToString(costSum)}</p>
                 <br />
-                <p>Average Cost: ${getGlobalConfig().currencySymbol} ${averageSum}</p>`
+                <p>Average Cost: ${getGlobalConfig().currencySymbol} ${globalFloatToString(averageSum)}</p>`
         ,
         icon: "info"
     });
