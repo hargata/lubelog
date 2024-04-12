@@ -175,28 +175,28 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
             case "l":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "l"));
                     sender.attr("data-unit", "l");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "imp gal"));
                     sender.attr("data-unit", "imp gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -206,28 +206,28 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
             case "US gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "US gal"));
                     sender.attr("data-unit", "US gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "imp gal"));
                     sender.attr("data-unit", "imp gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -237,28 +237,28 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
             case "US gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "US gal"));
                     sender.attr("data-unit", "US gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "l":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
-                    elem.innerText = convertedAmount.toFixed(2);
+                    elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     sender.text(sender.text().replace(sender.attr("data-unit"), "l"));
                     sender.attr("data-unit", "l");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${convertedAmount.toFixed(decimalPoints)}`;
+                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -275,7 +275,7 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                     var convertedAmount = globalParseFloat(elem.innerText);
                     if (convertedAmount > 0) {
                         convertedAmount = 100 / convertedAmount;
-                        elem.innerText = convertedAmount.toFixed(2);
+                        elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     }
                 });
                 //update labels up top.
@@ -283,19 +283,19 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                 if (newAverage > 0) {
                     newAverage = 100 / newAverage;
                     var averageLabel = $("#averageFuelMileageLabel");
-                    averageLabel.text(`${averageLabel.text().split(':')[0]}: ${newAverage.toFixed(2)}`);
+                    averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(newAverage.toFixed(2))}`);
                 }
                 var newMin = globalParseFloat($("#minFuelMileageLabel").text().split(":")[1].trim());
                 if (newMin > 0) {
                     newMin = 100 / newMin;
                     var minLabel = $("#minFuelMileageLabel");
-                    minLabel.text(`${minLabel.text().split(':')[0]}: ${newMin.toFixed(2)}`);
+                    minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(newMin.toFixed(2))}`);
                 }
                 var newMax = globalParseFloat($("#maxFuelMileageLabel").text().split(":")[1].trim());
                 if (newMax > 0) {
                     newMax = 100 / newMax;
                     var maxLabel = $("#maxFuelMileageLabel");
-                    maxLabel.text(`${maxLabel.text().split(':')[0]}: ${newMax.toFixed(2)}`);
+                    maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(newMax.toFixed(2))}`);
                 }
                 sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
                 sender.attr("data-unit", "km/l");
@@ -309,27 +309,26 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                     var convertedAmount = globalParseFloat(elem.innerText);
                     if (convertedAmount > 0) {
                         convertedAmount = 100 / convertedAmount;
-                        elem.innerText = convertedAmount.toFixed(2);
+                        elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     }
                 });
                 var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().split(":")[1].trim());
                 if (newAverage > 0) {
                     newAverage = 100 / newAverage;
-
                     var averageLabel = $("#averageFuelMileageLabel");
-                    averageLabel.text(`${averageLabel.text().split(':')[0]}: ${newAverage.toFixed(2)}`);
+                    averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(newAverage.toFixed(2))}`);
                 }
                 var newMin = globalParseFloat($("#minFuelMileageLabel").text().split(":")[1].trim());
                 if (newMin > 0) {
                     newMin = 100 / newMin;
                     var minLabel = $("#minFuelMileageLabel");
-                    minLabel.text(`${minLabel.text().split(':')[0]}: ${newMin.toFixed(2)}`);
+                    minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(newMin.toFixed(2))}`);
                 }
                 var newMax = globalParseFloat($("#maxFuelMileageLabel").text().split(":")[1].trim());
                 if (newMax > 0) {
                     newMax = 100 / newMax;
                     var maxLabel = $("#maxFuelMileageLabel");
-                    maxLabel.text(`${maxLabel.text().split(':')[0]}: ${newMax.toFixed(2)}`);
+                    maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(newMax.toFixed(2))}`);
                 }
                 sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
                 sender.attr("data-unit", "l/100km");
@@ -358,17 +357,17 @@ function updateMPGLabels() {
             if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l' && averageMPG > 0) {
                 averageMPG = 100 / averageMPG;
             }
-            averageLabel.text(`${averageLabel.text().split(':')[0]}: ${averageMPG.toFixed(2)}`);
+            averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(averageMPG.toFixed(2))}`);
         } else {
             averageLabel.text(`${averageLabel.text().split(':')[0]}: 0.00`);
         }
         if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l') {
-            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
-            minLabel.text(`${minLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
+            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(minMPG.toFixed(2))}`);
+            minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(maxMPG.toFixed(2))}`);
         }
         else {
-            minLabel.text(`${minLabel.text().split(':')[0]}: ${minMPG.toFixed(2)}`);
-            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${maxMPG.toFixed(2)}`);
+            minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(minMPG.toFixed(2))}`);
+            maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(maxMPG.toFixed(2))}`);
         }
     }
 }
