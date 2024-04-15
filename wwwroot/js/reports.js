@@ -29,6 +29,40 @@ function refreshMPGChart() {
         $("#monthFuelMileageReportContent").html(data);
     })
 }
+function setSelectedMetrics() {
+    var selectedMetricCheckBoxes = [];
+    $(".reportCheckBox:checked").map((index, elem) => {
+        selectedMetricCheckBoxes.push(elem.id);
+    });
+    var yearMetric = $('#yearOption').val();
+    var reminderMetric = $("#reminderOption").val();
+    sessionStorage.setItem("selectedMetricCheckBoxes", JSON.stringify(selectedMetricCheckBoxes));
+    sessionStorage.setItem("yearMetric", yearMetric);
+    sessionStorage.setItem("reminderMetric", reminderMetric);
+}
+function getSelectedMetrics() {
+    var selectedMetricCheckBoxes = sessionStorage.getItem("selectedMetricCheckBoxes");
+    var yearMetric = sessionStorage.getItem("yearMetric");
+    var reminderMetric = sessionStorage.getItem("reminderMetric");
+    if (selectedMetricCheckBoxes != undefined && yearMetric != undefined && reminderMetric != undefined) {
+        selectedMetricCheckBoxes = JSON.parse(selectedMetricCheckBoxes);
+        $(".reportCheckBox").prop('checked', false);
+        $("#selectAllExpenseCheck").prop("checked", false);
+        selectedMetricCheckBoxes.map(x => {
+            $(`#${x}`).prop('checked', true);
+        });
+        if (selectedMetricCheckBoxes.length == 6) {
+            $("#selectAllExpenseCheck").prop("checked", true);
+        }
+        $('#yearOption').val(yearMetric);
+        $("#reminderOption").val(reminderMetric);
+        //retrieve data.
+        yearUpdated();
+        updateReminderPie();
+        return true;
+    }
+    return false;
+}
 function refreshBarChart() {
     var selectedMetrics = [];
     var vehicleId = GetVehicleId().vehicleId;
@@ -61,11 +95,13 @@ function refreshBarChart() {
         }, function (data) {
             $("#gasCostByMonthReportContent").html(data);
                 refreshMPGChart();
-        });
+    });
+    setSelectedMetrics();
 }
 function updateReminderPie() {
     var vehicleId = GetVehicleId().vehicleId;
     var daysToAdd = $("#reminderOption").val();
+    setSelectedMetrics();
     $.get(`/Vehicle/GetReminderMakeUpByVehicle?vehicleId=${vehicleId}`, { daysToAdd: daysToAdd }, function (data) {
         $("#reminderMakeUpReportContent").html(data);
     });
