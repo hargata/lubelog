@@ -44,7 +44,7 @@ function getSelectedMetrics() {
     var selectedMetricCheckBoxes = sessionStorage.getItem("selectedMetricCheckBoxes");
     var yearMetric = sessionStorage.getItem("yearMetric");
     var reminderMetric = sessionStorage.getItem("reminderMetric");
-    if (selectedMetricCheckBoxes != undefined && yearMetric != undefined && reminderMetric != undefined) {
+    if (selectedMetricCheckBoxes != null && yearMetric != null && reminderMetric != null) {
         selectedMetricCheckBoxes = JSON.parse(selectedMetricCheckBoxes);
         $(".reportCheckBox").prop('checked', false);
         $("#selectAllExpenseCheck").prop("checked", false);
