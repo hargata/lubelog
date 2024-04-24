@@ -54,7 +54,10 @@ function getSelectedMetrics() {
         if (selectedMetricCheckBoxes.length == 6) {
             $("#selectAllExpenseCheck").prop("checked", true);
         }
-        $('#yearOption').val(yearMetric);
+        //check if option is available
+        if ($("#yearOption").has(`option[value=${yearMetric}]`).length > 0) {
+            $('#yearOption').val(yearMetric);
+        }
         $("#reminderOption").val(reminderMetric);
         //retrieve data.
         yearUpdated();
