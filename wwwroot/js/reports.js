@@ -1,5 +1,5 @@
 ﻿function getYear() {
-    return $("#yearOption").val();
+    return $("#yearOption").val() ?? '0';
 }
 function generateVehicleHistoryReport() {
     var vehicleId = GetVehicleId().vehicleId;
