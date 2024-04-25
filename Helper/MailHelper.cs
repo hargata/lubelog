@@ -22,7 +22,7 @@ namespace CarCareTracker.Helper
             ILogger<MailHelper> logger
             ) {
             //load mailConfig from Configuration
-            mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
+            mailConfig = config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
             _fileHelper = fileHelper;
             _logger = logger;
         }
