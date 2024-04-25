@@ -37,7 +37,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your Registration Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please complete your registration for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -58,7 +58,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your Password Reset Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please reset your password for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -80,7 +80,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your User Account Update Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please update your account for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress}, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -119,22 +119,22 @@ namespace CarCareTracker.Helper
             emailBody = emailBody.Replace("{TableBody}", tableBody);
             try
             {
-                foreach (string emailAddress in emailAddresses)
-                {
-                    SendEmail(emailAddress, emailSubject, emailBody);
-                }
+                SendEmail(emailAddresses, emailSubject, emailBody);
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
             } catch (Exception ex)
             {
                 return new OperationResponse { Success = false, Message = ex.Message };
             }
         }
-        private bool SendEmail(string emailTo, string emailSubject, string emailBody) {
+        private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
             string from = mailConfig.EmailFrom;
             var server = mailConfig.EmailServer;
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(from, from));
-            message.To.Add(new MailboxAddress(emailTo, emailTo));
+            foreach(string emailRecipient in emailTo)
+            {
+                message.To.Add(new MailboxAddress(emailRecipient, emailRecipient));
+            }
             message.Subject = emailSubject;
 
             var builder = new BodyBuilder();
@@ -150,6 +150,7 @@ namespace CarCareTracker.Helper
                 try
                 {
                     client.Send(message);
+                    client.Disconnect(true);
                     return true;
                 } catch (Exception ex)
                 {
