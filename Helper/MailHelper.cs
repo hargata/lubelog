@@ -1,6 +1,6 @@
 ﻿using CarCareTracker.Models;
-using System.Net.Mail;
-using System.Net;
+using MimeKit;
+using MailKit.Net.Smtp;
 
 namespace CarCareTracker.Helper
 {
@@ -15,13 +15,16 @@ namespace CarCareTracker.Helper
     {
         private readonly MailConfig mailConfig;
         private readonly IFileHelper _fileHelper;
+        private readonly ILogger<MailHelper> _logger;
         public MailHelper(
             IConfiguration config,
-            IFileHelper fileHelper
+            IFileHelper fileHelper,
+            ILogger<MailHelper> logger
             ) {
             //load mailConfig from Configuration
             mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
             _fileHelper = fileHelper;
+            _logger = logger;
         }
         public OperationResponse NotifyUserForRegistration(string emailAddress, string token)
         {
@@ -118,7 +121,7 @@ namespace CarCareTracker.Helper
             {
                 foreach (string emailAddress in emailAddresses)
                 {
-                    SendEmail(emailAddress, emailSubject, emailBody, true, true);
+                    SendEmail(emailAddress, emailSubject, emailBody);
                 }
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
             } catch (Exception ex)
@@ -126,33 +129,33 @@ namespace CarCareTracker.Helper
                 return new OperationResponse { Success = false, Message = ex.Message };
             }
         }
-        private bool SendEmail(string emailTo, string emailSubject, string emailBody, bool isBodyHtml = false, bool useAsync = false) {
-            string to = emailTo;
+        private bool SendEmail(string emailTo, string emailSubject, string emailBody) {
             string from = mailConfig.EmailFrom;
             var server = mailConfig.EmailServer;
-            MailMessage message = new MailMessage(from, to);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(from, from));
+            message.To.Add(new MailboxAddress(emailTo, emailTo));
             message.Subject = emailSubject;
-            message.Body = emailBody;
-            message.IsBodyHtml = isBodyHtml;
-            SmtpClient client = new SmtpClient(server);
-            client.EnableSsl = mailConfig.UseSSL;
-            client.Port = mailConfig.Port;
-            client.Credentials = new NetworkCredential(mailConfig.Username, mailConfig.Password);
-            try
+
+            var builder = new BodyBuilder();
+
+            builder.HtmlBody = emailBody;
+
+            message.Body = builder.ToMessageBody();
+
+            using (var client = new SmtpClient())
             {
-                if (useAsync)
-                {
-                    client.SendMailAsync(message, new CancellationToken());
-                }
-                else
+                client.Connect(server, mailConfig.Port, MailKit.Security.SecureSocketOptions.Auto);
+                client.Authenticate(mailConfig.Username, mailConfig.Password);
+                try
                 {
                     client.Send(message);
+                    return true;
+                } catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return false;
                 }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
             }
         }
     }

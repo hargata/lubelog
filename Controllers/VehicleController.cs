@@ -1153,6 +1153,10 @@ namespace CarCareTracker.Controllers
             {
                 numbersArray.Add(upgradeRecords.Min(x => x.Date.Year));
             }
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Min(x => x.Date.Year));
+            }
             var minYear = numbersArray.Any() ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
             var yearDifference = DateTime.Now.Year - minYear + 1;
             for (int i = 0; i < yearDifference; i++)

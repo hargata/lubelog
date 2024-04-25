@@ -30,14 +30,15 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started)
 [Search Existing Issues](https://github.com/hargata/lubelog/issues)
 
 ## Dependencies
-- Bootstrap
-- LiteDB
-- Npgsql
-- Bootstrap-DatePicker
-- SweetAlert2
-- CsvHelper
-- Chart.js
-- Drawdown
+- [Bootstrap](https://github.com/twbs/bootstrap)
+- [LiteDB](https://github.com/mbdavid/litedb)
+- [Npgsql](https://github.com/npgsql/npgsql)
+- [Bootstrap-DatePicker](https://github.com/uxsolutions/bootstrap-datepicker)
+- [SweetAlert2](https://github.com/sweetalert2/sweetalert2)
+- [CsvHelper](https://github.com/JoshClose/CsvHelper)
+- [Chart.js](https://github.com/chartjs/Chart.js)
+- [Drawdown](https://github.com/adamvleggett/drawdown)
+- [MailKit](https://github.com/jstedfast/MailKit)
 
 ## License
 LubeLogger utilizes a dual-licensing model, see [License](/LICENSE) for more information
