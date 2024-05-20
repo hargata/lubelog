@@ -41,9 +41,7 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started)
 - [MailKit](https://github.com/jstedfast/MailKit)
 
 ## License
-LubeLogger utilizes a dual-licensing model, see [License](/LICENSE) for more information
+MIT
 
 ## Support
 Support this project by [Subscribing on Patreon](https://patreon.com/LubeLogger) or [Making a Donation](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
-
-Note: Commercial users are required to maintain an active Patreon subscripton to be compliant with our licensing model.
