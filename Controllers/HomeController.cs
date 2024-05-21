@@ -105,7 +105,7 @@ namespace CarCareTracker.Controllers
             var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, 0, DateTime.Now).FirstOrDefault();
             return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
         }
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
             var userConfig = _config.GetUserConfig(User);
             var languages = _fileHelper.GetLanguages();
@@ -114,6 +114,16 @@ namespace CarCareTracker.Controllers
                 UserConfig = userConfig,
                 UILanguages = languages
             };
+            try
+            {
+                var httpClient = new HttpClient();
+                var sponsorsData = await httpClient.GetFromJsonAsync<Sponsors>(StaticHelper.SponsorsPath) ?? new Sponsors();
+                viewModel.Sponsors = sponsorsData;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve sponsors: {ex.Message}");
+            }
             return PartialView("_Settings", viewModel);
         }
         [HttpPost]
