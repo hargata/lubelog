@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
         public static string GenericErrorMessage = "An error occurred, please try again later";
         public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
-        public static string SponsorsPath = "https://raw.githubusercontent.com/hargata/hargata/main/sponsors.json";
+        public static string SponsorsPath = "https://hargata.github.io/hargata/sponsors.json";
         public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
         {
             switch (input)
