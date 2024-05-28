@@ -70,8 +70,8 @@
         }
         function globalParseFloat(input){
             //remove thousands separator.
-            var thousandSeparator = "@numberFormat.NumberGroupSeparator";
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var thousandSeparator = decodeHTMLEntities("@numberFormat.NumberGroupSeparator");
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
             if (input == "---") {
                 input = "0";
@@ -85,8 +85,8 @@
             return parseFloat(input);
         }
         function globalFloatToString(input) {
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
-            input = input.replace(".", decimalSeparator);
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
+            input = input.toString().replace(".", decimalSeparator);
             return input;
         }
         function genericErrorMessage(){
