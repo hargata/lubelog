@@ -480,9 +480,9 @@ function getRecordsDeltaStats(recordIds) {
     var diffOdo = maxOdo - minOdo;
     var diffDate = maxDate - minDate;
     var divisibleCount = recordIds.length - 1;
-    var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : 0;
-    var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : 0;
-    var averageSum = costSum > 0 ? (costSum / recordIds.length).toFixed(2) : 0;
+    var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : '0';
+    var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : '0';
+    var averageSum = costSum > 0 ? (costSum / recordIds.length).toFixed(2) : '0';
     costSum = costSum.toFixed(2);
     Swal.fire({
         title: "Record Statistics",

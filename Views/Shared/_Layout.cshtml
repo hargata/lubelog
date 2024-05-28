@@ -86,7 +86,7 @@
         }
         function globalFloatToString(input) {
             var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
-            input = input.toString().replace(".", decimalSeparator);
+            input = input.replace(".", decimalSeparator);
             return input;
         }
         function genericErrorMessage(){
