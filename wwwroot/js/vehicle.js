@@ -490,9 +490,9 @@ function getRecordsDeltaStats(recordIds) {
                 <br />
                 <p>Average Days between Records: ${averageDays}</p>
                 <br />
-                <p>Total Cost: ${getGlobalConfig().currencySymbol} ${globalFloatToString(costSum)}</p>
+                <p>Total Cost: ${globalAppendCurrency(globalFloatToString(costSum))}</p>
                 <br />
-                <p>Average Cost: ${getGlobalConfig().currencySymbol} ${globalFloatToString(averageSum)}</p>`
+                <p>Average Cost: ${globalAppendCurrency(globalFloatToString(averageSum))}</p>`
         ,
         icon: "info"
     });
