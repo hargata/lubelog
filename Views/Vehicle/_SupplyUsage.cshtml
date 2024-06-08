@@ -110,7 +110,7 @@
             var inStockQuantity = globalParseFloat(inStock.text());
             var unitPrice = globalParseFloat(priceField.text());
             //validation
-            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity) {
+            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity || requestedQuantity <= 0) {
                 textField.addClass("is-invalid");
                 hasError = true;
             } else {
@@ -131,7 +131,7 @@
             var parsedFloat = globalFloatToString(totalSum);
             $("#supplySumLabel").text(`Total: ${parsedFloat}`);
         }
-        $("#selectSuppliesButton").attr('disabled', (hasError || totalSum == 0));
+        $("#selectSuppliesButton").attr('disabled', (hasError || selectedSupplies.toArray().length == 0));
         if (!hasError) {
             return {
                 totalSum: globalFloatToString(totalSum),

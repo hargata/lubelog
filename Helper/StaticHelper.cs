@@ -8,13 +8,13 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public static string VersionNumber = "1.3.2";
+        public static string VersionNumber = "1.3.4";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";
         public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
-
+        public static string SponsorsPath = "https://hargata.github.io/hargata/sponsors.json";
         public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
         {
             switch (input)
