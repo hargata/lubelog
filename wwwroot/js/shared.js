@@ -178,8 +178,8 @@ function uploadFileAsync(event) {
     });
 }
 function isValidMoney(input) {
-    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(\.?\d{3})?(,\d{1,3}?)?\)?$/;
-    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d{1,3}?)?\)?$/;
+    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((\.\d{3})*|(\d{3})*)(,\d{1,3}?)?\)?$/;
+    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((,\d{3})*|(\d{3})*)(\.\d{1,3}?)?\)?$/;
     return (euRegex.test(input) || usRegex.test(input));
 }
 function initDatePicker(input, futureOnly) {
