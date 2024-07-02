@@ -24,7 +24,7 @@
                     </div>
                     <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" disabled="@(Model.InitialMileage != default ? "true" : "false")" class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
+                        <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" @(Model.InitialMileage != default ? "disabled" : "") class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
                         @if (Model.InitialMileage != default)
                         {
                             <div class="input-group-text">
