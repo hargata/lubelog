@@ -209,3 +209,11 @@ function saveMultipleOdometerRecordsToVehicle() {
         }
     })
 }
+function toggleInitialOdometerEnabled() {
+    if ($("#initialOdometerRecordMileage").prop("disabled")) {
+        $("#initialOdometerRecordMileage").attr("disabled", false);
+    } else {
+        $("#initialOdometerRecordMileage").attr("disabled", true);
+    }
+    
+}

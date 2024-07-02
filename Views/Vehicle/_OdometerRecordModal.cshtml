@@ -23,14 +23,22 @@
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
-                    <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
+                    <div class="input-group">
+                        <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" disabled="@(Model.InitialMileage != default ? "true" : "false")" class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
+                        @if (Model.InitialMileage != default)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="toggleInitialOdometerEnabled()"><i class="bi bi-pencil"></i></button>
+                            </div>
+                        }
+                    </div>
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
                     <div class="input-group">
                         <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">
-                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')">+</button>
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')"><i class="bi bi-plus"></i></button>
                             </div>
                         }
                     </div>
