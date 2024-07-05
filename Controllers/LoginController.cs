@@ -220,7 +220,7 @@ namespace CarCareTracker.Controllers
             var result = _loginLogic.ResetPasswordByUser(credentials);
             return Json(result);
         }
-        [Authorize] //User must already be logged in to do this.
+        [Authorize(Roles = nameof(UserData.IsRootUser))] //User must already be logged in as root user to do this.
         [HttpPost]
         public IActionResult CreateLoginCreds(LoginModel credentials)
         {
@@ -235,7 +235,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
-        [Authorize]
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
         public IActionResult DestroyLoginCreds()
         {

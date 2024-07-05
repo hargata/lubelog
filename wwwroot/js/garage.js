@@ -341,6 +341,47 @@ function showAccountInformationModal() {
         $('#accountInformationModal').modal('show');
     })
 }
+
+function showRootAccountInformationModal() {
+    $.get('/Home/GetRootAccountInformationModal', function (data) {
+        $('#accountInformationModalContent').html(data);
+        $('#accountInformationModal').modal('show');
+    })
+}
+function validateAndSaveRootUserAccount() {
+    var hasError = false;
+    if ($('#inputUsername').val().trim() == '') {
+        $('#inputUsername').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputUsername').removeClass("is-invalid");
+    }
+    if ($('#inputPassword').val().trim() == '') {
+        $('#inputPassword').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputPassword').removeClass("is-invalid");
+    }
+    if (hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var userAccountInfo = {
+        userName: $('#inputUsername').val(),
+        password: $('#inputPassword').val()
+    }
+    $.post('/Login/CreateLoginCreds', { credentials: userAccountInfo }, function (data) {
+        if (data) {
+            //hide modal
+            hideAccountInformationModal();
+            successToast('Root Account Updated');
+            performLogOut();
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
 function hideAccountInformationModal() {
     $('#accountInformationModal').modal('hide');
 }
