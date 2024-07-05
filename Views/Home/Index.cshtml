@@ -41,7 +41,12 @@
                     <a class="dropdown-item" href="/Admin"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</span></a>
                 </li>
             }
-            @if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            @if (User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                <li>
+                    <button class="nav-link" onclick="showRootAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
+                </li>
+            } else
             {
                 <li>
                     <button class="nav-link" onclick="showAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
@@ -90,7 +95,12 @@
                             <a class="dropdown-item" href="/Admin"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</a>
                         </li>
                     }
-                    @if (!User.IsInRole(nameof(UserData.IsRootUser)))
+                    @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                    {
+                        <li>
+                            <button class="dropdown-item" onclick="showRootAccountInformationModal()"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</button>
+                        </li>
+                    } else
                     {
                         <li>
                             <button class="dropdown-item" onclick="showAccountInformationModal()"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</button>

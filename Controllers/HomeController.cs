@@ -219,6 +219,13 @@ namespace CarCareTracker.Controllers
             var userName = User.Identity.Name;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetRootAccountInformationModal()
+        {
+            var userName = User.Identity.Name;
+            return PartialView("_RootAccountModal", new UserData() { UserName = userName });
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
