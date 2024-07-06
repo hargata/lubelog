@@ -17,23 +17,23 @@
         consumptionUnit = "kWh";
     } else if (useUKMPG)
     {
-        consumptionUnit = "liters";
+        consumptionUnit = @translator.Translate(userLanguage, "liters");
     }
     else
     {
-        consumptionUnit = useMPG ? "gallons" : "liters";
+        consumptionUnit = useMPG ? @translator.Translate(userLanguage, "gallons") : @translator.Translate(userLanguage, "liters");
     }
     if (useHours)
     {
-        distanceUnit = "hours";
+        distanceUnit = @translator.Translate(userLanguage, "hours");
     }
     else if (useUKMPG)
     {
-        distanceUnit = "miles";
+        distanceUnit = @translator.Translate(userLanguage, "miles");
     }
     else
     {
-        distanceUnit = useMPG ? "miles" : "kilometers";
+        distanceUnit = useMPG ? @translator.Translate(userLanguage, "miles") : @translator.Translate(userLanguage, "kilometers");
     }
 }
 <div class="modal-header">
@@ -57,7 +57,7 @@
                         @if (isNew)
                         {
                             <div class="input-group-text">
-                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('gasRecordMileage')">+</button>
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('gasRecordMileage')"><i class="bi bi-plus"></i></button>
                             </div>
                         }
                     </div>

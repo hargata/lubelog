@@ -182,7 +182,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -196,7 +196,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -213,7 +213,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -227,7 +227,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -244,7 +244,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
@@ -258,7 +258,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
-                    elem.innerText = `${getGlobalConfig().currencySymbol}${globalFloatToString(convertedAmount.toFixed(decimalPoints))}`;
+                    elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;

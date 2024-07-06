@@ -70,8 +70,8 @@
         }
         function globalParseFloat(input){
             //remove thousands separator.
-            var thousandSeparator = "@numberFormat.NumberGroupSeparator";
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var thousandSeparator = decodeHTMLEntities("@numberFormat.NumberGroupSeparator");
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
             if (input == "---") {
                 input = "0";
@@ -85,12 +85,31 @@
             return parseFloat(input);
         }
         function globalFloatToString(input) {
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             input = input.replace(".", decimalSeparator);
             return input;
         }
         function genericErrorMessage(){
             return decodeHTMLEntities('@translator.Translate(userLanguage, "An error has occurred, please try again later")');
+        }
+        function globalAppendCurrency(input){
+            //check currency symbol position
+            var currencySymbolPosition = "@numberFormat.CurrencyPositivePattern";
+            var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
+            switch (currencySymbolPosition) {
+                case "0":
+                    return `${currencySymbol}${input}`;
+                    break;
+                case "1":
+                    return `${input}${currencySymbol}`;
+                    break;
+                case "2":
+                    return `${currencySymbol} ${input}`;
+                    break;
+                case "3":
+                    return `${input} ${currencySymbol}`;
+                    break;
+            }
         }
     </script>
     @await RenderSectionAsync("Scripts", required: false)

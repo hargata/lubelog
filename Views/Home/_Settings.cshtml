@@ -219,7 +219,7 @@
         </p>
         <p class="lead">
             If you enjoyed using this app, please consider spreading the good word.<br />
-            If you are a commercial user, or if you just want to support the development of this project, consider subscribing to <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.patreon.com/LubeLogger" target="_blank">our Patreon</a> or make a <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://buy.stripe.com/aEU9Egc8DdMc9bO144" target="_blank">donation</a>
+            If you want to support the development of this project, consider subscribing to <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://www.patreon.com/LubeLogger" target="_blank">our Patreon</a> or make a <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://buy.stripe.com/aEU9Egc8DdMc9bO144" target="_blank">donation</a>
         </p>
         <div class="d-flex justify-content-center">
             <h6 class="display-7 mt-2">Hometown Shoutout</h6>
@@ -251,6 +251,7 @@
         </ul>
     </div>
 </div>
+@await Html.PartialAsync("_Sponsors", Model.Sponsors)
 <div class="modal fade" data-bs-focus="false" id="extraFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="extraFieldModalContent">

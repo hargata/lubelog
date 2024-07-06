@@ -178,8 +178,8 @@ function uploadFileAsync(event) {
     });
 }
 function isValidMoney(input) {
-    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(\.?\d{3})?(,\d{1,3}?)?\)?$/;
-    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d{1,3}?)?\)?$/;
+    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((\.\d{3}){0,8}|(\d{3}){0,8})(,\d{1,3}?)?\)?$/;
+    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((,\d{3}){0,8}|(\d{3}){0,8})(\.\d{1,3}?)?\)?$/;
     return (euRegex.test(input) || usRegex.test(input));
 }
 function initDatePicker(input, futureOnly) {
@@ -339,7 +339,7 @@ function updateAggregateLabels() {
         if (labelsToSum.length > 0) {
             newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
         }
-        sumLabel.text(`${sumLabel.text().split(':')[0]}: ${getGlobalConfig().currencySymbol}${newSum}`)
+        sumLabel.text(`${sumLabel.text().split(':')[0]}: ${globalAppendCurrency(globalFloatToString(newSum))}`)
     }
     //Sum Distance
     var sumDistanceLabel = $("[data-aggregate-type='sum-distance']");

@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-12">
                     <select class="form-select" id="yearOption" onchange="yearUpdated()">
-                        <option value="0">All Time</option>
+                        <option value="0">@translator.Translate(userLanguage, "All Time")</option>
                         @foreach (int year in Model.Years)
                         {
                             <option value="@year">@year</option>
@@ -32,7 +32,7 @@
                 <div class="col-12 col-md-10">
                     <div class="dropdown d-grid dropdown-center">
                         <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            Metrics
+                            @translator.Translate(userLanguage, "Metrics")
                         </button>
                         <ul class="dropdown-menu" style="width:100%;">
                             <li class="dropdown-item">

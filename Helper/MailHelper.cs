@@ -146,7 +146,11 @@ namespace CarCareTracker.Helper
             using (var client = new SmtpClient())
             {
                 client.Connect(server, mailConfig.Port, MailKit.Security.SecureSocketOptions.Auto);
-                client.Authenticate(mailConfig.Username, mailConfig.Password);
+                //perform authentication if either username or password is provided.
+                //do not perform authentication if neither are provided.
+                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password)) {
+                    client.Authenticate(mailConfig.Username, mailConfig.Password);
+                }
                 try
                 {
                     client.Send(message);
