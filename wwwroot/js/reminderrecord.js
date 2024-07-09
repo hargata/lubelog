@@ -137,8 +137,20 @@ function appendMileageToOdometer(increment) {
 function enableRecurring() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     if (reminderIsRecurring) {
-        $("#reminderRecurringMileage").attr('disabled', false);
-        $("#reminderRecurringMonth").attr('disabled', false);
+        //check selected metric
+        var reminderMetric = $('#reminderOptions input:radio:checked').val();
+        if (reminderMetric == "Date") {
+            $("#reminderRecurringMonth").attr('disabled', false);
+            $("#reminderRecurringMileage").attr('disabled', true);
+        }
+        else if (reminderMetric == "Odometer") {
+            $("#reminderRecurringMileage").attr('disabled', false);
+            $("#reminderRecurringMonth").attr('disabled', true);
+        }
+        else if (reminderMetric == "Both") {
+            $("#reminderRecurringMonth").attr('disabled', false);
+            $("#reminderRecurringMileage").attr('disabled', false);
+        }
     } else {
         $("#reminderRecurringMileage").attr('disabled', true);
         $("#reminderRecurringMonth").attr('disabled', true);
