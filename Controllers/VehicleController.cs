@@ -439,7 +439,8 @@ namespace CarCareTracker.Controllers
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     if (string.IsNullOrWhiteSpace(importModel.Cost) && !string.IsNullOrWhiteSpace(importModel.Price))
                                     {
@@ -495,7 +496,8 @@ namespace CarCareTracker.Controllers
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -518,7 +520,8 @@ namespace CarCareTracker.Controllers
                                         InitialMileage = string.IsNullOrWhiteSpace(importModel.InitialOdometer) ? 0 : decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
                                 }
@@ -537,7 +540,8 @@ namespace CarCareTracker.Controllers
                                         Priority = parsedPriority,
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Plan Record on {importModel.DateCreated}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
-                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any)
+                                        Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _planRecordDataAccess.SavePlanRecordToVehicle(convertedRecord);
                                 }
@@ -551,7 +555,8 @@ namespace CarCareTracker.Controllers
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -575,7 +580,8 @@ namespace CarCareTracker.Controllers
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
                                     if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -601,7 +607,8 @@ namespace CarCareTracker.Controllers
                                         Description = importModel.Description,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
                                         Notes = importModel.Notes,
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _supplyRecordDataAccess.SaveSupplyRecordToVehicle(convertedRecord);
                                 }
@@ -614,7 +621,8 @@ namespace CarCareTracker.Controllers
                                         Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {importModel.Date}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
-                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList()
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value }).ToList() : new List<ExtraField>()
                                     };
                                     _taxRecordDataAccess.SaveTaxRecordToVehicle(convertedRecord);
                                 }
