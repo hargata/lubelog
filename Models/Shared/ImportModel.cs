@@ -25,6 +25,7 @@
         public string PartSupplier { get; set; }
         public string PartQuantity { get; set; }
         public string Tags { get; set; }
+        public Dictionary<string,string> ExtraFields {get;set;}
     }
 
     public class SupplyRecordExportModel
