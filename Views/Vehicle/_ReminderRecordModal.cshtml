@@ -21,7 +21,7 @@
                     <input type="text" id="reminderDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Reminder Description")" value="@Model.Description">
                     <label>@translator.Translate(userLanguage,"Remind me on")</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricDate" value="@(ReminderMetric.Date)" checked="@(Model.Metric == ReminderMetric.Date)">
+                        <input class="form-check-input" onclick="enableRecurring()" type="radio" name="reminderMetricOptions" id="reminderMetricDate" value="@(ReminderMetric.Date)" checked="@(Model.Metric == ReminderMetric.Date)">
                         <label class="form-check-label" for="reminderMetricDate">@translator.Translate(userLanguage,"Date")</label>
                     </div>
                     <div class="input-group">
@@ -29,7 +29,7 @@
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <div class="form-check form-check-inline">                        
-                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricOdometer" value="@(ReminderMetric.Odometer)" checked="@(Model.Metric == ReminderMetric.Odometer)">
+                        <input class="form-check-input" onclick="enableRecurring()" type="radio" name="reminderMetricOptions" id="reminderMetricOdometer" value="@(ReminderMetric.Odometer)" checked="@(Model.Metric == ReminderMetric.Odometer)">
                         <label class="form-check-label" for="reminderMetricOdometer">@translator.Translate(userLanguage,"Odometer")</label>
                     </div>     
                     <div class="input-group">
@@ -42,7 +42,7 @@
                         }
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="@(ReminderMetric.Both)" checked="@(Model.Metric == ReminderMetric.Both)">
+                        <input class="form-check-input" onclick="enableRecurring()" type="radio" name="reminderMetricOptions" id="reminderMetricBoth" value="@(ReminderMetric.Both)" checked="@(Model.Metric == ReminderMetric.Both)">
                         <label class="form-check-label" for="reminderMetricBoth">@translator.Translate(userLanguage,"Whichever comes first")</label>
                     </div>
                     <div class="d-grid"></div>
@@ -62,7 +62,7 @@
                         <label class="form-check-label" for="reminderIsRecurring">@translator.Translate(userLanguage,"Is Recurring")</label>
                     </div>
                     <label for="reminderRecurringMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring ? "" : "disabled")>
+                    <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Odometer || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
                         <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.ReminderMileageInterval == ReminderMileageInterval.Other && Model.CustomMileageInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMileageInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="FiftyMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyMiles ? "selected" : "")>50 mi. / Km</!option>
                         <!option value="OneHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredMiles ? "selected" : "")>100 mi. / Km</!option>
@@ -83,7 +83,7 @@
                         <!option value="OneHundredFiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredFiftyThousandMiles ? "selected" : "")>150000 mi. / Km</!option>
                     </select>
                     <label for="reminderRecurringMonth">Month</label>
-                    <select class="form-select" onchange="checkCustomMonthInterval()" id="reminderRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
+                    <select class="form-select" onchange="checkCustomMonthInterval()" id="reminderRecurringMonth" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Date || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
                         <!option value="Other" @(Model.ReminderMonthInterval == ReminderMonthInterval.Other ? "selected" : "")>@(Model.ReminderMonthInterval == ReminderMonthInterval.Other && Model.CustomMonthInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMonthInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="OneMonth" @(Model.ReminderMonthInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>@translator.Translate(userLanguage, "1 Month")</!option>
                         <!option value="ThreeMonths" @(Model.ReminderMonthInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>@translator.Translate(userLanguage,"3 Months")</!option>
