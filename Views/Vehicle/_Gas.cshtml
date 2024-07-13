@@ -49,35 +49,15 @@
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
     
-    string labelNumberRecords;
-    string labelEconomy;
-    string labelAverageEconomy;
-    string labelMinEconomy;
-    string labelMaxEconomy;
-    string labelTotalConsumed;
-    string labelAddRecord;
-
-    if (useKwh)
-    {
-        labelNumberRecords = translator.Translate(userLanguage, "# of Charging Records");
-        labelEconomy = translator.Translate(userLanguage, "Energy Efficiency");
-        labelAverageEconomy = translator.Translate(userLanguage, "Average Energy Efficiency");
-        labelMinEconomy = translator.Translate(userLanguage, "Min Energy Efficiency");
-        labelMaxEconomy = translator.Translate(userLanguage, "Max Energy Efficiency");
-        labelTotalConsumed = translator.Translate(userLanguage, "Total kWh Consumed");
-        labelAddRecord = translator.Translate(userLanguage, "Add Charging Record");
-    }
-    else
-    {
-        labelNumberRecords = translator.Translate(userLanguage, "# of Gas Records");
-        labelEconomy = translator.Translate(userLanguage, "Fuel Economy");
-        labelAverageEconomy = translator.Translate(userLanguage, "Average Fuel Economy");
-        labelMinEconomy = translator.Translate(userLanguage, "Min Fuel Economy");
-        labelMaxEconomy = translator.Translate(userLanguage, "Max Fuel Economy");
-        labelTotalConsumed = translator.Translate(userLanguage, "Total Fuel Consumed");
-        labelAddRecord = translator.Translate(userLanguage, "Add Gas Record");
-    }
-}
+    string labelNumberRecords = useKwh ? translator.Translate(userLanguage, "# of Charging Records") : translator.Translate(userLanguage, "# of Gas Records");
+    string labelEconomy = useKwh ? translator.Translate(userLanguage, "Energy Efficiency") : translator.Translate(userLanguage, "Fuel Economy");
+    string labelAverageEconomy = useKwh ? translator.Translate(userLanguage, "Average Energy Efficiency") : translator.Translate(userLanguage, "Average Fuel Economy");
+    string labelMinEconomy = useKwh ? translator.Translate(userLanguage, "Min Energy Efficiency") : translator.Translate(userLanguage, "Min Fuel Economy");
+    string labelMaxEconomy = useKwh ? translator.Translate(userLanguage, "Max Energy Efficiency") : translator.Translate(userLanguage, "Max Fuel Economy");
+    string labelTotalConsumed = useKwh ? translator.Translate(userLanguage, "Total kWh Consumed") : translator.Translate(userLanguage, "Total Fuel Consumed");
+    string labelAddRecord = useKwh ? translator.Translate(userLanguage, "Add Charging Record") : translator.Translate(userLanguage, "Add Gas Record");
+    string labelDateRefueled = useKwh ? translator.Translate(userLanguage, "Date Charged") : translator.Translate(userLanguage, "Date Refueled");
+    
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -93,7 +73,7 @@
                 }
                 else
                 {
-                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{labelMinEconomy)}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{labelMinEconomy}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                     <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{labelMaxEconomy}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 }
             }
@@ -128,7 +108,7 @@
                     <li class="dropdown-item">
                         <div class="list-group-item">
                             <input class="form-check-input col-visible-toggle" data-column-toggle='daterefueled' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_DateRefueled" checked>
-                            <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@translator.Translate(userLanguage, "Date Refueled")</label>
+                            <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@labelDateRefueled</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
@@ -202,7 +182,7 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 flex-grow-1" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1" data-column="daterefueled">@labelDateRefueled</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>

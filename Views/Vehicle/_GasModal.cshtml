@@ -35,9 +35,21 @@
     {
         distanceUnit = useMPG ? @translator.Translate(userLanguage, "miles") : @translator.Translate(userLanguage, "kilometers");
     }
+
+
+    string labelAddNewRecord = useKwh ? translator.Translate(userLanguage, "Add New Charging Record") : translator.Translate(userLanguage, "Add New Gas Record");
+    string labelEditRecord = useKwh ? translator.Translate(userLanguage, "Edit Charging Record") : translator.Translate(userLanguage, "Edit Gas Record");
+    string labelDateRefueled = useKwh ? translator.Translate(userLanguage, "Date charged") : translator.Translate(userLanguage, "Date refueled");
+    string labelOdometerReading = useKwh ? translator.Translate(userLanguage, "Odometer reading when charged") : translator.Translate(userLanguage, "Odometer reading when refueled");
+    string labelConsumption = useKwh ? translator.Translate(userLanguage, "Energy Consumption") : translator.Translate(userLanguage, "Fuel Consumption");
+    string labelAmountRefueled = useKwh ? translator.Translate(userLanguage, "Amount of energy charged") : translator.Translate(userLanguage, "Amount of gas refueled");
+    string labelIsFull = useKwh ? translator.Translate(userLanguage, "Is fully charged") : translator.Translate(userLanguage, "Is Filled To Full");
+    string labelMissedFuelUp = useKwh ? translator.Translate(userLanguage, "Missed Charge (Skip Efficiency Calculation)") : translator.Translate(userLanguage, "Missed Fuel Up (Skip MPG Calculation)");
+    string labelCostFuel = useKwh ? translator.Translate(userLanguage, "Cost of charging") : translator.Translate(userLanguage, "Cost of gas refueled");
 }
+
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Gas Record") : translator.Translate(userLanguage, "Edit Gas Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditGasRecordModal({Model.GasRecord.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
+    <h5 class="modal-title">@(isNew ? labelAddNewRecord : labelEditRecord)<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditGasRecordModal({Model.GasRecord.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -48,12 +60,12 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="gasRecordDate">@translator.Translate(userLanguage,"Date")</label>
                     <div class="input-group">
-                        <input type="text" id="gasRecordDate" placeholder="@translator.Translate(userLanguage,"Date refueled")" class="form-control" value="@Model.GasRecord.Date">
+                        <input type="text" id="gasRecordDate" placeholder="@labelDateRefueled" class="form-control" value="@Model.GasRecord.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="gasRecordMileage">@($"{translator.Translate(userLanguage,"Odometer Reading")}({distanceUnit})")</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew ? "" : Model.GasRecord.Mileage)">
+                        <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@labelOdometerReading" value="@(isNew ? "" : Model.GasRecord.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">
@@ -61,21 +73,21 @@
                             </div>
                         }
                     </div>
-                    <label for="gasRecordGallons">@($"{translator.Translate(userLanguage, "Fuel Consumption")}({consumptionUnit})")</label>
-                    <input type="text" inputmode="decimal" id="gasRecordGallons" class="form-control" placeholder="@translator.Translate(userLanguage,"Amount of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Gallons)">
+                    <label for="gasRecordGallons">@($"{labelConsumption}({consumptionUnit})")</label>
+                    <input type="text" inputmode="decimal" id="gasRecordGallons" class="form-control" placeholder="@labelAmountRefueled" value="@(isNew ? "" : Model.GasRecord.Gallons)">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.GasRecord.IsFillToFull">
-                        <label class="form-check-label" for="gasIsFillToFull">@translator.Translate(userLanguage,"Is Filled To Full")</label>
+                        <label class="form-check-label" for="gasIsFillToFull">@labelIsFull</label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsMissed" checked="@Model.GasRecord.MissedFuelUp">
-                        <label class="form-check-label" for="gasIsMissed">@translator.Translate(userLanguage,"Missed Fuel Up(Skip MPG Calculation)")</label>
+                        <label class="form-check-label" for="gasIsMissed">@labelMissedFuelUp</label>
                     </div>
                     <label for="GasRecordCost">@translator.Translate(userLanguage,"Cost")</label>
                     @if (isNew)
                     {
                         <div class="input-group">
-                            <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                            <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@labelCostFuel" value="@(isNew ? "" : Model.GasRecord.Cost)">
                             <div class="input-group-text">
                                 <select class="form-select form-select-sm" id="gasCostType">
                                     <option value="total">@translator.Translate(userLanguage,"Total")</option>
@@ -85,7 +97,7 @@
                         </div>
                     } else
                     {
-                        <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                        <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@labelCostFuel" value="@(isNew ? "" : Model.GasRecord.Cost)">
                     }
                     <label for="gasRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="gasRecordTag">
@@ -134,11 +146,11 @@
     <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
     @if (isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle()">@translator.Translate(userLanguage,"Add New Gas Record")</button>
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle()">@labelAddNewRecord</button>
     }
     else if (!isNew)
     {
-        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Gas Record")</button>
+        <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">@labelEditRecord</button>
     }
 </div>
 <script>
