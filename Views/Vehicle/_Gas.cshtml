@@ -20,6 +20,7 @@
     string consumptionUnit;
     string fuelEconomyUnit;
     string distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
+    
     if (useKwh)
     {
         consumptionUnit = "kWh";
@@ -47,26 +48,56 @@
         extraFields = Model.GasRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
+    
+    string labelNumberRecords;
+    string labelEconomy;
+    string labelAverageEconomy;
+    string labelMinEconomy;
+    string labelMaxEconomy;
+    string labelTotalConsumed;
+    string labelAddRecord;
+
+    if (useKwh)
+    {
+        labelNumberRecords = translator.Translate(userLanguage, "# of Charging Records");
+        labelEconomy = translator.Translate(userLanguage, "Energy Efficiency");
+        labelAverageEconomy = translator.Translate(userLanguage, "Average Energy Efficiency");
+        labelMinEconomy = translator.Translate(userLanguage, "Min Energy Efficiency");
+        labelMaxEconomy = translator.Translate(userLanguage, "Max Energy Efficiency");
+        labelTotalConsumed = translator.Translate(userLanguage, "Total kWh Consumed");
+        labelAddRecord = translator.Translate(userLanguage, "Add Charging Record");
+    }
+    else
+    {
+        labelNumberRecords = translator.Translate(userLanguage, "# of Gas Records");
+        labelEconomy = translator.Translate(userLanguage, "Fuel Economy");
+        labelAverageEconomy = translator.Translate(userLanguage, "Average Fuel Economy");
+        labelMinEconomy = translator.Translate(userLanguage, "Min Fuel Economy");
+        labelMaxEconomy = translator.Translate(userLanguage, "Max Fuel Economy");
+        labelTotalConsumed = translator.Translate(userLanguage, "Total Fuel Consumed");
+        labelAddRecord = translator.Translate(userLanguage, "Add Gas Record");
+    }
+}
 }
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Gas Records")}: {Model.GasRecords.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{labelNumberRecords}: {Model.GasRecords.Count()}")</span>
             @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
             {
-                <span class="ms-2 badge bg-primary" id="averageFuelMileageLabel">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
+                <span class="ms-2 badge bg-primary" id="averageFuelMileageLabel">@($"{labelAverageEconomy}: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
                 if (useMPG)
                 {
-                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{labelMinEconomy}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{labelMaxEconomy}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 }
                 else
                 {
-                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{labelMinEconomy)}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{labelMaxEconomy}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 }
             }
-            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage, "Total Fuel Consumed")}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
+            <span class="ms-2 badge bg-success">@($"{labelTotalConsumed}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
             <span class="ms-2 badge bg-success" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total Cost")}: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
             @foreach (string recordTag in recordTags)
             {
@@ -82,7 +113,7 @@
         @if (enableCsvImports)
         {
             <div class="btn-group">
-                <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Gas Record")</button>
+                <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@labelAddRecord)</button>
                 <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
@@ -121,7 +152,7 @@
                     <li class="dropdown-item">
                         <div class="list-group-item">
                             <input class="form-check-input col-visible-toggle" data-column-toggle='fueleconomy' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_FuelEconomy" checked>
-                            <label class="form-check-label stretched-link" for="chkCol_FuelEconomy">@translator.Translate(userLanguage, "Fuel Economy")</label>
+                            <label class="form-check-label stretched-link" for="chkCol_FuelEconomy">@labelEconomy</label>
                         </div>
                     </li>
                     <li class="dropdown-item">
@@ -175,7 +206,7 @@
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@labelEconomy}({fuelEconomyUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
