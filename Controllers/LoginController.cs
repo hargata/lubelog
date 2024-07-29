@@ -34,9 +34,15 @@ namespace CarCareTracker.Controllers
             {
                 var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
                 remoteAuthConfig.State = generatedState;
+                var pkceKeyPair = _loginLogic.GetPKCEChallengeCode();
+                remoteAuthConfig.CodeChallenge = pkceKeyPair.Value;
                 if (remoteAuthConfig.ValidateState)
                 {
                     Response.Cookies.Append("OIDC_STATE", remoteAuthConfig.State, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+                }
+                if (remoteAuthConfig.UsePKCE)
+                {
+                    Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
                 }
                 var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
                 return Redirect(remoteAuthURL);
@@ -69,7 +75,7 @@ namespace CarCareTracker.Controllers
             if (remoteAuthConfig.UsePKCE)
             {
                 Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
-;            }
+            }
             var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
         }
