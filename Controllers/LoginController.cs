@@ -159,6 +159,11 @@ namespace CarCareTracker.Controllers
                     } else
                     {
                         _logger.LogInformation("OpenID Provider did not provide a valid id_token");
+                        if (!string.IsNullOrWhiteSpace(tokenResult))
+                        {
+                            //if something was returned from the IdP but it's invalid, we want to log it as an error.
+                            _logger.LogError($"Expected id_token, received {tokenResult}");
+                        }
                     }
                 } else
                 {
