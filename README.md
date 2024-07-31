@@ -22,6 +22,9 @@ LubeLogger is available as both a Docker Image and a Windows Standalone Executab
 
 Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started) on how to download either of them
 
+### Kubernetes Deployment
+[Helm Chart](https://artifacthub.io/packages/helm/anza-labs/lubelogger) provided by [Anza-Labs](https://github.com/anza-labs)
+
 ### Need Help?
 [Documentation](https://docs.lubelogger.com/)
 
