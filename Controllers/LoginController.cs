@@ -34,9 +34,15 @@ namespace CarCareTracker.Controllers
             {
                 var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
                 remoteAuthConfig.State = generatedState;
+                var pkceKeyPair = _loginLogic.GetPKCEChallengeCode();
+                remoteAuthConfig.CodeChallenge = pkceKeyPair.Value;
                 if (remoteAuthConfig.ValidateState)
                 {
                     Response.Cookies.Append("OIDC_STATE", remoteAuthConfig.State, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+                }
+                if (remoteAuthConfig.UsePKCE)
+                {
+                    Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
                 }
                 var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
                 return Redirect(remoteAuthURL);
@@ -60,9 +66,15 @@ namespace CarCareTracker.Controllers
             var remoteAuthConfig = _config.GetOpenIDConfig();
             var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
             remoteAuthConfig.State = generatedState;
+            var pkceKeyPair = _loginLogic.GetPKCEChallengeCode();
+            remoteAuthConfig.CodeChallenge = pkceKeyPair.Value;
             if (remoteAuthConfig.ValidateState)
             {
                 Response.Cookies.Append("OIDC_STATE", remoteAuthConfig.State, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+            }
+            if (remoteAuthConfig.UsePKCE)
+            {
+                Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
             }
             var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
@@ -99,6 +111,16 @@ namespace CarCareTracker.Controllers
                      new KeyValuePair<string, string>("client_secret", openIdConfig.ClientSecret),
                      new KeyValuePair<string, string>("redirect_uri", openIdConfig.RedirectURL)
                 };
+                    if (openIdConfig.UsePKCE)
+                    {
+                        //retrieve stored challenge verifier
+                        var storedVerifier = Request.Cookies["OIDC_VERIFIER"];
+                        if (!string.IsNullOrWhiteSpace(storedVerifier))
+                        {
+                            httpParams.Add(new KeyValuePair<string, string>("code_verifier", storedVerifier));
+                            Response.Cookies.Delete("OIDC_VERIFIER");
+                        }
+                    }
                     var httpRequest = new HttpRequestMessage(HttpMethod.Post, openIdConfig.TokenURL)
                     {
                         Content = new FormUrlEncodedContent(httpParams)
@@ -137,6 +159,11 @@ namespace CarCareTracker.Controllers
                     } else
                     {
                         _logger.LogInformation("OpenID Provider did not provide a valid id_token");
+                        if (!string.IsNullOrWhiteSpace(tokenResult))
+                        {
+                            //if something was returned from the IdP but it's invalid, we want to log it as an error.
+                            _logger.LogError($"Expected id_token, received {tokenResult}");
+                        }
                     }
                 } else
                 {

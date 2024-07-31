@@ -2,6 +2,7 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -28,7 +29,7 @@ namespace CarCareTracker.Logic
         bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
-
+        KeyValuePair<string, string> GetPKCEChallengeCode();
     }
     public class LoginLogic : ILoginLogic
     {
@@ -438,6 +439,14 @@ namespace CarCareTracker.Logic
         private string NewToken()
         {
             return Guid.NewGuid().ToString().Substring(0, 8);
+        }
+        public KeyValuePair<string, string> GetPKCEChallengeCode()
+        {
+            var verifierCode = Base64UrlEncoder.Encode(Guid.NewGuid().ToString().Replace("-", ""));
+            var verifierBytes = Encoding.UTF8.GetBytes(verifierCode);
+            var hashedCode = SHA256.Create().ComputeHash(verifierBytes);
+            var encodedChallengeCode = Base64UrlEncoder.Encode(hashedCode);
+            return new KeyValuePair<string, string>(verifierCode, encodedChallengeCode);
         }
         public bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
         {
