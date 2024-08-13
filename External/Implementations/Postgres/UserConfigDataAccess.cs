@@ -94,7 +94,8 @@ namespace CarCareTracker.External.Implementations
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
                     ctext.Parameters.AddWithValue("id", userId);
-                    return ctext.ExecuteNonQuery() > 0;
+                    ctext.ExecuteNonQuery();
+                    return true;
                 }
             }
             catch (Exception ex)
