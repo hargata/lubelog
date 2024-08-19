@@ -40,7 +40,8 @@ function saveVehicle(isEdit) {
     var vehiclePurchaseDate = $("#inputPurchaseDate").val();
     var vehicleSoldDate = $("#inputSoldDate").val();
     var vehicleLicensePlate = $("#inputLicensePlate").val();
-    var vehicleIsElectric = $("#inputIsElectric").is(":checked");
+    var vehicleIsElectric = $("#inputFuelType").val() == 'Electric';
+    var vehicleIsDiesel = $("#inputFuelType").val() == 'Diesel';
     var vehicleUseHours = $("#inputUseHours").is(":checked");
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
@@ -119,6 +120,7 @@ function saveVehicle(isEdit) {
         model: vehicleModel,
         licensePlate: vehicleLicensePlate,
         isElectric: vehicleIsElectric,
+        isDiesel: vehicleIsDiesel,
         tags: vehicleTags,
         useHours: vehicleUseHours,
         extraFields: extraFields.extraFields,
