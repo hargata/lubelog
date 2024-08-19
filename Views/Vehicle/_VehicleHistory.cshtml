@@ -31,6 +31,10 @@
                             {
                                 <span><i class="bi bi-ev-station me-2"></i>@translator.Translate(userLanguage, "Electric")</span>
                             }
+                            else if (Model.VehicleData.IsDiesel)
+                            {
+                                <span><i class="bi bi-fuel-pump-diesel me-2"></i>@translator.Translate(userLanguage, "Diesel")</span>
+                            }
                             else
                             {
                                 <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>

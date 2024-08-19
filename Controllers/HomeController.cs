@@ -69,6 +69,7 @@ namespace CarCareTracker.Controllers
                 LicensePlate = x.LicensePlate,
                 SoldDate = x.SoldDate,
                 IsElectric = x.IsElectric,
+                IsDiesel = x.IsDiesel,
                 UseHours = x.UseHours,
                 ExtraFields = x.ExtraFields,
                 Tags = x.Tags,

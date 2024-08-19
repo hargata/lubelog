@@ -46,10 +46,12 @@
                     }
                 </div>
                 <div class="col-12 col-md-6">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="inputIsElectric" checked="@Model.IsElectric">
-                        <label class="form-check-label" for="inputIsElectric">@translator.Translate(userLanguage, "Electric Vehicle")</label>
-                    </div>
+                    <label for="inputFuelType">@translator.Translate(userLanguage, "Fuel Type")</label>
+                    <select class="form-select" onchange="checkCustomMonthInterval()" id="inputFuelType")>
+                        <!option value="Gasoline" @(!Model.IsDiesel && !Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Gasoline")</!option>
+                        <!option value="Diesel" @(Model.IsDiesel ? "selected" : "")>@translator.Translate(userLanguage, "Diesel")</!option>
+                        <!option value="Electric" @(Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Electric")</!option>
+                    </select>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="inputUseHours" checked="@Model.UseHours">
                         <label class="form-check-label" for="inputUseHours">@translator.Translate(userLanguage, "Use Engine Hours")</label>
