@@ -1056,3 +1056,23 @@ function bindModalInputChanges(modalName) {
         $(e.currentTarget).attr('data-changed', true);
     });
 }
+function handleModalPaste(e, recordType) {
+    var clipboardFiles = e.clipboardData.files;
+    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    var acceptableFiles = new DataTransfer();
+    if (clipboardFiles.length > 0) {
+        for (var x = 0; x < clipboardFiles.length; x++) {
+            if (acceptableFileFormats != "*") {
+                var fileExtension = `.${clipboardFiles[x].name.split('.').pop()}`;
+                if (acceptableFileFormatsArray.includes(fileExtension)) {
+                    acceptableFiles.items.add(clipboardFiles[x]);
+                }
+            } else {
+                acceptableFiles.items.add(clipboardFiles[x]);
+            }
+        }
+        $(`#${recordType}`)[0].files = acceptableFiles.files;
+        $(`#${recordType}`).trigger('change');
+    }
+}
