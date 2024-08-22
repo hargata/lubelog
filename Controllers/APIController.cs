@@ -568,7 +568,7 @@ namespace CarCareTracker.Controllers
             var jsonResponse = new Dictionary<string, string>();
             //Clear out temp folder
             var tempFilesDeleted = _fileHelper.ClearTempFolder();
-            jsonResponse.Add("Temp Files Deleted", tempFilesDeleted.ToString());
+            jsonResponse.Add("temp_files_deleted", tempFilesDeleted.ToString());
             if (deepClean)
             {
                 //clear out unused vehicle thumbnails
@@ -577,7 +577,7 @@ namespace CarCareTracker.Controllers
                 if (vehicleImages.Any())
                 {
                     var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
-                    jsonResponse.Add("Unlinked Thumbnails Deleted", thumbnailsDeleted.ToString());
+                    jsonResponse.Add("unlinked_thumbnails_deleted", thumbnailsDeleted.ToString());
                 }
             }
             return Json(jsonResponse);
