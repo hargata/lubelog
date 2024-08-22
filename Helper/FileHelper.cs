@@ -13,6 +13,8 @@ namespace CarCareTracker.Helper
         bool RestoreBackup(string fileName, bool clearExisting = false);
         string MakeAttachmentsExport(List<GenericReportModel> exportData);
         List<string> GetLanguages();
+        int ClearTempFolder();
+        int ClearUnlinkedThumbnails(List<string> linkedImages);
     }
     public class FileHelper : IFileHelper
     {
@@ -313,6 +315,39 @@ namespace CarCareTracker.Helper
             {
                 return false;
             }
+        }
+        public int ClearTempFolder()
+        {
+            int filesDeleted = 0;
+            var tempPath = GetFullFilePath("temp", false);
+            if (Directory.Exists(tempPath))
+            {
+                var files = Directory.GetFiles(tempPath);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                    filesDeleted++;
+                }
+            }
+            return filesDeleted;
+        }
+        public int ClearUnlinkedThumbnails(List<string> linkedImages)
+        {
+            int filesDeleted = 0;
+            var imagePath = GetFullFilePath("images", false);
+            if (Directory.Exists(imagePath))
+            {
+                var files = Directory.GetFiles(imagePath);
+                foreach(var file in files)
+                {
+                    if (!linkedImages.Contains(Path.GetFileName(file)))
+                    {
+                        File.Delete(file);
+                        filesDeleted++;
+                    }
+                }
+            }
+            return filesDeleted;
         }
     }
 }
