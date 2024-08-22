@@ -45,6 +45,55 @@
         GET
     </div>
     <div class="col-5 copyable">
+        <code>/api/vehicle/odometerrecords</code>
+    </div>
+    <div class="col-3">
+        Returns a list of odometer records for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle/odometerrecords/latest</code>
+    </div>
+    <div class="col-3">
+        Returns last reported odometer for the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        POST
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle/odometerrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Odometer Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        date - Date to be entered<br />
+        initialOdometer - Initial Odometer reading(optional)<br />
+        odometer - Odometer reading<br />
+        notes - notes(optional)<br />
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-1">
+        GET
+    </div>
+    <div class="col-5 copyable">
         <code>/api/vehicle/servicerecords</code>
     </div>
     <div class="col-3">
@@ -270,56 +319,22 @@
             No Params(must be root user)
         </div>
     </div>
+    <div class="row">
+        <div class="col-1">
+            GET
+        </div>
+        <div class="col-5 copyable">
+            <code>/api/cleanup</code>
+        </div>
+        <div class="col-3">
+            Clears out temp files. Deep clean will also delete unlinked thumbnails and documents. Returns number of deleted files.
+        </div>
+        <div class="col-3">
+            (must be root user)<br />
+            deepClean(bool) - Perform deep clean
+        </div>
+    </div>
 }
-<div class="row">
-    <div class="col-1">
-        GET
-    </div>
-    <div class="col-5 copyable">
-        <code>/api/vehicle/odometerrecords</code>
-    </div>
-    <div class="col-3">
-        Returns a list of odometer records for the vehicle
-    </div>
-    <div class="col-3">
-        vehicleId - Id of Vehicle
-    </div>
-</div>
-<div class="row">
-    <div class="col-1">
-        GET
-    </div>
-    <div class="col-5 copyable">
-        <code>/api/vehicle/odometerrecords/latest</code>
-    </div>
-    <div class="col-3">
-        Returns last reported odometer for the vehicle
-    </div>
-    <div class="col-3">
-        vehicleId - Id of Vehicle
-    </div>
-</div>
-<div class="row">
-    <div class="col-1">
-        POST
-    </div>
-    <div class="col-5 copyable">
-        <code>/api/vehicle/odometerrecords/add</code>
-    </div>
-    <div class="col-3">
-        Adds Odometer Record to the vehicle
-    </div>
-    <div class="col-3">
-        vehicleId - Id of Vehicle
-        <br />
-        Body(form-data): {<br />
-            date - Date to be entered<br />
-        initialOdometer - Initial Odometer reading(optional)<br />
-        odometer - Odometer reading<br />
-        notes - notes(optional)<br />
-        }
-    </div>
-</div>
 <script>
     $('.copyable').on('click', function (e) {
         copyToClipboard(e.currentTarget);

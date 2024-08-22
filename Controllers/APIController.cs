@@ -21,6 +21,9 @@ namespace CarCareTracker.Controllers
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
+        private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
+        private readonly IPlanRecordDataAccess _planRecordDataAccess;
+        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
@@ -42,6 +45,9 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
+            ISupplyRecordDataAccess supplyRecordDataAccess,
+            IPlanRecordDataAccess planRecordDataAccess,
+            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
             IMailHelper mailHelper,
@@ -60,6 +66,9 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _supplyRecordDataAccess = supplyRecordDataAccess;
+            _planRecordDataAccess = planRecordDataAccess;
+            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
             _mailHelper = mailHelper;
@@ -578,6 +587,27 @@ namespace CarCareTracker.Controllers
                 {
                     var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
                     jsonResponse.Add("unlinked_thumbnails_deleted", thumbnailsDeleted.ToString());
+                }
+                var vehicleDocuments = new List<string>();
+                foreach(Vehicle vehicle in vehicles)
+                {
+                    vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y=>Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_noteDataAccess.GetNotesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                }
+                //shop supplies
+                vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                if (vehicleDocuments.Any())
+                {
+                    var documentsDeleted = _fileHelper.ClearUnlinkedDocuments(vehicleDocuments);
+                    jsonResponse.Add("unlinked_documents_deleted", documentsDeleted.ToString());
                 }
             }
             return Json(jsonResponse);
