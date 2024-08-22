@@ -1795,6 +1795,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveNoteToVehicleId(Note note)
         {
+            note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
@@ -2390,6 +2391,12 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region "Shared Methods"
+        [HttpPost]
+        public IActionResult GetFilesPendingUpload(List<UploadedFiles> uploadedFiles)
+        {
+            var filesPendingUpload = uploadedFiles.Where(x => x.Location.StartsWith("/temp/")).ToList();
+            return PartialView("_FilesToUpload", filesPendingUpload);
+        }
         [HttpPost]
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult SearchRecords(int vehicleId, string searchQuery)

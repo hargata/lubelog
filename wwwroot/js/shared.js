@@ -375,8 +375,12 @@ function uploadVehicleFilesAsync(event) {
         type: 'POST',
         success: function (response) {
             sloader.hide();
+            $(event).val(""); //clear out the filename from the uploader
             if (response.length > 0) {
                 uploadedFiles.push.apply(uploadedFiles, response);
+                $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                    $("#filesPendingUpload").html(viewData);
+                });
             }
         },
         error: function () {
@@ -388,6 +392,15 @@ function uploadVehicleFilesAsync(event) {
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+    if (fileLocation.startsWith("/temp/")) {
+        if ($("#documentsPendingUploadList > li").length == 0) {
+            $("#documentsPendingUploadLabel").text("");
+        }
+    } else if (fileLocation.startsWith("/documents/")) {
+        if ($("#uploadedDocumentsList > li").length == 0) {
+            $("#uploadedDocumentsLabel").text("");
+        }
+    }
 }
 function editFileName(fileLocation, event) {
     Swal.fire({
@@ -1055,4 +1068,24 @@ function bindModalInputChanges(modalName) {
     $(`#${modalName} select, #${modalName} input[type='checkbox']`).off('input').on('input', function (e) {
         $(e.currentTarget).attr('data-changed', true);
     });
+}
+function handleModalPaste(e, recordType) {
+    var clipboardFiles = e.clipboardData.files;
+    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    var acceptableFiles = new DataTransfer();
+    if (clipboardFiles.length > 0) {
+        for (var x = 0; x < clipboardFiles.length; x++) {
+            if (acceptableFileFormats != "*") {
+                var fileExtension = `.${clipboardFiles[x].name.split('.').pop()}`;
+                if (acceptableFileFormatsArray.includes(fileExtension)) {
+                    acceptableFiles.items.add(clipboardFiles[x]);
+                }
+            } else {
+                acceptableFiles.items.add(clipboardFiles[x]);
+            }
+        }
+        $(`#${recordType}`)[0].files = acceptableFiles.files;
+        $(`#${recordType}`).trigger('change');
+    }
 }
