@@ -375,8 +375,12 @@ function uploadVehicleFilesAsync(event) {
         type: 'POST',
         success: function (response) {
             sloader.hide();
+            $(event).val(""); //clear out the filename from the uploader
             if (response.length > 0) {
                 uploadedFiles.push.apply(uploadedFiles, response);
+                $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                    $("#filesPendingUpload").html(viewData);
+                });
             }
         },
         error: function () {
@@ -388,6 +392,15 @@ function uploadVehicleFilesAsync(event) {
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+    if (fileLocation.startsWith("/temp/")) {
+        if ($("#documentsPendingUploadList > li").length == 0) {
+            $("#documentsPendingUploadLabel").text("");
+        }
+    } else if (fileLocation.startsWith("/documents/")) {
+        if ($("#uploadedDocumentsList > li").length == 0) {
+            $("#uploadedDocumentsLabel").text("");
+        }
+    }
 }
 function editFileName(fileLocation, event) {
     Swal.fire({

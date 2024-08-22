@@ -6,8 +6,8 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model List<UploadedFiles>
-<label id="uploadedDocumentsLabel">@translator.Translate(userLanguage, "Uploaded Documents")</label>
-<ul class="list-group" id="uploadedDocumentsList">
+<label id="documentsPendingUploadLabel">@translator.Translate(userLanguage, "Documents Pending Upload")</label>
+<ul class="list-group" id="documentsPendingUploadList">
     @foreach (UploadedFiles filesUploaded in Model)
     {
         <li class="list-group-item">
