@@ -15,6 +15,7 @@ namespace CarCareTracker.Helper
         List<string> GetLanguages();
         int ClearTempFolder();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
+        int ClearUnlinkedDocuments(List<string> linkedDocuments);
     }
     public class FileHelper : IFileHelper
     {
@@ -341,6 +342,24 @@ namespace CarCareTracker.Helper
                 foreach(var file in files)
                 {
                     if (!linkedImages.Contains(Path.GetFileName(file)))
+                    {
+                        File.Delete(file);
+                        filesDeleted++;
+                    }
+                }
+            }
+            return filesDeleted;
+        }
+        public int ClearUnlinkedDocuments(List<string> linkedDocuments)
+        {
+            int filesDeleted = 0;
+            var documentPath = GetFullFilePath("documents", false);
+            if (Directory.Exists(documentPath))
+            {
+                var files = Directory.GetFiles(documentPath);
+                foreach (var file in files)
+                {
+                    if (!linkedDocuments.Contains(Path.GetFileName(file)))
                     {
                         File.Delete(file);
                         filesDeleted++;
