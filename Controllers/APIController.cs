@@ -562,6 +562,28 @@ namespace CarCareTracker.Controllers
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
+        [Route("/api/cleanup")]
+        public IActionResult CleanUp(bool deepClean = false)
+        {
+            var jsonResponse = new Dictionary<string, string>();
+            //Clear out temp folder
+            var tempFilesDeleted = _fileHelper.ClearTempFolder();
+            jsonResponse.Add("Temp Files Deleted", tempFilesDeleted.ToString());
+            if (deepClean)
+            {
+                //clear out unused vehicle thumbnails
+                var vehicles = _dataAccess.GetVehicles();
+                var vehicleImages = vehicles.Select(x => x.ImageLocation).Where(x => x.StartsWith("/images/")).Select(x=>Path.GetFileName(x)).ToList();
+                if (vehicleImages.Any())
+                {
+                    var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
+                    jsonResponse.Add("Unlinked Thumbnails Deleted", thumbnailsDeleted.ToString());
+                }
+            }
+            return Json(jsonResponse);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
         [Route("/api/demo/restore")]
         public IActionResult RestoreDemo()
         {
