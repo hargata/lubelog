@@ -38,7 +38,7 @@ namespace CarCareTracker.MapProfile
                     }
                 }
                 return attributes;
-            }); ;
+            });
         }
     }
 }

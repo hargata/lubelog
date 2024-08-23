@@ -39,7 +39,10 @@
         public string Notes { get; set; }
         public string Tags { get; set; }
     }
-
+    public class SupplyRecordCsvExportModel: SupplyRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
+    }
     public class ServiceRecordExportModel
     {
         public string Date { get; set; }
@@ -49,6 +52,10 @@
         public string Cost { get; set; }
         public string Tags { get; set; }
     }
+    public class GenericRecordExportModel: ServiceRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
+    }
     public class OdometerRecordExportModel
     {
         public string Date { get; set; }
@@ -57,6 +64,10 @@
         public string Notes { get; set; }
         public string Tags { get; set; }
     }
+    public class OdometerRecordCsvExportModel: OdometerRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
+    }
     public class TaxRecordExportModel
     {
         public string Date { get; set; }
@@ -64,6 +75,10 @@
         public string Notes { get; set; }
         public string Cost { get; set; }
         public string Tags { get; set; }
+    }
+    public class TaxRecordCsvExportModel: TaxRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class GasRecordExportModel
     {
@@ -76,6 +91,10 @@
         public string MissedFuelUp { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
+    }
+    public class GasRecordCsvExportModel: GasRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class ReminderExportModel
     {
@@ -95,5 +114,8 @@
         public string Progress { get; set; }
         public string Cost { get; set; }
     }
-
+    public class PlanRecordCsvExportModel: PlanRecordExportModel
+    {
+        public List<ExtraField> ExtraFields { get; set; }
+    }
 }
