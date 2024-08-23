@@ -387,10 +387,10 @@ namespace CarCareTracker.Helper
             _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartNumber));
             _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartSupplier));
             _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartQuantity));
-            _csv.WriteField(nameof(TaxRecordCsvExportModel.Description));
-            _csv.WriteField(nameof(TaxRecordCsvExportModel.Notes));
-            _csv.WriteField(nameof(TaxRecordCsvExportModel.Cost));
-            _csv.WriteField(nameof(TaxRecordCsvExportModel.Tags));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Description));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Cost));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Tags));
             foreach (string extraHeader in extraHeaders)
             {
                 _csv.WriteField($"extrafield_{extraHeader}");
