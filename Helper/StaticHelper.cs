@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Models;
+using CsvHelper;
 using System.Globalization;
 
 namespace CarCareTracker.Helper
@@ -285,6 +286,204 @@ namespace CarCareTracker.Helper
                     return "bi-bell";
                 default:
                     return "bi-file-bar-graph";
+            }
+        }
+        //CSV Write Methods
+        public static void WriteGenericRecordExportModel(CsvWriter _csv, IEnumerable<GenericRecordExportModel> genericRecords)
+        {
+            bool headerWritten = false;
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(GenericRecordExportModel.Date));
+            _csv.WriteField(nameof(GenericRecordExportModel.Description));
+            _csv.WriteField(nameof(GenericRecordExportModel.Cost));
+            _csv.WriteField(nameof(GenericRecordExportModel.Notes));
+            _csv.WriteField(nameof(GenericRecordExportModel.Odometer));
+            _csv.WriteField(nameof(GenericRecordExportModel.Tags));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (GenericRecordExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Cost);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Odometer);
+                _csv.WriteField(genericRecord.Tags);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
+        public static void WriteOdometerRecordExportModel(CsvWriter _csv, IEnumerable<OdometerRecordCsvExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(OdometerRecordCsvExportModel.Date));
+            _csv.WriteField(nameof(OdometerRecordCsvExportModel.InitialOdometer));
+            _csv.WriteField(nameof(OdometerRecordCsvExportModel.Odometer));
+            _csv.WriteField(nameof(OdometerRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(OdometerRecordCsvExportModel.Tags));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (OdometerRecordCsvExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.InitialOdometer);
+                _csv.WriteField(genericRecord.Odometer);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Tags);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
+        public static void WriteTaxRecordExportModel(CsvWriter _csv, IEnumerable<TaxRecordCsvExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(TaxRecordCsvExportModel.Date));
+            _csv.WriteField(nameof(TaxRecordCsvExportModel.Description));
+            _csv.WriteField(nameof(TaxRecordCsvExportModel.Cost));
+            _csv.WriteField(nameof(TaxRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(TaxRecordCsvExportModel.Tags));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (TaxRecordCsvExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Cost);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Tags);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
+        public static void WriteSupplyRecordExportModel(CsvWriter _csv, IEnumerable<SupplyRecordCsvExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Date));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartNumber));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartSupplier));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.PartQuantity));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Description));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Cost));
+            _csv.WriteField(nameof(SupplyRecordCsvExportModel.Tags));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (SupplyRecordCsvExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.PartNumber);
+                _csv.WriteField(genericRecord.PartSupplier);
+                _csv.WriteField(genericRecord.PartQuantity);
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Cost);
+                _csv.WriteField(genericRecord.Tags);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
+        public static void WritePlanRecordExportModel(CsvWriter _csv, IEnumerable<PlanRecordCsvExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.DateCreated));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.DateModified));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Description));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Type));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Priority));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Progress));
+            _csv.WriteField(nameof(PlanRecordCsvExportModel.Cost));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (PlanRecordCsvExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.DateCreated);
+                _csv.WriteField(genericRecord.DateModified);
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Type);
+                _csv.WriteField(genericRecord.Priority);
+                _csv.WriteField(genericRecord.Progress);
+                _csv.WriteField(genericRecord.Cost);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
+        public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordCsvExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            //write headers
+            _csv.WriteField(nameof(GasRecordCsvExportModel.Date));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.Odometer));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.FuelConsumed));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.Cost));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.FuelEconomy));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.IsFillToFull));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.MissedFuelUp));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.Notes));
+            _csv.WriteField(nameof(GasRecordCsvExportModel.Tags));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (GasRecordCsvExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Odometer);
+                _csv.WriteField(genericRecord.FuelConsumed);
+                _csv.WriteField(genericRecord.Cost);
+                _csv.WriteField(genericRecord.FuelEconomy);
+                _csv.WriteField(genericRecord.IsFillToFull);
+                _csv.WriteField(genericRecord.MissedFuelUp);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Tags);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
             }
         }
     }
