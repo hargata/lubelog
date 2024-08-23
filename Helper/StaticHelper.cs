@@ -291,7 +291,6 @@ namespace CarCareTracker.Helper
         //CSV Write Methods
         public static void WriteGenericRecordExportModel(CsvWriter _csv, IEnumerable<GenericRecordExportModel> genericRecords)
         {
-            bool headerWritten = false;
             var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
             //write headers
             _csv.WriteField(nameof(GenericRecordExportModel.Date));
