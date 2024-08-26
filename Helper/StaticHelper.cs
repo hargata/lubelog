@@ -291,7 +291,7 @@ namespace CarCareTracker.Helper
         //CSV Write Methods
         public static void WriteGenericRecordExportModel(CsvWriter _csv, IEnumerable<GenericRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(GenericRecordExportModel.Date));
             _csv.WriteField(nameof(GenericRecordExportModel.Description));
@@ -322,7 +322,7 @@ namespace CarCareTracker.Helper
         }
         public static void WriteOdometerRecordExportModel(CsvWriter _csv, IEnumerable<OdometerRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(OdometerRecordExportModel.Date));
             _csv.WriteField(nameof(OdometerRecordExportModel.InitialOdometer));
@@ -351,7 +351,7 @@ namespace CarCareTracker.Helper
         }
         public static void WriteTaxRecordExportModel(CsvWriter _csv, IEnumerable<TaxRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(TaxRecordExportModel.Date));
             _csv.WriteField(nameof(TaxRecordExportModel.Description));
@@ -380,7 +380,7 @@ namespace CarCareTracker.Helper
         }
         public static void WriteSupplyRecordExportModel(CsvWriter _csv, IEnumerable<SupplyRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(SupplyRecordExportModel.Date));
             _csv.WriteField(nameof(SupplyRecordExportModel.PartNumber));
@@ -415,7 +415,7 @@ namespace CarCareTracker.Helper
         }
         public static void WritePlanRecordExportModel(CsvWriter _csv, IEnumerable<PlanRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(PlanRecordExportModel.DateCreated));
             _csv.WriteField(nameof(PlanRecordExportModel.DateModified));
@@ -450,7 +450,7 @@ namespace CarCareTracker.Helper
         }
         public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords)
         {
-            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).OrderBy(x => x).Distinct();
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
             _csv.WriteField(nameof(GasRecordExportModel.Date));
             _csv.WriteField(nameof(GasRecordExportModel.Odometer));
