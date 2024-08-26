@@ -102,6 +102,8 @@
         public string Urgency { get; set; }
         public string Metric { get; set; }
         public string Notes { get; set; }
+        public string DueDate { get; set; }
+        public string DueOdometer { get; set; }
     }
     public class PlanRecordExportModel 
     {
