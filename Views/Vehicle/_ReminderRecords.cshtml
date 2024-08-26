@@ -73,18 +73,22 @@
                         {
                             <td class="col-1"><span class="text-success d-inline-block d-md-none"><i class="bi bi-hourglass-top h3"></i></span><span class="badge text-bg-success d-none d-md-inline-block">@translator.Translate(userLanguage, "Not Urgent")</span></td>
                         }
-                        @if (reminderRecord.Metric == ReminderMetric.Date)
-                        {
-                            <td class="col-2">@reminderRecord.Date.ToShortDateString()</td>
-                        }
-                        else if (reminderRecord.Metric == ReminderMetric.Odometer)
-                        {
-                            <td class="col-2">@reminderRecord.Mileage</td>
-                        }
-                        else
-                        {
-                            <td class="col-2">@reminderRecord.Metric</td>
-                        }
+                        <td class="col-2">
+                            <span data-column="metric" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="@($"<b><i class='bi bi-calendar-event me-2'></i></b>{reminderRecord.Date.ToShortDateString()}<b class='ms-2'><i class='bi bi-speedometer me-2'></i></b>{reminderRecord.Mileage}")">
+                            @if (reminderRecord.Metric == ReminderMetric.Date)
+                            {
+                            @reminderRecord.Date.ToShortDateString()
+                            }
+                            else if (reminderRecord.Metric == ReminderMetric.Odometer)
+                            {
+                            @reminderRecord.Mileage
+                            }
+                            else
+                            {
+                            @reminderRecord.Metric
+                            }
+                            </span>
+                        </td>
                         <td class="@(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
                         <td class="col-2 col-md-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
@@ -119,3 +123,7 @@
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
+
+<script>
+    $("[data-column='metric']").map((x, y) => new bootstrap.Tooltip(y));
+</script>
