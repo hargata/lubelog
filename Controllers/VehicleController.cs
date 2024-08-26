@@ -300,7 +300,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new OdometerRecordCsvExportModel { 
+                    var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel { 
                         Date = x.Date.ToShortDateString(), 
                         Notes = x.Notes, 
                         InitialOdometer = x.InitialMileage.ToString(), 
@@ -323,7 +323,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new SupplyRecordCsvExportModel
+                    var exportData = vehicleRecords.Select(x => new SupplyRecordExportModel
                     {
                         Date = x.Date.ToShortDateString(),
                         Description = x.Description,
@@ -350,7 +350,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new TaxRecordCsvExportModel { 
+                    var exportData = vehicleRecords.Select(x => new TaxRecordExportModel { 
                         Date = x.Date.ToShortDateString(), 
                         Description = x.Description, 
                         Cost = x.Cost.ToString("C"), 
@@ -373,7 +373,7 @@ namespace CarCareTracker.Controllers
                 var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
                 if (vehicleRecords.Any())
                 {
-                    var exportData = vehicleRecords.Select(x => new PlanRecordCsvExportModel
+                    var exportData = vehicleRecords.Select(x => new PlanRecordExportModel
                     {
                         DateCreated = x.DateCreated.ToString("G"),
                         DateModified = x.DateModified.ToString("G"),
@@ -401,7 +401,7 @@ namespace CarCareTracker.Controllers
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
                 bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
-                var exportData = convertedRecords.Select(x => new GasRecordCsvExportModel
+                var exportData = convertedRecords.Select(x => new GasRecordExportModel
                 {
                     Date = x.Date.ToString(),
                     Cost = x.Cost.ToString(),

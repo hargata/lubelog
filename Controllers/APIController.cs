@@ -113,13 +113,13 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/servicerecords/add")]
-        public IActionResult AddServiceRecord(int vehicleId, ServiceRecordExportModel input)
+        public IActionResult AddServiceRecord(int vehicleId, GenericRecordExportModel input)
         {
             var response = new OperationResponse();
             if (vehicleId == default)
@@ -148,7 +148,8 @@ namespace CarCareTracker.Controllers
                     Mileage = int.Parse(input.Odometer),
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost)
+                    Cost = decimal.Parse(input.Cost),
+                    ExtraFields = input.ExtraFields
                 };
                 _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -189,13 +190,13 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/repairrecords/add")]
-        public IActionResult AddRepairRecord(int vehicleId, ServiceRecordExportModel input)
+        public IActionResult AddRepairRecord(int vehicleId, GenericRecordExportModel input)
         {
             var response = new OperationResponse();
             if (vehicleId == default)
@@ -224,7 +225,8 @@ namespace CarCareTracker.Controllers
                     Mileage = int.Parse(input.Odometer),
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost)
+                    Cost = decimal.Parse(input.Cost),
+                    ExtraFields = input.ExtraFields
                 };
                 _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -265,13 +267,13 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new ServiceRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString() });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
-        public IActionResult AddUpgradeRecord(int vehicleId, ServiceRecordExportModel input)
+        public IActionResult AddUpgradeRecord(int vehicleId, GenericRecordExportModel input)
         {
             var response = new OperationResponse();
             if (vehicleId == default)
@@ -300,7 +302,8 @@ namespace CarCareTracker.Controllers
                     Mileage = int.Parse(input.Odometer),
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost)
+                    Cost = decimal.Parse(input.Cost),
+                    ExtraFields = input.ExtraFields
                 };
                 _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -340,7 +343,7 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -373,7 +376,8 @@ namespace CarCareTracker.Controllers
                     Date = DateTime.Parse(input.Date),
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost)
+                    Cost = decimal.Parse(input.Cost),
+                    ExtraFields = input.ExtraFields
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
@@ -424,7 +428,7 @@ namespace CarCareTracker.Controllers
             {
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
             }
-            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes });
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -456,7 +460,8 @@ namespace CarCareTracker.Controllers
                     Date = DateTime.Parse(input.Date),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     InitialMileage = (string.IsNullOrWhiteSpace(input.InitialOdometer) || int.Parse(input.InitialOdometer) == default) ? _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()) : int.Parse(input.InitialOdometer),
-                    Mileage = int.Parse(input.Odometer)
+                    Mileage = int.Parse(input.Odometer),
+                    ExtraFields = input.ExtraFields
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Odometer Record via API - Mileage: {odometerRecord.Mileage.ToString()}");
@@ -494,7 +499,8 @@ namespace CarCareTracker.Controllers
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
-                    Notes = x.Notes
+                    Notes = x.Notes,
+                    ExtraFields = x.ExtraFields
                 });
             return Json(result);
         }
@@ -535,7 +541,8 @@ namespace CarCareTracker.Controllers
                     IsFillToFull = bool.Parse(input.IsFillToFull),
                     MissedFuelUp = bool.Parse(input.MissedFuelUp),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost)
+                    Cost = decimal.Parse(input.Cost),
+                    ExtraFields = input.ExtraFields
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
