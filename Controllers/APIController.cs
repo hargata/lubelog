@@ -99,6 +99,78 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+
+        [HttpGet]
+        [Route("/api/vehicle/info")]
+        public IActionResult VehicleInfo(int vehicleId)
+        {
+            //stats for a specific or all vehicles
+            List<Vehicle> vehicles = new List<Vehicle>();
+            if (vehicleId != default)
+            {
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                {
+                    vehicles.Add(_dataAccess.GetVehicleById(vehicleId));
+                } else
+                {
+                    return new RedirectResult("/Error/Unauthorized");
+                }
+            } else
+            {
+                var result = _dataAccess.GetVehicles();
+                if (!User.IsInRole(nameof(UserData.IsRootUser)))
+                {
+                    result = _userLogic.FilterUserVehicles(result, GetUserID());
+                }
+                vehicles.AddRange(result);
+            }
+
+            List<VehicleInfo> apiResult = new List<VehicleInfo>();
+
+            foreach(Vehicle vehicle in vehicles)
+            {
+                var currentMileage = _vehicleLogic.GetMaxMileage(vehicle.Id);
+                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
+                var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
+
+                var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id);
+                var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id);
+                var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id);
+                var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id);
+                var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id);
+
+                var resultToAdd = new VehicleInfo()
+                {
+                    VehicleData = vehicle,
+                    LastReportedOdometer = currentMileage,
+                    ServiceRecordCount = serviceRecords.Count(),
+                    ServiceRecordCost = serviceRecords.Sum(x=>x.Cost),
+                    RepairRecordCount = repairRecords.Count(),
+                    RepairRecordCost = repairRecords.Sum(x=>x.Cost),
+                    UpgradeRecordCount = upgradeRecords.Count(),
+                    UpgradeRecordCost = upgradeRecords.Sum(x=>x.Cost),
+                    GasRecordCount = gasRecords.Count(),
+                    GasRecordCost = gasRecords.Sum(x=>x.Cost),
+                    TaxRecordCount = taxRecords.Count(),
+                    TaxRecordCost = taxRecords.Sum(x=> x.Cost),
+                    VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
+                    PastDueReminderCount = results.Count(x => x.Urgency == ReminderUrgency.PastDue),
+                    UrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.Urgent),
+                    NotUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.NotUrgent)
+                };
+                //set next reminder
+                if (results.Any(x => (x.Metric == ReminderMetric.Date || x.Metric == ReminderMetric.Both) && x.Date >= DateTime.Now.Date))
+                {
+                    resultToAdd.NextReminder = results.Where(x => x.Date >= DateTime.Now.Date).OrderBy(x => x.Date).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
+                }
+                else if (results.Any(x => (x.Metric == ReminderMetric.Odometer || x.Metric == ReminderMetric.Both) && x.Mileage >= currentMileage))
+                {
+                    resultToAdd.NextReminder = results.Where(x => x.Mileage >= currentMileage).OrderBy(x => x.Mileage).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
+                }
+                apiResult.Add(resultToAdd);
+            }
+            return Json(apiResult);
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]

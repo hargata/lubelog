@@ -125,5 +125,7 @@
 </ul>
 
 <script>
-    $("[data-column='metric']").map((x, y) => new bootstrap.Tooltip(y));
+    if (!getDeviceIsTouchOnly()) {
+        $("[data-column='metric']").map((x, y) => new bootstrap.Tooltip(y));
+    }
 </script>
