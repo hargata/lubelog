@@ -7,7 +7,9 @@ namespace CarCareTracker.Logic
     public interface IVehicleLogic
     {
         int GetMaxMileage(int vehicleId);
+        int GetMaxMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
         int GetMinMileage(int vehicleId);
+        int GetMinMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
@@ -66,6 +68,31 @@ namespace CarCareTracker.Logic
             }
             return numbersArray.Any() ? numbersArray.Max() : 0;
         }
+        public int GetMaxMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords)
+        {
+            var numbersArray = new List<int>();
+            if (serviceRecords.Any())
+            {
+                numbersArray.Add(serviceRecords.Max(x => x.Mileage));
+            }
+            if (repairRecords.Any())
+            {
+                numbersArray.Add(repairRecords.Max(x => x.Mileage));
+            }
+            if (gasRecords.Any())
+            {
+                numbersArray.Add(gasRecords.Max(x => x.Mileage));
+            }
+            if (upgradeRecords.Any())
+            {
+                numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
+            }
+            if (odometerRecords.Any())
+            {
+                numbersArray.Add(odometerRecords.Max(x => x.Mileage));
+            }
+            return numbersArray.Any() ? numbersArray.Max() : 0;
+        }
         public int GetMinMileage(int vehicleId)
         {
             var numbersArray = new List<int>();
@@ -93,6 +120,36 @@ namespace CarCareTracker.Logic
             if (odometerRecords.Any())
             {
                 numbersArray.Add(odometerRecords.Min(x => x.Mileage));
+            }
+            return numbersArray.Any() ? numbersArray.Min() : 0;
+        }
+        public int GetMinMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords)
+        {
+            var numbersArray = new List<int>();
+            var _serviceRecords = serviceRecords.Where(x => x.Mileage != default).ToList();
+            if (_serviceRecords.Any())
+            {
+                numbersArray.Add(_serviceRecords.Min(x => x.Mileage));
+            }
+            var _repairRecords = repairRecords.Where(x => x.Mileage != default).ToList();
+            if (_repairRecords.Any())
+            {
+                numbersArray.Add(_repairRecords.Min(x => x.Mileage));
+            }
+            var _gasRecords = gasRecords.Where(x => x.Mileage != default).ToList();
+            if (_gasRecords.Any())
+            {
+                numbersArray.Add(_gasRecords.Min(x => x.Mileage));
+            }
+            var _upgradeRecords = upgradeRecords.Where(x => x.Mileage != default).ToList();
+            if (_upgradeRecords.Any())
+            {
+                numbersArray.Add(_upgradeRecords.Min(x => x.Mileage));
+            }
+            var _odometerRecords = odometerRecords.Where(x => x.Mileage != default).ToList();
+            if (_odometerRecords.Any())
+            {
+                numbersArray.Add(_odometerRecords.Min(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Min() : 0;
         }

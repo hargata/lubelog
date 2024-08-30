@@ -1140,6 +1140,11 @@ namespace CarCareTracker.Controllers
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
+            var totalDistanceTraveled = maxMileage - minMileage;
             var viewModel = new ReportViewModel();
             //get totalCostMakeUp
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
@@ -1148,7 +1153,9 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
-                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
+                TotalDistance = totalDistanceTraveled,
+                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer"
             };
             //get costbymonth
             List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
@@ -1205,7 +1212,6 @@ namespace CarCareTracker.Controllers
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
             viewModel.Collaborators = collaborators;
             //get MPG per month.
-            var userConfig = _config.GetUserConfig(User);
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
             var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
@@ -1253,6 +1259,7 @@ namespace CarCareTracker.Controllers
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             if (year != default)
             {
                 serviceRecords.RemoveAll(x => x.Date.Year != year);
@@ -1260,14 +1267,22 @@ namespace CarCareTracker.Controllers
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
                 upgradeRecords.RemoveAll(x => x.Date.Year != year);
+                odometerRecords.RemoveAll(x => x.Date.Year != year);
             }
+            var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var totalDistanceTraveled = maxMileage - minMileage;
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
             var viewModel = new CostMakeUpForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
-                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
+                TotalDistance = totalDistanceTraveled,
+                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer"
             };
             return PartialView("_CostMakeUpReport", viewModel);
         }

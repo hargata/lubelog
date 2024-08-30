@@ -180,6 +180,13 @@ function exportAttachments() {
         }
     });
 }
+function showDataTable() {
+    $("#vehicleDataTableModalContent").html($("#vehicleDataTableModalContentClone").html());
+    $("#vehicleDataTableModal").modal('show');
+}
+function hideDataTable() {
+    $("#vehicleDataTableModal").modal('hide');
+}
 function showGlobalSearch() {
     $('#globalSearchModal').modal('show');
 }
