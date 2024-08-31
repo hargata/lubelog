@@ -1140,11 +1140,7 @@ namespace CarCareTracker.Controllers
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
-            var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
-            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var userConfig = _config.GetUserConfig(User);
-            var totalDistanceTraveled = maxMileage - minMileage;
             var viewModel = new ReportViewModel();
             //get totalCostMakeUp
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
@@ -1153,9 +1149,7 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
-                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
-                TotalDistance = totalDistanceTraveled,
-                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer"
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             //get costbymonth
             List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
@@ -1259,6 +1253,33 @@ namespace CarCareTracker.Controllers
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                serviceRecords.RemoveAll(x => x.Date.Year != year);
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+                collisionRecords.RemoveAll(x => x.Date.Year != year);
+                taxRecords.RemoveAll(x => x.Date.Year != year);
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
+            }
+            var viewModel = new CostMakeUpForVehicle
+            {
+                ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
+                TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+            };
+            return PartialView("_CostMakeUpReport", viewModel);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetCostTableForVehicle(int vehicleId, int year = 0)
+        {
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             if (year != default)
             {
@@ -1271,10 +1292,11 @@ namespace CarCareTracker.Controllers
             }
             var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
             var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
-            var totalDistanceTraveled = maxMileage - minMileage;
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var userConfig = _config.GetUserConfig(User);
-            var viewModel = new CostMakeUpForVehicle
+            var totalDistanceTraveled = maxMileage - minMileage;
+            var totalMonths = _vehicleLogic.GetNumberOfMonths(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
+            var viewModel = new CostTableForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
@@ -1282,9 +1304,10 @@ namespace CarCareTracker.Controllers
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
                 TotalDistance = totalDistanceTraveled,
-                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer"
+                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer",
+                NumberOfMonths = totalMonths
             };
-            return PartialView("_CostMakeUpReport", viewModel);
+            return PartialView("_CostTableReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)

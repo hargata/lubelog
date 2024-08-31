@@ -10,6 +10,7 @@ namespace CarCareTracker.Logic
         int GetMaxMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
         int GetMinMileage(int vehicleId);
         int GetMinMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
+        int GetNumberOfMonths(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
@@ -152,6 +153,18 @@ namespace CarCareTracker.Logic
                 numbersArray.Add(_odometerRecords.Min(x => x.Mileage));
             }
             return numbersArray.Any() ? numbersArray.Min() : 0;
+        }
+        public int GetNumberOfMonths(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
+        {
+            var dateArray = new List<string>();
+            dateArray.AddRange(serviceRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            dateArray.AddRange(repairRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            dateArray.AddRange(gasRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            dateArray.AddRange(upgradeRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            dateArray.AddRange(odometerRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            dateArray.AddRange(taxRecords.Select(x => x.Date.ToString("MM/yyyy")));
+            var uniqueMonths = dateArray.Distinct();
+            return uniqueMonths.Count();
         }
         public bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId)
         {

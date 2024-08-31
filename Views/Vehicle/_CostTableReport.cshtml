@@ -1,0 +1,77 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model CostTableForVehicle
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
+{
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title">@(translator.Translate(userLanguage, "Vehicle Cost Breakdown"))</h5>
+            <button type="button" class="btn-close" onclick="hideDataTable()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-hover">
+                        <thead class="sticky-top">
+                            <tr class="d-flex">
+                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Type")</th>
+                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Monthly Average")</th>
+                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, Model.DistanceUnit)</th>
+                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Total")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr class="d-flex">
+                                    <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Service Records")</td>
+                                    <td class="col-3 flex-grow-1">@Model.ServiceRecordPerMonth.ToString("C2")</td>
+                                    <td class="col-3 flex-grow-1">@Model.ServiceRecordPerMile.ToString("C2")</td>
+                                    <td class="col-3 flex-grow-1">@Model.ServiceRecordSum.ToString("C2")</td>
+                                </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Repairs")</td>
+                                <td class="col-3 flex-grow-1">@Model.CollisionRecordPerMonth.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.CollisionRecordPerMile.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.CollisionRecordSum.ToString("C2")</td>
+                            </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Upgrades")</td>
+                                <td class="col-3 flex-grow-1">@Model.UpgradeRecordPerMonth.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.UpgradeRecordPerMile.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.UpgradeRecordSum.ToString("C2")</td>
+                            </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Fuel")</td>
+                                <td class="col-3 flex-grow-1">@Model.GasRecordPerMonth.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.GasRecordPerMile.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.GasRecordSum.ToString("C2")</td>
+                            </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Taxes")</td>
+                                <td class="col-3 flex-grow-1">@Model.TaxRecordPerMonth.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">---</td>
+                                <td class="col-3 flex-grow-1">@Model.TaxRecordSum.ToString("C2")</td>
+                            </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Total")</td>
+                                <td class="col-3 flex-grow-1">@Model.TotalPerMonth.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.TotalPerMile.ToString("C2")</td>
+                                <td class="col-3 flex-grow-1">@Model.TotalCost.ToString("C2")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h4>@translator.Translate(userLanguage, "No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.")</h4>
+    </div>
+}

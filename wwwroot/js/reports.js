@@ -181,8 +181,12 @@ function exportAttachments() {
     });
 }
 function showDataTable() {
-    $("#vehicleDataTableModalContent").html($("#vehicleDataTableModalContentClone").html());
-    $("#vehicleDataTableModal").modal('show');
+    var vehicleId = GetVehicleId().vehicleId;
+    var year = getYear();
+    $.get(`/Vehicle/GetCostTableForVehicle?vehicleId=${vehicleId}`, { year: year }, function (data) {
+        $("#vehicleDataTableModalContent").html(data);
+        $("#vehicleDataTableModal").modal('show');
+    });
 }
 function hideDataTable() {
     $("#vehicleDataTableModal").modal('hide');
