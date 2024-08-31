@@ -1295,7 +1295,7 @@ namespace CarCareTracker.Controllers
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var userConfig = _config.GetUserConfig(User);
             var totalDistanceTraveled = maxMileage - minMileage;
-            var totalMonths = _vehicleLogic.GetNumberOfMonths(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
+            var totalDays = _vehicleLogic.GetOwnershipDays(vehicleData.PurchaseDate, vehicleData.SoldDate, serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
             var viewModel = new CostTableForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
@@ -1305,7 +1305,7 @@ namespace CarCareTracker.Controllers
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
                 TotalDistance = totalDistanceTraveled,
                 DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer",
-                NumberOfMonths = totalMonths
+                NumberOfDays = totalDays
             };
             return PartialView("_CostTableReport", viewModel);
         }

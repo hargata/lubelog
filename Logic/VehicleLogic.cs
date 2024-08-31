@@ -10,7 +10,7 @@ namespace CarCareTracker.Logic
         int GetMaxMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
         int GetMinMileage(int vehicleId);
         int GetMinMileage(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords);
-        int GetNumberOfMonths(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
+        int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
@@ -154,17 +154,37 @@ namespace CarCareTracker.Logic
             }
             return numbersArray.Any() ? numbersArray.Min() : 0;
         }
-        public int GetNumberOfMonths(List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
+        public int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
         {
-            var dateArray = new List<string>();
-            dateArray.AddRange(serviceRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            dateArray.AddRange(repairRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            dateArray.AddRange(gasRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            dateArray.AddRange(upgradeRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            dateArray.AddRange(odometerRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            dateArray.AddRange(taxRecords.Select(x => x.Date.ToString("MM/yyyy")));
-            var uniqueMonths = dateArray.Distinct();
-            return uniqueMonths.Count();
+            var startDate = DateTime.Now;
+            var endDate = DateTime.Now;
+            if (!string.IsNullOrWhiteSpace(soldDate))
+            {
+                endDate = DateTime.Parse(soldDate);
+            }
+            if (!string.IsNullOrWhiteSpace(purchaseDate))
+            {
+                //if purchase date is provided, then we just have to subtract the begin date to end date and return number of months
+                startDate = DateTime.Parse(purchaseDate);
+                var timeElapsed = (int)Math.Floor((endDate - startDate).TotalDays);
+                return timeElapsed;
+            }
+            var dateArray = new List<DateTime>();
+            dateArray.AddRange(serviceRecords.Select(x => x.Date));
+            dateArray.AddRange(repairRecords.Select(x => x.Date));
+            dateArray.AddRange(gasRecords.Select(x => x.Date));
+            dateArray.AddRange(upgradeRecords.Select(x => x.Date));
+            dateArray.AddRange(odometerRecords.Select(x => x.Date));
+            dateArray.AddRange(taxRecords.Select(x => x.Date));
+            if (dateArray.Any())
+            {
+                startDate = dateArray.Min();
+                var timeElapsed = (int)Math.Floor((endDate - startDate).TotalDays);
+                return timeElapsed;
+            } else
+            {
+                return 1;
+            }
         }
         public bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId)
         {
