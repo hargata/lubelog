@@ -1304,7 +1304,7 @@ namespace CarCareTracker.Controllers
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
                 TotalDistance = totalDistanceTraveled,
-                DistanceUnit = vehicleData.UseHours ? "Per Hour" : userConfig.UseMPG ? "Per Mile" : "Per Kilometer",
+                DistanceUnit = vehicleData.UseHours ? "Cost Per Hour" : userConfig.UseMPG ? "Cost Per Mile" : "Cost Per Kilometer",
                 NumberOfDays = totalDays
             };
             return PartialView("_CostTableReport", viewModel);
