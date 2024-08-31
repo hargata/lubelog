@@ -180,6 +180,17 @@ function exportAttachments() {
         }
     });
 }
+function showDataTable() {
+    var vehicleId = GetVehicleId().vehicleId;
+    var year = getYear();
+    $.get(`/Vehicle/GetCostTableForVehicle?vehicleId=${vehicleId}`, { year: year }, function (data) {
+        $("#vehicleDataTableModalContent").html(data);
+        $("#vehicleDataTableModal").modal('show');
+    });
+}
+function hideDataTable() {
+    $("#vehicleDataTableModal").modal('hide');
+}
 function showGlobalSearch() {
     $('#globalSearchModal').modal('show');
 }

@@ -1140,6 +1140,7 @@ namespace CarCareTracker.Controllers
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
             var viewModel = new ReportViewModel();
             //get totalCostMakeUp
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
@@ -1205,7 +1206,6 @@ namespace CarCareTracker.Controllers
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
             viewModel.Collaborators = collaborators;
             //get MPG per month.
-            var userConfig = _config.GetUserConfig(User);
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
             var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
@@ -1270,6 +1270,44 @@ namespace CarCareTracker.Controllers
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             return PartialView("_CostMakeUpReport", viewModel);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetCostTableForVehicle(int vehicleId, int year = 0)
+        {
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            if (year != default)
+            {
+                serviceRecords.RemoveAll(x => x.Date.Year != year);
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+                collisionRecords.RemoveAll(x => x.Date.Year != year);
+                taxRecords.RemoveAll(x => x.Date.Year != year);
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
+                odometerRecords.RemoveAll(x => x.Date.Year != year);
+            }
+            var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
+            var totalDistanceTraveled = maxMileage - minMileage;
+            var totalDays = _vehicleLogic.GetOwnershipDays(vehicleData.PurchaseDate, vehicleData.SoldDate, serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
+            var viewModel = new CostTableForVehicle
+            {
+                ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
+                TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
+                TotalDistance = totalDistanceTraveled,
+                DistanceUnit = vehicleData.UseHours ? "Cost Per Hour" : userConfig.UseMPG ? "Cost Per Mile" : "Cost Per Kilometer",
+                NumberOfDays = totalDays
+            };
+            return PartialView("_CostTableReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)
