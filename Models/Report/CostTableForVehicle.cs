@@ -14,13 +14,14 @@
         public decimal GasRecordPerMile { get { return TotalDistance != default ? GasRecordSum / TotalDistance : 0; } }
         public decimal CollisionRecordPerMile { get { return TotalDistance != default ? CollisionRecordSum / TotalDistance : 0; } }
         public decimal UpgradeRecordPerMile { get { return TotalDistance != default ? UpgradeRecordSum / TotalDistance : 0; } }
-        public decimal ServiceRecordPerMonth { get { return NumberOfDays != default ? ServiceRecordSum / NumberOfDays : 0; } }
-        public decimal GasRecordPerMonth { get { return NumberOfDays != default ? GasRecordSum / NumberOfDays : 0; } }
-        public decimal CollisionRecordPerMonth { get { return NumberOfDays != default ? CollisionRecordSum / NumberOfDays : 0; } }
-        public decimal UpgradeRecordPerMonth { get { return NumberOfDays != default ? UpgradeRecordSum / NumberOfDays : 0; } }
-        public decimal TaxRecordPerMonth { get { return NumberOfDays != default ? TaxRecordSum / NumberOfDays : 0; } }
-        public decimal TotalPerMonth { get { return ServiceRecordPerMonth + CollisionRecordPerMonth + UpgradeRecordPerMonth + GasRecordPerMonth + TaxRecordPerMonth; } }
-        public decimal TotalPerMile { get { return ServiceRecordPerMile + CollisionRecordPerMile + UpgradeRecordPerMile + GasRecordPerMile; } }
+        public decimal TaxRecordPerMile { get { return TotalDistance != default ? TaxRecordSum / TotalDistance : 0; } }
+        public decimal ServiceRecordPerDay { get { return NumberOfDays != default ? ServiceRecordSum / NumberOfDays : 0; } }
+        public decimal GasRecordPerDay { get { return NumberOfDays != default ? GasRecordSum / NumberOfDays : 0; } }
+        public decimal CollisionRecordPerDay { get { return NumberOfDays != default ? CollisionRecordSum / NumberOfDays : 0; } }
+        public decimal UpgradeRecordPerDay { get { return NumberOfDays != default ? UpgradeRecordSum / NumberOfDays : 0; } }
+        public decimal TaxRecordPerDay { get { return NumberOfDays != default ? TaxRecordSum / NumberOfDays : 0; } }
+        public decimal TotalPerDay { get { return ServiceRecordPerDay + CollisionRecordPerDay + UpgradeRecordPerDay + GasRecordPerDay + TaxRecordPerDay; } }
+        public decimal TotalPerMile { get { return ServiceRecordPerMile + CollisionRecordPerMile + UpgradeRecordPerMile + GasRecordPerMile + TaxRecordPerMile; } }
         public decimal TotalCost { get { return ServiceRecordSum + CollisionRecordSum + UpgradeRecordSum + GasRecordSum + TaxRecordSum; } }
     }
 }

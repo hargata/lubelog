@@ -87,6 +87,29 @@
                             </div>
                         </div>
                     </div>
+                    <div class="accordion accordion-flush" id="vehicleModalMetricAccordion">
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button skinny collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMetricInfo">
+                                    @translator.Translate(userLanguage, "Dashboard Metrics")
+                                </button>
+                            </div>
+                            <div id="collapseMetricInfo" class="accordion-collapse collapse" data-bs-parent="#vehicleModalMetricAccordion">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="inputMetricDefault" value="@DashboardMetric.Default" checked="@Model.DashboardMetrics.Contains(DashboardMetric.Default)">
+                                    <label class="form-check-label" for="inputMetricDefault">@translator.Translate(userLanguage, "Last Odometer")</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="inputMetricCostPerMile" value="@DashboardMetric.CostPerMile" checked="@Model.DashboardMetrics.Contains(DashboardMetric.CostPerMile)">
+                                    <label class="form-check-label" for="inputMetricCostPerMile">@translator.Translate(userLanguage, "Total Cost / Total Distance Driven")</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="inputMetricTotalCost" value="@DashboardMetric.TotalCost" checked="@Model.DashboardMetrics.Contains(DashboardMetric.TotalCost)">
+                                    <label class="form-check-label" for="inputMetricTotalCost">@translator.Translate(userLanguage, "Total Cost")</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <label for="inputTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
                     <select multiple class="form-select" id="inputTag">
                         @foreach (string tag in Model.Tags)

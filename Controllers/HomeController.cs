@@ -59,22 +59,49 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            var vehicleViewModels = vehiclesStored.Select(x => new VehicleViewModel
-            {
-                Id = x.Id,
-                ImageLocation = x.ImageLocation,
-                Year = x.Year,
-                Make = x.Make,
-                Model = x.Model,
-                LicensePlate = x.LicensePlate,
-                SoldDate = x.SoldDate,
-                IsElectric = x.IsElectric,
-                IsDiesel = x.IsDiesel,
-                UseHours = x.UseHours,
-                ExtraFields = x.ExtraFields,
-                Tags = x.Tags,
-                LastReportedMileage = _vehicleLogic.GetMaxMileage(x.Id),
-                HasReminders = _vehicleLogic.GetVehicleHasUrgentOrPastDueReminders(x.Id)
+            var vehicleViewModels = vehiclesStored.Select(x => {
+                var vehicleVM = new VehicleViewModel
+                {
+                    Id = x.Id,
+                    ImageLocation = x.ImageLocation,
+                    Year = x.Year,
+                    Make = x.Make,
+                    Model = x.Model,
+                    LicensePlate = x.LicensePlate,
+                    SoldDate = x.SoldDate,
+                    IsElectric = x.IsElectric,
+                    IsDiesel = x.IsDiesel,
+                    UseHours = x.UseHours,
+                    ExtraFields = x.ExtraFields,
+                    Tags = x.Tags,
+                    DashboardMetrics = x.DashboardMetrics
+                };
+                //dashboard metrics
+                if (x.DashboardMetrics.Any())
+                {
+                    var vehicleRecords = _vehicleLogic.GetVehicleRecords(x.Id);
+                    var userConfig = _config.GetUserConfig(User);
+                    var distanceUnit = x.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.Default))
+                    {
+                        vehicleVM.LastReportedMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+                        vehicleVM.HasReminders = _vehicleLogic.GetVehicleHasUrgentOrPastDueReminders(x.Id, vehicleVM.LastReportedMileage);
+                    }
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.CostPerMile))
+                    {
+                        var vehicleTotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
+                        var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+                        var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+                        var totalDistance = maxMileage - minMileage;
+                        vehicleVM.CostPerMile = vehicleTotalCost / totalDistance;
+                        vehicleVM.DistanceUnit = distanceUnit;
+                    }
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.TotalCost))
+                    {
+                        vehicleVM.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
+                    }
+                }
+                return vehicleVM;
             }).ToList();
             return PartialView("_GarageDisplay", vehicleViewModels);
         }

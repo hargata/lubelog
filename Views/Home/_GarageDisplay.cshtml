@@ -36,21 +36,40 @@
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
                             <div class="vehicle-sold-banner"><p class='display-6 mb-0'>@translator.Translate(userLanguage, "SOLD")</p></div>
-                        } else if (vehicle.LastReportedMileage != default)
+                        } else if (vehicle.DashboardMetrics.Any())
                         {
                             <div class="vehicle-sold-banner">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <span class="ms-2"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
-                                     </div>
-                                    @if (vehicle.HasReminders)
-                                    {
+                            @if (vehicle.DashboardMetrics.Contains(DashboardMetric.Default) && vehicle.LastReportedMileage != default)
+                            {
+                                
+                                    <div class="d-flex justify-content-between">
                                         <div>
-                                            <span class="me-2"><i class="bi bi bi-bell-fill text-warning"></i></span>
+                                            <span class="ms-2"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
                                         </div>
-                                    }
-                                </div>
-                                <span></span>
+                                        @if (vehicle.HasReminders)
+                                        {
+                                            <div>
+                                                <span class="me-2"><i class="bi bi bi-bell-fill text-warning"></i></span>
+                                            </div>
+                                        }
+                                    </div>
+                            }
+                            @if (vehicle.DashboardMetrics.Contains(DashboardMetric.CostPerMile) && vehicle.CostPerMile != default)
+                            {
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.CostPerMile.ToString("C2")}/{vehicle.DistanceUnit}")</span>
+                                        </div>
+                                    </div>
+                            }
+                            @if (vehicle.DashboardMetrics.Contains(DashboardMetric.TotalCost) && vehicle.TotalCost != default)
+                            {
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.TotalCost.ToString("C2")}")</span>
+                                        </div>
+                                    </div>
+                            }
                             </div>
                         }
                         <div class="card-body">
