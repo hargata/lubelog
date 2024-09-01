@@ -93,7 +93,7 @@ namespace CarCareTracker.Controllers
                         var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
                         var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
                         var totalDistance = maxMileage - minMileage;
-                        vehicleVM.CostPerMile = vehicleTotalCost / totalDistance;
+                        vehicleVM.CostPerMile = totalDistance != default ? vehicleTotalCost / totalDistance : 0.00M;
                         vehicleVM.DistanceUnit = distanceUnit;
                     }
                     if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.TotalCost))
