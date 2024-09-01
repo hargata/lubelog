@@ -1275,12 +1275,13 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetCostTableForVehicle(int vehicleId, int year = 0)
         {
-            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
+            var serviceRecords = vehicleRecords.ServiceRecords;
+            var gasRecords = vehicleRecords.GasRecords;
+            var collisionRecords = vehicleRecords.CollisionRecords;
+            var taxRecords = vehicleRecords.TaxRecords;
+            var upgradeRecords = vehicleRecords.UpgradeRecords;
+            var odometerRecords = vehicleRecords.OdometerRecords;
             if (year != default)
             {
                 serviceRecords.RemoveAll(x => x.Date.Year != year);
@@ -1290,8 +1291,8 @@ namespace CarCareTracker.Controllers
                 upgradeRecords.RemoveAll(x => x.Date.Year != year);
                 odometerRecords.RemoveAll(x => x.Date.Year != year);
             }
-            var maxMileage = _vehicleLogic.GetMaxMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords);
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var userConfig = _config.GetUserConfig(User);
             var totalDistanceTraveled = maxMileage - minMileage;

@@ -48,6 +48,9 @@ function saveVehicle(isEdit) {
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
     var vehiclePurchasePrice = $("#inputPurchasePrice").val();
     var vehicleSoldPrice = $("#inputSoldPrice").val();
+    var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
+        return this.value;
+    }).toArray();
     var extraFields = getAndValidateExtraFields(true);
     //validate
     var hasError = false;
@@ -130,7 +133,8 @@ function saveVehicle(isEdit) {
         odometerMultiplier: vehicleOdometerMultiplier,
         odometerDifference: vehicleOdometerDifference,
         purchasePrice: vehiclePurchasePrice,
-        soldPrice: vehicleSoldPrice
+        soldPrice: vehicleSoldPrice,
+        dashboardMetrics: vehicleDashboardMetrics
     }, function (data) {
         if (data) {
             if (!isEdit) {
