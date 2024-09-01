@@ -2,7 +2,7 @@
 {
     public class CostTableForVehicle
     {
-        public string DistanceUnit { get; set; } = "Per Mile";
+        public string DistanceUnit { get; set; } = "Cost Per Mile";
         public int TotalDistance { get; set; }
         public int NumberOfDays { get; set; }
         public decimal ServiceRecordSum { get; set; }
