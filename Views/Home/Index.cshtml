@@ -63,7 +63,7 @@
         <div class="d-flex lubelogger-navbar">
             <img src="@logoUrl" />
             <div class="lubelogger-navbar-button">
-                <button type="button" class="btn btn-dark" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
+                <button type="button" class="btn @(userConfig.UseDarkMode ? "btn-dark" : "btn-light")" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
             </div>
         </div>
     </div>
