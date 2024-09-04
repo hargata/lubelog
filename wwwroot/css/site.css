@@ -378,3 +378,7 @@ input[type="file"] {
     padding: 0.438rem 0rem !important;
     background-color: inherit !important;
 }
+.planner-indicator{
+    font-size:1em;
+    padding:0.2em;
+}
