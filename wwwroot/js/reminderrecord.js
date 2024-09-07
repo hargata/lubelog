@@ -102,6 +102,14 @@ function deleteReminderRecord(reminderRecordId, e) {
         }
     });
 }
+function toggleCustomThresholds() {
+    var isChecked = $("#reminderUseCustomThresholds").is(':checked');
+    if (isChecked) {
+        $("#reminderCustomThresholds").collapse('show');
+    } else {
+        $("#reminderCustomThresholds").collapse('hide');
+    }
+}
 function saveReminderRecordToVehicle(isEdit) {
     //get values
     var formValues = getAndValidateReminderRecordValues();
@@ -180,9 +188,13 @@ function getAndValidateReminderRecordValues() {
     var reminderRecurringMonth = $("#reminderRecurringMonth").val();
     var reminderRecurringMileage = $("#reminderRecurringMileage").val();
     var reminderTags = $("#reminderRecordTag").val();
-    var reminderCustomMileageInterval = customMileageInterval;
     var vehicleId = GetVehicleId().vehicleId;
     var reminderId = getReminderRecordModelData().id;
+    var reminderUseCustomThresholds = $("#reminderUseCustomThresholds").is(":checked");
+    var reminderUrgentDays = $("#reminderUrgentDays").val();
+    var reminderVeryUrgentDays = $("#reminderVeryUrgentDays").val();
+    var reminderUrgentDistance = $("#reminderUrgentDistance").val();
+    var reminderVeryUrgentDistance = $("#reminderVeryUrgentDistance").val();
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
@@ -205,6 +217,33 @@ function getAndValidateReminderRecordValues() {
     } else {
         $("#reminderDescription").removeClass("is-invalid");
     }
+    if (reminderUseCustomThresholds) {
+        //validate custom threshold values
+        if (reminderUrgentDays.trim() == '' || isNaN(reminderUrgentDays) || parseInt(reminderUrgentDays) < 0) {
+            hasError = true;
+            $("#reminderUrgentDays").addClass("is-invalid");
+        } else {
+            $("#reminderUrgentDays").removeClass("is-invalid");
+        }
+        if (reminderVeryUrgentDays.trim() == '' || isNaN(reminderVeryUrgentDays) || parseInt(reminderVeryUrgentDays) < 0) {
+            hasError = true;
+            $("#reminderVeryUrgentDays").addClass("is-invalid");
+        } else {
+            $("#reminderVeryUrgentDays").removeClass("is-invalid");
+        }
+        if (reminderUrgentDistance.trim() == '' || isNaN(reminderUrgentDistance) || parseInt(reminderUrgentDistance) < 0) {
+            hasError = true;
+            $("#reminderUrgentDistance").addClass("is-invalid");
+        } else {
+            $("#reminderUrgentDistance").removeClass("is-invalid");
+        }
+        if (reminderVeryUrgentDistance.trim() == '' || isNaN(reminderVeryUrgentDistance) || parseInt(reminderVeryUrgentDistance) < 0) {
+            hasError = true;
+            $("#reminderVeryUrgentDistance").addClass("is-invalid");
+        } else {
+            $("#reminderVeryUrgentDistance").removeClass("is-invalid");
+        }
+    }
     if (reminderOption == undefined) {
         hasError = true;
         $("#reminderMetricDate").addClass("is-invalid");
@@ -226,6 +265,13 @@ function getAndValidateReminderRecordValues() {
         notes: reminderNotes,
         metric: reminderOption,
         isRecurring: reminderIsRecurring,
+        useCustomThresholds: reminderUseCustomThresholds,
+        customThresholds: {
+            urgentDays: reminderUrgentDays,
+            veryUrgentDays: reminderVeryUrgentDays,
+            urgentDistance: reminderUrgentDistance,
+            veryUrgentDistance: reminderVeryUrgentDistance
+        },
         reminderMileageInterval: reminderRecurringMileage,
         reminderMonthInterval: reminderRecurringMonth,
         customMileageInterval: customMileageInterval,
