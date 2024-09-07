@@ -93,6 +93,22 @@
                         <!option value="ThreeYears" @(Model.ReminderMonthInterval == ReminderMonthInterval.ThreeYears ? "selected" : "")>@translator.Translate(userLanguage, "3 Years")</!option>
                         <!option value="FiveYears" @(Model.ReminderMonthInterval == ReminderMonthInterval.FiveYears ? "selected" : "")>@translator.Translate(userLanguage, "5 Years")</!option>
                     </select>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" onchange="toggleCustomThresholds()" id="reminderUseCustomThresholds" checked="@Model.UseCustomThresholds">
+                        <label class="form-check-label" for="reminderUseCustomThresholds">@translator.Translate(userLanguage, "Use Custom Thresholds")</label>
+                    </div>
+                    <div class="collapse @(Model.UseCustomThresholds ? "show" : "")" id="reminderCustomThresholds">
+                        <div>
+                            <label for="reminderUrgentDays">@translator.Translate(userLanguage, "Urgent(Days)")</label>
+                            <input type="text" id="reminderUrgentDays" class="form-control" placeholder="@translator.Translate(userLanguage, "Urgent")" value="@Model.CustomThresholds.UrgentDays">
+                            <label for="reminderVeryUrgentDays">@translator.Translate(userLanguage, "Very Urgent(Days)")</label>
+                            <input type="text" id="reminderVeryUrgentDays" class="form-control" placeholder="@translator.Translate(userLanguage, "Very Urgent")" value="@Model.CustomThresholds.VeryUrgentDays">
+                            <label for="reminderUrgentDistance">@translator.Translate(userLanguage, "Urgent(Distance)")</label>
+                            <input type="text" id="reminderUrgentDistance" class="form-control" placeholder="@translator.Translate(userLanguage, "Urgent")" value="@Model.CustomThresholds.UrgentDistance">
+                            <label for="reminderVeryUrgentDistance">@translator.Translate(userLanguage, "Very Urgent(Distance)")</label>
+                            <input type="text" id="reminderVeryUrgentDistance" class="form-control" placeholder="@translator.Translate(userLanguage, "Very Urgent")" value="@Model.CustomThresholds.VeryUrgentDistance">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

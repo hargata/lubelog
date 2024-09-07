@@ -1733,6 +1733,8 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Metric = result.Metric,
                 IsRecurring = result.IsRecurring,
+                UseCustomThresholds = result.UseCustomThresholds,
+                CustomThresholds = result.CustomThresholds,
                 ReminderMileageInterval = result.ReminderMileageInterval,
                 ReminderMonthInterval = result.ReminderMonthInterval,
                 CustomMileageInterval = result.CustomMileageInterval,

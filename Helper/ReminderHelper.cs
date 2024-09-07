@@ -66,6 +66,10 @@ namespace CarCareTracker.Helper
             var reminderUrgencyConfig = _config.GetReminderUrgencyConfig();
             foreach (var reminder in reminders)
             {
+                if (reminder.UseCustomThresholds)
+                {
+                    reminderUrgencyConfig = reminder.CustomThresholds;
+                }
                 var reminderViewModel = new ReminderRecordViewModel()
                 {
                     Id = reminder.Id,
