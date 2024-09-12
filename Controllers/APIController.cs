@@ -700,17 +700,17 @@ namespace CarCareTracker.Controllers
             }
             if (!operationResponses.Any())
             {
-                return Json(new OperationResponse { Success = false, Message = "No Emails sent either because there are no vehicles or no recipients" });
+                return Json(new OperationResponse { Success = false, Message = "No Emails Sent, No Vehicles Available or No Recipients Configured" });
             }
             else if (operationResponses.All(x => x.Success))
             {
-                return Json(new OperationResponse { Success = true, Message = $"{operationResponses.Count()} Emails sent" });
+                return Json(new OperationResponse { Success = true, Message = $"Emails Sent({operationResponses.Count()})" });
             } else if (operationResponses.All(x => !x.Success))
             {
-                return Json(new OperationResponse { Success = false, Message = "All emails failed, check SMTP settings" });
+                return Json(new OperationResponse { Success = false, Message = $"All Emails Failed({operationResponses.Count()}), Check SMTP Settings" });
             } else
             {
-                return Json(new OperationResponse { Success = true, Message = $"{operationResponses.Count(x=>x.Success)} Emails sent, {operationResponses.Count(x => !x.Success)} failed, check recipient settings" });
+                return Json(new OperationResponse { Success = true, Message = $"Emails Sent({operationResponses.Count(x => x.Success)}), Emails Failed({operationResponses.Count(x => !x.Success)}), Check Recipient Settings" });
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
