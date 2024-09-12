@@ -113,14 +113,20 @@ namespace CarCareTracker.Helper
             string tableBody = "";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
-                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
+                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date.ToShortDateString()} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
                 tableBody += $"<tr class='{reminder.Urgency}'><td>{StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency)}</td><td>{reminder.Description}</td><td>{dueOn}</td></tr>";
             }
             emailBody = emailBody.Replace("{TableBody}", tableBody);
             try
             {
-                SendEmail(emailAddresses, emailSubject, emailBody);
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                var result = SendEmail(emailAddresses, emailSubject, emailBody);
+                if (result)
+                {
+                    return new OperationResponse { Success = true, Message = "Email Sent!" };
+                } else
+                {
+                    return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                }
             } catch (Exception ex)
             {
                 return new OperationResponse { Success = false, Message = ex.Message };
