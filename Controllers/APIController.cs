@@ -666,6 +666,7 @@ namespace CarCareTracker.Controllers
         {
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
+            var defaultEmailAddress = _config.GetDefaultReminderEmail();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;
@@ -681,6 +682,10 @@ namespace CarCareTracker.Controllers
                 //get list of recipients.
                 var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
                 List<string> emailRecipients = new List<string>();
+                if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                {
+                    emailRecipients.Add(defaultEmailAddress);
+                }
                 foreach (int userId in userIds)
                 {
                     var userData = _userRecordDataAccess.GetUserRecordById(userId);
@@ -693,15 +698,19 @@ namespace CarCareTracker.Controllers
                 var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
             }
-            if (operationResponses.All(x => x.Success))
+            if (!operationResponses.Any())
             {
-                return Json(new OperationResponse { Success = true, Message = "Emails sent" });
+                return Json(new OperationResponse { Success = false, Message = "No Emails sent either because there are no vehicles or no recipients" });
+            }
+            else if (operationResponses.All(x => x.Success))
+            {
+                return Json(new OperationResponse { Success = true, Message = $"{operationResponses.Count()} Emails sent" });
             } else if (operationResponses.All(x => !x.Success))
             {
                 return Json(new OperationResponse { Success = false, Message = "All emails failed, check SMTP settings" });
             } else
             {
-                return Json(new OperationResponse { Success = true, Message = "Some emails sent, some failed, check recipient settings" });
+                return Json(new OperationResponse { Success = true, Message = $"{operationResponses.Count(x=>x.Success)} Emails sent, {operationResponses.Count(x => !x.Success)} failed, check recipient settings" });
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]

@@ -14,6 +14,7 @@ namespace CarCareTracker.Helper
         bool AuthenticateRootUser(string username, string password);
         string GetWebHookUrl();
         string GetMOTD();
+        string GetDefaultReminderEmail();
         string GetLogoUrl();
         string GetServerLanguage();
         bool GetServerEnableShopSupplies();
@@ -51,6 +52,15 @@ namespace CarCareTracker.Helper
                 motd = "";
             }
             return motd;
+        }
+        public string GetDefaultReminderEmail()
+        {
+            var defaultEmail = _config["DEFAULT_REMINDER_EMAIL"];
+            if (string.IsNullOrWhiteSpace(defaultEmail))
+            {
+                defaultEmail = "";
+            }
+            return defaultEmail;
         }
         public OpenIDConfig GetOpenIDConfig()
         {
