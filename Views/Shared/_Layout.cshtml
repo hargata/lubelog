@@ -112,8 +112,8 @@
             }
         }
         function setThemeBasedOnDevice() {
-            var systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemPreference) {
+            var systemPrefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDarkMode) {
                 $(document.documentElement).attr("data-bs-theme", "dark");
             }
         }
