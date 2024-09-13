@@ -78,7 +78,7 @@
             <h1 class="text-truncate display-4">@($"{Model.Year} {Model.Make} {Model.Model}")<small class="text-body-secondary">@($"(#{Model.LicensePlate})")</small></h1>
             <button onclick="editVehicle(@Model.Id)" class="lubelogger-tab btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
             <div class="lubelogger-navbar-button">
-                <button type="button" class="btn @(userConfig.UseDarkMode ? "btn-dark" : "btn-light")" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
+                <button type="button" class="btn btn-adaptive" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
             </div>
         </div>
     </div>
