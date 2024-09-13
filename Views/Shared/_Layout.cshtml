@@ -54,7 +54,7 @@
     <script>
         function getGlobalConfig() {
             return {
-                useDarkMode : "@useDarkMode" == "True",
+                useDarkMode: "@useDarkMode" == "True" || window.matchMedia('(prefers-color-scheme: dark)').matches,
                 enableCsvImport : "@enableCsvImports" == "True",
                 useMarkDown: "@useMarkDown" == "True",
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
@@ -111,6 +111,12 @@
                     break;
             }
         }
+        function setThemeBasedOnDevice() {
+            var systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPreference) {
+                $(document.documentElement).attr("data-bs-theme", "dark");
+            }
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>
@@ -122,3 +128,9 @@
     </div>
 </body>
 </html>
+@if (!useDarkMode)
+{
+    <script>
+        setThemeBasedOnDevice();
+    </script>
+}
