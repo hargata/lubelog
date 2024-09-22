@@ -20,7 +20,7 @@ Try it out before you download it! The live demo resets every 20 minutes.
 ## Download
 LubeLogger is available as both a Docker Image and a Windows Standalone Executable.
 
-Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started) on how to download either of them
+Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getting%20Started) on how to download either of them
 
 ### Kubernetes Deployment
 [Helm Chart](https://artifacthub.io/packages/helm/anza-labs/lubelogger) provided by [Anza-Labs](https://github.com/anza-labs)
@@ -28,7 +28,7 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started)
 ### Need Help?
 [Documentation](https://docs.lubelogger.com/)
 
-[Troubleshooting Guide](https://docs.lubelogger.com/Troubleshooting)
+[Troubleshooting Guide](https://docs.lubelogger.com/Installation/Troubleshooting)
 
 [Search Existing Issues](https://github.com/hargata/lubelog/issues)
 
