@@ -666,7 +666,7 @@ namespace CarCareTracker.Controllers
         {
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
-            var defaultEmailAddress = _config.GetDefaultReminderEmail();
+            var defaultEmailAddress = _config.GetUserConfig(User).DefaultReminderEmail;
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;

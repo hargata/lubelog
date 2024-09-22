@@ -51,6 +51,10 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult Registration()
         {
+            if (_config.GetServerDisabledRegistration())
+            {
+                return RedirectToAction("Index");
+            }
             return View();
         }
         public IActionResult ForgotPassword()

@@ -5,6 +5,7 @@
 @{
     var logoUrl = config.GetLogoUrl();
     var userLanguage = config.GetServerLanguage();
+    var registrationDisabled = config.GetServerDisabledRegistration();
     var openIdConfigName = config.GetOpenIDConfig().Name;
 }
 @{
@@ -46,9 +47,12 @@
             <div class="d-grid">
                 <a href="/Login/ForgotPassword" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Forgot Password")</a>
             </div>
-            <div class="d-grid">
-                <a href="/Login/Registration" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Register")</a>
-            </div>
+            @if (!registrationDisabled)
+            {
+                <div class="d-grid">
+                    <a href="/Login/Registration" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Register")</a>
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -14,9 +14,9 @@ namespace CarCareTracker.Helper
         bool AuthenticateRootUser(string username, string password);
         string GetWebHookUrl();
         string GetMOTD();
-        string GetDefaultReminderEmail();
         string GetLogoUrl();
         string GetServerLanguage();
+        bool GetServerDisabledRegistration();
         bool GetServerEnableShopSupplies();
         string GetServerPostgresConnection();
         string GetAllowedFileUploadExtensions();
@@ -52,15 +52,6 @@ namespace CarCareTracker.Helper
                 motd = "";
             }
             return motd;
-        }
-        public string GetDefaultReminderEmail()
-        {
-            var defaultEmail = _config["DEFAULT_REMINDER_EMAIL"];
-            if (string.IsNullOrWhiteSpace(defaultEmail))
-            {
-                defaultEmail = "";
-            }
-            return defaultEmail;
         }
         public OpenIDConfig GetOpenIDConfig()
         {
@@ -103,6 +94,11 @@ namespace CarCareTracker.Helper
         {
             var serverLanguage = _config[nameof(UserConfig.UserLanguage)] ?? "en_US";
             return serverLanguage;
+        }
+        public bool GetServerDisabledRegistration()
+        {
+            var registrationDisabled = bool.Parse(_config[nameof(UserConfig.DisableRegistration)]);
+            return registrationDisabled;
         }
         public string GetServerPostgresConnection()
         {
@@ -190,7 +186,9 @@ namespace CarCareTracker.Helper
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
-                DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)])
+                DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)]),
+                DefaultReminderEmail = _config[nameof(UserConfig.DefaultReminderEmail)],
+                DisableRegistration = bool.Parse(_config[nameof(UserConfig.DisableRegistration)])
             };
             int userId = 0;
             if (user != null)
