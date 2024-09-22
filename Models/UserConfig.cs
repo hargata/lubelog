@@ -8,6 +8,7 @@
         public bool UseDescending { get; set; }
         public bool EnableAuth { get; set; }
         public bool DisableRegistration { get; set; }
+        public bool EnableRootUserOIDC { get; set; }
         public bool HideZero { get; set; }
         public bool UseUKMPG {get;set;}
         public bool UseThreeDecimalGasCost { get; set; }

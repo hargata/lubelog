@@ -245,14 +245,7 @@ namespace CarCareTracker.Logic
         {
             if (UserIsRoot(credentials))
             {
-                return new UserData()
-                {
-                    Id = -1,
-                    UserName = credentials.UserName,
-                    IsAdmin = true,
-                    IsRootUser = true,
-                    EmailAddress = string.Empty
-                };
+                return GetRootUserData(credentials.UserName);
             }
             else
             {
@@ -271,6 +264,13 @@ namespace CarCareTracker.Logic
         }
         public UserData ValidateOpenIDUser(LoginModel credentials)
         {
+            //validate for root user
+            var isRootUser = _configHelper.AuthenticateRootUserOIDC(credentials.EmailAddress);
+            if (isRootUser)
+            {
+                return GetRootUserData(credentials.EmailAddress);
+            }
+
             var result = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
             if (result.Id != default)
             {
@@ -419,6 +419,17 @@ namespace CarCareTracker.Logic
             var hashedUserName = GetHash(credentials.UserName);
             var hashedPassword = GetHash(credentials.Password);
             return _configHelper.AuthenticateRootUser(hashedUserName, hashedPassword);
+        }
+        private UserData GetRootUserData(string username)
+        {
+            return new UserData()
+            {
+                Id = -1,
+                UserName = username,
+                IsAdmin = true,
+                IsRootUser = true,
+                EmailAddress = string.Empty
+            };
         }
         #endregion
         private static string GetHash(string value)
