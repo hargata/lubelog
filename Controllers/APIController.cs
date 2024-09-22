@@ -138,6 +138,7 @@ namespace CarCareTracker.Controllers
                 var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id);
                 var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id);
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id);
+                var planRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id);
 
                 var resultToAdd = new VehicleInfo()
                 {
@@ -156,7 +157,11 @@ namespace CarCareTracker.Controllers
                     VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
                     PastDueReminderCount = results.Count(x => x.Urgency == ReminderUrgency.PastDue),
                     UrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.Urgent),
-                    NotUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.NotUrgent)
+                    NotUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.NotUrgent),
+                    PlanRecordBackLogCount = planRecords.Count(x=>x.Progress == PlanProgress.Backlog),
+                    PlanRecordInProgressCount = planRecords.Count(x=>x.Progress == PlanProgress.InProgress),
+                    PlanRecordTestingCount = planRecords.Count(x=>x.Progress == PlanProgress.Testing),
+                    PlanRecordDoneCount = planRecords.Count(x=>x.Progress == PlanProgress.Done)
                 };
                 //set next reminder
                 if (results.Any(x => (x.Metric == ReminderMetric.Date || x.Metric == ReminderMetric.Both) && x.Date >= DateTime.Now.Date))

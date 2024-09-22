@@ -30,6 +30,7 @@ function updateSettings() {
     //Root User Only Settings that aren't rendered:
     var defaultReminderEmail = $("#inputDefaultEmail").length > 0 ? $("#inputDefaultEmail").val() : "";
     var disableRegistration = $("#disableRegistration").length > 0 ? $("#disableRegistration").is(":checked") : false;
+    var enableRootUserOIDC = $("#enableRootUserOIDC").length > 0 ? $("#enableRootUserOIDC").is(":checked") : false;
 
     var userConfigObject = {
         useDarkMode: $("#enableDarkMode").is(':checked'),
@@ -51,7 +52,8 @@ function updateSettings() {
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
         disableRegistration: disableRegistration,
-        defaultReminderEmail: defaultReminderEmail 
+        defaultReminderEmail: defaultReminderEmail,
+        enableRootUserOIDC: enableRootUserOIDC
     }
     sloader.show();
     $.post('/Home/WriteToSettings', { userConfig: userConfigObject }, function (data) {

@@ -12,6 +12,7 @@ namespace CarCareTracker.Helper
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool AuthenticateRootUser(string username, string password);
+        bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
         string GetMOTD();
         string GetLogoUrl();
@@ -89,6 +90,16 @@ namespace CarCareTracker.Helper
                 return false;
             }
             return username == rootUsername && password == rootPassword;
+        }
+        public bool AuthenticateRootUserOIDC(string email)
+        {
+            var rootEmail = _config[nameof(UserConfig.DefaultReminderEmail)] ?? string.Empty;
+            var rootUserOIDC = bool.Parse(_config[nameof(UserConfig.EnableRootUserOIDC)]);
+            if (!rootUserOIDC || string.IsNullOrWhiteSpace(rootEmail))
+            {
+                return false;
+            }
+            return email == rootEmail;
         }
         public string GetServerLanguage()
         {
@@ -171,6 +182,7 @@ namespace CarCareTracker.Helper
                 UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
                 UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
+                EnableRootUserOIDC = bool.Parse(_config[nameof(UserConfig.EnableRootUserOIDC)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
                 UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
                 UseMarkDownOnSavedNotes = bool.Parse(_config[nameof(UserConfig.UseMarkDownOnSavedNotes)]),

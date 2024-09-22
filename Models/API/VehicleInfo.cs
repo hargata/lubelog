@@ -19,5 +19,9 @@
         public int GasRecordCount { get; set; }
         public decimal GasRecordCost { get; set; }
         public int LastReportedOdometer { get; set; }
+        public int PlanRecordBackLogCount { get; set; }
+        public int PlanRecordInProgressCount { get; set; }
+        public int PlanRecordTestingCount { get; set; }
+        public int PlanRecordDoneCount { get; set; }
     }
 }
