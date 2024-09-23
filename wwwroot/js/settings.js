@@ -21,6 +21,20 @@ function deleteLanguage() {
         updateSettings();
     });
 }
+function updateColorModeSettings(e) {
+    var colorMode = $(e).prop("id");
+    switch (colorMode) {
+        case "enableDarkMode":
+            //uncheck system prefernce
+            $("#useSystemColorMode").prop('checked', false);
+            updateSettings();
+            break;
+        case "useSystemColorMode":
+            $("#enableDarkMode").prop('checked', false);
+            updateSettings();
+            break;
+    }
+}
 function updateSettings() {
     var visibleTabs = getCheckedTabs();
     var defaultTab = $("#defaultTab").val();
@@ -34,6 +48,7 @@ function updateSettings() {
 
     var userConfigObject = {
         useDarkMode: $("#enableDarkMode").is(':checked'),
+        useSystemColorMode: $("#useSystemColorMode").is(':checked'),
         enableCsvImports: $("#enableCsvImports").is(':checked'),
         useMPG: $("#useMPG").is(':checked'),
         useDescending: $("#useDescending").is(':checked'),

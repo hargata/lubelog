@@ -5,6 +5,7 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var useDarkMode = userConfig.UseDarkMode;
+    var useSystemColorMode = userConfig.UseSystemColorMode;
     var enableCsvImports = userConfig.EnableCsvImports;
     var useMPG = userConfig.UseMPG;
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
@@ -128,7 +129,7 @@
     </div>
 </body>
 </html>
-@if (!useDarkMode)
+@if (useSystemColorMode)
 {
     <script>
         setThemeBasedOnDevice();
