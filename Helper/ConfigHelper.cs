@@ -179,6 +179,7 @@ namespace CarCareTracker.Helper
             {
                 EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
                 UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
+                UseSystemColorMode = bool.Parse(_config[nameof(UserConfig.UseSystemColorMode)]),
                 UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
                 UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),

@@ -13,9 +13,13 @@
     <div class="col-12 col-md-6">
         <input id="preferredGasUnit" style="display:none;" value="@Model.UserConfig.PreferredGasUnit" />
         <input id="preferredFuelMileageUnit" style="display:none;" value="@Model.UserConfig.PreferredGasMileageUnit" />
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
+        <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
             <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage, "Dark Mode")</label>
+        </div>
+        <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
+            <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.UserConfig.EnableCsvImports">
