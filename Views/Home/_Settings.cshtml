@@ -83,7 +83,7 @@
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableRootUserOIDC" checked="@Model.UserConfig.EnableRootUserOIDC">
-                    <label class="form-check-label" for="enableRootUserOIDC">@translator.Translate(userLanguage, "Enable OIDC for Root User")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Enable OIDC Login for Root User using the Default Reminder Email")</small></label>
+                    <label class="form-check-label" for="enableRootUserOIDC">@translator.Translate(userLanguage, "Enable OIDC for Root User")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Uses the Default Reminder Email for OIDC Auth")</small></label>
                 </div>
             }
         }
