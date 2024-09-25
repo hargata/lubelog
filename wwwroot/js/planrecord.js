@@ -287,7 +287,10 @@ function updatePlanRecordProgress(newProgress) {
                 showCancelButton: true,
                 focusConfirm: false,
                 preConfirm: () => {
-                    const odometer = $("#inputOdometer").val();
+                    var odometer = $("#inputOdometer").val();
+                    if (odometer.trim() == '') {
+                        odometer = '0';
+                    }
                     if (!odometer || isNaN(odometer)) {
                         Swal.showValidationMessage(`Please enter an odometer reading`)
                     }

@@ -123,7 +123,7 @@
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@serviceRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditServiceRecordModal,@serviceRecord.Id)" data-tags='@string.Join(" ", serviceRecord.Tags)'>
                         <td class="col-2 col-xl-1 flex-grow-1" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(serviceRecord.Date)">@serviceRecord.Date.ToShortDateString()</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@serviceRecord.Mileage</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@(serviceRecord.Mileage == default ? "---" : serviceRecord.Mileage.ToString())</td>
                         <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1" data-column="description">@serviceRecord.Description</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1" data-column="cost" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
                         <td class="col-3 text-truncate flex-grow-1 flex-shrink-1" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(serviceRecord.Notes)</td>

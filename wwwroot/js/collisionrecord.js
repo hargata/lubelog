@@ -100,6 +100,9 @@ function getAndValidateCollisionRecordValues() {
     var collisionRecordId = getCollisionRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //Odometer Adjustments
+    if (isNaN(collisionMileage)) {
+        collisionMileage = '0';
+    }
     collisionMileage = GetAdjustedOdometer(collisionRecordId, collisionMileage);
     //validation
     var hasError = false;
