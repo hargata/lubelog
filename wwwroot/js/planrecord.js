@@ -288,7 +288,7 @@ function updatePlanRecordProgress(newProgress) {
                 focusConfirm: false,
                 preConfirm: () => {
                     var odometer = $("#inputOdometer").val();
-                    if (odometer.trim() == '') {
+                    if (odometer.trim() == '' && GetVehicleId().odometerOptional) {
                         odometer = '0';
                     }
                     if (!odometer || isNaN(odometer)) {

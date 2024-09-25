@@ -15,6 +15,7 @@
         public bool IsElectric { get; set; } = false;
         public bool IsDiesel { get; set; } = false;
         public bool UseHours { get; set; } = false;
+        public bool OdometerOptional { get; set; } = false;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<string> Tags { get; set; } = new List<string>();
         public bool HasOdometerAdjustment { get; set; } = false;

@@ -100,7 +100,7 @@ function getAndValidateUpgradeRecordValues() {
     var upgradeRecordId = getUpgradeRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //Odometer Adjustments
-    if (isNaN(upgradeMileage)) {
+    if (isNaN(upgradeMileage) && GetVehicleId().odometerOptional) {
         upgradeMileage = '0';
     }
     upgradeMileage = GetAdjustedOdometer(upgradeRecordId, upgradeMileage);

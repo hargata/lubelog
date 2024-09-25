@@ -100,7 +100,7 @@ function getAndValidateServiceRecordValues() {
     var serviceRecordId = getServiceRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //Odometer Adjustments
-    if (isNaN(serviceMileage)) {
+    if (isNaN(serviceMileage) && GetVehicleId().odometerOptional) {
         serviceMileage = '0';
     }
     serviceMileage = GetAdjustedOdometer(serviceRecordId, serviceMileage);
