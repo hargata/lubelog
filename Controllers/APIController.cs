@@ -178,6 +178,21 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
+        [Route("/api/vehicle/adjustedodometer")]
+        public IActionResult AdjustedOdometer(int vehicleId, int odometer)
+        {
+            var vehicle = _dataAccess.GetVehicleById(vehicleId);
+            if (vehicle == null || !vehicle.HasOdometerAdjustment)
+            {
+                return Json(odometer);
+            } else
+            {
+                var convertedOdometer = (odometer + int.Parse(vehicle.OdometerDifference)) * int.Parse(vehicle.OdometerMultiplier);
+                return Json(convertedOdometer);
+            }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
         [Route("/api/vehicle/servicerecords")]
         public IActionResult ServiceRecords(int vehicleId)
         {
