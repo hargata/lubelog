@@ -57,6 +57,10 @@
                         <label class="form-check-label" for="inputUseHours">@translator.Translate(userLanguage, "Use Engine Hours")</label>
                     </div>
                     <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="inputOdometerOptional" checked="@Model.OdometerOptional">
+                        <label class="form-check-label" for="inputOdometerOptional">@translator.Translate(userLanguage, "Odometer Optional")</label>
+                    </div>
+                    <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" onchange="toggleOdometerAdjustment()" id="inputHasOdometerAdjustment" checked="@Model.HasOdometerAdjustment">
                         <label class="form-check-label" for="inputHasOdometerAdjustment">@translator.Translate(userLanguage, "Odometer Adjustments")</label>
                     </div>

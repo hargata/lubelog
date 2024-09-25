@@ -171,6 +171,7 @@
     function GetVehicleId() {
         return { 
             vehicleId: @Model.Id, 
+            odometerOptional: @Model.OdometerOptional.ToString().ToLower(),
             hasOdometerAdjustment: @Model.HasOdometerAdjustment.ToString().ToLower(),
             odometerDifference: decodeHTMLEntities('@Model.OdometerDifference'),
             odometerMultiplier: decodeHTMLEntities('@Model.OdometerMultiplier')

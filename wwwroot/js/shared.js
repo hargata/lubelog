@@ -43,6 +43,7 @@ function saveVehicle(isEdit) {
     var vehicleIsElectric = $("#inputFuelType").val() == 'Electric';
     var vehicleIsDiesel = $("#inputFuelType").val() == 'Diesel';
     var vehicleUseHours = $("#inputUseHours").is(":checked");
+    var vehicleOdometerOptional = $("#inputOdometerOptional").is(":checked");
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
@@ -129,6 +130,7 @@ function saveVehicle(isEdit) {
         extraFields: extraFields.extraFields,
         purchaseDate: vehiclePurchaseDate,
         soldDate: vehicleSoldDate,
+        odometerOptional: vehicleOdometerOptional,
         hasOdometerAdjustment: vehicleHasOdometerAdjustment,
         odometerMultiplier: vehicleOdometerMultiplier,
         odometerDifference: vehicleOdometerDifference,

@@ -99,7 +99,7 @@ function getAndValidateGasRecordValues() {
     var vehicleId = GetVehicleId().vehicleId;
     var gasRecordId = getGasRecordModelData().id;
     //Odometer Adjustments
-    if (isNaN(gasMileage)) {
+    if (isNaN(gasMileage) && GetVehicleId().odometerOptional) {
         gasMileage = '0';
     }
     gasMileage = GetAdjustedOdometer(gasRecordId, gasMileage);
