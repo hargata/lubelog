@@ -55,7 +55,7 @@
     <script>
         function getGlobalConfig() {
             return {
-                useDarkMode: "@useDarkMode" == "True" || window.matchMedia('(prefers-color-scheme: dark)').matches,
+                useDarkMode: "@useDarkMode" == "True" || ("@useSystemColorMode" == "True" && window.matchMedia('(prefers-color-scheme: dark)').matches),
                 enableCsvImport : "@enableCsvImports" == "True",
                 useMarkDown: "@useMarkDown" == "True",
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
