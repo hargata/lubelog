@@ -33,6 +33,10 @@ namespace CarCareTracker.Logic
         }
         public bool AutoInsertOdometerRecord(OdometerRecord odometer)
         {
+            if (odometer.Mileage == default)
+            {
+                return false;
+            }
             var lastReportedMileage = GetLastOdometerRecordMileage(odometer.VehicleId, new List<OdometerRecord>());
             odometer.InitialMileage = lastReportedMileage != default ? lastReportedMileage : odometer.Mileage;
 

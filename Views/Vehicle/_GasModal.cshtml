@@ -53,7 +53,7 @@
                     </div>
                     <label for="gasRecordMileage">@($"{translator.Translate(userLanguage,"Odometer Reading")}({distanceUnit})")</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew ? "" : Model.GasRecord.Mileage)">
+                        <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew || Model.GasRecord.Mileage == default ? "" : Model.GasRecord.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">
