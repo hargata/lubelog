@@ -26,19 +26,25 @@
     <hr />
     <div class="row">
         <div class="col-md-5 col-12">
-            <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
-            <hr />
             <div class="row">
-                <div class="col-6">
-                    <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate User Token")</button>
+                <div class="col-2 d-flex align-items-center">
+                    <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
                 </div>
-                <div class="col-6 d-flex align-items-center">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
-                        <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Auto Notify(via Email)")</label>
+                <div class="col-10 d-flex align-items-center justify-content-end">
+                    <div class="btn-group">
+                        <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1">
+                            <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate User Token")
+                        </button>
+                        <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify()">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
+                                <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Notify")</label>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </div>
+            <hr />
             <table class="table table-hover">
                 <thead class="sticky-top">
                     <tr class="d-flex">
@@ -77,10 +83,10 @@
                     @foreach (UserData userData in Model.Users)
                     {
                         <tr class="d-flex" style="cursor:pointer;">
-                            <td class="col-4">@userData.UserName</td>
-                            <td class="col-4">@userData.EmailAddress</td>
-                            <td class="col-2"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "")/></td>
-                            <td class="col-2"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
+                            <td class="col-4 d-flex align-items-center">@userData.UserName</td>
+                            <td class="col-4 d-flex align-items-center">@userData.EmailAddress</td>
+                            <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") /></td>
+                            <td class="col-2 d-flex align-items-center"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
                         </tr>
                     }
                 </tbody>
@@ -101,6 +107,12 @@
     }
     function reloadPage() {
         window.location.reload();
+    }
+    function toggleAutoNotify() {
+        if (!$("#enableAutoNotify").attr("disabled")) {
+            var currentCheckStatus = $("#enableAutoNotify").attr("checked");
+            $("#enableAutoNotify").attr("checked", !currentCheckStatus);
+        }
     }
     function deleteToken(tokenId) {
         $.post(`/Admin/DeleteToken?tokenId=${tokenId}`, function (data) {
