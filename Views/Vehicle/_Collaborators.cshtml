@@ -52,7 +52,7 @@
         Swal.fire({
             title: 'Add Collaborator',
             html: `
-                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username">
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Add',
             focusConfirm: false,

@@ -124,7 +124,7 @@
         Swal.fire({
             title: 'Generate Token',
             html: `
-                            <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address">
+                            <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Generate',
             focusConfirm: false,

@@ -412,7 +412,7 @@ function editFileName(fileLocation, event) {
     Swal.fire({
         title: 'Rename File',
         html: `
-                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name">
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name" onkeydown="handleSwalEnter(event)">
                     `,
         confirmButtonText: 'Rename',
         focusConfirm: false,
@@ -925,7 +925,7 @@ function replenishSupplies() {
         html: `
                             <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
                             <br />
-                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost">
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSwalEnter(event)">
                             <br />
                             <span class='small'>leave blank to use unit cost calculation</span>
               `,
@@ -985,7 +985,7 @@ function searchTableRows(tabName) {
     Swal.fire({
         title: 'Search Records',
         html: `
-                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)">
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)" onkeydown="handleSwalEnter(event)">
                             `,
         confirmButtonText: 'Search',
         focusConfirm: false,
@@ -1093,5 +1093,15 @@ function handleModalPaste(e, recordType) {
         }
         $(`#${recordType}`)[0].files = acceptableFiles.files;
         $(`#${recordType}`).trigger('change');
+    }
+}
+function handleEnter(e, submitButtonName) {
+    if (e.which == 13) {
+        $(`#${submitButtonName}`).trigger('click');
+    }
+}
+function handleSwalEnter(e) {
+    if (e.which == 13) {
+        Swal.clickConfirm();
     }
 }

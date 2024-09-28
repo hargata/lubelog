@@ -104,7 +104,7 @@ function checkCustomMonthIntervalForTax() {
         Swal.fire({
             title: 'Specify Custom Month Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months">
+                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,

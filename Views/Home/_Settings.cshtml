@@ -342,7 +342,7 @@
                 title: 'Setup Credentials',
                 html: `
                                     <input type="text" id="authUsername" class="swal2-input" placeholder="Username">
-                                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password">
+                                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password" onkeydown="handleSwalEnter(event)">
                                     `,
                 confirmButtonText: 'Setup',
                 focusConfirm: false,
