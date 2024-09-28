@@ -86,10 +86,10 @@ function makeBackup() {
     });
 }
 function openUploadLanguage() {
-    $("#inputLanguage").click();
+    $("#inputLanguage").trigger('click');
 }
 function openRestoreBackup() {
-    $("#inputBackup").click();
+    $("#inputBackup").trigger('click');
 }
 function uploadLanguage(event) {
     let formData = new FormData();
