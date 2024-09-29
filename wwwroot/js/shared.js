@@ -1095,9 +1095,12 @@ function handleModalPaste(e, recordType) {
         $(`#${recordType}`).trigger('change');
     }
 }
-function handleEnter(e, submitButtonName) {
-    if (e.which == 13) {
-        $(`#${submitButtonName}`).trigger('click');
+function handleEnter(e) {
+    if ((event.ctrlKey || event.metaKey) && event.which == 13) {
+        var saveButton = $(e).parent().find(".modal-footer .btn-primary");
+        if (saveButton.length > 0) {
+            saveButton.first().trigger('click');
+        }
     }
 }
 function handleSwalEnter(e) {

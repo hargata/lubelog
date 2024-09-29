@@ -11,7 +11,7 @@
     <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Reminder") : translator.Translate(userLanguage, "Edit Reminder"))</h5>
     <button type="button" class="btn-close" onclick="hideAddReminderRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
