@@ -152,3 +152,9 @@ function restoreBackup(event) {
         }
     });
 }
+
+function handleDefaultReminderInputKeyDown() {
+    if (event.which == 13) {
+        updateSettings();
+    }
+}
