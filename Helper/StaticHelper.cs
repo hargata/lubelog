@@ -244,6 +244,10 @@ namespace CarCareTracker.Helper
             }
             var motd = config["LUBELOGGER_MOTD"] ?? "Not Configured";
             Console.WriteLine($"Message Of The Day: {motd}");
+            if (string.IsNullOrWhiteSpace(CultureInfo.CurrentCulture.Name))
+            {
+                Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
+            }
         }
         public static async void NotifyAsync(string webhookURL, int vehicleId, string username, string action)
         {
