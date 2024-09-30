@@ -10,7 +10,7 @@
     <h5 class="modal-title" id="updateRootAccountModalLabel">@translator.Translate(userLanguage, "Update Profile")</h5>
     <button type="button" class="btn-close" onclick="hideAccountInformationModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form class="form-inline">
         <div class="form-group">
             <label for="inputUsername">@translator.Translate(userLanguage, "Username")</label>
