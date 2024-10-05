@@ -1,0 +1,12 @@
+﻿@using CarCareTracker.Helper
+@model List<Token>
+@foreach (Token token in Model)
+{
+    <tr class="d-flex">
+        <td class="col-4" style="cursor:pointer;" onclick="copyToClipboard(this)">@token.Body</td>
+        <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(token.EmailAddress)</td>
+        <td class="col-2">
+            <button type="button" class="btn btn-danger" onclick="deleteToken(@token.Id, this)"><i class="bi bi-trash"></i></button>
+        </td>
+    </tr>
+}

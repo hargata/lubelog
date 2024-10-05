@@ -1,0 +1,11 @@
+﻿@using CarCareTracker.Helper
+@model List<UserData>
+@foreach (UserData userData in Model)
+{
+    <tr class="d-flex" style="cursor:pointer;">
+        <td class="col-4 d-flex align-items-center">@StaticHelper.TruncateStrings(userData.UserName)</td>
+        <td class="col-4 d-flex align-items-center">@StaticHelper.TruncateStrings(userData.EmailAddress)</td>
+        <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") /></td>
+        <td class="col-2 d-flex align-items-center"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
+    </tr>
+}

@@ -35,7 +35,7 @@
                         <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1">
                             <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate User Token")
                         </button>
-                        <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify()">
+                        <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify(event)">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
                                 <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Notify")</label>
@@ -53,22 +53,17 @@
                         <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (Token token in Model.Tokens)
-                    {
-                        <tr class="d-flex">
-                            <td class="col-4" style="cursor:pointer;" onclick="copyToClipboard(this)">@token.Body</td>
-                            <td class="col-6 text-truncate">@token.EmailAddress</td>
-                            <td class="col-2">
-                                <button type="button" class="btn btn-danger" onclick="deleteToken(@token.Id, this)"><i class="bi bi-trash"></i></button>
-                            </td>
-                        </tr>
-                    }
+                <tbody id="tokenTable">
+                    @await Html.PartialAsync("_Tokens", Model.Tokens)
                 </tbody>
             </table>
         </div>
         <div class="col-12 col-md-7">
-            <span class="lead">@translator.Translate(userLanguage, "Users")</span>
+            <div class="row">
+                <div class="col-12 d-flex align-items-center">
+                    <span class="lead">@translator.Translate(userLanguage, "Users")</span>
+                </div>
+            </div>
             <hr />
             <table class="table table-hover">
                 <thead class="sticky-top">
@@ -79,45 +74,45 @@
                         <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (UserData userData in Model.Users)
-                    {
-                        <tr class="d-flex" style="cursor:pointer;">
-                            <td class="col-4 d-flex align-items-center">@userData.UserName</td>
-                            <td class="col-4 d-flex align-items-center">@userData.EmailAddress</td>
-                            <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") /></td>
-                            <td class="col-2 d-flex align-items-center"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
-                        </tr>
-                    }
+                <tbody id="userTable">
+                    @await Html.PartialAsync("_Users", Model.Users)
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 <script>
-    function updateUserAdmin(userId, sender){
+    function reloadTokenTable() {
+        $.get('/Admin/GetTokenPartialView', function (data) {
+            $("#tokenTable").html(data);
+        });
+    }
+    function reloadUserTable() {
+        $.get('/Admin/GetUserPartialView', function (data) {
+            $("#userTable").html(data);
+        });
+    }
+    function updateUserAdmin(userId, sender) {
         var isChecked = $(sender).is(":checked");
         $.post('/Admin/UpdateUserAdminStatus', { userId: userId, isAdmin: isChecked }, function (data) {
-            if (data){
-                reloadPage();
+            if (data) {
+                reloadUserTable();
             } else {
                 errorToast(genericErrorMessage());
             }
         });
     }
-    function reloadPage() {
-        window.location.reload();
-    }
-    function toggleAutoNotify() {
+    function toggleAutoNotify(e) {
         if (!$("#enableAutoNotify").attr("disabled")) {
-            var currentCheckStatus = $("#enableAutoNotify").attr("checked");
-            $("#enableAutoNotify").attr("checked", !currentCheckStatus);
+            if ($(e.target).hasClass('btn')) {
+                $("#enableAutoNotify").trigger('click');
+            }
         }
     }
     function deleteToken(tokenId) {
         $.post(`/Admin/DeleteToken?tokenId=${tokenId}`, function (data) {
             if (data) {
-                reloadPage();
+                reloadTokenTable();
             } else {
                 errorToast(genericErrorMessage());
             }
@@ -126,7 +121,7 @@
     function deleteUser(userId) {
         $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
             if (data) {
-                reloadPage();
+                reloadUserTable();
             } else {
                 errorToast(genericErrorMessage());
             }
@@ -136,8 +131,8 @@
         Swal.fire({
             title: 'Generate Token',
             html: `
-                            <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
-                            `,
+                                <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
+                                `,
             confirmButtonText: 'Generate',
             focusConfirm: false,
             preConfirm: () => {
@@ -152,7 +147,7 @@
                 var autoNotify = $("#enableAutoNotify").is(":checked");
                 $.get('/Admin/GenerateNewToken', { emailAddress: result.value.emailAddress, autoNotify: autoNotify }, function (data) {
                     if (data.success) {
-                        reloadPage();
+                        reloadTokenTable();
                     } else {
                         errorToast(data.message)
                     }
