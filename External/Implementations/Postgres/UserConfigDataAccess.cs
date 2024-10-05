@@ -17,7 +17,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 //create table if not exist.
-                string initCMD = $"CREATE TABLE IF NOT EXISTS app.{tableName} (id INT primary key, data jsonb not null)";
+                string initCMD = $"CREATE SCHEMA IF NOT EXISTS app; CREATE TABLE IF NOT EXISTS app.{tableName} (id INT primary key, data jsonb not null)";
                 using (var ctext = pgDataSource.CreateCommand(initCMD))
                 {
                     ctext.ExecuteNonQuery();
