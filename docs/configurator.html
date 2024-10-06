@@ -1,0 +1,391 @@
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>LubeLogger Configurator</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+	<script
+  src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container d-flex align-items-center justify-content-center" style="height:100vh">
+    <div class="row">
+        <div class="col-12">
+            <img src="https://lubelogger.com/lubelogger_logo.png" />
+			<div class="page" data-page-order="0">
+			<div class="d-grid">
+				<button type="button" class="btn btn-warning mt-2" onclick="dockerSetup()"><i class="bi bi-box-fill me-2"></i>Docker Installation</button>
+				<button type="button" class="btn btn-warning mt-2" onclick="windowsSetup()"><i class="bi bi-filetype-exe me-2"></i>Windows/Linux Standalone</button>
+			</div>
+			</div>
+			<div class="page d-none" data-page-order="1">
+			<div class="row">
+			<div class="col-6">
+			<div class="form-group">
+					<label for="inputLocale">Locale</label>
+					<input type="text" id="inputLocale" class="form-control">
+					<small class="text-body-secondary">Date and Currency Formats</small>
+				</div>
+				<div class="form-group">
+					<label for="inputPostgres">Postgres Connection</label>
+					<input type="text" id="inputPostgres" class="form-control">
+					<small class="text-body-secondary">Postgres Connection String</small>
+				</div>
+				<div class="form-group">
+					<label for="inputFileExtensions">Allowed File Extensions</label>
+					<input type="text" id="inputFileExtensions" class="form-control">
+					<small class="text-body-secondary">Blank for default, * for all files</small>
+				</div>
+			</div>
+			<div class="col-6">
+			<div class="form-group">
+					<label for="inputCustomLogo">Custom Logo URL</label>
+					<input type="text" id="inputCustomLogo" class="form-control">
+					<small class="text-body-secondary">Default size: 204x48</small>
+				</div>
+				<div class="form-group">
+					<label for="inputMOTD">Message Of The Day</label>
+					<input type="text" id="inputMOTD" class="form-control">
+					<small class="text-body-secondary">MOTD</small>
+				</div>
+				<div class="form-group">
+					<label for="inputWebHook">WebHook URL</label>
+					<input type="text" id="inputWebHook" class="form-control">
+					<small class="text-body-secondary">URL to WebHook Consumer</small>
+				</div>
+			</div>
+			</div>
+			</div>
+			<div class="page d-none" data-page-order="2">
+			<div class="row">
+			<div class="col-6">
+			<div class="form-group">
+					<label for="inputSmtpServer">SMTP Server</label>
+					<input type="text" id="inputSmtpServer" class="form-control">
+					<small class="text-body-secondary">Example: smtp.gmail.com</small>
+				</div>
+				<div class="form-group">
+					<label for="inputSmtpUsername">Username</label>
+					<input type="text" id="inputSmtpUsername" class="form-control">
+					<small class="text-body-secondary">Username for Authentication</small>
+				</div>
+				<div class="form-group">
+					<label for="inputSmtpPassword">Password</label>
+					<input type="password" id="inputSmtpPassword" class="form-control">
+					<small class="text-body-secondary">Password for Authentication</small>
+				</div>
+			</div>
+			<div class="col-6">
+			<div class="form-group">
+					<label for="inputSmtpPort">Port</label>
+					<input type="text" id="inputSmtpPort" class="form-control" value="587">
+					<small class="text-body-secondary">Example: 465/587</small>
+				</div>
+				<div class="form-group">
+					<label for="inputSmtpFrom">Email From</label>
+					<input type="text" id="inputSmtpFrom" class="form-control">
+					<small class="text-body-secondary">Sender Email Address</small>
+				</div>
+			</div>
+			</div>
+			</div>
+			<div class="page d-none" data-page-order="3">
+				<div class="row">
+				<div class="col-6">
+					<div class="form-group">
+					<label for="inputOIDCName">Provider Name</label>
+					<input type="text" id="inputOIDCName" class="form-control">
+					<small class="text-body-secondary">Example: Google</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCClientId">Client ID</label>
+					<input type="text" id="inputOIDCClientId" class="form-control">
+					<small class="text-body-secondary">Client ID for Auth Flow</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCClientSecret">Client Secret</label>
+					<input type="text" id="inputOIDCClientSecret" class="form-control">
+					<small class="text-body-secondary">Client Secret for Auth Flow</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCAuthURL">Authorization URL</label>
+					<input type="text" id="inputOIDCAuthURL" class="form-control">
+					<small class="text-body-secondary">URL to Provider Login</small>
+				</div>
+				</div>
+				<div class="col-6">
+				<div class="form-group">
+					<label for="inputOIDCTokenURL">Token URL</label>
+					<input type="text" id="inputOIDCTokenURL" class="form-control">
+					<small class="text-body-secondary">Token URL from Provider</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCRedirectURL">LubeLogger URL</label>
+					<input type="text" id="inputOIDCRedirectURL" class="form-control">
+					<small class="text-body-secondary">URL to LubeLogger Instance</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCScope">Scope</label>
+					<input type="text" id="inputOIDCScope" class="form-control" value="openid email">
+					<small class="text-body-secondary">Scope Information</small>
+				</div>
+				<label>Other Settings</label>
+				<div class="form-check form-switch">
+					<input class="form-check-input"type="checkbox" role="switch" id="inputOIDCValidateState">
+					<label class="form-check-label" for="inputOIDCValidateState">Validate State</label>
+				</div>
+				<div class="form-check form-switch">
+					<input class="form-check-input"type="checkbox" role="switch" id="inputOIDCUsePKCE">
+					<label class="form-check-label" for="inputOIDCUsePKCE">PKCE</label>
+				</div>
+				</div>
+				</div>
+			</div>
+			<div class="page d-none" data-page-order="4">
+				<div class="row">
+				<div class="col-6">
+				<div class="form-group">
+					<label for="inputCertPath">SSL Certificate Path</label>
+					<input type="text" id="inputCertPath" class="form-control">
+					<small class="text-body-secondary">Path to .pfx</small>
+				</div>
+				<div class="form-group">
+					<label for="inputCertPassword">SSL Certificate Password</label>
+					<input type="text" id="inputCertPassword" class="form-control">
+					<small class="text-body-secondary">Password for .pfx</small>
+				</div>
+				</div>
+				<div class="col-6">
+				<div class="form-group">
+					<label for="inputHttpURL">HTTP URL & port</label>
+					<input type="text" id="inputHttpURL" class="form-control">
+					<small class="text-body-secondary">e.g.: http://lubelog:80</small>
+				</div>
+				<div class="form-group">
+					<label for="inputHttpsURL">HTTPS URL & port</label>
+					<input type="text" id="inputHttpsURL" class="form-control">
+					<small class="text-body-secondary">e.g.: https://lubelog:443</small>
+				</div>
+				</div>
+				</div>
+			</div>
+			<div class="row">
+			<div class="col-6 d-grid">
+							<button type="button" class="btn btn-secondary mt-2 btn-prev d-none" onclick="previousPage()"><i class="bi bi-arrow-left-square me-2"></i>Previous</button>
+
+			</div>
+			<div class="col-6 d-grid">
+			<button type="button" class="btn btn-warning mt-2 btn-next d-none" onclick="nextPage()"><i class="bi bi-arrow-right-square me-2"></i>Next</button>
+				<button type="button" class="btn btn-warning mt-2 btn-done d-none" onclick="generateConfig()"><i class="bi bi-check-square me-2"></i>Done</button>
+			</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="outputModal" tabindex="-1">
+	<div class="modal-dialog">
+	<div class="modal-content">
+	<div class="modal-header">
+        <h1 class="modal-title fs-5" id="outputModalLabel"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+	  <div class="modal-body">
+        <textarea id="outputModalText" readonly style="width:100%; height:450px;"></textarea>
+      </div>
+      <div class="modal-footer">
+	  <button type="button" class="btn btn-secondary btn-strip me-auto" onclick="removeDoubleQuotes()">Remove Double Quotes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		<button type="button" class="btn btn-primary btn-copy" onclick="copyToClipboard()">Copy</button>
+      </div>
+	</div>
+	</div>
+	</div>
+	</div>
+</body>
+<script>
+function removeDoubleQuotes(){
+	var currentText = $("#outputModalText").text();
+	$("#outputModalText").text(currentText.replaceAll('"', ''));
+}
+function generateConfig(){
+	var winSetup = $("#inputLocale").attr("disabled");
+	var redirectUrl = $("#inputOIDCRedirectURL").val().trim();
+	if (redirectUrl != ''){
+		if (!redirectUrl.includes('/Login/RemoteAuth')) {
+			if (redirectUrl.slice(-1) == "/"){
+				redirectUrl += 'Login/RemoteAuth';
+			} else {
+				redirectUrl += '/Login/RemoteAuth';
+			}
+		}
+	}
+	if (winSetup){
+		var windowConfig = {};
+		if ($('#inputFileExtensions').val().trim() != ''){
+			windowConfig["LUBELOGGER_ALLOWED_FILE_EXTENSIONS"] = $("#inputFileExtensions").val();
+		}
+		if ($('#inputCustomLogo').val().trim() != ''){
+			windowConfig["LUBELOGGER_LOGO_URL"] = $("#inputCustomLogo").val();
+		}
+		if ($('#inputMOTD').val().trim() != '') {
+			windowConfig["LUBELOGGER_MOTD"] = $("#inputMOTD").val();
+		}
+		if ($('#inputWebHook').val().trim() != '') {
+			windowConfig["LUBELOGGER_WEBHOOK"] = $("#inputWebHook").val();
+		}
+		if ($("#inputPostgres").val().trim() != ''){
+			windowConfig["POSTGRES_CONNECTION"]=$("#inputPostgres").val();
+		}
+		if ($('#inputSmtpServer').val().trim() != ''){
+			windowConfig["MailConfig"] = {
+				EmailServer: $("#inputSmtpServer").val(),
+				EmailFrom: $("#inputSmtpFrom").val(),
+				Port: $("#inputSmtpPort").val(),
+				Username: $("#inputSmtpUsername").val(),
+				Password: $("#inputSmtpPassword").val()
+			};
+		}
+		if ($('#inputOIDCName').val().trim() != ''){
+			windowConfig["OpenIDConfig"] = {
+				Name: $("#inputOIDCName").val(),
+				ClientId: $("#inputOIDCClientId").val(),
+				ClientSecret: $("#inputOIDCClientSecret").val(),
+				AuthURL: $("#inputOIDCAuthURL").val(),
+				TokenURL: $("#inputOIDCTokenURL").val(),
+				RedirectURL: redirectUrl,
+				Scope: $("#inputOIDCScope").val(),
+				ValidateState: $("#inputOIDCValidateState").is(":checked"),
+				UsePKCE: $("#inputOIDCUsePKCE").is(":checked")
+			};
+		}
+		if ($('#inputCertPath').val().trim() != ''){
+			windowConfig["Kestrel"] = {
+				Endpoints: {
+					Http: {
+						Url: $("#inputHttpURL").val()
+					},
+					HttpsInlineCertFile: {
+						Url: $("#inputHttpsURL").val(),
+						Certificate: {
+							Path: $("#inputCertPath").val(),
+							Password: $("#inputCertPassword").val()
+						}
+					}
+				}
+			}
+		}
+		$("#outputModalLabel").text("Append into appsettings.json");
+		$("#outputModalText").text(JSON.stringify(windowConfig, null, 2).slice(1,-1));
+		$(".btn-strip").hide();
+		$("#outputModal").modal("show");
+	} else {
+		var dockerConfig = [];
+		if ($('#inputLocale').val().trim() != ''){
+			dockerConfig.push(`LC_ALL=${$('#inputLocale').val()}`);
+			dockerConfig.push(`LANG=${$('#inputLocale').val()}`);
+		}
+		if ($('#inputFileExtensions').val().trim() != ''){
+			dockerConfig.push(`LUBELOGGER_ALLOWED_FILE_EXTENSIONS="${$('#inputFileExtensions').val()}"`);
+		}
+		if ($('#inputCustomLogo').val().trim() != ''){
+			dockerConfig.push(`LUBELOGGER_LOGO_URL="${$('#inputCustomLogo').val()}"`);
+		}
+		if ($('#inputMOTD').val().trim() != '') {
+			dockerConfig.push(`LUBELOGGER_MOTD="${$('#inputMOTD').val()}"`);
+		}
+		if ($('#inputWebHook').val().trim() != '') {
+			dockerConfig.push(`LUBELOGGER_WEBHOOK="${$('#inputWebHook').val()}"`);
+		}
+		if ($("#inputPostgres").val().trim() != ''){
+			dockerConfig.push(`POSTGRES_CONNECTION="${$('#inputPostgres').val()}"`);
+		}
+		if ($('#inputSmtpServer').val().trim() != ''){
+			dockerConfig.push(`MailConfig__EmailServer="${$('#inputSmtpServer').val()}"`);
+			dockerConfig.push(`MailConfig__EmailFrom="${$('#inputSmtpFrom').val()}"`);
+			dockerConfig.push(`MailConfig__Port=${$('#inputSmtpPort').val()}`);
+			dockerConfig.push(`MailConfig__Username="${$('#inputSmtpUsername').val()}"`);
+			dockerConfig.push(`MailConfig__Password="${$('#inputSmtpPassword').val()}"`);
+		}
+		if ($('#inputOIDCName').val().trim() != ''){		
+			dockerConfig.push(`OpenIDConfig__Name="${$('#inputOIDCName').val()}"`);
+			dockerConfig.push(`OpenIDConfig__ClientId="${$('#inputOIDCClientId').val()}"`);
+			dockerConfig.push(`OpenIDConfig__ClientSecret="${$('#inputOIDCClientSecret').val()}"`);
+			dockerConfig.push(`OpenIDConfig__AuthURL="${$('#inputOIDCAuthURL').val()}"`);
+			dockerConfig.push(`OpenIDConfig__TokenURL="${$('#inputOIDCTokenURL').val()}"`);
+			dockerConfig.push(`OpenIDConfig__RedirectURL="${redirectUrl}"`);
+			dockerConfig.push(`OpenIDConfig__Scope="${$('#inputOIDCScope').val()}"`);
+			dockerConfig.push(`OpenIDConfig__ValidateState=${$('#inputOIDCValidateState').is(':checked')}`);
+			dockerConfig.push(`OpenIDConfig__UsePKCE=${$('#inputOIDCUsePKCE').is(':checked')}`);
+		}
+		if ($('#inputCertPath').val().trim() != ''){
+			dockerConfig.push(`ASPNETCORE_Kestrel__Certificates__Default__Path="${$('#inputCertPath').val()}"`);
+			dockerConfig.push(`ASPNETCORE_Kestrel__Certificates__Default__Password="${$('#inputCertPassword').val()}"`);
+			dockerConfig.push(`ASPNETCORE_URLS="${$('#inputHttpURL').val()};${$('#inputHttpsURL').val()}"`)
+		}
+		$("#outputModalLabel").text("Content for .env");
+		$("#outputModalText").text(dockerConfig.join("\r\n"));
+		$(".btn-strip").show();
+		$("#outputModal").modal("show");
+	}
+}
+function nextPage(){
+	var nextPageIndex = parseInt($(".page:not('.d-none')").attr('data-page-order')) + 1;
+	var nextPage = $(`.page[data-page-order='${nextPageIndex}'`);
+	if (nextPage.length > 0){
+		$(".page").addClass("d-none");
+		nextPage.removeClass("d-none");
+		//check if last page
+		var pageIndexes = $(".page").map((x,y)=>{return $(y).attr("data-page-order");}).toArray();
+		if (nextPageIndex == pageIndexes[pageIndexes.length - 1]){
+			$(".btn-next").addClass("d-none");
+			$(".btn-prev").removeClass("d-none");
+			$(".btn-done").removeClass("d-none");
+		} else {
+			$(".btn-next").removeClass("d-none");
+			$(".btn-prev").removeClass("d-none");
+		}
+	}
+}
+function previousPage(){
+	var nextPageIndex = parseInt($(".page:not('.d-none')").attr('data-page-order')) - 1;
+	var nextPage = $(`.page[data-page-order='${nextPageIndex}'`);
+	if (nextPage.length > 0){
+		$(".page").addClass("d-none");
+		nextPage.removeClass("d-none");
+		//check if first page
+		var pageIndexes = $(".page").map((x,y)=>{return $(y).attr("data-page-order");}).toArray();
+		if (nextPageIndex == pageIndexes[0]){
+			$(".btn-prev").addClass("d-none");
+			$(".btn-next").addClass("d-none");
+			$(".btn-done").addClass("d-none");
+		} else {
+			$(".btn-prev").removeClass("d-none");
+			$(".btn-next").removeClass("d-none");
+			$(".btn-done").addClass("d-none");
+		}
+	}
+}
+function dockerSetup(){
+	$("#inputLocale").attr("disabled", false);
+	nextPage();
+}
+function windowsSetup(){
+$("#inputLocale").attr("disabled", true);
+	nextPage();
+}
+function copyToClipboard(){
+	navigator.clipboard.writeText($("#outputModalText").val());
+	$(".btn-copy").text("Copied");
+	setTimeout(() => {$(".btn-copy").text("Copy");}, 500)
+}
+function setLocaleInput(){
+	var browserLocale = navigator.language;
+	$("#inputLocale").val(browserLocale.replace('-','_'));
+}
+setLocaleInput();
+</script>
+</html>
