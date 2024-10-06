@@ -136,13 +136,23 @@
         });
     }
     function deleteUser(userId) {
-        $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
-            if (data) {
-                reloadUserTable();
-            } else {
-                errorToast(genericErrorMessage());
+        Swal.fire({
+            title: "Confirm Deletion?",
+            text: "Deleted Users cannot be restored.",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            confirmButtonColor: "#dc3545"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
+                    if (data) {
+                        reloadUserTable();
+                    } else {
+                        errorToast(genericErrorMessage());
+                    }
+                });
             }
-        })
+        });
     }
     function generateNewToken() {
         Swal.fire({
