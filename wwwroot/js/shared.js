@@ -52,7 +52,7 @@ function saveVehicle(isEdit) {
     var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
         return this.value;
     }).toArray();
-    var extraFields = getAndValidateExtraFields(true);
+    var extraFields = getAndValidateExtraFields();
     //validate
     var hasError = false;
     if (extraFields.hasError) {
@@ -487,11 +487,12 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
-function getAndValidateExtraFields(isVehicle) {
+function getAndValidateExtraFields() {
     var hasError = false;
     var outputData = [];
-    var fieldName = isVehicle ? '#addVehicleModalContent .extra-field,#editVehicleModalContent .extra-field' : '.extra-field:not(#addVehicleModalContent .extra-field, #editVehicleModalContent .extra-field)';
-    $(`${fieldName}`).map((index, elem) => {
+    //get extra fields in modal that is currently open.
+    var extraFieldsVisible = $(".modal.fade.show").find(".extra-field");
+    extraFieldsVisible.map((index, elem) => {
         var extraFieldName = $(elem).children("label").text();
         var extraFieldInput = $(elem).children("input");
         var extraFieldValue = extraFieldInput.val();

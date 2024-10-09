@@ -117,6 +117,11 @@
 					<input type="text" id="inputOIDCAuthURL" class="form-control">
 					<small class="text-body-secondary">URL to Provider Login</small>
 				</div>
+				<div class="form-group">
+					<label for="inputOIDCLogOutURL">Logout URL</label>
+					<input type="text" id="inputOIDCLogOutURL" class="form-control">
+					<small class="text-body-secondary">Required if SSO Login Only</small>
+				</div>
 				</div>
 				<div class="col-6">
 				<div class="form-group">
@@ -142,6 +147,10 @@
 				<div class="form-check form-switch">
 					<input class="form-check-input"type="checkbox" role="switch" id="inputOIDCUsePKCE">
 					<label class="form-check-label" for="inputOIDCUsePKCE">PKCE</label>
+				</div>
+				<div class="form-check form-switch">
+					<input class="form-check-input"type="checkbox" role="switch" id="inputOIDCOnly">
+					<label class="form-check-label" for="inputOIDCOnly">SSO Login Only</label>
 				</div>
 				</div>
 				</div>
@@ -259,7 +268,9 @@ function generateConfig(){
 				RedirectURL: redirectUrl,
 				Scope: $("#inputOIDCScope").val(),
 				ValidateState: $("#inputOIDCValidateState").is(":checked"),
-				UsePKCE: $("#inputOIDCUsePKCE").is(":checked")
+				UsePKCE: $("#inputOIDCUsePKCE").is(":checked"),
+				DisableRegularLogin: $("#inputOIDCOnly").is(":checked"),
+				LogOutURL: $("#inputOIDCLogOutURL").val()
 			};
 		}
 		if ($('#inputCertPath').val().trim() != ''){
@@ -320,6 +331,8 @@ function generateConfig(){
 			dockerConfig.push(`OpenIDConfig__Scope="${$('#inputOIDCScope').val()}"`);
 			dockerConfig.push(`OpenIDConfig__ValidateState=${$('#inputOIDCValidateState').is(':checked')}`);
 			dockerConfig.push(`OpenIDConfig__UsePKCE=${$('#inputOIDCUsePKCE').is(':checked')}`);
+			dockerConfig.push(`OpenIDConfig__DisableRegularLogin=${$('#inputOIDCOnly').is(':checked')}`);
+			dockerConfig.push(`OpenIDConfig__LogOutURL="${$('#inputOIDCLogOutURL').val()}"`);
 		}
 		if ($('#inputCertPath').val().trim() != ''){
 			dockerConfig.push(`ASPNETCORE_Kestrel__Certificates__Default__Path="${$('#inputCertPath').val()}"`);
