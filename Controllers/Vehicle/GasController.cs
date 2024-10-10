@@ -113,7 +113,8 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetGasRecordsEditModal(List<int> recordIds)
         {
-            return PartialView("_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds });
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields;
+            return PartialView("_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds, EditRecord = new GasRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult SaveMultipleGasRecords(GasRecordEditModel editModel)
@@ -124,6 +125,7 @@ namespace CarCareTracker.Controllers
             var costIsEdited = editModel.EditRecord.Cost != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
             var tagsIsEdited = editModel.EditRecord.Tags.Any();
+            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Any();
             //handle clear overrides
             if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
             {
@@ -160,6 +162,22 @@ namespace CarCareTracker.Controllers
                 if (tagsIsEdited)
                 {
                     existingRecord.Tags = editModel.EditRecord.Tags;
+                }
+                if (extraFieldIsEdited)
+                {
+                    foreach (ExtraField extraField in editModel.EditRecord.ExtraFields)
+                    {
+                        if (existingRecord.ExtraFields.Any(x => x.Name == extraField.Name))
+                        {
+                            var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
+                            existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
+                            existingRecord.ExtraFields.Insert(insertIndex, extraField);
+                        }
+                        else
+                        {
+                            existingRecord.ExtraFields.Add(extraField);
+                        }
+                    }
                 }
                 result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
             }

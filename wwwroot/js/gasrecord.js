@@ -461,6 +461,7 @@ function saveMultipleGasRecordsToVehicle() {
     var gasCost = $("#gasRecordCost").val();
     var gasNotes = $("#gasRecordNotes").val();
     var gasTags = $("#gasRecordTag").val();
+    var gasExtraFields = getAndValidateExtraFields();
     //validation
     var hasError = false;
     if (gasMileage.trim() != '' && (isNaN(gasMileageToParse) || parseInt(gasMileageToParse) < 0)) {
@@ -493,7 +494,8 @@ function saveMultipleGasRecordsToVehicle() {
             gallons: gasConsumption,
             cost: gasCost,
             notes: gasNotes,
-            tags: gasTags
+            tags: gasTags,
+            extraFields: gasExtraFields.extraFields
         }
     }
     $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {

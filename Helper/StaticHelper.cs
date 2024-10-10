@@ -199,6 +199,8 @@ namespace CarCareTracker.Helper
                     recordExtraFields.Add(extraField);
                 }
             }
+            //re-order extra fields
+            recordExtraFields = recordExtraFields.OrderBy(x => templateExtraFields.FindIndex(y => y.Name == x.Name)).ToList();
             return recordExtraFields;
         }
 
