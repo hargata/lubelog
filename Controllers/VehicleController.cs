@@ -2,10 +2,8 @@ using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using CarCareTracker.Helper;
-using CsvHelper;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
-using CarCareTracker.MapProfile;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 using CarCareTracker.Filter;
@@ -577,7 +575,8 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetGenericRecordModal(List<int> recordIds, ImportMode dataType)
         {
-            return PartialView("_GenericRecordModal", new GenericRecordEditModel() { DataType = dataType, RecordIds = recordIds });
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)dataType).ExtraFields;
+            return PartialView("_GenericRecordModal", new GenericRecordEditModel() { DataType = dataType, RecordIds = recordIds, EditRecord = new GenericRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult EditMultipleRecords(GenericRecordEditModel genericRecordEditModel)
@@ -588,6 +587,7 @@ namespace CarCareTracker.Controllers
             var costIsEdited = genericRecordEditModel.EditRecord.Cost != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(genericRecordEditModel.EditRecord.Notes);
             var tagsIsEdited = genericRecordEditModel.EditRecord.Tags.Any();
+            var extraFieldIsEdited = genericRecordEditModel.EditRecord.ExtraFields.Any();
             //handle clear overrides
             if (tagsIsEdited && genericRecordEditModel.EditRecord.Tags.Contains("---"))
             {
@@ -629,6 +629,21 @@ namespace CarCareTracker.Controllers
                             {
                                 existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
                             }
+                            if (extraFieldIsEdited)
+                            {
+                                foreach(ExtraField extraField in genericRecordEditModel.EditRecord.ExtraFields)
+                                {
+                                    if (existingRecord.ExtraFields.Any(x=>x.Name == extraField.Name))
+                                    {
+                                        var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.Insert(insertIndex, extraField);
+                                    } else
+                                    {
+                                        existingRecord.ExtraFields.Add(extraField);
+                                    }
+                                }
+                            }
                             result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
                         }
                         break;
@@ -659,6 +674,22 @@ namespace CarCareTracker.Controllers
                             {
                                 existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
                             }
+                            if (extraFieldIsEdited)
+                            {
+                                foreach (ExtraField extraField in genericRecordEditModel.EditRecord.ExtraFields)
+                                {
+                                    if (existingRecord.ExtraFields.Any(x => x.Name == extraField.Name))
+                                    {
+                                        var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.Insert(insertIndex, extraField);
+                                    }
+                                    else
+                                    {
+                                        existingRecord.ExtraFields.Add(extraField);
+                                    }
+                                }
+                            }
                             result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
                         }
                         break;
@@ -688,6 +719,22 @@ namespace CarCareTracker.Controllers
                             if (tagsIsEdited)
                             {
                                 existingRecord.Tags = genericRecordEditModel.EditRecord.Tags;
+                            }
+                            if (extraFieldIsEdited)
+                            {
+                                foreach (ExtraField extraField in genericRecordEditModel.EditRecord.ExtraFields)
+                                {
+                                    if (existingRecord.ExtraFields.Any(x => x.Name == extraField.Name))
+                                    {
+                                        var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
+                                        existingRecord.ExtraFields.Insert(insertIndex, extraField);
+                                    }
+                                    else
+                                    {
+                                        existingRecord.ExtraFields.Add(extraField);
+                                    }
+                                }
                             }
                             result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
                         }
