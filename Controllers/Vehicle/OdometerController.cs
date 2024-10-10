@@ -56,7 +56,8 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetOdometerRecordsEditModal(List<int> recordIds)
         {
-            return PartialView("_OdometerRecordsModal", new OdometerRecordEditModel { RecordIds = recordIds });
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields;
+            return PartialView("_OdometerRecordsModal", new OdometerRecordEditModel { RecordIds = recordIds, EditRecord = new OdometerRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult SaveMultipleOdometerRecords(OdometerRecordEditModel editModel)
@@ -66,6 +67,7 @@ namespace CarCareTracker.Controllers
             var mileageIsEdited = editModel.EditRecord.Mileage != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
             var tagsIsEdited = editModel.EditRecord.Tags.Any();
+            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Any();
             //handle clear overrides
             if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
             {
@@ -98,6 +100,22 @@ namespace CarCareTracker.Controllers
                 if (tagsIsEdited)
                 {
                     existingRecord.Tags = editModel.EditRecord.Tags;
+                }
+                if (extraFieldIsEdited)
+                {
+                    foreach (ExtraField extraField in editModel.EditRecord.ExtraFields)
+                    {
+                        if (existingRecord.ExtraFields.Any(x => x.Name == extraField.Name))
+                        {
+                            var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
+                            existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
+                            existingRecord.ExtraFields.Insert(insertIndex, extraField);
+                        }
+                        else
+                        {
+                            existingRecord.ExtraFields.Add(extraField);
+                        }
+                    }
                 }
                 result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
             }

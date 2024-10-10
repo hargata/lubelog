@@ -170,6 +170,7 @@ function saveMultipleOdometerRecordsToVehicle() {
     var odometerMileageToParse = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
     var odometerNotes = $("#odometerRecordNotes").val();
     var odometerTags = $("#odometerRecordTag").val();
+    var odometerExtraFields = getAndValidateExtraFields();
     //validation
     var hasError = false;
     if (odometerMileage.trim() != '' && (isNaN(odometerMileageToParse) || parseInt(odometerMileageToParse) < 0)) {
@@ -195,7 +196,8 @@ function saveMultipleOdometerRecordsToVehicle() {
             initialMileage: initialOdometerMileageToParse,
             mileage: odometerMileageToParse,
             notes: odometerNotes,
-            tags: odometerTags
+            tags: odometerTags,
+            extraFields: odometerExtraFields.extraFields
         }
     }
     $.post('/Vehicle/SaveMultipleOdometerRecords', { editModel: formValues }, function (data) {
