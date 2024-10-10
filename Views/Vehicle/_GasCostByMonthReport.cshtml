@@ -5,10 +5,10 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
-    var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
+    var barGraphColors = StaticHelper.GetBarChartColors();
     var sortedByMPG = Model.OrderBy(x => x.Cost).ToList();
 }
-@if (Model.Where(x=>x.Cost > 0).Any() || Model.Where(x=>x.DistanceTraveled > 0).Any())
+@if (Model.Any(x=>x.Cost > 0) || Model.Any(x=>x.DistanceTraveled > 0))
 {
     <canvas id="bar-chart"></canvas>
     <script>

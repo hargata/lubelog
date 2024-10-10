@@ -119,6 +119,10 @@ namespace CarCareTracker.Helper
                 new CostForVehicleByMonth { MonthId = 12, Cost = 0M}
             };
         }
+        public static List<string> GetBarChartColors()
+        {
+            return new List<string> { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
+        }
 
         public static ServiceRecord GenericToServiceRecord(GenericRecord input)
         {

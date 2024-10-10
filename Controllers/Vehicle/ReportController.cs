@@ -13,6 +13,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetReportPartialView(int vehicleId)
         {
             //get records
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
@@ -86,7 +87,10 @@ namespace CarCareTracker.Controllers
             viewModel.Collaborators = collaborators;
             //get MPG per month.
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
+            var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
+            bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
             var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
             monthlyMileageData.AddRange(mileageData.GroupBy(x => x.MonthId).Select(x => new CostForVehicleByMonth
             {
@@ -99,7 +103,22 @@ namespace CarCareTracker.Controllers
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
-            viewModel.FuelMileageForVehicleByMonth = monthlyMileageData;
+            if (invertedFuelMileageUnit)
+            {
+                foreach(CostForVehicleByMonth monthMileage in monthlyMileageData)
+                {
+                    if (monthMileage.Cost != default)
+                    {
+                        monthMileage.Cost = 100 / monthMileage.Cost;
+                    }
+                }
+            }
+            var mpgViewModel = new MPGForVehicleByMonth { 
+                CostData = monthlyMileageData,
+                Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
+                SortedCostData = (userConfig.UseMPG || userConfig.UseUKMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
+            };
+            viewModel.FuelMileageForVehicleByMonth = mpgViewModel;
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -413,8 +432,12 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetMonthMPGByVehicle(int vehicleId, int year = 0)
         {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var userConfig = _config.GetUserConfig(User);
+            string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
+            var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
+            bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
             if (year != 0)
             {
@@ -433,7 +456,23 @@ namespace CarCareTracker.Controllers
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
-            return PartialView("_MPGByMonthReport", monthlyMileageData);
+            if (invertedFuelMileageUnit)
+            {
+                foreach (CostForVehicleByMonth monthMileage in monthlyMileageData)
+                {
+                    if (monthMileage.Cost != default)
+                    {
+                        monthMileage.Cost = 100 / monthMileage.Cost;
+                    }
+                }
+            }
+            var mpgViewModel = new MPGForVehicleByMonth
+            {
+                CostData = monthlyMileageData,
+                Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
+                SortedCostData = (userConfig.UseMPG || userConfig.UseUKMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
+            };
+            return PartialView("_MPGByMonthReport", mpgViewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
