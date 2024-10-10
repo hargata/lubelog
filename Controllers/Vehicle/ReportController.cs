@@ -116,7 +116,7 @@ namespace CarCareTracker.Controllers
             var mpgViewModel = new MPGForVehicleByMonth { 
                 CostData = monthlyMileageData,
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
-                SortedCostData = (userConfig.UseMPG || userConfig.UseUKMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
+                SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
             };
             viewModel.FuelMileageForVehicleByMonth = mpgViewModel;
             return PartialView("_Report", viewModel);
@@ -470,7 +470,7 @@ namespace CarCareTracker.Controllers
             {
                 CostData = monthlyMileageData,
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
-                SortedCostData = (userConfig.UseMPG || userConfig.UseUKMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
+                SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
             };
             return PartialView("_MPGByMonthReport", mpgViewModel);
         }
