@@ -292,6 +292,17 @@ namespace CarCareTracker.Controllers
                     Files = x.Files
                 }));
             }
+            if (exportTabs.Contains(ImportMode.NoteRecord))
+            {
+                var records = _noteDataAccess.GetNotesByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.NoteRecord,
+                    Date = DateTime.Now,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
             if (attachmentData.Any())
             {
                 attachmentData = attachmentData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
