@@ -158,3 +158,9 @@ function handleDefaultReminderInputKeyDown() {
         updateSettings();
     }
 }
+
+function loadSponsors() {
+    $.get('/Home/Sponsors', function (data) {
+        $("#sponsorsContainer").html(data);
+    })
+}

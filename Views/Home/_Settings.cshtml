@@ -279,7 +279,7 @@
         </ul>
     </div>
 </div>
-@await Html.PartialAsync("_Sponsors", Model.Sponsors)
+<div class="row" id="sponsorsContainer"></div>
 <div class="modal fade" data-bs-focus="false" id="extraFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="extraFieldModalContent">
@@ -375,4 +375,5 @@
             });
         }
     }
+    loadSponsors();
 </script>
