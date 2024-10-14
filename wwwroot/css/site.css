@@ -415,7 +415,10 @@ html[data-bs-theme="light"] .btn-adaptive {
     --bs-btn-disabled-border-color: #f8f9fa;
 }
 
-.api-method:hover {
-    border-bottom: 1px solid;
-    border-top: 1px solid;
+html[data-bs-theme="dark"] .api-method:hover {
+    background-color: #373b3e;
+}
+
+html[data-bs-theme="light"] .api-method:hover {
+    background-color: rgba(0,0,0,0.1);
 }
