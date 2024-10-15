@@ -9,7 +9,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public static string VersionNumber = "1.3.8";
+        public static string VersionNumber = "1.3.9";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";
@@ -119,6 +119,10 @@ namespace CarCareTracker.Helper
                 new CostForVehicleByMonth { MonthId = 12, Cost = 0M}
             };
         }
+        public static List<string> GetBarChartColors()
+        {
+            return new List<string> { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
+        }
 
         public static ServiceRecord GenericToServiceRecord(GenericRecord input)
         {
@@ -199,6 +203,8 @@ namespace CarCareTracker.Helper
                     recordExtraFields.Add(extraField);
                 }
             }
+            //re-order extra fields
+            recordExtraFields = recordExtraFields.OrderBy(x => templateExtraFields.FindIndex(y => y.Name == x.Name)).ToList();
             return recordExtraFields;
         }
 
@@ -244,6 +250,10 @@ namespace CarCareTracker.Helper
             }
             var motd = config["LUBELOGGER_MOTD"] ?? "Not Configured";
             Console.WriteLine($"Message Of The Day: {motd}");
+            if (string.IsNullOrWhiteSpace(CultureInfo.CurrentCulture.Name))
+            {
+                Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
+            }
         }
         public static async void NotifyAsync(string webhookURL, int vehicleId, string username, string action)
         {

@@ -281,7 +281,7 @@ function updatePlanRecordProgress(newProgress) {
             Swal.fire({
                 title: 'Mark Task as Done?',
                 html: `<p>To confirm, please enter the current odometer reading on your vehicle, as we also need the current odometer to auto convert the task into the relevant record.</p>
-                            <input type="text" inputmode="numeric" id="inputOdometer" class="swal2-input" placeholder="Odometer Reading">
+                            <input type="text" inputmode="numeric" id="inputOdometer" class="swal2-input" placeholder="Odometer Reading" onkeydown="handleSwalEnter(event)">
                             `,
                 confirmButtonText: 'Confirm',
                 showCancelButton: true,

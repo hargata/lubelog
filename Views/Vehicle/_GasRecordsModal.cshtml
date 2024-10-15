@@ -10,7 +10,7 @@
     <h5 class="modal-title">@translator.Translate(userLanguage,"Edit Multiple Gas Records")</h5>
     <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
@@ -28,6 +28,14 @@
                     <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="gasRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
                     <select multiple class="form-select" id="gasRecordTag"></select>
+                    @foreach (ExtraField field in Model.EditRecord.ExtraFields)
+                    {
+                        var elementId = Guid.NewGuid();
+                        <div class="extra-field">
+                            <label for="@elementId">@field.Name</label>
+                            <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        </div>
+                    }
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="gasRecordNotes">@translator.Translate(userLanguage, "Notes(use --- to clear all existing notes)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

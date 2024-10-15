@@ -66,9 +66,6 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>@translator.Translate(userLanguage, "Reminders")</span></button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><span class="display-3 ms-2"><i class="bi bi-trash me-2"></i>@translator.Translate(userLanguage, "Delete Vehicle")</span></button>
-        </li>
     </ul>
 </div>
 <div class="container">
@@ -117,12 +114,6 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>@translator.Translate(userLanguage, "Reminders")</button>
         </li>
-        <li class="nav-item dropdown ms-auto" role="presentation">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">@translator.Translate(userLanguage, "Manage Vehicle")</a>
-            <ul class="dropdown-menu">
-                <li><button onclick="deleteVehicle(@Model.Id)" class="dropdown-item"><i class="bi bi-trash me-2"></i>@translator.Translate(userLanguage, "Delete Vehicle")</button></li>
-            </ul>
-        </li>
     </ul>
     <div class="tab-content" id="vehicleTabContent">
         <div class="tab-pane fade @StaticHelper.DefaultActiveTabContent(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
@@ -138,7 +129,7 @@
         <div class="tab-pane fade @StaticHelper.DefaultActiveTabContent(userConfig, ImportMode.OdometerRecord)" id="odometer-tab-pane" role="tabpanel" tabindex="0"></div>
     </div>
 </div>
-<div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog">
+<div class="modal fade" data-bs-focus="false" id="editVehicleModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="editVehicleModalContent">
         </div>

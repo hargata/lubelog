@@ -86,10 +86,10 @@ function makeBackup() {
     });
 }
 function openUploadLanguage() {
-    $("#inputLanguage").click();
+    $("#inputLanguage").trigger('click');
 }
 function openRestoreBackup() {
-    $("#inputBackup").click();
+    $("#inputBackup").trigger('click');
 }
 function uploadLanguage(event) {
     let formData = new FormData();
@@ -151,4 +151,16 @@ function restoreBackup(event) {
             errorToast("An error has occurred, please check the file size and try again later.");
         }
     });
+}
+
+function handleDefaultReminderInputKeyDown() {
+    if (event.which == 13) {
+        updateSettings();
+    }
+}
+
+function loadSponsors() {
+    $.get('/Home/Sponsors', function (data) {
+        $("#sponsorsContainer").html(data);
+    })
 }

@@ -23,7 +23,7 @@
     }
     
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form class="form-inline">
         <div class="form-group">
             <div class="row">
@@ -143,6 +143,7 @@
         <button type="button" onclick="saveVehicle(false)" class="btn btn-primary">@translator.Translate(userLanguage, "Add New Vehicle")</button>
     } else if (!isNew)
     {
+        <button type="button" class="btn btn-danger me-auto" onclick="deleteVehicle(@Model.Id)">@translator.Translate(userLanguage, "Delete Vehicle")</button>
         <button type="button" class="btn btn-secondary" onclick="hideEditVehicleModal()">@translator.Translate(userLanguage, "Cancel")</button>
         <button type="button" onclick="saveVehicle(true)" class="btn btn-primary">@translator.Translate(userLanguage, "Save Vehicle")</button>
     }

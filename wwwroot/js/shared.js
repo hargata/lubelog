@@ -52,7 +52,7 @@ function saveVehicle(isEdit) {
     var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
         return this.value;
     }).toArray();
-    var extraFields = getAndValidateExtraFields(true);
+    var extraFields = getAndValidateExtraFields();
     //validate
     var hasError = false;
     if (extraFields.hasError) {
@@ -412,7 +412,7 @@ function editFileName(fileLocation, event) {
     Swal.fire({
         title: 'Rename File',
         html: `
-                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name">
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name" onkeydown="handleSwalEnter(event)">
                     `,
         confirmButtonText: 'Rename',
         focusConfirm: false,
@@ -487,11 +487,12 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
-function getAndValidateExtraFields(isVehicle) {
+function getAndValidateExtraFields() {
     var hasError = false;
     var outputData = [];
-    var fieldName = isVehicle ? '#addVehicleModalContent .extra-field,#editVehicleModalContent .extra-field' : '.extra-field:not(#addVehicleModalContent .extra-field, #editVehicleModalContent .extra-field)';
-    $(`${fieldName}`).map((index, elem) => {
+    //get extra fields in modal that is currently open.
+    var extraFieldsVisible = $(".modal.fade.show").find(".extra-field");
+    extraFieldsVisible.map((index, elem) => {
         var extraFieldName = $(elem).children("label").text();
         var extraFieldInput = $(elem).children("input");
         var extraFieldValue = extraFieldInput.val();
@@ -925,7 +926,7 @@ function replenishSupplies() {
         html: `
                             <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
                             <br />
-                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost">
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSwalEnter(event)">
                             <br />
                             <span class='small'>leave blank to use unit cost calculation</span>
               `,
@@ -985,7 +986,7 @@ function searchTableRows(tabName) {
     Swal.fire({
         title: 'Search Records',
         html: `
-                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)">
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)" onkeydown="handleSwalEnter(event)">
                             `,
         confirmButtonText: 'Search',
         focusConfirm: false,
@@ -1093,5 +1094,18 @@ function handleModalPaste(e, recordType) {
         }
         $(`#${recordType}`)[0].files = acceptableFiles.files;
         $(`#${recordType}`).trigger('change');
+    }
+}
+function handleEnter(e) {
+    if ((event.ctrlKey || event.metaKey) && event.which == 13) {
+        var saveButton = $(e).parent().find(".modal-footer .btn-primary");
+        if (saveButton.length > 0) {
+            saveButton.first().trigger('click');
+        }
+    }
+}
+function handleSwalEnter(e) {
+    if (e.which == 13) {
+        Swal.clickConfirm();
     }
 }

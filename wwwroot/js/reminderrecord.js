@@ -23,7 +23,7 @@ function checkCustomMonthInterval() {
         Swal.fire({
             title: 'Specify Custom Month Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months">
+                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,
@@ -52,7 +52,7 @@ function checkCustomMileageInterval() {
         Swal.fire({
             title: 'Specify Custom Mileage Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Mileage">
+                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Mileage" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,

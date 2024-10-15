@@ -187,7 +187,7 @@ namespace CarCareTracker.Controllers
                 return Json(odometer);
             } else
             {
-                var convertedOdometer = (odometer + int.Parse(vehicle.OdometerDifference)) * int.Parse(vehicle.OdometerMultiplier);
+                var convertedOdometer = (odometer + int.Parse(vehicle.OdometerDifference)) * decimal.Parse(vehicle.OdometerMultiplier);
                 return Json(convertedOdometer);
             }
         }

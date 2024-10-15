@@ -11,7 +11,7 @@
     <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Plan Record") : translator.Translate(userLanguage, "Edit Plan Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditPlanRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddPlanRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
@@ -94,7 +94,7 @@
     @if (isNew)
     {
         <div class="btn-group">
-            <button onclick="savePlanRecordToVehicle()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add New Plan Record")</button>
+            <button onclick="savePlanRecordToVehicle()" class="btn btn-primary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Add New Plan Record")</button>
             <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>

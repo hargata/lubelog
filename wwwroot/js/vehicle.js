@@ -419,6 +419,7 @@ function getAndValidateGenericRecordValues() {
     var genericCost = $("#genericRecordCost").val();
     var genericNotes = $("#genericRecordNotes").val();
     var genericTags = $("#genericRecordTag").val();
+    var genericExtraFields = getAndValidateExtraFields();
     //validation
     var hasError = false;
     if (genericMileage.trim() != '' && (isNaN(genericMileageToParse) || parseInt(genericMileageToParse) < 0)) {
@@ -443,7 +444,8 @@ function getAndValidateGenericRecordValues() {
             description: genericDescription,
             cost: genericCost,
             notes: genericNotes,
-            tags: genericTags
+            tags: genericTags,
+            extraFields: genericExtraFields.extraFields
         }
     }
 }
@@ -616,7 +618,7 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
     Swal.fire({
         title: 'Increment Last Reported Odometer Reading',
         html: `
-                            <input type="text" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment">
+                            <input type="text" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
               `,
         confirmButtonText: 'Add',
         focusConfirm: false,

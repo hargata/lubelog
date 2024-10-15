@@ -149,9 +149,13 @@ function exportAttachments() {
         <input type="checkbox" id="exportTaxRecord" class="form-check-input me-1" value='TaxRecord'>
         <label for="exportTaxRecord" class='form-check-label'>Taxes</label>
         </div>
-         <div class='form-check form-check-inline'>
+        <div class='form-check form-check-inline'>
         <input type="checkbox" id="exportOdometerRecord" class="form-check-input me-1" value='OdometerRecord'>
         <label for="exportOdometerRecord" class='form-check-label'>Odometer</label>
+        </div>
+        <div class='form-check form-check-inline'>
+        <input type="checkbox" id="exportNoteRecord" class="form-check-input me-1" value='NoteRecord'>
+        <label for="exportNoteRecord" class='form-check-label'>Notes</label>
         </div>
         </div>
         `,

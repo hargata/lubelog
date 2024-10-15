@@ -143,17 +143,21 @@ namespace CarCareTracker.Controllers
                 UserConfig = userConfig,
                 UILanguages = languages
             };
+            return PartialView("_Settings", viewModel);
+        }
+        public async Task<IActionResult> Sponsors()
+        {
             try
             {
                 var httpClient = new HttpClient();
                 var sponsorsData = await httpClient.GetFromJsonAsync<Sponsors>(StaticHelper.SponsorsPath) ?? new Sponsors();
-                viewModel.Sponsors = sponsorsData;
+                return PartialView("_Sponsors", sponsorsData);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Unable to retrieve sponsors: {ex.Message}");
+                return PartialView("_Sponsors", new Sponsors());
             }
-            return PartialView("_Settings", viewModel);
         }
         [HttpPost]
         public IActionResult WriteToSettings(UserConfig userConfig)
