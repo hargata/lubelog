@@ -62,8 +62,11 @@
                     }
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="odometerRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
-                    <textarea id="odometerRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (!userConfig.DisableOdometerNotes)
+                    {
+                        <label for="odometerRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                        <textarea id="odometerRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    }
                     @if (Model.Files.Any())
                     {
                         <div>
