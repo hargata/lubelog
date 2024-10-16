@@ -372,5 +372,6 @@
   "Generate": "Generate",
   "Notify": "Notify",
   "Hide_Odometer_tags": "Hide Odometer tags",
-  "Hide_Odometer_Tags_Explanation": "Hides the tags field when entering new odometer value"
+  "Hide_Odometer_Tags_Explanation": "Hides the tags field when entering new odometer value",
+  "Disable_Odometer_Notes": "Disable notes in odometer"
 }

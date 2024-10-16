@@ -56,6 +56,7 @@ function updateSettings() {
         useUKMpg: $("#useUKMPG").is(":checked"),
         hideOdometerTags: $("#hideOdometerTags").is(":checked"),
         useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+        disableOdometerNotes: $("#disableOdometerNotes").is(":checked"),
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),

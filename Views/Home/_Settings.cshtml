@@ -50,6 +50,10 @@
             <label class="form-check-label" for="useThreeDecimal">@translator.Translate(userLanguage, "Use Three Decimals For Fuel Cost")</label>
         </div>
         <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="disableOdometerNotes" checked="@Model.UserConfig.DisableOdometerNotes">
+            <label class="form-check-label" for="disableOdometerNotes">@translator.Translate(userLanguage, "Disable notes in odometer")</label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
             <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
         </div>
