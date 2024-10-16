@@ -54,6 +54,7 @@ function updateSettings() {
         useDescending: $("#useDescending").is(':checked'),
         hideZero: $("#hideZero").is(":checked"),
         useUKMpg: $("#useUKMPG").is(":checked"),
+        hideOdometerTags: $("#hideOdometerTags").is(":checked"),
         useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),

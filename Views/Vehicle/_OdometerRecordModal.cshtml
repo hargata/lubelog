@@ -42,13 +42,16 @@
                             </div>
                         }
                     </div>
-                    <label for="odometerRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
-                    <select multiple class="form-select" id="odometerRecordTag">
-                        @foreach (string tag in Model.Tags)
-                        {
-                            <!option value="@tag">@tag</!option>
-                        }
-                    </select>
+                    @if (!userConfig.HideOdometerTags)
+                    {
+                        <label for="odometerRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                        <select multiple class="form-select" id="odometerRecordTag">
+                            @foreach (string tag in Model.Tags)
+                            {
+                                <!option value="@tag">@tag</!option>
+                            }
+                        </select>
+                    }
                     @foreach (ExtraField field in Model.ExtraFields)
                     {
                         var elementId = Guid.NewGuid();
