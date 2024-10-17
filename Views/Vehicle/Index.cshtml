@@ -1,7 +1,4 @@
 ﻿@using CarCareTracker.Helper
-@{
-    ViewData["Title"] = "LubeLogger - View Vehicle";
-}
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
@@ -9,6 +6,9 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model Vehicle
+@{
+    ViewData["Title"] = $"{Model.Year} {Model.Make} {Model.Model} ({Model.LicensePlate})";
+}
 @section Scripts {
     <script src="~/js/vehicle.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/servicerecord.js?v=@StaticHelper.VersionNumber"></script>
