@@ -35,8 +35,8 @@ jobs:
         with:
           context: workflow
           images: |
-            ${{ secrets.DH_USER }}/lubelogger
-            ghcr.io/{{ secrets.GH_USER }}/lubelogger
+            dickmarcinko/lubelogger
+            ghcr.io/rescuerangers/lubelogger
           tags: |
             type=edge,branch=main
             type=ref,event=tag
