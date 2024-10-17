@@ -422,3 +422,43 @@ html[data-bs-theme="dark"] .api-method:hover {
 html[data-bs-theme="light"] .api-method:hover {
     background-color: rgba(0,0,0,0.1);
 }
+
+.resizable-nav-link {
+    padding: 0.5rem;
+}
+
+@media(max-width: 1400px) {
+    .resizable-nav-link {
+        padding-left: 0.35rem;
+        padding-right: 0.35rem;
+        padding-top: 0.5rem;
+        padding-bottom:0.5rem;
+    }
+}
+
+@media(max-width: 1200px) {
+    .resizable-nav-link {
+        padding-left: 0.2rem;
+        padding-right: 0.2rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+}
+
+@media(max-width: 992px) {
+    .resizable-nav-link {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+}
+
+@media(max-width: 768px) {
+    .resizable-nav-link {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+}

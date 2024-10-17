@@ -71,24 +71,24 @@
     <hr />
     <ul class="nav nav-tabs lubelogger-tab" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</button>
+            <button class="nav-link resizable-nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Garage")</span></button>
         </li>
         @if (config.GetServerEnableShopSupplies())
         {
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>
+                <button class="nav-link resizable-nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Supplies")</span></button>
             </li>
         }
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</button>
+            <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Calendar")</span></button>
         </li>
         <li class="nav-item ms-auto" role="presentation">
-            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</button>
+            <button class="nav-link resizable-nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth"))
         {
             <li class="nav-item dropdown" role="presentation">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person me-2"></i>@User.Identity.Name</a>
+                <a class="nav-link resizable-nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person"></i><span class="ms-2 d-sm-none d-md-inline">@User.Identity.Name</span></a>
                 <ul class="dropdown-menu">
                     @if (User.IsInRole(nameof(UserData.IsAdmin)))
                     {

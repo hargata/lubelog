@@ -82,37 +82,37 @@
     <hr />
     <ul class="nav nav-tabs lubelogger-tab" id="vehicleTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph me-2"></i>@translator.Translate(userLanguage,"Dashboard")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-file-bar-graph"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Dashboard")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bar-chart-steps me-2"></i>@translator.Translate(userLanguage, "Planner")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bar-chart-steps"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Planner")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" id="odometer-tab" data-bs-toggle="tab" data-bs-target="#odometer-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-speedometer me-2"></i>@translator.Translate(userLanguage, "Odometer")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" id="odometer-tab" data-bs-toggle="tab" data-bs-target="#odometer-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-speedometer"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Odometer")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service Records")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><i class="bi bi-card-checklist"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Service Records")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon me-2"></i>@translator.Translate(userLanguage, "Repairs")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-exclamation-octagon"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Repairs")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench-adjustable me-2"></i>@translator.Translate(userLanguage, "Upgrades")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-wrench-adjustable"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Upgrades")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Fuel")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-fuel-pump"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Fuel")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Supplies")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Taxes")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Taxes")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark me-2"></i>@translator.Translate(userLanguage, "Notes")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Notes")</span></button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>@translator.Translate(userLanguage, "Reminders")</button>
+            <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell"></i></div><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Reminders")</span></button>
         </li>
     </ul>
     <div class="tab-content" id="vehicleTabContent">
