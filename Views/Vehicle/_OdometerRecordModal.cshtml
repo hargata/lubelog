@@ -33,7 +33,7 @@
                         }
                     </div>
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <div class="input-group">
+                    <div class="input-group has-validation">
                         <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
                         @if (isNew)
                         {
@@ -41,6 +41,15 @@
                                 <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')"><i class="bi bi-plus"></i></button>
                             </div>
                         }
+                        <div id="maxDifference-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Difference between initial odometer reading and input is more than configured in odometer validation")
+                        </div>
+                        <div id="empty-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value cannot be empty or negative")
+                        </div>
+                        <div id="negative-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value can't be less than initial value")
+                        </div>
                     </div>
                     @if (!userConfig.HideOdometerTags)
                     {
