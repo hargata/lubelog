@@ -373,5 +373,11 @@
   "Notify": "Notify",
   "Hide_Odometer_tags": "Hide Odometer tags",
   "Hide_Odometer_Tags_Explanation": "Hides the tags field when entering new odometer value",
-  "Disable_Odometer_Notes": "Disable notes in odometer"
+  "Disable_Odometer_Notes": "Disable notes in odometer",
+  "Strict_Odometer_Validation": "Strict Odometer Validation",
+  "Maximum_difference": "Maximum difference",
+  "Maximum_difference_between_odometer_values": "Maximum difference between odometer values",
+  "Difference_between_initial_odometer_reading_and_input_is_more_than_configured_in_odometer_validation": "Difference between initial odometer reading and input is more than configured in odometer validation",
+  "Odometer_value_cannot_be_empty_or_negative": "Odometer value cannot be empty or negative",
+  "Odometer_value_can't_be_less_than_initial_value": "Odometer value can't be less than initial value"
 }
