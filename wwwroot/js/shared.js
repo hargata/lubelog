@@ -47,6 +47,8 @@ function saveVehicle(isEdit) {
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
+    var vehicleOdometerValidation = $("#inputOdometerValidation").is(':checked');
+    var vehicleMaxOdometerDifference = parseInt(globalParseFloat($("#inputOdometerMaxDifference").val())).toString();
     var vehiclePurchasePrice = $("#inputPurchasePrice").val();
     var vehicleSoldPrice = $("#inputSoldPrice").val();
     var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
@@ -99,6 +101,15 @@ function saveVehicle(isEdit) {
             $("#inputOdometerDifference").removeClass("is-invalid");
         }
     }
+    if (vehicleOdometerValidation) {
+        //validate max odometer difference
+        if (vehicleMaxOdometerDifference.trim() == '' || isNaN(vehicleMaxOdometerDifference)) {
+            hasError = true;
+            $("#inputOdometerMaxDifference").addClass("is-invalid");
+        } else {
+            $("#inputOdometerMaxDifference").removeClass("is-invalid");
+        }
+    }
     if (vehiclePurchasePrice.trim() != '' && !isValidMoney(vehiclePurchasePrice)) {
         hasError = true;
         $("#inputPurchasePrice").addClass("is-invalid");
@@ -134,6 +145,8 @@ function saveVehicle(isEdit) {
         hasOdometerAdjustment: vehicleHasOdometerAdjustment,
         odometerMultiplier: vehicleOdometerMultiplier,
         odometerDifference: vehicleOdometerDifference,
+        odometerValidation: vehicleOdometerValidation,
+        maxOdometerDifference: vehicleMaxOdometerDifference,
         purchasePrice: vehiclePurchasePrice,
         soldPrice: vehicleSoldPrice,
         dashboardMetrics: vehicleDashboardMetrics
@@ -160,6 +173,14 @@ function toggleOdometerAdjustment() {
         $("#odometerAdjustments").collapse('show');
     } else {
         $("#odometerAdjustments").collapse('hide');
+    }
+}
+function toggleOdometerValidation() {
+    var isChecked = $("#inputOdometerValidation").is(':checked');
+    if (isChecked) {
+        $("#odometerValidation").collapse('show');
+    } else {
+        $("#odometerValidation").collapse('hide');
     }
 }
 function uploadFileAsync(event) {

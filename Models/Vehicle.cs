@@ -27,6 +27,11 @@
         /// Primarily used for vehicles where the odometer does not reflect actual mileage.
         /// </summary>
         public string OdometerDifference { get; set; } = "0";
+        public bool OdometerValidation { get; set; }
+        /// <summary>
+        /// Maximum difference between last and current odometer value
+        /// </summary>
+        public string MaxOdometerDifference { get; set; } = "1000";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
     }
 }

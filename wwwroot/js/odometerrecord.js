@@ -96,6 +96,8 @@ function getAndValidateOdometerRecordValues() {
     var serviceNotes = $("#odometerRecordNotes").val();
     var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
+    var odometerValidation = GetVehicleId().odometerValidation;
+    var maxOdometerDifference = parseInt(globalParseFloat(GetVehicleId().maxOdometerDifference));
     var odometerRecordId = getOdometerRecordModelData().id;
     //Odometer Adjustments
     serviceMileage = GetAdjustedOdometer(odometerRecordId, serviceMileage);
@@ -114,8 +116,16 @@ function getAndValidateOdometerRecordValues() {
     if (serviceMileage.trim() == '' || isNaN(serviceMileage) || parseInt(serviceMileage) < 0) {
         hasError = true;
         $("#odometerRecordMileage").addClass("is-invalid");
+        $("#empty-feedback").removeClass("d-none");
+        $("#empty-feedback").addClass("invalid-feedback");
     } else {
         $("#odometerRecordMileage").removeClass("is-invalid");
+        $("#empty-feedback").removeClass("invalid-feedback");
+        $("#empty-feedback").addClass("d-none");
+
+        if (odometerValidation) {
+            validateOdometerInput();
+        }
     }
     if (isNaN(initialOdometerMileage) || parseInt(initialOdometerMileage) < 0) {
         hasError = true;
@@ -123,6 +133,7 @@ function getAndValidateOdometerRecordValues() {
     } else {
         $("#initialOdometerRecordMileage").removeClass("is-invalid");
     }
+    
     return {
         id: odometerRecordId,
         hasError: hasError,
@@ -134,6 +145,30 @@ function getAndValidateOdometerRecordValues() {
         tags: serviceTags,
         files: uploadedFiles,
         extraFields: extraFields.extraFields
+    }
+
+    function validateOdometerInput() {
+        if (serviceMileage - initialOdometerMileage > maxOdometerDifference) {
+            hasError = true;
+            $("#odometerRecordMileage").addClass("is-invalid");
+            $("#maxDifference-feedback").removeClass("d-none");
+            $("#maxDifference-feedback").addClass("invalid-feedback");
+        } else {
+            $("#odometerRecordMileage").removeClass("is-invalid");
+            $("#maxDifference-feedback").removeClass("invalid-feedback");
+            $("#maxDifference-feedback").addClass("d-none");
+
+            if (serviceMileage - initialOdometerMileage < 0) {
+                hasError = true;
+                $("#odometerRecordMileage").addClass("is-invalid");
+                $("#negative-feedback").removeClass("d-none");
+                $("#negative-feedback").addClass("invalid-feedback");
+            } else {
+                $("#odometerRecordMileage").removeClass("is-invalid");
+                $("#negative-feedback").removeClass("invalid-feedback");
+                $("#negative-feedback").addClass("d-none");
+            }
+        }
     }
 }
 

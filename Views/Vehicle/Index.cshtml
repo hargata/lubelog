@@ -165,7 +165,9 @@
             odometerOptional: @Model.OdometerOptional.ToString().ToLower(),
             hasOdometerAdjustment: @Model.HasOdometerAdjustment.ToString().ToLower(),
             odometerDifference: decodeHTMLEntities('@Model.OdometerDifference'),
-            odometerMultiplier: decodeHTMLEntities('@Model.OdometerMultiplier')
+            odometerMultiplier: decodeHTMLEntities('@Model.OdometerMultiplier'),
+            odometerValidation: decodeHTMLEntities('@Model.OdometerValidation'),
+            maxOdometerDifference: decodeHTMLEntities('@Model.MaxOdometerDifference')
         };
     }
     function GetDefaultTab() {
