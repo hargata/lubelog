@@ -134,12 +134,12 @@
                     @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
                     {
                         <label for="inputImage">@translator.Translate(userLanguage, "Replace picture(optional)")</label>
-                        <input onChange="uploadFileAsync(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
+                        <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     }
                     else
                     {
                         <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
-                        <input onChange="uploadFileAsync(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
+                        <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     }
                 </div>
             </div>
