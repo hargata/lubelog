@@ -230,11 +230,6 @@ function hideTripModal() {
     $(".odometer-modal").removeClass('d-none');
     $(".trip-modal").addClass('d-none');
 }
-//Trip Recording Variables
-let tripTimer; //interval to check GPS Location every 5 seconds.
-let tripWakeLock; //wakelock handler to prevent screen from going to sleep.
-let tripLastPosition; //last coordinates to compare/calculate distance from.
-let tripCoordinates = [ "Latitude,Longitude" ]; //list of coordinates to generate a CSV for.
 function startRecording() {
     if (navigator.geolocation && navigator.wakeLock) {
         try {
