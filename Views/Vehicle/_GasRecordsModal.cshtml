@@ -33,7 +33,24 @@
                         var elementId = Guid.NewGuid();
                         <div class="extra-field">
                             <label for="@elementId">@field.Name</label>
-                            <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                            @switch(field.FieldType)
+                            {
+                                case ExtraFieldType.Text: 
+                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                                break;
+                                case ExtraFieldType.Date: 
+                                    <input type="date" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
+                                break;
+                                case ExtraFieldType.Number: 
+                                    <input type="number" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
+                                break;
+                                case ExtraFieldType.Time: 
+                                    <input type="time" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
+                                break;
+                                default:
+                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                                break;
+                            }
                         </div>
                     }
                 </div>
