@@ -333,3 +333,10 @@ function saveRecordedOdometer() {
     });
     hideTripModal();
 }
+function toggleSubOdometer() {
+    if ($(".trip-odometer-sub").hasClass("d-none")) {
+        $(".trip-odometer-sub").removeClass("d-none");
+    } else {
+        $(".trip-odometer-sub").addClass("d-none");
+    }
+}
