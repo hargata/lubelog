@@ -226,9 +226,25 @@ function showTripModal() {
     $(".trip-odometer").text($("#initialOdometerRecordMileage").val());
 }
 function hideTripModal() {
-    stopRecording();
-    $(".odometer-modal").removeClass('d-none');
-    $(".trip-modal").addClass('d-none');
+    //check if recording is in progress
+    if (tripTimer != undefined || tripWakeLock != undefined) {
+        Swal.fire({
+            title: "Confirm Exit?",
+            text: "Recording in Progress, Exit?",
+            showCancelButton: true,
+            confirmButtonText: "Exit",
+            confirmButtonColor: "#dc3545"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                stopRecording();
+                $(".odometer-modal").removeClass('d-none');
+                $(".trip-modal").addClass('d-none');
+            }
+        });
+    } else {
+        $(".odometer-modal").removeClass('d-none');
+        $(".trip-modal").addClass('d-none');
+    }
 }
 function startRecording() {
     if (navigator.geolocation && navigator.wakeLock) {
@@ -240,6 +256,11 @@ function startRecording() {
                 }, 5000);
                 $(".trip-start").addClass('d-none');
                 $(".trip-stop").removeClass('d-none');
+                //modify modal to prevent closing
+                $("#odometerRecordModal").on("hide.bs.modal", function (event) {
+                    event.preventDefault();
+                    hideTripModal();
+                });
             });
         } catch (err) {
             errorSwal('Location Services not Enabled');
@@ -280,13 +301,19 @@ function recordPosition(position) {
 function stopRecording() {
     if (tripTimer != undefined) {
         clearInterval(tripTimer);
+        tripTimer = undefined;
     }
     if (tripWakeLock != undefined) {
         tripWakeLock.release();
+        tripWakeLock = undefined;
+    }
+    if (tripLastPosition != undefined) {
+        tripLastPosition = undefined;
     }
     $(".trip-start").removeClass('d-none');
     $(".trip-stop").addClass('d-none');
-    if (getRecordedOdometer() != $("#initialOdometerRecordMileage").val()) {
+    $("#odometerRecordModal").off("hide.bs.modal");
+    if (parseInt(getRecordedOdometer()) != $("#initialOdometerRecordMileage").val()) {
         $(".trip-save").removeClass('d-none');
     }
 }
@@ -320,12 +347,15 @@ function saveRecordedOdometer() {
     //update current odometer value
     $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
     //save coordinates into a CSV file and upload
-    $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
-        uploadedFiles.push(response);
-        $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
-            $("#filesPendingUpload").html(viewData);
+    if (tripCoordinates.length > 0) {
+        $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
+            uploadedFiles.push(response);
+            $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                $("#filesPendingUpload").html(viewData);
+                tripCoordinates = [];
+            });
         });
-    });
+    }
     hideTripModal();
 }
 function toggleSubOdometer() {
