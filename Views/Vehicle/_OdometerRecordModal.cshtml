@@ -129,10 +129,10 @@
 </div>
 <script>
     //Trip Recording Variables
-    let tripTimer; //interval to check GPS Location every 5 seconds.
-    let tripWakeLock; //wakelock handler to prevent screen from going to sleep.
-    let tripLastPosition; //last coordinates to compare/calculate distance from.
-    let tripCoordinates = ["Latitude,Longitude"]; //list of coordinates to generate a CSV for.
+    var tripTimer = undefined; //interval to check GPS Location every 5 seconds.
+    var tripWakeLock = undefined; //wakelock handler to prevent screen from going to sleep.
+    var tripLastPosition = undefined; //last coordinates to compare/calculate distance from.
+    var tripCoordinates = ["Latitude,Longitude"]; //list of coordinates to generate a CSV for.
     var uploadedFiles = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
