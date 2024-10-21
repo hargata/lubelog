@@ -13,6 +13,14 @@
 </div>
 <div class="modal-body d-none trip-modal">
     <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning alert-dismissable" role="alert">
+                @translator.Translate(userLanguage, "Experimental Feature - Your browser must be granted access to your precise location and support Geolocation and Wakelock API for this feature to function. Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations.")
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-12 d-flex justify-content-center">
             <h1 class="display-6 text-body-secondary">@translator.Translate(userLanguage, "Current Odometer")</h1>
         </div>
@@ -20,7 +28,7 @@
     <div class="row">
         <div class="col-12 d-flex justify-content-center align-items-center">
             <h1 class="display-1 trip-odometer"></h1>
-            <h1 class="display-6 trip-odometer-sub ms-2">0</h1>
+            <h1 class="display-6 trip-odometer-sub ms-2 d-none">0</h1>
         </div>
     </div>
 </div>

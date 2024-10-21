@@ -92,5 +92,18 @@ namespace CarCareTracker.Controllers
             }
             return Path.Combine("/", uploadDirectory, fileName);
         }
+        public IActionResult UploadCoordinates(List<string> coordinates)
+        {
+            string uploadDirectory = "temp/";
+            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+            string fileName = Guid.NewGuid() + ".csv";
+            string filePath = Path.Combine(uploadPath, fileName);
+            string fileData = string.Join("\r\n", coordinates);
+            System.IO.File.WriteAllText(filePath, fileData);
+            var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName) };
+            return Json(uploadedFile);
+        }
     }
 }

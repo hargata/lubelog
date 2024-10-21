@@ -226,6 +226,7 @@ function showTripModal() {
     $(".trip-odometer").text($("#initialOdometerRecordMileage").val());
 }
 function hideTripModal() {
+    stopRecording();
     $(".odometer-modal").removeClass('d-none');
     $(".trip-modal").addClass('d-none');
 }
@@ -233,6 +234,7 @@ function hideTripModal() {
 let tripTimer; //interval to check GPS Location every 5 seconds.
 let tripWakeLock; //wakelock handler to prevent screen from going to sleep.
 let tripLastPosition; //last coordinates to compare/calculate distance from.
+let tripCoordinates = [ "Latitude,Longitude" ]; //list of coordinates to generate a CSV for.
 function startRecording() {
     if (navigator.geolocation && navigator.wakeLock) {
         try {
@@ -259,17 +261,24 @@ function recordPosition(position) {
             latitude: currentLat,
             longitude: currentLong
         }
+        tripCoordinates.push(`${currentLat},${currentLong}`);
     } else {
         //calculate distance
         var distanceTraveled = calculateDistance(tripLastPosition.latitude, tripLastPosition.longitude, currentLat, currentLong);
         var recordedTotalOdometer = getRecordedOdometer();
-        if (distanceTraveled > 0.1) { //if greater than 0.1 mile or KM then it's significant
-            recordedTotalOdometer += distanceTraveled.toFixed(1);
-            var recordedOdometerString = recordedTotalOdometer.toString().split('.');
+        if (distanceTraveled >= 0.1) { //if greater than 0.1 mile or KM then it's significant
+            recordedTotalOdometer += parseFloat(distanceTraveled.toFixed(3));
+            var recordedOdometerString = recordedTotalOdometer.toFixed(3).toString().split('.');
             $(".trip-odometer").html(recordedOdometerString[0]);
-            if (recordedOdometerString.length > 2) {
+            if (recordedOdometerString.length == 2) {
                 $(".trip-odometer-sub").html(recordedOdometerString[1]);
             }
+            //update last position
+            tripLastPosition = {
+                latitude: currentLat,
+                longitude: currentLong
+            }
+            tripCoordinates.push(`${currentLat},${currentLong}`);
         }
     }
 }
@@ -313,6 +322,14 @@ function getRecordedOdometer() {
     return parseFloat(`${recordedOdometer}.${recordedSubOdometer}`);
 }
 function saveRecordedOdometer() {
-    $("#initialOdometerRecordMileage").val(getRecordedOdometer());
+    //update current odometer value
+    $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
+    //save coordinates into a CSV file and upload
+    $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
+        uploadedFiles.push(response);
+        $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+            $("#filesPendingUpload").html(viewData);
+        });
+    });
     hideTripModal();
 }
