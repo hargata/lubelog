@@ -12,7 +12,28 @@
     <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Odometer Record") : translator.Translate(userLanguage, "Edit Odometer Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditOdometerRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddOdometerRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body" onkeydown="handleEnter(this)">
+<div class="modal-body d-none trip-modal">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning alert-dismissable" role="alert">
+                @translator.Translate(userLanguage, "Experimental Feature - Your browser must be granted access to your precise location and support Geolocation and Wakelock API for this feature to function. Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations.")
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+            <h1 class="display-6 text-body-secondary">@translator.Translate(userLanguage, "Current Odometer")</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center align-items-center">
+            <h1 class="display-1 trip-odometer" onclick="toggleSubOdometer()"></h1>
+            <h1 class="display-6 trip-odometer-sub ms-2 d-none">0</h1>
+        </div>
+    </div>
+</div>
+<div class="modal-body odometer-modal" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
@@ -40,6 +61,9 @@
                         {
                             <div class="input-group-text">
                                 <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')"><i class="bi bi-plus"></i></button>
+                            </div>
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-danger zero-y-padding" onclick="showTripModal()"><i class="bi bi-record-fill"></i></button>
                             </div>
                         }
                         <div id="maxDifference-feedback" class="d-none">
@@ -115,7 +139,13 @@
         </div>
     </form>
 </div>
-<div class="modal-footer">
+<div class="modal-footer d-none trip-modal">
+    <button type="button" class="btn btn-danger trip-start" onclick="startRecording()" style="margin-right:auto;">@translator.Translate(userLanguage, "Start Recording")</button>
+    <button type="button" class="btn btn-danger d-none trip-stop" onclick="stopRecording()" style="margin-right:auto;">@translator.Translate(userLanguage, "Stop Recording")</button>
+    <button type="button" class="btn btn-secondary" onclick="hideTripModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary d-none trip-save" onclick="saveRecordedOdometer()">@translator.Translate(userLanguage, "Save")</button>
+</div>
+<div class="modal-footer odometer-modal">
     @if (!isNew)
     {
         <button type="button" class="btn btn-danger" onclick="deleteOdometerRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
@@ -131,6 +161,11 @@
     }
 </div>
 <script>
+    //Trip Recording Variables
+    let tripTimer; //interval to check GPS Location every 5 seconds.
+    let tripWakeLock; //wakelock handler to prevent screen from going to sleep.
+    let tripLastPosition; //last coordinates to compare/calculate distance from.
+    let tripCoordinates = ["Latitude,Longitude"]; //list of coordinates to generate a CSV for.
     var uploadedFiles = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {

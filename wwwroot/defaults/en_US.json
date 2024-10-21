@@ -379,5 +379,8 @@
   "Maximum_difference_between_odometer_values": "Maximum difference between odometer values",
   "Difference_between_initial_odometer_reading_and_input_is_more_than_configured_in_odometer_validation": "Difference between initial odometer reading and input is more than configured in odometer validation",
   "Odometer_value_cannot_be_empty_or_negative": "Odometer value cannot be empty or negative",
-  "Odometer_value_can't_be_less_than_initial_value": "Odometer value can't be less than initial value"
+  "Odometer_value_can't_be_less_than_initial_value": "Odometer value can't be less than initial value",
+  "Start_Recording":"Start Recording",
+  "Stop_Recording":"Stop Recording",
+  "Current_Odometer":"Current Odometer","Experimental_Feature_-_Your_browser_must_be_granted_access_to_your_precise_location_and_support_Geolocation_and_Wakelock_API_for_this_feature_to_function._Do_not_exit_or_minimize_this_app_when_recording._Verify_all_starting_and_ending_odometers._Accuracy_subject_to_hardware_limitations.":"Experimental Feature - Your browser must be granted access to your precise location and support Geolocation and Wakelock API for this feature to function. Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations."
 }

@@ -254,3 +254,119 @@ function toggleInitialOdometerEnabled() {
     }
     
 }
+function showTripModal() {
+    $(".odometer-modal").addClass('d-none');
+    $(".trip-modal").removeClass('d-none');
+    //set current odometer
+    $(".trip-odometer").text($("#initialOdometerRecordMileage").val());
+}
+function hideTripModal() {
+    stopRecording();
+    $(".odometer-modal").removeClass('d-none');
+    $(".trip-modal").addClass('d-none');
+}
+function startRecording() {
+    if (navigator.geolocation && navigator.wakeLock) {
+        try {
+            navigator.wakeLock.request('screen').then((wl) => {
+                tripWakeLock = wl;
+                tripTimer = setInterval(() => {
+                    navigator.geolocation.getCurrentPosition(recordPosition, stopRecording, { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                }, 5000);
+                $(".trip-start").addClass('d-none');
+                $(".trip-stop").removeClass('d-none');
+            });
+        } catch (err) {
+            errorSwal('Location Services not Enabled');
+        }
+    } else {
+        errorSwal('Browser does not support GeoLocation and/or WakeLock API');
+    }
+}
+function recordPosition(position) {
+    var currentLat = position.coords.latitude;
+    var currentLong = position.coords.longitude;
+    if (tripLastPosition == undefined) {
+        tripLastPosition = {
+            latitude: currentLat,
+            longitude: currentLong
+        }
+        tripCoordinates.push(`${currentLat},${currentLong}`);
+    } else {
+        //calculate distance
+        var distanceTraveled = calculateDistance(tripLastPosition.latitude, tripLastPosition.longitude, currentLat, currentLong);
+        var recordedTotalOdometer = getRecordedOdometer();
+        if (distanceTraveled >= 0.1) { //if greater than 0.1 mile or KM then it's significant
+            recordedTotalOdometer += parseFloat(distanceTraveled.toFixed(3));
+            var recordedOdometerString = recordedTotalOdometer.toFixed(3).toString().split('.');
+            $(".trip-odometer").html(recordedOdometerString[0]);
+            if (recordedOdometerString.length == 2) {
+                $(".trip-odometer-sub").html(recordedOdometerString[1]);
+            }
+            //update last position
+            tripLastPosition = {
+                latitude: currentLat,
+                longitude: currentLong
+            }
+            tripCoordinates.push(`${currentLat},${currentLong}`);
+        }
+    }
+}
+function stopRecording() {
+    if (tripTimer != undefined) {
+        clearInterval(tripTimer);
+    }
+    if (tripWakeLock != undefined) {
+        tripWakeLock.release();
+    }
+    $(".trip-start").removeClass('d-none');
+    $(".trip-stop").addClass('d-none');
+    if (getRecordedOdometer() != $("#initialOdometerRecordMileage").val()) {
+        $(".trip-save").removeClass('d-none');
+    }
+}
+// Converts numeric degrees to radians
+function toRad(Value) {
+    return Value * Math.PI / 180;
+}
+//haversine
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    var earthRadius = 6371; // km radius of the earth
+    var dLat = toRad(lat2 - lat1);
+    var dLon = toRad(lon2 - lon1);
+    var lat1 = toRad(lat1);
+    var lat2 = toRad(lat2);
+
+    var sinOne = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var tanOne = 2 * Math.atan2(Math.sqrt(sinOne), Math.sqrt(1 - sinOne));
+    var calculatedDistance = earthRadius * tanOne; 
+    if (getGlobalConfig().useMPG) {
+        calculatedDistance *= 0.621; //convert to mile if needed.
+    }
+    return Math.abs(calculatedDistance);
+}
+function getRecordedOdometer() {
+    var recordedOdometer = parseInt($(".trip-odometer").html());
+    var recordedSubOdometer = parseInt($(".trip-odometer-sub").html());
+    return parseFloat(`${recordedOdometer}.${recordedSubOdometer}`);
+}
+function saveRecordedOdometer() {
+    //update current odometer value
+    $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
+    //save coordinates into a CSV file and upload
+    $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
+        uploadedFiles.push(response);
+        $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+            $("#filesPendingUpload").html(viewData);
+        });
+    });
+    hideTripModal();
+}
+function toggleSubOdometer() {
+    if ($(".trip-odometer-sub").hasClass("d-none")) {
+        $(".trip-odometer-sub").removeClass("d-none");
+    } else {
+        $(".trip-odometer-sub").addClass("d-none");
+    }
+}
