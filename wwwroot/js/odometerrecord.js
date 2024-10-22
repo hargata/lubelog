@@ -263,10 +263,10 @@ function startRecording() {
                 });
             });
         } catch (err) {
-            errorSwal('Location Services not Enabled');
+            errorToast('Location Services not Enabled');
         }
     } else {
-        errorSwal('Browser does not support GeoLocation and/or WakeLock API');
+        errorToast('Browser does not support GeoLocation and/or WakeLock API');
     }
 }
 function recordPosition(position) {
@@ -298,7 +298,17 @@ function recordPosition(position) {
         }
     }
 }
-function stopRecording() {
+function stopRecording(errMsg) {
+    if (errMsg && errMsg.code) {
+        switch (errMsg.code) {
+            case 1:
+                errorToast(errMsg.message);
+                break;
+            case 2:
+                errorToast("Location Unavailable");
+                break;
+        }
+    }
     if (tripTimer != undefined) {
         clearInterval(tripTimer);
         tripTimer = undefined;
@@ -363,5 +373,13 @@ function toggleSubOdometer() {
         $(".trip-odometer-sub").removeClass("d-none");
     } else {
         $(".trip-odometer-sub").addClass("d-none");
+    }
+}
+function checkTripRecorder() {
+    //check if connection is https, browser supports required API, and that vehicle does not use engine hours
+    if (location.protocol != 'https:' || !navigator.geolocation || !navigator.wakeLock || GetVehicleId().useEngineHours) {
+        $(".trip-show").remove();
+    } else {
+        $(".trip-show").removeClass('d-none');
     }
 }

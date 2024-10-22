@@ -15,8 +15,7 @@
     <div class="row">
         <div class="col-12">
             <div class="alert alert-warning alert-dismissable" role="alert">
-                @translator.Translate(userLanguage, "Experimental Feature - Your browser must be granted access to your precise location and support Geolocation and Wakelock API for this feature to function. Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations.")
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @translator.Translate(userLanguage, "Experimental Feature - Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations.")
             </div>
         </div>
     </div>
@@ -61,7 +60,7 @@
                             <div class="input-group-text">
                                 <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')"><i class="bi bi-plus"></i></button>
                             </div>
-                            <div class="input-group-text">
+                            <div class="input-group-text trip-show d-none">
                                 <button type="button" class="btn btn-sm btn-danger zero-y-padding" onclick="showTripModal()"><i class="bi bi-record-fill"></i></button>
                             </div>
                         }
@@ -144,4 +143,5 @@
     function getOdometerRecordModelData() {
         return { id: @Model.Id}
     }
+    checkTripRecorder();
 </script>
