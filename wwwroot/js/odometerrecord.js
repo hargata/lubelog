@@ -123,7 +123,7 @@ function getAndValidateOdometerRecordValues() {
         $("#empty-feedback").removeClass("invalid-feedback");
         $("#empty-feedback").addClass("d-none");
 
-        if (odometerValidation) {
+        if (String(odometerValidation).toLowerCase() === 'true') {
             validateOdometerInput();
         }
     }
