@@ -15,6 +15,7 @@
         public bool OdometerOptional { get; set; } = false;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<string> Tags { get; set; } = new List<string>();
+        public string VehicleIdentifier { get; set; } = "LicensePlate";
         //Dashboard Metric Attributes
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
         public int LastReportedMileage { get; set; }

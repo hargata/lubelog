@@ -28,5 +28,9 @@
         /// </summary>
         public string OdometerDifference { get; set; } = "0";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
+        /// <summary>
+        /// Determines what is displayed in place of the license plate.
+        /// </summary>
+        public string VehicleIdentifier { get; set; } = "LicensePlate";
     }
 }

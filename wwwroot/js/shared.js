@@ -49,6 +49,7 @@ function saveVehicle(isEdit) {
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
     var vehiclePurchasePrice = $("#inputPurchasePrice").val();
     var vehicleSoldPrice = $("#inputSoldPrice").val();
+    var vehicleIdentifier = $("#inputIdentifier").val();
     var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
         return this.value;
     }).toArray();
@@ -76,12 +77,26 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputModel").removeClass("is-invalid");
     }
-    if (vehicleLicensePlate.trim() == '') {
-        hasError = true;
-        $("#inputLicensePlate").addClass("is-invalid");
+    if (vehicleIdentifier == "LicensePlate") {
+        if (vehicleLicensePlate.trim() == '') {
+            hasError = true;
+            $("#inputLicensePlate").addClass("is-invalid");
+        } else {
+            $("#inputLicensePlate").removeClass("is-invalid");
+        }
     } else {
         $("#inputLicensePlate").removeClass("is-invalid");
+        //check if extra fields have value.
+        var vehicleIdentifierExtraField = extraFields.extraFields.filter(x => x.name == vehicleIdentifier);
+        //check if extra field exists.
+        if (vehicleIdentifierExtraField.length == 0) {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).addClass("is-invalid");
+            hasError = true;
+        } else {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).removeClass("is-invalid");
+        }
     }
+    
     if (vehicleHasOdometerAdjustment) {
         //validate odometer adjustments
         //validate multiplier
@@ -136,7 +151,8 @@ function saveVehicle(isEdit) {
         odometerDifference: vehicleOdometerDifference,
         purchasePrice: vehiclePurchasePrice,
         soldPrice: vehicleSoldPrice,
-        dashboardMetrics: vehicleDashboardMetrics
+        dashboardMetrics: vehicleDashboardMetrics,
+        vehicleIdentifier: vehicleIdentifier
     }, function (data) {
         if (data) {
             if (!isEdit) {

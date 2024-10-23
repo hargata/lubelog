@@ -298,6 +298,40 @@ namespace CarCareTracker.Helper
                     return "bi-file-bar-graph";
             }
         }
+        public static string GetVehicleIdentifier(Vehicle vehicle)
+        {
+            if (vehicle.VehicleIdentifier == "LicensePlate")
+            {
+                return vehicle.LicensePlate;
+            } else
+            {
+                if (vehicle.ExtraFields.Any(x=>x.Name == vehicle.VehicleIdentifier))
+                {
+                    return vehicle.ExtraFields?.FirstOrDefault(x=>x.Name == vehicle.VehicleIdentifier)?.Value;
+                } else
+                {
+                    return "N/A";
+                }
+            }
+        }
+        public static string GetVehicleIdentifier(VehicleViewModel vehicle)
+        {
+            if (vehicle.VehicleIdentifier == "LicensePlate")
+            {
+                return vehicle.LicensePlate;
+            }
+            else
+            {
+                if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
+                {
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value;
+                }
+                else
+                {
+                    return "N/A";
+                }
+            }
+        }
         //CSV Write Methods
         public static void WriteGenericRecordExportModel(CsvWriter _csv, IEnumerable<GenericRecordExportModel> genericRecords)
         {

@@ -109,7 +109,7 @@ namespace CarCareTracker.Helper
             string emailSubject = $"Vehicle Reminders From LubeLogger - {DateTime.Now.ToShortDateString()}";
             //construct html table.
             string emailBody = File.ReadAllText(emailTemplatePath);
-            emailBody = emailBody.Replace("{VehicleInformation}", $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate}");
+            emailBody = emailBody.Replace("{VehicleInformation}", $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)}");
             string tableBody = "";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
