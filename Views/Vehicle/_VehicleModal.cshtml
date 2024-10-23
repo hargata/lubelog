@@ -44,8 +44,8 @@
                             <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                         </div>
                     }
-                    <label for="inputIdentifier">@translator.Translate(userLanguage, "Identifier")</label>
-                    <select class="form-select" id="inputIdentifier" )>
+                    <label for="inputIdentifier" class="@(!Model.ExtraFields.Any() ? "d-none" : "")">@translator.Translate(userLanguage, "Identifier")</label>
+                    <select class="form-select @(!Model.ExtraFields.Any() ? "d-none" : "")" id="inputIdentifier" )>
                         <!option value="LicensePlate" @(Model.VehicleIdentifier == "LicensePlate" ? "selected" : "")>@translator.Translate(userLanguage, "License Plate")</!option>
                         @foreach(ExtraField field in Model.ExtraFields)
                         {
