@@ -7,7 +7,7 @@
 }
 @model Vehicle
 @{
-    ViewData["Title"] = $"{Model.Year} {Model.Make} {Model.Model} ({Model.LicensePlate})";
+    ViewData["Title"] = $"{Model.Year} {Model.Make} {Model.Model} ({StaticHelper.GetVehicleIdentifier(Model)})";
 }
 @section Scripts {
     <script src="~/js/vehicle.js?v=@StaticHelper.VersionNumber"></script>
@@ -72,7 +72,7 @@
     <div class="row">
         <div class="d-flex justify-content-between">
             <button onclick="returnToGarage()" class="lubelogger-tab btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></button>
-            <h1 class="text-truncate display-4">@($"{Model.Year} {Model.Make} {Model.Model}")<small class="text-body-secondary">@($"(#{Model.LicensePlate})")</small></h1>
+            <h1 class="text-truncate display-4">@($"{Model.Year} {Model.Make} {Model.Model}")<small class="text-body-secondary">@($"(#{StaticHelper.GetVehicleIdentifier(Model)})")</small></h1>
             <button onclick="editVehicle(@Model.Id)" class="lubelogger-tab btn btn-warning btn-md mt-1 mb-1"><i class="bi bi-pencil-square"></i></button>
             <div class="lubelogger-navbar-button">
                 <button type="button" class="btn btn-adaptive" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>

@@ -75,7 +75,8 @@ namespace CarCareTracker.Controllers
                     OdometerOptional = x.OdometerOptional,
                     ExtraFields = x.ExtraFields,
                     Tags = x.Tags,
-                    DashboardMetrics = x.DashboardMetrics
+                    DashboardMetrics = x.DashboardMetrics,
+                    VehicleIdentifier = x.VehicleIdentifier
                 };
                 //dashboard metrics
                 if (x.DashboardMetrics.Any())
@@ -122,7 +123,7 @@ namespace CarCareTracker.Controllers
                 if (vehicleReminders.Any())
                 {
                     var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, 0, DateTime.Now);
-                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
+                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" }).ToList();
                     reminders.AddRange(reminderUrgency);
                 }
             }

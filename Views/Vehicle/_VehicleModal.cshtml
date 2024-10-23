@@ -44,10 +44,18 @@
                             <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                         </div>
                     }
+                    <label for="inputIdentifier">@translator.Translate(userLanguage, "Identifier")</label>
+                    <select class="form-select" id="inputIdentifier" )>
+                        <!option value="LicensePlate" @(Model.VehicleIdentifier == "LicensePlate" ? "selected" : "")>@translator.Translate(userLanguage, "License Plate")</!option>
+                        @foreach(ExtraField field in Model.ExtraFields)
+                        {
+                            <!option value="@field.Name" @(Model.VehicleIdentifier == field.Name ? "selected" : "")>@field.Name</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="inputFuelType">@translator.Translate(userLanguage, "Fuel Type")</label>
-                    <select class="form-select" onchange="checkCustomMonthInterval()" id="inputFuelType")>
+                    <select class="form-select" id="inputFuelType")>
                         <!option value="Gasoline" @(!Model.IsDiesel && !Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Gasoline")</!option>
                         <!option value="Diesel" @(Model.IsDiesel ? "selected" : "")>@translator.Translate(userLanguage, "Diesel")</!option>
                         <!option value="Electric" @(Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Electric")</!option>

@@ -21,9 +21,21 @@
                 <li class="list-group-item">
                     <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
                 </li>
-                <li class="list-group-item">
-                    <span class="lead">@Model.VehicleData.LicensePlate</span>
-                </li>
+                @if (!string.IsNullOrWhiteSpace(Model.VehicleData.LicensePlate))
+                {
+                    <li class="list-group-item">
+                        <span class="lead">@Model.VehicleData.LicensePlate</span>
+                    </li>
+                }
+                @foreach(ExtraField extraField in Model.VehicleData.ExtraFields)
+                {
+                    if (!string.IsNullOrWhiteSpace(extraField.Value))
+                    {
+                        <li class="list-group-item">
+                            <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                        </li>
+                    }
+                }
                 <li class="list-group-item">
                     <div class="row">
                         <div class="col-4">
