@@ -164,6 +164,7 @@
             vehicleId: @Model.Id, 
             odometerOptional: @Model.OdometerOptional.ToString().ToLower(),
             hasOdometerAdjustment: @Model.HasOdometerAdjustment.ToString().ToLower(),
+            useEngineHours: @Model.UseHours.ToString().ToLower(),
             odometerDifference: decodeHTMLEntities('@Model.OdometerDifference'),
             odometerMultiplier: decodeHTMLEntities('@Model.OdometerMultiplier'),
             odometerValidation: decodeHTMLEntities('@Model.OdometerValidation'),
