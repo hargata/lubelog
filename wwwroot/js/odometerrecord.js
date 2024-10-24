@@ -252,7 +252,7 @@ function startRecording() {
             navigator.wakeLock.request('screen').then((wl) => {
                 tripWakeLock = wl;
                 tripTimer = setInterval(() => {
-                    navigator.geolocation.getCurrentPosition(recordPosition, stopRecording, { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                    navigator.geolocation.getCurrentPosition(recordPosition, stopRecording, { maximumAge: 1000, timeout: 4000, enableHighAccuracy: true });
                 }, 5000);
                 $(".trip-start").addClass('d-none');
                 $(".trip-stop").removeClass('d-none');
