@@ -12,13 +12,13 @@
 </div>
 <div class="modal-body" onkeydown="handleEnter(this)">
     <form class="form-inline">
-        <div class="form-group">
+        <div class="form-group" style="max-height:50vh; overflow-x:hidden; overflow-y:scroll;">
             @foreach(var translation in Model)
             {
                 <div class="row translation-keyvalue mb-2">
                     <div class="col-md-6 col-12 translation-key">@translation.Key.Replace("_", " ")</div>
                     <div class="col-md-6 col-12 translation-value">
-                        <textarea style="height:100%;" class="form-control" placeholder="@translation.Value">@translation.Value</textarea>
+                        <textarea style="height:100%;width:98%;" class="form-control" placeholder="@translation.Value">@translation.Value</textarea>
                     </div>
                 </div>
             }
