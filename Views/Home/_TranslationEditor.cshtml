@@ -1,0 +1,39 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model Dictionary<string, string>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="translationEditorModalLabel">@translator.Translate(userLanguage, "Translation Editor")</h5>
+    <button type="button" class="btn-close" onclick="hideTranslationEditor()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form class="form-inline">
+        <div class="form-group">
+            @foreach(var translation in Model)
+            {
+                <div class="row translation-keyvalue mb-2">
+                    <div class="col-md-6 col-12 translation-key">@translation.Key.Replace("_", " ")</div>
+                    <div class="col-md-6 col-12 translation-value">
+                        <textarea style="height:100%;" class="form-control" placeholder="@translation.Value">@translation.Value</textarea>
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideTranslationEditor()">@translator.Translate(userLanguage, "Cancel")</button>
+    <div class="btn-group">
+        <button type="button" onclick="saveTranslation()" class="btn btn-primary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Save Translation")</button>
+        <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" onclick="exportTranslation()">@translator.Translate(userLanguage, "Export Translation")</a></li>
+        </ul>
+    </div>
+</div>

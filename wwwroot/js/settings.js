@@ -164,3 +164,73 @@ function loadSponsors() {
         $("#sponsorsContainer").html(data);
     })
 }
+
+function showTranslationEditor() {
+    $.get(`/Home/GetTranslatorEditor?userLanguage=${$("#defaultLanguage").val()}`, function (data) {
+        $('#translationEditorModalContent').html(data);
+        $('#translationEditorModal').modal('show');
+    })
+}
+function hideTranslationEditor() {
+    $('#translationEditorModal').modal('hide');
+}
+function saveTranslation() {
+    var currentLanguage = $("#defaultLanguage").val();
+    var translationData = [];
+    $(".translation-keyvalue").map((index, elem) => {
+        var translationKey = $(elem).find('.translation-key');
+        var translationValue = $(elem).find('.translation-value textarea');
+        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+    });
+    if (translationData.length == 0) {
+        errorToast(genericErrorMessage());
+        return;
+    }
+    Swal.fire({
+        title: 'Save Translation',
+        html: `
+                                    <input type="text" id="translationFileName" class="swal2-input" placeholder="Translation Name" value="${currentLanguage}" onkeydown="handleSwalEnter(event)">
+                                    `,
+        confirmButtonText: 'Save',
+        focusConfirm: false,
+        preConfirm: () => {
+            const translationFileName = $("#translationFileName").val();
+            if (!translationFileName || translationFileName.trim() == '') {
+                Swal.showValidationMessage(`Please enter a valid file name`);
+            } else if (translationFileName.trim() == 'en_US') {
+                Swal.showValidationMessage(`en_US is reserved, please enter a different name`);
+            }
+            return { translationFileName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Home/SaveTranslation', { userLanguage: result.value.translationFileName, translationData: translationData }, function (data) {
+                if (data.success) {
+                    successToast("Translation Updated");
+                    updateSettings();
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        }
+    });
+}
+function exportTranslation(){
+    var translationData = [];
+    $(".translation-keyvalue").map((index, elem) => {
+        var translationKey = $(elem).find('.translation-key');
+        var translationValue = $(elem).find('.translation-value textarea');
+        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+    });
+    if (translationData.length == 0) {
+        errorToast(genericErrorMessage());
+        return;
+    }
+    $.post('/Home/ExportTranslation', { translationData: translationData }, function (data) {
+        if (!data) {
+            errorToast(genericErrorMessage());
+        } else {
+            window.location.href = data;
+        }
+    });
+}

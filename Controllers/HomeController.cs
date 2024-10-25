@@ -22,6 +22,7 @@ namespace CarCareTracker.Controllers
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
+        private readonly ITranslationHelper _translationHelper;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
@@ -31,7 +32,8 @@ namespace CarCareTracker.Controllers
             IFileHelper fileHelper,
             IExtraFieldDataAccess extraFieldDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
-            IReminderHelper reminderHelper)
+            IReminderHelper reminderHelper,
+            ITranslationHelper translationHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -43,6 +45,7 @@ namespace CarCareTracker.Controllers
             _reminderHelper = reminderHelper;
             _loginLogic = loginLogic;
             _vehicleLogic = vehicleLogic;
+            _translationHelper = translationHelper;
         }
         private int GetUserID()
         {
@@ -259,6 +262,27 @@ namespace CarCareTracker.Controllers
         {
             var userName = User.Identity.Name;
             return PartialView("_RootAccountModal", new UserData() { UserName = userName });
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetTranslatorEditor(string userLanguage)
+        {
+            var translationData = _translationHelper.GetTranslations(userLanguage);
+            return PartialView("_TranslationEditor", translationData);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult SaveTranslation(string userLanguage, Dictionary<string, string> translationData)
+        {
+            var result = _translationHelper.SaveTranslation(userLanguage, translationData);
+            return Json(result);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult ExportTranslation(Dictionary<string, string> translationData)
+        {
+            var result = _translationHelper.ExportTranslation(translationData);
+            return Json(result);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -165,12 +165,28 @@
             </div>
             <div class="col-12 col-md-6">
                 <span class="lead">@translator.Translate(userLanguage, "Language")</span>
-                <select class="form-select" onchange="updateSettings()" id="defaultLanguage">
-                    @foreach (string uiLanguage in Model.UILanguages)
-                    {
-                        <!option @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@uiLanguage</!option>
-                    }
-                </select>
+                @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                {
+                    <div class="input-group">
+                        <select class="form-select" onchange="updateSettings()" id="defaultLanguage">
+                            @foreach (string uiLanguage in Model.UILanguages)
+                            {
+                                <!option @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@uiLanguage</!option>
+                            }
+                        </select>
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="showTranslationEditor()"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </div>
+                } else
+                {
+                    <select class="form-select" onchange="updateSettings()" id="defaultLanguage">
+                        @foreach (string uiLanguage in Model.UILanguages)
+                        {
+                            <!option @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@uiLanguage</!option>
+                        }
+                    </select>
+                }
             </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
@@ -283,6 +299,12 @@
 <div class="modal fade" data-bs-focus="false" id="extraFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="extraFieldModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="translationEditorModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="translationEditorModalContent">
         </div>
     </div>
 </div>
