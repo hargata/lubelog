@@ -234,3 +234,22 @@ function exportTranslation(){
         }
     });
 }
+function showTranslationDownloader() {
+    $.get('/Home/GetAvailableTranslations', function(data){
+        $('#translationDownloadModalContent').html(data);
+        $('#translationDownloadModal').modal('show');
+    })
+}
+function hideTranslationDownloader() {
+    $('#translationDownloadModal').modal('hide');
+}
+function downloadTranslation(continent, name) {
+    $.get(`/Home/DownloadTranslation?continent=${continent}&name=${name}`, function (data) {
+        if (data) {
+            successToast("Translation Downloaded");
+            updateSettings();
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}

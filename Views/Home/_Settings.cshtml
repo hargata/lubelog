@@ -171,7 +171,7 @@
                         <select class="form-select" onchange="updateSettings()" id="defaultLanguage">
                             @foreach (string uiLanguage in Model.UILanguages)
                             {
-                                <!option @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@uiLanguage</!option>
+                                <!option value="@uiLanguage" @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@StaticHelper.GetTranslationName(uiLanguage)</!option>
                             }
                         </select>
                         <div class="input-group-text">
@@ -183,7 +183,7 @@
                     <select class="form-select" onchange="updateSettings()" id="defaultLanguage">
                         @foreach (string uiLanguage in Model.UILanguages)
                         {
-                            <!option @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@uiLanguage</!option>
+                            <!option value="@uiLanguage" @(Model.UserConfig.UserLanguage == uiLanguage ? "selected" : "")>@StaticHelper.GetTranslationName(uiLanguage)</!option>
                         }
                     </select>
                 }
@@ -209,7 +209,16 @@
                     <div class="row">
                         <div class="col-6 d-grid">
                             <input onChange="uploadLanguage(this)" type="file" accept=".json" class="d-none" id="inputLanguage">
-                            <button onclick="openUploadLanguage()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Upload")</button>
+                            <div class="btn-group">
+                                <button onclick="openUploadLanguage()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Upload")</button>
+                                <button type="button" class="btn btn-md btn-primary btn-md dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showTranslationDownloader()">@translator.Translate(userLanguage, "Get Translations")</a></li>
+                                </ul>
+                            </div>
+                            
                         </div>
                         <div class="col-6 d-grid">
                             <button onclick="deleteLanguage()" @(Model.UserConfig.UserLanguage == "en_US" ? "disabled" : "") class="btn btn-danger btn-md">@translator.Translate(userLanguage, "Delete")</button>
@@ -305,6 +314,12 @@
 <div class="modal fade" data-bs-focus="false" id="translationEditorModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="translationEditorModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="translationDownloadModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="translationDownloadModalContent">
         </div>
     </div>
 </div>

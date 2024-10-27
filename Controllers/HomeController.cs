@@ -284,6 +284,46 @@ namespace CarCareTracker.Controllers
             var result = _translationHelper.ExportTranslation(translationData);
             return Json(result);
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableTranslations()
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
+                return PartialView("_Translations", translations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve translations: {ex.Message}");
+                return PartialView("_Translations", new Translations());
+            }
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> DownloadTranslation(string continent, string name)
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translationData = await httpClient.GetFromJsonAsync<Dictionary<string,string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
+                if (translationData.Any())
+                {
+                    _translationHelper.SaveTranslation(name, translationData);
+                } else
+                {
+                    _logger.LogError($"Unable to download translation: {name}");
+                    return Json(false);
+                }
+                return Json(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to download translation: {ex.Message}");
+                return Json(false);
+            }
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

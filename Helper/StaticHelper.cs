@@ -16,6 +16,8 @@ namespace CarCareTracker.Helper
         public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
         public static string SponsorsPath = "https://hargata.github.io/hargata/sponsors.json";
+        public static string TranslationPath = "https://hargata.github.io/lubelog_translations";
+        public static string TranslationDirectoryPath = $"{TranslationPath}/directory.json";
         public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
         {
             switch (input)
@@ -329,6 +331,51 @@ namespace CarCareTracker.Helper
                 else
                 {
                     return "N/A";
+                }
+            }
+        }
+        //Translations
+        public static string GetTranslationDownloadPath(string continent, string name)
+        {
+            if (string.IsNullOrWhiteSpace(continent) || string.IsNullOrWhiteSpace(name)){
+                return string.Empty;
+            } 
+            else 
+            {
+                switch (continent)
+                {
+                    case "NorthAmerica":
+                        continent = "North America";
+                        break;
+                    case "SouthAmerica":
+                        continent = "South America";
+                        break;
+                }
+                return $"{TranslationPath}/{continent}/{name}.json";
+            }
+        }
+        public static string GetTranslationName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            } else
+            { 
+                try
+                {
+                    string cleanedName = name.Contains("_") ? name.Replace("_", "-") : name;
+                    string displayName = CultureInfo.GetCultureInfo(cleanedName).DisplayName;
+                    if (string.IsNullOrWhiteSpace(displayName))
+                    {
+                        return name;
+                    }
+                    else
+                    {
+                        return displayName;
+                    }
+                } catch (Exception ex)
+                {
+                    return name;
                 }
             }
         }
