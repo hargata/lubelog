@@ -284,7 +284,7 @@ namespace CarCareTracker.Controllers
             var result = _translationHelper.ExportTranslation(translationData);
             return Json(result);
         }
-        [Authorize(Roles =nameof(UserData.IsRootUser))]
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public async Task<IActionResult> GetAvailableTranslations()
         {
