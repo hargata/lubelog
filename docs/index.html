@@ -5,6 +5,7 @@
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>LubeLogger</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         .customCarouselCaption{
             background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
@@ -27,12 +28,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#showcase">Showcase</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#features">Features</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#demo">Demo</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#download">Download</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://docs.lubelogger.com">Documentation</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://github.com/hargata/lubelog">GitHub Repo</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#download"><i class="bi bi-download me-2"></i>Download</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></div>
+                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></div>
             </div>
 			<hr>
             <div class="row" id="showcase">
@@ -120,17 +121,21 @@
                         <li class="list-group-item">No limit on how many vehicles you have in your garage</li>
                         <li class="list-group-item">Import existing records from CSV(supports imports from Fuelly)</li>
                         <li class="list-group-item">Attach documents for each record(receipts, invoices, etc)</li>
+						<li class="list-group-item">Keeps track of your To-Do's(Kanban Planner)</li>
+						<li class="list-group-item">Set recurring reminders so you never miss another scheduled maintenance</li>
                     </ul>
                 </div>
                 <div class="col-12 col-md-6">
                     <ul class="list-group">
-                        <li class="list-group-item">Keeps track of your To-Do's(Kanban Planner)</li>
-                        <li class="list-group-item">Set recurring reminders so you never miss another scheduled maintenance</li>
+                        <li class="list-group-item">User-customizable fields</li>
+                        <li class="list-group-item">Supports multiple users</li>
+						<li class="list-group-item">Reminder Emails</li>
                         <li class="list-group-item">Dark Mode</li>
                         <li class="list-group-item">Mobile/Small screen support</li>
-                        <li class="list-group-item">Basic Authentication for security</li>
+                        <li class="list-group-item">Basic and OpenID Connect(OIDC) Authentication for security</li>
                         <li class="list-group-item">API Endpoints</li>
                         <li class="list-group-item">Consolidated Vehicle Maintenance Report</li>
+						<li class="list-group-item">Trip Recorder(GPS Integration)</li>
                       </ul>
                 </div>
             </div>
@@ -158,7 +163,7 @@
             <div class="row">
                 <div class="col-12 d-flex justify-content-center">
                     <p class="lead">
-                        LubeLogger is available as both a Docker Image and a Windows Standalone Executable(EXE)
+                        LubeLogger is available as a Docker Image, a Windows Standalone Executable(EXE), and a Linux Standalone Executable
                     </p>
                 </div>
                 <div class="col-12 d-flex justify-content-center">
