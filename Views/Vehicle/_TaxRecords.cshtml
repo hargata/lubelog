@@ -101,13 +101,13 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-3 flex-grow-1 col-xl-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-4 flex-grow-1 col-xl-6" data-column="description">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="cost" onclick="toggleSort('tax-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('tax-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -115,9 +115,9 @@
                 @foreach (TaxRecord taxRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@taxRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditTaxRecordModal,@taxRecord.Id)" data-tags='@string.Join(" ", taxRecord.Tags)'>
-                        <td class="col-3 flex-grow-1 col-xl-1" data-column="date">@taxRecord.Date.ToShortDateString()</td>
-                        <td class="col-4 flex-grow-1 col-xl-6" data-column="description">@taxRecord.Description</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="cost" data-record-type="cost">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
+                        <td class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@taxRecord.Date.ToShortDateString()</td>
+                        <td class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@taxRecord.Description</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
