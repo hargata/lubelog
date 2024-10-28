@@ -312,7 +312,11 @@ namespace CarCareTracker.Controllers
                 var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
                 if (translationData.Any())
                 {
-                    _translationHelper.SaveTranslation(name, translationData);
+                    var result = _translationHelper.SaveTranslation(name, translationData);
+                    if (!result.Success)
+                    {
+                        return Json(false);
+                    }
                 }
                 else
                 {
@@ -343,8 +347,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Asia", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success) 
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     } 
                     catch (Exception ex)
@@ -359,8 +366,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Africa", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     }
                     catch (Exception ex)
@@ -375,8 +385,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Europe", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     }
                     catch (Exception ex)
@@ -391,8 +404,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("NorthAmerica", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     }
                     catch (Exception ex)
@@ -407,8 +423,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("SouthAmerica", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     }
                     catch (Exception ex)
@@ -423,8 +442,11 @@ namespace CarCareTracker.Controllers
                         var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Oceania", translation)) ?? new Dictionary<string, string>();
                         if (translationData.Any())
                         {
-                            _translationHelper.SaveTranslation(translation, translationData);
-                            translationsDownloaded++;
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
                         }
                     }
                     catch (Exception ex)
