@@ -62,7 +62,8 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            var vehicleViewModels = vehiclesStored.Select(x => {
+            var vehicleViewModels = vehiclesStored.Select(x =>
+            {
                 var vehicleVM = new VehicleViewModel
                 {
                     Id = x.Id,
@@ -224,7 +225,8 @@ namespace CarCareTracker.Controllers
                     return Json(result);
                 }
                 return Json(false);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return Json(false);
@@ -241,7 +243,7 @@ namespace CarCareTracker.Controllers
                     var result = _loginLogic.UpdateUserDetails(userId, userAccount);
                     return Json(result);
                 }
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage});
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
             }
             catch (Exception ex)
             {
@@ -307,11 +309,12 @@ namespace CarCareTracker.Controllers
             try
             {
                 var httpClient = new HttpClient();
-                var translationData = await httpClient.GetFromJsonAsync<Dictionary<string,string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
+                var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
                 if (translationData.Any())
                 {
                     _translationHelper.SaveTranslation(name, translationData);
-                } else
+                }
+                else
                 {
                     _logger.LogError($"Unable to download translation: {name}");
                     return Json(false);
@@ -322,6 +325,125 @@ namespace CarCareTracker.Controllers
             {
                 _logger.LogError($"Unable to download translation: {ex.Message}");
                 return Json(false);
+            }
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> DownloadAllTranslations()
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
+                int translationsDownloaded = 0;
+                foreach (string translation in translations.Asia)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Asia", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    } 
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Africa)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Africa", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Europe)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Europe", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.NorthAmerica)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("NorthAmerica", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.SouthAmerica)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("SouthAmerica", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Oceania)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Oceania", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            _translationHelper.SaveTranslation(translation, translationData);
+                            translationsDownloaded++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                if (translationsDownloaded > 0)
+                {
+                    return Json(new OperationResponse() { Success = true, Message = $"{translationsDownloaded} Translations Downloaded" });
+                } else
+                {
+                    return Json(new OperationResponse() { Success = false, Message = "No Translations Downloaded" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve translations: {ex.Message}");
+                return Json(new OperationResponse() { Success = false, Message = StaticHelper.GenericErrorMessage });
             }
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

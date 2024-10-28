@@ -244,12 +244,26 @@ function hideTranslationDownloader() {
     $('#translationDownloadModal').modal('hide');
 }
 function downloadTranslation(continent, name) {
+    sloader.show();
     $.get(`/Home/DownloadTranslation?continent=${continent}&name=${name}`, function (data) {
+        sloader.hide();
         if (data) {
             successToast("Translation Downloaded");
             updateSettings();
         } else {
             errorToast(genericErrorMessage());
+        }
+    })
+}
+function downloadAllTranslations() {
+    sloader.show();
+    $.get('/Home/DownloadAllTranslations', function (data) {
+        sloader.hide();
+        if (data.success) {
+            successToast(data.message);
+            updateSettings();
+        } else {
+            errorToast(data.message);
         }
     })
 }
