@@ -127,6 +127,14 @@ namespace CarCareTracker.Helper
             {
                 return new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." };
             }
+            if (string.IsNullOrWhiteSpace(userLanguage))
+            {
+                return new OperationResponse { Success = false, Message = "File name is not provided." };
+            }
+            if (!translations.Any())
+            {
+                return new OperationResponse { Success = false, Message = "Translation has no data." };
+            }
             var translationFilePath = _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
             try
             {
