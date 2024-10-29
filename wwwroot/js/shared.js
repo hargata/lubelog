@@ -354,9 +354,14 @@ function showMobileNav() {
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
 }
+var windowWidthForCompare = 0;
 function bindWindowResize() {
+    windowWidthForCompare = window.innerWidth;
     $(window).on('resize', function () {
-        hideMobileNav();
+        if (window.innerWidth != windowWidthForCompare) {
+            hideMobileNav();
+            windowWidthForCompare = window.innerWidth;
+        }
     });
 }
 function encodeHTMLInput(input) {
