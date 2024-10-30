@@ -41,6 +41,7 @@ function updateSettings() {
     if (!visibleTabs.includes(defaultTab)) {
         defaultTab = "Dashboard"; //default to dashboard.
     }
+    var tabOrder = getTabOrder();
     //Root User Only Settings that aren't rendered:
     var defaultReminderEmail = $("#inputDefaultEmail").length > 0 ? $("#inputDefaultEmail").val() : "";
     var disableRegistration = $("#disableRegistration").length > 0 ? $("#disableRegistration").is(":checked") : false;
@@ -66,6 +67,7 @@ function updateSettings() {
         userLanguage: $("#defaultLanguage").val(),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
+        tabOrder: tabOrder,
         disableRegistration: disableRegistration,
         defaultReminderEmail: defaultReminderEmail,
         enableRootUserOIDC: enableRootUserOIDC
@@ -266,4 +268,86 @@ function downloadAllTranslations() {
             errorToast(data.message);
         }
     })
+}
+//tabs reorder
+function showTabReorderModal() {
+    //reorder the list items based on the CSS attribute
+    var sortedOrderedTabs = $(".lubelog-tab-groups > li").toArray().sort((a, b) => {
+        var currentVal = $(a).css("order");
+        var nextVal = $(b).css("order");
+        return currentVal - nextVal;
+    });
+    $(".lubelog-tab-groups").html(sortedOrderedTabs);
+    $("#tabReorderModal").modal('show');
+    bindTabReorderEvents();
+}
+function hideTabReorderModal() {
+    $("#tabReorderModal").modal('hide');
+}
+var tabDraggedToReorder = undefined;
+function handleTabDragStart(e) {
+    tabDraggedToReorder = $(e.target).closest('.list-group-item');
+    //clear out order attribute.
+    $(".lubelog-tab-groups > li").map((index, elem) => {
+        $(elem).css('order', 0);
+    })
+}
+function handleTabDragOver(e) {
+    if (tabDraggedToReorder == undefined || tabDraggedToReorder == "") {
+        return;
+    }
+    var potentialDropTarget = $(e.target).closest('.list-group-item').attr("data-tab");
+    var draggedTarget = tabDraggedToReorder.closest('.list-group-item').attr("data-tab");
+    if (draggedTarget != potentialDropTarget) {
+        var targetObj = $(e.target).closest('.list-group-item');
+        var draggedOrder = tabDraggedToReorder.index();
+        var targetOrder = targetObj.index();
+        if (draggedOrder < targetOrder) {
+            tabDraggedToReorder.insertAfter(targetObj);
+        } else {
+            tabDraggedToReorder.insertBefore(targetObj);
+        }
+    }
+    else {
+        event.preventDefault();
+    }
+}
+function bindTabReorderEvents() {
+    $(".lubelog-tab-groups > li").on('dragstart', event => {
+        handleTabDragStart(event);
+    });
+    $(".lubelog-tab-groups > li").on('dragover', event => {
+        handleTabDragOver(event);
+    });
+    $(".lubelog-tab-groups > li").on('dragend', event => {
+        //reset order attribute
+        $(".lubelog-tab-groups > li").map((index, elem) => {
+            $(elem).css('order', $(elem).index());
+        })
+    });
+}
+function getTabOrder() {
+    var tabOrderArray = [];
+    //check if any tabs have -1 order
+    var resetTabs = $(".lubelog-tab-groups > li").filter((index, elem) => $(elem).css('order') == -1).length > 0;
+    if (resetTabs) {
+        return tabOrderArray; //return empty array.
+    }
+    var sortedOrderedTabs = $(".lubelog-tab-groups > li").toArray().sort((a, b) => {
+        var currentVal = $(a).css("order");
+        var nextVal = $(b).css("order");
+        return currentVal - nextVal;
+    });
+    sortedOrderedTabs.map(elem => {
+        var elemName = $(elem).attr("data-tab");
+        tabOrderArray.push(elemName);
+    });
+    return tabOrderArray;
+}
+function resetTabOrder() {
+    //set all orders to -1
+    $(".lubelog-tab-groups > li").map((index, elem) => {
+        $(elem).css('order', -1);
+    })
+    updateSettings();
 }
