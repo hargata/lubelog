@@ -197,6 +197,7 @@ namespace CarCareTracker.Helper
                 EnableShopSupplies = bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)]),
                 EnableExtraFieldColumns = bool.Parse(_config[nameof(UserConfig.EnableExtraFieldColumns)]),
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),
+                TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>(),
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)]),

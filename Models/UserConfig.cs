@@ -35,7 +35,21 @@
             ImportMode.UpgradeRecord, 
             ImportMode.TaxRecord, 
             ImportMode.ReminderRecord, 
-            ImportMode.NoteRecord};
+            ImportMode.NoteRecord
+        };
         public ImportMode DefaultTab { get; set; } = ImportMode.Dashboard;
+        public List<ImportMode> TabOrder { get; set; } = new List<ImportMode>() {
+            ImportMode.Dashboard,
+            ImportMode.PlanRecord,
+            ImportMode.OdometerRecord,
+            ImportMode.ServiceRecord,
+            ImportMode.RepairRecord,
+            ImportMode.UpgradeRecord,
+            ImportMode.GasRecord,
+            ImportMode.SupplyRecord,
+            ImportMode.TaxRecord,
+            ImportMode.NoteRecord,
+            ImportMode.ReminderRecord
+        };
     }
 }
