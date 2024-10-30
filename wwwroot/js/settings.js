@@ -41,6 +41,7 @@ function updateSettings() {
     if (!visibleTabs.includes(defaultTab)) {
         defaultTab = "Dashboard"; //default to dashboard.
     }
+    var tabOrder = getTabOrder();
     //Root User Only Settings that aren't rendered:
     var defaultReminderEmail = $("#inputDefaultEmail").length > 0 ? $("#inputDefaultEmail").val() : "";
     var disableRegistration = $("#disableRegistration").length > 0 ? $("#disableRegistration").is(":checked") : false;
@@ -66,6 +67,7 @@ function updateSettings() {
         userLanguage: $("#defaultLanguage").val(),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
+        tabOrder: tabOrder,
         disableRegistration: disableRegistration,
         defaultReminderEmail: defaultReminderEmail,
         enableRootUserOIDC: enableRootUserOIDC
@@ -324,11 +326,28 @@ function bindTabReorderEvents() {
         })
     });
 }
-function getTabsOrder() {
+function getTabOrder() {
     var tabOrderArray = [];
-    $(".lubelog-tab-groups > li").map((index, elem) => {
+    //check if any tabs have -1 order
+    var resetTabs = $(".lubelog-tab-groups > li").filter((index, elem) => $(elem).css('order') == -1).length > 0;
+    if (resetTabs) {
+        return tabOrderArray; //return empty array.
+    }
+    var sortedOrderedTabs = $(".lubelog-tab-groups > li").toArray().sort((a, b) => {
+        var currentVal = $(a).css("order");
+        var nextVal = $(b).css("order");
+        return currentVal - nextVal;
+    });
+    sortedOrderedTabs.map(elem => {
         var elemName = $(elem).attr("data-tab");
         tabOrderArray.push(elemName);
     });
     return tabOrderArray;
+}
+function resetTabOrder() {
+    //set all orders to -1
+    $(".lubelog-tab-groups > li").map((index, elem) => {
+        $(elem).css('order', -1);
+    })
+    updateSettings();
 }

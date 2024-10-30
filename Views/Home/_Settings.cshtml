@@ -91,7 +91,14 @@
     <div class="col-12 col-md-6">
         <div class="row" id="visibleTabs">
             <div class="col-12">
-                <span class="lead">@translator.Translate(userLanguage, "Visible Tabs")</span>
+                <div class="row">
+                    <div class="col-11">
+                        <span class="lead">@translator.Translate(userLanguage, "Visible Tabs")</span>
+                    </div>
+                    <div class="col-1">
+                        <button onclick="showTabReorderModal()" class="btn text-secondary btn-sm"><i class="bi bi-arrow-down-up"></i></button>
+                    </div>
+                </div>
             </div>
             <div class="col-12 col-md-6">
                 <ul class="list-group">
@@ -196,11 +203,11 @@
                     <span class="lead">@translator.Translate(userLanguage, "Backups")</span>
                     <div class="row">
                         <div class="col-6 d-grid">
-                            <button onclick="makeBackup()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Create")</button>
+                            <button onclick="makeBackup()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Create")</button>
                         </div>
                         <div class="col-6 d-grid">
                             <input onChange="restoreBackup(this)" type="file" accept=".zip" class="d-none" id="inputBackup">
-                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md">@translator.Translate(userLanguage, "Restore")</button>
+                            <button onclick="openRestoreBackup()" class="btn btn-secondary btn-md text-truncate">@translator.Translate(userLanguage, "Restore")</button>
                         </div>
                     </div>
                 </div>
@@ -210,7 +217,7 @@
                         <div class="col-6 d-grid">
                             <input onChange="uploadLanguage(this)" type="file" accept=".json" class="d-none" id="inputLanguage">
                             <div class="btn-group">
-                                <button onclick="openUploadLanguage()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Upload")</button>
+                                <button onclick="openUploadLanguage()" class="btn btn-primary btn-md text-truncate"><i class="bi bi-upload"></i><span class="ms-2 d-sm-inline d-md-none d-xl-inline">@translator.Translate(userLanguage, "Upload")</span></button>
                                 <button type="button" class="btn btn-md btn-primary btn-md dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="visually-hidden">Toggle Dropdown</span>
                                 </button>
@@ -221,25 +228,25 @@
                             
                         </div>
                         <div class="col-6 d-grid">
-                            <button onclick="deleteLanguage()" @(Model.UserConfig.UserLanguage == "en_US" ? "disabled" : "") class="btn btn-danger btn-md">@translator.Translate(userLanguage, "Delete")</button>
+                            <button onclick="deleteLanguage()" @(Model.UserConfig.UserLanguage == "en_US" ? "disabled" : "") class="btn btn-danger btn-md text-truncate"><i class="bi bi-trash"></i><span class="ms-2 d-sm-inline d-md-none d-xl-inline">@translator.Translate(userLanguage, "Delete")</span></button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <span class="lead">@translator.Translate(userLanguage, "Server-wide Settings")</span>
+                    <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
                     <div class="row">
                         <div class="col-6 d-grid">
-                            <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Extra Fields")</button>
+                            <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Extra Fields")</button>
                         </div>
                         <div class="col-6 d-grid">
-                            <button onclick="showReminderUrgencyThresholdModal()" class="btn btn-primary btn-md">@translator.Translate(userLanguage, "Reminders")</button>
+                            <button onclick="showReminderUrgencyThresholdModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Reminders")</button>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <span class="lead">@translator.Translate(userLanguage, "Default Reminder Email")</span>
+                    <span class="lead text-wrap">@translator.Translate(userLanguage, "Default Reminder Email")</span>
                     <div class="row">
                         <div class="col-12 d-grid">
                             <div class="input-group">
@@ -348,6 +355,11 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger me-auto" onclick="resetTabOrder()">@translator.Translate(userLanguage, "Reset Tab Order")</button>
+                <button type="button" class="btn btn-secondary" onclick="hideTabReorderModal()">@translator.Translate(userLanguage, "Cancel")</button>
+                <button type="button" class="btn btn-primary" onclick="updateSettings()">@translator.Translate(userLanguage, "Save Tab Order")</button>
             </div>
         </div>
     </div>
