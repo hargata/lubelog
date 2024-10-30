@@ -267,3 +267,68 @@ function downloadAllTranslations() {
         }
     })
 }
+//tabs reorder
+function showTabReorderModal() {
+    //reorder the list items based on the CSS attribute
+    var sortedOrderedTabs = $(".lubelog-tab-groups > li").toArray().sort((a, b) => {
+        var currentVal = $(a).css("order");
+        var nextVal = $(b).css("order");
+        return currentVal - nextVal;
+    });
+    $(".lubelog-tab-groups").html(sortedOrderedTabs);
+    $("#tabReorderModal").modal('show');
+    bindTabReorderEvents();
+}
+function hideTabReorderModal() {
+    $("#tabReorderModal").modal('hide');
+}
+var tabDraggedToReorder = undefined;
+function handleTabDragStart(e) {
+    tabDraggedToReorder = $(e.target).closest('.list-group-item');
+    //clear out order attribute.
+    $(".lubelog-tab-groups > li").map((index, elem) => {
+        $(elem).css('order', 0);
+    })
+}
+function handleTabDragOver(e) {
+    if (tabDraggedToReorder == undefined || tabDraggedToReorder == "") {
+        return;
+    }
+    var potentialDropTarget = $(e.target).closest('.list-group-item').attr("data-tab");
+    var draggedTarget = tabDraggedToReorder.closest('.list-group-item').attr("data-tab");
+    if (draggedTarget != potentialDropTarget) {
+        var targetObj = $(e.target).closest('.list-group-item');
+        var draggedOrder = tabDraggedToReorder.index();
+        var targetOrder = targetObj.index();
+        if (draggedOrder < targetOrder) {
+            tabDraggedToReorder.insertAfter(targetObj);
+        } else {
+            tabDraggedToReorder.insertBefore(targetObj);
+        }
+    }
+    else {
+        event.preventDefault();
+    }
+}
+function bindTabReorderEvents() {
+    $(".lubelog-tab-groups > li").on('dragstart', event => {
+        handleTabDragStart(event);
+    });
+    $(".lubelog-tab-groups > li").on('dragover', event => {
+        handleTabDragOver(event);
+    });
+    $(".lubelog-tab-groups > li").on('dragend', event => {
+        //reset order attribute
+        $(".lubelog-tab-groups > li").map((index, elem) => {
+            $(elem).css('order', $(elem).index());
+        })
+    });
+}
+function getTabsOrder() {
+    var tabOrderArray = [];
+    $(".lubelog-tab-groups > li").map((index, elem) => {
+        var elemName = $(elem).attr("data-tab");
+        tabOrderArray.push(elemName);
+    });
+    return tabOrderArray;
+}

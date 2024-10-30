@@ -323,6 +323,35 @@
         </div>
     </div>
 </div>
+<div class="modal fade" data-bs-focus="false" id="tabReorderModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="tabReorderModalContent">
+            <div class="modal-header">
+                <h5 class="modal-title" id="translationEditorModalLabel">@translator.Translate(userLanguage, "Reorder Tabs")</h5>
+                <button type="button" class="btn-close" onclick="hideTabReorderModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="list-group lubelog-tab-groups">
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.Dashboard)" draggable="true" data-tab="@ImportMode.Dashboard">@translator.Translate(userLanguage, "Dashboard")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.PlanRecord)" draggable="true" data-tab="@ImportMode.PlanRecord">@translator.Translate(userLanguage, "Planner")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.OdometerRecord)" draggable="true" data-tab="@ImportMode.OdometerRecord">@translator.Translate(userLanguage, "Odometer")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.ServiceRecord)" draggable="true" data-tab="@ImportMode.ServiceRecord">@translator.Translate(userLanguage, "Service Records")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.RepairRecord)" draggable="true" data-tab="@ImportMode.RepairRecord">@translator.Translate(userLanguage, "Repairs")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.UpgradeRecord)" draggable="true" data-tab="@ImportMode.UpgradeRecord">@translator.Translate(userLanguage, "Upgrades")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.GasRecord)" draggable="true" data-tab="@ImportMode.GasRecord">@translator.Translate(userLanguage, "Fuel")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.SupplyRecord)" draggable="true" data-tab="@ImportMode.SupplyRecord">@translator.Translate(userLanguage, "Supplies")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.TaxRecord)" draggable="true" data-tab="@ImportMode.TaxRecord">@translator.Translate(userLanguage, "Taxes")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.NoteRecord)" draggable="true" data-tab="@ImportMode.NoteRecord">@translator.Translate(userLanguage, "Notes")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.ReminderRecord)" draggable="true" data-tab="@ImportMode.ReminderRecord">@translator.Translate(userLanguage, "Reminder")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function showReminderUrgencyThresholdModal(){
         Swal.fire({
