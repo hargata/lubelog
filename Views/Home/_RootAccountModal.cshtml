@@ -16,7 +16,12 @@
             <label for="inputUsername">@translator.Translate(userLanguage, "Username")</label>
             <input type="text" id="inputUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Account Username")" value="@Model.UserName">
             <label for="inputPassword">@translator.Translate(userLanguage, "Password")</label>
-            <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Password")" value="">
+            <div class="input-group">
+                <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Password")" value="">
+                <div class="input-group-text">
+                    <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
         </div>
     </form>
 </div>

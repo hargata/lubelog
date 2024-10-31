@@ -462,3 +462,11 @@ html[data-bs-theme="light"] .api-method:hover {
         padding-bottom: 0.5rem;
     }
 }
+
+.password-visible-button {
+    padding: 0rem;
+}
+
+::-ms-reveal {
+    display: none;
+}

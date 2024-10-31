@@ -11,6 +11,14 @@
   src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
   integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
   crossorigin="anonymous"></script>
+	<style>
+        .password-visible-button {
+            padding: 0rem;
+        }
+        ::-ms-reveal {
+            display: none;
+        }
+	</style>
 </head>
 <body>
     <div class="container d-flex align-items-center justify-content-center" style="height:100vh">
@@ -76,7 +84,12 @@
 				</div>
 				<div class="form-group">
 					<label for="inputSmtpPassword">Password</label>
-					<input type="password" id="inputSmtpPassword" class="form-control">
+					<div class="input-group">
+						<input type="password" id="inputSmtpPassword" class="form-control">
+						<div class="input-group-text">
+							<button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+						</div>
+					</div>
 					<small class="text-body-secondary">Password for Authentication</small>
 				</div>
 			</div>
@@ -394,6 +407,19 @@ function copyToClipboard(){
 	navigator.clipboard.writeText($("#outputModalText").val());
 	$(".btn-copy").text("Copied");
 	setTimeout(() => {$(".btn-copy").text("Copy");}, 500)
+}
+function togglePasswordVisibility(elem) {
+	var passwordField = $(elem).parent().siblings("input");
+	var passwordButton = $(elem).find('.bi');
+	if (passwordField.attr("type") == "password") {
+		passwordField.attr("type", "text");
+		passwordButton.removeClass('bi-eye');
+        passwordButton.addClass('bi-eye-slash');
+	} else {
+		passwordField.attr("type", "password");
+        passwordButton.removeClass('bi-eye-slash');
+        passwordButton.addClass('bi-eye');
+	}
 }
 function setLocaleInput(){
 	var browserLocale = navigator.language;
