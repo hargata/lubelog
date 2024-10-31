@@ -1245,3 +1245,16 @@ function handleSwalEnter(e) {
         Swal.clickConfirm();
     }
 }
+function togglePasswordVisibility(elem) {
+    var passwordField = $(elem).parent().siblings("input");
+    var passwordButton = $(elem).find('.bi');
+    if (passwordField.attr("type") == "password") {
+        passwordField.attr("type", "text");
+        passwordButton.removeClass('bi-eye');
+        passwordButton.addClass('bi-eye-slash');
+    } else {
+        passwordField.attr("type", "password");
+        passwordButton.removeClass('bi-eye-slash');
+        passwordButton.addClass('bi-eye');
+    }
+}

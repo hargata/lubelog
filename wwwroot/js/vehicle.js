@@ -618,7 +618,7 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
     Swal.fire({
         title: 'Increment Last Reported Odometer Reading',
         html: `
-                            <input type="text" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
+                            <input type="text" inputmode="decimal" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
               `,
         confirmButtonText: 'Add',
         focusConfirm: false,
