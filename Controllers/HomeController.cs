@@ -55,9 +55,16 @@ namespace CarCareTracker.Controllers
         {
             return View(model: tab);
         }
-        public IActionResult Kiosk()
-        {
-            return View();
+        public IActionResult Kiosk(string exceptions)
+        { 
+            try {
+                var exceptionList = string.IsNullOrWhiteSpace(exceptions) ? new List<int>() : exceptions.Split(',').Select(x => int.Parse(x)).ToList();
+                return View(exceptionList);
+            }
+            catch (Exception ex)
+            {
+                return View(new List<int>());
+            }
         }
         public IActionResult KioskContent(List<int> exceptionList)
         {

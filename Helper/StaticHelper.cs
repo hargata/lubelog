@@ -43,7 +43,7 @@ namespace CarCareTracker.Helper
                 case "PastDue":
                     return "Past Due";
                 default:
-                    return input.ToString();
+                    return input;
             }
         }
 

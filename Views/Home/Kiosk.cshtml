@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Kiosk";
 }
+@model List<int>
 <div class="progress" role="progressbar" aria-label="Refresh Progress" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 1px">
     <div class="progress-bar" style="width: 0%"></div>
 </div>
@@ -9,9 +10,20 @@
 <script>
     let refreshTimer;
     let exceptionList = [];
+    let subtractAmount = 0;
+
+    @foreach(int exception in Model)
+    {
+        @:exceptionList.push(@exception);
+    }
+
     function initKiosk() {
         $("body > div").removeClass("container");
         $("body > div").css('height', '100vh');
+        subtractAmount = parseInt($("#kioskContainer").width() * 0.0016); //remove 0.0016% of width every 100 ms which will approximate to one minute.
+        if (subtractAmount < 2) {
+            subtractAmount = 2;
+        }
         retrieveKioskContent();
     }
     function retrieveKioskContent(){
@@ -26,7 +38,7 @@
         refreshTimer = setInterval(function () {
             var currentWidth = $(".progress-bar").width();
             if (currentWidth > 0) {
-                $(".progress-bar").width(currentWidth - 20);
+                $(".progress-bar").width(currentWidth - subtractAmount);
             } else {
                 retrieveKioskContent();
             }
