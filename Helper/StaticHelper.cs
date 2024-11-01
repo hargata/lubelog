@@ -32,6 +32,20 @@ namespace CarCareTracker.Helper
                     return input.ToString();
             }
         }
+        public static string GetTitleCaseReminderUrgency(string input)
+        {
+            switch (input)
+            {
+                case "NotUrgent":
+                    return "Not Urgent";
+                case "VeryUrgent":
+                    return "Very Urgent";
+                case "PastDue":
+                    return "Past Due";
+                default:
+                    return input.ToString();
+            }
+        }
 
         public static string TruncateStrings(string input, int maxLength = 25)
         {

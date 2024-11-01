@@ -55,6 +55,21 @@ namespace CarCareTracker.Controllers
         {
             return View(model: tab);
         }
+        public IActionResult Kiosk()
+        {
+            return View();
+        }
+        public IActionResult KioskContent(List<int> exceptionList)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            vehiclesStored.RemoveAll(x => exceptionList.Contains(x.Id));
+            var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
+            return PartialView("_Kiosk", result);
+        }
         public IActionResult Garage()
         {
             var vehiclesStored = _dataAccess.GetVehicles();
@@ -183,10 +198,6 @@ namespace CarCareTracker.Controllers
             existingConfig.ReminderUrgencyConfig = reminderUrgencyConfig;
             var result = _config.SaveUserConfig(User, existingConfig);
             return Json(result);
-        }
-        public IActionResult Privacy()
-        {
-            return View();
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult GetExtraFieldsModal(int importMode = 0)

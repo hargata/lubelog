@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Kiosk";
+}
+<div class="progress" role="progressbar" aria-label="Refresh Progress" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 1px">
+    <div class="progress-bar" style="width: 0%"></div>
+</div>
+<div id="kioskContainer" class="container-fluid">
+</div>
+<script>
+    let refreshTimer;
+    let exceptionList = [];
+    function initKiosk() {
+        $("body > div").removeClass("container");
+        $("body > div").css('height', '100vh');
+        retrieveKioskContent();
+    }
+    function retrieveKioskContent(){
+        clearInterval(refreshTimer);
+        $.post('/Home/KioskContent', {exceptionList: exceptionList}, function (data) {
+            $("#kioskContainer").html(data);
+            $(".progress-bar").width($("#kioskContainer").width());
+            setTimeout(function () { startTimer() }, 500);
+        });
+    }
+    function startTimer() {
+        refreshTimer = setInterval(function () {
+            var currentWidth = $(".progress-bar").width();
+            if (currentWidth > 0) {
+                $(".progress-bar").width(currentWidth - 20);
+            } else {
+                retrieveKioskContent();
+            }
+        }, 100);
+    }
+    function addVehicleToExceptionList(vehicleId) {
+        Swal.fire({
+            title: "Remove Vehicle from Dashboard?",
+            text: "Removed vehicles can be restored by refreshing the page",
+            showCancelButton: true,
+            confirmButtonText: "Remove",
+            confirmButtonColor: "#dc3545"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                exceptionList.push(vehicleId);
+                retrieveKioskContent();
+            }
+        });
+    }
+    initKiosk();
+</script>
