@@ -193,7 +193,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -270,7 +271,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -347,7 +349,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -421,7 +424,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
@@ -505,7 +509,8 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     InitialMileage = (string.IsNullOrWhiteSpace(input.InitialOdometer) || int.Parse(input.InitialOdometer) == default) ? _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()) : int.Parse(input.InitialOdometer),
                     Mileage = int.Parse(input.Odometer),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Odometer Record via API - Mileage: {odometerRecord.Mileage.ToString()}");
@@ -586,7 +591,8 @@ namespace CarCareTracker.Controllers
                     MissedFuelUp = bool.Parse(input.MissedFuelUp),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
