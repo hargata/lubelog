@@ -146,7 +146,7 @@ namespace CarCareTracker.Helper
                 } else
                 {
                     //check if directory exists first.
-                    var translationDirectory = _fileHelper.GetFullFilePath("/translations/", false);
+                    var translationDirectory = _fileHelper.GetFullFilePath("translations/", false);
                     if (!Directory.Exists(translationDirectory))
                     {
                         Directory.CreateDirectory(translationDirectory);
