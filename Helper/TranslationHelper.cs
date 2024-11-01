@@ -145,6 +145,12 @@ namespace CarCareTracker.Helper
                     _cache.Remove($"lang_{userLanguage}"); //clear out cache, force a reload from file.
                 } else
                 {
+                    //check if directory exists first.
+                    var translationDirectory = _fileHelper.GetFullFilePath("translations/", false);
+                    if (!Directory.Exists(translationDirectory))
+                    {
+                        Directory.CreateDirectory(translationDirectory);
+                    }
                     //write to file
                     File.WriteAllText(translationFilePath, JsonSerializer.Serialize(translations));
                 }
