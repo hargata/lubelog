@@ -42,6 +42,7 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getti
 - [Chart.js](https://github.com/chartjs/Chart.js)
 - [Drawdown](https://github.com/adamvleggett/drawdown)
 - [MailKit](https://github.com/jstedfast/MailKit)
+- [Masonry](https://github.com/desandro/masonry)
 
 ## License
 MIT

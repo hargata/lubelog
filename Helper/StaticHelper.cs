@@ -46,6 +46,52 @@ namespace CarCareTracker.Helper
                     return input;
             }
         }
+        public static string GetReminderUrgencyColor(ReminderUrgency input)
+        {
+            switch (input)
+            {
+                case ReminderUrgency.NotUrgent:
+                    return "text-bg-success";
+                case ReminderUrgency.VeryUrgent:
+                    return "text-bg-danger";
+                case ReminderUrgency.PastDue:
+                    return "text-bg-secondary";
+                default:
+                    return "text-bg-warning";
+            }
+        }
+
+        public static string GetPlanRecordColor(PlanPriority input)
+        {
+            switch (input)
+            {
+                case PlanPriority.Critical:
+                    return "text-bg-danger";
+                case PlanPriority.Normal:
+                    return "text-bg-primary";
+                case PlanPriority.Low:
+                    return "text-bg-info";
+                default:
+                    return "text-bg-primary";
+            }
+        }
+
+        public static string GetPlanRecordProgress(PlanProgress input)
+        {
+            switch (input)
+            {
+                case PlanProgress.Backlog:
+                    return "Planned";
+                case PlanProgress.InProgress:
+                    return "Doing";
+                case PlanProgress.Testing:
+                    return "Testing";
+                case PlanProgress.Done:
+                    return "Done";
+                default:
+                    return input.ToString();
+            }
+        }
 
         public static string TruncateStrings(string input, int maxLength = 25)
         {

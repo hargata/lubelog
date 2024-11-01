@@ -55,25 +55,56 @@ namespace CarCareTracker.Controllers
         {
             return View(model: tab);
         }
-        public IActionResult Kiosk(string exceptions)
+        [Route("/kiosk")]
+        public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
         { 
             try {
-                var exceptionList = string.IsNullOrWhiteSpace(exceptions) ? new List<int>() : exceptions.Split(',').Select(x => int.Parse(x)).ToList();
-                return View(exceptionList);
+                var viewModel = new KioskViewModel
+                {
+                    Exclusions = string.IsNullOrWhiteSpace(exclusions) ? new List<int>() : exclusions.Split(',').Select(x => int.Parse(x)).ToList(),
+                    KioskMode = kioskMode
+                };
+                return View(viewModel);
             }
             catch (Exception ex)
             {
-                return View(new List<int>());
+                _logger.LogError(ex.Message);
+                return View(new KioskViewModel());
             }
         }
-        public IActionResult KioskContent(List<int> exceptionList)
+        [HttpPost]
+        public IActionResult KioskContent(KioskViewModel kioskParameters)
         {
             var vehiclesStored = _dataAccess.GetVehicles();
             if (!User.IsInRole(nameof(UserData.IsRootUser)))
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            vehiclesStored.RemoveAll(x => exceptionList.Contains(x.Id));
+            vehiclesStored.RemoveAll(x => kioskParameters.Exclusions.Contains(x.Id));
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            switch (kioskParameters.KioskMode)
+            {
+                case KioskMode.Vehicle:
+                    {
+                        var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
+                        return PartialView("_Kiosk", kioskResult);
+                    }
+                case KioskMode.Plan:
+                    {
+                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
+                        return PartialView("_KioskPlan", kioskResult);
+                    }
+                    break;
+                case KioskMode.Reminder:
+                    {
+                        var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);
+                        return PartialView("_KioskReminder", kioskResult);
+                    }
+            }
             var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
             return PartialView("_Kiosk", result);
         }
@@ -140,19 +171,7 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            List<ReminderRecordViewModel> reminders = new List<ReminderRecordViewModel>();
-            foreach (Vehicle vehicle in vehiclesStored)
-            {
-                var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
-                vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
-                //we don't care about mileages so we can basically fake the current vehicle mileage.
-                if (vehicleReminders.Any())
-                {
-                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, 0, DateTime.Now);
-                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" }).ToList();
-                    reminders.AddRange(reminderUrgency);
-                }
-            }
+            var reminders = _vehicleLogic.GetReminders(vehiclesStored, true);
             return PartialView("_Calendar", reminders);
         }
         public IActionResult ViewCalendarReminder(int reminderId)

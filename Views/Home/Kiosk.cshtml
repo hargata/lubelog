@@ -1,7 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Kiosk";
 }
-@model List<int>
+@model KioskViewModel
+@section Scripts {
+    <script src="~/lib/masonry/masonry.min.js"></script>
+}
 <div class="progress" role="progressbar" aria-label="Refresh Progress" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 1px">
     <div class="progress-bar" style="width: 0%"></div>
 </div>
@@ -11,8 +14,11 @@
     let refreshTimer;
     let exceptionList = [];
     let subtractAmount = 0;
+    let kioskMode = '@Model.KioskMode';
+    let currentKioskMode = 'Plan';
+    let kioskWakeLock;
 
-    @foreach(int exception in Model)
+    @foreach(int exception in Model.Exclusions)
     {
         @:exceptionList.push(@exception);
     }
@@ -25,14 +31,56 @@
             subtractAmount = 2;
         }
         retrieveKioskContent();
+        //acquire wakeLock;
+        try {
+            navigator.wakeLock.request('screen').then((wl) => {
+                kioskWakeLock = wl;
+            });
+        } catch (err) {
+            errorToast('Location Services not Enabled');
+        }
     }
     function retrieveKioskContent(){
         clearInterval(refreshTimer);
-        $.post('/Home/KioskContent', {exceptionList: exceptionList}, function (data) {
-            $("#kioskContainer").html(data);
-            $(".progress-bar").width($("#kioskContainer").width());
-            setTimeout(function () { startTimer() }, 500);
-        });
+        if (kioskMode != 'Cycle'){
+            $.post('/Home/KioskContent', { exclusions: exceptionList, kioskMode: kioskMode }, function (data) {
+                $("#kioskContainer").html(data);
+                $(".kiosk-content").masonry();
+                if ($(".no-data-message").length == 0) {
+                    $(".progress-bar").width($("#kioskContainer").width());
+                    setTimeout(function () { startTimer() }, 500);
+                }
+            });
+        } else {
+            //cycle mode
+            switch (currentKioskMode) {
+                case "Vehicle":
+                    currentKioskMode = "Reminder";
+                    break;
+                case "Reminder":
+                    currentKioskMode = "Plan";
+                    break;
+                case "Plan":
+                    currentKioskMode = "Vehicle";
+                    break;
+            }
+            $.post('/Home/KioskContent', { exclusions: exceptionList, kioskMode: currentKioskMode }, function (data) {
+                $("#kioskContainer").html(data);
+                $(".kiosk-content").masonry();
+                if ($(".no-data-message").length > 0) {
+                    //if no data on vehicle page
+                    if (currentKioskMode == "Vehicle") {
+                        return; //exit
+                    } else {
+                        retrieveKioskContent(); //skip until we hit a page with content.
+                    }
+                } else {
+                    $(".progress-bar").width($("#kioskContainer").width());
+                    setTimeout(function () { startTimer() }, 500);
+                }
+            });
+        }
+        
     }
     function startTimer() {
         refreshTimer = setInterval(function () {
@@ -45,6 +93,9 @@
         }, 100);
     }
     function addVehicleToExceptionList(vehicleId) {
+        if (kioskMode == 'Cycle') {
+            return;
+        }
         Swal.fire({
             title: "Remove Vehicle from Dashboard?",
             text: "Removed vehicles can be restored by refreshing the page",
@@ -57,6 +108,29 @@
                 retrieveKioskContent();
             }
         });
+    }
+    function toggleReminderNote(sender){
+        var reminderNote = $(sender).find('.reminder-note');
+        if (reminderNote.text().trim() != ''){
+            if (reminderNote.hasClass('d-none')) {
+                reminderNote.removeClass('d-none');
+            } else {
+                reminderNote.addClass('d-none');
+            }
+            $(".kiosk-content").masonry();
+        }
+    }
+    function togglePlanDetails(sender) {
+        toggleReminderNote(sender);
+        var planSupplies = $(sender).find('.plan-supplies');
+        if (planSupplies.find('.plan-supply').length > 0) {
+            if (planSupplies.hasClass('d-none')) {
+                planSupplies.removeClass('d-none');
+            } else {
+                planSupplies.addClass('d-none');
+            }
+            $(".kiosk-content").masonry();
+        }
     }
     initKiosk();
 </script>
