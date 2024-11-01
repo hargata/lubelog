@@ -9,7 +9,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public static string VersionNumber = "1.3.9";
+        public static string VersionNumber = "1.4.0";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
         public static string GenericErrorMessage = "An error occurred, please try again later";
@@ -44,6 +44,52 @@ namespace CarCareTracker.Helper
                     return "Past Due";
                 default:
                     return input;
+            }
+        }
+        public static string GetReminderUrgencyColor(ReminderUrgency input)
+        {
+            switch (input)
+            {
+                case ReminderUrgency.NotUrgent:
+                    return "text-bg-success";
+                case ReminderUrgency.VeryUrgent:
+                    return "text-bg-danger";
+                case ReminderUrgency.PastDue:
+                    return "text-bg-secondary";
+                default:
+                    return "text-bg-warning";
+            }
+        }
+
+        public static string GetPlanRecordColor(PlanPriority input)
+        {
+            switch (input)
+            {
+                case PlanPriority.Critical:
+                    return "text-bg-danger";
+                case PlanPriority.Normal:
+                    return "text-bg-primary";
+                case PlanPriority.Low:
+                    return "text-bg-info";
+                default:
+                    return "text-bg-primary";
+            }
+        }
+
+        public static string GetPlanRecordProgress(PlanProgress input)
+        {
+            switch (input)
+            {
+                case PlanProgress.Backlog:
+                    return "Planned";
+                case PlanProgress.InProgress:
+                    return "Doing";
+                case PlanProgress.Testing:
+                    return "Testing";
+                case PlanProgress.Done:
+                    return "Done";
+                default:
+                    return input.ToString();
             }
         }
 

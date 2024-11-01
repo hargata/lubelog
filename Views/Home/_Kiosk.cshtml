@@ -6,10 +6,10 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
-<div class="row row-cols-1 row-cols-md-3 g-4 mt-1">
-    @foreach(VehicleInfo vehicle in Model)
-    {
-        @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.VehicleData.SoldDate)))
+@if (Model.Any())
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
+        @foreach (VehicleInfo vehicle in Model)
         {
             <div class="col">
                 <div class="card" onclick="addVehicleToExceptionList(@vehicle.VehicleData.Id)">
@@ -65,7 +65,7 @@
                     }
                     @if (vehicle.NextReminder != null)
                     {
-                        <hr style="margin:0px;"/>
+                        <hr style="margin:0px;" />
                         <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
                             <h5 class="card-title">@translator.Translate(userLanguage, "Upcoming Reminder")</h5>
                             <div class="row">
@@ -112,7 +112,15 @@
                         </div>
                     }
                 </div>
-        </div>
+            </div>
         }
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="row no-data-message">
+        <div class="col">
+            <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        </div>
+    </div>
+}
