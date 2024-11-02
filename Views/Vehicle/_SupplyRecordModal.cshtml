@@ -32,7 +32,7 @@
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordQuantity">@translator.Translate(userLanguage,"Quantity")</label>
                             <div class="input-group">
-                                <input type="text" inputmode="decimal" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "1" : Model.Quantity)">
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? 1.ToString("N2") : Model.Quantity.ToString("N2"))">
                                 <div class="input-group-text">
                                     <button type="button" class="btn btn-sm zero-y-padding btn-primary" onclick="replenishSupplies()"><i class="bi bi-plus"></i></button>
                                 </div>
@@ -40,7 +40,7 @@
                         </div>
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                            <input type="text" inputmode="decimal" id="supplyRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost")" value="@(isNew ? "" : Model.Cost)">
+                            <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="supplyRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost")" value="@(isNew ? "" : Model.Cost)">
                         </div>
                     </div>
                     <label for="supplyRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>

@@ -1135,13 +1135,17 @@ function detectRowTouchEndPremature(sender) {
         rowTouchTimer = null;
     }
 }
+function handleSupplyAddCostKeyDown(event) {
+    handleSwalEnter(event);
+    interceptDecimalKeys(event);
+}
 function replenishSupplies() {
     Swal.fire({
         title: 'Replenish Supplies',
         html: `
-                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
+                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
-                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSwalEnter(event)">
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSupplyAddCostKeyDown(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
                             <span class='small'>leave blank to use unit cost calculation</span>
               `,

@@ -42,7 +42,7 @@
                             var supplyUsage = Model.Usage.Where(x => x.SupplyId == supplyRecord.Id).SingleOrDefault();
                             <tr class="d-flex" id="supplyRows" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                                 <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")></td>
-                                <td class="col-2"><input type="text" inputmode="decimal" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control"></td>
+                                <td class="col-2"><input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control"></td>
                                 <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
                                 <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.PartNumber)</td>
                                 <td class="col-3 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.Description)</td>
