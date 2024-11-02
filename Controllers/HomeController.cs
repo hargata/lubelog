@@ -505,6 +505,24 @@ namespace CarCareTracker.Controllers
                 return Json(new OperationResponse() { Success = false, Message = StaticHelper.GenericErrorMessage });
             }
         }
+        public ActionResult GetVehicleSelector(int vehicleId)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            if (vehicleId != default)
+            {
+                vehiclesStored.RemoveAll(x => x.Id == vehicleId);
+            }
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            return PartialView("_VehicleSelector", vehiclesStored);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

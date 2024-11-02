@@ -494,6 +494,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [HttpPost]
         public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
         {
             bool result = false;
@@ -569,6 +570,125 @@ namespace CarCareTracker.Controllers
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+            }
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult DuplicateRecordsToOtherVehicles(List<int> recordIds, List<int> vehicleIds, ImportMode importMode)
+        {
+            bool result = false;
+            if (!recordIds.Any() || !vehicleIds.Any())
+            {
+                return Json(result);
+            }
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach(int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.TaxRecord:
+                        {
+                            var existingRecord = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.SupplyRecord:
+                        {
+                            var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.NoteRecord:
+                        {
+                            var existingRecord = _noteDataAccess.GetNoteById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _noteDataAccess.SaveNoteToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.ReminderRecord:
+                        {
+                            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}");
             }
             return Json(result);
         }
