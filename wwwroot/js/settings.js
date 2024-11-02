@@ -54,6 +54,7 @@ function updateSettings() {
         useMPG: $("#useMPG").is(':checked'),
         useDescending: $("#useDescending").is(':checked'),
         hideZero: $("#hideZero").is(":checked"),
+        automaticDecimalFormat: $("#automaticDecimalFormat").is(":checked"),
         useUKMpg: $("#useUKMPG").is(":checked"),
         useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),

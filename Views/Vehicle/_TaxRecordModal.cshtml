@@ -33,7 +33,7 @@
                         </div>
                     }
                     <label for="taxRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                    <input type="text" inputmode="decimal" id="taxRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of tax paid")" value="@(isNew? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="taxRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of tax paid")" value="@(isNew? "" : Model.Cost)">
                     <label for="taxRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="taxRecordTag">
                         @foreach (string tag in Model.Tags)

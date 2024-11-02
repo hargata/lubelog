@@ -23,9 +23,9 @@
                     <label for="gasRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
                     <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="gasRecordConsumption">@translator.Translate(userLanguage, "Fuel Consumption")</label>
-                    <input type="text" inputmode="decimal" id="gasRecordConsumption" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 3)" id="gasRecordConsumption" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="gasRecordCost">@translator.Translate(userLanguage, "Cost")</label>
-                    <input type="text" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 3)" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="gasRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
                     <select multiple class="form-select" id="gasRecordTag"></select>
                     @foreach (ExtraField field in Model.EditRecord.ExtraFields)

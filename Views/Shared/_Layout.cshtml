@@ -10,6 +10,7 @@
     var useMPG = userConfig.UseMPG;
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
+    var automaticDecimalFormat = userConfig.AutomaticDecimalFormat;
     var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     var firstDayOfWeek = (int)System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
     var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
@@ -89,6 +90,42 @@
             var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             input = input.replace(".", decimalSeparator);
             return input;
+        }
+        function fixDecimalInput(input, numOfDecimals) {
+            if ("@automaticDecimalFormat" == "True") {
+                //get the decimal separator.
+                var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
+                var inputText = $(input).val().trim();
+                inputText = inputText.replace(decimalSeparator, '');
+                inputText = +inputText;
+                if (isNaN(inputText)){
+                    return;
+                }
+                inputText = inputText.toString();
+                if (inputText == '') {
+                    return;
+                };
+                //check number of decimals.
+                if (inputText.length <= numOfDecimals) {
+                    //less than number of decimals, assume everything is behind the decimal.
+                    inputText = `0${decimalSeparator}${inputText}`; //add leading zero.
+                    $(input).val(inputText);
+                } else {
+                    //check if leading zero
+                    var charToSlice = numOfDecimals * -1;
+                    var charsBehindDecimal = inputText.slice(charToSlice);
+                    var charsFrontDecimal = inputText.substr(0, inputText.length - numOfDecimals);
+                    inputText = `${charsFrontDecimal}${decimalSeparator}${charsBehindDecimal}`;
+                    $(input).val(inputText);
+                }
+            }
+        }
+        function interceptDecimalKeys(event) {
+            if ("@automaticDecimalFormat" == "True") {
+                if (event.which == 190 || event.which == 188) {
+                    event.preventDefault(); //intercept keys.
+                }
+            }
         }
         function genericErrorMessage(){
             return decodeHTMLEntities('@translator.Translate(userLanguage, "An error has occurred, please try again later")');
