@@ -1,0 +1,19 @@
+﻿@using CarCareTracker.Helper
+@model List<Vehicle>
+@if (Model.Any())
+{
+    <div id="vehicleSelector">
+        <ul class="list-group">
+            @foreach (Vehicle vehicle in Model)
+            {
+                <li class="list-group-item text-start">
+                    <input class="form-check-input" type="checkbox" value="@vehicle.Id" id="vehicleCheck_@vehicle.Id">
+                    <label class="form-check-label stretched-link" for="vehicleCheck_@vehicle.Id">@($"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})")</label>
+                </li>
+            }
+        </ul>
+    </div>
+} else
+{
+    <div id="vehicleSelector"><span class="lead">No Vehicles Available</span></div>
+}
