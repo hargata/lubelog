@@ -16,6 +16,8 @@ namespace CarCareTracker.Helper
         int ClearTempFolder();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
+        string GetWidgets();
+        bool WidgetsExist();
     }
     public class FileHelper : IFileHelper
     {
@@ -367,6 +369,28 @@ namespace CarCareTracker.Helper
                 }
             }
             return filesDeleted;
+        }
+        public string GetWidgets()
+        {
+            if (File.Exists(StaticHelper.AdditionalWidgetsPath))
+            {
+                try
+                {
+                    //read file
+                    var widgets = File.ReadAllText(StaticHelper.AdditionalWidgetsPath);
+                    return widgets;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return string.Empty;
+                }
+            }
+            return string.Empty;
+        }
+        public bool WidgetsExist()
+        {
+            return File.Exists(StaticHelper.AdditionalWidgetsPath);
         }
     }
 }

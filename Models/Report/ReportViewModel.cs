@@ -8,5 +8,6 @@
         public ReminderMakeUpForVehicle ReminderMakeUpForVehicle { get; set; } = new ReminderMakeUpForVehicle();
         public List<int> Years { get; set; } = new List<int>();
         public List<UserCollaborator> Collaborators { get; set; } = new List<UserCollaborator>();
+        public bool CustomWidgetsConfigured { get; set; } = false;
     }
 }

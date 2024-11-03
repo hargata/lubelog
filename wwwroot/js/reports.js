@@ -265,3 +265,12 @@ function loadGlobalSearchResult(recordId, recordType) {
             break;
     }
 }
+function loadCustomWidgets() {
+    $.get('/Vehicle/GetAdditionalWidgets', function (data) {
+        $("#vehicleCustomWidgetsModalContent").html(data);
+        $("#vehicleCustomWidgetsModal").modal('show');
+    })
+}
+function hideCustomWidgetsModal() {
+    $("#vehicleCustomWidgetsModal").modal('hide');
+}

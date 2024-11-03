@@ -12,6 +12,7 @@ namespace CarCareTracker.Helper
         public static string VersionNumber = "1.4.0";
         public static string DbName = "data/cartracker.db";
         public static string UserConfigPath = "config/userConfig.json";
+        public static string AdditionalWidgetsPath = "data/widgets.html";
         public static string GenericErrorMessage = "An error occurred, please try again later";
         public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
