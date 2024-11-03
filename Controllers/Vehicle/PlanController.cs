@@ -66,6 +66,24 @@ namespace CarCareTracker.Controllers
             var result = _planRecordTemplateDataAccess.DeletePlanRecordTemplateById(planRecordTemplateId);
             return Json(result);
         }
+        [HttpGet]
+        public IActionResult OrderPlanSupplies(int planRecordTemplateId)
+        {
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (existingRecord.Id == default)
+            {
+                return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
+            }
+            if (existingRecord.Supplies.Any())
+            {
+                var suppliesToOrder = CheckSupplyRecordsAvailability(existingRecord.Supplies);
+                return PartialView("_PlanOrderSupplies", suppliesToOrder);
+            } 
+            else
+            {
+                return Json(new OperationResponse { Success = false, Message = "Template has No Supplies" });
+            }
+        }
         [HttpPost]
         public IActionResult ConvertPlanRecordTemplateToPlanRecord(int planRecordTemplateId)
         {
@@ -78,9 +96,13 @@ namespace CarCareTracker.Controllers
             {
                 //check if all supplies are available
                 var supplyAvailability = CheckSupplyRecordsAvailability(existingRecord.Supplies);
-                if (supplyAvailability.Any())
+                if (supplyAvailability.Any(x => x.Missing))
                 {
-                    return Json(new OperationResponse { Success = false, Message = string.Join("<br>", supplyAvailability) });
+                    return Json(new OperationResponse { Success = false, Message = "Missing Supplies, Please Delete This Template and Recreate It." });
+                }
+                else if (supplyAvailability.Any(x => x.Insufficient))
+                {
+                    return Json(new OperationResponse { Success = false, Message = "Insufficient Supplies" });
                 }
             }
             if (existingRecord.ReminderRecordId != default)

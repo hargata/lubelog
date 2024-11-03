@@ -1,0 +1,43 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<SupplyAvailability>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage, "Order Supplies")</h5>
+    <button type="button" class="btn-close" onclick="hideOrderSupplyModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (!Model.Any() || Model.Any(x => x.Missing))
+    {
+        <p class="lead">@translator.Translate(userLanguage, "Missing Supplies, Please Delete This Template and Recreate It.")</p>
+    } else
+    {
+        <div class="row">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+                <table class="table table-hover">
+                    <thead class="sticky-top">
+                        <tr class="d-flex">
+                            <th scope="col" class="col-6 text-truncate">@translator.Translate(userLanguage, "Description")</th>
+                            <th scope="col" class="col-3 text-truncate">@translator.Translate(userLanguage, "Required")</th>
+                            <th scope="col" class="col-3 text-truncate">@translator.Translate(userLanguage, "In Stock")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SupplyAvailability supplyAvailability in Model)
+                        {
+                            <tr class="d-flex @(supplyAvailability.Insufficient ? "table-danger" : "")">
+                                <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(supplyAvailability.Description)</td>
+                                <td class="col-3 text-truncate">@supplyAvailability.Required.ToString("N2")</td>
+                                <td class="col-3 text-truncate">@supplyAvailability.InStock.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

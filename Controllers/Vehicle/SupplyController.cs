@@ -7,21 +7,21 @@ namespace CarCareTracker.Controllers
 {
     public partial class VehicleController
     {
-        private List<string> CheckSupplyRecordsAvailability(List<SupplyUsage> supplyUsage)
+        private List<SupplyAvailability> CheckSupplyRecordsAvailability(List<SupplyUsage> supplyUsage)
         {
             //returns empty string if all supplies are available
-            var result = new List<string>();
+            var result = new List<SupplyAvailability>();
             foreach (SupplyUsage supply in supplyUsage)
             {
                 //get supply record.
                 var supplyData = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
                 if (supplyData == null)
                 {
-                    result.Add("Missing Supplies, Please Delete This Template and Recreate It.");
+                    result.Add(new SupplyAvailability { Missing = true });
                 }
-                else if (supply.Quantity > supplyData.Quantity)
+                else
                 {
-                    result.Add($"Insufficient Quantity for {supplyData.Description}, need: {supply.Quantity}, available: {supplyData.Quantity}");
+                    result.Add(new SupplyAvailability { Missing = false, Description = supplyData.Description, Required = supply.Quantity, InStock = supplyData.Quantity });
                 }
             }
             return result;
