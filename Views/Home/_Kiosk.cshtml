@@ -11,7 +11,7 @@
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
         @foreach (VehicleInfo vehicle in Model)
         {
-            <div class="col">
+            <div class="col" data-vehicleId="@vehicle.VehicleData.Id">
                 <div class="card" onclick="addVehicleToExceptionList(@vehicle.VehicleData.Id)">
                     <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
                         <h5 class="card-title">@($"{vehicle.VehicleData.Year} {vehicle.VehicleData.Make} {vehicle.VehicleData.Model} ({StaticHelper.GetVehicleIdentifier(vehicle.VehicleData)})")</h5>
