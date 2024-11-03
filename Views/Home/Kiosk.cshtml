@@ -40,6 +40,15 @@
             errorToast('Location Services not Enabled');
         }
     }
+    function setAccessToken(accessToken){
+        //use this function to never worry about user session expiring.
+        $.ajaxSetup({
+            headers: {
+                'Authorization': `Basic ${accessToken}`
+            }
+        });
+        console.log("Access Token for Kiosk Mode Configured!");
+    }
     function retrieveKioskContent(){
         clearInterval(refreshTimer);
         if (kioskMode != 'Cycle'){
@@ -93,9 +102,6 @@
         }, 100);
     }
     function addVehicleToExceptionList(vehicleId) {
-        if (kioskMode == 'Cycle') {
-            return;
-        }
         Swal.fire({
             title: "Remove Vehicle from Dashboard?",
             text: "Removed vehicles can be restored by refreshing the page",
@@ -105,7 +111,13 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 exceptionList.push(vehicleId);
-                retrieveKioskContent();
+                if (kioskMode == 'Cycle') {
+                    //remove the vehicle programmatically.
+                    $(`[data-vehicleId=${vehicleId}]`).remove();
+                } else {
+                    //force a refresh
+                    retrieveKioskContent();
+                }
             }
         });
     }
