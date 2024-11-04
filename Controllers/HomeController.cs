@@ -523,6 +523,27 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_VehicleSelector", vehiclesStored);
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetCustomWidgetEditor()
+        {
+            var customWidgetData = _fileHelper.GetWidgets();
+            return PartialView("_WidgetEditor", customWidgetData);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult SaveCustomWidgets(string widgetsData)
+        {
+            var saveResult = _fileHelper.SaveWidgets(widgetsData);
+            return Json(saveResult);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult DeleteCustomWidgets()
+        {
+            var deleteResult = _fileHelper.DeleteWidgets();
+            return Json(deleteResult);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

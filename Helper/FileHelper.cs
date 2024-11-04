@@ -18,6 +18,8 @@ namespace CarCareTracker.Helper
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
         string GetWidgets();
         bool WidgetsExist();
+        bool SaveWidgets(string widgetsData);
+        bool DeleteWidgets();
     }
     public class FileHelper : IFileHelper
     {
@@ -391,6 +393,36 @@ namespace CarCareTracker.Helper
         public bool WidgetsExist()
         {
             return File.Exists(StaticHelper.AdditionalWidgetsPath);
+        }
+        public bool SaveWidgets(string widgetsData)
+        {
+            try
+            {
+                //Delete Widgets if exists
+                DeleteWidgets();
+                File.WriteAllText(StaticHelper.AdditionalWidgetsPath, widgetsData);
+                return true;
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            } 
+        }
+        public bool DeleteWidgets()
+        {
+            try
+            {
+                if (File.Exists(StaticHelper.AdditionalWidgetsPath))
+                {
+                    File.Delete(StaticHelper.AdditionalWidgetsPath);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
         }
     }
 }
