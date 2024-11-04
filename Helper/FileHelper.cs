@@ -16,6 +16,10 @@ namespace CarCareTracker.Helper
         int ClearTempFolder();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
+        string GetWidgets();
+        bool WidgetsExist();
+        bool SaveWidgets(string widgetsData);
+        bool DeleteWidgets();
     }
     public class FileHelper : IFileHelper
     {
@@ -100,6 +104,7 @@ namespace CarCareTracker.Helper
                 var documentPath = Path.Combine(tempPath, "documents");
                 var translationPath = Path.Combine(tempPath, "translations");
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
+                var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
                 var configPath = Path.Combine(tempPath, StaticHelper.UserConfigPath);
                 if (Directory.Exists(imagePath))
                 {
@@ -174,6 +179,10 @@ namespace CarCareTracker.Helper
                     //data path will always exist as it is created on startup if not.
                     File.Move(dataPath, StaticHelper.DbName, true);
                 }
+                if (File.Exists(widgetPath))
+                {
+                    File.Move(widgetPath, StaticHelper.AdditionalWidgetsPath, true);
+                }
                 if (File.Exists(configPath))
                 {
                     //check if config folder exists.
@@ -223,6 +232,7 @@ namespace CarCareTracker.Helper
             var documentPath = Path.Combine(_webEnv.WebRootPath, "documents");
             var translationPath = Path.Combine(_webEnv.WebRootPath, "translations");
             var dataPath = StaticHelper.DbName;
+            var widgetPath = StaticHelper.AdditionalWidgetsPath;
             var configPath = StaticHelper.UserConfigPath;
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
@@ -261,6 +271,12 @@ namespace CarCareTracker.Helper
                 var newPath = Path.Combine(tempPath, "data");
                 Directory.CreateDirectory(newPath);
                 File.Copy(dataPath, $"{newPath}/{Path.GetFileName(dataPath)}");
+            }
+            if (File.Exists(widgetPath))
+            {
+                var newPath = Path.Combine(tempPath, "data");
+                Directory.CreateDirectory(newPath);
+                File.Copy(widgetPath, $"{newPath}/{Path.GetFileName(widgetPath)}");
             }
             if (File.Exists(configPath))
             {
@@ -323,10 +339,18 @@ namespace CarCareTracker.Helper
             var tempPath = GetFullFilePath("temp", false);
             if (Directory.Exists(tempPath))
             {
+                //delete files
                 var files = Directory.GetFiles(tempPath);
                 foreach (var file in files)
                 {
                     File.Delete(file);
+                    filesDeleted++;
+                }
+                //delete folders
+                var folders = Directory.GetDirectories(tempPath);
+                foreach(var folder in folders)
+                {
+                    Directory.Delete(folder, true);
                     filesDeleted++;
                 }
             }
@@ -367,6 +391,58 @@ namespace CarCareTracker.Helper
                 }
             }
             return filesDeleted;
+        }
+        public string GetWidgets()
+        {
+            if (File.Exists(StaticHelper.AdditionalWidgetsPath))
+            {
+                try
+                {
+                    //read file
+                    var widgets = File.ReadAllText(StaticHelper.AdditionalWidgetsPath);
+                    return widgets;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return string.Empty;
+                }
+            }
+            return string.Empty;
+        }
+        public bool WidgetsExist()
+        {
+            return File.Exists(StaticHelper.AdditionalWidgetsPath);
+        }
+        public bool SaveWidgets(string widgetsData)
+        {
+            try
+            {
+                //Delete Widgets if exists
+                DeleteWidgets();
+                File.WriteAllText(StaticHelper.AdditionalWidgetsPath, widgetsData);
+                return true;
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            } 
+        }
+        public bool DeleteWidgets()
+        {
+            try
+            {
+                if (File.Exists(StaticHelper.AdditionalWidgetsPath))
+                {
+                    File.Delete(StaticHelper.AdditionalWidgetsPath);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
         }
     }
 }

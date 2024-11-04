@@ -352,3 +352,58 @@ function resetTabOrder() {
     })
     updateSettings();
 }
+
+function hideCustomWidgets() {
+    $("#customWidgetModal").modal('hide');
+}
+function saveCustomWidgets() {
+    $.post('/Home/SaveCustomWidgets', { widgetsData: $("#widgetEditor").val() }, function (data) {
+        if (data) {
+            successToast("Custom Widgets Saved!");
+            updateSettings();
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
+function deleteCustomWidgets() {
+    $.post('/Home/DeleteCustomWidgets', function (data) {
+        if (data) {
+            successToast("Custom Widgets Deleted!");
+            updateSettings();
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
+function showCustomWidgets() {
+    Swal.fire({
+        title: 'Warning',
+        icon: "warning",
+        html: `
+               <span>
+               You are about to use the Custom Widgets Editor, this is a developer-focused feature that can lead to security vulnerabilities if you don't understand what you're doing.
+               <br />Zero support will be provided from the developer(s) of LubeLogger regarding Custom Widgets, Read the Documentation.
+               <br />By proceeding, you acknowledge that you are solely responsible for all consequences from utilizing the Custom Widgets Editor.
+               <br />To proceed, enter 'acknowledge' into the text field below.
+               </span>
+               <input type="text" id="inputAcknowledge" class="swal2-input" placeholder="acknowledge" onkeydown="handleSwalEnter(event)">
+              `,
+        confirmButtonText: 'Proceed',
+        focusConfirm: false,
+        preConfirm: () => {
+            const userAcknowledge = $("#inputAcknowledge").val();
+            if (!userAcknowledge || userAcknowledge != 'acknowledge') {
+                Swal.showValidationMessage(`Please acknowledge before proceeding.`)
+            }
+            return { userAcknowledge }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.get('/Home/GetCustomWidgetEditor', function (data) {
+                $("#customWidgetModalContent").html(data);
+                $("#customWidgetModal").modal('show');
+            });
+        }
+    });
+}

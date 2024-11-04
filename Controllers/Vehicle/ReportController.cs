@@ -22,6 +22,8 @@ namespace CarCareTracker.Controllers
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             var userConfig = _config.GetUserConfig(User);
             var viewModel = new ReportViewModel();
+            //check if custom widgets are configured
+            viewModel.CustomWidgetsConfigured = _fileHelper.WidgetsExist();
             //get totalCostMakeUp
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
             {
@@ -527,6 +529,12 @@ namespace CarCareTracker.Controllers
                 DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);
+        }
+        [HttpGet]
+        public IActionResult GetAdditionalWidgets()
+        {
+            var widgets = _fileHelper.GetWidgets();
+            return PartialView("_ReportWidgets", widgets);
         }
     }
 }
