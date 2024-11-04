@@ -401,8 +401,12 @@ function showCustomWidgets() {
     }).then(function (result) {
         if (result.isConfirmed) {
             $.get('/Home/GetCustomWidgetEditor', function (data) {
-                $("#customWidgetModalContent").html(data);
-                $("#customWidgetModal").modal('show');
+                if (data.trim() != '') {
+                    $("#customWidgetModalContent").html(data);
+                    $("#customWidgetModal").modal('show');
+                } else {
+                    errorToast("Custom Widgets Not Enabled");
+                }
             });
         }
     });

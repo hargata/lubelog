@@ -527,22 +527,34 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetCustomWidgetEditor()
         {
-            var customWidgetData = _fileHelper.GetWidgets();
-            return PartialView("_WidgetEditor", customWidgetData);
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var customWidgetData = _fileHelper.GetWidgets();
+                return PartialView("_WidgetEditor", customWidgetData);
+            }
+            return Json(string.Empty);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
         public IActionResult SaveCustomWidgets(string widgetsData)
         {
-            var saveResult = _fileHelper.SaveWidgets(widgetsData);
-            return Json(saveResult);
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var saveResult = _fileHelper.SaveWidgets(widgetsData);
+                return Json(saveResult);
+            }
+            return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
         public IActionResult DeleteCustomWidgets()
         {
-            var deleteResult = _fileHelper.DeleteWidgets();
-            return Json(deleteResult);
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var deleteResult = _fileHelper.DeleteWidgets();
+                return Json(deleteResult);
+            }
+            return Json(false);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

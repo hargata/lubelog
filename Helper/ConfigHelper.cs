@@ -14,6 +14,7 @@ namespace CarCareTracker.Helper
         bool AuthenticateRootUser(string username, string password);
         bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
+        bool GetCustomWidgetsEnabled();
         string GetMOTD();
         string GetLogoUrl();
         string GetServerLanguage();
@@ -44,6 +45,10 @@ namespace CarCareTracker.Helper
                 webhook = "";
             }
             return webhook;
+        }
+        public bool GetCustomWidgetsEnabled()
+        {
+            return bool.Parse(_config["LUBELOGGER_CUSTOM_WIDGETS"] ?? "false");
         }
         public string GetMOTD()
         {
