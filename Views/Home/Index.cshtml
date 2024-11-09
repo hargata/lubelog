@@ -1,12 +1,11 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
-    var enableAuth = userConfig.EnableAuth;
     var userLanguage = userConfig.UserLanguage;
     var logoUrl = config.GetLogoUrl();
 }
+@using CarCareTracker.Helper
 @model string
 @{
     ViewData["Title"] = "Garage";
@@ -62,7 +61,7 @@
 <div class="container">
     <div class="row mt-2">
         <div class="d-flex lubelogger-navbar">
-            <img src="@logoUrl" />
+            <img src="@logoUrl" alt="Logo" />
             <div class="lubelogger-navbar-button">
                 <button type="button" class="btn btn-adaptive" onclick="showMobileNav()"><i class="bi bi-list lubelogger-menu-icon"></i></button>
             </div>

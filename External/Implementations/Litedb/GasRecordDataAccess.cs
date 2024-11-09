@@ -7,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class GasRecordDataAccess : IGasRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "gasrecords";
         public GasRecordDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<GasRecord>(tableName);
-            var gasRecords = table.DeleteMany(Query.EQ(nameof(GasRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(GasRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

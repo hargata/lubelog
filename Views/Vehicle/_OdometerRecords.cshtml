@@ -1,5 +1,4 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
@@ -14,11 +13,12 @@
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x=>x.Tab == ImportMode.OdometerRecord);
 }
+@using CarCareTracker.Helper
 @model List<OdometerRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count}")</span>
             <span class="ms-2 badge bg-primary" data-aggregate-type="sum-distance">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.Sum(x => x.DistanceTraveled)}")</span>
             @foreach (string recordTag in recordTags)
             {
@@ -101,7 +101,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="/defaults/lubelogger_logo.png" alt="Logo"/>
             </div>
         </div>
         <table class="table table-hover">
@@ -126,7 +126,7 @@
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="initialodometer">@odometerRecord.InitialMileage</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@odometerRecord.Mileage</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
-                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
+                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -134,7 +134,7 @@
                                     var extraFieldValue = odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {

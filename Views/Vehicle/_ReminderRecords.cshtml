@@ -1,21 +1,21 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model List<ReminderRecordViewModel>
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
-    var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
+    var hasRefresh = Model.Any(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring);
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
 }
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Reminders")}: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-secondary" data-aggregate-type="pastdue-count">@($"{translator.Translate(userLanguage, "Past Due")}: {Model.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()}")</span>
-            <span class="ms-2 badge bg-danger" data-aggregate-type="veryurgent-count">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count()}")</span>
-            <span class="ms-2 badge text-bg-warning" data-aggregate-type="urgent-count">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.Urgent).Count()}")</span>
-            <span class="ms-2 badge bg-success" data-aggregate-type="noturgent-count">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Reminders")}: {Model.Count}")</span>
+            <span class="ms-2 badge bg-secondary" data-aggregate-type="pastdue-count">@($"{translator.Translate(userLanguage, "Past Due")}: {Model.Count(x => x.Urgency == ReminderUrgency.PastDue)}")</span>
+            <span class="ms-2 badge bg-danger" data-aggregate-type="veryurgent-count">@($"{translator.Translate(userLanguage, "Very Urgent")}: {Model.Count(x => x.Urgency == ReminderUrgency.VeryUrgent)}")</span>
+            <span class="ms-2 badge text-bg-warning" data-aggregate-type="urgent-count">@($"{translator.Translate(userLanguage, "Urgent")}: {Model.Count(x => x.Urgency == ReminderUrgency.Urgent)}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="noturgent-count">@($"{translator.Translate(userLanguage, "Not Urgent")}: {Model.Count(x => x.Urgency == ReminderUrgency.NotUrgent)}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterReminderTable(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -36,7 +36,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="/defaults/lubelogger_logo.png" alt="Logo"/>
             </div>
         </div>
         <table class="table table-hover">
@@ -90,7 +90,7 @@
                             </span>
                         </td>
                         <td class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
-                        <td class="col-2 col-md-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        <td class="col-2 col-md-3 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
                             <td class="col-2 col-md-1 text-truncate">

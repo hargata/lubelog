@@ -24,7 +24,7 @@ namespace CarCareTracker.Helper
                         averageGasMileage = 100 / averageGasMileage;
                     }
                     return averageGasMileage.ToString("F");
-                } catch (Exception ex)
+                } catch (Exception)
                 {
                     return "0";
                 }
@@ -95,7 +95,7 @@ namespace CarCareTracker.Helper
                             {
                                 gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 gasRecordViewModel.MilesPerGallon = 0;
                             }

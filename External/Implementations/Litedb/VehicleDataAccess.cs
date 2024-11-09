@@ -1,13 +1,12 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
-using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class VehicleDataAccess : IVehicleDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "vehicles";
         public VehicleDataAccess(ILiteDBHelper liteDB)
         {
@@ -17,7 +16,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Vehicle>(tableName);
-            var result = table.Upsert(vehicle);
+            table.Upsert(vehicle);
             db.Checkpoint();
             return true;
         }

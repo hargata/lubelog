@@ -6,7 +6,7 @@ namespace CarCareTracker.Logic
     public interface IOdometerLogic
     {
         int GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords);
-        bool AutoInsertOdometerRecord(OdometerRecord odometer);
+        void AutoInsertOdometerRecord(OdometerRecord odometer);
         List<OdometerRecord> AutoConvertOdometerRecord(List<OdometerRecord> odometerRecords);
     }
     public class OdometerLogic: IOdometerLogic
@@ -20,37 +20,35 @@ namespace CarCareTracker.Logic
         }
         public int GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords)
         {
-            if (!odometerRecords.Any())
+            if (odometerRecords.Count == 0)
             {
                 odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             }
-            if (!odometerRecords.Any())
+            if (odometerRecords.Count == 0)
             {
                 //no existing odometer records for this vehicle.
                 return 0;
             }
             return odometerRecords.Max(x => x.Mileage);
         }
-        public bool AutoInsertOdometerRecord(OdometerRecord odometer)
+        public void AutoInsertOdometerRecord(OdometerRecord odometer)
         {
             if (odometer.Mileage == default)
             {
-                return false;
+                return;
             }
             var lastReportedMileage = GetLastOdometerRecordMileage(odometer.VehicleId, new List<OdometerRecord>());
             odometer.InitialMileage = lastReportedMileage != default ? lastReportedMileage : odometer.Mileage;
 
-            var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometer);
-            return result;
+            _ = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometer);
         }
         public List<OdometerRecord> AutoConvertOdometerRecord(List<OdometerRecord> odometerRecords)
         {
             //perform ordering
             odometerRecords = odometerRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             int previousMileage = 0;
-            for (int i = 0; i < odometerRecords.Count; i++)
+            foreach (var currentObject in odometerRecords)
             {
-                var currentObject = odometerRecords[i];
                 if (previousMileage == default)
                 {
                     //first record

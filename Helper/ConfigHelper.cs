@@ -2,6 +2,7 @@
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace CarCareTracker.Helper
 {
@@ -28,7 +29,7 @@ namespace CarCareTracker.Helper
     {
         private readonly IConfiguration _config;
         private readonly IUserConfigDataAccess _userConfig;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         public ConfigHelper(IConfiguration serverConfig, 
             IUserConfigDataAccess userConfig,
             IMemoryCache memoryCache)
@@ -146,17 +147,16 @@ namespace CarCareTracker.Helper
                     if (!File.Exists(StaticHelper.UserConfigPath))
                     {
                         //if file doesn't exist it might be because it's running on a mounted volume in docker.
-                        File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(new UserConfig()));
+                        File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(new UserConfig()));
                     }
-                    var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
                     configData.EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)] ?? "false");
                     configData.UserNameHash = _config[nameof(UserConfig.UserNameHash)] ?? string.Empty;
                     configData.UserPasswordHash = _config[nameof(UserConfig.UserPasswordHash)] ?? string.Empty;
-                    File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(configData));
-                    _cache.Set<UserConfig>($"userConfig_{userId}", configData);
+                    File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(configData));
+                    _cache.Set($"userConfig_{userId}", configData);
                     return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
@@ -168,7 +168,7 @@ namespace CarCareTracker.Helper
                     UserConfig = configData
                 };
                 var result = _userConfig.SaveUserConfig(userConfig);
-                _cache.Set<UserConfig>($"userConfig_{userId}", configData);
+                _cache.Set($"userConfig_{userId}", configData);
                 return result;
             }
         }

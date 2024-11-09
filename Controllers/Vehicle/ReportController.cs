@@ -21,17 +21,19 @@ namespace CarCareTracker.Controllers
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             var userConfig = _config.GetUserConfig(User);
-            var viewModel = new ReportViewModel();
-            //check if custom widgets are configured
-            viewModel.CustomWidgetsConfigured = _fileHelper.WidgetsExist();
-            //get totalCostMakeUp
-            viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
+            var viewModel = new ReportViewModel
             {
-                ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
-                GasRecordSum = gasRecords.Sum(x => x.Cost),
-                CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
-                TaxRecordSum = taxRecords.Sum(x => x.Cost),
-                UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+                //check if custom widgets are configured
+                CustomWidgetsConfigured = _fileHelper.WidgetsExist(),
+                //get totalCostMakeUp
+                CostMakeUpForVehicle = new CostMakeUpForVehicle
+                {
+                    ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
+                    GasRecordSum = gasRecords.Sum(x => x.Cost),
+                    CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
+                    TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                    UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
+                }
             };
             //get costbymonth
             List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
@@ -51,34 +53,34 @@ namespace CarCareTracker.Controllers
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             viewModel.ReminderMakeUpForVehicle = new ReminderMakeUpForVehicle
             {
-                NotUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count(),
-                UrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.Urgent).Count(),
-                VeryUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count(),
-                PastDueCount = reminders.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()
+                NotUrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.NotUrgent),
+                UrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.Urgent),
+                VeryUrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
+                PastDueCount = reminders.Count(x => x.Urgency == ReminderUrgency.PastDue)
             };
             //populate year dropdown.
             var numbersArray = new List<int>();
-            if (serviceRecords.Any())
+            if (serviceRecords.Count != 0)
             {
                 numbersArray.Add(serviceRecords.Min(x => x.Date.Year));
             }
-            if (collisionRecords.Any())
+            if (collisionRecords.Count != 0)
             {
                 numbersArray.Add(collisionRecords.Min(x => x.Date.Year));
             }
-            if (gasRecords.Any())
+            if (gasRecords.Count != 0)
             {
                 numbersArray.Add(gasRecords.Min(x => x.Date.Year));
             }
-            if (upgradeRecords.Any())
+            if (upgradeRecords.Count != 0)
             {
                 numbersArray.Add(upgradeRecords.Min(x => x.Date.Year));
             }
-            if (odometerRecords.Any())
+            if (odometerRecords.Count != 0)
             {
                 numbersArray.Add(odometerRecords.Min(x => x.Date.Year));
             }
-            var minYear = numbersArray.Any() ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
+            var minYear = numbersArray.Count != 0 ? numbersArray.Min() : DateTime.Now.AddYears(-5).Year;
             var yearDifference = DateTime.Now.Year - minYear + 1;
             for (int i = 0; i < yearDifference; i++)
             {
@@ -216,10 +218,10 @@ namespace CarCareTracker.Controllers
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now.AddDays(daysToAdd));
             var viewModel = new ReminderMakeUpForVehicle
             {
-                NotUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.NotUrgent).Count(),
-                UrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.Urgent).Count(),
-                VeryUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count(),
-                PastDueCount = reminders.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()
+                NotUrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.NotUrgent),
+                UrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.Urgent),
+                VeryUrgentCount = reminders.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
+                PastDueCount = reminders.Count(x => x.Urgency == ReminderUrgency.PastDue)
             };
             return PartialView("_ReminderMakeUpReport", viewModel);
         }
@@ -230,7 +232,7 @@ namespace CarCareTracker.Controllers
             List<GenericReportModel> attachmentData = new List<GenericReportModel>();
             if (exportTabs.Contains(ImportMode.ServiceRecord))
             {
-                var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.ServiceRecord,
@@ -241,7 +243,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.RepairRecord))
             {
-                var records = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.RepairRecord,
@@ -252,7 +254,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.UpgradeRecord))
             {
-                var records = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.UpgradeRecord,
@@ -263,7 +265,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.GasRecord))
             {
-                var records = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.GasRecord,
@@ -274,7 +276,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.TaxRecord))
             {
-                var records = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.TaxRecord,
@@ -285,7 +287,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.OdometerRecord))
             {
-                var records = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.OdometerRecord,
@@ -296,7 +298,7 @@ namespace CarCareTracker.Controllers
             }
             if (exportTabs.Contains(ImportMode.NoteRecord))
             {
-                var records = _noteDataAccess.GetNotesByVehicleId(vehicleId).Where(x => x.Files.Any());
+                var records = _noteDataAccess.GetNotesByVehicleId(vehicleId).Where(x => x.Files.Count != 0);
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.NoteRecord,
@@ -305,7 +307,7 @@ namespace CarCareTracker.Controllers
                     Files = x.Files
                 }));
             }
-            if (attachmentData.Any())
+            if (attachmentData.Count != 0)
             {
                 attachmentData = attachmentData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
                 var result = _fileHelper.MakeAttachmentsExport(attachmentData);
@@ -323,8 +325,10 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetVehicleHistory(int vehicleId)
         {
-            var vehicleHistory = new VehicleHistoryViewModel();
-            vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var vehicleHistory = new VehicleHistoryViewModel
+            {
+                VehicleData = _dataAccess.GetVehicleById(vehicleId)
+            };
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             vehicleHistory.Odometer = maxMileage.ToString("N0");
             var minMileage = _vehicleLogic.GetMinMileage(vehicleId);
@@ -383,7 +387,7 @@ namespace CarCareTracker.Controllers
             }
             var averageMPG = "0";
             var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
-            if (gasViewModels.Any())
+            if (gasViewModels.Count != 0)
             {
                 averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels, useMPG);
             }

@@ -38,7 +38,7 @@ namespace CarCareTracker.Controllers
             }
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            if (serviceRecord.Supplies.Any())
+            if (serviceRecord.Supplies.Count != 0)
             {
                 serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
                 if (serviceRecord.CopySuppliesAttachment)
@@ -47,7 +47,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             //push back any reminders
-            if (serviceRecord.ReminderRecordId.Any())
+            if (serviceRecord.ReminderRecordId.Count != 0)
             {
                 foreach (int reminderRecordId in serviceRecord.ReminderRecordId)
                 {

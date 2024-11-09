@@ -38,12 +38,14 @@ namespace CarCareTracker.External.Implementations
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            UserData result = new UserData();
-                            result.Id = int.Parse(reader["id"].ToString());
-                            result.UserName = reader["username"].ToString();
-                            result.EmailAddress = reader["emailaddress"].ToString();
-                            result.Password = reader["password"].ToString();
-                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString());
+                            UserData result = new UserData
+                            {
+                                Id = int.Parse(reader["id"].ToString()),
+                                UserName = reader["username"].ToString(),
+                                EmailAddress = reader["emailaddress"].ToString(),
+                                Password = reader["password"].ToString(),
+                                IsAdmin = bool.Parse(reader["isadmin"].ToString())
+                            };
                             results.Add(result);
                         }
                 }

@@ -16,7 +16,7 @@ namespace CarCareTracker.Helper
         private readonly IFileHelper _fileHelper;
         private readonly IConfiguration _config;
         private readonly ILogger<ITranslationHelper> _logger;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         public TranslationHelper(IFileHelper fileHelper, IConfiguration config, IMemoryCache memoryCache, ILogger<ITranslationHelper> logger)
         {
             _fileHelper = fileHelper;
@@ -29,7 +29,7 @@ namespace CarCareTracker.Helper
             bool create = bool.Parse(_config["LUBELOGGER_TRANSLATOR"] ?? "false");
             //transform input text into key.
             string translationKey = text.Replace(" ", "_");
-            var translationFilePath = userLanguage == "en_US" ? _fileHelper.GetFullFilePath($"/defaults/en_US.json") : _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
+            var translationFilePath = userLanguage == "en_US" ? _fileHelper.GetFullFilePath("/defaults/en_US.json") : _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
             var dictionary = _cache.GetOrCreate<Dictionary<string, string>>($"lang_{userLanguage}", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
@@ -52,9 +52,9 @@ namespace CarCareTracker.Helper
                     return new Dictionary<string, string>();
                 }
             });
-            if (dictionary != null && dictionary.ContainsKey(translationKey))
+            if (dictionary != null && dictionary.TryGetValue(translationKey, out var translationValue))
             {
-                return dictionary[translationKey];
+                return translationValue;
             }
             else if (create && File.Exists(translationFilePath))
             {
@@ -69,7 +69,7 @@ namespace CarCareTracker.Helper
         private Dictionary<string, string> GetDefaultTranslation()
         {
             //this method always returns en_US translation.
-            var translationFilePath = _fileHelper.GetFullFilePath($"/defaults/en_US.json");
+            var translationFilePath = _fileHelper.GetFullFilePath("/defaults/en_US.json");
             if (!string.IsNullOrWhiteSpace(translationFilePath))
             {
                 //file exists.
@@ -85,7 +85,7 @@ namespace CarCareTracker.Helper
                     return new Dictionary<string, string>();
                 }
             }
-            _logger.LogError($"Could not find translation file for en_US");
+            _logger.LogError("Could not find translation file for en_US");
             return new Dictionary<string, string>();
         }
         public Dictionary<string, string> GetTranslations(string userLanguage)
@@ -131,7 +131,7 @@ namespace CarCareTracker.Helper
             {
                 return new OperationResponse { Success = false, Message = "File name is not provided." };
             }
-            if (!translations.Any())
+            if (translations.Count == 0)
             {
                 return new OperationResponse { Success = false, Message = "Translation has no data." };
             }
@@ -167,7 +167,7 @@ namespace CarCareTracker.Helper
             try
             {
                 var tempFileName = $"/temp/{Guid.NewGuid()}.json";
-                string uploadDirectory = _fileHelper.GetFullFilePath("temp/", false);
+                string uploadDirectory = _fileHelper.GetFullFilePath(FileHelper.TempFolder, false);
                 if (!Directory.Exists(uploadDirectory))
                 {
                     Directory.CreateDirectory(uploadDirectory);

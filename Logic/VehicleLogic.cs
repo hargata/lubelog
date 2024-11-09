@@ -59,7 +59,7 @@ namespace CarCareTracker.Logic
                 CollisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId),
                 TaxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId),
                 UpgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId),
-                OdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId),
+                OdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId)
             };
         }
         public decimal GetVehicleTotalCost(VehicleRecords vehicleRecords)
@@ -75,56 +75,56 @@ namespace CarCareTracker.Logic
         {
             var numbersArray = new List<int>();
             var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            if (serviceRecords.Any())
+            if (serviceRecords.Count != 0)
             {
                 numbersArray.Add(serviceRecords.Max(x => x.Mileage));
             }
             var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            if (repairRecords.Any())
+            if (repairRecords.Count != 0)
             {
                 numbersArray.Add(repairRecords.Max(x => x.Mileage));
             }
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            if (gasRecords.Any())
+            if (gasRecords.Count != 0)
             {
                 numbersArray.Add(gasRecords.Max(x => x.Mileage));
             }
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            if (upgradeRecords.Any())
+            if (upgradeRecords.Count != 0)
             {
                 numbersArray.Add(upgradeRecords.Max(x => x.Mileage));
             }
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
-            if (odometerRecords.Any())
+            if (odometerRecords.Count != 0)
             {
                 numbersArray.Add(odometerRecords.Max(x => x.Mileage));
             }
-            return numbersArray.Any() ? numbersArray.Max() : 0;
+            return numbersArray.Count != 0 ? numbersArray.Max() : 0;
         }
         public int GetMaxMileage(VehicleRecords vehicleRecords)
         {
             var numbersArray = new List<int>();
-            if (vehicleRecords.ServiceRecords.Any())
+            if (vehicleRecords.ServiceRecords.Count != 0)
             {
                 numbersArray.Add(vehicleRecords.ServiceRecords.Max(x => x.Mileage));
             }
-            if (vehicleRecords.CollisionRecords.Any())
+            if (vehicleRecords.CollisionRecords.Count != 0)
             {
                 numbersArray.Add(vehicleRecords.CollisionRecords.Max(x => x.Mileage));
             }
-            if (vehicleRecords.GasRecords.Any())
+            if (vehicleRecords.GasRecords.Count != 0)
             {
                 numbersArray.Add(vehicleRecords.GasRecords.Max(x => x.Mileage));
             }
-            if (vehicleRecords.UpgradeRecords.Any())
+            if (vehicleRecords.UpgradeRecords.Count != 0)
             {
                 numbersArray.Add(vehicleRecords.UpgradeRecords.Max(x => x.Mileage));
             }
-            if (vehicleRecords.OdometerRecords.Any())
+            if (vehicleRecords.OdometerRecords.Count != 0)
             {
                 numbersArray.Add(vehicleRecords.OdometerRecords.Max(x => x.Mileage));
             }
-            return numbersArray.Any() ? numbersArray.Max() : 0;
+            return numbersArray.Count != 0 ? numbersArray.Max() : 0;
         }
         public int GetMinMileage(int vehicleId)
         {
@@ -154,41 +154,41 @@ namespace CarCareTracker.Logic
             {
                 numbersArray.Add(odometerRecords.Min(x => x.Mileage));
             }
-            return numbersArray.Any() ? numbersArray.Min() : 0;
+            return numbersArray.Count != 0 ? numbersArray.Min() : 0;
         }
         public int GetMinMileage(VehicleRecords vehicleRecords)
         {
             var numbersArray = new List<int>();
             var _serviceRecords = vehicleRecords.ServiceRecords.Where(x => x.Mileage != default).ToList();
-            if (_serviceRecords.Any())
+            if (_serviceRecords.Count != 0)
             {
                 numbersArray.Add(_serviceRecords.Min(x => x.Mileage));
             }
             var _repairRecords = vehicleRecords.CollisionRecords.Where(x => x.Mileage != default).ToList();
-            if (_repairRecords.Any())
+            if (_repairRecords.Count != 0)
             {
                 numbersArray.Add(_repairRecords.Min(x => x.Mileage));
             }
             var _gasRecords = vehicleRecords.GasRecords.Where(x => x.Mileage != default).ToList();
-            if (_gasRecords.Any())
+            if (_gasRecords.Count != 0)
             {
                 numbersArray.Add(_gasRecords.Min(x => x.Mileage));
             }
             var _upgradeRecords = vehicleRecords.UpgradeRecords.Where(x => x.Mileage != default).ToList();
-            if (_upgradeRecords.Any())
+            if (_upgradeRecords.Count != 0)
             {
                 numbersArray.Add(_upgradeRecords.Min(x => x.Mileage));
             }
             var _odometerRecords = vehicleRecords.OdometerRecords.Where(x => x.Mileage != default).ToList();
-            if (_odometerRecords.Any())
+            if (_odometerRecords.Count != 0)
             {
                 numbersArray.Add(_odometerRecords.Min(x => x.Mileage));
             }
-            return numbersArray.Any() ? numbersArray.Min() : 0;
+            return numbersArray.Count != 0 ? numbersArray.Min() : 0;
         }
         public int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
         {
-            var startDate = DateTime.Now;
+            DateTime startDate;
             var endDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(soldDate))
             {
@@ -208,7 +208,7 @@ namespace CarCareTracker.Logic
             dateArray.AddRange(upgradeRecords.Select(x => x.Date));
             dateArray.AddRange(odometerRecords.Select(x => x.Date));
             dateArray.AddRange(taxRecords.Select(x => x.Date));
-            if (dateArray.Any())
+            if (dateArray.Count != 0)
             {
                 startDate = dateArray.Min();
                 var timeElapsed = (int)Math.Floor((endDate - startDate).TotalDays);
@@ -246,15 +246,15 @@ namespace CarCareTracker.Logic
                 {
                     VehicleData = vehicle,
                     LastReportedOdometer = currentMileage,
-                    ServiceRecordCount = serviceRecords.Count(),
+                    ServiceRecordCount = serviceRecords.Count,
                     ServiceRecordCost = serviceRecords.Sum(x => x.Cost),
-                    RepairRecordCount = repairRecords.Count(),
+                    RepairRecordCount = repairRecords.Count,
                     RepairRecordCost = repairRecords.Sum(x => x.Cost),
-                    UpgradeRecordCount = upgradeRecords.Count(),
+                    UpgradeRecordCount = upgradeRecords.Count,
                     UpgradeRecordCost = upgradeRecords.Sum(x => x.Cost),
-                    GasRecordCount = gasRecords.Count(),
+                    GasRecordCount = gasRecords.Count,
                     GasRecordCost = gasRecords.Sum(x => x.Cost),
-                    TaxRecordCount = taxRecords.Count(),
+                    TaxRecordCount = taxRecords.Count,
                     TaxRecordCost = taxRecords.Sum(x => x.Cost),
                     VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
                     PastDueReminderCount = results.Count(x => x.Urgency == ReminderUrgency.PastDue),
@@ -289,7 +289,7 @@ namespace CarCareTracker.Logic
                     vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
                     //we don't care about mileages so we can basically fake the current vehicle mileage.
                 }
-                if (vehicleReminders.Any())
+                if (vehicleReminders.Count != 0)
                 {
                     var vehicleMileage = isCalendar ? 0 : GetMaxMileage(vehicle.Id);
                     var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, vehicleMileage, DateTime.Now);
@@ -309,7 +309,7 @@ namespace CarCareTracker.Logic
                 {
                     vehiclePlans.RemoveAll(x => x.Progress == PlanProgress.Done);
                 }
-                if (vehiclePlans.Any())
+                if (vehiclePlans.Count != 0)
                 {
                     var convertedPlans = vehiclePlans.Select(x => new PlanRecord { Priority = x.Priority, Progress = x.Progress, Notes = x.Notes, RequisitionHistory = x.RequisitionHistory, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" });
                     plans.AddRange(convertedPlans);

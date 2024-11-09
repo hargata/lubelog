@@ -1,6 +1,6 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model GasRecordInputContainer
 @{
     var userConfig = config.GetUserConfig(User);
@@ -71,7 +71,7 @@
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsMissed" checked="@Model.GasRecord.MissedFuelUp">
                         <label class="form-check-label" for="gasIsMissed">@translator.Translate(userLanguage,"Missed Fuel Up(Skip MPG Calculation)")</label>
                     </div>
-                    <label for="GasRecordCost">@translator.Translate(userLanguage,"Cost")</label>
+                    <label for="gasRecordCost">@translator.Translate(userLanguage,"Cost")</label>
                     @if (isNew)
                     {
                         <div class="input-group">

@@ -38,12 +38,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             //check for very urgent or past due reminders that were not eligible for recurring.
-            var pastDueAndUrgentReminders = result.Where(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue);
-            if (pastDueAndUrgentReminders.Any())
-            {
-                return true;
-            }
-            return false;
+            return result.Any(x => x.Urgency is ReminderUrgency.VeryUrgent or ReminderUrgency.PastDue);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -115,14 +110,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
         {
-            if (reminderModel is not null)
-            {
-                return PartialView("_ReminderRecordModal", reminderModel);
-            }
-            else
-            {
-                return PartialView("_ReminderRecordModal", new ReminderRecordInput());
-            }
+            return PartialView("_ReminderRecordModal", reminderModel ?? new ReminderRecordInput());
         }
         [HttpGet]
         public IActionResult GetReminderRecordForEditById(int reminderRecordId)

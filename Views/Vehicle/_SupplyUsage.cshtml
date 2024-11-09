@@ -1,11 +1,11 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.Supplies.SelectMany(x => x.Tags).Distinct();
 }
+@using CarCareTracker.Helper
 @model SupplyUsageViewModel
 <div class="modal-header">
     <h5 class="modal-title">@translator.Translate(userLanguage,"Select Supplies")</h5>
@@ -39,7 +39,7 @@
                     <tbody>
                         @foreach (SupplyRecord supplyRecord in Model.Supplies)
                         {
-                            var supplyUsage = Model.Usage.Where(x => x.SupplyId == supplyRecord.Id).SingleOrDefault();
+                            var supplyUsage = Model.Usage.SingleOrDefault(x => x.SupplyId == supplyRecord.Id);
                             <tr class="d-flex" id="supplyRows" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                                 <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")></td>
                                 <td class="col-3 col-sm-2 flex-grow text-truncate supplyquantityinput"><input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control"></td>

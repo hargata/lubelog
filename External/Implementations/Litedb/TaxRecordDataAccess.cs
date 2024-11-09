@@ -1,13 +1,13 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
 using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class TaxRecordDataAccess : ITaxRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "taxrecords";
         public TaxRecordDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<TaxRecord>(tableName);
-            var taxRecords = table.DeleteMany(Query.EQ(nameof(TaxRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(TaxRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

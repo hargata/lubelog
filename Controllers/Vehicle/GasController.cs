@@ -124,8 +124,8 @@ namespace CarCareTracker.Controllers
             var consumptionIsEdited = editModel.EditRecord.Gallons != default;
             var costIsEdited = editModel.EditRecord.Cost != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
-            var tagsIsEdited = editModel.EditRecord.Tags.Any();
-            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Any();
+            var tagsIsEdited = editModel.EditRecord.Tags.Count != 0;
+            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Count != 0;
             //handle clear overrides
             if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
             {

@@ -9,16 +9,16 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public static string VersionNumber = "1.4.0";
-        public static string DbName = "data/cartracker.db";
-        public static string UserConfigPath = "config/userConfig.json";
-        public static string AdditionalWidgetsPath = "data/widgets.html";
-        public static string GenericErrorMessage = "An error occurred, please try again later";
-        public static string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
-        public static string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
-        public static string SponsorsPath = "https://hargata.github.io/hargata/sponsors.json";
-        public static string TranslationPath = "https://hargata.github.io/lubelog_translations";
-        public static string TranslationDirectoryPath = $"{TranslationPath}/directory.json";
+        public const string VersionNumber = "1.4.0";
+        public const string DbName = "data/cartracker.db";
+        public const string UserConfigPath = "config/userConfig.json";
+        public const string AdditionalWidgetsPath = "data/widgets.html";
+        public const string GenericErrorMessage = "An error occurred, please try again later";
+        public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
+        public const string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
+        public const string SponsorsPath = "https://hargata.github.io/hargata/sponsors.json";
+        private const string TranslationPath = "https://hargata.github.io/lubelog_translations";
+        public const string TranslationDirectoryPath = $"{TranslationPath}/directory.json";
         public static string GetTitleCaseReminderUrgency(ReminderUrgency input)
         {
             switch (input)
@@ -102,7 +102,7 @@ namespace CarCareTracker.Helper
             }
             if (input.Length > maxLength)
             {
-                return (input.Substring(0, maxLength) + "...");
+                return string.Concat(input.AsSpan(0, maxLength), "...");
             }
             else
             {
@@ -238,17 +238,17 @@ namespace CarCareTracker.Helper
 
         public static List<ExtraField> AddExtraFields(List<ExtraField> recordExtraFields, List<ExtraField> templateExtraFields)
         {
-            if (!templateExtraFields.Any()) {
+            if (templateExtraFields.Count == 0) {
                 return new List<ExtraField>();
             }
-            if (!recordExtraFields.Any())
+            if (recordExtraFields.Count == 0)
             {
                 return templateExtraFields;
             }
             var fieldNames = templateExtraFields.Select(x => x.Name);
             //remove fields that are no longer present in template.
             recordExtraFields.RemoveAll(x => !fieldNames.Contains(x.Name));
-            if (!recordExtraFields.Any())
+            if (recordExtraFields.Count == 0)
             {
                 return templateExtraFields;
             }
@@ -256,7 +256,7 @@ namespace CarCareTracker.Helper
             //update isrequired setting
             foreach (ExtraField extraField in recordExtraFields)
             {
-                extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
+                extraField.IsRequired = templateExtraFields.First(x => x.Name == extraField.Name).IsRequired;
             }
             //append extra fields
             foreach(ExtraField extraField in templateExtraFields)
@@ -329,7 +329,7 @@ namespace CarCareTracker.Helper
                 {
                 { "vehicleId", vehicleId.ToString() },
                      { "username", username },
-                     { "action", action },
+                     { "action", action }
                 };
             httpClient.PostAsJsonAsync(webhookURL, httpParams);
         }
@@ -424,7 +424,7 @@ namespace CarCareTracker.Helper
             { 
                 try
                 {
-                    string cleanedName = name.Contains("_") ? name.Replace("_", "-") : name;
+                    string cleanedName = name.Contains('_') ? name.Replace("_", "-") : name;
                     string displayName = CultureInfo.GetCultureInfo(cleanedName).DisplayName;
                     if (string.IsNullOrWhiteSpace(displayName))
                     {
@@ -434,7 +434,7 @@ namespace CarCareTracker.Helper
                     {
                         return displayName;
                     }
-                } catch (Exception ex)
+                } catch (Exception)
                 {
                     return name;
                 }
@@ -466,7 +466,7 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
@@ -495,7 +495,7 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
@@ -524,7 +524,7 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
@@ -559,7 +559,7 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
@@ -594,7 +594,7 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Cost);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
@@ -631,11 +631,16 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)
                 {
-                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    var extraField = genericRecord.ExtraFields.FirstOrDefault(x => x.Name == extraHeader);
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
                 _csv.NextRecord();
             }
+        }
+
+        internal static OperationResponse GetOperationResponse(bool success, string message)
+        {
+            return new OperationResponse { Success = success, Message = message };
         }
     }
 }

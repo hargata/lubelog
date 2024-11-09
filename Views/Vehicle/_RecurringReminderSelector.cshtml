@@ -1,12 +1,12 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
+@using CarCareTracker.Helper
 @model List<ReminderRecord>
-@if (Model.Count() > 1)
+@if (Model.Count > 1)
 {
     <div class="mb-2">
         <input class="form-check-input" type="checkbox" onchange="showMultipleRemindersSelector()" id="multipleRemindersCheck">

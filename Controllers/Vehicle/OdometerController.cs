@@ -13,7 +13,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             result = _odometerLogic.AutoConvertOdometerRecord(result);
-            return Json(result.Any());
+            return Json(result.Count != 0);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -66,8 +66,8 @@ namespace CarCareTracker.Controllers
             var initialMileageIsEdited = editModel.EditRecord.InitialMileage != default;
             var mileageIsEdited = editModel.EditRecord.Mileage != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(editModel.EditRecord.Notes);
-            var tagsIsEdited = editModel.EditRecord.Tags.Any();
-            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Any();
+            var tagsIsEdited = editModel.EditRecord.Tags.Count != 0;
+            var extraFieldIsEdited = editModel.EditRecord.ExtraFields.Count != 0;
             //handle clear overrides
             if (tagsIsEdited && editModel.EditRecord.Tags.Contains("---"))
             {

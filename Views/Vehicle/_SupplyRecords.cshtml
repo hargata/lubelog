@@ -1,5 +1,4 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
@@ -14,11 +13,12 @@
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.SupplyRecord);
 }
+@using CarCareTracker.Helper
 @model List<SupplyRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Supply Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Supply Records")}: {Model.Count}")</span>
             <span class="ms-2 badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
             @foreach (string recordTag in recordTags)
             {
@@ -113,7 +113,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="/defaults/lubelogger_logo.png" alt="logo"/>
             </div>
         </div>
         <table class="table table-hover">
@@ -142,7 +142,7 @@
                         <td class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -150,7 +150,7 @@
                                     var extraFieldValue = supplyRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {

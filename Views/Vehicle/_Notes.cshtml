@@ -1,6 +1,6 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model List<Note>
 @{
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
@@ -10,7 +10,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Notes")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Notes")}: {Model.Count}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterTable('notes-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -31,7 +31,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="/defaults/lubelogger_logo.png" alt="Logo"/>
             </div>
         </div>
         <table class="table table-hover">
@@ -52,7 +52,7 @@
                         {
                             <td class="col-3">@note.Description</td>
                         }
-                        <td class="col-9 text-truncate" data-record-type="cost">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-9 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
             </tbody>

@@ -86,7 +86,7 @@ namespace CarCareTracker.Logic
                 return results;
             }
             var accessibleVehicles = _userAccess.GetUserAccessByUserId(userId);
-            if (accessibleVehicles.Any())
+            if (accessibleVehicles.Count != 0)
             {
                 var vehicleIds = accessibleVehicles.Select(x => x.Id.VehicleId);
                 return results.Where(x => vehicleIds.Contains(x.Id)).ToList();
@@ -103,11 +103,7 @@ namespace CarCareTracker.Logic
                 return true;
             }
             var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userId, vehicleId);
-            if (userAccess != null)
-            {
-                return true;
-            }
-            return false;
+            return userAccess != null;
         }
         public bool DeleteAllAccessToVehicle(int vehicleId)
         {

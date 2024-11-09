@@ -7,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class TokenRecordDataAccess : ITokenRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "tokenrecords";
         public TokenRecordDataAccess(ILiteDBHelper liteDB)
         {

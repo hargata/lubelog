@@ -1,6 +1,6 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model ReminderRecordViewModel
 @{
     var userConfig = config.GetUserConfig(User);
@@ -17,7 +17,7 @@
                 <div class="col-md-6 col-12" id="reminderOptions">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="reminderDescription">@translator.Translate(userLanguage, "Date")</label>
-                    <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Date.ToShortDateString()">
+                    <input type="text" id="reminderDate" readonly class="form-control" value="@Model.Date.ToShortDateString()">
                     <label for="reminderDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Description">
                 </div>

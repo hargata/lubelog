@@ -26,6 +26,9 @@ namespace CarCareTracker.Helper
         private readonly IWebHostEnvironment _webEnv;
         private readonly ILogger<IFileHelper> _logger;
         private ILiteDBHelper _liteDB;
+
+        public const string TempFolder = "temp/";
+        
         public FileHelper(IWebHostEnvironment webEnv, ILogger<IFileHelper> logger, ILiteDBHelper liteDB)
         {
             _webEnv = webEnv;
@@ -39,7 +42,7 @@ namespace CarCareTracker.Helper
             if (Directory.Exists(languagePath))
             {
                 var listOfLanguages = Directory.GetFiles(languagePath);
-                if (listOfLanguages.Any())
+                if (listOfLanguages.Length != 0)
                 {
                     defaultList.AddRange(listOfLanguages.Select(x => Path.GetFileNameWithoutExtension(x)));
                 }
@@ -68,7 +71,7 @@ namespace CarCareTracker.Helper
         }
         public string GetFullFilePath(string currentFilePath, bool mustExist = true)
         {
-            if (currentFilePath.StartsWith("/"))
+            if (currentFilePath.StartsWith('/'))
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
@@ -292,12 +295,11 @@ namespace CarCareTracker.Helper
         }
         public string MoveFileFromTemp(string currentFilePath, string newFolder)
         {
-            string tempPath = "temp/";
             if (string.IsNullOrWhiteSpace(currentFilePath) || !currentFilePath.StartsWith("/temp/")) //file is not in temp directory.
             {
                 return currentFilePath;
             }
-            if (currentFilePath.StartsWith("/"))
+            if (currentFilePath.StartsWith('/'))
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
@@ -305,17 +307,17 @@ namespace CarCareTracker.Helper
             string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
-            string newFileUploadPath = oldFilePath.Replace(tempPath, newFolder);
+            string newFileUploadPath = oldFilePath.Replace(TempFolder, newFolder);
             if (File.Exists(oldFilePath))
             {
                 File.Move(oldFilePath, newFileUploadPath);
             }
-            string newFilePathToReturn = "/" + currentFilePath.Replace(tempPath, newFolder);
+            string newFilePathToReturn = "/" + currentFilePath.Replace(TempFolder, newFolder);
             return newFilePathToReturn;
         }
         public bool DeleteFile(string currentFilePath)
         {
-            if (currentFilePath.StartsWith("/"))
+            if (currentFilePath.StartsWith('/'))
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
@@ -324,14 +326,7 @@ namespace CarCareTracker.Helper
             {
                 File.Delete(filePath);
             }
-            if (!File.Exists(filePath)) //verify file no longer exists.
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return !File.Exists(filePath); //verify file no longer exists.
         }
         public int ClearTempFolder()
         {

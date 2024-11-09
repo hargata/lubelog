@@ -1,13 +1,13 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
 using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class OdometerRecordDataAccess : IOdometerRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "odometerrecords";
         public OdometerRecordDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<OdometerRecord>(tableName);
-            var odometerRecords = table.DeleteMany(Query.EQ(nameof(OdometerRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(OdometerRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

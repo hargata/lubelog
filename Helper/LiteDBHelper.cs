@@ -9,7 +9,7 @@ public interface ILiteDBHelper
 }
 public class LiteDBHelper: ILiteDBHelper
 {
-    public LiteDatabase db { get; set; }
+    private LiteDatabase db { get; set; }
     public LiteDBHelper()
     {
         if (db == null)

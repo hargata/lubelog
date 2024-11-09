@@ -1,16 +1,16 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
 }
+@using CarCareTracker.Helper
 @model VehicleHistoryViewModel
 <div class="vehicleDetailTabContainer">
     <div class="row mt-2">
         <div class="d-flex">
-            <img src="/defaults/lubelogger_logo.png" />
+            <img src="/defaults/lubelogger_logo.png" alt="Logo"/>
             <span class="display-6 ms-5">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</span>
         </div>
     </div>
@@ -141,7 +141,7 @@
                             <td class="col-1">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
                             <td class="col-3">@reportData.Description</td>
                             <td class="col-1">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
-                            <td class="col-4 text-wrap">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                            <td class="col-4 text-wrap">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
                         </tr>
                     }
                 </tbody>

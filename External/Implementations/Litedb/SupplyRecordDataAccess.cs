@@ -7,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class SupplyRecordDataAccess : ISupplyRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "supplyrecords";
         public SupplyRecordDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<SupplyRecord>(tableName);
-            var supplyRecords = table.DeleteMany(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(SupplyRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

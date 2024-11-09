@@ -31,7 +31,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach (TaxRecord recurringFee in recurringFees)
                 {
-                    var newDate = new DateTime();
+                    DateTime newDate;
                     if (recurringFee.RecurringInterval != ReminderMonthInterval.Other)
                     {
                         newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
@@ -69,7 +69,7 @@ namespace CarCareTracker.Controllers
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             //push back any reminders
-            if (taxRecord.ReminderRecordId.Any())
+            if (taxRecord.ReminderRecordId.Count != 0)
             {
                 foreach (int reminderRecordId in taxRecord.ReminderRecordId)
                 {

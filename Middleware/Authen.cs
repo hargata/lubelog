@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -27,7 +28,11 @@ namespace CarCareTracker.Middleware
             _httpContext = httpContext;
             _dataProtector = securityProvider.CreateProtector("login");
             _loginLogic = loginLogic;
-            enableAuth = bool.Parse(configuration["EnableAuth"]);
+            
+            if (!bool.TryParse(configuration["EnableAuth"], out enableAuth))
+            {
+                enableAuth = false;
+            }
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -50,7 +55,7 @@ namespace CarCareTracker.Middleware
                 //auth is enabled by user, we will have to authenticate the user via a ticket retrieved from the auth cookie.
                 var access_token = _httpContext.HttpContext.Request.Cookies["ACCESS_TOKEN"];
                 //auth using Basic Auth for API.
-                var request_header = _httpContext.HttpContext.Request.Headers["Authorization"];
+                var request_header = _httpContext.HttpContext.Request.Headers.Authorization;
                 if (string.IsNullOrWhiteSpace(access_token) && string.IsNullOrWhiteSpace(request_header))
                 {
                     return AuthenticateResult.Fail("Cookie is invalid or does not exist.");
@@ -59,9 +64,9 @@ namespace CarCareTracker.Middleware
                 {
                     var cleanedHeader = request_header.ToString().Replace("Basic ", "").Trim();
                     byte[] data = Convert.FromBase64String(cleanedHeader);
-                    string decodedString = System.Text.Encoding.UTF8.GetString(data);
+                    string decodedString = Encoding.UTF8.GetString(data);
                     var splitString = decodedString.Split(":");
-                    if (splitString.Count() != 2)
+                    if (splitString.Length != 2)
                     {
                         return AuthenticateResult.Fail("Invalid credentials");
                     }
@@ -138,7 +143,7 @@ namespace CarCareTracker.Middleware
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         return AuthenticateResult.Fail("Corrupted credentials");
                     }

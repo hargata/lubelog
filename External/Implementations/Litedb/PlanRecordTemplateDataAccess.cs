@@ -1,13 +1,13 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
 using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class PlanRecordTemplateDataAccess : IPlanRecordTemplateDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "planrecordtemplates";
         public PlanRecordTemplateDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<PlanRecord>(tableName);
-            var planRecords = table.DeleteMany(Query.EQ(nameof(PlanRecordInput.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(PlanRecordInput.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

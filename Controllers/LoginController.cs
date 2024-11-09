@@ -11,9 +11,9 @@ namespace CarCareTracker.Controllers
 {
     public class LoginController : Controller
     {
-        private IDataProtector _dataProtector;
-        private ILoginLogic _loginLogic;
-        private IConfigHelper _config;
+        private readonly IDataProtector _dataProtector;
+        private readonly ILoginLogic _loginLogic;
+        private readonly IConfigHelper _config;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,

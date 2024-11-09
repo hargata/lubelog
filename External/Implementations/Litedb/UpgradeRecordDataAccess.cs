@@ -7,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class UpgradeRecordDataAccess : IUpgradeRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         public UpgradeRecordDataAccess(ILiteDBHelper liteDB)
         {
            _liteDB = liteDB;
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<UpgradeRecord>(tableName);
-            var upgradeRecords = table.DeleteMany(Query.EQ(nameof(UpgradeRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(UpgradeRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

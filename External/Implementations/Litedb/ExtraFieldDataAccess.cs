@@ -6,7 +6,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class ExtraFieldDataAccess : IExtraFieldDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "extrafields";
         public ExtraFieldDataAccess(ILiteDBHelper liteDB)
         {

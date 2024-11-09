@@ -1,5 +1,4 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
@@ -11,11 +10,12 @@
     var testingItems = Model.Where(x => x.Progress == PlanProgress.Testing).OrderBy(x => x.Priority);
     var doneItems = Model.Where(x => x.Progress == PlanProgress.Done).OrderBy(x => x.Priority);
 }
+@using CarCareTracker.Helper
 @model List<PlanRecord>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage,"# of Plan Records")}: {Model.Count()}")</span>
+            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage,"# of Plan Records")}: {Model.Count}")</span>
         </div>
         <div>
             @if (enableCsvImports)
@@ -44,7 +44,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="/defaults/lubelogger_logo.png" alt="Logo"/>
             </div>
         </div>
         <div class="row swimlane">

@@ -1,12 +1,12 @@
 using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
-using Microsoft.AspNetCore.Mvc;
-using CarCareTracker.Helper;
-using System.Globalization;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using CarCareTracker.Logic;
 using CarCareTracker.Filter;
+using CarCareTracker.Helper;
+using CarCareTracker.Logic;
+using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -179,7 +179,7 @@ namespace CarCareTracker.Controllers
                     var sourceCollaborators = _userLogic.GetCollaboratorsForVehicle(sourceVehicleId).Select(x => x.UserVehicle.UserId).ToList();
                     var destCollaborators = _userLogic.GetCollaboratorsForVehicle(destVehicleId).Select(x => x.UserVehicle.UserId).ToList();
                     sourceCollaborators.RemoveAll(x => destCollaborators.Contains(x));
-                    if (sourceCollaborators.Any())
+                    if (sourceCollaborators.Count != 0)
                     {
                         foreach (int collaboratorId in sourceCollaborators)
                         {
@@ -577,7 +577,7 @@ namespace CarCareTracker.Controllers
         public IActionResult DuplicateRecordsToOtherVehicles(List<int> recordIds, List<int> vehicleIds, ImportMode importMode)
         {
             bool result = false;
-            if (!recordIds.Any() || !vehicleIds.Any())
+            if (recordIds.Count == 0 || vehicleIds.Count == 0)
             {
                 return Json(result);
             }
@@ -706,8 +706,8 @@ namespace CarCareTracker.Controllers
             var mileageIsEdited = genericRecordEditModel.EditRecord.Mileage != default;
             var costIsEdited = genericRecordEditModel.EditRecord.Cost != default;
             var noteIsEdited = !string.IsNullOrWhiteSpace(genericRecordEditModel.EditRecord.Notes);
-            var tagsIsEdited = genericRecordEditModel.EditRecord.Tags.Any();
-            var extraFieldIsEdited = genericRecordEditModel.EditRecord.ExtraFields.Any();
+            var tagsIsEdited = genericRecordEditModel.EditRecord.Tags.Count != 0;
+            var extraFieldIsEdited = genericRecordEditModel.EditRecord.ExtraFields.Count != 0;
             //handle clear overrides
             if (tagsIsEdited && genericRecordEditModel.EditRecord.Tags.Contains("---"))
             {

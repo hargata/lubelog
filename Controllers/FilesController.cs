@@ -1,7 +1,7 @@
-using CarCareTracker.Models;
-using Microsoft.AspNetCore.Mvc;
 using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CarCareTracker.Controllers
 {
@@ -80,7 +80,7 @@ namespace CarCareTracker.Controllers
         }
         private string UploadFile(IFormFile fileToUpload)
         {
-            string uploadDirectory = "temp/";
+            const string uploadDirectory = FileHelper.TempFolder;
             string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
@@ -94,7 +94,7 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult UploadCoordinates(List<string> coordinates)
         {
-            string uploadDirectory = "temp/";
+            const string uploadDirectory = FileHelper.TempFolder;
             string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);

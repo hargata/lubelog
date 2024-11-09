@@ -9,9 +9,9 @@ namespace CarCareTracker.Controllers
     [Authorize(Roles = nameof(UserData.IsAdmin))]
     public class AdminController : Controller
     {
-        private ILoginLogic _loginLogic;
-        private IUserLogic _userLogic;
-        private IConfigHelper _configHelper;
+        private readonly ILoginLogic _loginLogic;
+        private readonly IUserLogic _userLogic;
+        private readonly IConfigHelper _configHelper;
         public AdminController(ILoginLogic loginLogic, IUserLogic userLogic, IConfigHelper configHelper)
         {
             _loginLogic = loginLogic;
@@ -39,7 +39,7 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult GenerateNewToken(string emailAddress, bool autoNotify)
         {
-            if (emailAddress.Contains(","))
+            if (emailAddress.Contains(','))
             {
                 string[] emailAddresses = emailAddress.Split(',');
                 foreach(string emailAdd in emailAddresses)

@@ -1,13 +1,13 @@
 ﻿using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
 using CarCareTracker.Helper;
+using CarCareTracker.Models;
 using LiteDB;
 
 namespace CarCareTracker.External.Implementations
 {
     public class NoteDataAccess : INoteDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "notes";
         public NoteDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<Note>(tableName);
-            var notes = table.DeleteMany(Query.EQ(nameof(Note.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(Note.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }

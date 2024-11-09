@@ -1,6 +1,6 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model string
 @{
     var logoUrl = config.GetLogoUrl();
@@ -17,7 +17,7 @@
 <div class="container d-flex align-items-center justify-content-center" style="height:100vh">
     <div>
         <div style="max-width:204px;">
-            <img src="@logoUrl" />
+            <img src="@logoUrl" alt="Logo"/>
             <div class="form-group">
                 <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
                 <input type="text" id="inputUserName" class="form-control">

@@ -25,7 +25,7 @@ namespace CarCareTracker.Controllers
             planRecord.DateModified = DateTime.Now.ToString("G");
             //move files from temp.
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            if (planRecord.Supplies.Any())
+            if (planRecord.Supplies.Count != 0)
             {
                 planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
                 if (planRecord.CopySuppliesAttachment)
@@ -44,7 +44,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
         {
             //check if template name already taken.
-            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Any(x => x.Description == planRecord.Description);
             if (planRecord.Id == default && existingRecord)
             {
                 return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
@@ -74,7 +74,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
             }
-            if (existingRecord.Supplies.Any())
+            if (existingRecord.Supplies.Count != 0)
             {
                 var suppliesToOrder = CheckSupplyRecordsAvailability(existingRecord.Supplies);
                 return PartialView("_PlanOrderSupplies", suppliesToOrder);
@@ -92,7 +92,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
             }
-            if (existingRecord.Supplies.Any())
+            if (existingRecord.Supplies.Count != 0)
             {
                 //check if all supplies are available
                 var supplyAvailability = CheckSupplyRecordsAvailability(existingRecord.Supplies);
@@ -118,7 +118,7 @@ namespace CarCareTracker.Controllers
             existingRecord.DateCreated = DateTime.Now.ToString("G");
             existingRecord.DateModified = DateTime.Now.ToString("G");
             existingRecord.Id = default;
-            if (existingRecord.Supplies.Any())
+            if (existingRecord.Supplies.Count != 0)
             {
                 existingRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(existingRecord.Supplies, DateTime.Parse(existingRecord.DateCreated), existingRecord.Description);
                 if (existingRecord.CopySuppliesAttachment)

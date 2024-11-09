@@ -90,11 +90,9 @@ builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, r
 //Configure Auth
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
-builder.Services.AddAuthorization(options =>
-{
-    options.DefaultPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes("AuthN").RequireAuthenticatedUser().Build();
-});
+builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", _ => { });
+builder.Services.AddAuthorizationBuilder()
+    .SetDefaultPolicy(new AuthorizationPolicyBuilder().AddAuthenticationSchemes("AuthN").RequireAuthenticatedUser().Build());
 //Configure max file upload size
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
@@ -118,7 +116,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         if (ctx.Context.Request.Path.StartsWithSegments("/images") || ctx.Context.Request.Path.StartsWithSegments("/documents"))
         {
-            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
             if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");

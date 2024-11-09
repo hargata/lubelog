@@ -1,6 +1,6 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model Vehicle
 @{
     var userConfig = config.GetUserConfig(User);
@@ -55,7 +55,7 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="inputFuelType">@translator.Translate(userLanguage, "Fuel Type")</label>
-                    <select class="form-select" id="inputFuelType")>
+                    <select class="form-select" id="inputFuelType">
                         <!option value="Gasoline" @(!Model.IsDiesel && !Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Gasoline")</!option>
                         <!option value="Diesel" @(Model.IsDiesel ? "selected" : "")>@translator.Translate(userLanguage, "Diesel")</!option>
                         <!option value="Electric" @(Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Electric")</!option>

@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
-using MimeKit;
 using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace CarCareTracker.Helper
 {
@@ -16,6 +17,11 @@ namespace CarCareTracker.Helper
         private readonly MailConfig mailConfig;
         private readonly IFileHelper _fileHelper;
         private readonly ILogger<MailHelper> _logger;
+
+        private const string MailServerNotSetUp = "SMTP Server Not Setup";
+        private const string EmailAddressOrTokenInvalid = "Email Address or Token is invalid";
+        private const string EmailSent = "Email Sent!";
+        
         public MailHelper(
             IConfiguration config,
             IFileHelper fileHelper,
@@ -30,79 +36,80 @@ namespace CarCareTracker.Helper
         {
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
-                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+                return StaticHelper.GetOperationResponse(false, MailServerNotSetUp);
             }
-            if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token)) {
-                return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };
+            if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token))
+            {
+                return StaticHelper.GetOperationResponse(false, EmailAddressOrTokenInvalid);
             }
-            string emailSubject = "Your Registration Token for LubeLogger";
+            const string emailSubject = "Your Registration Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please complete your registration for LubeLogger using the token: {token}";
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return StaticHelper.GetOperationResponse(true, EmailSent);
             } else
             {
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage);
             }
         }
         public OperationResponse NotifyUserForPasswordReset(string emailAddress, string token)
         {
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
-                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+                return StaticHelper.GetOperationResponse(false, MailServerNotSetUp);
             }
             if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token))
             {
-                return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };
+                return StaticHelper.GetOperationResponse(false, EmailAddressOrTokenInvalid);
             }
-            string emailSubject = "Your Password Reset Token for LubeLogger";
+            const string emailSubject = "Your Password Reset Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please reset your password for LubeLogger using the token: {token}";
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return StaticHelper.GetOperationResponse(true, EmailSent);
             }
             else
             {
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage);
             }
         }
         public OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token)
         {
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
-                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+                return StaticHelper.GetOperationResponse(false, MailServerNotSetUp);
             }
             if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(token))
             {
-                return new OperationResponse { Success = false, Message = "Email Address or Token is invalid" };
+                return StaticHelper.GetOperationResponse(false, EmailAddressOrTokenInvalid);
             }
-            string emailSubject = "Your User Account Update Token for LubeLogger";
+            const string emailSubject = "Your User Account Update Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please update your account for LubeLogger using the token: {token}";
             var result = SendEmail(new List<string> { emailAddress}, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return StaticHelper.GetOperationResponse(true, EmailSent);
             }
             else
             {
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage);
             }
         }
         public OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
         {
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
-                return new OperationResponse { Success = false, Message = "SMTP Server Not Setup" };
+                return StaticHelper.GetOperationResponse(false, MailServerNotSetUp);
             }
-            if (!emailAddresses.Any())
+            if (emailAddresses.Count == 0)
             {
-                return new OperationResponse { Success = false, Message = "No recipients could be found" };
+                return StaticHelper.GetOperationResponse(false, "No recipients could be found");
             }
-            if (!reminders.Any())
+            if (reminders.Count == 0)
             {
-                return new OperationResponse { Success = false, Message = "No reminders could be found" };
+                return StaticHelper.GetOperationResponse(false, "No reminders could be found");
             }
             //get email template, this file has to exist since it's a static file.
             var emailTemplatePath = _fileHelper.GetFullFilePath(StaticHelper.ReminderEmailTemplate);
@@ -113,7 +120,12 @@ namespace CarCareTracker.Helper
             string tableBody = "";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
-                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date.ToShortDateString()} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
+                var dueOn = reminder.Metric switch
+                {
+                    ReminderMetric.Both => $"{reminder.Date.ToShortDateString()} or {reminder.Mileage}",
+                    ReminderMetric.Date => $"{reminder.Date.ToShortDateString()}",
+                    _ => $"{reminder.Mileage}"
+                };
                 tableBody += $"<tr class='{reminder.Urgency}'><td>{StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency)}</td><td>{reminder.Description}</td><td>{dueOn}</td></tr>";
             }
             emailBody = emailBody.Replace("{TableBody}", tableBody);
@@ -122,14 +134,14 @@ namespace CarCareTracker.Helper
                 var result = SendEmail(emailAddresses, emailSubject, emailBody);
                 if (result)
                 {
-                    return new OperationResponse { Success = true, Message = "Email Sent!" };
+                    return StaticHelper.GetOperationResponse(true, EmailSent);
                 } else
                 {
-                    return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                    return StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage);
                 }
             } catch (Exception ex)
             {
-                return new OperationResponse { Success = false, Message = ex.Message };
+                return StaticHelper.GetOperationResponse(false, ex.Message);
             }
         }
         private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
@@ -143,15 +155,16 @@ namespace CarCareTracker.Helper
             }
             message.Subject = emailSubject;
 
-            var builder = new BodyBuilder();
-
-            builder.HtmlBody = emailBody;
+            var builder = new BodyBuilder
+            {
+                HtmlBody = emailBody
+            };
 
             message.Body = builder.ToMessageBody();
 
             using (var client = new SmtpClient())
             {
-                client.Connect(server, mailConfig.Port, MailKit.Security.SecureSocketOptions.Auto);
+                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
                 //perform authentication if either username or password is provided.
                 //do not perform authentication if neither are provided.
                 if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password)) {

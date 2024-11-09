@@ -7,7 +7,7 @@ namespace CarCareTracker.External.Implementations
 {
     public class CollisionRecordDataAccess : ICollisionRecordDataAccess
     {
-        private ILiteDBHelper _liteDB { get; set; }
+        private ILiteDBHelper _liteDB { get; }
         private static string tableName = "collisionrecords";
         public CollisionRecordDataAccess(ILiteDBHelper liteDB)
         {
@@ -46,7 +46,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<CollisionRecord>(tableName);
-            var collisionRecords = table.DeleteMany(Query.EQ(nameof(CollisionRecord.VehicleId), vehicleId));
+            table.DeleteMany(Query.EQ(nameof(CollisionRecord.VehicleId), vehicleId));
             db.Checkpoint();
             return true;
         }
