@@ -1,5 +1,12 @@
-﻿@using CarCareTracker.Helper
+﻿@inject IConfigHelper config
+@inject ITranslationHelper translator
+@using CarCareTracker.Helper
 @model List<Vehicle>
+
+@{
+    var userLanguage = config.GetUserConfig(User).UserLanguage;
+}
+
 @if (Model.Any())
 {
     <div id="vehicleSelector">
@@ -15,5 +22,5 @@
     </div>
 } else
 {
-    <div id="vehicleSelector"><span class="lead">No Vehicles Available</span></div>
+    <div id="vehicleSelector"><span class="lead">@translator.Translate(userLanguage, "No Vehicles Available")</span></div>
 }
