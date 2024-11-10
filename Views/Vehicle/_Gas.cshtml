@@ -204,7 +204,7 @@
                                     var extraFieldValue = gasRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {

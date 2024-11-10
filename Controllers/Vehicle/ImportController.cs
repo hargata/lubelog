@@ -3,6 +3,7 @@ using CarCareTracker.Helper;
 using CarCareTracker.MapProfile;
 using CarCareTracker.Models;
 using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -259,7 +260,7 @@ namespace CarCareTracker.Controllers
             {
                 using (var reader = new StreamReader(fullFileName))
                 {
-                    var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture);
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture);
                     config.MissingFieldFound = null;
                     config.HeaderValidated = null;
                     config.PrepareHeaderForMatch = args => { return args.Header.Trim().ToLower(); };

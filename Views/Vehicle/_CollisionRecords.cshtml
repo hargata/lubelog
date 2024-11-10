@@ -126,7 +126,7 @@
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(collisionRecord.Mileage == default ? "---" : collisionRecord.Mileage.ToString())</td>
                         <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@collisionRecord.Description</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && collisionRecord.Cost == default) ? "---" : collisionRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -134,7 +134,7 @@
                                     var extraFieldValue = collisionRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.IO.Compression;
+using JsonSerializer=System.Text.Json.JsonSerializer;
 
 namespace CarCareTracker.Controllers
 {
@@ -105,7 +106,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            Vehicle vehicle = System.Text.Json.JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
+                            Vehicle vehicle = JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
                             vehicles.Add(vehicle);
                         }
                 }
@@ -123,7 +124,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            repairrecords.Add(System.Text.Json.JsonSerializer.Deserialize<CollisionRecord>(reader["data"] as string));
+                            repairrecords.Add(JsonSerializer.Deserialize<CollisionRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in repairrecords)
@@ -140,7 +141,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            upgraderecords.Add(System.Text.Json.JsonSerializer.Deserialize<UpgradeRecord>(reader["data"] as string));
+                            upgraderecords.Add(JsonSerializer.Deserialize<UpgradeRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in upgraderecords)
@@ -157,7 +158,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            servicerecords.Add(System.Text.Json.JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string));
+                            servicerecords.Add(JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in servicerecords)
@@ -176,7 +177,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            gasrecords.Add(System.Text.Json.JsonSerializer.Deserialize<GasRecord>(reader["data"] as string));
+                            gasrecords.Add(JsonSerializer.Deserialize<GasRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in gasrecords)
@@ -193,7 +194,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            noterecords.Add(System.Text.Json.JsonSerializer.Deserialize<Note>(reader["data"] as string));
+                            noterecords.Add(JsonSerializer.Deserialize<Note>(reader["data"] as string));
                         }
                 }
                 foreach (var record in noterecords)
@@ -210,7 +211,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            odometerrecords.Add(System.Text.Json.JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string));
+                            odometerrecords.Add(JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in odometerrecords)
@@ -227,7 +228,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            reminderrecords.Add(System.Text.Json.JsonSerializer.Deserialize<ReminderRecord>(reader["data"] as string));
+                            reminderrecords.Add(JsonSerializer.Deserialize<ReminderRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in reminderrecords)
@@ -246,7 +247,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            planrecords.Add(System.Text.Json.JsonSerializer.Deserialize<PlanRecord>(reader["data"] as string));
+                            planrecords.Add(JsonSerializer.Deserialize<PlanRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in planrecords)
@@ -263,7 +264,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            planrecordtemplates.Add(System.Text.Json.JsonSerializer.Deserialize<PlanRecordInput>(reader["data"] as string));
+                            planrecordtemplates.Add(JsonSerializer.Deserialize<PlanRecordInput>(reader["data"] as string));
                         }
                 }
                 foreach (var record in planrecordtemplates)
@@ -280,7 +281,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            supplyrecords.Add(System.Text.Json.JsonSerializer.Deserialize<SupplyRecord>(reader["data"] as string));
+                            supplyrecords.Add(JsonSerializer.Deserialize<SupplyRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in supplyrecords)
@@ -297,7 +298,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            taxrecords.Add(System.Text.Json.JsonSerializer.Deserialize<TaxRecord>(reader["data"] as string));
+                            taxrecords.Add(JsonSerializer.Deserialize<TaxRecord>(reader["data"] as string));
                         }
                 }
                 foreach (var record in taxrecords)
@@ -360,7 +361,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            userconfigrecords.Add(System.Text.Json.JsonSerializer.Deserialize<UserConfigData>(reader["data"] as string));
+                            userconfigrecords.Add(JsonSerializer.Deserialize<UserConfigData>(reader["data"] as string));
                         }
                 }
                 foreach (var record in userconfigrecords)
@@ -404,7 +405,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            extrafields.Add(System.Text.Json.JsonSerializer.Deserialize<RecordExtraField>(reader["data"] as string));
+                            extrafields.Add(JsonSerializer.Deserialize<RecordExtraField>(reader["data"] as string));
                         }
                 }
                 foreach (var record in extrafields)
@@ -475,7 +476,7 @@ namespace CarCareTracker.Controllers
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", vehicle.Id);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(vehicle));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(vehicle));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -491,7 +492,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -507,7 +508,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -523,7 +524,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -541,7 +542,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -557,7 +558,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -573,7 +574,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -589,7 +590,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -607,7 +608,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -623,7 +624,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -639,7 +640,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -655,7 +656,7 @@ namespace CarCareTracker.Controllers
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
                         ctext.Parameters.AddWithValue("vehicleId", record.VehicleId);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -706,7 +707,7 @@ namespace CarCareTracker.Controllers
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }
@@ -738,7 +739,7 @@ namespace CarCareTracker.Controllers
                     using (var ctext = pgDataSource.CreateCommand(cmd))
                     {
                         ctext.Parameters.AddWithValue("id", record.Id);
-                        ctext.Parameters.AddWithValue("data", System.Text.Json.JsonSerializer.Serialize(record));
+                        ctext.Parameters.AddWithValue("data", JsonSerializer.Serialize(record));
                         ctext.ExecuteNonQuery();
                     }
                 }

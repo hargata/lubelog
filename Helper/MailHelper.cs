@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
 using MimeKit;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 
 namespace CarCareTracker.Helper
 {
@@ -151,7 +152,7 @@ namespace CarCareTracker.Helper
 
             using (var client = new SmtpClient())
             {
-                client.Connect(server, mailConfig.Port, MailKit.Security.SecureSocketOptions.Auto);
+                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
                 //perform authentication if either username or password is provided.
                 //do not perform authentication if neither are provided.
                 if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password)) {

@@ -1,4 +1,5 @@
 ﻿@using CarCareTracker.Helper
+@using System.Globalization
 <!DOCTYPE html>
 @inject IConfigHelper config
 @inject ITranslationHelper translator
@@ -11,9 +12,9 @@
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
     var automaticDecimalFormat = userConfig.AutomaticDecimalFormat;
-    var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-    var firstDayOfWeek = (int)System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-    var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
+    var shortDatePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    var firstDayOfWeek = (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+    var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
