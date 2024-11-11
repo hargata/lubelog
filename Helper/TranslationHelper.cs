@@ -107,7 +107,10 @@ namespace CarCareTracker.Helper
                     {
                         foreach(var translation in translationDictionary)
                         {
-                            defaultTranslation[translation.Key] = translation.Value;
+                            if (defaultTranslation.ContainsKey(translation.Key))
+                            {
+                                defaultTranslation[translation.Key] = translation.Value;
+                            }
                         }
                     }
                     return defaultTranslation ?? new Dictionary<string, string>();
@@ -123,7 +126,9 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse SaveTranslation(string userLanguage, Dictionary<string, string> translations)
         {
-            if (userLanguage == "en_US")
+            bool create = bool.Parse(_config["LUBELOGGER_TRANSLATOR"] ?? "false");
+            bool isDefaultLanguage = userLanguage == "en_US";
+            if (isDefaultLanguage && !create)
             {
                 return new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." };
             }
@@ -135,7 +140,7 @@ namespace CarCareTracker.Helper
             {
                 return new OperationResponse { Success = false, Message = "Translation has no data." };
             }
-            var translationFilePath = _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
+            var translationFilePath = isDefaultLanguage ? _fileHelper.GetFullFilePath($"/defaults/en_US.json") : _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
             try
             {
                 if (File.Exists(translationFilePath))
@@ -173,7 +178,13 @@ namespace CarCareTracker.Helper
                     Directory.CreateDirectory(uploadDirectory);
                 }
                 var saveFilePath = _fileHelper.GetFullFilePath(tempFileName, false);
-                File.WriteAllText(saveFilePath, JsonSerializer.Serialize(translations));
+                //standardize translation format for export only.
+                Dictionary<string, string> sortedTranslations = new Dictionary<string, string>();
+                foreach (var translation in translations.OrderBy(x => x.Key))
+                {
+                    sortedTranslations.Add(translation.Key, translation.Value);
+                };
+                File.WriteAllText(saveFilePath, JsonSerializer.Serialize(sortedTranslations, new JsonSerializerOptions { WriteIndented = true }));
                 return tempFileName;
             } 
             catch(Exception ex)

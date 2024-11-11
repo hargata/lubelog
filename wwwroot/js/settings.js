@@ -189,6 +189,7 @@ function saveTranslation() {
         errorToast(genericErrorMessage());
         return;
     }
+    var userCanDelete = $(".translation-delete").length > 0;
     Swal.fire({
         title: 'Save Translation',
         html: `
@@ -200,7 +201,7 @@ function saveTranslation() {
             const translationFileName = $("#translationFileName").val();
             if (!translationFileName || translationFileName.trim() == '') {
                 Swal.showValidationMessage(`Please enter a valid file name`);
-            } else if (translationFileName.trim() == 'en_US') {
+            } else if (translationFileName.trim() == 'en_US' && !userCanDelete) {
                 Swal.showValidationMessage(`en_US is reserved, please enter a different name`);
             }
             return { translationFileName }
@@ -269,6 +270,9 @@ function downloadAllTranslations() {
             errorToast(data.message);
         }
     })
+}
+function deleteTranslationKey(e) {
+    $(e).parent().parent().remove();
 }
 //tabs reorder
 function showTabReorderModal() {
