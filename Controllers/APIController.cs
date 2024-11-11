@@ -362,11 +362,11 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/taxrecords/add")]
         public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
         {
-            var response = new OperationResponse();
+            OperationResponse response;
+            
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                response = GetInvalidVehicleIdOperationResponse();
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -374,8 +374,7 @@ namespace CarCareTracker.Controllers
                 string.IsNullOrWhiteSpace(input.Description) ||
                 string.IsNullOrWhiteSpace(input.Cost))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Description, and Cost cannot be empty.";
+                response = StaticHelper.GetOperationResponse(false, "Input object invalid, Date, Description, and Cost cannot be empty.");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -393,14 +392,12 @@ namespace CarCareTracker.Controllers
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
-                response.Success = true;
-                response.Message = "Tax Record Added";
+                response = StaticHelper.GetOperationResponse(true, "Tax Record Added");
                 return Json(response);
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
+                response = StaticHelper.GetOperationResponse(false, ex.Message);
                 Response.StatusCode = 500;
                 return Json(response);
             }

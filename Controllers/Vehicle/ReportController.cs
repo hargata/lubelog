@@ -311,13 +311,13 @@ namespace CarCareTracker.Controllers
                 var result = _fileHelper.MakeAttachmentsExport(attachmentData);
                 if (string.IsNullOrWhiteSpace(result))
                 {
-                    return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                    return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
                 }
-                return Json(new OperationResponse { Success = true, Message = result });
+                return Json(StaticHelper.GetOperationResponse(true, result));
             }
             else
             {
-                return Json(new OperationResponse { Success = false, Message = "No Attachments Found" });
+                return Json(StaticHelper.GetOperationResponse(false, "No Attachments Found"));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]

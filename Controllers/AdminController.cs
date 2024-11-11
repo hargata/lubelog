@@ -55,8 +55,7 @@ namespace CarCareTracker.Controllers
                         }
                     }
                 }
-                var successResponse = new OperationResponse { Success = true, Message = "Token Generated!" };
-                return Json(successResponse);
+                return Json(StaticHelper.GetOperationResponse(true, "Token Generated!"));
             } else
             {
                 var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);

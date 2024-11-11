@@ -125,15 +125,15 @@ namespace CarCareTracker.Helper
         {
             if (userLanguage == "en_US")
             {
-                return new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." };
+                return StaticHelper.GetOperationResponse(false, "The translation file name en_US is reserved.");
             }
             if (string.IsNullOrWhiteSpace(userLanguage))
             {
-                return new OperationResponse { Success = false, Message = "File name is not provided." };
+                return StaticHelper.GetOperationResponse(false, "File name is not provided.");
             }
             if (!translations.Any())
             {
-                return new OperationResponse { Success = false, Message = "Translation has no data." };
+                return StaticHelper.GetOperationResponse(false, "Translation has no data.");
             }
             var translationFilePath = _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
             try
@@ -154,12 +154,12 @@ namespace CarCareTracker.Helper
                     //write to file
                     File.WriteAllText(translationFilePath, JsonSerializer.Serialize(translations));
                 }
-                return new OperationResponse { Success = true, Message = "Translation Updated" };
+                return StaticHelper.GetOperationResponse(true, "Translation Updated");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage);
             }
         }
         public string ExportTranslation(Dictionary<string, string> translations)

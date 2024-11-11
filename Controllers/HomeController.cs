@@ -280,12 +280,12 @@ namespace CarCareTracker.Controllers
                     var result = _loginLogic.UpdateUserDetails(userId, userAccount);
                     return Json(result);
                 }
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
         }
         [HttpGet]
@@ -493,16 +493,16 @@ namespace CarCareTracker.Controllers
                 }
                 if (translationsDownloaded > 0)
                 {
-                    return Json(new OperationResponse() { Success = true, Message = $"{translationsDownloaded} Translations Downloaded" });
+                    return Json(StaticHelper.GetOperationResponse(true, $"{translationsDownloaded} Translations Downloaded"));
                 } else
                 {
-                    return Json(new OperationResponse() { Success = false, Message = "No Translations Downloaded" });
+                    return Json(StaticHelper.GetOperationResponse(false, "No Translations Downloaded"));
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Unable to retrieve translations: {ex.Message}");
-                return Json(new OperationResponse() { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
         }
         public ActionResult GetVehicleSelector(int vehicleId)

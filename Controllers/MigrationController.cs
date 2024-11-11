@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
+                return Json(StaticHelper.GetOperationResponse(false, "Postgres connection not set up"));
             }
             var tempFolder = $"temp/{Guid.NewGuid()}";
             var tempPath = $"{tempFolder}/cartracker.db";
@@ -419,24 +419,24 @@ namespace CarCareTracker.Controllers
                 #endregion
                 var destFilePath = $"{fullFolderPath}.zip";
                 ZipFile.CreateFromDirectory(fullFolderPath, destFilePath);
-                return Json(new OperationResponse { Success = true, Message = $"/{tempFolder}.zip" });
+                return Json(StaticHelper.GetOperationResponse(true, $"/{tempFolder}.zip"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
         }
         public IActionResult Import(string fileName)
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
+                return Json(StaticHelper.GetOperationResponse(false, "Postgres connection not set up"));
             }
             var fullFileName = _fileHelper.GetFullFilePath(fileName);
             if (string.IsNullOrWhiteSpace(fullFileName))
             {
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
             try
             {
@@ -744,12 +744,12 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 #endregion
-                return Json(new OperationResponse { Success = true, Message = "Data Imported Successfully" });
+                return Json(StaticHelper.GetOperationResponse(true, "Data Imported Successfully"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(StaticHelper.GetOperationResponse(false, StaticHelper.GenericErrorMessage));
             }
         }
     }
