@@ -107,7 +107,10 @@ namespace CarCareTracker.Helper
                     {
                         foreach(var translation in translationDictionary)
                         {
-                            defaultTranslation[translation.Key] = translation.Value;
+                            if (defaultTranslation.ContainsKey(translation.Key))
+                            {
+                                defaultTranslation[translation.Key] = translation.Value;
+                            }
                         }
                     }
                     return defaultTranslation ?? new Dictionary<string, string>();
