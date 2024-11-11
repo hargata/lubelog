@@ -141,7 +141,7 @@
                             <td class="col-1">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
                             <td class="col-3">@reportData.Description</td>
                             <td class="col-1">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
-                            <td class="col-4 text-wrap">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                            <td class="col-4 text-wrap">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
                         </tr>
                     }
                 </tbody>

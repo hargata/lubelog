@@ -90,7 +90,7 @@
                             </span>
                         </td>
                         <td class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
-                        <td class="col-2 col-md-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        <td class="col-2 col-md-3 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
                             <td class="col-2 col-md-1 text-truncate">

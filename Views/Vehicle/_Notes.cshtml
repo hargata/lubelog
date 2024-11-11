@@ -52,7 +52,7 @@
                         {
                             <td class="col-3">@note.Description</td>
                         }
-                        <td class="col-9 text-truncate" data-record-type="cost">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-9 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
             </tbody>
