@@ -1,10 +1,12 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
+@inject IConfiguration serverConfig;
 @model Dictionary<string, string>
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    bool showDelete = bool.Parse(serverConfig["LUBELOGGER_TRANSLATOR"] ?? "false");
 }
 <div class="modal-header">
     <h5 class="modal-title" id="translationEditorModalLabel">@translator.Translate(userLanguage, "Translation Editor")</h5>
@@ -15,8 +17,15 @@
         <div class="form-group" style="max-height:50vh; overflow-x:hidden; overflow-y:scroll;">
             @foreach(var translation in Model)
             {
-                <div class="row translation-keyvalue mb-2">
-                    <div class="col-md-6 col-12 translation-key">@translation.Key.Replace("_", " ")</div>
+                <div class="row translation-keyvalue mb-2 align-items-center">
+                    @if (showDelete)
+                    {
+                        <div class="col-md-1 col-1 translation-delete"><button onclick="deleteTranslationKey(this)" class="btn text-danger btn-sm"><i class="bi bi-x-lg"></i></button></div>
+                        <div class="col-md-5 col-11 translation-key">@translation.Key.Replace("_", " ")</div>
+                    } else
+                    {
+                        <div class="col-md-6 col-12 translation-key">@translation.Key.Replace("_", " ")</div>
+                    }
                     <div class="col-md-6 col-12 translation-value">
                         <textarea style="height:100%;width:98%;" class="form-control" placeholder="@translation.Value">@translation.Value</textarea>
                     </div>
