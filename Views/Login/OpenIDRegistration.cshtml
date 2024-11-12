@@ -2,7 +2,6 @@
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
-    var logoUrl = config.GetLogoUrl();
     var userLanguage = config.GetServerLanguage();
 }
 @model string
@@ -15,7 +14,7 @@
 <div class="container d-flex align-items-center justify-content-center" style="height:100vh">
     <div>
         <div style="max-width:204px;">
-            <img src="@logoUrl" />
+            <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             <div class="form-group">
                 <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
                 <input type="text" id="inputToken" class="form-control">

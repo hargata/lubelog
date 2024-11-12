@@ -107,25 +107,6 @@ html {
         background-color: #fff !important;
     }
 
-        td.col-1 {
-            width: 10%;
-        }
-
-        td.col-4.text-wrap {
-            width: 30%;
-        }
-
-    .col-2.servicehistorytype {
-        width: 13%;
-    }
-    .col-1.servicehistorydate{
-        width: 13%;
-    }
-
-    th.col-1 {
-        width: 10%;
-    }
-
     th {
         color: #000 !important;
         background-color: #fff !important;
@@ -467,6 +448,17 @@ html[data-bs-theme="light"] .api-method:hover {
     padding: 0rem;
 }
 
+.lubelogger-logo {
+    height: 48px;
+    object-fit: scale-down;
+    pointer-events: none;
+}
+
 ::-ms-reveal {
     display: none;
+}
+
+.lubelogger-report-banner {
+    border-top: thin solid black;
+    text-align: center;
 }
