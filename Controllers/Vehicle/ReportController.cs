@@ -107,7 +107,7 @@ namespace CarCareTracker.Controllers
             }).ToList();
             if (invertedFuelMileageUnit)
             {
-                foreach(CostForVehicleByMonth monthMileage in monthlyMileageData)
+                foreach (CostForVehicleByMonth monthMileage in monthlyMileageData)
                 {
                     if (monthMileage.Cost != default)
                     {
@@ -115,7 +115,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
             }
-            var mpgViewModel = new MPGForVehicleByMonth { 
+            var mpgViewModel = new MPGForVehicleByMonth {
                 CostData = monthlyMileageData,
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
                 SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
@@ -320,10 +320,34 @@ namespace CarCareTracker.Controllers
                 return Json(new OperationResponse { Success = false, Message = "No Attachments Found" });
             }
         }
+        public IActionResult GetReportParameters()
+        {
+            var viewModel = new ReportParameter() { 
+                VisibleColumns = new List<string> {
+                    nameof(GenericReportModel.DataType),
+                    nameof(GenericReportModel.Date),
+                    nameof(GenericReportModel.Odometer),
+                    nameof(GenericReportModel.Description),
+                    nameof(GenericReportModel.Cost),
+                    nameof(GenericReportModel.Notes) 
+                }
+            };
+            //get all extra fields from service records, repairs, upgrades, and tax records.
+            var recordTypes = new List<int>() { 0, 1, 3, 4 };
+            var extraFields = new List<string>();
+            foreach(int recordType in recordTypes)
+            {
+                extraFields.AddRange(_extraFieldDataAccess.GetExtraFieldsById(recordType).ExtraFields.Select(x => x.Name));
+            }
+            viewModel.ExtraFields = extraFields.Distinct().ToList();
+
+            return PartialView("_ReportParameters", viewModel);
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
-        public IActionResult GetVehicleHistory(int vehicleId)
+        public IActionResult GetVehicleHistory(int vehicleId, ReportParameter reportParameter)
         {
             var vehicleHistory = new VehicleHistoryViewModel();
+            vehicleHistory.ReportParameters = reportParameter;
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             vehicleHistory.Odometer = maxMileage.ToString("N0");
@@ -408,7 +432,8 @@ namespace CarCareTracker.Controllers
                 Description = x.Description,
                 Notes = x.Notes,
                 Cost = x.Cost,
-                DataType = ImportMode.ServiceRecord
+                DataType = ImportMode.ServiceRecord,
+                ExtraFields = x.ExtraFields
             }));
             //repair records
             reportData.AddRange(repairRecords.Select(x => new GenericReportModel
@@ -418,7 +443,8 @@ namespace CarCareTracker.Controllers
                 Description = x.Description,
                 Notes = x.Notes,
                 Cost = x.Cost,
-                DataType = ImportMode.RepairRecord
+                DataType = ImportMode.RepairRecord,
+                ExtraFields = x.ExtraFields
             }));
             reportData.AddRange(upgradeRecords.Select(x => new GenericReportModel
             {
@@ -427,7 +453,8 @@ namespace CarCareTracker.Controllers
                 Description = x.Description,
                 Notes = x.Notes,
                 Cost = x.Cost,
-                DataType = ImportMode.UpgradeRecord
+                DataType = ImportMode.UpgradeRecord,
+                ExtraFields = x.ExtraFields
             }));
             reportData.AddRange(taxRecords.Select(x => new GenericReportModel
             {
@@ -436,7 +463,8 @@ namespace CarCareTracker.Controllers
                 Description = x.Description,
                 Notes = x.Notes,
                 Cost = x.Cost,
-                DataType = ImportMode.TaxRecord
+                DataType = ImportMode.TaxRecord,
+                ExtraFields = x.ExtraFields
             }));
             vehicleHistory.VehicleHistory = reportData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
             return PartialView("_VehicleHistory", vehicleHistory);

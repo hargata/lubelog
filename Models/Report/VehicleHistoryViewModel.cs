@@ -4,6 +4,7 @@
     {
         public Vehicle VehicleData { get; set; }
         public List<GenericReportModel> VehicleHistory { get; set; }
+        public ReportParameter ReportParameters { get; set; }
         public string Odometer { get; set; }
         public string MPG { get; set; }
         public decimal TotalCost { get; set; }
