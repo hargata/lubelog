@@ -107,7 +107,7 @@ namespace CarCareTracker.Controllers
             }).ToList();
             if (invertedFuelMileageUnit)
             {
-                foreach(CostForVehicleByMonth monthMileage in monthlyMileageData)
+                foreach (CostForVehicleByMonth monthMileage in monthlyMileageData)
                 {
                     if (monthMileage.Cost != default)
                     {
@@ -115,7 +115,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
             }
-            var mpgViewModel = new MPGForVehicleByMonth { 
+            var mpgViewModel = new MPGForVehicleByMonth {
                 CostData = monthlyMileageData,
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
                 SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
@@ -322,7 +322,16 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult GetReportParameters()
         {
-            var viewModel = new ReportParameter();
+            var viewModel = new ReportParameter() { 
+                VisibleColumns = new List<string> {
+                    nameof(GenericReportModel.DataType),
+                    nameof(GenericReportModel.Date),
+                    nameof(GenericReportModel.Odometer),
+                    nameof(GenericReportModel.Description),
+                    nameof(GenericReportModel.Cost),
+                    nameof(GenericReportModel.Notes) 
+                }
+            };
             //get all extra fields from service records, repairs, upgrades, and tax records.
             var recordTypes = new List<int>() { 0, 1, 3, 4 };
             var extraFields = new List<string>();
