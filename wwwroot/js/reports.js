@@ -46,7 +46,7 @@ function generateVehicleHistoryReport() {
                 if (result.isConfirmed) {
                     var vehicleId = GetVehicleId().vehicleId;
                     $.post(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, {
-                        reportParameter: { visibleColumns: result.value.selectedColumnsData.visibleColumns, extraFields: result.value.selectedColumnsData.extraFields }
+                        reportParameter: result.value.selectedColumnsData
                     }, function (data) {
                         if (data) {
                             $("#vehicleHistoryReport").html(data);
