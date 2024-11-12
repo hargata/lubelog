@@ -1,0 +1,26 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ReportParameter
+<div id="columnSelector">
+    <ul class="list-group">
+        @foreach(string column in Model.VisibleColumns)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input column-default" type="checkbox" value="@column" id="visibleColumn_@column" checked>
+                <label class="form-check-label stretched-link" for="visibleColumn_@column">@(translator.Translate(userLanguage, column == nameof(GenericReportModel.DataType) ? "Type" : column))</label>
+            </li>
+        }
+        @foreach(string extraField in Model.ExtraFields)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input column-extrafield" type="checkbox" value="@extraField" id="extraField_@extraField">
+                <label class="form-check-label stretched-link" for="extraField_@extraField">@extraField</label>
+            </li>
+        }
+    </ul>
+</div>

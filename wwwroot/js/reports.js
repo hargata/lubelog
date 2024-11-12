@@ -1,14 +1,64 @@
 ﻿function getYear() {
     return $("#yearOption").val() ?? '0';
 }
+function getAndValidateSelectedColumns() {
+    var reportVisibleColumns = [];
+    var reportExtraFields = [];
+    $("#columnSelector :checked").map(function () {
+        if ($(this).hasClass('column-default')) {
+            reportVisibleColumns.push(this.value);
+        } else {
+            reportExtraFields.push(this.value);
+        }
+    });
+    if (reportVisibleColumns.length + reportExtraFields.length == 0) {
+        return {
+            hasError: true,
+            visibleColumns: [],
+            extraFields: []
+        }
+    } else {
+        return {
+            hasError: false,
+            visibleColumns: reportVisibleColumns,
+            extraFields: reportExtraFields
+        }
+    }
+}
 function generateVehicleHistoryReport() {
-    var vehicleId = GetVehicleId().vehicleId;
-    $.get(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, function (data) {
+    $.get(`/Vehicle/GetReportParameters`, function (data) {
         if (data) {
-            $("#vehicleHistoryReport").html(data);
-            setTimeout(function () {
-                window.print();
-            }, 500);
+            //prompt user to select a vehicle
+            Swal.fire({
+                title: 'Select Columns',
+                html: data,
+                confirmButtonText: 'Generate Report',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedColumnsData = getAndValidateSelectedColumns();
+                    if (selectedColumnsData.hasError) {
+                        Swal.showValidationMessage(`You must select at least one column`);
+                    }
+                    return { selectedColumnsData }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    var vehicleId = GetVehicleId().vehicleId;
+                    $.post(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, {
+                        reportParameter: { visibleColumns: result.value.selectedColumnsData.visibleColumns, extraFields: result.value.selectedColumnsData.extraFields }
+                    }, function (data) {
+                        if (data) {
+                            $("#vehicleHistoryReport").html(data);
+                            setTimeout(function () {
+                                window.print();
+                            }, 500);
+                        }
+                    })
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
         }
     })
 }
