@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int VehicleId { get; set; }
-        public int ReminderRecordId { get; set; }
+        public List<int> ReminderRecordId { get; set; } = new List<int>();
         public string Date { get; set; } = DateTime.Now.ToShortDateString();
         public int Mileage { get; set; }
         public string Description { get; set; }
@@ -15,6 +15,7 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public bool CopySuppliesAttachment { get; set; } = false;
         public ServiceRecord ToServiceRecord() { return new ServiceRecord { 
             Id = Id, 
             VehicleId = VehicleId, 

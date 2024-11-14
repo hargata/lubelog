@@ -165,23 +165,23 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 flex-grow-1" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
-                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
-                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -189,13 +189,13 @@
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
-                        <td class="col-2 flex-grow-1" data-column="daterefueled">@gasRecord.Date</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@gasRecord.Mileage</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1" data-column="delta">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        <td class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@gasRecord.Date</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@(gasRecord.Mileage == default ? "---" : gasRecord.Mileage.ToString())</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString("F")</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
@@ -204,7 +204,7 @@
                                     var extraFieldValue = gasRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {
@@ -215,13 +215,18 @@
                         }
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 
-<div class="modal fade" data-bs-focus="false" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'gasRecordFiles')">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="gasRecordModalContent">
         </div>
@@ -234,6 +239,7 @@
     <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleGasRecords(selectedRow)">@translator.Translate(userLanguage, "Edit Multiple")</a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
     <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
     <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'GasRecord')">@translator.Translate(userLanguage, "Adjust Odometer")</a></li>

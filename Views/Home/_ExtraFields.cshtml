@@ -73,7 +73,7 @@
         Swal.fire({
             title: 'Field Name',
             html: `
-                                <input type="text" id="inputExtraFieldName" class="swal2-input" placeholder="Field Name">
+                                <input type="text" id="inputExtraFieldName" class="swal2-input" placeholder="Field Name" onkeydown="handleSwalEnter(event)">
                                 `,
             confirmButtonText: 'Add',
             focusConfirm: false,

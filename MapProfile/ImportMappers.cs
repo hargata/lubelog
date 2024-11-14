@@ -27,6 +27,18 @@ namespace CarCareTracker.MapProfile
             Map(m => m.Type).Name(["type"]);
             Map(m => m.Priority).Name(["priority"]);
             Map(m => m.Tags).Name(["tags"]);
+            Map(m => m.ExtraFields).Convert(row =>
+            {
+                var attributes = new Dictionary<string, string>();
+                foreach (var header in row.Row.HeaderRecord)
+                {
+                    if (header.ToLower().StartsWith("extrafield_"))
+                    {
+                        attributes.Add(header.Substring(11), row.Row.GetField(header));
+                    }
+                }
+                return attributes;
+            });
         }
     }
 }

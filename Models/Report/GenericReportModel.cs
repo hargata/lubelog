@@ -12,5 +12,6 @@
         public string Notes { get; set; }
         public decimal Cost { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
     }
 }

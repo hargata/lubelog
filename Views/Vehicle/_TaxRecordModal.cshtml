@@ -8,10 +8,10 @@
     var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage,"Add New Tax Record") : translator.Translate(userLanguage,"Edit Tax Record"))</h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Tax Record") : translator.Translate(userLanguage, "Edit Tax Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditTaxRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddTaxRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
@@ -33,7 +33,7 @@
                         </div>
                     }
                     <label for="taxRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                    <input type="text" inputmode="decimal" id="taxRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of tax paid")" value="@(isNew? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="taxRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of tax paid")" value="@(isNew? "" : Model.Cost)">
                     <label for="taxRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="taxRecordTag">
                         @foreach (string tag in Model.Tags)
@@ -92,6 +92,7 @@
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="taxRecordFiles">
                         <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
+                    <div id="filesPendingUpload"></div>
                 </div>
             </div>
         </div>
@@ -115,7 +116,7 @@
 <script>
     var uploadedFiles = [];
     var customMonthInterval = @Model.CustomMonthInterval;
-    var recurringReminderRecordId = 0;
+    var recurringReminderRecordId = [];
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)

@@ -1,0 +1,116 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model PlanRecordInput
+@{
+    var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage, "Edit Plan Record Template")<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditPlanRecordTemplateModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
+    <button type="button" class="btn-close" onclick="hideAddPlanRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="planRecordDescription">@translator.Translate(userLanguage, "Description")</label>
+                    <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
+                    <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
+                    @await Html.PartialAsync("_SupplyStore", "PlanRecordTemplate")
+                    <label for="planRecordType">@translator.Translate(userLanguage, "Type")</label>
+                    <select class="form-select" id="planRecordType">
+                        <!option value="ServiceRecord" @(Model.ImportMode == ImportMode.ServiceRecord || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Service")</!option>
+                        <!option value="RepairRecord" @(Model.ImportMode == ImportMode.RepairRecord ? "selected" : "")>@translator.Translate(userLanguage, "Repair")</!option>
+                        <!option value="UpgradeRecord" @(Model.ImportMode == ImportMode.UpgradeRecord ? "selected" : "")>@translator.Translate(userLanguage, "Upgrade")</!option>
+                    </select>
+                    <label for="planRecordPriority">@translator.Translate(userLanguage, "Priority")</label>
+                    <select class="form-select" id="planRecordPriority">
+                        <!option value="Critical" @(Model.Priority == PlanPriority.Critical ? "selected" : "")>@translator.Translate(userLanguage, "Critical")</!option>
+                        <!option value="Normal" @(Model.Priority == PlanPriority.Normal || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Normal")</!option>
+                        <!option value="Low" @(Model.Priority == PlanPriority.Low ? "selected" : "")>@translator.Translate(userLanguage, "Low")</!option>
+                    </select>
+                    <label for="planRecordProgress">@translator.Translate(userLanguage, "Current Stage")</label>
+                    <select class="form-select" id="planRecordProgress">
+                        <!option value = "Backlog" @(Model.Progress == PlanProgress.Backlog || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Planned")</!option>
+                        <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>@translator.Translate(userLanguage, "Doing")</!option>
+                        <!option value = "Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>@translator.Translate(userLanguage, "Testing")</!option>
+                    </select>
+                    @foreach (ExtraField field in Model.ExtraFields)
+                    {
+                        var elementId = Guid.NewGuid();
+                        <div class="extra-field">
+                            <label for="@elementId">@field.Name</label>
+                            <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                        </div>
+                    }
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="planRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="planRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (Model.Files.Any())
+                    {
+                        <div>
+                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                            <label for="planRecordFiles">@translator.Translate(userLanguage, "Upload more documents")</label>
+                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="planRecordFiles">
+                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <label for="planRecordFiles">@translator.Translate(userLanguage, "Upload documents(optional)")</label>
+                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="planRecordFiles">
+                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
+                    }
+                    <div id="filesPendingUpload"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        @if (Model.RequisitionHistory.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-shop"></i></button>
+        }
+        <button type="button" class="btn btn-danger" onclick="deletePlannerRecordTemplate(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddPlanRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" onclick="savePlanRecordTemplate(true)">@translator.Translate(userLanguage, "Edit Plan Record Template")</button>
+</div>
+@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
+<script>
+    var uploadedFiles = [];
+    var selectedSupplies = [];
+    var copySuppliesAttachments = @Model.CopySuppliesAttachment.ToString().ToLower();
+    getUploadedFilesFromModel();
+    getSelectedSuppliesFromModel();
+    function getUploadedFilesFromModel() {
+        @foreach (UploadedFiles filesUploaded in Model.Files)
+        {
+            @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+        }
+    }
+    function getSelectedSuppliesFromModel() {
+        @foreach(SupplyUsage supplyUsage in Model.Supplies)
+        {
+        @:selectedSupplies.push({supplyId: @supplyUsage.SupplyId, quantity: @supplyUsage.Quantity})
+        }
+    }
+    function getPlanRecordModelData() {
+        return {
+            id: @Model.Id,
+            dateCreated: decodeHTMLEntities('@(Model.DateCreated)'),
+            reminderRecordId: decodeHTMLEntities('@Model.ReminderRecordId'),
+            createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower(),
+            isTemplate: true
+        }
+    }
+</script>

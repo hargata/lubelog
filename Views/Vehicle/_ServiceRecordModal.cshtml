@@ -8,10 +8,10 @@
     var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage,"Add New Service Record") : translator.Translate(userLanguage,"Edit Service Record"))</h5>
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Service Record") : translator.Translate(userLanguage, "Edit Service Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditServiceRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
     <button type="button" class="btn-close" onclick="hideAddServiceRecordModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form>
         <div class="form-group">
             <div class="row">
@@ -22,8 +22,16 @@
                         <input type="text" id="serviceRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date service was performed")" value="@Model.Date">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
-                    <label for="serviceRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <input type="number" inputmode="numeric" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew ? "" : Model.Mileage)">
+                    <label for="serviceRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
+                    <div class="input-group">
+                        <input type="number" inputmode="numeric" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew || Model.Mileage == default ? "" : Model.Mileage)">
+                        @if (isNew)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('serviceRecordMileage')"><i class="bi bi-plus"></i></button>
+                            </div>
+                        }
+                    </div>
                     <label for="serviceRecordDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="serviceRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of item(s) serviced(i.e. Oil Change)")" value="@Model.Description">
                     @if (isNew)
@@ -35,7 +43,7 @@
                         </div>
                     }
                     <label for="serviceRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                    <input type="text" inputmode="decimal" id="serviceRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the service")" value="@(isNew ? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="serviceRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the service")" value="@(isNew ? "" : Model.Cost)">
                     @if (isNew)
                     {
                         @await Html.PartialAsync("_SupplyStore", "ServiceRecord")
@@ -83,6 +91,7 @@
                         <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="serviceRecordFiles">
                         <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
                     }
+                    <div id="filesPendingUpload"></div>
                 </div>
             </div>
         </div>
@@ -121,7 +130,8 @@
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
-    var recurringReminderRecordId = 0;
+    var recurringReminderRecordId = [];
+    var copySuppliesAttachments = false;
     getUploadedFilesFromModel();
     function getUploadedFilesFromModel() {
     @foreach (UploadedFiles filesUploaded in Model.Files)

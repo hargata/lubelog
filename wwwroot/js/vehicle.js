@@ -75,6 +75,10 @@ $(document).ready(function () {
                 $("#odometer-tab-pane").html("");
                 break;
         }
+        $(`.lubelogger-tab #${e.target.id}`).addClass('active');
+        $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
+        $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
+        $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
     });
     var defaultTab = GetDefaultTab().tab;
     switch (defaultTab) {
@@ -246,12 +250,14 @@ function showAddReminderModal(reminderModalInput) {
         $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
+            initTagSelector($("#reminderRecordTag"));
             $("#reminderRecordModal").modal("show");
         });
     } else {
         $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
+            initTagSelector($("#reminderRecordTag"));
             $("#reminderRecordModal").modal("show");
         });
     }
@@ -340,19 +346,19 @@ function showRecurringReminderSelector(descriptionFieldName) {
                 confirmButtonText: 'Select',
                 focusConfirm: false,
                 preConfirm: () => {
-                    const selectedRecurringReminder = $("#recurringReminderInput").val();
-                    const selectedRecurringReminderText = $("#recurringReminderInput option:selected").text();
-                    if (!selectedRecurringReminder || parseInt(selectedRecurringReminder) == 0) {
+                    //validate
+                    var selectedRecurringReminderData = getAndValidateSelectedRecurringReminder();
+                    if (selectedRecurringReminderData.hasError) {
                         Swal.showValidationMessage(`You must select a recurring reminder`);
                     }
-                    return { selectedRecurringReminder, selectedRecurringReminderText }
+                    return { selectedRecurringReminderData }
                 },
             }).then(function (result) {
                 if (result.isConfirmed) {
-                    recurringReminderRecordId = result.value.selectedRecurringReminder;
+                    recurringReminderRecordId = result.value.selectedRecurringReminderData.ids;
                     var descriptionField = $(`#${descriptionFieldName}`);
                     if (descriptionField.length > 0) {
-                        descriptionField.val(result.value.selectedRecurringReminderText.trim());
+                        descriptionField.val(result.value.selectedRecurringReminderData.text);
                     }
                 }
             });
@@ -413,6 +419,7 @@ function getAndValidateGenericRecordValues() {
     var genericCost = $("#genericRecordCost").val();
     var genericNotes = $("#genericRecordNotes").val();
     var genericTags = $("#genericRecordTag").val();
+    var genericExtraFields = getAndValidateExtraFields();
     //validation
     var hasError = false;
     if (genericMileage.trim() != '' && (isNaN(genericMileageToParse) || parseInt(genericMileageToParse) < 0)) {
@@ -437,7 +444,8 @@ function getAndValidateGenericRecordValues() {
             description: genericDescription,
             cost: genericCost,
             notes: genericNotes,
-            tags: genericTags
+            tags: genericTags,
+            extraFields: genericExtraFields.extraFields
         }
     }
 }
@@ -474,19 +482,19 @@ function getRecordsDeltaStats(recordIds) {
     var diffOdo = maxOdo - minOdo;
     var diffDate = maxDate - minDate;
     var divisibleCount = recordIds.length - 1;
-    var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : 0;
-    var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : 0;
-    var averageSum = costSum > 0 ? (costSum / recordIds.length).toFixed(2) : 0;
+    var averageOdo = diffOdo > 0 ? (diffOdo / divisibleCount).toFixed(2) : '0';
+    var averageDays = diffDate > 0 ? Math.floor((diffDate / divisibleCount) / 8.64e7) : '0';
+    var averageSum = costSum > 0 ? (costSum / recordIds.length).toFixed(2) : '0';
     costSum = costSum.toFixed(2);
     Swal.fire({
         title: "Record Statistics",
-        html: `<p>Average Distance Traveled between Records: ${averageOdo}</p>
+        html: `<p>Average Distance Traveled between Records: ${globalFloatToString(averageOdo)}</p>
                 <br />
                 <p>Average Days between Records: ${averageDays}</p>
                 <br />
-                <p>Total Cost: ${getGlobalConfig().currencySymbol} ${costSum}</p>
+                <p>Total Cost: ${globalAppendCurrency(globalFloatToString(costSum))}</p>
                 <br />
-                <p>Average Cost: ${getGlobalConfig().currencySymbol} ${averageSum}</p>`
+                <p>Average Cost: ${globalAppendCurrency(globalFloatToString(averageSum))}</p>`
         ,
         icon: "info"
     });
@@ -552,6 +560,108 @@ function adjustRecordsOdometer(ids, source) {
             });
         } else {
             $("#workAroundInput").hide();
+        }
+    });
+}
+function showMultipleRemindersSelector() {
+    if ($("#multipleRemindersCheck").is(":checked")) {
+        $("#recurringMultipleReminders").show();
+        $("#recurringReminderInput").hide();
+    } else {
+        $("#recurringMultipleReminders").hide();
+        $("#recurringReminderInput").show();
+    }
+}
+function getAndValidateSelectedVehicle() {
+    var selectedVehiclesArray = [];
+    $("#vehicleSelector :checked").map(function () {
+        selectedVehiclesArray.push(this.value);
+    });
+    if (selectedVehiclesArray.length == 0) {
+        return {
+            hasError: true,
+            ids: []
+        }
+    } else {
+        return {
+            hasError: false,
+            ids: selectedVehiclesArray
+        }
+    }
+}
+function getAndValidateSelectedRecurringReminder() {
+    if ($("#multipleRemindersCheck").is(":checked")) {
+        //validate multiple reminders
+        var selectedRecurringRemindersArray = [];
+        $("#recurringMultipleReminders :checked").map(function () {
+            selectedRecurringRemindersArray.push({
+                value: this.value,
+                text: $(this).parent().find('.form-check-label').text()
+            });
+        });
+        if (selectedRecurringRemindersArray.length == 0) {
+            return {
+                hasError: true,
+                ids: [],
+                text: ''
+            }
+        } else {
+            return {
+                hasError: false,
+                ids: selectedRecurringRemindersArray.map(x=>x.value),
+                text: selectedRecurringRemindersArray.map(x=>x.text).join(', ')
+            }
+        }
+    } else {
+        //validate single reminder
+        var selectedRecurringReminder = $("#recurringReminderInput").val();
+        var selectedRecurringReminderText = $("#recurringReminderInput option:selected").text();
+        if (!selectedRecurringReminder || parseInt(selectedRecurringReminder) == 0) {
+            return {
+                hasError: true,
+                ids: [],
+                text: ''
+            }
+        } else {
+            return {
+                hasError: false,
+                ids: [selectedRecurringReminder],
+                text: selectedRecurringReminderText
+            }
+        }
+    }
+}
+function getLastOdometerReadingAndIncrement(odometerFieldName) {
+    Swal.fire({
+        title: 'Increment Last Reported Odometer Reading',
+        html: `
+                            <input type="text" inputmode="decimal" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
+              `,
+        confirmButtonText: 'Add',
+        focusConfirm: false,
+        preConfirm: () => {
+            const odometerIncrement = parseInt(globalParseFloat($("#inputOdometerIncrement").val()));
+            if (isNaN(odometerIncrement) || odometerIncrement <= 0) {
+                Swal.showValidationMessage(`Please enter a non-zero amount to increment`);
+            }
+            return { odometerIncrement }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            var amountToIncrement = result.value.odometerIncrement;
+            $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+                var newAmount = data + amountToIncrement;
+                if (!isNaN(newAmount)) {
+                    var odometerField = $(`#${odometerFieldName}`);
+                    if (odometerField.length > 0) {
+                        odometerField.val(newAmount);
+                    } else {
+                        errorToast(genericErrorMessage());
+                    }
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
         }
     });
 }

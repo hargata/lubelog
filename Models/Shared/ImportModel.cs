@@ -25,6 +25,7 @@
         public string PartSupplier { get; set; }
         public string PartQuantity { get; set; }
         public string Tags { get; set; }
+        public Dictionary<string,string> ExtraFields {get;set;}
     }
 
     public class SupplyRecordExportModel
@@ -37,9 +38,9 @@
         public string Cost { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
-
-    public class ServiceRecordExportModel
+    public class GenericRecordExportModel
     {
         public string Date { get; set; }
         public string Odometer { get; set; }
@@ -47,6 +48,7 @@
         public string Notes { get; set; }
         public string Cost { get; set; }
         public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class OdometerRecordExportModel
     {
@@ -55,6 +57,7 @@
         public string Odometer { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class TaxRecordExportModel
     {
@@ -63,6 +66,7 @@
         public string Notes { get; set; }
         public string Cost { get; set; }
         public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class GasRecordExportModel
     {
@@ -75,6 +79,7 @@
         public string MissedFuelUp { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
     public class ReminderExportModel
     {
@@ -82,6 +87,8 @@
         public string Urgency { get; set; }
         public string Metric { get; set; }
         public string Notes { get; set; }
+        public string DueDate { get; set; }
+        public string DueOdometer { get; set; }
     }
     public class PlanRecordExportModel 
     {
@@ -93,6 +100,6 @@
         public string Priority { get; set; }
         public string Progress { get; set; }
         public string Cost { get; set; }
+        public List<ExtraField> ExtraFields { get; set; }
     }
-
 }

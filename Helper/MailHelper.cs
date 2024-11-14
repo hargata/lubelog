@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
-using System.Net.Mail;
-using System.Net;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 
 namespace CarCareTracker.Helper
 {
@@ -15,13 +16,16 @@ namespace CarCareTracker.Helper
     {
         private readonly MailConfig mailConfig;
         private readonly IFileHelper _fileHelper;
+        private readonly ILogger<MailHelper> _logger;
         public MailHelper(
             IConfiguration config,
-            IFileHelper fileHelper
+            IFileHelper fileHelper,
+            ILogger<MailHelper> logger
             ) {
             //load mailConfig from Configuration
-            mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
+            mailConfig = config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
             _fileHelper = fileHelper;
+            _logger = logger;
         }
         public OperationResponse NotifyUserForRegistration(string emailAddress, string token)
         {
@@ -34,7 +38,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your Registration Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please complete your registration for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -55,7 +59,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your Password Reset Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please reset your password for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -77,7 +81,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = "Your User Account Update Token for LubeLogger";
             string emailBody = $"A token has been generated on your behalf, please update your account for LubeLogger using the token: {token}";
-            var result = SendEmail(emailAddress, emailSubject, emailBody);
+            var result = SendEmail(new List<string> { emailAddress}, emailSubject, emailBody);
             if (result)
             {
                 return new OperationResponse { Success = true, Message = "Email Sent!" };
@@ -106,53 +110,64 @@ namespace CarCareTracker.Helper
             string emailSubject = $"Vehicle Reminders From LubeLogger - {DateTime.Now.ToShortDateString()}";
             //construct html table.
             string emailBody = File.ReadAllText(emailTemplatePath);
-            emailBody = emailBody.Replace("{VehicleInformation}", $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate}");
+            emailBody = emailBody.Replace("{VehicleInformation}", $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)}");
             string tableBody = "";
             foreach(ReminderRecordViewModel reminder in reminders)
             {
-                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
+                var dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date.ToShortDateString()} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
                 tableBody += $"<tr class='{reminder.Urgency}'><td>{StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency)}</td><td>{reminder.Description}</td><td>{dueOn}</td></tr>";
             }
             emailBody = emailBody.Replace("{TableBody}", tableBody);
             try
             {
-                foreach (string emailAddress in emailAddresses)
+                var result = SendEmail(emailAddresses, emailSubject, emailBody);
+                if (result)
                 {
-                    SendEmail(emailAddress, emailSubject, emailBody, true, true);
+                    return new OperationResponse { Success = true, Message = "Email Sent!" };
+                } else
+                {
+                    return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
                 }
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
             } catch (Exception ex)
             {
                 return new OperationResponse { Success = false, Message = ex.Message };
             }
         }
-        private bool SendEmail(string emailTo, string emailSubject, string emailBody, bool isBodyHtml = false, bool useAsync = false) {
-            string to = emailTo;
+        private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
             string from = mailConfig.EmailFrom;
             var server = mailConfig.EmailServer;
-            MailMessage message = new MailMessage(from, to);
-            message.Subject = emailSubject;
-            message.Body = emailBody;
-            message.IsBodyHtml = isBodyHtml;
-            SmtpClient client = new SmtpClient(server);
-            client.EnableSsl = mailConfig.UseSSL;
-            client.Port = mailConfig.Port;
-            client.Credentials = new NetworkCredential(mailConfig.Username, mailConfig.Password);
-            try
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(from, from));
+            foreach(string emailRecipient in emailTo)
             {
-                if (useAsync)
-                {
-                    client.SendMailAsync(message, new CancellationToken());
+                message.To.Add(new MailboxAddress(emailRecipient, emailRecipient));
+            }
+            message.Subject = emailSubject;
+
+            var builder = new BodyBuilder();
+
+            builder.HtmlBody = emailBody;
+
+            message.Body = builder.ToMessageBody();
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
+                //perform authentication if either username or password is provided.
+                //do not perform authentication if neither are provided.
+                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password)) {
+                    client.Authenticate(mailConfig.Username, mailConfig.Password);
                 }
-                else
+                try
                 {
                     client.Send(message);
+                    client.Disconnect(true);
+                    return true;
+                } catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return false;
                 }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
             }
         }
     }

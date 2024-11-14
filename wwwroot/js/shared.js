@@ -40,12 +40,20 @@ function saveVehicle(isEdit) {
     var vehiclePurchaseDate = $("#inputPurchaseDate").val();
     var vehicleSoldDate = $("#inputSoldDate").val();
     var vehicleLicensePlate = $("#inputLicensePlate").val();
-    var vehicleIsElectric = $("#inputIsElectric").is(":checked");
+    var vehicleIsElectric = $("#inputFuelType").val() == 'Electric';
+    var vehicleIsDiesel = $("#inputFuelType").val() == 'Diesel';
     var vehicleUseHours = $("#inputUseHours").is(":checked");
+    var vehicleOdometerOptional = $("#inputOdometerOptional").is(":checked");
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
     var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
-    var extraFields = getAndValidateExtraFields(true);
+    var vehiclePurchasePrice = $("#inputPurchasePrice").val();
+    var vehicleSoldPrice = $("#inputSoldPrice").val();
+    var vehicleIdentifier = $("#inputIdentifier").val();
+    var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
+        return this.value;
+    }).toArray();
+    var extraFields = getAndValidateExtraFields();
     //validate
     var hasError = false;
     if (extraFields.hasError) {
@@ -69,12 +77,26 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputModel").removeClass("is-invalid");
     }
-    if (vehicleLicensePlate.trim() == '') {
-        hasError = true;
-        $("#inputLicensePlate").addClass("is-invalid");
+    if (vehicleIdentifier == "LicensePlate") {
+        if (vehicleLicensePlate.trim() == '') {
+            hasError = true;
+            $("#inputLicensePlate").addClass("is-invalid");
+        } else {
+            $("#inputLicensePlate").removeClass("is-invalid");
+        }
     } else {
         $("#inputLicensePlate").removeClass("is-invalid");
+        //check if extra fields have value.
+        var vehicleIdentifierExtraField = extraFields.extraFields.filter(x => x.name == vehicleIdentifier);
+        //check if extra field exists.
+        if (vehicleIdentifierExtraField.length == 0) {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).addClass("is-invalid");
+            hasError = true;
+        } else {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).removeClass("is-invalid");
+        }
     }
+    
     if (vehicleHasOdometerAdjustment) {
         //validate odometer adjustments
         //validate multiplier
@@ -92,6 +114,20 @@ function saveVehicle(isEdit) {
             $("#inputOdometerDifference").removeClass("is-invalid");
         }
     }
+    if (vehiclePurchasePrice.trim() != '' && !isValidMoney(vehiclePurchasePrice)) {
+        hasError = true;
+        $("#inputPurchasePrice").addClass("is-invalid");
+        $("#collapsePurchaseInfo").collapse('show');
+    } else {
+        $("#inputPurchasePrice").removeClass("is-invalid");
+    }
+    if (vehicleSoldPrice.trim() != '' && !isValidMoney(vehicleSoldPrice)) {
+        hasError = true;
+        $("#inputSoldPrice").addClass("is-invalid");
+        $("#collapsePurchaseInfo").collapse('show');
+    } else {
+        $("#inputSoldPrice").removeClass("is-invalid");
+    }
     if (hasError) {
         return;
     }
@@ -103,14 +139,20 @@ function saveVehicle(isEdit) {
         model: vehicleModel,
         licensePlate: vehicleLicensePlate,
         isElectric: vehicleIsElectric,
+        isDiesel: vehicleIsDiesel,
         tags: vehicleTags,
         useHours: vehicleUseHours,
         extraFields: extraFields.extraFields,
         purchaseDate: vehiclePurchaseDate,
         soldDate: vehicleSoldDate,
+        odometerOptional: vehicleOdometerOptional,
         hasOdometerAdjustment: vehicleHasOdometerAdjustment,
         odometerMultiplier: vehicleOdometerMultiplier,
-        odometerDifference: vehicleOdometerDifference
+        odometerDifference: vehicleOdometerDifference,
+        purchasePrice: vehiclePurchasePrice,
+        soldPrice: vehicleSoldPrice,
+        dashboardMetrics: vehicleDashboardMetrics,
+        vehicleIdentifier: vehicleIdentifier
     }, function (data) {
         if (data) {
             if (!isEdit) {
@@ -136,9 +178,124 @@ function toggleOdometerAdjustment() {
         $("#odometerAdjustments").collapse('hide');
     }
 }
+function uploadThumbnail(event) {
+    var originalImage = event.files[0];
+    var maxHeight = 290;
+    try {
+        //load image and perform Hermite resize
+        var img = new Image();
+        img.onload = function () {
+            URL.revokeObjectURL(img.src);
+            var imgWidth = img.width;
+            var imgHeight = img.height;
+            if (imgHeight > maxHeight) {
+                //only scale if height is greater than threshold
+                var imgScale = maxHeight / imgHeight;
+                var newImgWidth = imgWidth * imgScale;
+                var newImgHeight = imgHeight * imgScale;
+                var resizedCanvas = hermiteResize(img, newImgWidth, newImgHeight);
+                resizedCanvas.toBlob((blob) => {
+                    let file = new File([blob], originalImage.name, { type: "image/jpeg" });
+                    uploadFileAsync(file);
+                }, 'image/jpeg');
+            } else {
+                uploadFileAsync(originalImage);
+            }
+        }
+        img.src = URL.createObjectURL(originalImage);
+    } catch (error) {
+        console.log(`Error while attempting to upload and resize thumbnail - ${error}`);
+        uploadFileAsync(originalImage);
+    }
+}
+//Resize method using Hermite interpolation
+//JS implementation by viliusle
+function hermiteResize(origImg, width, height) {
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = origImg.width;
+    canvas.height = origImg.height;
+    ctx.drawImage(origImg, 0, 0);
+
+    var width_source = canvas.width;
+    var height_source = canvas.height;
+    width = Math.round(width);
+    height = Math.round(height);
+
+    var ratio_w = width_source / width;
+    var ratio_h = height_source / height;
+    var ratio_w_half = Math.ceil(ratio_w / 2);
+    var ratio_h_half = Math.ceil(ratio_h / 2);
+
+   
+    var img = ctx.getImageData(0, 0, width_source, height_source);
+    var img2 = ctx.createImageData(width, height);
+    var data = img.data;
+    var data2 = img2.data;
+
+    for (var j = 0; j < height; j++) {
+        for (var i = 0; i < width; i++) {
+            var x2 = (i + j * width) * 4;
+            var weight = 0;
+            var weights = 0;
+            var weights_alpha = 0;
+            var gx_r = 0;
+            var gx_g = 0;
+            var gx_b = 0;
+            var gx_a = 0;
+            var center_y = (j + 0.5) * ratio_h;
+            var yy_start = Math.floor(j * ratio_h);
+            var yy_stop = Math.ceil((j + 1) * ratio_h);
+            for (var yy = yy_start; yy < yy_stop; yy++) {
+                var dy = Math.abs(center_y - (yy + 0.5)) / ratio_h_half;
+                var center_x = (i + 0.5) * ratio_w;
+                var w0 = dy * dy; //pre-calc part of w
+                var xx_start = Math.floor(i * ratio_w);
+                var xx_stop = Math.ceil((i + 1) * ratio_w);
+                for (var xx = xx_start; xx < xx_stop; xx++) {
+                    var dx = Math.abs(center_x - (xx + 0.5)) / ratio_w_half;
+                    var w = Math.sqrt(w0 + dx * dx);
+                    if (w >= 1) {
+                        //pixel too far
+                        continue;
+                    }
+                    //hermite filter
+                    weight = 2 * w * w * w - 3 * w * w + 1;
+                    var pos_x = 4 * (xx + yy * width_source);
+                    //alpha
+                    gx_a += weight * data[pos_x + 3];
+                    weights_alpha += weight;
+                    //colors
+                    if (data[pos_x + 3] < 255)
+                        weight = weight * data[pos_x + 3] / 250;
+                    gx_r += weight * data[pos_x];
+                    gx_g += weight * data[pos_x + 1];
+                    gx_b += weight * data[pos_x + 2];
+                    weights += weight;
+                }
+            }
+            data2[x2] = gx_r / weights;
+            data2[x2 + 1] = gx_g / weights;
+            data2[x2 + 2] = gx_b / weights;
+            data2[x2 + 3] = gx_a / weights_alpha;
+        }
+    }
+    //clear and resize canvas
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+
+    //draw
+    ctx.putImageData(img2, 0, 0);
+    return canvas;
+}
 function uploadFileAsync(event) {
     let formData = new FormData();
-    formData.append("file", event.files[0]);
+    if (event.files != undefined && event.files.length > 0) {
+        formData.append("file", event.files[0]);
+    } else {
+        formData.append("file", event);
+    }
     sloader.show();
     $.ajax({
         url: "/Files/HandleFileUpload",
@@ -160,8 +317,8 @@ function uploadFileAsync(event) {
     });
 }
 function isValidMoney(input) {
-    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(\.?\d{3})?(,\d{1,3}?)?\)?$/;
-    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d{1,3}?)?\)?$/;
+    const euRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((\.\d{3}){0,8}|(\d{3}){0,8})(,\d{1,3}?)?\)?$/;
+    const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((,\d{3}){0,8}|(\d{3}){0,8})(\.\d{1,3}?)?\)?$/;
     return (euRegex.test(input) || usRegex.test(input));
 }
 function initDatePicker(input, futureOnly) {
@@ -197,9 +354,14 @@ function showMobileNav() {
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
 }
+var windowWidthForCompare = 0;
 function bindWindowResize() {
+    windowWidthForCompare = window.innerWidth;
     $(window).on('resize', function () {
-        hideMobileNav();
+        if (window.innerWidth != windowWidthForCompare) {
+            hideMobileNav();
+            windowWidthForCompare = window.innerWidth;
+        }
     });
 }
 function encodeHTMLInput(input) {
@@ -321,7 +483,7 @@ function updateAggregateLabels() {
         if (labelsToSum.length > 0) {
             newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
         }
-        sumLabel.text(`${sumLabel.text().split(':')[0]}: ${getGlobalConfig().currencySymbol}${newSum}`)
+        sumLabel.text(`${sumLabel.text().split(':')[0]}: ${globalAppendCurrency(globalFloatToString(newSum))}`)
     }
     //Sum Distance
     var sumDistanceLabel = $("[data-aggregate-type='sum-distance']");
@@ -336,7 +498,7 @@ function updateAggregateLabels() {
     //Count
     var newCount = $("[data-record-type='cost']").parent(":not('.override-hide')").length;
     var countLabel = $("[data-aggregate-type='count']");
-    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`)
+    countLabel.text(`${countLabel.text().split(':')[0]}: ${newCount}`);
 }
 
 function uploadVehicleFilesAsync(event) {
@@ -355,8 +517,12 @@ function uploadVehicleFilesAsync(event) {
         type: 'POST',
         success: function (response) {
             sloader.hide();
+            $(event).val(""); //clear out the filename from the uploader
             if (response.length > 0) {
                 uploadedFiles.push.apply(uploadedFiles, response);
+                $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                    $("#filesPendingUpload").html(viewData);
+                });
             }
         },
         error: function () {
@@ -368,12 +534,21 @@ function uploadVehicleFilesAsync(event) {
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
+    if (fileLocation.startsWith("/temp/")) {
+        if ($("#documentsPendingUploadList > li").length == 0) {
+            $("#documentsPendingUploadLabel").text("");
+        }
+    } else if (fileLocation.startsWith("/documents/")) {
+        if ($("#uploadedDocumentsList > li").length == 0) {
+            $("#uploadedDocumentsLabel").text("");
+        }
+    }
 }
 function editFileName(fileLocation, event) {
     Swal.fire({
         title: 'Rename File',
         html: `
-                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name">
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name" onkeydown="handleSwalEnter(event)">
                     `,
         confirmButtonText: 'Rename',
         focusConfirm: false,
@@ -448,11 +623,12 @@ function showBulkImportModal(mode) {
 function hideBulkImportModal() {
     $("#bulkImportModal").modal('hide');
 }
-function getAndValidateExtraFields(isVehicle) {
+function getAndValidateExtraFields() {
     var hasError = false;
     var outputData = [];
-    var fieldName = isVehicle ? '#addVehicleModalContent .extra-field,#editVehicleModalContent .extra-field' : '.extra-field:not(#addVehicleModalContent .extra-field, #editVehicleModalContent .extra-field)';
-    $(`${fieldName}`).map((index, elem) => {
+    //get extra fields in modal that is currently open.
+    var extraFieldsVisible = $(".modal.fade.show").find(".extra-field");
+    extraFieldsVisible.map((index, elem) => {
         var extraFieldName = $(elem).children("label").text();
         var extraFieldInput = $(elem).children("input");
         var extraFieldValue = extraFieldInput.val();
@@ -673,6 +849,85 @@ function duplicateRecords(ids, source) {
         }
     });
 }
+function duplicateRecordsToOtherVehicles(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "TaxRecord":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            break;
+        case "SupplyRecord":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            break;
+        case "NoteRecord":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "ReminderRecord":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (data) {
+            //prompt user to select a vehicle
+            Swal.fire({
+                title: 'Duplicate to Vehicle(s)',
+                html: data,
+                confirmButtonText: 'Duplicate',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedVehicleData = getAndValidateSelectedVehicle();
+                    if (selectedVehicleData.hasError) {
+                        Swal.showValidationMessage(`You must select a vehicle`);
+                    }
+                    return { selectedVehicleData }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Vehicle/DuplicateRecordsToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, importMode: source}, function (data) {
+                        if (data) {
+                            successToast(`${ids.length} Record(s) Duplicated`);
+                        } else {
+                            errorToast(genericErrorMessage());
+                        }
+                    });
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
 var selectedRow = [];
 var isDragging = false;
 $(window).on('mouseup', function (e) {
@@ -690,7 +945,10 @@ $(window).on('keydown', function (e) {
             selectAllRows();
         }
     }
-})
+});
+function getCurrentTab() {
+    return $(".tab-pane.active.show").attr('id');
+}
 function selectAllRows() {
     clearSelectedRows();
     $('.vehicleDetailTabContainer .table tbody tr:visible').addClass('table-active');
@@ -877,13 +1135,17 @@ function detectRowTouchEndPremature(sender) {
         rowTouchTimer = null;
     }
 }
+function handleSupplyAddCostKeyDown(event) {
+    handleSwalEnter(event);
+    interceptDecimalKeys(event);
+}
 function replenishSupplies() {
     Swal.fire({
         title: 'Replenish Supplies',
         html: `
-                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
+                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
-                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost">
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSupplyAddCostKeyDown(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
                             <span class='small'>leave blank to use unit cost calculation</span>
               `,
@@ -943,7 +1205,7 @@ function searchTableRows(tabName) {
     Swal.fire({
         title: 'Search Records',
         html: `
-                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)">
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)" onkeydown="handleSwalEnter(event)">
                             `,
         confirmButtonText: 'Search',
         focusConfirm: false,
@@ -1013,4 +1275,69 @@ function copyToClipboard(e) {
 }
 function noPropagation() {
     event.stopPropagation();
+}
+var checkExist;
+
+function waitForElement(element, callBack, callBackParameter) {
+    checkExist = setInterval(function () {
+        if ($(`${element}`).length) {
+            callBack(callBackParameter);
+            clearInterval(checkExist);
+        }
+    }, 100); // check every 100ms
+}
+function bindModalInputChanges(modalName) {
+    //bind text inputs
+    $(`#${modalName} input[type='text'], #${modalName} input[type='number'], #${modalName} textarea`).off('input').on('input', function (e) {
+        $(e.currentTarget).attr('data-changed', true);
+    });
+    $(`#${modalName} select, #${modalName} input[type='checkbox']`).off('input').on('input', function (e) {
+        $(e.currentTarget).attr('data-changed', true);
+    });
+}
+function handleModalPaste(e, recordType) {
+    var clipboardFiles = e.clipboardData.files;
+    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    var acceptableFiles = new DataTransfer();
+    if (clipboardFiles.length > 0) {
+        for (var x = 0; x < clipboardFiles.length; x++) {
+            if (acceptableFileFormats != "*") {
+                var fileExtension = `.${clipboardFiles[x].name.split('.').pop()}`;
+                if (acceptableFileFormatsArray.includes(fileExtension)) {
+                    acceptableFiles.items.add(clipboardFiles[x]);
+                }
+            } else {
+                acceptableFiles.items.add(clipboardFiles[x]);
+            }
+        }
+        $(`#${recordType}`)[0].files = acceptableFiles.files;
+        $(`#${recordType}`).trigger('change');
+    }
+}
+function handleEnter(e) {
+    if ((event.ctrlKey || event.metaKey) && event.which == 13) {
+        var saveButton = $(e).parent().find(".modal-footer .btn-primary");
+        if (saveButton.length > 0) {
+            saveButton.first().trigger('click');
+        }
+    }
+}
+function handleSwalEnter(e) {
+    if (e.which == 13) {
+        Swal.clickConfirm();
+    }
+}
+function togglePasswordVisibility(elem) {
+    var passwordField = $(elem).parent().siblings("input");
+    var passwordButton = $(elem).find('.bi');
+    if (passwordField.attr("type") == "password") {
+        passwordField.attr("type", "text");
+        passwordButton.removeClass('bi-eye');
+        passwordButton.addClass('bi-eye-slash');
+    } else {
+        passwordField.attr("type", "password");
+        passwordButton.removeClass('bi-eye-slash');
+        passwordButton.addClass('bi-eye');
+    }
 }

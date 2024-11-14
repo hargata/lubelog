@@ -2,6 +2,7 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -28,7 +29,7 @@ namespace CarCareTracker.Logic
         bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
-
+        KeyValuePair<string, string> GetPKCEChallengeCode();
     }
     public class LoginLogic : ILoginLogic
     {
@@ -244,14 +245,7 @@ namespace CarCareTracker.Logic
         {
             if (UserIsRoot(credentials))
             {
-                return new UserData()
-                {
-                    Id = -1,
-                    UserName = credentials.UserName,
-                    IsAdmin = true,
-                    IsRootUser = true,
-                    EmailAddress = string.Empty
-                };
+                return GetRootUserData(credentials.UserName);
             }
             else
             {
@@ -270,6 +264,13 @@ namespace CarCareTracker.Logic
         }
         public UserData ValidateOpenIDUser(LoginModel credentials)
         {
+            //validate for root user
+            var isRootUser = _configHelper.AuthenticateRootUserOIDC(credentials.EmailAddress);
+            if (isRootUser)
+            {
+                return GetRootUserData(credentials.EmailAddress);
+            }
+
             var result = _userData.GetUserRecordByEmailAddress(credentials.EmailAddress);
             if (result.Id != default)
             {
@@ -419,6 +420,17 @@ namespace CarCareTracker.Logic
             var hashedPassword = GetHash(credentials.Password);
             return _configHelper.AuthenticateRootUser(hashedUserName, hashedPassword);
         }
+        private UserData GetRootUserData(string username)
+        {
+            return new UserData()
+            {
+                Id = -1,
+                UserName = username,
+                IsAdmin = true,
+                IsRootUser = true,
+                EmailAddress = string.Empty
+            };
+        }
         #endregion
         private static string GetHash(string value)
         {
@@ -438,6 +450,14 @@ namespace CarCareTracker.Logic
         private string NewToken()
         {
             return Guid.NewGuid().ToString().Substring(0, 8);
+        }
+        public KeyValuePair<string, string> GetPKCEChallengeCode()
+        {
+            var verifierCode = Base64UrlEncoder.Encode(Guid.NewGuid().ToString().Replace("-", ""));
+            var verifierBytes = Encoding.UTF8.GetBytes(verifierCode);
+            var hashedCode = SHA256.Create().ComputeHash(verifierBytes);
+            var encodedChallengeCode = Base64UrlEncoder.Encode(hashedCode);
+            return new KeyValuePair<string, string>(verifierCode, encodedChallengeCode);
         }
         public bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
         {

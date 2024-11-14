@@ -20,38 +20,32 @@ Try it out before you download it! The live demo resets every 20 minutes.
 ## Download
 LubeLogger is available as both a Docker Image and a Windows Standalone Executable.
 
-Read this [Getting Started Guide](https://docs.lubelogger.com/Getting%20Started) on how to download either of them
+Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getting%20Started) on how to download either of them
 
-### Docker Setup (Manual Build for Advanced Users)
-1. Install Docker
-2. Clone this repo
-3. CHECK culture in .env file, default is en_US, also setup SMTP for user management if you want that.
-4. Run `docker build -t lubelogger -f Dockerfile .`
-5. CHECK docker-compose.yml and make sure the mounting directories look correct.
-6. If using traefik, use docker-compose.traefik.yml
-7. Run `docker-compose up`
+### Kubernetes Deployment
+[Helm Chart](https://artifacthub.io/packages/helm/anza-labs/lubelogger) provided by [Anza-Labs](https://github.com/anza-labs)
 
 ### Need Help?
 [Documentation](https://docs.lubelogger.com/)
 
-[Troubleshooting Guide](https://docs.lubelogger.com/Troubleshooting)
+[Troubleshooting Guide](https://docs.lubelogger.com/Installation/Troubleshooting)
 
 [Search Existing Issues](https://github.com/hargata/lubelog/issues)
 
 ## Dependencies
-- Bootstrap
-- LiteDB
-- Npgsql
-- Bootstrap-DatePicker
-- SweetAlert2
-- CsvHelper
-- Chart.js
-- Drawdown
+- [Bootstrap](https://github.com/twbs/bootstrap)
+- [LiteDB](https://github.com/mbdavid/litedb)
+- [Npgsql](https://github.com/npgsql/npgsql)
+- [Bootstrap-DatePicker](https://github.com/uxsolutions/bootstrap-datepicker)
+- [SweetAlert2](https://github.com/sweetalert2/sweetalert2)
+- [CsvHelper](https://github.com/JoshClose/CsvHelper)
+- [Chart.js](https://github.com/chartjs/Chart.js)
+- [Drawdown](https://github.com/adamvleggett/drawdown)
+- [MailKit](https://github.com/jstedfast/MailKit)
+- [Masonry](https://github.com/desandro/masonry)
 
 ## License
-LubeLogger utilizes a dual-licensing model, see [License](/LICENSE) for more information
+MIT
 
 ## Support
 Support this project by [Subscribing on Patreon](https://patreon.com/LubeLogger) or [Making a Donation](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
-
-Note: Commercial users are required to maintain an active Patreon subscripton to be compliant with our licensing model.

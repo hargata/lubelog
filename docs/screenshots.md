@@ -1,42 +1,52 @@
 ## Garage
-![image](https://github.com/hargata/lubelog/assets/155338622/c15a4efb-89d5-4eca-bccd-f148bf063f80)
+![image](https://github.com/user-attachments/assets/b25835c8-3393-4cad-b2a7-7d2797ab4c9d)
 
 ## Planner(Kanban Board)
-![image](https://github.com/hargata/lubelog/assets/155338622/6775d553-1545-4655-b9f9-259618af283b)
+![image](https://github.com/user-attachments/assets/76f49bac-c33b-4853-84ca-68fd108cda5f)
 
 ## Dashboard
-![image](https://github.com/hargata/lubelog/assets/155338622/970f8e8e-bef9-4de2-b43c-dfa1d43c2d87)
+![image](https://github.com/user-attachments/assets/4b8110d3-f3fd-4ac7-b0ba-77aa9d81f110)
 
 ## Track Service Records / Repairs / Upgrades
-![image](https://github.com/hargata/lubelog/assets/155338622/26c6fd47-66b5-4135-8cee-e6c89bc671be)
+![image](https://github.com/user-attachments/assets/eaaff505-3ffe-4c12-9a17-1537b3c48886)
 
 ## Attach Files to Records (i.e.: Receipts, Invoices, etc)
-![image](https://github.com/hargata/lubelog/assets/155338622/1c52c3a3-f750-4327-ae91-0c345f305e52)
+![image](https://github.com/user-attachments/assets/f01a4722-ad7a-4d10-872e-eff65b54d2d2)
 
 ## Import/Export from/to CSV (Supports Imports from Fuelly)
-![image](https://github.com/hargata/lubelog/assets/155338622/d5fbcade-17fd-4b46-95eb-2ecafbbf6614)
+![image](https://github.com/user-attachments/assets/816120e9-72da-436b-862b-1478c91bd299)
 
 ## Track Gas Records(Supports MPG, L/100KM)
-### Even supports British use-cases - Purchase Gas in Liters and Calculates in Miles per UK Gallons
-![image](https://github.com/hargata/lubelog/assets/155338622/2bb61362-93b3-45c1-a02e-34b65ed883c0)
+
+Supports
+- MPG
+- L/100KM and KM/L
+- British use-case: Purchase gas in liters and calculate fuel economy in miles per UK Gallon(imp gal)
+  
+![image](https://github.com/user-attachments/assets/8fbdf60f-18c6-4ead-9e28-6b92c64dbb1a)
 
 ## Reminders
-![image](https://github.com/hargata/lubelog/assets/155338622/51b224e2-eaf3-4895-85af-8264a944ff99)
+![image](https://github.com/user-attachments/assets/ca104765-2482-4bea-976c-8d333832ffe7)
 
 ## Set Reminders based on Odometer, Date, or whichever comes first
-![image](https://github.com/hargata/lubelog/assets/155338622/ab326041-9d65-4bd9-9543-1549be80a88b)
+![image](https://github.com/user-attachments/assets/0dd9e668-f445-403f-80f4-9a89aefe8295)
 
 ## Settings
-![image](https://github.com/hargata/lubelog/assets/155338622/c20550ec-c195-40c0-a857-3cbb5479bf78)
+![image](https://github.com/user-attachments/assets/b3a55635-8279-43c7-92a5-3bc555b6a2c7)
 
 ## Admin Panel (Generate Tokens for new users to sign up)
-![image](https://github.com/hargata/lubelog/assets/155338622/60cd0dc1-3444-4917-aaf9-aa64a5e62202)
+![image](https://github.com/user-attachments/assets/51ace6fd-1056-4c09-86c5-221be7e2be10)
+
+![image](https://github.com/user-attachments/assets/4b9998cf-731c-4860-8a0d-7878f0453110)
 
 ## Token Based Registration for New Users
 ![image](https://github.com/hargata/lubelog/assets/155338622/261a143f-cac0-4961-bcd0-bdb61be6990a)
 
 ## Track Supplies and Parts purchased for your vehicle
-![image](https://github.com/hargata/lubelog/assets/155338622/fa380cd1-209f-4d50-a001-cda9531c42ef)
+![image](https://github.com/user-attachments/assets/b393baeb-bc93-4f0f-86f4-e049671c9370)
+
+## Supports Custom Fields
+![image](https://github.com/user-attachments/assets/f74b63ff-b87d-456c-97cf-078da5736359)
 
 ## Add Collaborators (Multiple People can Add/Edit Records for same Vehicle)
 ![image](https://github.com/hargata/lubelog/assets/155338622/0ec57dc4-c552-48b9-9a8e-4d89b691aade)

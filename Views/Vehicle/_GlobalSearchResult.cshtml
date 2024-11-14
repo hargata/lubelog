@@ -1,0 +1,34 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<SearchResult>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div style="max-height:50vh; overflow-y:auto;">
+    @if (Model.Any())
+    {
+        @foreach (SearchResult result in Model)
+        {
+            <div class="row border p-2 m-1" onclick="loadGlobalSearchResult(@result.Id, '@result.RecordType')" style="cursor:pointer;">
+                <div class="col-1">
+                    <i class="bi @StaticHelper.GetImportModeIcon(result.RecordType)"></i>
+                </div>
+                <div class="col-11">
+                    @result.Description
+                </div>
+            </div>
+        }
+    } else
+    {
+        <div class="row border p-2 m-1">
+            <div class="col-1">
+                <i class="bi bi-ban"></i>
+            </div>
+            <div class="col-11">
+                @translator.Translate(userLanguage, "No Data Found")
+            </div>
+        </div>
+    }
+</div>

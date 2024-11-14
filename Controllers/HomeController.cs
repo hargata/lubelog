@@ -16,20 +16,24 @@ namespace CarCareTracker.Controllers
         private readonly IVehicleDataAccess _dataAccess;
         private readonly IUserLogic _userLogic;
         private readonly ILoginLogic _loginLogic;
+        private readonly IVehicleLogic _vehicleLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
+        private readonly ITranslationHelper _translationHelper;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
             ILoginLogic loginLogic,
+            IVehicleLogic vehicleLogic,
             IConfigHelper configuration,
             IFileHelper fileHelper,
             IExtraFieldDataAccess extraFieldDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
-            IReminderHelper reminderHelper)
+            IReminderHelper reminderHelper,
+            ITranslationHelper translationHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -40,6 +44,8 @@ namespace CarCareTracker.Controllers
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
             _loginLogic = loginLogic;
+            _vehicleLogic = vehicleLogic;
+            _translationHelper = translationHelper;
         }
         private int GetUserID()
         {
@@ -49,6 +55,59 @@ namespace CarCareTracker.Controllers
         {
             return View(model: tab);
         }
+        [Route("/kiosk")]
+        public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
+        { 
+            try {
+                var viewModel = new KioskViewModel
+                {
+                    Exclusions = string.IsNullOrWhiteSpace(exclusions) ? new List<int>() : exclusions.Split(',').Select(x => int.Parse(x)).ToList(),
+                    KioskMode = kioskMode
+                };
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return View(new KioskViewModel());
+            }
+        }
+        [HttpPost]
+        public IActionResult KioskContent(KioskViewModel kioskParameters)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            vehiclesStored.RemoveAll(x => kioskParameters.Exclusions.Contains(x.Id));
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            switch (kioskParameters.KioskMode)
+            {
+                case KioskMode.Vehicle:
+                    {
+                        var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
+                        return PartialView("_Kiosk", kioskResult);
+                    }
+                case KioskMode.Plan:
+                    {
+                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
+                        return PartialView("_KioskPlan", kioskResult);
+                    }
+                    break;
+                case KioskMode.Reminder:
+                    {
+                        var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);
+                        return PartialView("_KioskReminder", kioskResult);
+                    }
+            }
+            var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
+            return PartialView("_Kiosk", result);
+        }
         public IActionResult Garage()
         {
             var vehiclesStored = _dataAccess.GetVehicles();
@@ -56,7 +115,54 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            return PartialView("_GarageDisplay", vehiclesStored);
+            var vehicleViewModels = vehiclesStored.Select(x =>
+            {
+                var vehicleVM = new VehicleViewModel
+                {
+                    Id = x.Id,
+                    ImageLocation = x.ImageLocation,
+                    Year = x.Year,
+                    Make = x.Make,
+                    Model = x.Model,
+                    LicensePlate = x.LicensePlate,
+                    SoldDate = x.SoldDate,
+                    IsElectric = x.IsElectric,
+                    IsDiesel = x.IsDiesel,
+                    UseHours = x.UseHours,
+                    OdometerOptional = x.OdometerOptional,
+                    ExtraFields = x.ExtraFields,
+                    Tags = x.Tags,
+                    DashboardMetrics = x.DashboardMetrics,
+                    VehicleIdentifier = x.VehicleIdentifier
+                };
+                //dashboard metrics
+                if (x.DashboardMetrics.Any())
+                {
+                    var vehicleRecords = _vehicleLogic.GetVehicleRecords(x.Id);
+                    var userConfig = _config.GetUserConfig(User);
+                    var distanceUnit = x.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.Default))
+                    {
+                        vehicleVM.LastReportedMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+                        vehicleVM.HasReminders = _vehicleLogic.GetVehicleHasUrgentOrPastDueReminders(x.Id, vehicleVM.LastReportedMileage);
+                    }
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.CostPerMile))
+                    {
+                        var vehicleTotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
+                        var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+                        var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+                        var totalDistance = maxMileage - minMileage;
+                        vehicleVM.CostPerMile = totalDistance != default ? vehicleTotalCost / totalDistance : 0.00M;
+                        vehicleVM.DistanceUnit = distanceUnit;
+                    }
+                    if (vehicleVM.DashboardMetrics.Contains(DashboardMetric.TotalCost))
+                    {
+                        vehicleVM.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
+                    }
+                }
+                return vehicleVM;
+            }).ToList();
+            return PartialView("_GarageDisplay", vehicleViewModels);
         }
         public IActionResult Calendar()
         {
@@ -65,19 +171,7 @@ namespace CarCareTracker.Controllers
             {
                 vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
             }
-            List<ReminderRecordViewModel> reminders = new List<ReminderRecordViewModel>();
-            foreach (Vehicle vehicle in vehiclesStored)
-            {
-                var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
-                vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
-                //we don't care about mileages so we can basically fake the current vehicle mileage.
-                if (vehicleReminders.Any())
-                {
-                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, 0, DateTime.Now);
-                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Date = x.Date, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{vehicle.LicensePlate} - {x.Description}" }).ToList();
-                    reminders.AddRange(reminderUrgency);
-                }
-            }
+            var reminders = _vehicleLogic.GetReminders(vehiclesStored, true);
             return PartialView("_Calendar", reminders);
         }
         public IActionResult ViewCalendarReminder(int reminderId)
@@ -86,7 +180,7 @@ namespace CarCareTracker.Controllers
             var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, 0, DateTime.Now).FirstOrDefault();
             return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
         }
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
             var userConfig = _config.GetUserConfig(User);
             var languages = _fileHelper.GetLanguages();
@@ -96,6 +190,20 @@ namespace CarCareTracker.Controllers
                 UILanguages = languages
             };
             return PartialView("_Settings", viewModel);
+        }
+        public async Task<IActionResult> Sponsors()
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var sponsorsData = await httpClient.GetFromJsonAsync<Sponsors>(StaticHelper.SponsorsPath) ?? new Sponsors();
+                return PartialView("_Sponsors", sponsorsData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve sponsors: {ex.Message}");
+                return PartialView("_Sponsors", new Sponsors());
+            }
         }
         [HttpPost]
         public IActionResult WriteToSettings(UserConfig userConfig)
@@ -116,10 +224,6 @@ namespace CarCareTracker.Controllers
             existingConfig.ReminderUrgencyConfig = reminderUrgencyConfig;
             var result = _config.SaveUserConfig(User, existingConfig);
             return Json(result);
-        }
-        public IActionResult Privacy()
-        {
-            return View();
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult GetExtraFieldsModal(int importMode = 0)
@@ -158,7 +262,8 @@ namespace CarCareTracker.Controllers
                     return Json(result);
                 }
                 return Json(false);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return Json(false);
@@ -175,7 +280,7 @@ namespace CarCareTracker.Controllers
                     var result = _loginLogic.UpdateUserDetails(userId, userAccount);
                     return Json(result);
                 }
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage});
+                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
             }
             catch (Exception ex)
             {
@@ -189,6 +294,267 @@ namespace CarCareTracker.Controllers
             var emailAddress = User.FindFirstValue(ClaimTypes.Email);
             var userName = User.Identity.Name;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetRootAccountInformationModal()
+        {
+            var userName = User.Identity.Name;
+            return PartialView("_RootAccountModal", new UserData() { UserName = userName });
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetTranslatorEditor(string userLanguage)
+        {
+            var translationData = _translationHelper.GetTranslations(userLanguage);
+            return PartialView("_TranslationEditor", translationData);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult SaveTranslation(string userLanguage, Dictionary<string, string> translationData)
+        {
+            var result = _translationHelper.SaveTranslation(userLanguage, translationData);
+            return Json(result);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult ExportTranslation(Dictionary<string, string> translationData)
+        {
+            var result = _translationHelper.ExportTranslation(translationData);
+            return Json(result);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableTranslations()
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
+                return PartialView("_Translations", translations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve translations: {ex.Message}");
+                return PartialView("_Translations", new Translations());
+            }
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> DownloadTranslation(string continent, string name)
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
+                if (translationData.Any())
+                {
+                    var result = _translationHelper.SaveTranslation(name, translationData);
+                    if (!result.Success)
+                    {
+                        return Json(false);
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"Unable to download translation: {name}");
+                    return Json(false);
+                }
+                return Json(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to download translation: {ex.Message}");
+                return Json(false);
+            }
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public async Task<IActionResult> DownloadAllTranslations()
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
+                int translationsDownloaded = 0;
+                foreach (string translation in translations.Asia)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Asia", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success) 
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    } 
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Africa)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Africa", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Europe)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Europe", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.NorthAmerica)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("NorthAmerica", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.SouthAmerica)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("SouthAmerica", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                foreach (string translation in translations.Oceania)
+                {
+                    try
+                    {
+                        var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath("Oceania", translation)) ?? new Dictionary<string, string>();
+                        if (translationData.Any())
+                        {
+                            var result = _translationHelper.SaveTranslation(translation, translationData);
+                            if (result.Success)
+                            {
+                                translationsDownloaded++;
+                            };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error Downloading Translation {translation}: {ex.Message} ");
+                    }
+                }
+                if (translationsDownloaded > 0)
+                {
+                    return Json(new OperationResponse() { Success = true, Message = $"{translationsDownloaded} Translations Downloaded" });
+                } else
+                {
+                    return Json(new OperationResponse() { Success = false, Message = "No Translations Downloaded" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unable to retrieve translations: {ex.Message}");
+                return Json(new OperationResponse() { Success = false, Message = StaticHelper.GenericErrorMessage });
+            }
+        }
+        public ActionResult GetVehicleSelector(int vehicleId)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            if (vehicleId != default)
+            {
+                vehiclesStored.RemoveAll(x => x.Id == vehicleId);
+            }
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            return PartialView("_VehicleSelector", vehiclesStored);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
+        public IActionResult GetCustomWidgetEditor()
+        {
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var customWidgetData = _fileHelper.GetWidgets();
+                return PartialView("_WidgetEditor", customWidgetData);
+            }
+            return Json(string.Empty);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult SaveCustomWidgets(string widgetsData)
+        {
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var saveResult = _fileHelper.SaveWidgets(widgetsData);
+                return Json(saveResult);
+            }
+            return Json(false);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpPost]
+        public IActionResult DeleteCustomWidgets()
+        {
+            if (_config.GetCustomWidgetsEnabled())
+            {
+                var deleteResult = _fileHelper.DeleteWidgets();
+                return Json(deleteResult);
+            }
+            return Json(false);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

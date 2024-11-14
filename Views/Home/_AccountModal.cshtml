@@ -7,18 +7,23 @@
     var userLanguage = userConfig.UserLanguage;
 }
 <div class="modal-header">
-    <h5 class="modal-title" id="addVehicleModalLabel">@translator.Translate(userLanguage, "Update Profile")</h5>
+    <h5 class="modal-title" id="updateAccountModalLabel">@translator.Translate(userLanguage, "Update Profile")</h5>
     <button type="button" class="btn-close" onclick="hideAccountInformationModal()" aria-label="Close"></button>
 </div>
-<div class="modal-body">
+<div class="modal-body" onkeydown="handleEnter(this)">
     <form class="form-inline">
         <div class="form-group">
             <label for="inputUsername">@translator.Translate(userLanguage, "Username")</label>
             <input type="text" id="inputUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Account Username")" value="@Model.UserName">
             <label for="inputEmail">@translator.Translate(userLanguage, "Email Address")</label>
             <input type="text" id="inputEmail" class="form-control" placeholder="@translator.Translate(userLanguage, "Email Address")" value="@Model.EmailAddress">
-            <label for="inputPassword">@translator.Translate(userLanguage, "New Password")</label>
-            <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "New Password")" value="">
+            <label for="inputPassword">@translator.Translate(userLanguage, "New Password")</label>           
+            <div class="input-group">
+                <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "New Password")" value="">
+                <div class="input-group-text">
+                    <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
             <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
             <input type="text" id="inputToken" class="form-control" placeholder="@translator.Translate(userLanguage, "Token")" value="">
             <div class="row">

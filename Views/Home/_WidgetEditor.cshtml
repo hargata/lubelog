@@ -1,0 +1,28 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model string
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="widgetEditorModalLabel">@translator.Translate(userLanguage, "Custom Widgets Editor")</h5>
+    <button type="button" class="btn-close" onclick="hideCustomWidgets()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form class="form-inline">
+        <div class="form-group" style="height:50vh; overflow-x:hidden; overflow-y:auto;">
+            <div class="row">
+                <div class="col-12" style="height:48vh;">
+                    <textarea id="widgetEditor" style="width:100%; height:100%;">@Model</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger me-auto" onclick="deleteCustomWidgets()">@translator.Translate(userLanguage, "Delete")</button>
+    <button type="button" class="btn btn-secondary" onclick="hideCustomWidgets()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" onclick="saveCustomWidgets()">@translator.Translate(userLanguage, "Save")</button>
+</div>

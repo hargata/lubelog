@@ -75,6 +75,7 @@ builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
+builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 
 //Create Folders
 if (!Directory.Exists("data"))
@@ -93,9 +94,9 @@ if (!Directory.Exists(StaticHelper.DocPath))
 {
     Directory.CreateDirectory(StaticHelper.DocPath);
 }
-if (!Directory.Exists(StaticHelper.TranslationPath))
+if (!Directory.Exists(StaticHelper.TranslationFilePath))
 {
-    Directory.CreateDirectory(StaticHelper.TranslationPath);
+    Directory.CreateDirectory(StaticHelper.TranslationFilePath);
 }
 
 //Additional JsonFile

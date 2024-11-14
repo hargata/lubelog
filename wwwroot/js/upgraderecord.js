@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditUpgradeRecordModal(upgradeRecordId) {
+function showEditUpgradeRecordModal(upgradeRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#upgradeRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getUpgradeRecordModelData().id;
+            if (existingId == upgradeRecordId && $('[data-changed=true]').length > 0) {
+                $('#upgradeRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetUpgradeRecordForEditById?upgradeRecordId=${upgradeRecordId}`, function (data) {
         if (data) {
             $("#upgradeRecordModalContent").html(data);
@@ -17,6 +29,7 @@ function showEditUpgradeRecordModal(upgradeRecordId) {
             initDatePicker($('#upgradeRecordDate'));
             initTagSelector($("#upgradeRecordTag"));
             $('#upgradeRecordModal').modal('show');
+            bindModalInputChanges('upgradeRecordModal');
             $('#upgradeRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("upgradeRecordNotes");
@@ -87,6 +100,9 @@ function getAndValidateUpgradeRecordValues() {
     var upgradeRecordId = getUpgradeRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //Odometer Adjustments
+    if (isNaN(upgradeMileage) && GetVehicleId().odometerOptional) {
+        upgradeMileage = '0';
+    }
     upgradeMileage = GetAdjustedOdometer(upgradeRecordId, upgradeMileage);
     //validation
     var hasError = false;
@@ -133,6 +149,7 @@ function getAndValidateUpgradeRecordValues() {
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
-        reminderRecordId: recurringReminderRecordId
+        reminderRecordId: recurringReminderRecordId,
+        copySuppliesAttachment: copySuppliesAttachments
     }
 }

@@ -22,15 +22,46 @@ namespace CarCareTracker.Controllers
         {
             var viewModel = new AdminViewModel
             {
-                Users = _loginLogic.GetAllUsers(),
+                Users = _loginLogic.GetAllUsers().OrderBy(x=>x.Id).ToList(),
                 Tokens = _loginLogic.GetAllTokens()
             };
             return View(viewModel);
         }
+        public IActionResult GetTokenPartialView()
+        {
+            var viewModel = _loginLogic.GetAllTokens();
+            return PartialView("_Tokens", viewModel);
+        }
+        public IActionResult GetUserPartialView()
+        {
+            var viewModel = _loginLogic.GetAllUsers().OrderBy(x => x.Id).ToList();
+            return PartialView("_Users", viewModel);
+        }
         public IActionResult GenerateNewToken(string emailAddress, bool autoNotify)
         {
-            var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
-            return Json(result);
+            if (emailAddress.Contains(","))
+            {
+                string[] emailAddresses = emailAddress.Split(',');
+                foreach(string emailAdd in emailAddresses)
+                {
+                    var trimmedEmail = emailAdd.Trim();
+                    if (!string.IsNullOrWhiteSpace(trimmedEmail))
+                    {
+                        var result = _loginLogic.GenerateUserToken(emailAdd.Trim(), autoNotify);
+                        if (!result.Success)
+                        {
+                            //if fail, return prematurely
+                            return Json(result);
+                        }
+                    }
+                }
+                var successResponse = new OperationResponse { Success = true, Message = "Token Generated!" };
+                return Json(successResponse);
+            } else
+            {
+                var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
+                return Json(result);
+            }
         }
         [HttpPost]
         public IActionResult DeleteToken(int tokenId)

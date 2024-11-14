@@ -13,3 +13,4 @@ CarCareTracker.csproj.user
 Properties/launchSettings.json
 data/cartracker-log.db
 data/
+data/widgets.html
