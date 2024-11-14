@@ -24,7 +24,7 @@
                     </div>
                     <label for="upgradeRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="upgradeRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when upgraded/modded")" value="@(isNew || Model.Mileage == default ? "" : Model.Mileage)">
+                        <input type="text" inputmode="decimal" id="upgradeRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when upgraded/modded")" value="@(isNew || Model.Mileage == default ? "" : Model.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">

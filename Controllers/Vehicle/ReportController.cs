@@ -350,7 +350,7 @@ namespace CarCareTracker.Controllers
             vehicleHistory.ReportParameters = reportParameter;
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleId);
-            vehicleHistory.Odometer = maxMileage.ToString("N0");
+            vehicleHistory.Odometer = maxMileage.ToString("N1");
             var minMileage = _vehicleLogic.GetMinMileage(vehicleId);
             var distanceTraveled = maxMileage - minMileage;
             if (!string.IsNullOrWhiteSpace(vehicleHistory.VehicleData.PurchaseDate))
@@ -364,7 +364,7 @@ namespace CarCareTracker.Controllers
                 try
                 {
                     daysOwned = (DateTime.Parse(endDate) - DateTime.Parse(vehicleHistory.VehicleData.PurchaseDate)).Days;
-                    vehicleHistory.DaysOwned = daysOwned.ToString("N0");
+                    vehicleHistory.DaysOwned = daysOwned.ToString("N1");
                 }
                 catch (Exception ex)
                 {
@@ -401,7 +401,7 @@ namespace CarCareTracker.Controllers
             vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
             if (distanceTraveled != default)
             {
-                vehicleHistory.DistanceTraveled = distanceTraveled.ToString("N0");
+                vehicleHistory.DistanceTraveled = distanceTraveled.ToString("N1");
                 vehicleHistory.TotalCostPerMile = vehicleHistory.TotalCost / distanceTraveled;
                 vehicleHistory.TotalGasCostPerMile = vehicleHistory.TotalGasCost / distanceTraveled;
             }

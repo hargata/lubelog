@@ -88,7 +88,7 @@ function saveGasRecordToVehicle(isEdit) {
 }
 function getAndValidateGasRecordValues() {
     var gasDate = $("#gasRecordDate").val();
-    var gasMileage = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
+    var gasMileage = globalParseFloat($("#gasRecordMileage").val()).toString();
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
     var gasCostType = $("#gasCostType").val();
@@ -468,7 +468,7 @@ function editMultipleGasRecords(ids) {
 function saveMultipleGasRecordsToVehicle() {
     var gasDate = $("#gasRecordDate").val();
     var gasMileage = $("#gasRecordMileage").val();
-    var gasMileageToParse = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
+    var gasMileageToParse = globalParseFloat($("#gasRecordMileage").val()).toString();
     var gasConsumption = $("#gasRecordConsumption").val();
     var gasCost = $("#gasRecordCost").val();
     var gasNotes = $("#gasRecordNotes").val();

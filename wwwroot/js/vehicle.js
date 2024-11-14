@@ -414,7 +414,7 @@ function saveGenericRecord() {
 function getAndValidateGenericRecordValues() {
     var genericDate = $("#genericRecordDate").val();
     var genericMileage = $("#genericRecordMileage").val();
-    var genericMileageToParse = parseInt(globalParseFloat($("#genericRecordMileage").val())).toString();
+    var genericMileageToParse = globalParseFloat($("#genericRecordMileage").val()).toString();
     var genericDescription = $("#genericRecordDescription").val();
     var genericCost = $("#genericRecordCost").val();
     var genericNotes = $("#genericRecordNotes").val();
@@ -458,7 +458,7 @@ function getRecordsDeltaStats(recordIds) {
     var costReadings = [];
     //get all of the odometer readings
     recordIds.map(x => {
-        var odometerReading = parseInt($(`tr[data-rowId='${x}'] td[data-column='odometer']`).text());
+        var odometerReading = globalParseFloat($(`tr[data-rowId='${x}'] td[data-column='odometer']`).text());
         if (!isNaN(odometerReading)) {
             odometerReadings.push(odometerReading);
         }
@@ -505,7 +505,7 @@ function GetAdjustedOdometer(id, odometerInput) {
         return odometerInput;
     }
     //apply odometer adjustments first.
-    var adjustedOdometer = parseInt(odometerInput) + parseInt(GetVehicleId().odometerDifference);
+    var adjustedOdometer = globalParseFloat(odometerInput) + globalParseFloat(GetVehicleId().odometerDifference);
     //apply odometer multiplier.
     adjustedOdometer *= globalParseFloat(GetVehicleId().odometerMultiplier);
     return adjustedOdometer.toFixed(0);
@@ -640,7 +640,7 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
         confirmButtonText: 'Add',
         focusConfirm: false,
         preConfirm: () => {
-            const odometerIncrement = parseInt(globalParseFloat($("#inputOdometerIncrement").val()));
+            const odometerIncrement = globalParseFloat($("#inputOdometerIncrement").val());
             if (isNaN(odometerIncrement) || odometerIncrement <= 0) {
                 Swal.showValidationMessage(`Please enter a non-zero amount to increment`);
             }

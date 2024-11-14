@@ -33,7 +33,7 @@
                         <label class="form-check-label" for="reminderMetricOdometer">@translator.Translate(userLanguage,"Odometer")</label>
                     </div>     
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="reminderMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Future Odometer Reading")" value="@(isNew ? "" : Model.Mileage)">
+                        <input type="text" inputmode="decimal" id="reminderMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Future Odometer Reading")" value="@(isNew ? "" : Model.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">

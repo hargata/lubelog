@@ -143,7 +143,7 @@
                                 }
                             </td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@reportData.Date.ToShortDateString()</td>
-                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N1"))</td>
                             <td class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@reportData.Description</td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
                             <td class="col-4 flex-grow-1 flex-shrink-1 text-wrap text-break @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>

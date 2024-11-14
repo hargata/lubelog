@@ -21,9 +21,9 @@
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
-                    <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <input type="text" inputmode="decimal" id="initialOdometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
-                    <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <input type="text" inputmode="decimal" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="odometerRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
                     <select multiple class="form-select" id="odometerRecordTag"></select>
                     @foreach (ExtraField field in Model.EditRecord.ExtraFields)

@@ -91,8 +91,8 @@ function saveOdometerRecordToVehicle(isEdit) {
 }
 function getAndValidateOdometerRecordValues() {
     var serviceDate = $("#odometerRecordDate").val();
-    var initialOdometerMileage = parseInt(globalParseFloat($("#initialOdometerRecordMileage").val())).toString();
-    var serviceMileage = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
+    var initialOdometerMileage = globalParseFloat($("#initialOdometerRecordMileage").val()).toString();
+    var serviceMileage = globalParseFloat($("#odometerRecordMileage").val()).toString();
     var serviceNotes = $("#odometerRecordNotes").val();
     var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
@@ -166,8 +166,8 @@ function saveMultipleOdometerRecordsToVehicle() {
     var odometerDate = $("#odometerRecordDate").val();
     var initialOdometerMileage = $("#initialOdometerRecordMileage").val();
     var odometerMileage = $("#odometerRecordMileage").val();
-    var initialOdometerMileageToParse = parseInt(globalParseFloat($("#initialOdometerRecordMileage").val())).toString();
-    var odometerMileageToParse = parseInt(globalParseFloat($("#odometerRecordMileage").val())).toString();
+    var initialOdometerMileageToParse = globalParseFloat($("#initialOdometerRecordMileage").val()).toString();
+    var odometerMileageToParse = globalParseFloat($("#odometerRecordMileage").val()).toString();
     var odometerNotes = $("#odometerRecordNotes").val();
     var odometerTags = $("#odometerRecordTag").val();
     var odometerExtraFields = getAndValidateExtraFields();

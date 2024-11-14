@@ -91,7 +91,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
 }
 function getAndValidateUpgradeRecordValues() {
     var upgradeDate = $("#upgradeRecordDate").val();
-    var upgradeMileage = parseInt(globalParseFloat($("#upgradeRecordMileage").val())).toString();
+    var upgradeMileage = globalParseFloat($("#upgradeRecordMileage").val()).toString();
     var upgradeDescription = $("#upgradeRecordDescription").val();
     var upgradeCost = $("#upgradeRecordCost").val();
     var upgradeNotes = $("#upgradeRecordNotes").val();

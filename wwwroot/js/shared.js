@@ -46,7 +46,7 @@ function saveVehicle(isEdit) {
     var vehicleOdometerOptional = $("#inputOdometerOptional").is(":checked");
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
     var vehicleOdometerMultiplier = $("#inputOdometerMultiplier").val();
-    var vehicleOdometerDifference = parseInt(globalParseFloat($("#inputOdometerDifference").val())).toString();
+    var vehicleOdometerDifference = globalParseFloat($("#inputOdometerDifference").val()).toString();
     var vehiclePurchasePrice = $("#inputPurchasePrice").val();
     var vehicleSoldPrice = $("#inputSoldPrice").val();
     var vehicleIdentifier = $("#inputIdentifier").val();

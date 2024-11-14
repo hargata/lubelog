@@ -24,7 +24,7 @@
                     </div>
                     <label for="serviceRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew || Model.Mileage == default ? "" : Model.Mileage)">
+                        <input type="text" inputmode="decimal" id="serviceRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when serviced")" value="@(isNew || Model.Mileage == default ? "" : Model.Mileage)">
                         @if (isNew)
                         {
                             <div class="input-group-text">
