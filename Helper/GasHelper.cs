@@ -57,6 +57,10 @@ namespace CarCareTracker.Helper
                 if (i > 0)
                 {
                     var deltaMileage = currentObject.Mileage - previousMileage;
+                    if (deltaMileage < 0)
+                    {
+                        deltaMileage = 0;
+                    }
                     var gasRecordViewModel = new GasRecordViewModel()
                     {
                         Id = currentObject.Id,

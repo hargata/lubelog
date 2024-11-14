@@ -341,14 +341,14 @@
                 break;
             //COPY EVENT
             case 67:
-                if (event.ctrlKey) {
+                if (event.ctrlKey || event.metaKey) {
                     event.preventDefault();
                     navigator.clipboard.writeText(self.itemsArray.join(" "));
                 }
                 break;
             //PASTE EVENT
             case 86:
-                if (event.ctrlKey) {
+                if (event.ctrlKey || event.metaKey) {
                     setTimeout(function () {
                         var pastedString = $input.val();
                         //clear pasted string.

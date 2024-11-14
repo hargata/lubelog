@@ -20,7 +20,7 @@
                         <tr class="d-flex">
                             <th scope="col" class="col-8">@translator.Translate(userLanguage,"Description")</th>
                             <th scope="col" class="col-2">@translator.Translate(userLanguage, "Use")</th>
-                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Edit")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,7 +39,7 @@
                                     }
                                     @if (planRecordTemplate.Supplies.Any())
                                     {
-                                        <i class="bi bi-shop ms-2"></i>
+                                        <i class="bi bi-shop ms-2" style="cursor:pointer;"onclick="orderPlanSupplies(@planRecordTemplate.Id)"></i>
                                     }
                                     @if (planRecordTemplate.ImportMode == ImportMode.ServiceRecord)
                                     {
@@ -67,7 +67,7 @@
                                     }
                                 </td>
                                 <td class="col-2"><button type="button" class="btn btn-primary" onclick="usePlannerRecordTemplate(@planRecordTemplate.Id)"><i class="bi bi-plus-square"></i></button></td>
-                                <td class="col-2"><button type="button" class="btn btn-danger" onclick="deletePlannerRecordTemplate(@planRecordTemplate.Id)"><i class="bi bi-trash"></i></button></td>
+                                <td class="col-2"><button type="button" class="btn btn-warning" onclick="showEditPlanRecordTemplateModal(@planRecordTemplate.Id)"><i class="bi bi-pencil-square"></i></button></td>
                             </tr>
                         }
                     </tbody>

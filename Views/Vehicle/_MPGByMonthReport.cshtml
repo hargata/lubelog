@@ -1,14 +1,13 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
-@model List<CostForVehicleByMonth>
+@model MPGForVehicleByMonth
 @{
-    var barGraphColors = new string[] { "#00876c", "#43956e", "#67a371", "#89b177", "#a9be80", "#c8cb8b", "#e6d79b", "#e4c281", "#e3ab6b", "#e2925b", "#e07952", "#db5d4f" };
-    var sortedByMPG = Model.OrderByDescending(x => x.Cost).ToList();
+    var barGraphColors = StaticHelper.GetBarChartColors();
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
-@if (Model.Where(x => x.Cost > 0).Any())
+@if (Model.CostData.Any(x => x.Cost > 0))
 {
 
     <canvas id="bar-chart-mpg"></canvas>
@@ -20,11 +19,11 @@
             //color gradient from high to low
             var barGraphColors = [];
             var useDarkMode = getGlobalConfig().useDarkMode;
-        @foreach (CostForVehicleByMonth gasCost in Model)
+        @foreach (CostForVehicleByMonth gasCost in Model.CostData)
         {
             @:barGraphLabels.push(decodeHTMLEntities("@gasCost.MonthName"));
             @:barGraphData.push(globalParseFloat('@gasCost.Cost'));
-            var index = sortedByMPG.FindIndex(x => x.MonthName == gasCost.MonthName);
+            var index = Model.SortedCostData.FindIndex(x => x.MonthName == gasCost.MonthName);
             @:barGraphColors.push('@barGraphColors[index]');
         }
                 new Chart($("#bar-chart-mpg"), {
@@ -44,7 +43,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel Mileage by Month")')
+                                text: decodeHTMLEntities('@($"{translator.Translate(userLanguage, "Fuel Mileage by Month")}({Model.Unit})")')
                             },
                             legend: {
                                 display: false,

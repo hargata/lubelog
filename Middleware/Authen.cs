@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -42,7 +43,7 @@ namespace CarCareTracker.Middleware
                     new(ClaimTypes.Role, nameof(UserData.IsRootUser))
                 };
                 appIdentity.AddClaims(userIdentity);
-                AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
+                AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), Scheme.Name);
                 return AuthenticateResult.Success(ticket);
             }
             else
@@ -59,7 +60,7 @@ namespace CarCareTracker.Middleware
                 {
                     var cleanedHeader = request_header.ToString().Replace("Basic ", "").Trim();
                     byte[] data = Convert.FromBase64String(cleanedHeader);
-                    string decodedString = System.Text.Encoding.UTF8.GetString(data);
+                    string decodedString = Encoding.UTF8.GetString(data);
                     var splitString = decodedString.Split(":");
                     if (splitString.Count() != 2)
                     {
@@ -85,7 +86,7 @@ namespace CarCareTracker.Middleware
                                 userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsRootUser)));
                             }
                             appIdentity.AddClaims(userIdentity);
-                            AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
+                            AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), Scheme.Name);
                             return AuthenticateResult.Success(ticket);
                         }
                     }
@@ -133,7 +134,7 @@ namespace CarCareTracker.Middleware
                                     userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsRootUser)));
                                 }
                                 appIdentity.AddClaims(userIdentity);
-                                AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), this.Scheme.Name);
+                                AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), Scheme.Name);
                                 return AuthenticateResult.Success(ticket);
                             }
                         }

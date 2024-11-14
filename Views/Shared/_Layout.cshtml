@@ -1,17 +1,20 @@
 ﻿@using CarCareTracker.Helper
+@using System.Globalization
 <!DOCTYPE html>
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var useDarkMode = userConfig.UseDarkMode;
+    var useSystemColorMode = userConfig.UseSystemColorMode;
     var enableCsvImports = userConfig.EnableCsvImports;
     var useMPG = userConfig.UseMPG;
     var useMarkDown = userConfig.UseMarkDownOnSavedNotes;
     var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
-    var shortDatePattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
-    var firstDayOfWeek = (int)System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-    var numberFormat = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
+    var automaticDecimalFormat = userConfig.AutomaticDecimalFormat;
+    var shortDatePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    var firstDayOfWeek = (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+    var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
@@ -30,7 +33,7 @@
     <meta name="apple-mobile-web-app-title" content="LubeLogger" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>@ViewData["Title"] - CarCareTracker</title>
+    <title>@ViewData["Title"] - LubeLogger</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" />
@@ -54,7 +57,7 @@
     <script>
         function getGlobalConfig() {
             return {
-                useDarkMode : "@useDarkMode" == "True",
+                useDarkMode: "@useDarkMode" == "True" || ("@useSystemColorMode" == "True" && window.matchMedia('(prefers-color-scheme: dark)').matches),
                 enableCsvImport : "@enableCsvImports" == "True",
                 useMarkDown: "@useMarkDown" == "True",
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
@@ -70,8 +73,8 @@
         }
         function globalParseFloat(input){
             //remove thousands separator.
-            var thousandSeparator = "@numberFormat.NumberGroupSeparator";
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var thousandSeparator = decodeHTMLEntities("@numberFormat.NumberGroupSeparator");
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
             if (input == "---") {
                 input = "0";
@@ -85,12 +88,73 @@
             return parseFloat(input);
         }
         function globalFloatToString(input) {
-            var decimalSeparator = "@numberFormat.NumberDecimalSeparator";
+            var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
             input = input.replace(".", decimalSeparator);
             return input;
         }
+        function fixDecimalInput(input, numOfDecimals) {
+            if ("@automaticDecimalFormat" == "True") {
+                //get the decimal separator.
+                var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
+                var inputText = $(input).val().trim();
+                inputText = inputText.replace(decimalSeparator, '');
+                inputText = +inputText;
+                if (isNaN(inputText)){
+                    return;
+                }
+                inputText = inputText.toString();
+                if (inputText == '') {
+                    return;
+                };
+                //check number of decimals.
+                if (inputText.length <= numOfDecimals) {
+                    //less than number of decimals, assume everything is behind the decimal.
+                    inputText = `0${decimalSeparator}${inputText}`; //add leading zero.
+                    $(input).val(inputText);
+                } else {
+                    //check if leading zero
+                    var charToSlice = numOfDecimals * -1;
+                    var charsBehindDecimal = inputText.slice(charToSlice);
+                    var charsFrontDecimal = inputText.substr(0, inputText.length - numOfDecimals);
+                    inputText = `${charsFrontDecimal}${decimalSeparator}${charsBehindDecimal}`;
+                    $(input).val(inputText);
+                }
+            }
+        }
+        function interceptDecimalKeys(event) {
+            if ("@automaticDecimalFormat" == "True") {
+                if (event.which == 190 || event.which == 188) {
+                    event.preventDefault(); //intercept keys.
+                }
+            }
+        }
         function genericErrorMessage(){
             return decodeHTMLEntities('@translator.Translate(userLanguage, "An error has occurred, please try again later")');
+        }
+        function globalAppendCurrency(input){
+            //check currency symbol position
+            var currencySymbolPosition = "@numberFormat.CurrencyPositivePattern";
+            var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
+            switch (currencySymbolPosition) {
+                case "0":
+                    return `${currencySymbol}${input}`;
+                    break;
+                case "1":
+                    return `${input}${currencySymbol}`;
+                    break;
+                case "2":
+                    return `${currencySymbol} ${input}`;
+                    break;
+                case "3":
+                    return `${input} ${currencySymbol}`;
+                    break;
+            }
+        }
+        function setThemeBasedOnDevice() {
+            var systemPrefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDarkMode) {
+                $(document.documentElement).attr("data-bs-theme", "dark");
+            }
         }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
@@ -103,3 +167,9 @@
     </div>
 </body>
 </html>
+@if (useSystemColorMode)
+{
+    <script>
+        setThemeBasedOnDevice();
+    </script>
+}

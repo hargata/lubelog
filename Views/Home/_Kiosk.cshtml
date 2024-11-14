@@ -1,0 +1,126 @@
+﻿@using CarCareTracker.Helper
+@model List<VehicleInfo>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@if (Model.Any())
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
+        @foreach (VehicleInfo vehicle in Model)
+        {
+            <div class="col" data-vehicleId="@vehicle.VehicleData.Id">
+                <div class="card" onclick="addVehicleToExceptionList(@vehicle.VehicleData.Id)">
+                    <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
+                        <h5 class="card-title">@($"{vehicle.VehicleData.Year} {vehicle.VehicleData.Make} {vehicle.VehicleData.Model} ({StaticHelper.GetVehicleIdentifier(vehicle.VehicleData)})")</h5>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                <p class="display-7">@vehicle.ServiceRecordCount</p>
+                                <p class="lead text-truncate">@translator.Translate(userLanguage, "Service")</p>
+                                <p class="lead text-truncate">@vehicle.ServiceRecordCost.ToString("C0")</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <p class="display-7">@vehicle.RepairRecordCount</p>
+                                <p class="lead text-truncate">@translator.Translate(userLanguage, "Repairs")</p>
+                                <p class="lead text-truncate">@vehicle.RepairRecordCost.ToString("C0")</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <p class="display-7">@vehicle.UpgradeRecordCount</p>
+                                <p class="lead text-truncate">@translator.Translate(userLanguage, "Upgrades")</p>
+                                <p class="lead text-truncate">@vehicle.UpgradeRecordCost.ToString("C0")</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <p class="display-7">@vehicle.GasRecordCount</p>
+                                <p class="lead text-truncate">@translator.Translate(userLanguage, "Fuel")</p>
+                                <p class="lead text-truncate">@vehicle.GasRecordCost.ToString("C0")</p>
+                            </div>
+                        </div>
+                    </div>
+                    @if (vehicle.PastDueReminderCount + vehicle.VeryUrgentReminderCount + vehicle.UrgentReminderCount + vehicle.NotUrgentReminderCount > 0)
+                    {
+                        <hr style="margin:0px;" />
+                        <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
+                            <h5 class="card-title">@translator.Translate(userLanguage, "Reminders")</h5>
+                            <div class="row">
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.PastDueReminderCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Past Due")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.VeryUrgentReminderCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Very Urgent")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.UrgentReminderCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Urgent")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.NotUrgentReminderCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Not Urgent")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (vehicle.NextReminder != null)
+                    {
+                        <hr style="margin:0px;" />
+                        <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
+                            <h5 class="card-title">@translator.Translate(userLanguage, "Upcoming Reminder")</h5>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="display-7">@vehicle.NextReminder.Description</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, StaticHelper.GetTitleCaseReminderUrgency(vehicle.NextReminder.Urgency))</p>
+                                    <div class="row">
+                                        @if (vehicle.NextReminder.Metric == "Date" || vehicle.NextReminder.Metric == "Both")
+                                        {
+                                            <div class="col-6"><i class='bi bi-calendar-event me-2'></i>@vehicle.NextReminder.DueDate</div>
+                                        }
+                                        @if (vehicle.NextReminder.Metric == "Odometer" || vehicle.NextReminder.Metric == "Both")
+                                        {
+                                            <div class="col-6"><i class='bi bi-speedometer me-2'></i>@vehicle.NextReminder.DueOdometer</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (vehicle.PlanRecordBackLogCount + vehicle.PlanRecordInProgressCount + vehicle.PlanRecordTestingCount + vehicle.PlanRecordBackLogCount > 0)
+                    {
+                        <hr style="margin:0px;" />
+                        <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
+                            <h5 class="card-title">@translator.Translate(userLanguage, "Plans")</h5>
+                            <div class="row">
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.PlanRecordBackLogCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Planned")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.PlanRecordInProgressCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Doing")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.PlanRecordTestingCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Testing")</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="display-7">@vehicle.PlanRecordDoneCount</p>
+                                    <p class="lead text-wrap">@translator.Translate(userLanguage, "Done")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="row no-data-message">
+        <div class="col">
+            <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        </div>
+    </div>
+}

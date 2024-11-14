@@ -91,7 +91,7 @@ function generateReminderItem(id, urgency, description) {
         case "PastDue":
             return `<p class="badge text-wrap bg-secondary reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
         case "Urgent":
-            return `<p class="badge text-wrap bg-warning reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
+            return `<p class="badge text-wrap text-bg-warning reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
         case "NotUrgent":
             return `<p class="badge text-wrap bg-success reminder-calendar-item mb-2" onclick='showCalendarReminderModal(${id})'>${encodeHTMLInput(description)}</p>`;
     }
@@ -341,6 +341,47 @@ function showAccountInformationModal() {
         $('#accountInformationModal').modal('show');
     })
 }
+
+function showRootAccountInformationModal() {
+    $.get('/Home/GetRootAccountInformationModal', function (data) {
+        $('#accountInformationModalContent').html(data);
+        $('#accountInformationModal').modal('show');
+    })
+}
+function validateAndSaveRootUserAccount() {
+    var hasError = false;
+    if ($('#inputUsername').val().trim() == '') {
+        $('#inputUsername').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputUsername').removeClass("is-invalid");
+    }
+    if ($('#inputPassword').val().trim() == '') {
+        $('#inputPassword').addClass("is-invalid");
+        hasError = true;
+    } else {
+        $('#inputPassword').removeClass("is-invalid");
+    }
+    if (hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    var userAccountInfo = {
+        userName: $('#inputUsername').val(),
+        password: $('#inputPassword').val()
+    }
+    $.post('/Login/CreateLoginCreds', { credentials: userAccountInfo }, function (data) {
+        if (data) {
+            //hide modal
+            hideAccountInformationModal();
+            successToast('Root Account Updated');
+            performLogOut();
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
 function hideAccountInformationModal() {
     $('#accountInformationModal').modal('hide');
 }

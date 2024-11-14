@@ -1,10 +1,10 @@
-﻿@using CarCareTracker.Helper
-@inject IConfigHelper config
+﻿@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
+@using CarCareTracker.Helper
 @model List<ReminderRecord>
 @if (Model.Count() > 1)
 {
@@ -22,7 +22,7 @@
         }
     } else
     {
-        <!option value="0">No Recurring Reminders Found</!option>
+        <!option value="0">@translator.Translate(userLanguage, "No Recurring Reminders Found")</!option>
     }
 </select>
 <div id="recurringMultipleReminders" style="display:none;">

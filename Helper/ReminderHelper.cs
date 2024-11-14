@@ -4,7 +4,7 @@ namespace CarCareTracker.Helper
 {
     public interface IReminderHelper
     {
-        ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder);
+        ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder, DateTime? currentDate, decimal? currentMileage);
         List<ReminderRecordViewModel> GetReminderRecordViewModels(List<ReminderRecord> reminders, decimal currentMileage, DateTime dateCompare);
     }
     public class ReminderHelper: IReminderHelper
@@ -14,46 +14,48 @@ namespace CarCareTracker.Helper
         {
             _config = config;
         }
-        public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder)
+        public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder, DateTime? currentDate, decimal? currentMileage)
         {
+            var newDate = currentDate ?? existingReminder.Date;
+            var newMileage = currentMileage ?? existingReminder.Mileage;
             if (existingReminder.Metric == ReminderMetric.Both)
             {
                 if (existingReminder.ReminderMonthInterval != ReminderMonthInterval.Other)
                 {
-                    existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+                    existingReminder.Date = newDate.AddMonths((int)existingReminder.ReminderMonthInterval);
                 } else
                 {
-                    existingReminder.Date = existingReminder.Date.AddMonths(existingReminder.CustomMonthInterval);
+                    existingReminder.Date = newDate.Date.AddMonths(existingReminder.CustomMonthInterval);
                 }
                
                 if (existingReminder.ReminderMileageInterval != ReminderMileageInterval.Other)
                 {
-                    existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                    existingReminder.Mileage = newMileage + (int)existingReminder.ReminderMileageInterval;
                 }
                 else
                 {
-                    existingReminder.Mileage += existingReminder.CustomMileageInterval;
+                    existingReminder.Mileage = newMileage + existingReminder.CustomMileageInterval;
                 }
             }
             else if (existingReminder.Metric == ReminderMetric.Odometer)
             {
                 if (existingReminder.ReminderMileageInterval != ReminderMileageInterval.Other)
                 {
-                    existingReminder.Mileage += (int)existingReminder.ReminderMileageInterval;
+                    existingReminder.Mileage = newMileage + (int)existingReminder.ReminderMileageInterval;
                 } else
                 {
-                    existingReminder.Mileage += existingReminder.CustomMileageInterval;
+                    existingReminder.Mileage = newMileage + existingReminder.CustomMileageInterval;
                 }
             }
             else if (existingReminder.Metric == ReminderMetric.Date)
             {
                 if (existingReminder.ReminderMonthInterval != ReminderMonthInterval.Other)
                 {
-                    existingReminder.Date = existingReminder.Date.AddMonths((int)existingReminder.ReminderMonthInterval);
+                    existingReminder.Date = newDate.AddMonths((int)existingReminder.ReminderMonthInterval);
                 }
                 else
                 {
-                    existingReminder.Date = existingReminder.Date.AddMonths(existingReminder.CustomMonthInterval);
+                    existingReminder.Date = newDate.AddMonths(existingReminder.CustomMonthInterval);
                 }
             }
             return existingReminder;
@@ -64,6 +66,10 @@ namespace CarCareTracker.Helper
             var reminderUrgencyConfig = _config.GetReminderUrgencyConfig();
             foreach (var reminder in reminders)
             {
+                if (reminder.UseCustomThresholds)
+                {
+                    reminderUrgencyConfig = reminder.CustomThresholds;
+                }
                 var reminderViewModel = new ReminderRecordViewModel()
                 {
                     Id = reminder.Id,
@@ -73,7 +79,8 @@ namespace CarCareTracker.Helper
                     Description = reminder.Description,
                     Notes = reminder.Notes,
                     Metric = reminder.Metric,
-                    IsRecurring = reminder.IsRecurring
+                    IsRecurring = reminder.IsRecurring,
+                    Tags = reminder.Tags
                 };
                 if (reminder.Metric == ReminderMetric.Both)
                 {

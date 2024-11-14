@@ -1,12 +1,12 @@
-﻿@using CarCareTracker.Helper
-@{
-    ViewData["Title"] = "Admin";
+﻿@{
+    ViewData["Title"] = "Database Migration";
 }
 @inject IConfiguration config;
 @inject ITranslationHelper translator
 @{
     var userLanguage = config[nameof(UserConfig.UserLanguage)] ?? "en_US";
 }
+@using CarCareTracker.Helper
 @model AdminViewModel
 <div class="container">
     <div class="row">
@@ -21,9 +21,9 @@
     <div class="row">
         <div class="col-12">
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">Instructions</li>
-                <li class="list-group-item">Use this tool to migrate data between LiteDB and Postgres</li>
-                <li class="list-group-item">Note that it is recommended that the Postgres DB is empty when importing from LiteDB to prevent primary key errors.</li>
+                <li class="list-group-item">@translator.Translate(userLanguage, "Instructions")</li>
+                <li class="list-group-item">@translator.Translate(userLanguage, "Use this tool to migrate data between LiteDB and Postgres")</li>
+                <li class="list-group-item">@translator.Translate(userLanguage, "Note that it is recommended that the Postgres DB is empty when importing from LiteDB to prevent primary key errors.")</li>
             </ul>
         </div>
     </div>
@@ -83,6 +83,6 @@
         });
     }
     function importToPostgres() {
-        $("#inputImport").click();
+        $("#inputImport").trigger('click');
     }
 </script>

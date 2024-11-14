@@ -1,0 +1,71 @@
+﻿@using CarCareTracker.Helper
+@model Sponsors
+@inject ITranslationHelper translator
+@inject IConfigHelper config
+@{
+    var userConfig = config.GetUserConfig(User);
+    var enableAuth = userConfig.EnableAuth;
+    var userLanguage = userConfig.UserLanguage;
+}
+    <div class="d-flex justify-content-center">
+        <h6 class="display-6 mt-2">@translator.Translate(userLanguage, "Sponsors")</h6>
+    </div>
+    <hr />
+    <div class="col-12">
+        <div class="d-flex justify-content-center">
+            <p><a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://docs.lubelogger.com/Misc/Funding" target="_blank">Become a Sponsor</a></p>
+        </div>
+    </div>
+    @if (Model.LifeTime.Any())
+    {
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <h6 class="display-7 mt-2">Lifetime</h6>
+            </div>
+            <div class="d-flex justify-content-center">
+                <p class="lead">
+                    @string.Join(", ", Model.LifeTime)
+                </p>
+            </div>
+        </div>
+    }
+    @if (Model.Gold.Any())
+    {
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <h6 class="display-7 mt-2">Gold</h6>
+            </div>
+            <div class="d-flex justify-content-center">
+                <p class="lead">
+                    @string.Join(", ", Model.Gold)
+                </p>
+            </div>
+        </div>
+    }
+    @if (Model.Silver.Any())
+    {
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <h6 class="display-7 mt-2">Silver</h6>
+            </div>
+            <div class="d-flex justify-content-center">
+                <p class="lead">
+                    @string.Join(", ", Model.Silver)
+                </p>
+            </div>
+        </div>
+    }
+    @if (Model.Bronze.Any())
+    {
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <h6 class="display-7 mt-2">Bronze</h6>
+            </div>
+            <div class="d-flex justify-content-center">
+                <p class="lead">
+                    @string.Join(", ", Model.Bronze)
+                </p>
+            </div>
+        </div>
+    }
+

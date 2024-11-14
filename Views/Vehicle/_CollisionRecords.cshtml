@@ -101,20 +101,20 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1 flex-grow-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1" data-column="description">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="cost" onclick="toggleSort('accident-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('accident-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -122,11 +122,11 @@
                 @foreach (CollisionRecord collisionRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@collisionRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditCollisionRecordModal,@collisionRecord.Id)" data-tags='@string.Join(" ", collisionRecord.Tags)'>
-                        <td class="col-2 col-xl-1 flex-grow-1" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(collisionRecord.Date)">@collisionRecord.Date.ToShortDateString()</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="odometer">@collisionRecord.Mileage</td>
-                        <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1" data-column="description">@collisionRecord.Description</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="cost" data-record-type="cost">@((hideZero && collisionRecord.Cost == default) ? "---" : collisionRecord.Cost.ToString("C"))</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
+                        <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(collisionRecord.Date)">@collisionRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(collisionRecord.Mileage == default ? "---" : collisionRecord.Mileage.ToString())</td>
+                        <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@collisionRecord.Description</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && collisionRecord.Cost == default) ? "---" : collisionRecord.Cost.ToString("C"))</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -134,7 +134,7 @@
                                     var extraFieldValue = collisionRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {
@@ -145,13 +145,18 @@
                         }
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 
-<div class="modal fade" data-bs-focus="false" id="collisionRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="collisionRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'collisionRecordFiles')">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="collisionRecordModalContent">
         </div>
@@ -168,6 +173,7 @@
     <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'UpgradeRecord')">@translator.Translate(userLanguage, "Upgrades")</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
     <li><hr class="context-menu-active-multiple dropdown-divider"></li>
     <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="getRecordsDeltaStats(selectedRow)">@translator.Translate(userLanguage, "Statistics")</a></li>

@@ -113,22 +113,22 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 flex-grow-1 col-xl-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="partnumber">@translator.Translate(userLanguage, "Part #")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="supplier">@translator.Translate(userLanguage, "Supplier")</th>
-                    <th scope="col" class="col-2 flex-grow-1 col-xl-3" data-column="description">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="quantity" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Quantity")</th>
-                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1" data-column="cost" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="partnumber">@translator.Translate(userLanguage, "Part #")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@translator.Translate(userLanguage, "Supplier")</th>
+                    <th scope="col" class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Quantity")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('supply-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -136,13 +136,13 @@
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
-                        <td class="col-2 flex-grow-1 col-xl-1" data-column="date">@supplyRecord.Date.ToShortDateString()</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="partnumber">@supplyRecord.PartNumber</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="supplier">@supplyRecord.PartSupplier</td>
-                        <td class="col-2 flex-grow-1 col-xl-3" data-column="description">@supplyRecord.Description</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1" data-column="quantity">@supplyRecord.Quantity</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
+                        <td class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@supplyRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="partnumber">@supplyRecord.PartNumber</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@supplyRecord.PartSupplier</td>
+                        <td class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -150,7 +150,7 @@
                                     var extraFieldValue = supplyRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {
@@ -161,13 +161,18 @@
                         }
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 
-<div class="modal fade" data-bs-focus="false" id="supplyRecordModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" data-bs-focus="false" id="supplyRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'supplyRecordFiles')">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="supplyRecordModalContent">
         </div>
@@ -179,6 +184,7 @@
     <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
 @if (userColumnPreferences.Any())

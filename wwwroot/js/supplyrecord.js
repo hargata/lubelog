@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditSupplyRecordModal(supplyRecordId) {
+function showEditSupplyRecordModal(supplyRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#supplyRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getSupplyRecordModelData().id;
+            if (existingId == supplyRecordId && $('[data-changed=true]').length > 0) {
+                $('#supplyRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetSupplyRecordForEditById?supplyRecordId=${supplyRecordId}`, function (data) {
         if (data) {
             $("#supplyRecordModalContent").html(data);
@@ -17,6 +29,7 @@ function showEditSupplyRecordModal(supplyRecordId) {
             initDatePicker($('#supplyRecordDate'));
             initTagSelector($("#supplyRecordTag"));
             $('#supplyRecordModal').modal('show');
+            bindModalInputChanges('supplyRecordModal');
             $('#supplyRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("supplyRecordNotes");

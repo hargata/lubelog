@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditTaxRecordModal(taxRecordId) {
+function showEditTaxRecordModal(taxRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#taxRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getTaxRecordModelData().id;
+            if (existingId == taxRecordId && $('[data-changed=true]').length > 0) {
+                $('#taxRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetTaxRecordForEditById?taxRecordId=${taxRecordId}`, function (data) {
         if (data) {
             $("#taxRecordModalContent").html(data);
@@ -17,6 +29,7 @@ function showEditTaxRecordModal(taxRecordId) {
             initDatePicker($('#taxRecordDate'));
             initTagSelector($("#taxRecordTag"));
             $('#taxRecordModal').modal('show');
+            bindModalInputChanges('taxRecordModal');
             $('#taxRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("taxRecordNotes");
@@ -91,7 +104,7 @@ function checkCustomMonthIntervalForTax() {
         Swal.fire({
             title: 'Specify Custom Month Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months">
+                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,

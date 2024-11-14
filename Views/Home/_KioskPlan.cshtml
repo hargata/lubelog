@@ -1,0 +1,86 @@
+﻿@using CarCareTracker.Helper
+@model List<PlanRecord>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@if (Model.Any())
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
+        @foreach (PlanRecord plan in Model)
+        {
+            <div class="col" onclick="togglePlanDetails(this)">
+                <div class="card @StaticHelper.GetPlanRecordColor(plan.Priority)">
+                    <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
+                        <h5 class="card-title">@plan.Description</h5>
+                        <div class="row">
+                            <div class="col-12">
+                                <p class="display-7 d-none reminder-note" style="white-space: pre-wrap">@plan.Notes</p>
+                                <p class="lead text-wrap">@translator.Translate(userLanguage, StaticHelper.GetPlanRecordProgress(plan.Progress))</p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        @if (plan.ImportMode == ImportMode.ServiceRecord)
+                                        {
+                                            <span class="lead">@translator.Translate(userLanguage, "Service")</span>
+                                        }
+                                        else if (plan.ImportMode == ImportMode.UpgradeRecord)
+                                        {
+                                            <span class="lead">@translator.Translate(userLanguage, "Repairs")</span>
+                                        }
+                                        else if (plan.ImportMode == ImportMode.RepairRecord)
+                                        {
+                                            <span class="lead">@translator.Translate(userLanguage, "Upgrades")</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (plan.RequisitionHistory.Any())
+                    {
+                        <ul class="list-group list-group-flush plan-supplies d-none">
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Part Number")
+                                    </div>
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Description")
+                                    </div>
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Quantity")
+                                    </div>
+                                </div>
+                            </li>
+                            @foreach (SupplyUsageHistory supply in plan.RequisitionHistory)
+                            {
+                                <li class="list-group-item plan-supply">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            @supply.PartNumber
+                                        </div>
+                                        <div class="col-4">
+                                            @supply.Description
+                                        </div>
+                                        <div class="col-4">
+                                            @supply.Quantity
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+} else
+{
+    <div class="row no-data-message">
+        <div class="col">
+            <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        </div>
+    </div>
+}

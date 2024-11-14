@@ -9,7 +9,19 @@
         }
     });
 }
-function showEditCollisionRecordModal(collisionRecordId) {
+function showEditCollisionRecordModal(collisionRecordId, nocache) {
+    if (!nocache) {
+        var existingContent = $("#collisionRecordModalContent").html();
+        if (existingContent.trim() != '') {
+            //check if id is same.
+            var existingId = getCollisionRecordModelData().id;
+            if (existingId == collisionRecordId && $('[data-changed=true]').length > 0) {
+                $('#collisionRecordModal').modal('show');
+                $('.cached-banner').show();
+                return;
+            }
+        }
+    }
     $.get(`/Vehicle/GetCollisionRecordForEditById?collisionRecordId=${collisionRecordId}`, function (data) {
         if (data) {
             $("#collisionRecordModalContent").html(data);
@@ -17,6 +29,7 @@ function showEditCollisionRecordModal(collisionRecordId) {
             initDatePicker($('#collisionRecordDate'));
             initTagSelector($("#collisionRecordTag"));
             $('#collisionRecordModal').modal('show');
+            bindModalInputChanges('collisionRecordModal');
             $('#collisionRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
                 if (getGlobalConfig().useMarkDown) {
                     toggleMarkDownOverlay("collisionRecordNotes");
@@ -87,6 +100,9 @@ function getAndValidateCollisionRecordValues() {
     var collisionRecordId = getCollisionRecordModelData().id;
     var addReminderRecord = $("#addReminderCheck").is(":checked");
     //Odometer Adjustments
+    if (isNaN(collisionMileage) && GetVehicleId().odometerOptional) {
+        collisionMileage = '0';
+    }
     collisionMileage = GetAdjustedOdometer(collisionRecordId, collisionMileage);
     //validation
     var hasError = false;
@@ -133,6 +149,7 @@ function getAndValidateCollisionRecordValues() {
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
-        reminderRecordId: recurringReminderRecordId
+        reminderRecordId: recurringReminderRecordId,
+        copySuppliesAttachment: copySuppliesAttachments
     }
 }

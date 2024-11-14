@@ -1,0 +1,31 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model UserData
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="updateRootAccountModalLabel">@translator.Translate(userLanguage, "Update Profile")</h5>
+    <button type="button" class="btn-close" onclick="hideAccountInformationModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="inputUsername">@translator.Translate(userLanguage, "Username")</label>
+            <input type="text" id="inputUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Account Username")" value="@Model.UserName">
+            <label for="inputPassword">@translator.Translate(userLanguage, "Password")</label>
+            <div class="input-group">
+                <input type="password" id="inputPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Password")" value="">
+                <div class="input-group-text">
+                    <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAccountInformationModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" onclick="validateAndSaveRootUserAccount()" class="btn btn-primary">@translator.Translate(userLanguage, "Update")</button>
+</div>

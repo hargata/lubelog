@@ -33,10 +33,12 @@
                 $('#upgradeRecordCost').val(selectedSupplyResult.totalSum);
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordCost').val(selectedSupplyResult.totalSum);
                 break;
         }
         selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
+        copySuppliesAttachments = $("#inputCopySuppliesAttachments").is(':checked');
         hideSuppliesModal();
     }
     function hideParentModal(){
@@ -52,6 +54,7 @@
                 $('#upgradeRecordModal').modal('hide');
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordModal').modal('hide');
                 break;
         }
@@ -69,6 +72,7 @@
                 $('#upgradeRecordModal').modal('show');
                 break;
             case "PlanRecord":
+            case "PlanRecordTemplate":
                 $('#planRecordModal').modal('show');
                 break;
         }
@@ -82,14 +86,30 @@
         }
     }
     function getSupplies() {
-        var vehicleId = GetVehicleId().vehicleId;
-        $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
-            if (data) {
-                hideParentModal();
-                $("#inputSuppliesModalContent").html(data);
-                $('#inputSuppliesModal').modal('show');
-            }
-        })
+        var caller = GetCaller().tab;
+        if (caller == 'PlanRecordTemplate') {
+            var planRecordTemplateId = getPlanRecordModelData().id;
+            $.get(`/Vehicle/GetSupplyRecordsForPlanRecordTemplate?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                    recalculateTotal();
+                    if (copySuppliesAttachments) {
+                        $('#inputCopySuppliesAttachments').attr('checked', true);
+                    }
+                }
+            });
+        } else {
+            var vehicleId = GetVehicleId().vehicleId;
+            $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                }
+            });
+        }
     }
     function hideSuppliesModal() {
         $('#inputSuppliesModal').modal('hide');
