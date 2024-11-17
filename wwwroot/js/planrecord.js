@@ -270,10 +270,10 @@ function dragOver(event) {
     event.preventDefault();
 }
 function dropBox(event, newProgress) {
-    if ($(event.target).hasClass("swimlane")) {
-        if (dragged.parentElement != event.target && event.target != dragged) {
-            updatePlanRecordProgress(newProgress);
-        }
+    var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
+    var draggedSwimLane = $(dragged).parents(".swimlane")[0];
+    if (targetSwimLane != draggedSwimLane) {
+        updatePlanRecordProgress(newProgress);
     }
     event.preventDefault();
 }
