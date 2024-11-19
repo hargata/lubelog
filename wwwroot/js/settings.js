@@ -57,6 +57,7 @@ function updateSettings() {
         automaticDecimalFormat: $("#automaticDecimalFormat").is(":checked"),
         useUKMpg: $("#useUKMPG").is(":checked"),
         useThreeDecimalGasCost: $("#useThreeDecimal").is(":checked"),
+        useThreeDecimalGasConsumption: $("#useThreeDecimalGasConsumption").is(":checked"),
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),

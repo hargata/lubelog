@@ -13,6 +13,7 @@
         public bool HideZero { get; set; }
         public bool UseUKMPG {get;set;}
         public bool UseThreeDecimalGasCost { get; set; }
+        public bool UseThreeDecimalGasConsumption { get; set; }
         public bool UseMarkDownOnSavedNotes { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
