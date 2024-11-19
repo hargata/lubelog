@@ -9,7 +9,7 @@ namespace CarCareTracker.Models
     }
     public class OperationResponse: OperationResponseBase
     {
-        public static OperationResponse Succeed(string message)
+        public static OperationResponse Succeed(string message = "")
         {
             return new OperationResponse { Success = true, Message = message };
         }
@@ -20,6 +20,14 @@ namespace CarCareTracker.Models
                 message = StaticHelper.GenericErrorMessage;
             }
             return new OperationResponse { Success = false, Message = message};
+        }
+        public static OperationResponse Conditional(bool result, string successMessage = "", string errorMessage = "")
+        {
+            if (string.IsNullOrWhiteSpace(errorMessage))
+            {
+                errorMessage = StaticHelper.GenericErrorMessage;
+            }
+            return new OperationResponse { Success = result, Message = result ? successMessage : errorMessage };
         }
     }    
 }

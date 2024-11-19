@@ -41,7 +41,7 @@ namespace CarCareTracker.Controllers
             if (!string.IsNullOrWhiteSpace(uploadedFilePath))
             {
                 var result = _fileHelper.RenameFile(uploadedFilePath, originalFileName);
-                return Json(new OperationResponse { Success = result, Message = string.Empty });
+                return Json(OperationResponse.Conditional(result));
             }
             return Json(OperationResponse.Failed());
         }

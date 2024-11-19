@@ -191,7 +191,7 @@ namespace CarCareTracker.Controllers
                         return Json(OperationResponse.Failed("Both vehicles already have identical collaborators"));
                     }
                 }
-                return Json(new OperationResponse { Success = true, Message = "Collaborators Copied" });
+                return Json(OperationResponse.Succeed("Collaborators Copied"));
             }
             catch (Exception ex)
             {

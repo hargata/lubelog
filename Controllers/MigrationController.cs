@@ -419,7 +419,7 @@ namespace CarCareTracker.Controllers
                 #endregion
                 var destFilePath = $"{fullFolderPath}.zip";
                 ZipFile.CreateFromDirectory(fullFolderPath, destFilePath);
-                return Json(new OperationResponse { Success = true, Message = $"/{tempFolder}.zip" });
+                return Json(OperationResponse.Succeed($"/{tempFolder}.zip"));
             }
             catch (Exception ex)
             {
@@ -744,7 +744,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 #endregion
-                return Json(new OperationResponse { Success = true, Message = "Data Imported Successfully" });
+                return Json(OperationResponse.Succeed("Data Imported Successfully"));
             }
             catch (Exception ex)
             {

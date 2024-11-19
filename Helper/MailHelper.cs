@@ -41,7 +41,7 @@ namespace CarCareTracker.Helper
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return OperationResponse.Succeed("Email Sent!");
             } else
             {
                 return OperationResponse.Failed();
@@ -62,7 +62,7 @@ namespace CarCareTracker.Helper
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return OperationResponse.Succeed("Email Sent!");
             }
             else
             {
@@ -84,7 +84,7 @@ namespace CarCareTracker.Helper
             var result = SendEmail(new List<string> { emailAddress}, emailSubject, emailBody);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Email Sent!" };
+                return OperationResponse.Succeed("Email Sent!");
             }
             else
             {
@@ -123,7 +123,7 @@ namespace CarCareTracker.Helper
                 var result = SendEmail(emailAddresses, emailSubject, emailBody);
                 if (result)
                 {
-                    return new OperationResponse { Success = true, Message = "Email Sent!" };
+                    return OperationResponse.Succeed("Email Sent!");
                 } else
                 {
                     return OperationResponse.Failed();

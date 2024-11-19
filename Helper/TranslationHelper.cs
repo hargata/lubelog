@@ -159,7 +159,7 @@ namespace CarCareTracker.Helper
                     //write to file
                     File.WriteAllText(translationFilePath, JsonSerializer.Serialize(translations));
                 }
-                return new OperationResponse { Success = true, Message = "Translation Updated" };
+                return OperationResponse.Succeed("Translation Updated");
             }
             catch (Exception ex)
             {
