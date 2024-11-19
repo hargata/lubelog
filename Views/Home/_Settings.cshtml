@@ -37,13 +37,15 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
             <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
         </div>
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideZero" checked="@Model.UserConfig.HideZero">
-            <label class="form-check-label" for="hideZero">@translator.Translate(userLanguage, "Replace $0.00 Costs with ---")</label>
-        </div>
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="automaticDecimalFormat" checked="@Model.UserConfig.AutomaticDecimalFormat">
-            <label class="form-check-label" for="automaticDecimalFormat">@translator.Translate(userLanguage, "Automatically Format Decimal Inputs")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideZero" checked="@Model.UserConfig.HideZero">
+                <label class="form-check-label" for="hideZero">@translator.Translate(userLanguage, "Replace $0.00 Costs with ---")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="automaticDecimalFormat" checked="@Model.UserConfig.AutomaticDecimalFormat">
+                <label class="form-check-label" for="automaticDecimalFormat">@translator.Translate(userLanguage, "Automatically Format Decimal Inputs")</label>
+            </div>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimal" checked="@Model.UserConfig.UseThreeDecimalGasCost">
@@ -69,13 +71,15 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
             <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Enabling this may cause performance issues")</small></label>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideSoldVehicles" checked="@Model.UserConfig.HideSoldVehicles">
-            <label class="form-check-label" for="hideSoldVehicles">@translator.Translate(userLanguage, "Hide Sold Vehicles")</label>
-        </div>
-        <div class="form-check form-switch @(User.IsInRole(nameof(UserData.IsRootUser)) ? "" : "d-none")">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
-            <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideSoldVehicles" checked="@Model.UserConfig.HideSoldVehicles">
+                <label class="form-check-label" for="hideSoldVehicles">@translator.Translate(userLanguage, "Hide Sold Vehicles")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline @(User.IsInRole(nameof(UserData.IsRootUser)) ? "" : "d-none")">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
+                <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
+            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
