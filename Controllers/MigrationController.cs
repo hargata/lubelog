@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
+                return Json(OperationResponse.Failed("Postgres connection not set up"));
             }
             var tempFolder = $"temp/{Guid.NewGuid()}";
             var tempPath = $"{tempFolder}/cartracker.db";
@@ -424,19 +424,19 @@ namespace CarCareTracker.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(OperationResponse.Failed());
             }
         }
         public IActionResult Import(string fileName)
         {
             if (string.IsNullOrWhiteSpace(_configHelper.GetServerPostgresConnection()))
             {
-                return Json(new OperationResponse { Success = false, Message = "Postgres connection not set up" });
+                return Json(OperationResponse.Failed("Postgres connection not set up"));
             }
             var fullFileName = _fileHelper.GetFullFilePath(fileName);
             if (string.IsNullOrWhiteSpace(fullFileName))
             {
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(OperationResponse.Failed());
             }
             try
             {
@@ -749,7 +749,7 @@ namespace CarCareTracker.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(OperationResponse.Failed());
             }
         }
     }

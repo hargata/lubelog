@@ -42,6 +42,7 @@
     function deleteCollaborator(userId, vehicleId) {
         $.post('/Vehicle/DeleteCollaboratorFromVehicle', {userId: userId, vehicleId: vehicleId}, function(data){
             if (data) {
+                successToast('Collaborator Removed');
                 refreshCollaborators();
             } else {
                 errorToast(genericErrorMessage());
@@ -68,6 +69,7 @@
                 var vehicleId = GetVehicleId().vehicleId;
                 $.post('/Vehicle/AddCollaboratorsToVehicle', { username: result.value.userName, vehicleId: vehicleId }, function (data) {
                     if (data.success) {
+                        successToast(data.message);
                         refreshCollaborators();
                     } else {
                         errorToast(data.message)
