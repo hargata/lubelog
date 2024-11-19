@@ -25,10 +25,28 @@ function getAndValidateSelectedColumns() {
         }
     }
 }
+function getSavedReportParameters() {
+    var vehicleId = GetVehicleId().vehicleId;
+    var selectedReportColumns = sessionStorage.getItem(`${vehicleId}_selectedReportColumns`);
+    if (selectedReportColumns != null) {
+        selectedReportColumns = JSON.parse(selectedReportColumns);
+        //unselected everything
+        $(".column-extrafield").prop('checked', false);
+        $(".column-default").prop('checked', false);
+        //load selected checkboxes
+        selectedReportColumns.extraFields.map(x => {
+            $(`[value='${x}'].column-extrafield`).prop('checked', true);
+        })
+        selectedReportColumns.visibleColumns.map(x => {
+            $(`[value='${x}'].column-default`).prop('checked', true);
+        })
+    }
+}
 function generateVehicleHistoryReport() {
+    var vehicleId = GetVehicleId().vehicleId;
     $.get(`/Vehicle/GetReportParameters`, function (data) {
         if (data) {
-            //prompt user to select a vehicle
+            //prompt user to select columns
             Swal.fire({
                 title: 'Select Columns',
                 html: data,
@@ -42,9 +60,14 @@ function generateVehicleHistoryReport() {
                     }
                     return { selectedColumnsData }
                 },
+                didOpen: () => {
+                    getSavedReportParameters();
+                }
             }).then(function (result) {
                 if (result.isConfirmed) {
-                    var vehicleId = GetVehicleId().vehicleId;
+                    //save params in sessionStorage
+                    sessionStorage.setItem(`${vehicleId}_selectedReportColumns`, JSON.stringify(result.value.selectedColumnsData));
+                    //post params
                     $.post(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, {
                         reportParameter: result.value.selectedColumnsData
                     }, function (data) {
@@ -86,14 +109,16 @@ function setSelectedMetrics() {
     });
     var yearMetric = $('#yearOption').val();
     var reminderMetric = $("#reminderOption").val();
-    sessionStorage.setItem("selectedMetricCheckBoxes", JSON.stringify(selectedMetricCheckBoxes));
-    sessionStorage.setItem("yearMetric", yearMetric);
-    sessionStorage.setItem("reminderMetric", reminderMetric);
+    var vehicleId = GetVehicleId().vehicleId;
+    sessionStorage.setItem(`${vehicleId}_selectedMetricCheckBoxes`, JSON.stringify(selectedMetricCheckBoxes));
+    sessionStorage.setItem(`${vehicleId}_yearMetric`, yearMetric);
+    sessionStorage.setItem(`${vehicleId}_reminderMetric`, reminderMetric);
 }
 function getSelectedMetrics() {
-    var selectedMetricCheckBoxes = sessionStorage.getItem("selectedMetricCheckBoxes");
-    var yearMetric = sessionStorage.getItem("yearMetric");
-    var reminderMetric = sessionStorage.getItem("reminderMetric");
+    var vehicleId = GetVehicleId().vehicleId;
+    var selectedMetricCheckBoxes = sessionStorage.getItem(`${vehicleId}_selectedMetricCheckBoxes`);
+    var yearMetric = sessionStorage.getItem(`${vehicleId}_yearMetric`);
+    var reminderMetric = sessionStorage.getItem(`${vehicleId}_reminderMetric`);
     if (selectedMetricCheckBoxes != null && yearMetric != null && reminderMetric != null) {
         selectedMetricCheckBoxes = JSON.parse(selectedMetricCheckBoxes);
         $(".reportCheckBox").prop('checked', false);
