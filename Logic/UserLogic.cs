@@ -51,16 +51,16 @@ namespace CarCareTracker.Logic
                 var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(existingUser.Id, vehicleId);
                 if (userAccess != null)
                 {
-                    return new OperationResponse { Success = false, Message = "User is already a collaborator" };
+                    return OperationResponse.Failed("User is already a collaborator");
                 }
                 var result = AddUserAccessToVehicle(existingUser.Id, vehicleId);
                 if (result)
                 {
-                    return new OperationResponse { Success = true, Message = "Collaborator Added" };
+                    return OperationResponse.Succeed("Collaborator Added");
                 }
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return OperationResponse.Failed();
             }
-            return new OperationResponse { Success = false, Message = $"Unable to find user {username} in the system" };
+            return OperationResponse.Failed($"Unable to find user {username} in the system");
         }
         public bool DeleteCollaboratorFromVehicle(int userId, int vehicleId)
         {

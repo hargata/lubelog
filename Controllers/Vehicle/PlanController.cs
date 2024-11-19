@@ -47,7 +47,7 @@ namespace CarCareTracker.Controllers
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
             if (planRecord.Id == default && existingRecord)
             {
-                return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
+                return Json(OperationResponse.Failed("A template with that description already exists for this vehicle"));
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
@@ -72,7 +72,7 @@ namespace CarCareTracker.Controllers
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
             if (existingRecord.Id == default)
             {
-                return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
+                return Json(OperationResponse.Failed("Unable to find template"));
             }
             if (existingRecord.Supplies.Any())
             {
@@ -81,7 +81,7 @@ namespace CarCareTracker.Controllers
             } 
             else
             {
-                return Json(new OperationResponse { Success = false, Message = "Template has No Supplies" });
+                return Json(OperationResponse.Failed("Template has No Supplies"));
             }
         }
         [HttpPost]
@@ -90,7 +90,7 @@ namespace CarCareTracker.Controllers
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
             if (existingRecord.Id == default)
             {
-                return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
+                return Json(OperationResponse.Failed("Unable to find template"));
             }
             if (existingRecord.Supplies.Any())
             {
@@ -98,11 +98,11 @@ namespace CarCareTracker.Controllers
                 var supplyAvailability = CheckSupplyRecordsAvailability(existingRecord.Supplies);
                 if (supplyAvailability.Any(x => x.Missing))
                 {
-                    return Json(new OperationResponse { Success = false, Message = "Missing Supplies, Please Delete This Template and Recreate It." });
+                    return Json(OperationResponse.Failed("Missing Supplies, Please Delete This Template and Recreate It."));
                 }
                 else if (supplyAvailability.Any(x => x.Insufficient))
                 {
-                    return Json(new OperationResponse { Success = false, Message = "Insufficient Supplies" });
+                    return Json(OperationResponse.Failed("Insufficient Supplies"));
                 }
             }
             if (existingRecord.ReminderRecordId != default)
@@ -111,7 +111,7 @@ namespace CarCareTracker.Controllers
                 var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
                 if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
                 {
-                    return Json(new OperationResponse { Success = false, Message = "Missing or Non-recurring Reminder, Please Delete This Template and Recreate It." });
+                    return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Please Delete This Template and Recreate It."));
                 }
             }
             //populate createdDate

@@ -130,15 +130,15 @@ namespace CarCareTracker.Helper
             bool isDefaultLanguage = userLanguage == "en_US";
             if (isDefaultLanguage && !create)
             {
-                return new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." };
+                return OperationResponse.Failed("The translation file name en_US is reserved.");
             }
             if (string.IsNullOrWhiteSpace(userLanguage))
             {
-                return new OperationResponse { Success = false, Message = "File name is not provided." };
+                return OperationResponse.Failed("File name is not provided.");
             }
             if (!translations.Any())
             {
-                return new OperationResponse { Success = false, Message = "Translation has no data." };
+                return OperationResponse.Failed("Translation has no data.");
             }
             var translationFilePath = isDefaultLanguage ? _fileHelper.GetFullFilePath($"/defaults/en_US.json") : _fileHelper.GetFullFilePath($"/translations/{userLanguage}.json", false);
             try
@@ -164,7 +164,7 @@ namespace CarCareTracker.Helper
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage };
+                return OperationResponse.Failed();
             }
         }
         public string ExportTranslation(Dictionary<string, string> translations)

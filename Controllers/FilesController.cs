@@ -32,7 +32,7 @@ namespace CarCareTracker.Controllers
             var originalFileName = Path.GetFileNameWithoutExtension(file.FileName);
             if (originalFileName == "en_US")
             {
-                return Json(new OperationResponse { Success = false, Message = "The translation file name en_US is reserved." });
+                return Json(OperationResponse.Failed("The translation file name en_US is reserved."));
             }
             var fileName = UploadFile(file);
             //move file from temp to translation folder.
@@ -43,7 +43,7 @@ namespace CarCareTracker.Controllers
                 var result = _fileHelper.RenameFile(uploadedFilePath, originalFileName);
                 return Json(new OperationResponse { Success = result, Message = string.Empty });
             }
-            return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+            return Json(OperationResponse.Failed());
         }
 
         [HttpPost]
