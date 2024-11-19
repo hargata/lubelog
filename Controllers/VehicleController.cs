@@ -188,15 +188,15 @@ namespace CarCareTracker.Controllers
                     }
                     else
                     {
-                        return Json(new OperationResponse { Success = false, Message = "Both vehicles already have identical collaborators" });
+                        return Json(OperationResponse.Failed("Both vehicles already have identical collaborators"));
                     }
                 }
-                return Json(new OperationResponse { Success = true, Message = "Collaborators Copied" });
+                return Json(OperationResponse.Succeed("Collaborators Copied"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return Json(new OperationResponse { Success = false, Message = StaticHelper.GenericErrorMessage });
+                return Json(OperationResponse.Failed());
             }
         }
         
