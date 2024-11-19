@@ -51,7 +51,7 @@ namespace CarCareTracker.Controllers
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
-            return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
+            return Json(OperationResponse.Conditional(result, "Template Added", string.Empty));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -127,7 +127,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
-            return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
+            return Json(OperationResponse.Conditional(result, "Plan Record Added", string.Empty));
         }
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()

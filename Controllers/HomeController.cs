@@ -493,7 +493,7 @@ namespace CarCareTracker.Controllers
                 }
                 if (translationsDownloaded > 0)
                 {
-                    return Json(new OperationResponse() { Success = true, Message = $"{translationsDownloaded} Translations Downloaded" });
+                    return Json(OperationResponse.Succeed($"{translationsDownloaded} Translations Downloaded"));
                 } else
                 {
                     return Json(OperationResponse.Failed("No Translations Downloaded"));

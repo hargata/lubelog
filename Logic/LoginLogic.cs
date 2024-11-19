@@ -107,7 +107,7 @@ namespace CarCareTracker.Logic
             //delete token
             _tokenData.DeleteToken(existingToken.Id);
             var result = _userData.SaveUserRecord(existingUser);
-            return new OperationResponse { Success = result, Message = result ? "User Updated" : StaticHelper.GenericErrorMessage };
+            return OperationResponse.Conditional(result, "User Updated", string.Empty);
         }
         public OperationResponse RegisterOpenIdUser(LoginModel credentials)
         {
@@ -141,7 +141,7 @@ namespace CarCareTracker.Logic
             var result = _userData.SaveUserRecord(newUser);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "You will be logged in briefly." };
+                return OperationResponse.Succeed("You will be logged in briefly.");
             }
             else
             {
@@ -183,7 +183,7 @@ namespace CarCareTracker.Logic
             var result = _userData.SaveUserRecord(newUser);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "You will be redirected to the login page briefly." };
+                return OperationResponse.Succeed("You will be redirected to the login page briefly.");
             }
             else
             {
@@ -205,7 +205,7 @@ namespace CarCareTracker.Logic
             }
             //for security purposes we want to always return true for this method.
             //otherwise someone can spam the reset password method to sniff out users.
-            return new OperationResponse { Success = true, Message = "If your user exists in the system you should receive an email shortly with instructions on how to proceed." };
+            return OperationResponse.Succeed("If your user exists in the system you should receive an email shortly with instructions on how to proceed.");
         }
         public OperationResponse ResetPasswordByUser(LoginModel credentials)
         {
@@ -230,7 +230,7 @@ namespace CarCareTracker.Logic
             _tokenData.DeleteToken(existingToken.Id);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Password resetted, you will be redirected to login page shortly." };
+                return OperationResponse.Succeed("Password resetted, you will be redirected to login page shortly.");
             } else
             {
                 return OperationResponse.Failed();
@@ -328,7 +328,7 @@ namespace CarCareTracker.Logic
             }
             if (result)
             {
-                return new OperationResponse { Success = true, Message = "Token Generated!" };
+                return OperationResponse.Succeed("Token Generated!");
             }
             else
             {
@@ -358,7 +358,7 @@ namespace CarCareTracker.Logic
             var result = _userData.SaveUserRecord(existingUser);
             if (result)
             {
-                return new OperationResponse { Success = true, Message = newPassword };
+                return OperationResponse.Succeed(newPassword);
             }
             else
             {

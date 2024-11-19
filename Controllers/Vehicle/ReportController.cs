@@ -313,7 +313,7 @@ namespace CarCareTracker.Controllers
                 {
                     return Json(OperationResponse.Failed());
                 }
-                return Json(new OperationResponse { Success = true, Message = result });
+                return Json(OperationResponse.Succeed(result));
             }
             else
             {
