@@ -27,11 +27,15 @@ namespace CarCareTracker.Controllers
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (planRecord.Supplies.Any())
             {
-                planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
+                planRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description));
                 if (planRecord.CopySuppliesAttachment)
                 {
                     planRecord.Files.AddRange(GetSuppliesAttachments(planRecord.Supplies));
                 }
+            }
+            if (planRecord.DeletedRequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(planRecord.DeletedRequisitionHistory, planRecord.Description);
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
@@ -254,7 +258,18 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeletePlanRecordById(int planRecordId)
         {
-            var result = _planRecordDataAccess.DeletePlanRecordById(planRecordId);
+            var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(false);
+            }
+            //restore any requisitioned supplies if it has not been converted to other record types.
+            if (existingRecord.RequisitionHistory.Any() && existingRecord.Progress != PlanProgress.Done)
+            {
+                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Plan Record - Id: {planRecordId}");

@@ -311,7 +311,7 @@ namespace CarCareTracker.Logic
                 }
                 if (vehiclePlans.Any())
                 {
-                    var convertedPlans = vehiclePlans.Select(x => new PlanRecord { Priority = x.Priority, Progress = x.Progress, Notes = x.Notes, RequisitionHistory = x.RequisitionHistory, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" });
+                    var convertedPlans = vehiclePlans.Select(x => new PlanRecord { ImportMode = x.ImportMode, Priority = x.Priority, Progress = x.Progress, Notes = x.Notes, RequisitionHistory = x.RequisitionHistory, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" });
                     plans.AddRange(convertedPlans);
                 }
             }

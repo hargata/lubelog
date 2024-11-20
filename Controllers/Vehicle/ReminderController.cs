@@ -149,10 +149,21 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ReminderRecordModal", convertedResult);
         }
+        private bool DeleteReminderRecordWithChecks(int reminderRecordId)
+        {
+            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteReminderRecordById(int reminderRecordId)
         {
-            var result = _reminderRecordDataAccess.DeleteReminderRecordById(reminderRecordId);
+            var result = DeleteReminderRecordWithChecks(reminderRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Reminder - Id: {reminderRecordId}");

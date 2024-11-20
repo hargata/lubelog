@@ -40,11 +40,15 @@ namespace CarCareTracker.Controllers
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (upgradeRecord.Supplies.Any())
             {
-                upgradeRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description);
+                upgradeRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(upgradeRecord.Supplies, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Description));
                 if (upgradeRecord.CopySuppliesAttachment)
                 {
                     upgradeRecord.Files.AddRange(GetSuppliesAttachments(upgradeRecord.Supplies));
                 }
+            }
+            if (upgradeRecord.DeletedRequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(upgradeRecord.DeletedRequisitionHistory, upgradeRecord.Description);
             }
             //push back any reminders
             if (upgradeRecord.ReminderRecordId.Any())
@@ -87,10 +91,26 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_UpgradeRecordModal", convertedResult);
         }
+        private bool DeleteUpgradeRecordWithChecks(int upgradeRecordId)
+        {
+            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
         {
-            var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(upgradeRecordId);
+            var result = DeleteUpgradeRecordWithChecks(upgradeRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Upgrade Record - Id: {upgradeRecordId}");

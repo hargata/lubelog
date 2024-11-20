@@ -140,10 +140,21 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_OdometerRecordModal", convertedResult);
         }
+        private bool DeleteOdometerRecordWithChecks(int odometerRecordId)
+        {
+            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteOdometerRecordById(int odometerRecordId)
         {
-            var result = _odometerRecordDataAccess.DeleteOdometerRecordById(odometerRecordId);
+            var result = DeleteOdometerRecordWithChecks(odometerRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Odometer Record - Id: {odometerRecordId}");
