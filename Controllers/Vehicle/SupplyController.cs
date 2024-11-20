@@ -227,10 +227,13 @@ namespace CarCareTracker.Controllers
         private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
         {
             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
-            //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (existingRecord.VehicleId != default)
             {
-                return false;
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                {
+                    return false;
+                }
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             return result;
