@@ -401,31 +401,31 @@ namespace CarCareTracker.Controllers
                 switch (importMode)
                 {
                     case ImportMode.ServiceRecord:
-                        result = _serviceRecordDataAccess.DeleteServiceRecordById(recordId);
+                        result = DeleteServiceRecordWithChecks(recordId);
                         break;
                     case ImportMode.RepairRecord:
-                        result = _collisionRecordDataAccess.DeleteCollisionRecordById(recordId);
+                        result = DeleteCollisionRecordWithChecks(recordId);
                         break;
                     case ImportMode.UpgradeRecord:
-                        result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(recordId);
+                        result = DeleteUpgradeRecordWithChecks(recordId);
                         break;
                     case ImportMode.GasRecord:
-                        result = _gasRecordDataAccess.DeleteGasRecordById(recordId);
+                        result = DeleteGasRecordWithChecks(recordId);
                         break;
                     case ImportMode.TaxRecord:
-                        result = _taxRecordDataAccess.DeleteTaxRecordById(recordId);
+                        result = DeleteTaxRecordWithChecks(recordId);
                         break;
                     case ImportMode.SupplyRecord:
-                        result = _supplyRecordDataAccess.DeleteSupplyRecordById(recordId);
+                        result = DeleteSupplyRecordWithChecks(recordId);
                         break;
                     case ImportMode.NoteRecord:
-                        result = _noteDataAccess.DeleteNoteById(recordId);
+                        result = DeleteNoteWithChecks(recordId);
                         break;
                     case ImportMode.OdometerRecord:
-                        result = _odometerRecordDataAccess.DeleteOdometerRecordById(recordId);
+                        result = DeleteOdometerRecordWithChecks(recordId);
                         break;
                     case ImportMode.ReminderRecord:
-                        result = _reminderRecordDataAccess.DeleteReminderRecordById(recordId);
+                        result = DeleteReminderRecordWithChecks(recordId);
                         break;
                 }
             }

@@ -91,10 +91,21 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_GasModal", viewModel);
         }
+        private bool DeleteGasRecordWithChecks(int gasRecordId)
+        {
+            var existingRecord = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteGasRecordById(int gasRecordId)
         {
-            var result = _gasRecordDataAccess.DeleteGasRecordById(gasRecordId);
+            var result = DeleteGasRecordWithChecks(gasRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Gas Record - Id: {gasRecordId}");
