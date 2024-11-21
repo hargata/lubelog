@@ -26,7 +26,10 @@
             quantity: decodeHTMLEntities(quantity),
             cost: decodeHTMLEntities(cost)
         });
-        supplyUsageHistory = supplyUsageHistory.filter(x=>x.id != decodeHTMLEntities(supplyId));
+        let supplyIndexToRemove = supplyUsageHistory.findIndex(x=>x.id == decodeHTMLEntities(supplyId) && x.quantity == decodeHTMLEntities(quantity) && x.cost == decodeHTMLEntities(cost));
+        if (supplyIndexToRemove > -1){
+            supplyUsageHistory.splice(supplyIndexToRemove, 1);
+        }
         $(supplyRow).parents(".supply-row").remove();
         //update cost input value
         subtractFromCostInput(decodeHTMLEntities(cost));
