@@ -36,21 +36,21 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1">@translator.Translate(userLanguage, "Urgency")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Metric")</th>
-                    <th scope="col" class="@(hasRefresh ? "col-3 col-md-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2 col-md-3">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-1 text-truncate">@translator.Translate(userLanguage, "Urgency")</th>
+                    <th scope="col" class="col-2 text-truncate">@translator.Translate(userLanguage, "Metric")</th>
+                    <th scope="col" class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 col-md-3 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
                     {
-                        <th scope="col" class="col-2 col-md-1">@translator.Translate(userLanguage, "Done")</th>
+                        <th scope="col" class="col-2 col-md-1 text-truncate">@translator.Translate(userLanguage, "Done")</th>
                     }
-                    <th scope="col" class="col-2 col-md-1">@translator.Translate(userLanguage, "Delete")</th>
+                    <th scope="col" class="col-2 col-md-1 text-truncate">@translator.Translate(userLanguage, "Delete")</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,7 +73,7 @@
                         {
                             <td class="col-1"><span class="text-success d-inline-block d-md-none"><i class="bi bi-hourglass-top h3"></i></span><span class="badge text-bg-success d-none d-md-inline-block">@translator.Translate(userLanguage, "Not Urgent")</span></td>
                         }
-                        <td class="col-2">
+                        <td class="col-2 text-truncate">
                             <span data-column="metric" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="@($"<b><i class='bi bi-calendar-event me-2'></i></b>{reminderRecord.Date.ToShortDateString()}<b class='ms-2'><i class='bi bi-speedometer me-2'></i></b>{reminderRecord.Mileage}")">
                             @if (reminderRecord.Metric == ReminderMetric.Date)
                             {
@@ -89,8 +89,8 @@
                             }
                             </span>
                         </td>
-                        <td class="@(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
-                        <td class="col-2 col-md-3 text-truncate">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        <td class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
+                        <td class="col-2 col-md-3 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
                             <td class="col-2 col-md-1 text-truncate">
@@ -105,6 +105,11 @@
                         </td>
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -121,6 +126,7 @@
     <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'ReminderRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
 

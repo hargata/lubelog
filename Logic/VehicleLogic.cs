@@ -14,6 +14,9 @@ namespace CarCareTracker.Logic
         int GetMinMileage(VehicleRecords vehicleRecords);
         int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId, int currentMileage);
+        List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
+        List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
+        List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone);
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -24,6 +27,7 @@ namespace CarCareTracker.Logic
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
+        private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         public VehicleLogic(
             IServiceRecordDataAccess serviceRecordDataAccess,
@@ -33,6 +37,7 @@ namespace CarCareTracker.Logic
             ITaxRecordDataAccess taxRecordDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
+            IPlanRecordDataAccess planRecordDataAccess,
             IReminderHelper reminderHelper
             ) {
             _serviceRecordDataAccess = serviceRecordDataAccess;
@@ -41,6 +46,7 @@ namespace CarCareTracker.Logic
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _planRecordDataAccess = planRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
         }
@@ -217,6 +223,99 @@ namespace CarCareTracker.Logic
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
             return results.Any(x => x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue);
+        }
+
+        public List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles)
+        {
+            List<VehicleInfo> apiResult = new List<VehicleInfo>();
+
+            foreach (Vehicle vehicle in vehicles)
+            {
+                var currentMileage = GetMaxMileage(vehicle.Id);
+                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
+                var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
+
+                var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id);
+                var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id);
+                var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id);
+                var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id);
+                var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id);
+                var planRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id);
+
+                var resultToAdd = new VehicleInfo()
+                {
+                    VehicleData = vehicle,
+                    LastReportedOdometer = currentMileage,
+                    ServiceRecordCount = serviceRecords.Count(),
+                    ServiceRecordCost = serviceRecords.Sum(x => x.Cost),
+                    RepairRecordCount = repairRecords.Count(),
+                    RepairRecordCost = repairRecords.Sum(x => x.Cost),
+                    UpgradeRecordCount = upgradeRecords.Count(),
+                    UpgradeRecordCost = upgradeRecords.Sum(x => x.Cost),
+                    GasRecordCount = gasRecords.Count(),
+                    GasRecordCost = gasRecords.Sum(x => x.Cost),
+                    TaxRecordCount = taxRecords.Count(),
+                    TaxRecordCost = taxRecords.Sum(x => x.Cost),
+                    VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
+                    PastDueReminderCount = results.Count(x => x.Urgency == ReminderUrgency.PastDue),
+                    UrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.Urgent),
+                    NotUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.NotUrgent),
+                    PlanRecordBackLogCount = planRecords.Count(x => x.Progress == PlanProgress.Backlog),
+                    PlanRecordInProgressCount = planRecords.Count(x => x.Progress == PlanProgress.InProgress),
+                    PlanRecordTestingCount = planRecords.Count(x => x.Progress == PlanProgress.Testing),
+                    PlanRecordDoneCount = planRecords.Count(x => x.Progress == PlanProgress.Done)
+                };
+                //set next reminder
+                if (results.Any(x => (x.Metric == ReminderMetric.Date || x.Metric == ReminderMetric.Both) && x.Date >= DateTime.Now.Date))
+                {
+                    resultToAdd.NextReminder = results.Where(x => x.Date >= DateTime.Now.Date).OrderBy(x => x.Date).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
+                }
+                else if (results.Any(x => (x.Metric == ReminderMetric.Odometer || x.Metric == ReminderMetric.Both) && x.Mileage >= currentMileage))
+                {
+                    resultToAdd.NextReminder = results.Where(x => x.Mileage >= currentMileage).OrderBy(x => x.Mileage).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
+                }
+                apiResult.Add(resultToAdd);
+            }
+            return apiResult;
+        }
+        public List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar)
+        {
+            List<ReminderRecordViewModel> reminders = new List<ReminderRecordViewModel>();
+            foreach (Vehicle vehicle in vehicles)
+            {
+                var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
+                if (isCalendar)
+                {
+                    vehicleReminders.RemoveAll(x => x.Metric == ReminderMetric.Odometer);
+                    //we don't care about mileages so we can basically fake the current vehicle mileage.
+                }
+                if (vehicleReminders.Any())
+                {
+                    var vehicleMileage = isCalendar ? 0 : GetMaxMileage(vehicle.Id);
+                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, vehicleMileage, DateTime.Now);
+                    reminderUrgency = reminderUrgency.Select(x => new ReminderRecordViewModel { Id = x.Id, Metric = x.Metric, Date = x.Date, Notes = x.Notes, Mileage = x.Mileage, Urgency = x.Urgency, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" }).ToList();
+                    reminders.AddRange(reminderUrgency);
+                }
+            }
+            return reminders.OrderByDescending(x=>x.Urgency).ToList();
+        }
+        public List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone)
+        {
+            List<PlanRecord> plans = new List<PlanRecord>();
+            foreach (Vehicle vehicle in vehicles)
+            {
+                var vehiclePlans = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id);
+                if (excludeDone)
+                {
+                    vehiclePlans.RemoveAll(x => x.Progress == PlanProgress.Done);
+                }
+                if (vehiclePlans.Any())
+                {
+                    var convertedPlans = vehiclePlans.Select(x => new PlanRecord { ImportMode = x.ImportMode, Priority = x.Priority, Progress = x.Progress, Notes = x.Notes, RequisitionHistory = x.RequisitionHistory, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" });
+                    plans.AddRange(convertedPlans);
+                }
+            }
+            return plans.OrderBy(x => x.Priority).ThenBy(x=>x.Progress).ToList();
         }
     }
 }

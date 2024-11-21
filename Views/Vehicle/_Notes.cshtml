@@ -31,7 +31,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
@@ -52,9 +52,14 @@
                         {
                             <td class="col-3">@note.Description</td>
                         }
-                        <td class="col-9 text-truncate" data-record-type="cost">@CarCareTracker.Helper.StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-9 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -77,5 +82,6 @@
     <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, false, false)">@translator.Translate(userLanguage, "Unpin")</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>

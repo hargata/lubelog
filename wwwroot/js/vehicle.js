@@ -572,6 +572,23 @@ function showMultipleRemindersSelector() {
         $("#recurringReminderInput").show();
     }
 }
+function getAndValidateSelectedVehicle() {
+    var selectedVehiclesArray = [];
+    $("#vehicleSelector :checked").map(function () {
+        selectedVehiclesArray.push(this.value);
+    });
+    if (selectedVehiclesArray.length == 0) {
+        return {
+            hasError: true,
+            ids: []
+        }
+    } else {
+        return {
+            hasError: false,
+            ids: selectedVehiclesArray
+        }
+    }
+}
 function getAndValidateSelectedRecurringReminder() {
     if ($("#multipleRemindersCheck").is(":checked")) {
         //validate multiple reminders
@@ -618,7 +635,7 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
     Swal.fire({
         title: 'Increment Last Reported Odometer Reading',
         html: `
-                            <input type="text" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
+                            <input type="text" inputmode="decimal" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
               `,
         confirmButtonText: 'Add',
         focusConfirm: false,

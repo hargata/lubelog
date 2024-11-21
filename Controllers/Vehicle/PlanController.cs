@@ -27,11 +27,15 @@ namespace CarCareTracker.Controllers
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (planRecord.Supplies.Any())
             {
-                planRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description);
+                planRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description));
                 if (planRecord.CopySuppliesAttachment)
                 {
                     planRecord.Files.AddRange(GetSuppliesAttachments(planRecord.Supplies));
                 }
+            }
+            if (planRecord.DeletedRequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(planRecord.DeletedRequisitionHistory, planRecord.Description);
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
@@ -47,11 +51,11 @@ namespace CarCareTracker.Controllers
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
             if (planRecord.Id == default && existingRecord)
             {
-                return Json(new OperationResponse { Success = false, Message = "A template with that description already exists for this vehicle" });
+                return Json(OperationResponse.Failed("A template with that description already exists for this vehicle"));
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
-            return Json(new OperationResponse { Success = result, Message = result ? "Template Added" : StaticHelper.GenericErrorMessage });
+            return Json(OperationResponse.Conditional(result, "Template Added", string.Empty));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -66,21 +70,43 @@ namespace CarCareTracker.Controllers
             var result = _planRecordTemplateDataAccess.DeletePlanRecordTemplateById(planRecordTemplateId);
             return Json(result);
         }
+        [HttpGet]
+        public IActionResult OrderPlanSupplies(int planRecordTemplateId)
+        {
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (existingRecord.Id == default)
+            {
+                return Json(OperationResponse.Failed("Unable to find template"));
+            }
+            if (existingRecord.Supplies.Any())
+            {
+                var suppliesToOrder = CheckSupplyRecordsAvailability(existingRecord.Supplies);
+                return PartialView("_PlanOrderSupplies", suppliesToOrder);
+            } 
+            else
+            {
+                return Json(OperationResponse.Failed("Template has No Supplies"));
+            }
+        }
         [HttpPost]
         public IActionResult ConvertPlanRecordTemplateToPlanRecord(int planRecordTemplateId)
         {
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
             if (existingRecord.Id == default)
             {
-                return Json(new OperationResponse { Success = false, Message = "Unable to find template" });
+                return Json(OperationResponse.Failed("Unable to find template"));
             }
             if (existingRecord.Supplies.Any())
             {
                 //check if all supplies are available
                 var supplyAvailability = CheckSupplyRecordsAvailability(existingRecord.Supplies);
-                if (supplyAvailability.Any())
+                if (supplyAvailability.Any(x => x.Missing))
                 {
-                    return Json(new OperationResponse { Success = false, Message = string.Join("<br>", supplyAvailability) });
+                    return Json(OperationResponse.Failed("Missing Supplies, Please Delete This Template and Recreate It."));
+                }
+                else if (supplyAvailability.Any(x => x.Insufficient))
+                {
+                    return Json(OperationResponse.Failed("Insufficient Supplies"));
                 }
             }
             if (existingRecord.ReminderRecordId != default)
@@ -89,7 +115,7 @@ namespace CarCareTracker.Controllers
                 var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
                 if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
                 {
-                    return Json(new OperationResponse { Success = false, Message = "Missing or Non-recurring Reminder, Please Delete This Template and Recreate It." });
+                    return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Please Delete This Template and Recreate It."));
                 }
             }
             //populate createdDate
@@ -105,7 +131,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
-            return Json(new OperationResponse { Success = result, Message = result ? "Plan Record Added" : StaticHelper.GenericErrorMessage });
+            return Json(OperationResponse.Conditional(result, "Plan Record Added", string.Empty));
         }
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
@@ -232,7 +258,18 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeletePlanRecordById(int planRecordId)
         {
-            var result = _planRecordDataAccess.DeletePlanRecordById(planRecordId);
+            var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(false);
+            }
+            //restore any requisitioned supplies if it has not been converted to other record types.
+            if (existingRecord.RequisitionHistory.Any() && existingRecord.Progress != PlanProgress.Done)
+            {
+                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Plan Record - Id: {planRecordId}");

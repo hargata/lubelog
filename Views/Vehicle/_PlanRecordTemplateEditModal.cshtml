@@ -20,7 +20,7 @@
                     <label for="planRecordDescription">@translator.Translate(userLanguage, "Description")</label>
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
                     <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
-                    <input type="text" inputmode="decimal" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
                     @await Html.PartialAsync("_SupplyStore", "PlanRecordTemplate")
                     <label for="planRecordType">@translator.Translate(userLanguage, "Type")</label>
                     <select class="form-select" id="planRecordType">

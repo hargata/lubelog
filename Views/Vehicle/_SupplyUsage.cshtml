@@ -29,11 +29,11 @@
                     <thead class="sticky-top">
                         <tr class="d-flex">
                             <th scope="col" class="col-1"></th>
-                            <th scope="col" class="col-2">@translator.Translate(userLanguage,"Quantity")</th>
-                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "In Stock")</th>
-                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
-                            <th scope="col" class="col-3">@translator.Translate(userLanguage, "Description")</th>
-                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Unit Cost")</th>
+                            <th scope="col" class="col-3 col-sm-2 text-truncate flex-grow">@translator.Translate(userLanguage,"Quantity")</th>
+                            <th scope="col" class="col-1 col-sm-2 text-truncate flex-shrink">@translator.Translate(userLanguage, "In Stock")</th>
+                            <th scope="col" class="col-2 text-truncate flex-shrink">@translator.Translate(userLanguage, "Part Number")</th>
+                            <th scope="col" class="col-3 text-truncate flex-shrink">@translator.Translate(userLanguage, "Description")</th>
+                            <th scope="col" class="col-2 text-truncate flex-shrink">@translator.Translate(userLanguage, "Unit Cost")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,11 +42,11 @@
                             var supplyUsage = Model.Usage.Where(x => x.SupplyId == supplyRecord.Id).SingleOrDefault();
                             <tr class="d-flex" id="supplyRows" data-tags='@string.Join(" ", supplyRecord.Tags)'>
                                 <td class="col-1"><input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")></td>
-                                <td class="col-2"><input type="text" inputmode="decimal" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control"></td>
-                                <td class="col-2 supplyquantity">@supplyRecord.Quantity</td>
-                                <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.PartNumber)</td>
-                                <td class="col-3 text-truncate">@StaticHelper.TruncateStrings(supplyRecord.Description)</td>
-                                <td class="col-2 supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
+                                <td class="col-3 col-sm-2 flex-grow text-truncate supplyquantityinput"><input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control"></td>
+                                <td class="col-1 col-sm-2 flex-shrink text-truncate supplyquantity">@supplyRecord.Quantity</td>
+                                <td class="col-2 flex-shrink text-truncate">@StaticHelper.TruncateStrings(supplyRecord.PartNumber)</td>
+                                <td class="col-3 flex-shrink text-truncate">@StaticHelper.TruncateStrings(supplyRecord.Description)</td>
+                                <td class="col-2 flex-shrink text-truncate supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</td>
                             </tr>
                         }
                     </tbody>
@@ -88,15 +88,15 @@
         recalculateTotal();
     }
     function getTextFieldFromCheckBox(elem) {
-        var textField = $(elem.parentElement.parentElement).find('.col-2 > input[type=text]')[0];
+        var textField = $(elem.parentElement.parentElement).find('.supplyquantityinput input[type=text]')[0];
         return $(textField);
     }
     function getInStockFieldFromCheckBox(elem) {
-        var textField = $(elem.parentElement.parentElement).find('.col-2.supplyquantity')[0];
+        var textField = $(elem.parentElement.parentElement).find('.supplyquantity')[0];
         return $(textField);
     }
     function getPriceFieldFromCheckBox(elem) {
-        var textField = $(elem.parentElement.parentElement).find('.col-2.supplyprice')[0];
+        var textField = $(elem.parentElement.parentElement).find('.supplyprice')[0];
         return $(textField);
     }
     function getSuppliesAndQuantity() {

@@ -2,6 +2,7 @@
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace CarCareTracker.Helper
 {
@@ -14,6 +15,7 @@ namespace CarCareTracker.Helper
         bool AuthenticateRootUser(string username, string password);
         bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
+        bool GetCustomWidgetsEnabled();
         string GetMOTD();
         string GetLogoUrl();
         string GetServerLanguage();
@@ -44,6 +46,10 @@ namespace CarCareTracker.Helper
                 webhook = "";
             }
             return webhook;
+        }
+        public bool GetCustomWidgetsEnabled()
+        {
+            return bool.Parse(_config["LUBELOGGER_CUSTOM_WIDGETS"] ?? "false");
         }
         public string GetMOTD()
         {
@@ -141,13 +147,13 @@ namespace CarCareTracker.Helper
                     if (!File.Exists(StaticHelper.UserConfigPath))
                     {
                         //if file doesn't exist it might be because it's running on a mounted volume in docker.
-                        File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(new UserConfig()));
+                        File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(new UserConfig()));
                     }
                     var configFileContents = File.ReadAllText(StaticHelper.UserConfigPath);
                     configData.EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)] ?? "false");
                     configData.UserNameHash = _config[nameof(UserConfig.UserNameHash)] ?? string.Empty;
                     configData.UserPasswordHash = _config[nameof(UserConfig.UserPasswordHash)] ?? string.Empty;
-                    File.WriteAllText(StaticHelper.UserConfigPath, System.Text.Json.JsonSerializer.Serialize(configData));
+                    File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(configData));
                     _cache.Set<UserConfig>($"userConfig_{userId}", configData);
                     return true;
                 }
@@ -185,11 +191,13 @@ namespace CarCareTracker.Helper
                 EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
                 EnableRootUserOIDC = bool.Parse(_config[nameof(UserConfig.EnableRootUserOIDC)]),
                 HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
+                AutomaticDecimalFormat = bool.Parse(_config[nameof(UserConfig.AutomaticDecimalFormat)]),
                 UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
                 HideOdometerTags = bool.Parse(_config[nameof(UserConfig.HideOdometerTags)]),
                 DisableOdometerNotes = bool.Parse(_config[nameof(UserConfig.DisableOdometerNotes)]),
                 UseMarkDownOnSavedNotes = bool.Parse(_config[nameof(UserConfig.UseMarkDownOnSavedNotes)]),
                 UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
+                UseThreeDecimalGasConsumption = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasConsumption)]),
                 EnableAutoReminderRefresh = bool.Parse(_config[nameof(UserConfig.EnableAutoReminderRefresh)]),
                 EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),
                 PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
@@ -199,6 +207,7 @@ namespace CarCareTracker.Helper
                 EnableShopSupplies = bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)]),
                 EnableExtraFieldColumns = bool.Parse(_config[nameof(UserConfig.EnableExtraFieldColumns)]),
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),
+                TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>(),
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)]),

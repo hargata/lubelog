@@ -44,7 +44,7 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <div class="row swimlane">
@@ -107,6 +107,13 @@
 <div class="modal fade" data-bs-focus="false" id="planRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'planRecordFiles')">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="planRecordTemplateModalContent">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-bs-focus="false" id="planRecordTemplateSupplyOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="planRecordTemplateSupplyOrderModalContent">
         </div>
     </div>
 </div>

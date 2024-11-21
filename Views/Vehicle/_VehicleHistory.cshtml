@@ -1,16 +1,17 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
+@model VehicleHistoryViewModel
 @{
     var userConfig = config.GetUserConfig(User);
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
+    var extraFields = Model.ReportParameters.ExtraFields;
 }
-@model VehicleHistoryViewModel
 <div class="vehicleDetailTabContainer">
     <div class="row mt-2">
         <div class="d-flex">
-            <img src="/defaults/lubelogger_logo.png" />
+            <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             <span class="display-6 ms-5">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</span>
         </div>
     </div>
@@ -21,9 +22,21 @@
                 <li class="list-group-item">
                     <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
                 </li>
-                <li class="list-group-item">
-                    <span class="lead">@Model.VehicleData.LicensePlate</span>
-                </li>
+                @if (!string.IsNullOrWhiteSpace(Model.VehicleData.LicensePlate))
+                {
+                    <li class="list-group-item">
+                        <span class="lead">@Model.VehicleData.LicensePlate</span>
+                    </li>
+                }
+                @foreach(ExtraField extraField in Model.VehicleData.ExtraFields)
+                {
+                    if (!string.IsNullOrWhiteSpace(extraField.Value))
+                    {
+                        <li class="list-group-item">
+                            <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                        </li>
+                    }
+                }
                 <li class="list-group-item">
                     <div class="row">
                         <div class="col-4">
@@ -95,19 +108,23 @@
             <table class="table table-hover">
                 <thead>
                     <tr class="d-flex">
-                        <th scope="col" class="col-2 servicehistorytype">@translator.Translate(userLanguage, "Type")</th>
-                        <th scope="col" class="col-1 servicehistorydate">@translator.Translate(userLanguage, "Date")</th>
-                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Odometer")</th>
-                        <th scope="col" class="col-3">@translator.Translate(userLanguage, "Description")</th>
-                        <th scope="col" class="col-1">@translator.Translate(userLanguage, "Cost")</th>
-                        <th scope="col" class="col-4">@translator.Translate(userLanguage, "Notes")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.DataType)) ? "" : "d-none")">@translator.Translate(userLanguage, "Type")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@translator.Translate(userLanguage, "Date")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@translator.Translate(userLanguage, "Odometer")</th>
+                        <th scope="col" class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@translator.Translate(userLanguage, "Description")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@translator.Translate(userLanguage, "Cost")</th>
+                        <th scope="col" class="col-4 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@translator.Translate(userLanguage, "Notes")</th>
+                        @foreach(string extraField in extraFields)
+                        {
+                            <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1">@extraField</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (GenericReportModel reportData in Model.VehicleHistory)
                     {
                         <tr class="d-flex">
-                            <td class="col-2 servicehistorytype">
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.DataType)) ? "" : "d-none")">
                                 @if (reportData.DataType == ImportMode.ServiceRecord)
                                 {
                                     <span><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service")</span>
@@ -125,13 +142,22 @@
                                     <span><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Tax")</span>
                                 }
                             </td>
-                            <td class="col-1 servicehistorydate">@reportData.Date.ToShortDateString()</td>
-                            <td class="col-1">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
-                            <td class="col-3">@reportData.Description</td>
-                            <td class="col-1">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
-                            <td class="col-4 text-wrap">@CarCareTracker.Helper.StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@reportData.Date.ToShortDateString()</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
+                            <td class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@reportData.Description</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
+                            <td class="col-4 flex-grow-1 flex-shrink-1 text-wrap text-break @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                            @foreach(string extraField in extraFields)
+                            {
+                                <td class="col-2 text-truncate flex-grow-1 flex-shrink-1">@(reportData.ExtraFields.Where(x => x.Name == extraField)?.FirstOrDefault()?.Value ?? "")</td>
+                            }
                         </tr>
                     }
+                    <tr class="d-flex">
+                        <td class="col-12 showOnPrint lubelogger-report-banner">
+                            @StaticHelper.ReportNote
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>

@@ -110,10 +110,21 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_TaxRecordModal", convertedResult);
         }
+        private bool DeleteTaxRecordWithChecks(int taxRecordId)
+        {
+            var existingRecord = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteTaxRecordById(int taxRecordId)
         {
-            var result = _taxRecordDataAccess.DeleteTaxRecordById(taxRecordId);
+            var result = DeleteTaxRecordWithChecks(taxRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Tax Record - Id: {taxRecordId}");

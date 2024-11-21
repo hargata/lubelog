@@ -126,6 +126,12 @@
             <div class="d-grid">
                 <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
+            @if (Model.CustomWidgetsConfigured)
+            {
+                <div class="d-grid">
+                    <button onclick="loadCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -153,6 +159,15 @@
         </div>
     </div>
 </div>
+@if (Model.CustomWidgetsConfigured)
+{
+    <div class="modal fade" data-bs-focus="false" id="vehicleCustomWidgetsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" id="vehicleCustomWidgetsModalContent">
+            </div>
+        </div>
+    </div>
+}
 <div id="vehicleHistoryReport" class="showOnPrint"></div>
 
 <script>

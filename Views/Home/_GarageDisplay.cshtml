@@ -76,7 +76,7 @@
                             <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
                             <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
                             <h5 class="card-title text-truncate">@($"{vehicle.Model}")</h5>
-                            <p class="card-text text-truncate">@vehicle.LicensePlate</p>
+                            <p class="card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
                         </div>
                     </div>
                 </div>

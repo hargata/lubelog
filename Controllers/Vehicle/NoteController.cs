@@ -45,10 +45,21 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.GetNoteById(noteId);
             return PartialView("_NoteModal", result);
         }
+        private bool DeleteNoteWithChecks(int noteId)
+        {
+            var existingRecord = _noteDataAccess.GetNoteById(noteId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteNoteById(int noteId)
         {
-            var result = _noteDataAccess.DeleteNoteById(noteId);
+            var result = DeleteNoteWithChecks(noteId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Note - Id: {noteId}");

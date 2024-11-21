@@ -33,5 +33,9 @@
         /// </summary>
         public string MaxOdometerDifference { get; set; } = "1000";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
+        /// <summary>
+        /// Determines what is displayed in place of the license plate.
+        /// </summary>
+        public string VehicleIdentifier { get; set; } = "LicensePlate";
     }
 }

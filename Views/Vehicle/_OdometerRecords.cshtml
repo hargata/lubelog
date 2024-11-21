@@ -101,20 +101,20 @@
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
-                <img src="/defaults/lubelogger_logo.png" />
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1 flex-grow-1" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="initialodometer">@translator.Translate(userLanguage, "Initial Odometer")</th>
-                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1" data-column="distance" onclick="toggleSort('odometer-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Distance")</th>
-                    <th scope="col" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="initialodometer">@translator.Translate(userLanguage, "Initial Odometer")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" onclick="toggleSort('odometer-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Distance")</th>
+                    <th scope="col" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
-                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
                     }
                 </tr>
             </thead>
@@ -122,11 +122,11 @@
                 @foreach (OdometerRecord odometerRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditOdometerRecordModal,@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
-                        <td class="col-2 col-xl-1 flex-grow-1" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="initialodometer">@odometerRecord.InitialMileage</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1" data-column="odometer">@odometerRecord.Mileage</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
-                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@CarCareTracker.Helper.StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
+                        <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="initialodometer">@odometerRecord.InitialMileage</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@odometerRecord.Mileage</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
+                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
@@ -134,7 +134,7 @@
                                     var extraFieldValue = odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
                                     {
-                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@CarCareTracker.Helper.StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
                                     }
                                     else
                                     {
@@ -145,6 +145,11 @@
                         }
                     </tr>
                 }
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -166,6 +171,7 @@
     <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="recalculateDistance()">@translator.Translate(userLanguage, "Recalculate Distance")</a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
     <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
     <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
     <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Adjust Odometer")</a></li>

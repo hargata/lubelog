@@ -51,6 +51,7 @@ function saveVehicle(isEdit) {
     var vehicleMaxOdometerDifference = parseInt(globalParseFloat($("#inputOdometerMaxDifference").val())).toString();
     var vehiclePurchasePrice = $("#inputPurchasePrice").val();
     var vehicleSoldPrice = $("#inputSoldPrice").val();
+    var vehicleIdentifier = $("#inputIdentifier").val();
     var vehicleDashboardMetrics = $("#collapseMetricInfo :checked").map(function () {
         return this.value;
     }).toArray();
@@ -78,12 +79,26 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputModel").removeClass("is-invalid");
     }
-    if (vehicleLicensePlate.trim() == '') {
-        hasError = true;
-        $("#inputLicensePlate").addClass("is-invalid");
+    if (vehicleIdentifier == "LicensePlate") {
+        if (vehicleLicensePlate.trim() == '') {
+            hasError = true;
+            $("#inputLicensePlate").addClass("is-invalid");
+        } else {
+            $("#inputLicensePlate").removeClass("is-invalid");
+        }
     } else {
         $("#inputLicensePlate").removeClass("is-invalid");
+        //check if extra fields have value.
+        var vehicleIdentifierExtraField = extraFields.extraFields.filter(x => x.name == vehicleIdentifier);
+        //check if extra field exists.
+        if (vehicleIdentifierExtraField.length == 0) {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).addClass("is-invalid");
+            hasError = true;
+        } else {
+            $(".modal.fade.show").find(`.extra-field [placeholder='${vehicleIdentifier}']`).removeClass("is-invalid");
+        }
     }
+    
     if (vehicleHasOdometerAdjustment) {
         //validate odometer adjustments
         //validate multiplier
@@ -149,7 +164,8 @@ function saveVehicle(isEdit) {
         maxOdometerDifference: vehicleMaxOdometerDifference,
         purchasePrice: vehiclePurchasePrice,
         soldPrice: vehicleSoldPrice,
-        dashboardMetrics: vehicleDashboardMetrics
+        dashboardMetrics: vehicleDashboardMetrics,
+        vehicleIdentifier: vehicleIdentifier
     }, function (data) {
         if (data) {
             if (!isEdit) {
@@ -359,9 +375,14 @@ function showMobileNav() {
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
 }
+var windowWidthForCompare = 0;
 function bindWindowResize() {
+    windowWidthForCompare = window.innerWidth;
     $(window).on('resize', function () {
-        hideMobileNav();
+        if (window.innerWidth != windowWidthForCompare) {
+            hideMobileNav();
+            windowWidthForCompare = window.innerWidth;
+        }
     });
 }
 function encodeHTMLInput(input) {
@@ -849,6 +870,85 @@ function duplicateRecords(ids, source) {
         }
     });
 }
+function duplicateRecordsToOtherVehicles(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "TaxRecord":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            break;
+        case "SupplyRecord":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            break;
+        case "NoteRecord":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            break;
+        case "OdometerRecord":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            break;
+        case "ReminderRecord":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (data) {
+            //prompt user to select a vehicle
+            Swal.fire({
+                title: 'Duplicate to Vehicle(s)',
+                html: data,
+                confirmButtonText: 'Duplicate',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedVehicleData = getAndValidateSelectedVehicle();
+                    if (selectedVehicleData.hasError) {
+                        Swal.showValidationMessage(`You must select a vehicle`);
+                    }
+                    return { selectedVehicleData }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Vehicle/DuplicateRecordsToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, importMode: source}, function (data) {
+                        if (data) {
+                            successToast(`${ids.length} Record(s) Duplicated`);
+                        } else {
+                            errorToast(genericErrorMessage());
+                        }
+                    });
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
 var selectedRow = [];
 var isDragging = false;
 $(window).on('mouseup', function (e) {
@@ -1056,13 +1156,17 @@ function detectRowTouchEndPremature(sender) {
         rowTouchTimer = null;
     }
 }
+function handleSupplyAddCostKeyDown(event) {
+    handleSwalEnter(event);
+    interceptDecimalKeys(event);
+}
 function replenishSupplies() {
     Swal.fire({
         title: 'Replenish Supplies',
         html: `
-                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity">
+                            <input type="text" id="inputSupplyAddQuantity" class="swal2-input" placeholder="Quantity" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
-                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSwalEnter(event)">
+                            <input type="text" id="inputSupplyAddCost" class="swal2-input" placeholder="Cost" onkeydown="handleSupplyAddCostKeyDown(event)" onkeyup="fixDecimalInput(this, 2)">
                             <br />
                             <span class='small'>leave blank to use unit cost calculation</span>
               `,
@@ -1243,5 +1347,18 @@ function handleEnter(e) {
 function handleSwalEnter(e) {
     if (e.which == 13) {
         Swal.clickConfirm();
+    }
+}
+function togglePasswordVisibility(elem) {
+    var passwordField = $(elem).parent().siblings("input");
+    var passwordButton = $(elem).find('.bi');
+    if (passwordField.attr("type") == "password") {
+        passwordField.attr("type", "text");
+        passwordButton.removeClass('bi-eye');
+        passwordButton.addClass('bi-eye-slash');
+    } else {
+        passwordField.attr("type", "password");
+        passwordButton.removeClass('bi-eye-slash');
+        passwordButton.addClass('bi-eye');
     }
 }

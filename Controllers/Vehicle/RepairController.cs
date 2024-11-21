@@ -40,11 +40,15 @@ namespace CarCareTracker.Controllers
             collisionRecord.Files = collisionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (collisionRecord.Supplies.Any())
             {
-                collisionRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description);
+                collisionRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(collisionRecord.Supplies, DateTime.Parse(collisionRecord.Date), collisionRecord.Description));
                 if (collisionRecord.CopySuppliesAttachment)
                 {
                     collisionRecord.Files.AddRange(GetSuppliesAttachments(collisionRecord.Supplies));
                 }
+            }
+            if (collisionRecord.DeletedRequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(collisionRecord.DeletedRequisitionHistory, collisionRecord.Description);
             }
             //push back any reminders
             if (collisionRecord.ReminderRecordId.Any())
@@ -87,10 +91,26 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_CollisionRecordModal", convertedResult);
         }
+        private bool DeleteCollisionRecordWithChecks(int collisionRecordId)
+        {
+            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
-            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(collisionRecordId);
+            var result = DeleteCollisionRecordWithChecks(collisionRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Repair Record - Id: {collisionRecordId}");

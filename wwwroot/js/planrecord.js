@@ -150,6 +150,9 @@ function usePlannerRecordTemplate(planRecordTemplateId) {
             saveScrollPosition();
             getVehiclePlanRecords(vehicleId);
         } else {
+            if (data.message == "Insufficient Supplies") {
+                data.message += `<br /><br /><a class='text-link' style='cursor:pointer;' onclick='orderPlanSupplies(${planRecordTemplateId}, true)'>Order Required Supplies</a>`
+            }
             errorToast(data.message);
         }
     });
@@ -247,6 +250,7 @@ function getAndValidatePlanRecordValues() {
         importMode: planType,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
+        deletedRequisitionHistory: deletedSupplyUsageHistory,
         reminderRecordId: reminderRecordId,
         copySuppliesAttachment: copySuppliesAttachments
     }
@@ -267,10 +271,10 @@ function dragOver(event) {
     event.preventDefault();
 }
 function dropBox(event, newProgress) {
-    if ($(event.target).hasClass("swimlane")) {
-        if (dragged.parentElement != event.target && event.target != dragged) {
-            updatePlanRecordProgress(newProgress);
-        }
+    var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
+    var draggedSwimLane = $(dragged).parents(".swimlane")[0];
+    if (targetSwimLane != draggedSwimLane) {
+        updatePlanRecordProgress(newProgress);
     }
     event.preventDefault();
 }
@@ -325,4 +329,24 @@ function updatePlanRecordProgress(newProgress) {
             draggedId = 0;
         }
     }
+}
+function orderPlanSupplies(planRecordTemplateId, closeSwal) {
+    if (closeSwal) {
+        Swal.close();
+    }
+    $.get(`/Vehicle/OrderPlanSupplies?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+        if (data.success != undefined && !data.success) {
+            //success is provided.
+            errorToast(data.message);
+        } else {
+            //hide plan record template modal.
+            hidePlanRecordTemplatesModal();
+            $("#planRecordTemplateSupplyOrderModalContent").html(data);
+            $("#planRecordTemplateSupplyOrderModal").modal('show');
+        }
+    })
+}
+function hideOrderSupplyModal() {
+    $("#planRecordTemplateSupplyOrderModal").modal('hide');
+    showPlanRecordTemplatesModal();
 }

@@ -15,6 +15,7 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public List<SupplyUsageHistory> DeletedRequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
         public bool CopySuppliesAttachment { get; set; } = false;
         public UpgradeRecord ToUpgradeRecord() { return new UpgradeRecord { 
             Id = Id, 

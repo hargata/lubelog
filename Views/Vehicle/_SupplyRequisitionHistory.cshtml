@@ -1,13 +1,25 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
+@model List<SupplyUsageHistory>
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var showDelete = Model.All(x => x.Id != default);
+    var showPartNumber = Model.Any(x => !string.IsNullOrWhiteSpace(x.PartNumber));
 }
-@model List<SupplyUsageHistory>
 <script>
     var supplyUsageHistory = [];
+    var deletedSupplyUsageHistory = [];
+    function deleteSupplyUsageHistory(supplyId, quantity, cost, supplyRow){
+        deletedSupplyUsageHistory.push({
+            id: decodeHTMLEntities(supplyId),
+            quantity: decodeHTMLEntities(quantity),
+            cost: decodeHTMLEntities(cost)
+        });
+        supplyUsageHistory = supplyUsageHistory.filter(x=>x.id != decodeHTMLEntities(supplyId));
+        $(supplyRow).parents(".supply-row").remove();
+    }
 </script>
 <div id="supplyUsageHistoryModalContainer" class="d-none">
     <div class="modal-header">
@@ -22,35 +34,43 @@
                         <thead class="sticky-top">
                             <tr class="d-flex">
                                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Date")</th>
-                                @if(Model.Any(x=>!string.IsNullOrWhiteSpace(x.PartNumber))){
+                                @if(showPartNumber){
                                     <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
-                                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Description")</th>
+                                    <th scope="col" class="@(showDelete ? "col-2" : "col-4")">@translator.Translate(userLanguage, "Description")</th>
                                 } else
                                 {
-                                    <th scope="col" class="col-6">@translator.Translate(userLanguage, "Description")</th>
+                                    <th scope="col" class="@(showDelete ? "col-4" : "col-6")">@translator.Translate(userLanguage, "Description")</th>
                                 }
                                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Quantity")</th>
                                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Cost")</th>
+                                @if (showDelete){
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (SupplyUsageHistory usageHistory in Model)
                             {
                                 <script>
-                                    supplyUsageHistory.push({ date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), partNumber: decodeHTMLEntities('@usageHistory.PartNumber'), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")") })
+                                    supplyUsageHistory.push({ id: decodeHTMLEntities("@usageHistory.Id"), date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), partNumber: decodeHTMLEntities('@usageHistory.PartNumber'), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")") })
                                 </script>
-                                <tr class="d-flex">
+                                <tr class="d-flex supply-row">
                                     <td class="col-2">@StaticHelper.TruncateStrings(usageHistory.Date.ToShortDateString())</td>
-                                    @if (!string.IsNullOrWhiteSpace(usageHistory.PartNumber))
+                                    @if (showPartNumber)
                                     {
                                         <td class="col-2 text-truncate">@StaticHelper.TruncateStrings(usageHistory.PartNumber)</td>
-                                        <td class="col-4 text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description)</td>
+                                        <td class="@(showDelete ? "col-2" : "col-4") text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description)</td>
                                     } else
                                     {
-                                        <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description, 50)</td>
+                                        <td class="@(showDelete ? "col-4" : "col-6") text-truncate">@StaticHelper.TruncateStrings(usageHistory.Description, 50)</td>
                                     }
                                     <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
                                     <td class="col-2">@usageHistory.Cost.ToString("C2")</td>
+                                    @if (showDelete){
+                                        <td class="col-2">
+                                            <button type="button" class="btn btn-danger" onclick="deleteSupplyUsageHistory('@usageHistory.Id.ToString()', '@usageHistory.Quantity.ToString("F")', '@usageHistory.Cost.ToString("F")', this)"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    }
                                 </tr>
                             }
                         </tbody>

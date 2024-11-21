@@ -40,11 +40,15 @@ namespace CarCareTracker.Controllers
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (serviceRecord.Supplies.Any())
             {
-                serviceRecord.RequisitionHistory = RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description);
+                serviceRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(serviceRecord.Supplies, DateTime.Parse(serviceRecord.Date), serviceRecord.Description));
                 if (serviceRecord.CopySuppliesAttachment)
                 {
                     serviceRecord.Files.AddRange(GetSuppliesAttachments(serviceRecord.Supplies));
                 }
+            }
+            if (serviceRecord.DeletedRequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(serviceRecord.DeletedRequisitionHistory, serviceRecord.Description);
             }
             //push back any reminders
             if (serviceRecord.ReminderRecordId.Any())
@@ -87,10 +91,26 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ServiceRecordModal", convertedResult);
         }
+        private bool DeleteServiceRecordWithChecks(int serviceRecordId)
+        {
+            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteServiceRecordById(int serviceRecordId)
         {
-            var result = _serviceRecordDataAccess.DeleteServiceRecordById(serviceRecordId);
+            var result = DeleteServiceRecordWithChecks(serviceRecordId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Service Record - Id: {serviceRecordId}");

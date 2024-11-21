@@ -287,7 +287,7 @@ function startRecording() {
             navigator.wakeLock.request('screen').then((wl) => {
                 tripWakeLock = wl;
                 tripTimer = setInterval(() => {
-                    navigator.geolocation.getCurrentPosition(recordPosition, stopRecording, { maximumAge: 10000, timeout: 5000, enableHighAccuracy: true });
+                    navigator.geolocation.getCurrentPosition(recordPosition, stopRecording, { maximumAge: 1000, timeout: 4000, enableHighAccuracy: true });
                 }, 5000);
                 $(".trip-start").addClass('d-none');
                 $(".trip-stop").removeClass('d-none');
@@ -318,11 +318,16 @@ function recordPosition(position) {
         var distanceTraveled = calculateDistance(tripLastPosition.latitude, tripLastPosition.longitude, currentLat, currentLong);
         var recordedTotalOdometer = getRecordedOdometer();
         if (distanceTraveled >= 0.1) { //if greater than 0.1 mile or KM then it's significant
-            recordedTotalOdometer += parseFloat(distanceTraveled.toFixed(3));
-            var recordedOdometerString = recordedTotalOdometer.toFixed(3).toString().split('.');
+            recordedTotalOdometer += distanceTraveled;
+            var recordedOdometerString = recordedTotalOdometer.toString().split('.');
             $(".trip-odometer").html(recordedOdometerString[0]);
             if (recordedOdometerString.length == 2) {
-                $(".trip-odometer-sub").html(recordedOdometerString[1]);
+                if (recordedOdometerString[1].toString().length > 3) {
+                    $(".trip-odometer-sub").html(recordedOdometerString[1].toString().substring(0, 3));
+                } else {
+                    $(".trip-odometer-sub").html(recordedOdometerString[1].toString());
+                }
+                $(".trip-odometer-sub").attr("data-value", recordedOdometerString[1]);
             }
             //update last position
             tripLastPosition = {
@@ -384,8 +389,8 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return Math.abs(calculatedDistance);
 }
 function getRecordedOdometer() {
-    var recordedOdometer = parseInt($(".trip-odometer").html());
-    var recordedSubOdometer = parseInt($(".trip-odometer-sub").html());
+    var recordedOdometer = $(".trip-odometer").html();
+    var recordedSubOdometer = $(".trip-odometer-sub").attr("data-value");
     return parseFloat(`${recordedOdometer}.${recordedSubOdometer}`);
 }
 function saveRecordedOdometer() {

@@ -43,7 +43,7 @@
                         </div>
                     }
                     <label for="collisionRecordCost">@translator.Translate(userLanguage, "Cost")</label>
-                    <input type="text" inputmode="decimal" id="collisionRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the repair")" value="@(isNew ? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="collisionRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the repair")" value="@(isNew ? "" : Model.Cost)">
                     @if (isNew)
                     {
                         @await Html.PartialAsync("_SupplyStore", "RepairRecord")

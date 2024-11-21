@@ -1,14 +1,87 @@
 ﻿function getYear() {
     return $("#yearOption").val() ?? '0';
 }
+function getAndValidateSelectedColumns() {
+    var reportVisibleColumns = [];
+    var reportExtraFields = [];
+    $("#columnSelector :checked").map(function () {
+        if ($(this).hasClass('column-default')) {
+            reportVisibleColumns.push(this.value);
+        } else {
+            reportExtraFields.push(this.value);
+        }
+    });
+    if (reportVisibleColumns.length + reportExtraFields.length == 0) {
+        return {
+            hasError: true,
+            visibleColumns: [],
+            extraFields: []
+        }
+    } else {
+        return {
+            hasError: false,
+            visibleColumns: reportVisibleColumns,
+            extraFields: reportExtraFields
+        }
+    }
+}
+function getSavedReportParameters() {
+    var vehicleId = GetVehicleId().vehicleId;
+    var selectedReportColumns = sessionStorage.getItem(`${vehicleId}_selectedReportColumns`);
+    if (selectedReportColumns != null) {
+        selectedReportColumns = JSON.parse(selectedReportColumns);
+        //unselected everything
+        $(".column-extrafield").prop('checked', false);
+        $(".column-default").prop('checked', false);
+        //load selected checkboxes
+        selectedReportColumns.extraFields.map(x => {
+            $(`[value='${x}'].column-extrafield`).prop('checked', true);
+        })
+        selectedReportColumns.visibleColumns.map(x => {
+            $(`[value='${x}'].column-default`).prop('checked', true);
+        })
+    }
+}
 function generateVehicleHistoryReport() {
     var vehicleId = GetVehicleId().vehicleId;
-    $.get(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, function (data) {
+    $.get(`/Vehicle/GetReportParameters`, function (data) {
         if (data) {
-            $("#vehicleHistoryReport").html(data);
-            setTimeout(function () {
-                window.print();
-            }, 500);
+            //prompt user to select columns
+            Swal.fire({
+                title: 'Select Columns',
+                html: data,
+                confirmButtonText: 'Generate Report',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedColumnsData = getAndValidateSelectedColumns();
+                    if (selectedColumnsData.hasError) {
+                        Swal.showValidationMessage(`You must select at least one column`);
+                    }
+                    return { selectedColumnsData }
+                },
+                didOpen: () => {
+                    getSavedReportParameters();
+                }
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    //save params in sessionStorage
+                    sessionStorage.setItem(`${vehicleId}_selectedReportColumns`, JSON.stringify(result.value.selectedColumnsData));
+                    //post params
+                    $.post(`/Vehicle/GetVehicleHistory?vehicleId=${vehicleId}`, {
+                        reportParameter: result.value.selectedColumnsData
+                    }, function (data) {
+                        if (data) {
+                            $("#vehicleHistoryReport").html(data);
+                            setTimeout(function () {
+                                window.print();
+                            }, 500);
+                        }
+                    })
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -36,14 +109,16 @@ function setSelectedMetrics() {
     });
     var yearMetric = $('#yearOption').val();
     var reminderMetric = $("#reminderOption").val();
-    sessionStorage.setItem("selectedMetricCheckBoxes", JSON.stringify(selectedMetricCheckBoxes));
-    sessionStorage.setItem("yearMetric", yearMetric);
-    sessionStorage.setItem("reminderMetric", reminderMetric);
+    var vehicleId = GetVehicleId().vehicleId;
+    sessionStorage.setItem(`${vehicleId}_selectedMetricCheckBoxes`, JSON.stringify(selectedMetricCheckBoxes));
+    sessionStorage.setItem(`${vehicleId}_yearMetric`, yearMetric);
+    sessionStorage.setItem(`${vehicleId}_reminderMetric`, reminderMetric);
 }
 function getSelectedMetrics() {
-    var selectedMetricCheckBoxes = sessionStorage.getItem("selectedMetricCheckBoxes");
-    var yearMetric = sessionStorage.getItem("yearMetric");
-    var reminderMetric = sessionStorage.getItem("reminderMetric");
+    var vehicleId = GetVehicleId().vehicleId;
+    var selectedMetricCheckBoxes = sessionStorage.getItem(`${vehicleId}_selectedMetricCheckBoxes`);
+    var yearMetric = sessionStorage.getItem(`${vehicleId}_yearMetric`);
+    var reminderMetric = sessionStorage.getItem(`${vehicleId}_reminderMetric`);
     if (selectedMetricCheckBoxes != null && yearMetric != null && reminderMetric != null) {
         selectedMetricCheckBoxes = JSON.parse(selectedMetricCheckBoxes);
         $(".reportCheckBox").prop('checked', false);
@@ -264,4 +339,13 @@ function loadGlobalSearchResult(recordId, recordType) {
             waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
             break;
     }
+}
+function loadCustomWidgets() {
+    $.get('/Vehicle/GetAdditionalWidgets', function (data) {
+        $("#vehicleCustomWidgetsModalContent").html(data);
+        $("#vehicleCustomWidgetsModal").modal('show');
+    })
+}
+function hideCustomWidgetsModal() {
+    $("#vehicleCustomWidgetsModal").modal('hide');
 }

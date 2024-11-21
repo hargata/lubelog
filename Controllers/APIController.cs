@@ -125,55 +125,7 @@ namespace CarCareTracker.Controllers
                 vehicles.AddRange(result);
             }
 
-            List<VehicleInfo> apiResult = new List<VehicleInfo>();
-
-            foreach(Vehicle vehicle in vehicles)
-            {
-                var currentMileage = _vehicleLogic.GetMaxMileage(vehicle.Id);
-                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
-                var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
-
-                var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id);
-                var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id);
-                var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id);
-                var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id);
-                var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id);
-                var planRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id);
-
-                var resultToAdd = new VehicleInfo()
-                {
-                    VehicleData = vehicle,
-                    LastReportedOdometer = currentMileage,
-                    ServiceRecordCount = serviceRecords.Count(),
-                    ServiceRecordCost = serviceRecords.Sum(x=>x.Cost),
-                    RepairRecordCount = repairRecords.Count(),
-                    RepairRecordCost = repairRecords.Sum(x=>x.Cost),
-                    UpgradeRecordCount = upgradeRecords.Count(),
-                    UpgradeRecordCost = upgradeRecords.Sum(x=>x.Cost),
-                    GasRecordCount = gasRecords.Count(),
-                    GasRecordCost = gasRecords.Sum(x=>x.Cost),
-                    TaxRecordCount = taxRecords.Count(),
-                    TaxRecordCost = taxRecords.Sum(x=> x.Cost),
-                    VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),
-                    PastDueReminderCount = results.Count(x => x.Urgency == ReminderUrgency.PastDue),
-                    UrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.Urgent),
-                    NotUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.NotUrgent),
-                    PlanRecordBackLogCount = planRecords.Count(x=>x.Progress == PlanProgress.Backlog),
-                    PlanRecordInProgressCount = planRecords.Count(x=>x.Progress == PlanProgress.InProgress),
-                    PlanRecordTestingCount = planRecords.Count(x=>x.Progress == PlanProgress.Testing),
-                    PlanRecordDoneCount = planRecords.Count(x=>x.Progress == PlanProgress.Done)
-                };
-                //set next reminder
-                if (results.Any(x => (x.Metric == ReminderMetric.Date || x.Metric == ReminderMetric.Both) && x.Date >= DateTime.Now.Date))
-                {
-                    resultToAdd.NextReminder = results.Where(x => x.Date >= DateTime.Now.Date).OrderBy(x => x.Date).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
-                }
-                else if (results.Any(x => (x.Metric == ReminderMetric.Odometer || x.Metric == ReminderMetric.Both) && x.Mileage >= currentMileage))
-                {
-                    resultToAdd.NextReminder = results.Where(x => x.Mileage >= currentMileage).OrderBy(x => x.Mileage).Select(x => new ReminderExportModel { Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString() }).First();
-                }
-                apiResult.Add(resultToAdd);
-            }
+            var apiResult = _vehicleLogic.GetVehicleInfo(vehicles);
             return Json(apiResult);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -198,9 +150,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -213,23 +163,18 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/servicerecords/add")]
         public IActionResult AddServiceRecord(int vehicleId, GenericRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Description) ||
                 string.IsNullOrWhiteSpace(input.Odometer) ||
                 string.IsNullOrWhiteSpace(input.Cost))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
             try
             {
@@ -241,7 +186,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -256,16 +202,12 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Service Record via API - Description: {serviceRecord.Description}");
-                response.Success = true;
-                response.Message = "Service Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Service Record Added"));
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -275,9 +217,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -290,23 +230,18 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/repairrecords/add")]
         public IActionResult AddRepairRecord(int vehicleId, GenericRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Description) ||
                 string.IsNullOrWhiteSpace(input.Odometer) ||
                 string.IsNullOrWhiteSpace(input.Cost))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
             try
             {
@@ -318,7 +253,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -333,16 +269,12 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Repair Record via API - Description: {repairRecord.Description}");
-                response.Success = true;
-                response.Message = "Repair Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Repair Record Added"));
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -352,9 +284,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -367,23 +297,18 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/upgraderecords/add")]
         public IActionResult AddUpgradeRecord(int vehicleId, GenericRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Description) ||
                 string.IsNullOrWhiteSpace(input.Odometer) ||
                 string.IsNullOrWhiteSpace(input.Cost))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Description, Odometer, and Cost cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
             try
             {
@@ -395,7 +320,8 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -410,16 +336,12 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Upgrade Record via API - Description: {upgradeRecord.Description}");
-                response.Success = true;
-                response.Message = "Upgrade Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Upgrade Record Added"));
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -429,9 +351,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -443,22 +363,17 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/taxrecords/add")]
         public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Description) ||
                 string.IsNullOrWhiteSpace(input.Cost))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Description, and Cost cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date, Description, and Cost cannot be empty."));
             }
             try
             {
@@ -469,20 +384,17 @@ namespace CarCareTracker.Controllers
                     Description = input.Description,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
-                response.Success = true;
-                response.Message = "Tax Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Tax Record Added"));
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -492,9 +404,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -508,9 +418,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -528,21 +436,16 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/odometerrecords/add")]
         public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Odometer))
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date and Odometer cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date and Odometer cannot be empty."));
             }
             try
             {
@@ -553,19 +456,16 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     InitialMileage = (string.IsNullOrWhiteSpace(input.InitialOdometer) || int.Parse(input.InitialOdometer) == default) ? _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()) : int.Parse(input.InitialOdometer),
                     Mileage = int.Parse(input.Odometer),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Odometer Record via API - Mileage: {odometerRecord.Mileage.ToString()}");
-                response.Success = true;
-                response.Message = "Odometer Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Odometer Record Added"));
             } catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -575,9 +475,7 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
@@ -601,13 +499,10 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/gasrecords/add")]
         public IActionResult AddGasRecord(int vehicleId, GasRecordExportModel input)
         {
-            var response = new OperationResponse();
             if (vehicleId == default)
             {
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             if (string.IsNullOrWhiteSpace(input.Date) ||
                 string.IsNullOrWhiteSpace(input.Odometer) ||
@@ -617,10 +512,8 @@ namespace CarCareTracker.Controllers
                 string.IsNullOrWhiteSpace(input.MissedFuelUp)
                 )
             {
-                response.Success = false;
-                response.Message = "Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty.";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
             }
             try
             {
@@ -634,7 +527,8 @@ namespace CarCareTracker.Controllers
                     MissedFuelUp = bool.Parse(input.MissedFuelUp),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
-                    ExtraFields = input.ExtraFields
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -649,16 +543,12 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Gas record via API - Mileage: {gasRecord.Mileage.ToString()}");
-                response.Success = true;
-                response.Message = "Gas Record Added";
-                return Json(response);
+                return Json(OperationResponse.Succeed("Gas Record Added"));
             }
             catch (Exception ex)
             {
-                response.Success = false;
-                response.Message = ex.Message;
                 Response.StatusCode = 500;
-                return Json(response);
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -668,11 +558,8 @@ namespace CarCareTracker.Controllers
         {
             if (vehicleId == default)
             {
-                var response = new OperationResponse();
-                response.Success = false;
-                response.Message = "Must provide a valid vehicle id";
                 Response.StatusCode = 400;
-                return Json(response);
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
@@ -720,17 +607,17 @@ namespace CarCareTracker.Controllers
             }
             if (!operationResponses.Any())
             {
-                return Json(new OperationResponse { Success = false, Message = "No Emails Sent, No Vehicles Available or No Recipients Configured" });
+                return Json(OperationResponse.Failed("No Emails Sent, No Vehicles Available or No Recipients Configured"));
             }
             else if (operationResponses.All(x => x.Success))
             {
-                return Json(new OperationResponse { Success = true, Message = $"Emails Sent({operationResponses.Count()})" });
+                return Json(OperationResponse.Succeed($"Emails Sent({operationResponses.Count()})"));
             } else if (operationResponses.All(x => !x.Success))
             {
-                return Json(new OperationResponse { Success = false, Message = $"All Emails Failed({operationResponses.Count()}), Check SMTP Settings" });
+                return Json(OperationResponse.Failed($"All Emails Failed({operationResponses.Count()}), Check SMTP Settings"));
             } else
             {
-                return Json(new OperationResponse { Success = true, Message = $"Emails Sent({operationResponses.Count(x => x.Success)}), Emails Failed({operationResponses.Count(x => !x.Success)}), Check Recipient Settings" });
+                return Json(OperationResponse.Succeed($"Emails Sent({operationResponses.Count(x => x.Success)}), Emails Failed({operationResponses.Count(x => !x.Success)}), Check Recipient Settings"));
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]

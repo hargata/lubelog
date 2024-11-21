@@ -44,10 +44,18 @@
                             <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                         </div>
                     }
+                    <label for="inputIdentifier" class="@(!Model.ExtraFields.Any() ? "d-none" : "")">@translator.Translate(userLanguage, "Identifier")</label>
+                    <select class="form-select @(!Model.ExtraFields.Any() ? "d-none" : "")" id="inputIdentifier" )>
+                        <!option value="LicensePlate" @(Model.VehicleIdentifier == "LicensePlate" ? "selected" : "")>@translator.Translate(userLanguage, "License Plate")</!option>
+                        @foreach(ExtraField field in Model.ExtraFields)
+                        {
+                            <!option value="@field.Name" @(Model.VehicleIdentifier == field.Name ? "selected" : "")>@field.Name</!option>
+                        }
+                    </select>
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="inputFuelType">@translator.Translate(userLanguage, "Fuel Type")</label>
-                    <select class="form-select" onchange="checkCustomMonthInterval()" id="inputFuelType")>
+                    <select class="form-select" id="inputFuelType")>
                         <!option value="Gasoline" @(!Model.IsDiesel && !Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Gasoline")</!option>
                         <!option value="Diesel" @(Model.IsDiesel ? "selected" : "")>@translator.Translate(userLanguage, "Diesel")</!option>
                         <!option value="Electric" @(Model.IsElectric ? "selected" : "")>@translator.Translate(userLanguage, "Electric")</!option>
@@ -95,9 +103,9 @@
                                 <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
                                 <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
                                 <label for="inputPurchasePrice">@translator.Translate(userLanguage, "Purchased Price(optional)")</label>
-                                <input type="text" inputmode="decimal" id="inputPurchasePrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Price")" value="@(Model.PurchasePrice == default ? "" : Model.PurchasePrice)">
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="inputPurchasePrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Price")" value="@(Model.PurchasePrice == default ? "" : Model.PurchasePrice)">
                                 <label for="inputSoldPrice">@translator.Translate(userLanguage, "Sold Price(optional)")</label>
-                                <input type="text" inputmode="decimal" id="inputSoldPrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Price")" value="@(Model.SoldPrice == default ? "" : Model.SoldPrice)">
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="inputSoldPrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Price")" value="@(Model.SoldPrice == default ? "" : Model.SoldPrice)">
                             </div>
                         </div>
                     </div>

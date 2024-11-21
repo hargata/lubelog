@@ -55,7 +55,7 @@ namespace CarCareTracker.Controllers
                         }
                     }
                 }
-                var successResponse = new OperationResponse { Success = true, Message = "Token Generated!" };
+                var successResponse = OperationResponse.Succeed("Token Generated!");
                 return Json(successResponse);
             } else
             {
