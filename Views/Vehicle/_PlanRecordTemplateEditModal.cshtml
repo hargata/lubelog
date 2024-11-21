@@ -21,7 +21,7 @@
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
                     <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
-                    @await Html.PartialAsync("_SupplyStore", "PlanRecordTemplate")
+                    @await Html.PartialAsync("_SupplyStore", new SupplyStore { Tab = "PlanRecordTemplate", AdditionalSupplies = Model.RequisitionHistory.Any() })
                     <label for="planRecordType">@translator.Translate(userLanguage, "Type")</label>
                     <select class="form-select" id="planRecordType">
                         <!option value="ServiceRecord" @(Model.ImportMode == ImportMode.ServiceRecord || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Service")</!option>
@@ -85,7 +85,7 @@
     <button type="button" class="btn btn-secondary" onclick="hideAddPlanRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
     <button type="button" class="btn btn-primary" onclick="savePlanRecordTemplate(true)">@translator.Translate(userLanguage, "Edit Plan Record Template")</button>
 </div>
-@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
+@await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "planRecordCost" })
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];
