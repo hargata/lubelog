@@ -960,8 +960,9 @@ function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item")
-    if (!(e.ctrlKey || e.metaKey) && !contextMenuAction) {
+    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item");
+    var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
+    if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
     }
     isDragging = true;
@@ -984,7 +985,7 @@ function stopEvent() {
 }
 function rangeMouseUp(e) {
     if ($(".table-context-menu").length > 0) {
-        $(".table-context-menu").hide();
+        $(".table-context-menu").fadeOut("fast");
     }
     if (isRightClick(e)) {
         return;
@@ -1029,7 +1030,8 @@ function showTableContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".table-context-menu").show();
+    $(".table-context-menu").removeClass('table-context-menu-mobile');
+    $(".table-context-menu").fadeIn("fast");
     determineContextMenuItems();
     $(".table-context-menu").css({
         position: "absolute",
@@ -1090,7 +1092,8 @@ function getMenuPosition(mouse, direction, scrollDir) {
     return position;
 }
 function handleTableRowClick(e, callBack, rowId) {
-    if (!(event.ctrlKey || event.metaKey)) {
+    var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
+    if (!(event.ctrlKey || event.metaKey || selectMode)) {
         callBack(rowId);
     } else if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
@@ -1107,13 +1110,9 @@ function showTableContextMenuForMobile(e, xPosition, yPosition) {
         $(e).addClass('table-active');
         shakeTableRow(e);
     } else {
-        $(".table-context-menu").show();
+        $(".table-context-menu").addClass('table-context-menu-mobile');
+        $(".table-context-menu").fadeIn("fast");
         determineContextMenuItems();
-        $(".table-context-menu").css({
-            position: "absolute",
-            left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
-            top: getMenuPosition(yPosition, 'height', 'scrollTop')
-        });
     }
 }
 function shakeTableRow(e) {

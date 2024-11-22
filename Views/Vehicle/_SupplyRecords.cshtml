@@ -46,6 +46,13 @@
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="searchTableRows('supply-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
@@ -187,7 +194,7 @@
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
 </ul>
 @if (userColumnPreferences.Any())
 {
