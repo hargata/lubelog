@@ -558,6 +558,55 @@ namespace CarCareTracker.Controllers
             }).ToList();
             return PartialView("_GasCostByMonthReport", groupedRecord);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult GetCostByMonthAndYearByVehicle(int vehicleId, List<ImportMode> selectedMetrics, int year = 0)
+        {
+            List<CostForVehicleByMonth> allCosts = StaticHelper.GetBaseLineCosts();
+            if (selectedMetrics.Contains(ImportMode.ServiceRecord))
+            {
+                var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetServiceRecordSum(serviceRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.RepairRecord))
+            {
+                var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetRepairRecordSum(repairRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.UpgradeRecord))
+            {
+                var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.GasRecord))
+            {
+                var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.TaxRecord))
+            {
+                var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.OdometerRecord))
+            {
+                var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetOdometerRecordSum(odometerRecords, year, true));
+            }
+            var groupedRecord = allCosts.GroupBy(x => new { x.MonthName, x.MonthId, x.Year }).OrderByDescending(x=>x.Key.Year).Select(x => new CostForVehicleByMonth
+            {
+                Year = x.Key.Year,
+                MonthName = x.Key.MonthName,
+                Cost = x.Sum(y => y.Cost),
+                DistanceTraveled = x.Max(y => y.DistanceTraveled),
+                MonthId = x.Key.MonthId
+            }).ToList();
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var userConfig = _config.GetUserConfig(User);
+            var viewModel = new CostDistanceTableForVehicle { CostData = groupedRecord };
+            viewModel.DistanceUnit = vehicleData.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
+            return PartialView("_CostDistanceTableReport", viewModel);
+        }
         [HttpGet]
         public IActionResult GetAdditionalWidgets()
         {
