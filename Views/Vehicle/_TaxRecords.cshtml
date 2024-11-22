@@ -117,7 +117,7 @@
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@taxRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditTaxRecordModal,@taxRecord.Id)" data-tags='@string.Join(" ", taxRecord.Tags)'>
                         <td class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@taxRecord.Description</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && taxRecord.Cost == default) ? "---" : taxRecord.Cost.ToString("C"))</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(taxRecord.Cost, hideZero))</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {

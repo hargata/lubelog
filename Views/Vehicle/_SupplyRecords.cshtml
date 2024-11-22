@@ -141,7 +141,7 @@
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@supplyRecord.PartSupplier</td>
                         <td class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(supplyRecord.Cost, hideZero))</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {

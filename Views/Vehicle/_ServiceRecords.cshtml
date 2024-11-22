@@ -125,7 +125,7 @@
                         <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(serviceRecord.Date)">@serviceRecord.Date.ToShortDateString()</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(serviceRecord.Mileage == default ? "---" : serviceRecord.Mileage.ToString())</td>
                         <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@serviceRecord.Description</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && serviceRecord.Cost == default) ? "---" : serviceRecord.Cost.ToString("C"))</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(serviceRecord.Cost, hideZero))</td>
                         <td class="col-3 text-truncate flex-grow-1 flex-shrink-1" data-column="notes">@StaticHelper.TruncateStrings(serviceRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {

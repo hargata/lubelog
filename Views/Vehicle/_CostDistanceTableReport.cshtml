@@ -6,7 +6,7 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var hideZero = userConfig.HideZero;
-    var years = Model.CostData.Select(x => x.Year).Distinct();
+    var years = Model.CostData.Select(x => x.Year).OrderByDescending(x => x).Distinct();
     var months = Model.CostData.OrderBy(x => x.MonthId).Select(x => x.MonthName).Distinct();
 }
 @if (Model.CostData.Any())
