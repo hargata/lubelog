@@ -12,7 +12,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetNotesByVehicleId(int vehicleId)
         {
             var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
-            result = result.OrderByDescending(x => x.Pinned).ToList();
+            result = result.OrderByDescending(x => x.Pinned).ThenBy(x => x.Description).ToList();
             return PartialView("_Notes", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
