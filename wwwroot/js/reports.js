@@ -176,6 +176,58 @@ function refreshBarChart() {
     });
     setSelectedMetrics();
 }
+function showBarChartTable() {
+    var selectedMetrics = [];
+    var vehicleId = GetVehicleId().vehicleId;
+    var year = getYear();
+
+    if ($("#serviceExpenseCheck").is(":checked")) {
+        selectedMetrics.push('ServiceRecord');
+    }
+    if ($("#repairExpenseCheck").is(":checked")) {
+        selectedMetrics.push('RepairRecord');
+    }
+    if ($("#upgradeExpenseCheck").is(":checked")) {
+        selectedMetrics.push('UpgradeRecord');
+    }
+    if ($("#gasExpenseCheck").is(":checked")) {
+        selectedMetrics.push('GasRecord');
+    }
+    if ($("#taxExpenseCheck").is(":checked")) {
+        selectedMetrics.push('TaxRecord');
+    }
+    if ($("#odometerExpenseCheck").is(":checked")) {
+        selectedMetrics.push('OdometerRecord');
+    }
+
+    $.post('/Vehicle/GetCostByMonthAndYearByVehicle',
+        {
+            vehicleId: vehicleId,
+            selectedMetrics: selectedMetrics,
+            year: year
+        }, function (data) {
+            $("#vehicleDataTableModalContent").html(data);
+            $("#vehicleDataTableModal").modal('show');
+        });
+}
+function toggleBarChartTableData() {
+    //find out which column data type is shown
+    if (!$('[report-data="cost"]').hasClass('d-none')) {
+        //currently cost is shown.
+        $('[report-data="cost"]').addClass('d-none');
+        $('[report-data="distance"]').removeClass('d-none');
+    }
+    else if (!$('[report-data="distance"]').hasClass('d-none')) {
+        //currently distance is shown.
+        $('[report-data="distance"]').addClass('d-none');
+        $('[report-data="costperdistance"]').removeClass('d-none');
+    }
+    else if (!$('[report-data="costperdistance"]').hasClass('d-none')) {
+        //currently cost per distance is shown.
+        $('[report-data="costperdistance"]').addClass('d-none');
+        $('[report-data="cost"]').removeClass('d-none');
+    }
+}
 function updateReminderPie() {
     var vehicleId = GetVehicleId().vehicleId;
     var daysToAdd = $("#reminderOption").val();

@@ -601,6 +601,27 @@ namespace CarCareTracker.Helper
                 _csv.NextRecord();
             }
         }
+        public static string HideZeroCost(string input, bool hideZero, string decorations = "")
+        {
+            if (input == 0M.ToString("C2") && hideZero)
+            {
+                return "---";
+            } else
+            {
+                return string.IsNullOrWhiteSpace(decorations) ? input : $"{input}{decorations}";
+            }
+        }
+        public static string HideZeroCost(decimal input, bool hideZero, string decorations = "")
+        {
+            if (input == default && hideZero)
+            {
+                return "---";
+            }
+            else
+            {
+                return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
+            }
+        }
         public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords)
         {
             var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
