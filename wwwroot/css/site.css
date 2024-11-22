@@ -211,6 +211,11 @@ html {
     }
 }
 
+.btn-check:checked + .dropdown-item, :not(.btn-check) + .dropdown-item:active {
+    color: #fff;
+    background-color: #0d6efd;
+}
+
 /*Media Queries*/
 @media (max-width: 576px) {
     .lubelogger-tab {
@@ -282,6 +287,13 @@ html {
 
 .table-context-menu {
     z-index: 1030;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+.table-context-menu-mobile {
+    position: absolute;
+    left: 1vw;
+    bottom: 1vw;
+    width:98vw;
 }
 
 input[type="file"] {
