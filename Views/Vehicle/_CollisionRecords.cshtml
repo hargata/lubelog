@@ -15,6 +15,11 @@
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.RepairRecord);
 }
 @model List<CollisionRecord>
+<script>
+    var tableArray = [];
+    var tablePageSize = 0;
+    let tableRowHeight = 0;
+</script>
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap">
@@ -151,6 +156,7 @@
                             </td>
                         }
                     </tr>
+                    <script>addTableRowToArray()</script>
                 }
             </tbody>
             <tfoot>
@@ -193,3 +199,4 @@
 {
     @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
 }
+<script>virtualizeTable()</script>

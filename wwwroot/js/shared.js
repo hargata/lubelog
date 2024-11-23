@@ -1340,3 +1340,38 @@ function togglePasswordVisibility(elem) {
         passwordButton.addClass('bi-eye');
     }
 }
+function addTableRowToArray() {
+    var tableRowToAdd = $("tbody tr")[0];
+    tableArray.push(tableRowToAdd);
+    tableRowToAdd.remove();
+}
+function virtualizeTable() {
+    //add the first item to the table body so we can calculate the height.
+    $("tbody").append(tableArray[0]);
+    tableRowHeight = $("tbody tr").height();
+    var totalTableHeight = tableArray.length * tableRowHeight;
+    $("tbody").height(totalTableHeight);
+    $("tbody tr").remove();
+    var viewportHeight = $(".vehicleDetailTabContainer").height();
+    var pageSize = Math.ceil(viewportHeight % tableRowHeight);
+    tablePageSize = pageSize;
+    renderVirtualizedItems(0, pageSize); //render first page.
+    //tableContainer.addEventListener('scroll', updateVisibleRows);
+    $(".vehicleDetailTabContainer").on('scroll', () => { updateVirtualizedItems(); });
+}
+function renderVirtualizedItems(startIndex, endIndex) {
+    $("tbody").html("");
+    //create an empty row so we can pad the table.
+    var padRowHeight = startIndex * tableRowHeight;
+    var padRow = `<tr style="height:${padRowHeight}px;"></tr>`
+    $("tbody").append(padRow);
+    for (let i = startIndex; i <= endIndex; i++) {
+        $("tbody").append(tableArray[i]);
+    }
+}
+function updateVirtualizedItems() {
+    let containerScrollTop = $(".vehicleDetailTabContainer").scrollTop();
+    let startIndex = Math.floor(containerScrollTop / tableRowHeight);
+    let endIndex = startIndex + tablePageSize;
+    renderVirtualizedItems(startIndex, endIndex);
+}
