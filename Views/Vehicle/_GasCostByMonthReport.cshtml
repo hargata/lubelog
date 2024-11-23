@@ -52,8 +52,11 @@
                         ]
                     },
                     options: {
-                        onClick: (e) => {
-                            showBarChartTable();
+                        onClick: (e, a, c) => {
+                            showBarChartTable(a);
+                        },
+                        onHover: (e, a, c) => {
+                            a.length > 0 ? c.canvas.style.cursor = 'pointer' : c.canvas.style.cursor = 'default';
                         },
                         plugins: {
                             title: {
