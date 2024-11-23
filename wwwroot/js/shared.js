@@ -479,7 +479,7 @@ function updateAggregateLabels() {
     var sumLabel = $("[data-aggregate-type='sum']");
     if (sumLabel.length > 0) {
         var labelsToSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray();
-        var newSum = 0;
+        var newSum = "0.00";
         if (labelsToSum.length > 0) {
             newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
         }
