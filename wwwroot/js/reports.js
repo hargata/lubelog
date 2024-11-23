@@ -176,7 +176,7 @@ function refreshBarChart() {
     });
     setSelectedMetrics();
 }
-function showBarChartTable() {
+function showBarChartTable(elemClicked) {
     var selectedMetrics = [];
     var vehicleId = GetVehicleId().vehicleId;
     var year = getYear();
@@ -208,6 +208,14 @@ function showBarChartTable() {
         }, function (data) {
             $("#vehicleDataTableModalContent").html(data);
             $("#vehicleDataTableModal").modal('show');
+            //highlight clicked row.
+            if (elemClicked.length > 0) {
+                var rowClickedIndex = elemClicked[0].index + 1;
+                var rowToHighlight = $("#vehicleDataTableModalContent").find(`tbody > tr:nth-child(${rowClickedIndex})`);
+                if (rowToHighlight.length > 0) {
+                    rowToHighlight.addClass('table-info');
+                }
+            }
         });
 }
 function toggleBarChartTableData() {
@@ -311,12 +319,19 @@ function exportAttachments() {
         }
     });
 }
-function showDataTable() {
+function showDataTable(elemClicked) {
     var vehicleId = GetVehicleId().vehicleId;
     var year = getYear();
     $.get(`/Vehicle/GetCostTableForVehicle?vehicleId=${vehicleId}`, { year: year }, function (data) {
         $("#vehicleDataTableModalContent").html(data);
         $("#vehicleDataTableModal").modal('show');
+        if (elemClicked.length > 0) {
+            var rowClickedIndex = elemClicked[0].index + 1;
+            var rowToHighlight = $("#vehicleDataTableModalContent").find(`tbody > tr:nth-child(${rowClickedIndex})`);
+            if (rowToHighlight.length > 0) {
+                rowToHighlight.addClass('table-info');
+            }
+        }
     });
 }
 function hideDataTable() {

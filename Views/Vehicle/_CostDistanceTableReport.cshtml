@@ -22,10 +22,10 @@
                     <table class="table table-hover">
                         <thead class="sticky-top">
                             <tr class="d-flex">
-                                <th scope="col" onclick="toggleBarChartTableData()" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@(translator.Translate(userLanguage, "Year"))</th>
+                                <th scope="col" style="cursor:pointer;" onclick="toggleBarChartTableData()" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@(translator.Translate(userLanguage, "Year"))</th>
                                 @foreach(int year in years){
                                     if (year != default){
-                                        <th scope="col" onclick="toggleBarChartTableData()" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@year</th>
+                                        <th scope="col" style="cursor:pointer;" onclick="toggleBarChartTableData()" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@year</th>
                                     }
                                 }
                             </tr>
