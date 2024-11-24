@@ -173,17 +173,17 @@
 </div>
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
-    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
-    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
-    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleOdometerRecords(selectedRow)">@translator.Translate(userLanguage, "Edit Multiple")</a></li>
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleOdometerRecords(selectedRow)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Edit Multiple")</span><i class="bi bi-pencil-square"></i></div></a></li>
     <li><hr class="context-menu-multiple context-menu-deselect-all dropdown-divider"></li>
-    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="recalculateDistance()">@translator.Translate(userLanguage, "Recalculate Distance")</a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="recalculateDistance()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Recalculate Distance")</span><i class="bi bi-plus-slash-minus"></i></div></a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
-    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'OdometerRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'OdometerRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'OdometerRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
     <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
-    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'OdometerRecord')">@translator.Translate(userLanguage, "Adjust Odometer")</a></li>
+    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'OdometerRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Adjust Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
 </ul>
 @if (userColumnPreferences.Any())
 {

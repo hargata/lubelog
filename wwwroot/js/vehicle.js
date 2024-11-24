@@ -368,6 +368,9 @@ function showRecurringReminderSelector(descriptionFieldName) {
     })
 }
 function editMultipleRecords(ids, dataType) {
+    if (ids.length < 2) {
+        return;
+    }
     $.post('/Vehicle/GetGenericRecordModal', { recordIds: ids, dataType: dataType }, function (data) {
         if (data) {
             $("#genericRecordEditModalContent").html(data);

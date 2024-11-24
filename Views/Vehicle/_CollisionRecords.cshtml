@@ -173,21 +173,21 @@
 </div>
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
-    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
-    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
-    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleRecords(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Edit Multiple")</a></li>
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Edit Multiple")</span><i class="bi bi-pencil-square"></i></div></a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Move To")</h6></li>
-    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'ServiceRecord')">@translator.Translate(userLanguage, "Service Records")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'UpgradeRecord')">@translator.Translate(userLanguage, "Upgrades")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'ServiceRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Service Records")</span><i class="bi bi-card-checklist"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'UpgradeRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Upgrades")</span><i class="bi bi-wrench-adjustable"></i></div></a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
-    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
     <li><hr class="context-menu-active-multiple dropdown-divider"></li>
-    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="getRecordsDeltaStats(selectedRow)">@translator.Translate(userLanguage, "Statistics")</a></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="getRecordsDeltaStats(selectedRow)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Statistics")</span><i class="bi bi-graph-up"></i></div></a></li>
     <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
-    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'RepairRecord')">@translator.Translate(userLanguage, "Adjust Odometer")</a></li>
+    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Adjust Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
 </ul>
 @if (userColumnPreferences.Any())
 {

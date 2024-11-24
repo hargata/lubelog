@@ -288,12 +288,19 @@ html {
 .table-context-menu {
     z-index: 1030;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
-}
-.table-context-menu-mobile {
     position: absolute;
-    left: 1vw;
-    bottom: 1vw;
-    width:98vw;
+}
+
+html[data-bs-theme="dark"] .table-context-menu {
+    background-color: rgba(33, 37, 41, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-bs-theme="light"] .table-context-menu {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 input[type="file"] {
