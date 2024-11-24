@@ -825,6 +825,10 @@ function duplicateRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            break;
     }
 
     Swal.fire({
@@ -893,6 +897,10 @@ function duplicateRecordsToOtherVehicles(ids, source) {
         case "GasRecord":
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
+            break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
             break;
     }
 

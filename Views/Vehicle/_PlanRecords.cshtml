@@ -117,3 +117,15 @@
         </div>
     </div>
 </div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><h6 class="dropdown-header context-menu-move move-header">@translator.Translate(userLanguage, "Move To")</h6></li>
+    <li><a class="dropdown-item context-menu-move move-planned" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Planned")</span><i class="bi bi-list-task"></i></div></a></li>
+    <li><a class="dropdown-item context-menu-move move-doing" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Doing")</span><i class="bi bi-tools"></i></div></a></li>
+    <li><a class="dropdown-item context-menu-move move-testing" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Testing")</span><i class="bi bi-eyeglasses"></i></div></a></li>
+    <li><a class="dropdown-item context-menu-move move-done" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Done")</span><i class="bi bi-check2-all"></i></div></a></li>
+    <li><hr class="context-menu-move move-header dropdown-divider"></li>
+    <li><a class="dropdown-item context-menu-move move-header context-menu-duplicate" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item context-menu-move move-header context-menu-duplicate-vehicle" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item context-menu-move move-header text-danger context-menu-delete" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>

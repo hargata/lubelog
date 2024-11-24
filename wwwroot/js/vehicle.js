@@ -552,6 +552,7 @@ function adjustRecordsOdometer(ids, source) {
         confirmButtonColor: "#dc3545"
     }).then((result) => {
         if (result.isConfirmed) {
+            saveScrollPosition();
             $.post('/Vehicle/AdjustRecordsOdometer', { recordIds: ids, vehicleId: GetVehicleId().vehicleId, importMode: source }, function (data) {
                 if (data) {
                     successToast(`${ids.length} Record(s) Updated`);

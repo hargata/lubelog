@@ -151,6 +151,10 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress, int odometer = 0)
         {
+            if (planRecordId == default)
+            {
+                return Json(false);
+            }
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             existingRecord.Progress = planProgress;
             existingRecord.DateModified = DateTime.Now;
