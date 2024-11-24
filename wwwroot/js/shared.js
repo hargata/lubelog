@@ -825,6 +825,10 @@ function duplicateRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            break;
     }
 
     Swal.fire({
@@ -894,6 +898,10 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            break;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -960,7 +968,7 @@ function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item");
+    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item");
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
     if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
@@ -1030,11 +1038,9 @@ function showTableContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".table-context-menu").removeClass('table-context-menu-mobile');
     $(".table-context-menu").fadeIn("fast");
     determineContextMenuItems();
     $(".table-context-menu").css({
-        position: "absolute",
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
         top: getMenuPosition(event.clientY, 'height', 'scrollTop')
     });
@@ -1110,8 +1116,11 @@ function showTableContextMenuForMobile(e, xPosition, yPosition) {
         $(e).addClass('table-active');
         shakeTableRow(e);
     } else {
-        $(".table-context-menu").addClass('table-context-menu-mobile');
         $(".table-context-menu").fadeIn("fast");
+        $(".table-context-menu").css({
+            left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
+            top: getMenuPosition(yPosition, 'height', 'scrollTop')
+        });
         determineContextMenuItems();
     }
 }

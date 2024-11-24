@@ -417,6 +417,9 @@ function searchGasTableRows() {
     });
 }
 function editMultipleGasRecords(ids) {
+    if (ids.length < 2) {
+        return;
+    }
     $.post('/Vehicle/GetGasRecordsEditModal', { recordIds: ids }, function (data) {
         if (data) {
             $("#gasRecordModalContent").html(data);
