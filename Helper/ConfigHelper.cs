@@ -29,35 +29,30 @@ namespace CarCareTracker.Helper
     {
         private readonly IConfiguration _config;
         private readonly IUserConfigDataAccess _userConfig;
+        private readonly ILogger<IConfigHelper> _logger;
         private IMemoryCache _cache;
         public ConfigHelper(IConfiguration serverConfig, 
             IUserConfigDataAccess userConfig,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            ILogger<IConfigHelper> logger)
         {
             _config = serverConfig;
             _userConfig = userConfig;
             _cache = memoryCache;
+            _logger = logger;
         }
         public string GetWebHookUrl()
         {
-            var webhook = _config["LUBELOGGER_WEBHOOK"];
-            if (string.IsNullOrWhiteSpace(webhook))
-            {
-                webhook = "";
-            }
+            var webhook = CheckString("LUBELOGGER_WEBHOOK");
             return webhook;
         }
         public bool GetCustomWidgetsEnabled()
         {
-            return bool.Parse(_config["LUBELOGGER_CUSTOM_WIDGETS"] ?? "false");
+            return CheckBool(CheckString("LUBELOGGER_CUSTOM_WIDGETS"));
         }
         public string GetMOTD()
         {
-            var motd = _config["LUBELOGGER_MOTD"];
-            if (string.IsNullOrWhiteSpace(motd))
-            {
-                motd = "";
-            }
+            var motd = CheckString("LUBELOGGER_MOTD");
             return motd;
         }
         public OpenIDConfig GetOpenIDConfig()
@@ -72,25 +67,18 @@ namespace CarCareTracker.Helper
         }
         public string GetLogoUrl()
         {
-            var logoUrl = _config["LUBELOGGER_LOGO_URL"];
-            if (string.IsNullOrWhiteSpace(logoUrl))
-            {
-                logoUrl = "/defaults/lubelogger_logo.png";
-            }
+            var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
             return logoUrl;
         }
         public string GetAllowedFileUploadExtensions()
         {
-            var allowedFileExtensions = _config["LUBELOGGER_ALLOWED_FILE_EXTENSIONS"];
-            if (string.IsNullOrWhiteSpace(allowedFileExtensions)){
-                return StaticHelper.DefaultAllowedFileExtensions;
-            }
+            var allowedFileExtensions = CheckString("LUBELOGGER_ALLOWED_FILE_EXTENSIONS", StaticHelper.DefaultAllowedFileExtensions);
             return allowedFileExtensions;
         }
         public bool AuthenticateRootUser(string username, string password)
         {
-            var rootUsername = _config[nameof(UserConfig.UserNameHash)] ?? string.Empty;
-            var rootPassword = _config[nameof(UserConfig.UserPasswordHash)] ?? string.Empty;
+            var rootUsername = CheckString(nameof(UserConfig.UserNameHash));
+            var rootPassword = CheckString(nameof(UserConfig.UserPasswordHash));
             if (string.IsNullOrWhiteSpace(rootUsername) || string.IsNullOrWhiteSpace(rootPassword))
             {
                 return false;
@@ -99,8 +87,8 @@ namespace CarCareTracker.Helper
         }
         public bool AuthenticateRootUserOIDC(string email)
         {
-            var rootEmail = _config[nameof(UserConfig.DefaultReminderEmail)] ?? string.Empty;
-            var rootUserOIDC = bool.Parse(_config[nameof(UserConfig.EnableRootUserOIDC)]);
+            var rootEmail = CheckString(nameof(UserConfig.DefaultReminderEmail));
+            var rootUserOIDC = CheckBool(CheckString(nameof(UserConfig.EnableRootUserOIDC)));
             if (!rootUserOIDC || string.IsNullOrWhiteSpace(rootEmail))
             {
                 return false;
@@ -109,27 +97,21 @@ namespace CarCareTracker.Helper
         }
         public string GetServerLanguage()
         {
-            var serverLanguage = _config[nameof(UserConfig.UserLanguage)] ?? "en_US";
+            var serverLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US");
             return serverLanguage;
         }
         public bool GetServerDisabledRegistration()
         {
-            var registrationDisabled = bool.Parse(_config[nameof(UserConfig.DisableRegistration)]);
+            var registrationDisabled = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)));
             return registrationDisabled;
         }
         public string GetServerPostgresConnection()
         {
-            if (!string.IsNullOrWhiteSpace(_config["POSTGRES_CONNECTION"]))
-            {
-                return _config["POSTGRES_CONNECTION"];
-            } else
-            {
-                return string.Empty;
-            }
+            return CheckString("POSTGRES_CONNECTION");
         }
         public bool GetServerEnableShopSupplies()
         {
-            return bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)] ?? "false");
+            return CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies)));
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {
@@ -159,6 +141,7 @@ namespace CarCareTracker.Helper
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogWarning(ex.Message);
                     return false;
                 }
             } else
@@ -179,38 +162,72 @@ namespace CarCareTracker.Helper
             var result = _userConfig.DeleteUserConfig(userId);
             return result;
         }
+        private bool CheckBool(string value, bool defaultValue = false)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return defaultValue;
+                }
+                else if (bool.TryParse(value, out bool result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            } catch (Exception ex)
+            {
+                _logger.LogWarning($"ConfigHelper Warning: You might be missing keys in appsettings.json, Message: ${ex.Message}");
+                return defaultValue;
+            }
+        }
+        private string CheckString(string configName, string defaultValue = "")
+        {
+            try
+            {
+                var configValue = _config[configName] ?? defaultValue;
+                return configValue;
+            } catch(Exception ex)
+            {
+                _logger.LogWarning($"ConfigHelper Warning: You might be missing keys in appsettings.json, Message: ${ex.Message}");
+                return defaultValue;
+            }
+        }
         public UserConfig GetUserConfig(ClaimsPrincipal user)
         {
             var serverConfig = new UserConfig
             {
-                EnableCsvImports = bool.Parse(_config[nameof(UserConfig.EnableCsvImports)]),
-                UseDarkMode = bool.Parse(_config[nameof(UserConfig.UseDarkMode)]),
-                UseSystemColorMode = bool.Parse(_config[nameof(UserConfig.UseSystemColorMode)]),
-                UseMPG = bool.Parse(_config[nameof(UserConfig.UseMPG)]),
-                UseDescending = bool.Parse(_config[nameof(UserConfig.UseDescending)]),
-                EnableAuth = bool.Parse(_config[nameof(UserConfig.EnableAuth)]),
-                EnableRootUserOIDC = bool.Parse(_config[nameof(UserConfig.EnableRootUserOIDC)]),
-                HideZero = bool.Parse(_config[nameof(UserConfig.HideZero)]),
-                AutomaticDecimalFormat = bool.Parse(_config[nameof(UserConfig.AutomaticDecimalFormat)]),
-                UseUKMPG = bool.Parse(_config[nameof(UserConfig.UseUKMPG)]),
-                UseMarkDownOnSavedNotes = bool.Parse(_config[nameof(UserConfig.UseMarkDownOnSavedNotes)]),
-                UseThreeDecimalGasCost = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasCost)]),
-                UseThreeDecimalGasConsumption = bool.Parse(_config[nameof(UserConfig.UseThreeDecimalGasConsumption)]),
-                EnableAutoReminderRefresh = bool.Parse(_config[nameof(UserConfig.EnableAutoReminderRefresh)]),
-                EnableAutoOdometerInsert = bool.Parse(_config[nameof(UserConfig.EnableAutoOdometerInsert)]),
-                PreferredGasMileageUnit = _config[nameof(UserConfig.PreferredGasMileageUnit)],
-                PreferredGasUnit = _config[nameof(UserConfig.PreferredGasUnit)],
-                UserLanguage = _config[nameof(UserConfig.UserLanguage)],
-                HideSoldVehicles = bool.Parse(_config[nameof(UserConfig.HideSoldVehicles)]),
-                EnableShopSupplies = bool.Parse(_config[nameof(UserConfig.EnableShopSupplies)]),
-                EnableExtraFieldColumns = bool.Parse(_config[nameof(UserConfig.EnableExtraFieldColumns)]),
-                VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>(),
-                TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>(),
+                EnableCsvImports = CheckBool(CheckString(nameof(UserConfig.EnableCsvImports)), true),
+                UseDarkMode = CheckBool(CheckString(nameof(UserConfig.UseDarkMode))),
+                UseSystemColorMode = CheckBool(CheckString(nameof(UserConfig.UseSystemColorMode))),
+                UseMPG = CheckBool(CheckString(nameof(UserConfig.UseMPG)), true),
+                UseDescending = CheckBool(CheckString(nameof(UserConfig.UseDescending))),
+                EnableAuth = CheckBool(CheckString(nameof(UserConfig.EnableAuth))),
+                EnableRootUserOIDC = CheckBool(CheckString(nameof(UserConfig.EnableRootUserOIDC))),
+                HideZero = CheckBool(CheckString(nameof(UserConfig.HideZero))),
+                AutomaticDecimalFormat = CheckBool(CheckString(nameof(UserConfig.AutomaticDecimalFormat))),
+                UseUKMPG = CheckBool(CheckString(nameof(UserConfig.UseUKMPG))),
+                UseMarkDownOnSavedNotes = CheckBool(CheckString(nameof(UserConfig.UseMarkDownOnSavedNotes))),
+                UseThreeDecimalGasCost = CheckBool(CheckString(nameof(UserConfig.UseThreeDecimalGasCost)), true),
+                UseThreeDecimalGasConsumption = CheckBool(CheckString(nameof(UserConfig.UseThreeDecimalGasConsumption)), true),
+                EnableAutoReminderRefresh = CheckBool(CheckString(nameof(UserConfig.EnableAutoReminderRefresh))),
+                EnableAutoOdometerInsert = CheckBool(CheckString(nameof(UserConfig.EnableAutoOdometerInsert))),
+                PreferredGasMileageUnit = CheckString(nameof(UserConfig.PreferredGasMileageUnit)),
+                PreferredGasUnit = CheckString(nameof(UserConfig.PreferredGasUnit)),
+                UserLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US"),
+                HideSoldVehicles = CheckBool(CheckString(nameof(UserConfig.HideSoldVehicles))),
+                EnableShopSupplies = CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies))),
+                EnableExtraFieldColumns = CheckBool(CheckString(nameof(UserConfig.EnableExtraFieldColumns))),
+                VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>() ?? new UserConfig().VisibleTabs,
+                TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>() ?? new UserConfig().TabOrder,
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
-                DefaultTab = (ImportMode)int.Parse(_config[nameof(UserConfig.DefaultTab)]),
-                DefaultReminderEmail = _config[nameof(UserConfig.DefaultReminderEmail)],
-                DisableRegistration = bool.Parse(_config[nameof(UserConfig.DisableRegistration)])
+                DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
+                DefaultReminderEmail = CheckString(nameof(UserConfig.DefaultReminderEmail)),
+                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)))
             };
             int userId = 0;
             if (user != null)
