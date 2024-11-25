@@ -6,6 +6,9 @@
     public class ImportModel
     {
         public string Date { get; set; }
+        public string Day { get; set; }
+        public string Month { get; set; }
+        public string Year { get; set; }
         public string DateCreated { get; set; }
         public string DateModified { get; set; }
         public string Type { get; set; }
