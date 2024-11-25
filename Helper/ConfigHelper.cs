@@ -107,7 +107,8 @@ namespace CarCareTracker.Helper
         }
         public string GetServerPostgresConnection()
         {
-            return CheckString("POSTGRES_CONNECTION");
+            var postgresConnection = CheckString("POSTGRES_CONNECTION")
+            return postgresConnection;
         }
         public bool GetServerEnableShopSupplies()
         {
