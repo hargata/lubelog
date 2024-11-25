@@ -10,6 +10,7 @@ namespace CarCareTracker.Helper
     {
         OpenIDConfig GetOpenIDConfig();
         ReminderUrgencyConfig GetReminderUrgencyConfig();
+        MailConfig GetMailConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool AuthenticateRootUser(string username, string password);
@@ -65,6 +66,11 @@ namespace CarCareTracker.Helper
             ReminderUrgencyConfig reminderUrgencyConfig = _config.GetSection("ReminderUrgencyConfig").Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig();
             return reminderUrgencyConfig;
         }
+        public MailConfig GetMailConfig()
+        {
+            MailConfig mailConfig = _config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
+            return mailConfig;
+        }
         public string GetLogoUrl()
         {
             var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
@@ -107,7 +113,7 @@ namespace CarCareTracker.Helper
         }
         public string GetServerPostgresConnection()
         {
-            var postgresConnection = CheckString("POSTGRES_CONNECTION")
+            var postgresConnection = CheckString("POSTGRES_CONNECTION");
             return postgresConnection;
         }
         public bool GetServerEnableShopSupplies()

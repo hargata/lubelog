@@ -2,12 +2,12 @@
 @{
     ViewData["Title"] = "Admin Panel";
 }
-@inject IConfiguration config;
+@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     bool emailServerIsSetup = true;
-    var mailConfig = config.GetSection("MailConfig").Get<MailConfig>();
-    var userLanguage = config[nameof(UserConfig.UserLanguage)] ?? "en_US";
+    var mailConfig = config.GetMailConfig();
+    var userLanguage = config.GetServerLanguage();
     if (mailConfig is null || string.IsNullOrWhiteSpace(mailConfig.EmailServer))
     {
         emailServerIsSetup = false;

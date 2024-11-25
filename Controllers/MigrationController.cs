@@ -15,7 +15,7 @@ namespace CarCareTracker.Controllers
         private IConfigHelper _configHelper;
         private IFileHelper _fileHelper;
         private readonly ILogger<MigrationController> _logger;
-        public MigrationController(IConfigHelper configHelper, IFileHelper fileHelper, IConfiguration serverConfig, ILogger<MigrationController> logger)
+        public MigrationController(IConfigHelper configHelper, IFileHelper fileHelper, ILogger<MigrationController> logger)
         {
             _configHelper = configHelper;
             _fileHelper = fileHelper;

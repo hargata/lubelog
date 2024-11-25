@@ -18,12 +18,12 @@ namespace CarCareTracker.Helper
         private readonly IFileHelper _fileHelper;
         private readonly ILogger<MailHelper> _logger;
         public MailHelper(
-            IConfiguration config,
+            IConfigHelper config,
             IFileHelper fileHelper,
             ILogger<MailHelper> logger
             ) {
             //load mailConfig from Configuration
-            mailConfig = config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
+            mailConfig = config.GetMailConfig();
             _fileHelper = fileHelper;
             _logger = logger;
         }

@@ -1,10 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Database Migration";
 }
-@inject IConfiguration config;
+@inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
-    var userLanguage = config[nameof(UserConfig.UserLanguage)] ?? "en_US";
+    var userLanguage = config.GetServerLanguage();
 }
 @using CarCareTracker.Helper
 @model AdminViewModel
