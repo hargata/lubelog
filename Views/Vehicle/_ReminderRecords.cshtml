@@ -7,6 +7,8 @@
     var userLanguage = userConfig.UserLanguage;
     var hasRefresh = Model.Where(x => (x.Urgency == ReminderUrgency.VeryUrgent || x.Urgency == ReminderUrgency.PastDue) && x.IsRecurring).Any();
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.ReminderRecord);
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -28,7 +30,68 @@
             </datalist>
         </div>
         <div>
-            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Reminder")</button>
+            @if (enableCsvImports)
+            {
+                <div class="btn-group">
+                    <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Reminder")</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="searchTableRows('reminder-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='urgency' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Urgency" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Urgency">@translator.Translate(userLanguage, "Urgency")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='metric' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Metric" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Metric">@translator.Translate(userLanguage, "Metric")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Date">
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Odometer">
+                                <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Reminder")</button>
+            }
         </div>
     </div>
 </div>
@@ -42,39 +105,42 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-1 text-truncate">@translator.Translate(userLanguage, "Urgency")</th>
-                    <th scope="col" class="col-2 text-truncate">@translator.Translate(userLanguage, "Metric")</th>
-                    <th scope="col" class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-2 col-md-3 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
+                    <th scope="col" data-column="urgency" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Urgency")</th>
+                    <th scope="col" data-column="metric" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Metric")</th>
+                    <th scope="col" data-column="date" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" data-column="odometer" style="display:none;"  class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
                     {
-                        <th scope="col" class="col-2 col-md-1 text-truncate">@translator.Translate(userLanguage, "Done")</th>
+                        <th scope="col" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Done")</th>
                     }
-                    <th scope="col" class="col-2 col-md-1 text-truncate">@translator.Translate(userLanguage, "Delete")</th>
+                    <th scope="col" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Delete")</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)" data-tags='@string.Join(" ", reminderRecord.Tags)'>
-                        @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
-                        {
-                            <td class="col-1"><span class="text-danger d-inline-block d-md-none"><i class="bi bi-hourglass-split h3"></i></span><span class="badge text-bg-danger d-none d-md-inline-block">@translator.Translate(userLanguage, "Very Urgent")</span></td>
-                        }
-                        else if (reminderRecord.Urgency == ReminderUrgency.Urgent)
-                        {
-                            <td class="col-1"><span class="text-warning d-inline-block d-md-none"><i class="bi bi-hourglass-split h3"></i></span><span class="badge text-bg-warning d-none d-md-inline-block">@translator.Translate(userLanguage, "Urgent")</span></td>
-                        }
-                        else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
-                        {
-                            <td class="col-1"><span class="text-secondary d-inline-block d-md-none"><i class="bi bi-hourglass-bottom h3"></i></span><span class="badge text-bg-secondary d-none d-md-inline-block">@translator.Translate(userLanguage, "Past Due")</span></td>
-                        }
-                        else
-                        {
-                            <td class="col-1"><span class="text-success d-inline-block d-md-none"><i class="bi bi-hourglass-top h3"></i></span><span class="badge text-bg-success d-none d-md-inline-block">@translator.Translate(userLanguage, "Not Urgent")</span></td>
-                        }
-                        <td class="col-2 text-truncate">
-                            <span data-column="metric" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="@($"<b><i class='bi bi-calendar-event me-2'></i></b>{reminderRecord.Date.ToShortDateString()}<b class='ms-2'><i class='bi bi-speedometer me-2'></i></b>{reminderRecord.Mileage}")">
+                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="urgency">
+                            @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
+                            {
+                                <span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span>
+                            }
+                            else if (reminderRecord.Urgency == ReminderUrgency.Urgent)
+                            {
+                                <span class="badge text-bg-warning">@translator.Translate(userLanguage, "Urgent")</span>
+                            }
+                            else if (reminderRecord.Urgency == ReminderUrgency.PastDue)
+                            {
+                                <span class="badge text-bg-secondary">@translator.Translate(userLanguage, "Past Due")</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span>
+                            }
+                        </td>
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric">
                             @if (reminderRecord.Metric == ReminderMetric.Date)
                             {
                             @reminderRecord.Date.ToShortDateString()
@@ -87,20 +153,25 @@
                             {
                             @reminderRecord.Metric
                             }
-                            </span>
                         </td>
-                        <td class="text-truncate @(hasRefresh ? "col-3 col-md-4" : "col-5")" data-record-type='cost'>@reminderRecord.Description</td>
-                        <td class="col-2 col-md-3 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="date">
+                            @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Date ? reminderRecord.Date.ToShortDateString() : "---")
+                        </td>
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="odometer">
+                            @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.Mileage : "---")
+                        </td>
+                        <td data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@reminderRecord.Description</td>
+                        <td data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
-                            <td class="col-2 col-md-1 text-truncate">
+                            <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">
                                 @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
                                 {
                                     <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
                                 }
                             </td>
                         }
-                        <td class="col-2 col-md-1 text-truncate">
+                        <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
@@ -132,8 +203,7 @@
     <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'ReminderRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
 
-<script>
-    if (!getDeviceIsTouchOnly()) {
-        $("[data-column='metric']").map((x, y) => new bootstrap.Tooltip(y));
-    }
-</script>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}

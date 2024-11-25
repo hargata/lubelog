@@ -9,6 +9,10 @@
         public string Description { get; set; }
         public string Notes { get; set; }
         /// <summary>
+        /// The metric the user selected to calculate the urgency of this reminder.
+        /// </summary>
+        public ReminderMetric UserMetric { get; set; } = ReminderMetric.Date;
+        /// <summary>
         /// Reason why this reminder is urgent
         /// </summary>
         public ReminderMetric Metric { get; set; } = ReminderMetric.Date;
