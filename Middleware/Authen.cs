@@ -28,7 +28,7 @@ namespace CarCareTracker.Middleware
             _httpContext = httpContext;
             _dataProtector = securityProvider.CreateProtector("login");
             _loginLogic = loginLogic;
-            enableAuth = bool.Parse(configuration["EnableAuth"]);
+            enableAuth = bool.Parse(configuration["EnableAuth"] ?? "false");
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
