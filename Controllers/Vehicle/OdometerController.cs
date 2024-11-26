@@ -36,6 +36,30 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_OdometerRecords", result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetPaginatedOdometerRecordsByVehicleId(int vehicleId, int pageSize, int page)
+        {
+            var result = new List<OdometerRecord>();
+            //determine if conversion is needed.
+            
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
+
+            if (_useDescending) 
+            {
+                result = _odometerRecordDataAccess.GetPaginatedOdometerRecordsByVehicleId(vehicleId, pageSize, page, SortDirection.Descending);
+            }
+            else
+            {
+                result = _odometerRecordDataAccess.GetPaginatedOdometerRecordsByVehicleId(vehicleId, pageSize, page, SortDirection.Ascending);
+            }
+
+            if (result.All(x => x.InitialMileage == default))
+            {
+                result = _odometerLogic.AutoConvertOdometerRecord(result);
+            }
+            return PartialView("_OdometerRecords", result);
+        }
         [HttpPost]
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {

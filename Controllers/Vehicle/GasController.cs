@@ -32,6 +32,33 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_Gas", viewModel);
         }
+
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        public IActionResult GetPaginatedGasRecordsByVehicleId(int vehicleId, int page)
+        {
+            var result = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            //check if the user uses MPG or Liters per 100km.
+            var userConfig = _config.GetUserConfig(User);
+            bool useMPG = userConfig.UseMPG;
+            bool useUKMPG = userConfig.UseUKMPG;
+            var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
+            if (userConfig.UseDescending)
+            {
+                computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
+            }
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var vehicleIsElectric = vehicleData.IsElectric;
+            var vehicleUseHours = vehicleData.UseHours;
+            var viewModel = new GasRecordViewModelContainer()
+            {
+                UseKwh = vehicleIsElectric,
+                UseHours = vehicleUseHours,
+                GasRecords = computedResults
+            };
+            return PartialView("_Gas", viewModel);
+        }
+
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {

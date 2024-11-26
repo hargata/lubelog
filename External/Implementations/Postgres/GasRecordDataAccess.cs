@@ -156,5 +156,52 @@ namespace CarCareTracker.External.Implementations
                 return false;
             }
         }
+
+        public List<GasRecord> GetGasRecordsByVehicleIdPaginated(int vehicleId, int from = 0, int to = 10)
+        {
+            try
+            {
+                string cmd = $"SELECT data FROM app.{tableName} WHERE vehicleId = @vehicleId LIMIT @limit OFFSET @offset";
+                var results = new List<GasRecord>();
+                using (var ctext = pgDataSource.CreateCommand(cmd))
+                {
+                    ctext.Parameters.AddWithValue("vehicleId", vehicleId);
+                    ctext.Parameters.AddWithValue("limit", to - from);
+                    ctext.Parameters.AddWithValue("offset", from);
+                    using NpgsqlDataReader reader = ctext.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        GasRecord gasRecord = JsonSerializer.Deserialize<GasRecord>(reader["data"] as string);
+                        results.Add(gasRecord);
+                    }
+                }
+                return results;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return new List<GasRecord>();
+            }
+        }
+
+        public int GetGasRecordsByVehicleIdCount(int vehicleId)
+        {
+            try
+            {
+                string cmd = $"SELECT COUNT(*) FROM app.{tableName} WHERE vehicleId = @vehicleId";
+                int? result = 0;
+                using (var ctext = pgDataSource.CreateCommand(cmd))
+                {
+                    ctext.Parameters.AddWithValue("vehicleId", vehicleId);
+                    result = (int)ctext.ExecuteScalar();
+                }
+                return result ?? 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return 0;
+            }
+        }
     }
 }

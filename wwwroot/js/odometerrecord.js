@@ -56,7 +56,7 @@ function deleteOdometerRecord(odometerRecordId) {
                     hideAddOdometerRecordModal();
                     successToast("Odometer Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
-                    getVehicleOdometerRecords(vehicleId);
+                    getPaginatedVehicleOdometerRecords(vehicleId);
                 } else {
                     errorToast(genericErrorMessage());
                 }
@@ -80,7 +80,7 @@ function saveOdometerRecordToVehicle(isEdit) {
             successToast(isEdit ? "Odometer Record Updated" : "Odometer Record Added.");
             hideAddOdometerRecordModal();
             saveScrollPosition();
-            getVehicleOdometerRecords(formValues.vehicleId);
+            getPaginatedVehicleOdometerRecords(formValues.vehicleId);
             if (formValues.addReminderRecord) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
@@ -240,7 +240,7 @@ function saveMultipleOdometerRecordsToVehicle() {
             successToast("Odometer Records Updated");
             hideAddOdometerRecordModal();
             saveScrollPosition();
-            getVehicleOdometerRecords(GetVehicleId().vehicleId);
+            getPaginatedVehicleOdometerRecords(GetVehicleId().vehicleId);
         } else {
             errorToast(genericErrorMessage());
         }
