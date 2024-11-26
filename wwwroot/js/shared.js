@@ -767,7 +767,7 @@ function deleteRecords(ids, source) {
             break;
         case "OdometerRecord":
             friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
+            refreshDataCallBack = getPaginatedVehicleOdometerRecords;
             break;
         case "ReminderRecord":
             friendlySource = "Reminders";
@@ -1336,6 +1336,7 @@ function handleModalPaste(e, recordType) {
         $(`#${recordType}`).trigger('change');
     }
 }
+
 function handleEnter(e) {
     if ((event.ctrlKey || event.metaKey) && event.which == 13) {
         var saveButton = $(e).parent().find(".modal-footer .btn-primary");
