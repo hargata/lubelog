@@ -23,6 +23,7 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
+        
         private void UpdateRecurringTaxes(int vehicleId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
@@ -63,31 +64,68 @@ namespace CarCareTracker.Controllers
                 }
             }
         }
+
+        /// <summary>
+        /// Saves a new tax record or updates an existing one
+        /// Additional records may be generated if it's a recurring record with date in the past
+        /// </summary>
+        /// <param name="taxRecordInput"></param>
+        /// <returns></returns>
         [HttpPost]
-        public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
+        public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecordInput)
         {
-            //move files from temp.
-            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            //push back any reminders
-            if (taxRecord.ReminderRecordId.Any())
+            TaxRecord taxRecord = taxRecordInput.ToTaxRecord();
+
+            // Move files from temp.
+            taxRecord.Files = taxRecord.Files.Select(x => new UploadedFiles
             {
-                foreach (int reminderRecordId in taxRecord.ReminderRecordId)
+                Name = x.Name,
+                Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/")
+            }).ToList();
+            
+            // Push back any reminders
+            if (taxRecordInput.ReminderRecordId.Count != 0)
+            {
+                foreach (int reminderRecordId in taxRecordInput.ReminderRecordId)
                 {
-                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(taxRecord.Date), null);
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, taxRecord.Date, null);
                 }
             }
-            var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
+
+            DateTime currentDate = taxRecord.Date;
+            bool result = false;
+
+            // When it's recurring and in the past, insert all records since then
+            if (taxRecord.Id == default // records are only created if it's a new record
+                && taxRecord.IsRecurring 
+                && currentDate < DateTime.Now)
+            {
+                result = CreatePastTaxRecords(taxRecord, currentDate, result);
+            }
+            else
+            {
+                result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
+            }
+
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), taxRecord.VehicleId, User.Identity.Name, $"{(taxRecord.Id == default ? "Created" : "Edited")} Tax Record - Description: {taxRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(),
+                taxRecordInput.VehicleId,
+                User.Identity.Name,
+                $"{(taxRecordInput.Id == default ? "Created" : "Edited")} Tax Record - Description: {taxRecordInput.Description}");
             }
             return Json(result);
         }
+
         [HttpGet]
         public IActionResult GetAddTaxRecordPartialView()
         {
-            return PartialView("_TaxRecordModal", new TaxRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields });
+            return PartialView("_TaxRecordModal", new TaxRecordInput()
+            {
+                ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields
+            });
         }
+        
         [HttpGet]
         public IActionResult GetTaxRecordForEditById(int taxRecordId)
         {
@@ -110,6 +148,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_TaxRecordModal", convertedResult);
         }
+
         private bool DeleteTaxRecordWithChecks(int taxRecordId)
         {
             var existingRecord = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
@@ -121,6 +160,7 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
             return result;
         }
+
         [HttpPost]
         public IActionResult DeleteTaxRecordById(int taxRecordId)
         {
@@ -130,6 +170,45 @@ namespace CarCareTracker.Controllers
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Tax Record - Id: {taxRecordId}");
             }
             return Json(result);
+        }
+
+        /// <summary>
+        /// Generates tax records based on a recurring tax record which starts in the past
+        /// </summary>
+        /// <param name="taxRecord"></param>
+        /// <param name="currentDate"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private bool CreatePastTaxRecords(TaxRecord taxRecord, DateTime currentDate, bool result)
+        {
+            while (currentDate < DateTime.Now)
+            {
+                // next date based on the current one
+                DateTime nextDate = taxRecord.RecurringInterval != ReminderMonthInterval.Other
+                    ? currentDate.AddMonths((int)taxRecord.RecurringInterval)
+                    : currentDate.AddMonths(taxRecord.CustomMonthInterval);
+
+                var previousTaxRecord = new TaxRecord
+                {
+                    VehicleId = taxRecord.VehicleId,
+                    Date = currentDate,
+                    Description = taxRecord.Description,
+                    Cost = taxRecord.Cost,
+                    IsRecurring = nextDate >= DateTime.Now, // only the newest/latest taxRecord is recurring / when nextDate is in the future, this record is the newest/latest one
+                    Notes = taxRecord.Notes,
+                    RecurringInterval = taxRecord.RecurringInterval,
+                    CustomMonthInterval = taxRecord.CustomMonthInterval,
+                    Files = taxRecord.Files,
+                    ExtraFields = taxRecord.ExtraFields
+                };
+
+                currentDate = taxRecord.RecurringInterval != ReminderMonthInterval.Other
+                    ? currentDate.AddMonths((int)taxRecord.RecurringInterval)
+                    : currentDate.AddMonths(taxRecord.CustomMonthInterval);
+
+                result = _taxRecordDataAccess.SaveTaxRecordToVehicle(previousTaxRecord);
+            }
+            return result;
         }
     }
 }

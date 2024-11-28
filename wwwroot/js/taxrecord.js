@@ -83,7 +83,7 @@ function saveTaxRecordToVehicle(isEdit) {
         return;
     }
     //save to db.
-    $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecord: formValues }, function (data) {
+    $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecordInput: formValues }, function (data) {
         if (data) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
