@@ -17,6 +17,7 @@ namespace CarCareTracker.Logic
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
         List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone);
+        void UpdateRecurringTaxes(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -29,6 +30,8 @@ namespace CarCareTracker.Logic
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
+        private readonly IVehicleDataAccess _dataAccess;
+
         public VehicleLogic(
             IServiceRecordDataAccess serviceRecordDataAccess,
             IGasRecordDataAccess gasRecordDataAccess,
@@ -38,7 +41,8 @@ namespace CarCareTracker.Logic
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
-            IReminderHelper reminderHelper
+            IReminderHelper reminderHelper,
+            IVehicleDataAccess dataAccess
             ) {
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
@@ -49,6 +53,7 @@ namespace CarCareTracker.Logic
             _planRecordDataAccess = planRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
+            _dataAccess = dataAccess;
         }
         public VehicleRecords GetVehicleRecords(int vehicleId)
         {
@@ -316,6 +321,46 @@ namespace CarCareTracker.Logic
                 }
             }
             return plans.OrderBy(x => x.Priority).ThenBy(x=>x.Progress).ToList();
+        }
+        public void UpdateRecurringTaxes(int vehicleId)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate))
+            {
+                return;
+            }
+            bool RecurringTaxIsOutdated(TaxRecord taxRecord)
+            {
+                var monthInterval = taxRecord.RecurringInterval != ReminderMonthInterval.Other ? (int)taxRecord.RecurringInterval : taxRecord.CustomMonthInterval;
+                return DateTime.Now > taxRecord.Date.AddMonths(monthInterval);
+            }
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var outdatedRecurringFees = result.Where(x => x.IsRecurring && RecurringTaxIsOutdated(x));
+            if (outdatedRecurringFees.Any())
+            {
+                foreach (TaxRecord recurringFee in outdatedRecurringFees)
+                {
+                    var monthInterval = recurringFee.RecurringInterval != ReminderMonthInterval.Other ? (int)recurringFee.RecurringInterval : recurringFee.CustomMonthInterval;
+                    bool isOutdated = true;
+                    //update the original outdated tax record
+                    recurringFee.IsRecurring = false;
+                    _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                    //month multiplier for severely outdated monthly tax records.
+                    int monthMultiplier = 1;
+                    var originalDate = recurringFee.Date;
+                    while (isOutdated)
+                    {
+                        var nextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                        monthMultiplier++;
+                        var nextnextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                        recurringFee.Date = nextDate;
+                        recurringFee.Id = default; //new record
+                        recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
+                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                        isOutdated = !recurringFee.IsRecurring;
+                    }
+                }
+            }
         }
     }
 }

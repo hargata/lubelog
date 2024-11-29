@@ -95,7 +95,6 @@ namespace CarCareTracker.Controllers
         public IActionResult Index(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
-            UpdateRecurringTaxes(vehicleId);
             return View(data);
         }
         [HttpGet]

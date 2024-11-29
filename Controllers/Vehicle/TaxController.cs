@@ -23,44 +23,18 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
-        private void UpdateRecurringTaxes(int vehicleId)
+        
+        [HttpPost]
+        public IActionResult CheckRecurringTaxRecords(int vehicleId)
         {
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            var recurringFees = result.Where(x => x.IsRecurring);
-            if (recurringFees.Any())
+            try
             {
-                foreach (TaxRecord recurringFee in recurringFees)
-                {
-                    var newDate = new DateTime();
-                    if (recurringFee.RecurringInterval != ReminderMonthInterval.Other)
-                    {
-                        newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
-                    }
-                    else
-                    {
-                        newDate = recurringFee.Date.AddMonths(recurringFee.CustomMonthInterval);
-                    }
-                    if (DateTime.Now > newDate)
-                    {
-                        recurringFee.IsRecurring = false;
-                        var newRecurringFee = new TaxRecord()
-                        {
-                            VehicleId = recurringFee.VehicleId,
-                            Date = newDate,
-                            Description = recurringFee.Description,
-                            Cost = recurringFee.Cost,
-                            IsRecurring = true,
-                            Notes = recurringFee.Notes,
-                            RecurringInterval = recurringFee.RecurringInterval,
-                            CustomMonthInterval = recurringFee.CustomMonthInterval,
-                            Files = recurringFee.Files,
-                            Tags = recurringFee.Tags,
-                            ExtraFields = recurringFee.ExtraFields
-                        };
-                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
-                        _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
-                    }
-                }
+                _vehicleLogic.UpdateRecurringTaxes(vehicleId);
+                return Json(true);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(false);
             }
         }
         [HttpPost]
@@ -77,6 +51,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
+            _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), taxRecord.VehicleId, User.Identity.Name, $"{(taxRecord.Id == default ? "Created" : "Edited")} Tax Record - Description: {taxRecord.Description}");

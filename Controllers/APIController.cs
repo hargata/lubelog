@@ -388,6 +388,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
+                _vehicleLogic.UpdateRecurringTaxes(vehicleId);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, $"Added Tax Record via API - Description: {taxRecord.Description}");
                 return Json(OperationResponse.Succeed("Tax Record Added"));
             }
