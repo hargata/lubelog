@@ -350,14 +350,21 @@ namespace CarCareTracker.Logic
                     var originalDate = recurringFee.Date;
                     while (isOutdated)
                     {
-                        var nextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
-                        monthMultiplier++;
-                        var nextnextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
-                        recurringFee.Date = nextDate;
-                        recurringFee.Id = default; //new record
-                        recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
-                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
-                        isOutdated = !recurringFee.IsRecurring;
+                        try
+                        {
+                            var nextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            monthMultiplier++;
+                            var nextnextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            recurringFee.Date = nextDate;
+                            recurringFee.Id = default; //new record
+                            recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
+                            _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                            isOutdated = !recurringFee.IsRecurring;
+                        }
+                        catch (Exception)
+                        {
+                            isOutdated = false; //break out of loop if something broke.
+                        }
                     }
                 }
             }
