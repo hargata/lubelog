@@ -45,6 +45,7 @@
     }
     public class GenericRecordExportModel
     {
+        public string Id { get; set; }
         public string Date { get; set; }
         public string Odometer { get; set; }
         public string Description { get; set; }
@@ -55,6 +56,7 @@
     }
     public class OdometerRecordExportModel
     {
+        public string Id { get; set; }
         public string Date { get; set; }
         public string InitialOdometer { get; set; }
         public string Odometer { get; set; }
@@ -64,6 +66,7 @@
     }
     public class TaxRecordExportModel
     {
+        public string Id { get; set; }
         public string Date { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
@@ -73,6 +76,7 @@
     }
     public class GasRecordExportModel
     {
+        public string Id { get; set; }
         public string Date { get; set; }
         public string Odometer { get; set; }
         public string FuelConsumed { get; set; }

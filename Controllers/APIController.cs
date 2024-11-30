@@ -143,6 +143,7 @@ namespace CarCareTracker.Controllers
                 return Json(convertedOdometer);
             }
         }
+        #region ServiceRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
@@ -155,7 +156,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -210,6 +211,55 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/servicerecords/update")]
+        public IActionResult UpdateServiceRecord(GenericRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Mileage = int.Parse(input.Odometer);
+                    existingRecord.Description = input.Description;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Service Record via API - Description: {existingRecord.Description}");
+                } else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Service Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
+        #region RepairRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
@@ -222,7 +272,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -277,6 +327,56 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/repairrecords/update")]
+        public IActionResult UpdateRepairRecord(GenericRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Mileage = int.Parse(input.Odometer);
+                    existingRecord.Description = input.Description;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Repair Record via API - Description: {existingRecord.Description}");
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Repair Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
+        #region UpgradeRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
@@ -289,7 +389,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -344,6 +444,56 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/upgraderecords/update")]
+        public IActionResult UpdateUpgradeRecord(GenericRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Mileage = int.Parse(input.Odometer);
+                    existingRecord.Description = input.Description;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Upgrade Record via API - Description: {existingRecord.Description}");
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Upgrade Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
+        #region TaxRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
@@ -355,7 +505,7 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -398,6 +548,54 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/taxrecords/update")]
+        public IActionResult UpdateTaxRecord(TaxRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Cost))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, and Cost cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _taxRecordDataAccess.GetTaxRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Description = input.Description;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Tax Record via API - Description: {existingRecord.Description}");
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Tax Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
+        #region OdometerRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords/latest")]
@@ -429,7 +627,7 @@ namespace CarCareTracker.Controllers
             {
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
             }
-            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -446,7 +644,7 @@ namespace CarCareTracker.Controllers
                 string.IsNullOrWhiteSpace(input.Odometer))
             {
                 Response.StatusCode = 400;
-                return Json(OperationResponse.Failed("Input object invalid, Date and Odometer cannot be empty."));
+                return Json(OperationResponse.Failed("Input object invalid, Date, and Odometer cannot be empty."));
             }
             try
             {
@@ -469,6 +667,54 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/odometerrecords/update")]
+        public IActionResult UpdateOdometerRecord(OdometerRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.InitialOdometer) ||
+                string.IsNullOrWhiteSpace(input.Odometer))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Initial Odometer, and Odometer cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Mileage = int.Parse(input.Odometer);
+                    existingRecord.InitialMileage = int.Parse(input.InitialOdometer);
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Odometer Record via API - Mileage: {existingRecord.Mileage.ToString()}");
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Odometer Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
+        #region GasRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
@@ -483,6 +729,7 @@ namespace CarCareTracker.Controllers
             var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG)
                 .Select(x => new GasRecordExportModel { 
+                    Id = x.Id.ToString(),
                     Date = x.Date, 
                     Odometer = x.Mileage.ToString(), 
                     Cost = x.Cost.ToString(), 
@@ -552,6 +799,59 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/gasrecords/update")]
+        public IActionResult UpdateGasRecord(GasRecordExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Date) ||
+                string.IsNullOrWhiteSpace(input.Odometer) ||
+                string.IsNullOrWhiteSpace(input.FuelConsumed) ||
+                string.IsNullOrWhiteSpace(input.Cost) ||
+                string.IsNullOrWhiteSpace(input.IsFillToFull) ||
+                string.IsNullOrWhiteSpace(input.MissedFuelUp))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _gasRecordDataAccess.GetGasRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = DateTime.Parse(input.Date);
+                    existingRecord.Mileage = int.Parse(input.Odometer);
+                    existingRecord.Gallons = decimal.Parse(input.FuelConsumed);
+                    existingRecord.IsFillToFull = bool.Parse(input.IsFillToFull);
+                    existingRecord.MissedFuelUp = bool.Parse(input.MissedFuelUp);
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), existingRecord.VehicleId, User.Identity.Name, $"Updated Gas Record via API - Mileage: {existingRecord.Mileage.ToString()}");
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Gas Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        #endregion
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
