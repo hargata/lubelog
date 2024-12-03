@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
 using CsvHelper;
 using System.Globalization;
+using System.Text.Json;
 
 namespace CarCareTracker.Helper
 {
@@ -621,6 +622,12 @@ namespace CarCareTracker.Helper
             {
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
+        }
+        public static JsonSerializerOptions GetInvariantOption()
+        {
+            var serializerOption = new JsonSerializerOptions();
+            serializerOption.Converters.Add(new InvariantConverter());
+            return serializerOption;
         }
         public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords)
         {

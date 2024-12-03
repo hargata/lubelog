@@ -126,7 +126,14 @@ namespace CarCareTracker.Controllers
             }
 
             var apiResult = _vehicleLogic.GetVehicleInfo(vehicles);
-            return Json(apiResult);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(apiResult, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(apiResult);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -157,8 +164,19 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            } else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/servicerecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddServiceRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddServiceRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/servicerecords/add")]
@@ -211,6 +229,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/servicerecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateServiceRecordJson([FromBody] GenericRecordExportModel input) => UpdateServiceRecord(input);
         [HttpPut]
         [Route("/api/vehicle/servicerecords/update")]
         public IActionResult UpdateServiceRecord(GenericRecordExportModel input)
@@ -273,8 +295,20 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/repairrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddRepairRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddRepairRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/repairrecords/add")]
@@ -327,6 +361,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/repairrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateRepairRecordJson([FromBody] GenericRecordExportModel input) => UpdateRepairRecord(input);
         [HttpPut]
         [Route("/api/vehicle/repairrecords/update")]
         public IActionResult UpdateRepairRecord(GenericRecordExportModel input)
@@ -390,8 +428,20 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/upgraderecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddUpgradeRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddUpgradeRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
@@ -444,6 +494,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/upgraderecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateUpgradeRecordJson([FromBody] GenericRecordExportModel input) => UpdateUpgradeRecord(input);
         [HttpPut]
         [Route("/api/vehicle/upgraderecords/update")]
         public IActionResult UpdateUpgradeRecord(GenericRecordExportModel input)
@@ -506,8 +560,20 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/taxrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddTaxRecordJson(int vehicleId, [FromBody] TaxRecordExportModel input) => AddTaxRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
@@ -548,6 +614,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/taxrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateTaxRecordJson([FromBody] TaxRecordExportModel input) => UpdateTaxRecord(input);
         [HttpPut]
         [Route("/api/vehicle/taxrecords/update")]
         public IActionResult UpdateTaxRecord(TaxRecordExportModel input)
@@ -628,8 +698,20 @@ namespace CarCareTracker.Controllers
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
             }
             var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/odometerrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input) => AddOdometerRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
@@ -667,6 +749,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/odometerrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateOdometerRecordJson([FromBody] OdometerRecordExportModel input) => UpdateOdometerRecord(input);
         [HttpPut]
         [Route("/api/vehicle/odometerrecords/update")]
         public IActionResult UpdateOdometerRecord(OdometerRecordExportModel input)
@@ -740,8 +826,20 @@ namespace CarCareTracker.Controllers
                     Notes = x.Notes,
                     ExtraFields = x.ExtraFields
                 });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/gasrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddGasRecordJson(int vehicleId, [FromBody] GasRecordExportModel input) => AddGasRecord(vehicleId, input);
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/gasrecords/add")]
@@ -799,6 +897,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/gasrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateGasRecordJson([FromBody] GasRecordExportModel input) => UpdateGasRecord(input);
         [HttpPut]
         [Route("/api/vehicle/gasrecords/update")]
         public IActionResult UpdateGasRecord(GasRecordExportModel input)
@@ -865,7 +967,14 @@ namespace CarCareTracker.Controllers
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString()});
-            return Json(results);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(results, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(results);
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
