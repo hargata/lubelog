@@ -47,6 +47,7 @@ namespace CarCareTracker.Models
     }
     public class GenericRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -61,6 +62,7 @@ namespace CarCareTracker.Models
     }
     public class OdometerRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -74,6 +76,7 @@ namespace CarCareTracker.Models
     }
     public class TaxRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -86,6 +89,7 @@ namespace CarCareTracker.Models
     }
     public class GasRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -110,7 +114,9 @@ namespace CarCareTracker.Models
         public string Urgency { get; set; }
         public string Metric { get; set; }
         public string Notes { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string DueDate { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string DueOdometer { get; set; }
     }
     public class PlanRecordExportModel 

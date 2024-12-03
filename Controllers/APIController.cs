@@ -126,7 +126,14 @@ namespace CarCareTracker.Controllers
             }
 
             var apiResult = _vehicleLogic.GetVehicleInfo(vehicles);
-            return Json(apiResult);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(apiResult, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(apiResult);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -157,7 +164,13 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            } else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -282,7 +295,14 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -408,7 +428,14 @@ namespace CarCareTracker.Controllers
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -533,7 +560,14 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -664,7 +698,14 @@ namespace CarCareTracker.Controllers
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
             }
             var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -785,7 +826,14 @@ namespace CarCareTracker.Controllers
                     Notes = x.Notes,
                     ExtraFields = x.ExtraFields
                 });
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -919,7 +967,14 @@ namespace CarCareTracker.Controllers
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString()});
-            return Json(results);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(results, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(results);
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]

@@ -24,7 +24,8 @@ namespace CarCareTracker.Helper
         bool GetServerEnableShopSupplies();
         string GetServerPostgresConnection();
         string GetAllowedFileUploadExtensions();
-        public bool DeleteUserConfig(int userId);
+        bool DeleteUserConfig(int userId);
+        bool GetInvariantApi();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -50,6 +51,10 @@ namespace CarCareTracker.Helper
         public bool GetCustomWidgetsEnabled()
         {
             return CheckBool(CheckString("LUBELOGGER_CUSTOM_WIDGETS"));
+        }
+        public bool GetInvariantApi()
+        {
+            return CheckBool(CheckString("LUBELOGGER_INVARIANT_API"));
         }
         public string GetMOTD()
         {

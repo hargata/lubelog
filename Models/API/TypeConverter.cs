@@ -3,6 +3,21 @@ using System.Text.Json.Serialization;
 
 namespace CarCareTracker.Models
 {
+    public class DummyType
+    {
+
+    }
+    class InvariantConverter : JsonConverter<DummyType>
+    {
+        public override void Write(Utf8JsonWriter writer, DummyType value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+        public override DummyType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
     class FromDateOptional: JsonConverter<string>
     {
         public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -14,7 +29,7 @@ namespace CarCareTracker.Models
             }
             else if (tokenType == JsonTokenType.Number)
             {
-                if (reader.TryGetInt32(out int intInput))
+                if (reader.TryGetInt64(out long intInput))
                 {
                     return DateTimeOffset.FromUnixTimeSeconds(intInput).Date.ToShortDateString();
                 }
@@ -23,7 +38,14 @@ namespace CarCareTracker.Models
         }
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value);
+            if (options.Converters.Any(x => x.Type == typeof(DummyType)))
+            {
+                writer.WriteStringValue(DateTime.Parse(value).ToString("yyyy-MM-dd"));
+            }
+            else
+            {
+                writer.WriteStringValue(value);
+            }
         }
     }
     class FromDecimalOptional : JsonConverter<string>
@@ -45,7 +67,13 @@ namespace CarCareTracker.Models
         }
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value);
+            if (options.Converters.Any(x=>x.Type == typeof(DummyType)))
+            {
+                writer.WriteNumberValue(decimal.Parse(value));
+            } else
+            {
+                writer.WriteStringValue(value);
+            }
         }
     }
     class FromIntOptional : JsonConverter<string>
@@ -68,7 +96,14 @@ namespace CarCareTracker.Models
         }
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value);
+            if (options.Converters.Any(x => x.Type == typeof(DummyType)))
+            {
+                writer.WriteNumberValue(int.Parse(value));
+            }
+            else
+            {
+                writer.WriteStringValue(value);
+            }
         }
     }
     class FromBoolOptional : JsonConverter<string>
@@ -90,7 +125,14 @@ namespace CarCareTracker.Models
         }
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value);
+            if (options.Converters.Any(x => x.Type == typeof(DummyType)))
+            {
+                writer.WriteBooleanValue(bool.Parse(value));
+            }
+            else
+            {
+                writer.WriteStringValue(value);
+            }
         }
     }
 }
