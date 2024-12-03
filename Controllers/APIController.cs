@@ -162,6 +162,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/servicerecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddServiceRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddServiceRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/servicerecords/add")]
         public IActionResult AddServiceRecord(int vehicleId, GenericRecordExportModel input)
         {
             if (vehicleId == default)
@@ -211,6 +216,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/servicerecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateServiceRecordJson([FromBody] GenericRecordExportModel input) => UpdateServiceRecord(input);
         [HttpPut]
         [Route("/api/vehicle/servicerecords/update")]
         public IActionResult UpdateServiceRecord(GenericRecordExportModel input)
@@ -278,6 +287,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/repairrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddRepairRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddRepairRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/repairrecords/add")]
         public IActionResult AddRepairRecord(int vehicleId, GenericRecordExportModel input)
         {
             if (vehicleId == default)
@@ -327,6 +341,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/repairrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateRepairRecordJson([FromBody] GenericRecordExportModel input) => UpdateRepairRecord(input);
         [HttpPut]
         [Route("/api/vehicle/repairrecords/update")]
         public IActionResult UpdateRepairRecord(GenericRecordExportModel input)
@@ -395,6 +413,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddUpgradeRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddUpgradeRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/upgraderecords/add")]
         public IActionResult AddUpgradeRecord(int vehicleId, GenericRecordExportModel input)
         {
             if (vehicleId == default)
@@ -444,6 +467,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/upgraderecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateUpgradeRecordJson([FromBody] GenericRecordExportModel input) => UpdateUpgradeRecord(input);
         [HttpPut]
         [Route("/api/vehicle/upgraderecords/update")]
         public IActionResult UpdateUpgradeRecord(GenericRecordExportModel input)
@@ -511,6 +538,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddTaxRecordJson(int vehicleId, [FromBody] TaxRecordExportModel input) => AddTaxRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/taxrecords/add")]
         public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
         {
             if (vehicleId == default)
@@ -548,6 +580,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/taxrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateTaxRecordJson([FromBody] TaxRecordExportModel input) => UpdateTaxRecord(input);
         [HttpPut]
         [Route("/api/vehicle/taxrecords/update")]
         public IActionResult UpdateTaxRecord(TaxRecordExportModel input)
@@ -633,6 +669,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input) => AddOdometerRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/odometerrecords/add")]
         public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
         {
             if (vehicleId == default)
@@ -667,6 +708,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/odometerrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateOdometerRecordJson([FromBody] OdometerRecordExportModel input) => UpdateOdometerRecord(input);
         [HttpPut]
         [Route("/api/vehicle/odometerrecords/update")]
         public IActionResult UpdateOdometerRecord(OdometerRecordExportModel input)
@@ -745,6 +790,11 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/gasrecords/add")]
+        [Consumes("application/json")]
+        public IActionResult AddGasRecordJson(int vehicleId, [FromBody] GasRecordExportModel input) => AddGasRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/gasrecords/add")]
         public IActionResult AddGasRecord(int vehicleId, GasRecordExportModel input)
         {
             if (vehicleId == default)
@@ -799,6 +849,10 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpPut]
+        [Route("/api/vehicle/gasrecords/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateGasRecordJson([FromBody] GasRecordExportModel input) => UpdateGasRecord(input);
         [HttpPut]
         [Route("/api/vehicle/gasrecords/update")]
         public IActionResult UpdateGasRecord(GasRecordExportModel input)

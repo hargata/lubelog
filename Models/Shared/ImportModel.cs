@@ -1,4 +1,6 @@
-﻿namespace CarCareTracker.Models
+﻿using System.Text.Json.Serialization;
+
+namespace CarCareTracker.Models
 {
     /// <summary>
     /// Import model used for importing records via CSV.
@@ -46,10 +48,13 @@
     public class GenericRecordExportModel
     {
         public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Odometer { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string Tags { get; set; }
         public List<ExtraField> ExtraFields { get; set; }
@@ -57,8 +62,11 @@
     public class OdometerRecordExportModel
     {
         public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string InitialOdometer { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Odometer { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
@@ -67,9 +75,11 @@
     public class TaxRecordExportModel
     {
         public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string Tags { get; set; }
         public List<ExtraField> ExtraFields { get; set; }
@@ -77,12 +87,18 @@
     public class GasRecordExportModel
     {
         public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Odometer { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string FuelConsumed { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string FuelEconomy { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
         public string IsFillToFull { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
         public string MissedFuelUp { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
