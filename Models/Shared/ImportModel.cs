@@ -99,6 +99,7 @@ namespace CarCareTracker.Models
         public string FuelConsumed { get; set; }
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string FuelEconomy { get; set; }
         [JsonConverter(typeof(FromBoolOptional))]
         public string IsFillToFull { get; set; }
