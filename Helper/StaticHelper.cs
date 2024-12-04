@@ -626,6 +626,7 @@ namespace CarCareTracker.Helper
         public static JsonSerializerOptions GetInvariantOption()
         {
             var serializerOption = new JsonSerializerOptions();
+            serializerOption.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             serializerOption.Converters.Add(new InvariantConverter());
             return serializerOption;
         }
