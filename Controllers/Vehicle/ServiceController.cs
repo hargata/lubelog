@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), serviceRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -74,6 +79,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetServiceRecordForEditById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new ServiceRecordInput
             {

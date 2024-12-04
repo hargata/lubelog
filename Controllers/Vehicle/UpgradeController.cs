@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), upgradeRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -74,6 +79,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
         {
             var result = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new UpgradeRecordInput
             {

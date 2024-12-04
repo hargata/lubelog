@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), collisionRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (collisionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -74,6 +79,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCollisionRecordForEditById(int collisionRecordId)
         {
             var result = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new CollisionRecordInput
             {

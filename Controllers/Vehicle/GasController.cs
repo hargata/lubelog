@@ -35,6 +35,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), gasRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -53,6 +58,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetAddGasRecordPartialView(int vehicleId)
         {
@@ -65,6 +71,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordForEditById(int gasRecordId)
         {
             var result = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             var convertedResult = new GasRecordInput
             {
                 Id = result.Id,

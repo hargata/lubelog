@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveNoteToVehicleId(Note note)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId))
+            {
+                return Json(false);
+            }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
@@ -43,6 +48,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetNoteForEditById(int noteId)
         {
             var result = _noteDataAccess.GetNoteById(noteId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             return PartialView("_NoteModal", result);
         }
         private bool DeleteNoteWithChecks(int noteId)

@@ -23,7 +23,8 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
-        
+
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         public IActionResult CheckRecurringTaxRecords(int vehicleId)
         {
@@ -40,6 +41,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId))
+            {
+                return Json(false);
+            }
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             //push back any reminders
@@ -67,6 +73,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetTaxRecordForEditById(int taxRecordId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new TaxRecordInput
             {

@@ -60,6 +60,7 @@ namespace CarCareTracker.Controllers
             result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetRecurringReminderRecordsByVehicleId(int vehicleId)
         {
@@ -105,6 +106,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId))
+            {
+                return Json(false);
+            }
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             if (result)
             {
@@ -128,6 +134,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetReminderRecordForEditById(int reminderRecordId)
         {
             var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new ReminderRecordInput
             {

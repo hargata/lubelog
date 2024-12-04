@@ -17,6 +17,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            {
+                return Json(false);
+            }
             //populate createdDate
             if (planRecord.Id == default)
             {
@@ -47,6 +52,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             //check if template name already taken.
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(planRecord.VehicleId).Where(x => x.Description == planRecord.Description).Any();
             if (planRecord.Id == default && existingRecord)
@@ -67,6 +77,16 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeletePlanRecordTemplateById(int planRecordTemplateId)
         {
+            var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            if (existingRecord.Id == default)
+            {
+                return Json(false);
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(false);
+            }
             var result = _planRecordTemplateDataAccess.DeletePlanRecordTemplateById(planRecordTemplateId);
             return Json(result);
         }
@@ -77,6 +97,11 @@ namespace CarCareTracker.Controllers
             if (existingRecord.Id == default)
             {
                 return Json(OperationResponse.Failed("Unable to find template"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             if (existingRecord.Supplies.Any())
             {
@@ -95,6 +120,11 @@ namespace CarCareTracker.Controllers
             if (existingRecord.Id == default)
             {
                 return Json(OperationResponse.Failed("Unable to find template"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             if (existingRecord.Supplies.Any())
             {
@@ -156,6 +186,11 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(false);
+            }
             existingRecord.Progress = planProgress;
             existingRecord.DateModified = DateTime.Now;
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
@@ -239,6 +274,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPlanRecordForEditById(int planRecordId)
         {
             var result = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new PlanRecordInput
             {

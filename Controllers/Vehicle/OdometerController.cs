@@ -39,6 +39,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), odometerRecord.VehicleId))
+            {
+                return Json(false);
+            }
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
@@ -48,6 +53,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetAddOdometerRecordPartialView(int vehicleId)
         {
@@ -125,6 +131,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new OdometerRecordInput
             {
