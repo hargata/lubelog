@@ -315,7 +315,7 @@ function updateMPGLabels() {
     var maxLabel = $("#maxFuelMileageLabel");
     var totalConsumedLabel = $("#totalFuelConsumedLabel");
     var totalDistanceLabel = $("#totalDistanceLabel");
-    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0 && totalDistanceLabel) {
+    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0 && totalDistanceLabel.length > 0) {
         var rowsToAggregate = $("[data-aggregated='true']").parent(":not('.override-hide')");
         var rowsUnaggregated = $("[data-aggregated='false']").parent(":not('.override-hide')");
         var rowMPG = rowsToAggregate.children('[data-gas-type="fueleconomy"]').toArray().map(x => globalParseFloat(x.textContent));
