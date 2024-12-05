@@ -229,6 +229,7 @@ namespace CarCareTracker.Helper
                 EnableAutoOdometerInsert = CheckBool(CheckString(nameof(UserConfig.EnableAutoOdometerInsert))),
                 PreferredGasMileageUnit = CheckString(nameof(UserConfig.PreferredGasMileageUnit)),
                 PreferredGasUnit = CheckString(nameof(UserConfig.PreferredGasUnit)),
+                UseUnitForFuelCost = CheckBool(CheckString(nameof(UserConfig.UseUnitForFuelCost))),
                 UserLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US"),
                 HideSoldVehicles = CheckBool(CheckString(nameof(UserConfig.HideSoldVehicles))),
                 EnableShopSupplies = CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies))),

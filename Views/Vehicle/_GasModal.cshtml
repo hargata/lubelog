@@ -12,6 +12,7 @@
     var useKwh = Model.UseKwh;
     var useHours = Model.UseHours;
     var isNew = Model.GasRecord.Id == 0;
+    var useUnitFuelCost = userConfig.UseUnitForFuelCost;
     string consumptionUnit;
     string distanceUnit;
     if (useKwh)
@@ -80,8 +81,8 @@
                             <input type="text" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" inputmode="decimal" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                             <div class="input-group-text">
                                 <select class="form-select form-select-sm" id="gasCostType">
-                                    <option value="total">@translator.Translate(userLanguage,"Total")</option>
-                                    <option value="unit">@translator.Translate(userLanguage,"Unit")</option>
+                                    <!option @(useUnitFuelCost ? "" : "selected") value="total">@translator.Translate(userLanguage,"Total")</!option>
+                                    <!option @(useUnitFuelCost ? "selected" : "") value="unit">@translator.Translate(userLanguage,"Unit")</!option>
                                 </select>
                             </div>
                         </div>
