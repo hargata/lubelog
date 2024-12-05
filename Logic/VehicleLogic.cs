@@ -17,7 +17,7 @@ namespace CarCareTracker.Logic
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
         List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone);
-        void UpdateRecurringTaxes(int vehicleId);
+        bool UpdateRecurringTaxes(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -322,12 +322,12 @@ namespace CarCareTracker.Logic
             }
             return plans.OrderBy(x => x.Priority).ThenBy(x=>x.Progress).ToList();
         }
-        public void UpdateRecurringTaxes(int vehicleId)
+        public bool UpdateRecurringTaxes(int vehicleId)
         {
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate))
             {
-                return;
+                return false;
             }
             bool RecurringTaxIsOutdated(TaxRecord taxRecord)
             {
@@ -338,6 +338,7 @@ namespace CarCareTracker.Logic
             var outdatedRecurringFees = result.Where(x => x.IsRecurring && RecurringTaxIsOutdated(x));
             if (outdatedRecurringFees.Any())
             {
+                var success = false;
                 foreach (TaxRecord recurringFee in outdatedRecurringFees)
                 {
                     var monthInterval = recurringFee.RecurringInterval != ReminderMonthInterval.Other ? (int)recurringFee.RecurringInterval : recurringFee.CustomMonthInterval;
@@ -360,14 +361,18 @@ namespace CarCareTracker.Logic
                             recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
                             _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
                             isOutdated = !recurringFee.IsRecurring;
+                            success = true;
                         }
                         catch (Exception)
                         {
                             isOutdated = false; //break out of loop if something broke.
+                            success = false;
                         }
                     }
                 }
+                return success;
             }
+            return false; //no outdated recurring tax records.
         }
     }
 }

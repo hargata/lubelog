@@ -30,8 +30,8 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                _vehicleLogic.UpdateRecurringTaxes(vehicleId);
-                return Json(true);
+                var result = _vehicleLogic.UpdateRecurringTaxes(vehicleId);
+                return Json(result);
             } catch (Exception ex)
             {
                 _logger.LogError(ex.Message);

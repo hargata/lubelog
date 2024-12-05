@@ -569,6 +569,41 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
+        [HttpGet]
+        [Route("/api/vehicle/taxrecords/check")]
+        public IActionResult CheckRecurringTaxRecords()
+        {
+            List<Vehicle> vehicles = new List<Vehicle>();
+            try
+            {
+                var result = _dataAccess.GetVehicles();
+                if (!User.IsInRole(nameof(UserData.IsRootUser)))
+                {
+                    result = _userLogic.FilterUserVehicles(result, GetUserID());
+                }
+                vehicles.AddRange(result);
+                int vehiclesUpdated = 0;
+                foreach(Vehicle vehicle in vehicles)
+                {
+                    var updateResult = _vehicleLogic.UpdateRecurringTaxes(vehicle.Id);
+                    if (updateResult)
+                    {
+                        vehiclesUpdated++;
+                    }
+                }
+                if (vehiclesUpdated != default)
+                {
+                    return Json(OperationResponse.Succeed($"Recurring Taxes for {vehiclesUpdated} Vehicles Updated!"));
+                } else
+                {
+                    return Json(OperationResponse.Succeed("No Recurring Taxes Updated"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(OperationResponse.Failed($"No Recurring Taxes Updated Due To Error: {ex.Message}"));
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]

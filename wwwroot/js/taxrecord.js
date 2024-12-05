@@ -181,9 +181,9 @@ function getAndValidateTaxRecordValues() {
 }
 
 function checkRecurringTaxes() {
-    $.post('/Vehicle/CheckRecurringTaxRecords', { vehicleId: GetVehicleId().vehicleId },function (data) {
-        if (!data) {
-            errorToast(genericErrorMessage());
+    $.post('/Vehicle/CheckRecurringTaxRecords', { vehicleId: GetVehicleId().vehicleId }, function (data) {
+        if (data) {
+            viewVehicle(GetVehicleId().vehicleId);
         }
     })
 }
