@@ -35,7 +35,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), note.VehicleId, User.Identity.Name, $"{(note.Id == default ? "Created" : "Edited")} Note - Description: {note.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, note.Id == default ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -64,16 +64,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteNoteById(int noteId)
         {
             var result = DeleteNoteWithChecks(noteId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Note - Id: {noteId}");
-            }
             return Json(result);
         }
         [HttpPost]

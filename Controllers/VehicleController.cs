@@ -130,10 +130,10 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"Added Vehicle - Description: {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"{vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 } else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"Edited Vehicle - Description: {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"{vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 return Json(result);
             }
@@ -163,7 +163,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, "Deleted Vehicle");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
             return Json(result);
         }
@@ -388,7 +388,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -430,7 +430,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -489,7 +489,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -581,7 +581,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -716,7 +716,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
             }
             return Json(result);
         }
