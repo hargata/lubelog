@@ -130,10 +130,10 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"{vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 } else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"{vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 return Json(result);
             }

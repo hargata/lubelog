@@ -181,9 +181,11 @@ function getAndValidateTaxRecordValues() {
 }
 
 function checkRecurringTaxes() {
-    $.post('/Vehicle/CheckRecurringTaxRecords', { vehicleId: GetVehicleId().vehicleId }, function (data) {
+    let vehicleId = GetVehicleId().vehicleId
+    $.post('/Vehicle/CheckRecurringTaxRecords', { vehicleId: vehicleId }, function (data) {
         if (data) {
-            viewVehicle(GetVehicleId().vehicleId);
+            //notify users that recurring tax records were updated and they should refresh the page to see the new changes.
+            infoToast(`Recurring Tax Records Updated!<br /><br /><a class='text-link' style='cursor:pointer;' onclick='viewVehicle(${vehicleId})'>Refresh to see new records</a>`);
         }
     })
 }

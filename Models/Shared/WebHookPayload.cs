@@ -200,9 +200,9 @@
             {
                 Type = actionType,
                 Data = payloadDictionary,
-                VehicleId = string.IsNullOrWhiteSpace(vehicleId) ? "N/A" : "",
+                VehicleId = string.IsNullOrWhiteSpace(vehicleId) ? "N/A" : vehicleId,
                 Username = userName,
-                Action = string.IsNullOrWhiteSpace(payload) ? GetFriendlyActionType(actionType) : ""
+                Action = string.IsNullOrWhiteSpace(payload) ? GetFriendlyActionType(actionType) : payload
             };
         }
     }
