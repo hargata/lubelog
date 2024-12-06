@@ -60,7 +60,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), taxRecord.VehicleId, User.Identity.Name, $"{(taxRecord.Id == default ? "Created" : "Edited")} Tax Record - Description: {taxRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -105,16 +105,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteTaxRecordById(int taxRecordId)
         {
             var result = DeleteTaxRecordWithChecks(taxRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Tax Record - Id: {taxRecordId}");
-            }
             return Json(result);
         }
     }

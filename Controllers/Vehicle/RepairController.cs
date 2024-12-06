@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), collisionRecord.VehicleId, User.Identity.Name, $"{(collisionRecord.Id == default ? "Created" : "Edited")} Repair Record - Description: {collisionRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -115,16 +115,16 @@ namespace CarCareTracker.Controllers
                 RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
             var result = DeleteCollisionRecordWithChecks(collisionRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Repair Record - Id: {collisionRecordId}");
-            }
             return Json(result);
         }
     }

@@ -320,20 +320,22 @@ namespace CarCareTracker.Helper
                 Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
             }
         }
-        public static async void NotifyAsync(string webhookURL, int vehicleId, string username, string action)
+        public static async void NotifyAsync(string webhookURL, WebHookPayload webHookPayload)
         {
             if (string.IsNullOrWhiteSpace(webhookURL))
             {
                 return;
             }
             var httpClient = new HttpClient();
-            var httpParams = new Dictionary<string, string>
-                {
-                { "vehicleId", vehicleId.ToString() },
-                     { "username", username },
-                     { "action", action },
-                };
-            httpClient.PostAsJsonAsync(webhookURL, httpParams);
+            if (webhookURL.StartsWith("discord://"))
+            {
+                webhookURL = webhookURL.Replace("discord://", "https://"); //cleanurl
+                //format to discord
+                httpClient.PostAsJsonAsync(webhookURL, DiscordWebHook.FromWebHookPayload(webHookPayload));
+            } else
+            {
+                httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
+            }
         }
         public static string GetImportModeIcon(ImportMode importMode)
         {
