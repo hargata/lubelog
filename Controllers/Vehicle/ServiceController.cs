@@ -53,7 +53,7 @@ namespace CarCareTracker.Controllers
             }
             if (serviceRecord.DeletedRequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(serviceRecord.DeletedRequisitionHistory, serviceRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(serviceRecord.DeletedRequisitionHistory, serviceRecord.Description);
             }
             //push back any reminders
             if (serviceRecord.ReminderRecordId.Any())
@@ -112,7 +112,7 @@ namespace CarCareTracker.Controllers
             //restore any requisitioned supplies.
             if (existingRecord.RequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
             if (result)

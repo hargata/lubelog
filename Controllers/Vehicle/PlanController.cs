@@ -40,7 +40,7 @@ namespace CarCareTracker.Controllers
             }
             if (planRecord.DeletedRequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(planRecord.DeletedRequisitionHistory, planRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(planRecord.DeletedRequisitionHistory, planRecord.Description);
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
@@ -311,7 +311,7 @@ namespace CarCareTracker.Controllers
             //restore any requisitioned supplies if it has not been converted to other record types.
             if (existingRecord.RequisitionHistory.Any() && existingRecord.Progress != PlanProgress.Done)
             {
-                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)

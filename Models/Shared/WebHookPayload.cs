@@ -56,13 +56,13 @@ namespace CarCareTracker.Models
                 var recordType = actionTypeParts[0];
                 var recordAction = actionTypeParts[1];
                 var thirdPart = actionTypeParts[2];
-                if (recordAction == "delete")
+                if (recordAction == "add")
                 {
-                    recordAction = "DELETED";
+                    recordAction = "ADDED";
                 }
                 else
                 {
-                    recordAction = $"{recordAction.ToUpper()}ED";
+                    recordAction = $"{recordAction.ToUpper()}D";
                 }
                 if (thirdPart == "api")
                 {

@@ -73,44 +73,7 @@ namespace CarCareTracker.Controllers
             }
             return results;
         }
-        private void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription)
-        {
-            foreach (SupplyUsageHistory supply in supplyUsage)
-            {
-                try
-                {
-                    if (supply.Id == default)
-                    {
-                        continue; //no id, skip current supply.
-                    }
-                    var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.Id);
-                    if (result != null && result.Id != default)
-                    {
-                        //supply exists, re-add the quantity and cost
-                        result.Quantity += supply.Quantity;
-                        result.Cost += supply.Cost;
-                        var requisitionRecord = new SupplyUsageHistory
-                        {
-                            Id = supply.Id,
-                            Date = DateTime.Now.Date,
-                            Description = $"Restored from {usageDescription}",
-                            Quantity = supply.Quantity,
-                            Cost = supply.Cost
-                        };
-                        result.RequisitionHistory.Add(requisitionRecord);
-                        //save
-                        _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
-                    }
-                    else
-                    {
-                        _logger.LogError($"Unable to find supply with id {supply.Id}");
-                    }
-                } catch (Exception ex)
-                {
-                    _logger.LogError($"Error restoring supply with id {supply.Id} : {ex.Message}");
-                }
-            }
-        }
+        
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)

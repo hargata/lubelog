@@ -229,6 +229,34 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpDelete]
+        [Route("/api/vehicle/servicerecords/delete")]
+        public IActionResult DeleteServiceRecord(int id)
+        {
+            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Service Record Deleted"));
+        }
         [HttpPut]
         [Route("/api/vehicle/servicerecords/update")]
         [Consumes("application/json")]
@@ -362,6 +390,34 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpDelete]
+        [Route("/api/vehicle/repairrecords/delete")]
+        public IActionResult DeleteRepairRecord(int id)
+        {
+            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Repair Record Deleted"));
+        }
         [HttpPut]
         [Route("/api/vehicle/repairrecords/update")]
         [Consumes("application/json")]
@@ -494,6 +550,34 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
             }
+        }
+        [HttpDelete]
+        [Route("/api/vehicle/upgraderecords/delete")]
+        public IActionResult DeleteUpgradeRecord(int id)
+        {
+            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+            }
+            var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result,"Upgrade Record Deleted"));
         }
         [HttpPut]
         [Route("/api/vehicle/upgraderecords/update")]
@@ -650,6 +734,29 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpDelete]
+        [Route("/api/vehicle/taxrecords/delete")]
+        public IActionResult DeleteTaxRecord(int id)
+        {
+            var existingRecord = _taxRecordDataAccess.GetTaxRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Tax Record Deleted"));
+        }
         [HttpPut]
         [Route("/api/vehicle/taxrecords/update")]
         [Consumes("application/json")]
@@ -784,6 +891,29 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
             }
+        }
+        [HttpDelete]
+        [Route("/api/vehicle/odometerrecords/delete")]
+        public IActionResult DeleteOdometerRecord(int id)
+        {
+            var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Odometer Record Deleted"));
         }
         [HttpPut]
         [Route("/api/vehicle/odometerrecords/update")]
@@ -932,6 +1062,29 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
             }
+        }
+        [HttpDelete]
+        [Route("/api/vehicle/gasrecords/delete")]
+        public IActionResult DeleteGasRecord(int id)
+        {
+            var existingRecord = _gasRecordDataAccess.GetGasRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Odometer Record Deleted"));
         }
         [HttpPut]
         [Route("/api/vehicle/gasrecords/update")]
