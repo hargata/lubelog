@@ -393,6 +393,25 @@ namespace CarCareTracker.Controllers
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            //filter by tags
+            if (reportParameter.Tags.Any())
+            {
+                if (reportParameter.TagFilter == TagFilter.Exclude)
+                {
+                    serviceRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    repairRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    upgradeRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    taxRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    gasRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                } else if (reportParameter.TagFilter == TagFilter.IncludeOnly)
+                {
+                    serviceRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    repairRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    upgradeRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    taxRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    gasRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                }
+            }
             bool useMPG = _config.GetUserConfig(User).UseMPG;
             bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;

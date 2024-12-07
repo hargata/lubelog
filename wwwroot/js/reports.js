@@ -4,6 +4,8 @@
 function getAndValidateSelectedColumns() {
     var reportVisibleColumns = [];
     var reportExtraFields = [];
+    var tagFilterMode = $("#tagSelector").val();
+    var tagsToFilter = $("#tagSelectorInput").val();
     $("#columnSelector :checked").map(function () {
         if ($(this).hasClass('column-default')) {
             reportVisibleColumns.push(this.value);
@@ -15,13 +17,17 @@ function getAndValidateSelectedColumns() {
         return {
             hasError: true,
             visibleColumns: [],
-            extraFields: []
+            extraFields: [],
+            tagFilter: tagFilterMode,
+            tags: []
         }
     } else {
         return {
             hasError: false,
             visibleColumns: reportVisibleColumns,
-            extraFields: reportExtraFields
+            extraFields: reportExtraFields,
+            tagFilter: tagFilterMode,
+            tags: tagsToFilter
         }
     }
 }
@@ -36,10 +42,14 @@ function getSavedReportParameters() {
         //load selected checkboxes
         selectedReportColumns.extraFields.map(x => {
             $(`[value='${x}'].column-extrafield`).prop('checked', true);
-        })
+        });
         selectedReportColumns.visibleColumns.map(x => {
             $(`[value='${x}'].column-default`).prop('checked', true);
-        })
+        });
+        $("#tagSelector").val(selectedReportColumns.tagFilter);
+        selectedReportColumns.tags.map(x => {
+            $("#tagSelectorInput").append(`<option value='${x}'>${x}</option>`)
+        });
     }
 }
 function generateVehicleHistoryReport() {
@@ -62,6 +72,7 @@ function generateVehicleHistoryReport() {
                 },
                 didOpen: () => {
                     getSavedReportParameters();
+                    initTagSelector($("#tagSelectorInput"));
                 }
             }).then(function (result) {
                 if (result.isConfirmed) {
