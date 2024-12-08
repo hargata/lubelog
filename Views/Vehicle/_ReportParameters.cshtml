@@ -6,6 +6,7 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model ReportParameter
+<h2 class="swal2-title mb-2">@translator.Translate(userLanguage, "Select Columns")</h2>
     <div id="columnSelector" style="max-height:50vh; overflow-y:auto;">
         <ul class="list-group">
             @foreach (string column in Model.VisibleColumns)
@@ -24,8 +25,8 @@
             }
         </ul>
     </div>
-    <h2 class="swal2-title">Filter by Tags</h2>
-    <div class="mt-2 text-start">
+    <h2 class="swal2-title mb-2">@translator.Translate(userLanguage, "Filter by Tags")</h2>
+    <div class="text-start">
         <select class="form-select mb-2" id="tagSelector">
             <!option value="@TagFilter.Exclude">@translator.Translate(userLanguage, "Exclude Records with these Tags")</!option>
             <!option value="@TagFilter.IncludeOnly">@translator.Translate(userLanguage, "Only Include Records with these Tags")</!option>

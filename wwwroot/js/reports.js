@@ -58,7 +58,6 @@ function generateVehicleHistoryReport() {
         if (data) {
             //prompt user to select columns
             Swal.fire({
-                title: 'Select Columns',
                 html: data,
                 confirmButtonText: 'Generate Report',
                 focusConfirm: false,
