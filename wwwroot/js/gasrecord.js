@@ -314,7 +314,8 @@ function updateMPGLabels() {
     var minLabel = $("#minFuelMileageLabel");
     var maxLabel = $("#maxFuelMileageLabel");
     var totalConsumedLabel = $("#totalFuelConsumedLabel");
-    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0) {
+    var totalDistanceLabel = $("#totalDistanceLabel");
+    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0 && totalDistanceLabel.length > 0) {
         var rowsToAggregate = $("[data-aggregated='true']").parent(":not('.override-hide')");
         var rowsUnaggregated = $("[data-aggregated='false']").parent(":not('.override-hide')");
         var rowMPG = rowsToAggregate.children('[data-gas-type="fueleconomy"]').toArray().map(x => globalParseFloat(x.textContent));
@@ -323,7 +324,9 @@ function updateMPGLabels() {
         var totalMilesTraveled = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
         var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
         var totalUnaggregatedGasConsumed = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
+        var totalMilesTraveledUnaggregated = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
         var fullGasConsumed = totalGasConsumed + totalUnaggregatedGasConsumed;
+        var fullDistanceTraveled = totalMilesTraveled + totalMilesTraveledUnaggregated;
         if (totalGasConsumed > 0) {
             var averageMPG = totalMilesTraveled / totalGasConsumed;
             if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l' && averageMPG > 0) {
@@ -332,6 +335,11 @@ function updateMPGLabels() {
             averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(averageMPG.toFixed(2))}`);
         } else {
             averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString('0.00')}`);
+        }
+        if (fullDistanceTraveled > 0) {
+            totalDistanceLabel.text(`${totalDistanceLabel.text().split(':')[0]}: ${fullDistanceTraveled} ${getGasModelData().distanceUnit}`);
+        } else {
+            totalDistanceLabel.text(`${totalDistanceLabel.text().split(':')[0]}: 0 ${getGasModelData().distanceUnit}`);
         }
         if (fullGasConsumed > 0) {
             totalConsumedLabel.text(`${totalConsumedLabel.text().split(':')[0]}: ${globalFloatToString(fullGasConsumed.toFixed(2))}`);

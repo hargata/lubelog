@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), upgradeRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -48,7 +53,7 @@ namespace CarCareTracker.Controllers
             }
             if (upgradeRecord.DeletedRequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(upgradeRecord.DeletedRequisitionHistory, upgradeRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(upgradeRecord.DeletedRequisitionHistory, upgradeRecord.Description);
             }
             //push back any reminders
             if (upgradeRecord.ReminderRecordId.Any())
@@ -61,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), upgradeRecord.VehicleId, User.Identity.Name, $"{(upgradeRecord.Id == default ? "Created" : "Edited")} Upgrade Record - Description: {upgradeRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(upgradeRecord.ToUpgradeRecord(), upgradeRecord.Id == default ? "upgraderecord.add" : "upgraderecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -74,6 +79,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
         {
             var result = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new UpgradeRecordInput
             {
@@ -102,19 +112,19 @@ namespace CarCareTracker.Controllers
             //restore any requisitioned supplies.
             if (existingRecord.RequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
         {
             var result = DeleteUpgradeRecordWithChecks(upgradeRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Upgrade Record - Id: {upgradeRecordId}");
-            }
             return Json(result);
         }
     }

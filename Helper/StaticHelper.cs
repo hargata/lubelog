@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
 using CsvHelper;
 using System.Globalization;
+using System.Text.Json;
 
 namespace CarCareTracker.Helper
 {
@@ -9,7 +10,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.4.1";
+        public const string VersionNumber = "1.4.2";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
@@ -319,20 +320,22 @@ namespace CarCareTracker.Helper
                 Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
             }
         }
-        public static async void NotifyAsync(string webhookURL, int vehicleId, string username, string action)
+        public static async void NotifyAsync(string webhookURL, WebHookPayload webHookPayload)
         {
             if (string.IsNullOrWhiteSpace(webhookURL))
             {
                 return;
             }
             var httpClient = new HttpClient();
-            var httpParams = new Dictionary<string, string>
-                {
-                { "vehicleId", vehicleId.ToString() },
-                     { "username", username },
-                     { "action", action },
-                };
-            httpClient.PostAsJsonAsync(webhookURL, httpParams);
+            if (webhookURL.StartsWith("discord://"))
+            {
+                webhookURL = webhookURL.Replace("discord://", "https://"); //cleanurl
+                //format to discord
+                httpClient.PostAsJsonAsync(webhookURL, DiscordWebHook.FromWebHookPayload(webHookPayload));
+            } else
+            {
+                httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
+            }
         }
         public static string GetImportModeIcon(ImportMode importMode)
         {
@@ -621,6 +624,13 @@ namespace CarCareTracker.Helper
             {
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
+        }
+        public static JsonSerializerOptions GetInvariantOption()
+        {
+            var serializerOption = new JsonSerializerOptions();
+            serializerOption.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            serializerOption.Converters.Add(new InvariantConverter());
+            return serializerOption;
         }
         public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords)
         {

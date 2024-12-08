@@ -67,6 +67,7 @@ function updateSettings() {
         preferredGasUnit: $("#preferredGasUnit").val(),
         preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
         userLanguage: $("#defaultLanguage").val(),
+        useUnitForFuelCost: $("#useUnitForFuelCost").is(":checked"),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
         tabOrder: tabOrder,

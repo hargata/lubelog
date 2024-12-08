@@ -1,4 +1,5 @@
-﻿using CarCareTracker.External.Interfaces;
+﻿using CarCareTracker.Controllers;
+using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 
@@ -17,6 +18,8 @@ namespace CarCareTracker.Logic
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
         List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone);
+        bool UpdateRecurringTaxes(int vehicleId);
+        void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription);
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -29,6 +32,10 @@ namespace CarCareTracker.Logic
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
+        private readonly IVehicleDataAccess _dataAccess;
+        private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
+        private readonly ILogger<VehicleLogic> _logger;
+
         public VehicleLogic(
             IServiceRecordDataAccess serviceRecordDataAccess,
             IGasRecordDataAccess gasRecordDataAccess,
@@ -38,7 +45,10 @@ namespace CarCareTracker.Logic
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
-            IReminderHelper reminderHelper
+            IReminderHelper reminderHelper,
+            IVehicleDataAccess dataAccess,
+            ISupplyRecordDataAccess supplyRecordDataAccess,
+            ILogger<VehicleLogic> logger
             ) {
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
@@ -49,6 +59,9 @@ namespace CarCareTracker.Logic
             _planRecordDataAccess = planRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _reminderHelper = reminderHelper;
+            _dataAccess = dataAccess;
+            _supplyRecordDataAccess = supplyRecordDataAccess;
+            _logger = logger;
         }
         public VehicleRecords GetVehicleRecords(int vehicleId)
         {
@@ -316,6 +329,97 @@ namespace CarCareTracker.Logic
                 }
             }
             return plans.OrderBy(x => x.Priority).ThenBy(x=>x.Progress).ToList();
+        }
+        public bool UpdateRecurringTaxes(int vehicleId)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate))
+            {
+                return false;
+            }
+            bool RecurringTaxIsOutdated(TaxRecord taxRecord)
+            {
+                var monthInterval = taxRecord.RecurringInterval != ReminderMonthInterval.Other ? (int)taxRecord.RecurringInterval : taxRecord.CustomMonthInterval;
+                return DateTime.Now > taxRecord.Date.AddMonths(monthInterval);
+            }
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var outdatedRecurringFees = result.Where(x => x.IsRecurring && RecurringTaxIsOutdated(x));
+            if (outdatedRecurringFees.Any())
+            {
+                var success = false;
+                foreach (TaxRecord recurringFee in outdatedRecurringFees)
+                {
+                    var monthInterval = recurringFee.RecurringInterval != ReminderMonthInterval.Other ? (int)recurringFee.RecurringInterval : recurringFee.CustomMonthInterval;
+                    bool isOutdated = true;
+                    //update the original outdated tax record
+                    recurringFee.IsRecurring = false;
+                    _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                    //month multiplier for severely outdated monthly tax records.
+                    int monthMultiplier = 1;
+                    var originalDate = recurringFee.Date;
+                    while (isOutdated)
+                    {
+                        try
+                        {
+                            var nextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            monthMultiplier++;
+                            var nextnextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            recurringFee.Date = nextDate;
+                            recurringFee.Id = default; //new record
+                            recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
+                            _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
+                            isOutdated = !recurringFee.IsRecurring;
+                            success = true;
+                        }
+                        catch (Exception)
+                        {
+                            isOutdated = false; //break out of loop if something broke.
+                            success = false;
+                        }
+                    }
+                }
+                return success;
+            }
+            return false; //no outdated recurring tax records.
+        }
+        public void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription)
+        {
+            foreach (SupplyUsageHistory supply in supplyUsage)
+            {
+                try
+                {
+                    if (supply.Id == default)
+                    {
+                        continue; //no id, skip current supply.
+                    }
+                    var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.Id);
+                    if (result != null && result.Id != default)
+                    {
+                        //supply exists, re-add the quantity and cost
+                        result.Quantity += supply.Quantity;
+                        result.Cost += supply.Cost;
+                        var requisitionRecord = new SupplyUsageHistory
+                        {
+                            Id = supply.Id,
+                            Date = DateTime.Now.Date,
+                            Description = $"Restored from {usageDescription}",
+                            Quantity = supply.Quantity,
+                            Cost = supply.Cost
+                        };
+                        result.RequisitionHistory.Add(requisitionRecord);
+                        //save
+                        _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
+                    }
+                    else
+                    {
+                        _logger.LogError($"Unable to find supply with id {supply.Id}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error restoring supply with id {supply.Id} : {ex.Message}");
+                }
+            }
         }
     }
 }

@@ -60,6 +60,7 @@ namespace CarCareTracker.Controllers
             result = result.OrderByDescending(x => x.Urgency).ToList();
             return PartialView("_ReminderRecords", result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetRecurringReminderRecordsByVehicleId(int vehicleId)
         {
@@ -105,10 +106,15 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId))
+            {
+                return Json(false);
+            }
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), reminderRecord.VehicleId, User.Identity.Name, $"{(reminderRecord.Id == default ? "Created" : "Edited")} Reminder - Description: {reminderRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -128,6 +134,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetReminderRecordForEditById(int reminderRecordId)
         {
             var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new ReminderRecordInput
             {
@@ -158,16 +169,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteReminderRecordById(int reminderRecordId)
         {
             var result = DeleteReminderRecordWithChecks(reminderRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Reminder - Id: {reminderRecordId}");
-            }
             return Json(result);
         }
     }

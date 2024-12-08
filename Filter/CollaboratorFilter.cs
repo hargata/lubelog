@@ -19,27 +19,34 @@ namespace CarCareTracker.Filter
         {
             if (!filterContext.HttpContext.User.IsInRole(nameof(UserData.IsRootUser)))
             {
-                var vehicleId = int.Parse(filterContext.ActionArguments["vehicleId"].ToString());
-                if (vehicleId != default)
+                if (filterContext.ActionArguments.ContainsKey("vehicleId"))
                 {
-                    var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-                    if (!_userLogic.UserCanEditVehicle(userId, vehicleId))
+                    var vehicleId = int.Parse(filterContext.ActionArguments["vehicleId"].ToString());
+                    if (vehicleId != default)
                     {
-                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                        var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+                        if (!_userLogic.UserCanEditVehicle(userId, vehicleId))
+                        {
+                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                        }
+                    }
+                    else
+                    {
+                        var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
+                        if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                        {
+                            //user trying to access shop supplies but shop supplies is not enabled by root user.
+                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                        }
+                        else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
+                        {
+                            //user trying to access any other endpoints using 0 as vehicle id.
+                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                        }
                     }
                 } else
                 {
-                    var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
-                    if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
-                    {
-                        //user trying to access shop supplies but shop supplies is not enabled by root user.
-                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
-                    }
-                    else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
-                    {
-                        //user trying to access any other endpoints using 0 as vehicle id.
-                        filterContext.Result = new RedirectResult("/Error/Unauthorized");
-                    }
+                    filterContext.Result = new RedirectResult("/Error/Unauthorized");
                 }
             }
         }
