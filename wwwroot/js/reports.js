@@ -426,3 +426,11 @@ function loadCustomWidgets() {
 function hideCustomWidgetsModal() {
     $("#vehicleCustomWidgetsModal").modal('hide');
 }
+
+function showReportAdvancedParameters() {
+    if ($(".report-advanced-parameters").hasClass("d-none")) {
+        $(".report-advanced-parameters").removeClass("d-none");
+    } else {
+        $(".report-advanced-parameters").addClass("d-none");
+    }
+}
