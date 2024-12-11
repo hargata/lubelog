@@ -43,33 +43,61 @@ namespace CarCareTracker.Models
             {
                 var recordType = actionTypeParts[0];
                 var recordAction = actionTypeParts[1];
-                if (recordAction == "add")
+                switch (recordAction)
                 {
-                    recordAction = "ADDED";
+                    case "add":
+                        recordAction = "Added";
+                        break;
+                    case "update":
+                        recordAction = "Updated";
+                        break;
+                    case "delete":
+                        recordAction = "Deleted";
+                        break;
+                }
+                if (recordType.ToLower().Contains("record"))
+                {
+                    var cleanedRecordType = recordType.ToLower().Replace("record", "");
+                    cleanedRecordType = $"{char.ToUpper(cleanedRecordType[0])}{cleanedRecordType.Substring(1)} Record";
+                    recordType = cleanedRecordType;
                 } else
                 {
-                    recordAction = $"{recordAction.ToUpper()}D";
+                    recordType = $"{char.ToUpper(recordType[0])}{recordType.Substring(1)}";
                 }
-                return $"{recordAction} {recordType.ToUpper()}";
+                return $"{recordAction} {recordType}";
             } else if (actionTypeParts.Length == 3)
             {
                 var recordType = actionTypeParts[0];
                 var recordAction = actionTypeParts[1];
                 var thirdPart = actionTypeParts[2];
-                if (recordAction == "add")
+                switch (recordAction)
                 {
-                    recordAction = "ADDED";
+                    case "add":
+                        recordAction = "Added";
+                        break;
+                    case "update":
+                        recordAction = "Updated";
+                        break;
+                    case "delete":
+                        recordAction = "Deleted";
+                        break;
+                }
+                if (recordType.ToLower().Contains("record"))
+                {
+                    var cleanedRecordType = recordType.ToLower().Replace("record", "");
+                    cleanedRecordType = $"{char.ToUpper(cleanedRecordType[0])}{cleanedRecordType.Substring(1)} Record";
+                    recordType = cleanedRecordType;
                 }
                 else
                 {
-                    recordAction = $"{recordAction.ToUpper()}D";
+                    recordType = $"{char.ToUpper(recordType[0])}{recordType.Substring(1)}";
                 }
                 if (thirdPart == "api")
                 {
-                    return $"{recordAction} {recordType.ToUpper()} via API";
+                    return $"{recordAction} {recordType} via API";
                 } else
                 {
-                    return $"{recordAction} {recordType.ToUpper()}";
+                    return $"{recordAction} {recordType}";
                 }
             }
             return actionType;
@@ -218,7 +246,7 @@ namespace CarCareTracker.Models
                 Data = payloadDictionary,
                 VehicleId = string.IsNullOrWhiteSpace(vehicleId) ? "N/A" : vehicleId,
                 Username = userName,
-                Action = string.IsNullOrWhiteSpace(payload) ? GetFriendlyActionType(actionType) : payload
+                Action = string.IsNullOrWhiteSpace(payload) ? $"{userName} {GetFriendlyActionType(actionType)}" : $"{userName} {payload}"
             };
         }
     }

@@ -32,10 +32,11 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, note.Id == default ? "noterecord.add" : "noterecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
             return Json(result);
         }
