@@ -12,7 +12,19 @@
     <div class="row mt-2">
         <div class="d-flex">
             <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
-            <span class="display-6 ms-5">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</span>
+            <div class="ms-5">
+                <span class="display-6">
+                    @translator.Translate(userLanguage, "Vehicle Maintenance Report")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(Model.StartDate) && !string.IsNullOrWhiteSpace(Model.EndDate))
+                {
+                <br />
+                <span class="lead ms-2">
+                    @($"{@translator.Translate(userLanguage, "From")} {Model.StartDate} {@translator.Translate(userLanguage, "To")} {Model.EndDate}")
+                </span>
+                }
+            </div>
+            
         </div>
     </div>
     <hr />

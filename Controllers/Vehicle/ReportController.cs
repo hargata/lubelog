@@ -358,19 +358,43 @@ namespace CarCareTracker.Controllers
             {
                 if (reportParameter.TagFilter == TagFilter.Exclude)
                 {
+                    vehicleRecords.OdometerRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.ServiceRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.CollisionRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.UpgradeRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.TaxRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     gasViewModels.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.GasRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                 }
                 else if (reportParameter.TagFilter == TagFilter.IncludeOnly)
                 {
+                    vehicleRecords.OdometerRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.ServiceRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.CollisionRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.UpgradeRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.TaxRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     gasViewModels.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.GasRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                }
+            }
+            //filter by date range.
+            if (reportParameter.FilterByDateRange && !string.IsNullOrWhiteSpace(reportParameter.StartDate) && !string.IsNullOrWhiteSpace(reportParameter.EndDate))
+            {
+                var startDate = DateTime.Parse(reportParameter.StartDate).Date;
+                var endDate = DateTime.Parse(reportParameter.EndDate).Date;
+                //validate date range
+                if (endDate >= startDate) //allow for same day.
+                {
+                    vehicleHistory.StartDate = reportParameter.StartDate;
+                    vehicleHistory.EndDate = reportParameter.EndDate;
+                    //remove all records with dates after the end date and dates before the start date.
+                    vehicleRecords.OdometerRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.ServiceRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.CollisionRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.UpgradeRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.TaxRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    gasViewModels.RemoveAll(x => DateTime.Parse(x.Date).Date > endDate || DateTime.Parse(x.Date).Date < startDate);
+                    vehicleRecords.GasRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
                 }
             }
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
