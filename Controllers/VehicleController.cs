@@ -721,6 +721,70 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
+        public IActionResult BulkCreateOdometerRecords(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}"
+                            });
+                        }
+                        break;
+                }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
+            }
+            return Json(result);
+        }
+        [HttpPost]
         public IActionResult GetGenericRecordModal(List<int> recordIds, ImportMode dataType)
         {
             var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)dataType).ExtraFields;
