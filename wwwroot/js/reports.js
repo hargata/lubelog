@@ -4,6 +4,11 @@
 function getAndValidateSelectedColumns() {
     var reportVisibleColumns = [];
     var reportExtraFields = [];
+    var tagFilterMode = $("#tagSelector").val();
+    var tagsToFilter = $("#tagSelectorInput").val();
+    var filterByDateRange = $("#dateRangeSelector").is(":checked");
+    var startDate = $("#dateRangeStartDate").val();
+    var endDate = $("#dateRangeEndDate").val();
     $("#columnSelector :checked").map(function () {
         if ($(this).hasClass('column-default')) {
             reportVisibleColumns.push(this.value);
@@ -11,17 +16,45 @@ function getAndValidateSelectedColumns() {
             reportExtraFields.push(this.value);
         }
     });
+    var hasValidationError = false;
+    var validationErrorMessage = "";
     if (reportVisibleColumns.length + reportExtraFields.length == 0) {
+        hasValidationError = true;
+        validationErrorMessage = "You must select at least one column";
+    }
+    if (filterByDateRange) {
+        //validate date range
+        let startDateTicks = $("#dateRangeStartDate").datepicker('getDate')?.getTime();
+        let endDateTicks = $("#dateRangeEndDate").datepicker('getDate')?.getTime();
+        if (!startDateTicks || !endDateTicks || startDateTicks > endDateTicks) {
+            hasValidationError = true;
+            validationErrorMessage = "Invalid date range";
+        }
+    }
+
+    if (hasValidationError) {
         return {
             hasError: true,
+            errorMessage: validationErrorMessage,
             visibleColumns: [],
-            extraFields: []
+            extraFields: [],
+            tagFilter: tagFilterMode,
+            tags: [],
+            filterByDateRange: filterByDateRange,
+            startDate: '',
+            endDate: ''
         }
     } else {
         return {
             hasError: false,
+            errorMessage: '',
             visibleColumns: reportVisibleColumns,
-            extraFields: reportExtraFields
+            extraFields: reportExtraFields,
+            tagFilter: tagFilterMode,
+            tags: tagsToFilter,
+            filterByDateRange: filterByDateRange,
+            startDate: startDate,
+            endDate: endDate
         }
     }
 }
@@ -36,10 +69,17 @@ function getSavedReportParameters() {
         //load selected checkboxes
         selectedReportColumns.extraFields.map(x => {
             $(`[value='${x}'].column-extrafield`).prop('checked', true);
-        })
+        });
         selectedReportColumns.visibleColumns.map(x => {
             $(`[value='${x}'].column-default`).prop('checked', true);
-        })
+        });
+        $("#tagSelector").val(selectedReportColumns.tagFilter);
+        selectedReportColumns.tags.map(x => {
+            $("#tagSelectorInput").append(`<option value='${x}'>${x}</option>`)
+        });
+        $("#dateRangeSelector").prop('checked', selectedReportColumns.filterByDateRange);
+        $("#dateRangeStartDate").val(selectedReportColumns.startDate);
+        $("#dateRangeEndDate").val(selectedReportColumns.endDate);
     }
 }
 function generateVehicleHistoryReport() {
@@ -48,7 +88,6 @@ function generateVehicleHistoryReport() {
         if (data) {
             //prompt user to select columns
             Swal.fire({
-                title: 'Select Columns',
                 html: data,
                 confirmButtonText: 'Generate Report',
                 focusConfirm: false,
@@ -56,12 +95,15 @@ function generateVehicleHistoryReport() {
                     //validate
                     var selectedColumnsData = getAndValidateSelectedColumns();
                     if (selectedColumnsData.hasError) {
-                        Swal.showValidationMessage(`You must select at least one column`);
+                        Swal.showValidationMessage(selectedColumnsData.errorMessage);
                     }
                     return { selectedColumnsData }
                 },
                 didOpen: () => {
                     getSavedReportParameters();
+                    initTagSelector($("#tagSelectorInput"));
+                    initDatePicker($('#dateRangeStartDate'));
+                    initDatePicker($('#dateRangeEndDate'));
                 }
             }).then(function (result) {
                 if (result.isConfirmed) {
@@ -415,4 +457,12 @@ function loadCustomWidgets() {
 }
 function hideCustomWidgetsModal() {
     $("#vehicleCustomWidgetsModal").modal('hide');
+}
+
+function showReportAdvancedParameters() {
+    if ($(".report-advanced-parameters").hasClass("d-none")) {
+        $(".report-advanced-parameters").removeClass("d-none");
+    } else {
+        $(".report-advanced-parameters").addClass("d-none");
+    }
 }

@@ -17,5 +17,7 @@
         public decimal TotalDepreciation { get; set; }
         public decimal DepreciationPerDay { get; set; }
         public decimal DepreciationPerMile { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
     }
 }

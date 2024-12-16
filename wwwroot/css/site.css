@@ -291,6 +291,11 @@ html {
     position: absolute;
 }
 
+.table-context-menu > li > .dropdown-item:hover {
+   background-color: rgba(var(--bs-primary-rgb)) !important;
+   color: #fff !important;
+}
+
 html[data-bs-theme="dark"] .table-context-menu {
     background-color: rgba(33, 37, 41, 0.7);
     backdrop-filter: blur(10px);

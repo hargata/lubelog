@@ -349,9 +349,57 @@ namespace CarCareTracker.Controllers
             var vehicleHistory = new VehicleHistoryViewModel();
             vehicleHistory.ReportParameters = reportParameter;
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
-            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleId);
+            var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
+            bool useMPG = _config.GetUserConfig(User).UseMPG;
+            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
+            var gasViewModels = _gasHelper.GetGasRecordViewModels(vehicleRecords.GasRecords, useMPG, useUKMPG);
+            //filter by tags
+            if (reportParameter.Tags.Any())
+            {
+                if (reportParameter.TagFilter == TagFilter.Exclude)
+                {
+                    vehicleRecords.OdometerRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.ServiceRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.CollisionRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.UpgradeRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.TaxRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    gasViewModels.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.GasRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                }
+                else if (reportParameter.TagFilter == TagFilter.IncludeOnly)
+                {
+                    vehicleRecords.OdometerRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.ServiceRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.CollisionRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.UpgradeRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.TaxRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    gasViewModels.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.GasRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                }
+            }
+            //filter by date range.
+            if (reportParameter.FilterByDateRange && !string.IsNullOrWhiteSpace(reportParameter.StartDate) && !string.IsNullOrWhiteSpace(reportParameter.EndDate))
+            {
+                var startDate = DateTime.Parse(reportParameter.StartDate).Date;
+                var endDate = DateTime.Parse(reportParameter.EndDate).Date;
+                //validate date range
+                if (endDate >= startDate) //allow for same day.
+                {
+                    vehicleHistory.StartDate = reportParameter.StartDate;
+                    vehicleHistory.EndDate = reportParameter.EndDate;
+                    //remove all records with dates after the end date and dates before the start date.
+                    vehicleRecords.OdometerRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.ServiceRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.CollisionRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.UpgradeRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.TaxRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    gasViewModels.RemoveAll(x => DateTime.Parse(x.Date).Date > endDate || DateTime.Parse(x.Date).Date < startDate);
+                    vehicleRecords.GasRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                }
+            }
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
             vehicleHistory.Odometer = maxMileage.ToString("N0");
-            var minMileage = _vehicleLogic.GetMinMileage(vehicleId);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
             var distanceTraveled = maxMileage - minMileage;
             if (!string.IsNullOrWhiteSpace(vehicleHistory.VehicleData.PurchaseDate))
             {
@@ -388,17 +436,10 @@ namespace CarCareTracker.Controllers
                 }
             }
             List<GenericReportModel> reportData = new List<GenericReportModel>();
-            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            bool useMPG = _config.GetUserConfig(User).UseMPG;
-            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             vehicleHistory.DistanceUnit = vehicleHistory.VehicleData.UseHours ? "h" : useMPG ? "mi." : "km";
-            vehicleHistory.TotalGasCost = gasRecords.Sum(x => x.Cost);
-            vehicleHistory.TotalCost = serviceRecords.Sum(x => x.Cost) + repairRecords.Sum(x => x.Cost) + upgradeRecords.Sum(x => x.Cost) + taxRecords.Sum(x => x.Cost);
+            vehicleHistory.TotalGasCost = gasViewModels.Sum(x => x.Cost);
+            vehicleHistory.TotalCost = vehicleRecords.ServiceRecords.Sum(x => x.Cost) + vehicleRecords.CollisionRecords.Sum(x => x.Cost) + vehicleRecords.UpgradeRecords.Sum(x => x.Cost) + vehicleRecords.TaxRecords.Sum(x => x.Cost);
             if (distanceTraveled != default)
             {
                 vehicleHistory.DistanceTraveled = distanceTraveled.ToString("N0");
@@ -406,7 +447,6 @@ namespace CarCareTracker.Controllers
                 vehicleHistory.TotalGasCostPerMile = vehicleHistory.TotalGasCost / distanceTraveled;
             }
             var averageMPG = "0";
-            var gasViewModels = _gasHelper.GetGasRecordViewModels(gasRecords, useMPG, useUKMPG);
             if (gasViewModels.Any())
             {
                 averageMPG = _gasHelper.GetAverageGasMileage(gasViewModels, useMPG);
@@ -425,7 +465,7 @@ namespace CarCareTracker.Controllers
             }
             vehicleHistory.MPG = $"{averageMPG} {fuelEconomyMileageUnit}";
             //insert servicerecords
-            reportData.AddRange(serviceRecords.Select(x => new GenericReportModel
+            reportData.AddRange(vehicleRecords.ServiceRecords.Select(x => new GenericReportModel
             {
                 Date = x.Date,
                 Odometer = x.Mileage,
@@ -436,7 +476,7 @@ namespace CarCareTracker.Controllers
                 ExtraFields = x.ExtraFields
             }));
             //repair records
-            reportData.AddRange(repairRecords.Select(x => new GenericReportModel
+            reportData.AddRange(vehicleRecords.CollisionRecords.Select(x => new GenericReportModel
             {
                 Date = x.Date,
                 Odometer = x.Mileage,
@@ -446,7 +486,7 @@ namespace CarCareTracker.Controllers
                 DataType = ImportMode.RepairRecord,
                 ExtraFields = x.ExtraFields
             }));
-            reportData.AddRange(upgradeRecords.Select(x => new GenericReportModel
+            reportData.AddRange(vehicleRecords.UpgradeRecords.Select(x => new GenericReportModel
             {
                 Date = x.Date,
                 Odometer = x.Mileage,
@@ -456,7 +496,7 @@ namespace CarCareTracker.Controllers
                 DataType = ImportMode.UpgradeRecord,
                 ExtraFields = x.ExtraFields
             }));
-            reportData.AddRange(taxRecords.Select(x => new GenericReportModel
+            reportData.AddRange(vehicleRecords.TaxRecords.Select(x => new GenericReportModel
             {
                 Date = x.Date,
                 Odometer = 0,

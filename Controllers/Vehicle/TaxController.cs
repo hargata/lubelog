@@ -23,49 +23,29 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_TaxRecords", result);
         }
-        private void UpdateRecurringTaxes(int vehicleId)
+
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult CheckRecurringTaxRecords(int vehicleId)
         {
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            var recurringFees = result.Where(x => x.IsRecurring);
-            if (recurringFees.Any())
+            try
             {
-                foreach (TaxRecord recurringFee in recurringFees)
-                {
-                    var newDate = new DateTime();
-                    if (recurringFee.RecurringInterval != ReminderMonthInterval.Other)
-                    {
-                        newDate = recurringFee.Date.AddMonths((int)recurringFee.RecurringInterval);
-                    }
-                    else
-                    {
-                        newDate = recurringFee.Date.AddMonths(recurringFee.CustomMonthInterval);
-                    }
-                    if (DateTime.Now > newDate)
-                    {
-                        recurringFee.IsRecurring = false;
-                        var newRecurringFee = new TaxRecord()
-                        {
-                            VehicleId = recurringFee.VehicleId,
-                            Date = newDate,
-                            Description = recurringFee.Description,
-                            Cost = recurringFee.Cost,
-                            IsRecurring = true,
-                            Notes = recurringFee.Notes,
-                            RecurringInterval = recurringFee.RecurringInterval,
-                            CustomMonthInterval = recurringFee.CustomMonthInterval,
-                            Files = recurringFee.Files,
-                            Tags = recurringFee.Tags,
-                            ExtraFields = recurringFee.ExtraFields
-                        };
-                        _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
-                        _taxRecordDataAccess.SaveTaxRecordToVehicle(newRecurringFee);
-                    }
-                }
+                var result = _vehicleLogic.UpdateRecurringTaxes(vehicleId);
+                return Json(result);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(false);
             }
         }
         [HttpPost]
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId))
+            {
+                return Json(false);
+            }
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             //push back any reminders
@@ -77,9 +57,10 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord.ToTaxRecord());
+            _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), taxRecord.VehicleId, User.Identity.Name, $"{(taxRecord.Id == default ? "Created" : "Edited")} Tax Record - Description: {taxRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -92,6 +73,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetTaxRecordForEditById(int taxRecordId)
         {
             var result = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new TaxRecordInput
             {
@@ -119,16 +105,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteTaxRecordById(int taxRecordId)
         {
             var result = DeleteTaxRecordWithChecks(taxRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Tax Record - Id: {taxRecordId}");
-            }
             return Json(result);
         }
     }

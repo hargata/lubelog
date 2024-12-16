@@ -24,7 +24,8 @@ namespace CarCareTracker.Helper
         bool GetServerEnableShopSupplies();
         string GetServerPostgresConnection();
         string GetAllowedFileUploadExtensions();
-        public bool DeleteUserConfig(int userId);
+        bool DeleteUserConfig(int userId);
+        bool GetInvariantApi();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -50,6 +51,10 @@ namespace CarCareTracker.Helper
         public bool GetCustomWidgetsEnabled()
         {
             return CheckBool(CheckString("LUBELOGGER_CUSTOM_WIDGETS"));
+        }
+        public bool GetInvariantApi()
+        {
+            return CheckBool(CheckString("LUBELOGGER_INVARIANT_API"));
         }
         public string GetMOTD()
         {
@@ -224,6 +229,7 @@ namespace CarCareTracker.Helper
                 EnableAutoOdometerInsert = CheckBool(CheckString(nameof(UserConfig.EnableAutoOdometerInsert))),
                 PreferredGasMileageUnit = CheckString(nameof(UserConfig.PreferredGasMileageUnit)),
                 PreferredGasUnit = CheckString(nameof(UserConfig.PreferredGasUnit)),
+                UseUnitForFuelCost = CheckBool(CheckString(nameof(UserConfig.UseUnitForFuelCost))),
                 UserLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US"),
                 HideSoldVehicles = CheckBool(CheckString(nameof(UserConfig.HideSoldVehicles))),
                 EnableShopSupplies = CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies))),

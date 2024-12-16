@@ -73,44 +73,7 @@ namespace CarCareTracker.Controllers
             }
             return results;
         }
-        private void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription)
-        {
-            foreach (SupplyUsageHistory supply in supplyUsage)
-            {
-                try
-                {
-                    if (supply.Id == default)
-                    {
-                        continue; //no id, skip current supply.
-                    }
-                    var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.Id);
-                    if (result != null && result.Id != default)
-                    {
-                        //supply exists, re-add the quantity and cost
-                        result.Quantity += supply.Quantity;
-                        result.Cost += supply.Cost;
-                        var requisitionRecord = new SupplyUsageHistory
-                        {
-                            Id = supply.Id,
-                            Date = DateTime.Now.Date,
-                            Description = $"Restored from {usageDescription}",
-                            Quantity = supply.Quantity,
-                            Cost = supply.Cost
-                        };
-                        result.RequisitionHistory.Add(requisitionRecord);
-                        //save
-                        _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
-                    }
-                    else
-                    {
-                        _logger.LogError($"Unable to find supply with id {supply.Id}");
-                    }
-                } catch (Exception ex)
-                {
-                    _logger.LogError($"Error restoring supply with id {supply.Id} : {ex.Message}");
-                }
-            }
-        }
+        
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
@@ -187,7 +150,7 @@ namespace CarCareTracker.Controllers
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), supplyRecord.VehicleId, User.Identity.Name, $"{(supplyRecord.Id == default ? "Created" : "Edited")} Supply Record - Description: {supplyRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -236,16 +199,16 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)
         {
             var result = DeleteSupplyRecordWithChecks(supplyRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Supply Record - Id: {supplyRecordId}");
-            }
             return Json(result);
         }
     }
