@@ -24,7 +24,7 @@
         </div>
     </div>
 }
-    <div class="row gy-3 align-items-stretch vehiclesContainer @(recordTags.Any() ? "" : "mt-2")">
+    <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(recordTags.Any() ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
