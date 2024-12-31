@@ -1056,11 +1056,11 @@ function stopEvent() {
     event.stopPropagation();
 }
 function rangeMouseUp(e) {
-    if ($(".table-context-menu").length > 0) {
-        $(".table-context-menu").fadeOut("fast");
-    }
     if (isRightClick(e)) {
         return;
+    }
+    if ($(".table-context-menu").length > 0) {
+        $(".table-context-menu").fadeOut("fast");
     }
     isDragging = false;
     document.documentElement.onselectstart = function () { return true; };
