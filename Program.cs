@@ -85,7 +85,8 @@ if (!Directory.Exists("config"))
 }
 
 //Additional JsonFile
-builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
+var currentDirectory = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(System.IO.Directory.GetCurrentDirectory());
+builder.Configuration.AddJsonFile(currentDirectory, StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 
 //Configure Auth
 builder.Services.AddDataProtection();
