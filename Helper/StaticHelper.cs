@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
 using CsvHelper;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 namespace CarCareTracker.Helper
@@ -668,6 +669,53 @@ namespace CarCareTracker.Helper
                 }
                 _csv.NextRecord();
             }
+        }
+        public static byte[] RemindersToCalendar(List<ReminderRecordViewModel> reminders)
+        {
+            //converts reminders to iCal file
+            StringBuilder sb = new StringBuilder();
+            //start the calendar item
+            sb.AppendLine("BEGIN:VCALENDAR");
+            sb.AppendLine("VERSION:2.0");
+            sb.AppendLine("PRODID:lubelogger.com");
+            sb.AppendLine("CALSCALE:GREGORIAN");
+            sb.AppendLine("METHOD:PUBLISH");
+
+            //create events.
+            foreach(ReminderRecordViewModel reminder in reminders)
+            {
+                var dtStart = reminder.Date.Date.ToString("yyyyMMddTHHmm00");
+                var dtEnd = reminder.Date.Date.AddDays(1).AddMilliseconds(-1).ToString("yyyyMMddTHHmm00");
+
+                sb.AppendLine("BEGIN:VEVENT");
+                sb.AppendLine("DTSTAMP:" + DateTime.Now.ToString("yyyyMMddTHHmm00"));
+                sb.AppendLine("UID:" + Guid.NewGuid());
+                sb.AppendLine("DTSTART:" + dtStart);
+                sb.AppendLine("DTEND:" + dtEnd);
+                sb.AppendLine($"SUMMARY:{reminder.Description}");
+                sb.AppendLine($"DESCRIPTION:{reminder.Description}");
+                switch (reminder.Urgency)
+                {
+                    case ReminderUrgency.NotUrgent:
+                        sb.AppendLine("PRIORITY:3");
+                        break;
+                    case ReminderUrgency.Urgent:
+                        sb.AppendLine("PRIORITY:2");
+                        break;
+                    case ReminderUrgency.VeryUrgent:
+                        sb.AppendLine("PRIORITY:1");
+                        break;
+                    case ReminderUrgency.PastDue:
+                        sb.AppendLine("PRIORITY:1");
+                        break;
+                }
+                sb.AppendLine("END:VEVENT");
+            }
+
+            //end calendar item
+            sb.AppendLine("END:VCALENDAR");
+            string calendarContent = sb.ToString();
+            return Encoding.UTF8.GetBytes(calendarContent);
         }
     }
 }

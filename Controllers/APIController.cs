@@ -1166,6 +1166,19 @@ namespace CarCareTracker.Controllers
                 return Json(results);
             }
         }
+        [HttpGet]
+        [Route("/api/calendar")]
+        public IActionResult CalendarICS()
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            var reminders = _vehicleLogic.GetReminders(vehiclesStored, true);
+            var calendarContent = StaticHelper.RemindersToCalendar(reminders);
+            return File(calendarContent, "text/calendar");
+        }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
