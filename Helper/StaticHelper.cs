@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.Models;
 using CsvHelper;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -771,10 +772,10 @@ namespace CarCareTracker.Helper
             {
                 var dtStart = reminder.Date.Date.ToString("yyyyMMddTHHmm00");
                 var dtEnd = reminder.Date.Date.AddDays(1).AddMilliseconds(-1).ToString("yyyyMMddTHHmm00");
-
+                var calendarUID = new Guid(MD5.HashData(Encoding.UTF8.GetBytes($"{dtStart}_{reminder.Description}")));
                 sb.AppendLine("BEGIN:VEVENT");
                 sb.AppendLine("DTSTAMP:" + DateTime.Now.ToString("yyyyMMddTHHmm00"));
-                sb.AppendLine("UID:" + Guid.NewGuid());
+                sb.AppendLine("UID:" + calendarUID);
                 sb.AppendLine("DTSTART:" + dtStart);
                 sb.AppendLine("DTEND:" + dtEnd);
                 sb.AppendLine($"SUMMARY:{reminder.Description}");
