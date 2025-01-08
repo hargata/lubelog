@@ -106,11 +106,15 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler("/Home/Error");
 
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "data", "images")),
+    RequestPath = "/images",
     OnPrepareResponse = ctx =>
     {
-        if (ctx.Context.Request.Path.StartsWithSegments("/images") || ctx.Context.Request.Path.StartsWithSegments("/documents"))
+        if (ctx.Context.Request.Path.StartsWithSegments("/images"))
         {
             ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
             if (!ctx.Context.User.Identity.IsAuthenticated)
@@ -123,14 +127,19 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(builder.Environment.ContentRootPath, "data", "images")),
-    RequestPath = "/images"
-});
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, "data", "documents")),
-    RequestPath = "/documents"
+    RequestPath = "/documents",
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.Context.Request.Path.StartsWithSegments("/documents"))
+        {
+            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            if (!ctx.Context.User.Identity.IsAuthenticated)
+            {
+                ctx.Context.Response.Redirect("/Login");
+            }
+        }
+    }
 });
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -142,7 +151,18 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, "data", "temp")),
-    RequestPath = "/temp"
+    RequestPath = "/temp",
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.Context.Request.Path.StartsWithSegments("/temp"))
+        {
+            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            if (!ctx.Context.User.Identity.IsAuthenticated)
+            {
+                ctx.Context.Response.Redirect("/Login");
+            }
+        }
+    }
 });
 
 app.UseRouting();
