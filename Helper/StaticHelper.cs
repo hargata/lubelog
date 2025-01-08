@@ -10,7 +10,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.4.2";
+        public const string VersionNumber = "1.4.3";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
