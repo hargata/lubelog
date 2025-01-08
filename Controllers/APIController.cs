@@ -1055,6 +1055,7 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
@@ -1099,7 +1100,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete.api", User.Identity.Name));
             }
-            return Json(OperationResponse.Conditional(result, "Odometer Record Deleted"));
+            return Json(OperationResponse.Conditional(result, "Gas Record Deleted"));
         }
         [HttpPut]
         [Route("/api/vehicle/gasrecords/update")]
@@ -1140,6 +1141,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
                     existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.update.api", User.Identity.Name));
