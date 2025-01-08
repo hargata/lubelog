@@ -1168,7 +1168,7 @@ namespace CarCareTracker.Controllers
         }
         [HttpGet]
         [Route("/api/calendar")]
-        public IActionResult CalendarICS()
+        public IActionResult Calendar()
         {
             var vehiclesStored = _dataAccess.GetVehicles();
             if (!User.IsInRole(nameof(UserData.IsRootUser)))
