@@ -43,7 +43,7 @@ namespace CarCareTracker.Models
         public string Cost { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
     }
     public class GenericRecordExportModel
     {
@@ -58,7 +58,8 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string Tags { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
     public class OdometerRecordExportModel
     {
@@ -72,7 +73,8 @@ namespace CarCareTracker.Models
         public string Odometer { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
     public class TaxRecordExportModel
     {
@@ -85,7 +87,8 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string Tags { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
     public class GasRecordExportModel
     {
@@ -107,7 +110,8 @@ namespace CarCareTracker.Models
         public string MissedFuelUp { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
     public class ReminderExportModel
     {
@@ -130,6 +134,6 @@ namespace CarCareTracker.Models
         public string Priority { get; set; }
         public string Progress { get; set; }
         public string Cost { get; set; }
-        public List<ExtraField> ExtraFields { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
     }
 }

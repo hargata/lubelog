@@ -34,6 +34,7 @@ namespace CarCareTracker.Controllers
         private readonly IFileHelper _fileHelper;
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _config;
+        private readonly IWebHostEnvironment _webEnv;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -55,7 +56,8 @@ namespace CarCareTracker.Controllers
             IConfigHelper config,
             IUserLogic userLogic,
             IVehicleLogic vehicleLogic,
-            IOdometerLogic odometerLogic) 
+            IOdometerLogic odometerLogic,
+            IWebHostEnvironment webEnv) 
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -79,6 +81,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _fileHelper = fileHelper;
             _config = config;
+            _webEnv = webEnv;
         }
         public IActionResult Index()
         {
@@ -163,7 +166,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -206,6 +209,7 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord);
@@ -291,6 +295,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Description = input.Description;
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.Files = input.Files;
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
@@ -322,7 +327,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -366,6 +371,7 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _collisionRecordDataAccess.SaveCollisionRecordToVehicle(repairRecord);
@@ -453,6 +459,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
                     existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.update.api", User.Identity.Name));
@@ -484,7 +491,7 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -528,6 +535,7 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord);
@@ -614,6 +622,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
                     existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.update.api", User.Identity.Name));
@@ -644,7 +653,7 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Tags = string.Join(' ', x.Tags) });
+            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -721,6 +730,7 @@ namespace CarCareTracker.Controllers
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
@@ -790,6 +800,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
                     existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.update.api", User.Identity.Name));
@@ -840,7 +851,7 @@ namespace CarCareTracker.Controllers
             {
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
             }
-            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -881,6 +892,7 @@ namespace CarCareTracker.Controllers
                     InitialMileage = (string.IsNullOrWhiteSpace(input.InitialOdometer) || int.Parse(input.InitialOdometer) == default) ? _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()) : int.Parse(input.InitialOdometer),
                     Mileage = int.Parse(input.Odometer),
                     ExtraFields = input.ExtraFields,
+                    Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
@@ -948,6 +960,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.InitialMileage = int.Parse(input.InitialOdometer);
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.ExtraFields = input.ExtraFields;
+                    existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity.Name));
@@ -991,6 +1004,7 @@ namespace CarCareTracker.Controllers
                     MissedFuelUp = x.MissedFuelUp.ToString(),
                     Notes = x.Notes,
                     ExtraFields = x.ExtraFields,
+                    Files = x.Files,
                     Tags = string.Join(' ', x.Tags)
                 });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
@@ -1178,6 +1192,37 @@ namespace CarCareTracker.Controllers
             var reminders = _vehicleLogic.GetReminders(vehiclesStored, true);
             var calendarContent = StaticHelper.RemindersToCalendar(reminders);
             return File(calendarContent, "text/calendar");
+        }
+        [HttpPost]
+        [Route("/api/documents/upload")]
+        public IActionResult UploadDocument(List<IFormFile> documents)
+        {
+            if (documents.Any())
+            {
+                List<UploadedFiles> uploadedFiles = new List<UploadedFiles>();
+                string uploadDirectory = "documents/";
+                string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+                foreach (IFormFile document in documents)
+                {
+                    string fileName = Guid.NewGuid() + Path.GetExtension(document.FileName);
+                    string filePath = Path.Combine(uploadPath, fileName);
+                    using (var stream = System.IO.File.Create(filePath))
+                    {
+                        document.CopyTo(stream);
+                    }
+                    uploadedFiles.Add(new UploadedFiles
+                    {
+                        Location = Path.Combine("/", uploadDirectory, fileName),
+                        Name = Path.GetFileName(document.FileName)
+                    });
+                }
+                return Json(uploadedFiles);
+            } else
+            {
+                return Json(OperationResponse.Failed("No files to upload"));
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
