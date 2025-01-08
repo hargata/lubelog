@@ -25,7 +25,7 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";

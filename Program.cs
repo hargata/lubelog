@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Print Messages
 StaticHelper.InitMessage(builder.Configuration);
+//Check Migration
+StaticHelper.CheckMigration(builder.Environment.WebRootPath);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -75,15 +78,6 @@ builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 
-if (!Directory.Exists("data"))
-{
-    Directory.CreateDirectory("data");
-}
-if (!Directory.Exists("config"))
-{
-    Directory.CreateDirectory("config");
-}
-
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 
@@ -125,6 +119,30 @@ app.UseStaticFiles(new StaticFileOptions
             }
         }
     }
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "data", "images")),
+    RequestPath = "/images"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "data", "documents")),
+    RequestPath = "/documents"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "data", "translations")),
+    RequestPath = "/translations"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "data", "temp")),
+    RequestPath = "/temp"
 });
 
 app.UseRouting();

@@ -10,7 +10,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.4.2";
+        public const string VersionNumber = "1.4.3";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
@@ -240,7 +240,8 @@ namespace CarCareTracker.Helper
 
         public static List<ExtraField> AddExtraFields(List<ExtraField> recordExtraFields, List<ExtraField> templateExtraFields)
         {
-            if (!templateExtraFields.Any()) {
+            if (!templateExtraFields.Any())
+            {
                 return new List<ExtraField>();
             }
             if (!recordExtraFields.Any())
@@ -261,7 +262,7 @@ namespace CarCareTracker.Helper
                 extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
             }
             //append extra fields
-            foreach(ExtraField extraField in templateExtraFields)
+            foreach (ExtraField extraField in templateExtraFields)
             {
                 if (!recordFieldNames.Contains(extraField.Name))
                 {
@@ -309,7 +310,8 @@ namespace CarCareTracker.Helper
             if (mailConfig != null && !string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
                 Console.WriteLine($"SMTP Configured for {mailConfig.EmailServer}");
-            } else
+            }
+            else
             {
                 Console.WriteLine("SMTP Not Configured");
             }
@@ -318,6 +320,82 @@ namespace CarCareTracker.Helper
             if (string.IsNullOrWhiteSpace(CultureInfo.CurrentCulture.Name))
             {
                 Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
+            }
+            //Create folders if they don't exist.
+            if (!Directory.Exists("data"))
+            {
+                Console.WriteLine("Created data directory");
+                Directory.CreateDirectory("data");
+            }
+            if (!Directory.Exists("data/images"))
+            {
+                Console.WriteLine("Created images directory");
+                Directory.CreateDirectory("data/images");
+            }
+            if (!Directory.Exists("data/documents"))
+            {
+                Console.WriteLine("Created documents directory");
+                Directory.CreateDirectory("data/documents");
+            }
+            if (!Directory.Exists("data/translations"))
+            {
+                Console.WriteLine("Created translations directory");
+                Directory.CreateDirectory("data/translations");
+            }
+            if (!Directory.Exists("data/temp"))
+            {
+                Console.WriteLine("Created translations directory");
+                Directory.CreateDirectory("data/temp");
+            }
+            if (!Directory.Exists("config"))
+            {
+                Directory.CreateDirectory("config");
+                Console.WriteLine("Created config directory");
+            }
+        }
+        public static void CheckMigration(string webRootPath)
+        {
+            //migrates all user-uploaded files from webroot to new data folder
+            //images
+            var imagePath = Path.Combine(webRootPath, "images");
+            var docsPath = Path.Combine(webRootPath, "documents");
+            var translationPath = Path.Combine(webRootPath, "translations");
+            var tempPath = Path.Combine(webRootPath, "temp");
+            if (Directory.Exists(imagePath))
+            {
+                foreach (string fileToMove in Directory.GetFiles(imagePath))
+                {
+                    var newFilePath = $"data/images/{Path.GetFileName(fileToMove)}";
+                    File.Move(fileToMove, newFilePath, true);
+                    Console.WriteLine($"Migrated Image: {Path.GetFileName(fileToMove)}");
+                }
+            }
+            if (Directory.Exists(docsPath))
+            {
+                foreach (string fileToMove in Directory.GetFiles(docsPath))
+                {
+                    var newFilePath = $"data/documents/{Path.GetFileName(fileToMove)}";
+                    File.Move(fileToMove, newFilePath, true);
+                    Console.WriteLine($"Migrated Document: {Path.GetFileName(fileToMove)}");
+                }
+            }
+            if (Directory.Exists(translationPath))
+            {
+                foreach (string fileToMove in Directory.GetFiles(translationPath))
+                {
+                    var newFilePath = $"data/translations/{Path.GetFileName(fileToMove)}";
+                    File.Move(fileToMove, newFilePath, true);
+                    Console.WriteLine($"Migrated Translation: {Path.GetFileName(fileToMove)}");
+                }
+            }
+            if (Directory.Exists(tempPath))
+            {
+                foreach (string fileToMove in Directory.GetFiles(tempPath))
+                {
+                    var newFilePath = $"data/temp/{Path.GetFileName(fileToMove)}";
+                    File.Move(fileToMove, newFilePath, true);
+                    Console.WriteLine($"Migrated Temp File: {Path.GetFileName(fileToMove)}");
+                }
             }
         }
         public static async void NotifyAsync(string webhookURL, WebHookPayload webHookPayload)
@@ -332,7 +410,8 @@ namespace CarCareTracker.Helper
                 webhookURL = webhookURL.Replace("discord://", "https://"); //cleanurl
                 //format to discord
                 httpClient.PostAsJsonAsync(webhookURL, DiscordWebHook.FromWebHookPayload(webHookPayload));
-            } else
+            }
+            else
             {
                 httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
             }
@@ -370,12 +449,14 @@ namespace CarCareTracker.Helper
             if (vehicle.VehicleIdentifier == "LicensePlate")
             {
                 return vehicle.LicensePlate;
-            } else
+            }
+            else
             {
-                if (vehicle.ExtraFields.Any(x=>x.Name == vehicle.VehicleIdentifier))
+                if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x=>x.Name == vehicle.VehicleIdentifier)?.Value;
-                } else
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value;
+                }
+                else
                 {
                     return "N/A";
                 }
@@ -402,10 +483,11 @@ namespace CarCareTracker.Helper
         //Translations
         public static string GetTranslationDownloadPath(string continent, string name)
         {
-            if (string.IsNullOrWhiteSpace(continent) || string.IsNullOrWhiteSpace(name)){
+            if (string.IsNullOrWhiteSpace(continent) || string.IsNullOrWhiteSpace(name))
+            {
                 return string.Empty;
-            } 
-            else 
+            }
+            else
             {
                 switch (continent)
                 {
@@ -424,8 +506,9 @@ namespace CarCareTracker.Helper
             if (string.IsNullOrWhiteSpace(name))
             {
                 return string.Empty;
-            } else
-            { 
+            }
+            else
+            {
                 try
                 {
                     string cleanedName = name.Contains("_") ? name.Replace("_", "-") : name;
@@ -438,7 +521,8 @@ namespace CarCareTracker.Helper
                     {
                         return displayName;
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     return name;
                 }
@@ -609,7 +693,8 @@ namespace CarCareTracker.Helper
             if (input == 0M.ToString("C2") && hideZero)
             {
                 return "---";
-            } else
+            }
+            else
             {
                 return string.IsNullOrWhiteSpace(decorations) ? input : $"{input}{decorations}";
             }
