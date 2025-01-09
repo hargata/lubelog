@@ -105,7 +105,7 @@ namespace CarCareTracker.Helper
                 var translationPath = Path.Combine(tempPath, "translations");
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
                 var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
-                var configPath = Path.Combine(tempPath, "config/userConfig.json");
+                var configPath = Path.Combine(tempPath, StaticHelper.LegacyUserConfigPath);
                 if (Directory.Exists(imagePath))
                 {
                     var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "images");

@@ -15,6 +15,7 @@ namespace CarCareTracker.Helper
         public const string VersionNumber = "1.4.3";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
+        public const string LegacyUserConfigPath = "config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
         public const string GenericErrorMessage = "An error occurred, please try again later";
         public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
@@ -363,10 +364,9 @@ namespace CarCareTracker.Helper
             var docsPath = Path.Combine(webRootPath, "documents");
             var translationPath = Path.Combine(webRootPath, "translations");
             var tempPath = Path.Combine(webRootPath, "temp");
-            var configPath = "config/userConfig.json";
-            if (File.Exists(configPath))
+            if (File.Exists(LegacyUserConfigPath))
             {
-                File.Move(configPath, UserConfigPath, true);
+                File.Move(LegacyUserConfigPath, UserConfigPath, true);
             }
             if (Directory.Exists(imagePath))
             {
