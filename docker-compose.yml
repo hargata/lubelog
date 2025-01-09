@@ -8,13 +8,7 @@ services:
     restart: unless-stopped
     # volumes used to keep data persistent
     volumes:
-      - config:/App/config
       - data:/App/data
-      - translations:/App/wwwroot/translations
-      - documents:/App/wwwroot/documents
-      - images:/App/wwwroot/images
-      - temp:/App/wwwroot/temp
-      - log:/App/log
       - keys:/root/.aspnet/DataProtection-Keys
     # expose port and/or use serving via traefik
     ports:
@@ -23,11 +17,5 @@ services:
       - .env
 
 volumes:
-  config:
   data:
-  translations:
-  documents:
-  images:
-  temp:
-  log:
   keys:
