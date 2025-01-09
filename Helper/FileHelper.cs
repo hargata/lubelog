@@ -105,7 +105,7 @@ namespace CarCareTracker.Helper
                 var translationPath = Path.Combine(tempPath, "translations");
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
                 var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
-                var configPath = Path.Combine(tempPath, StaticHelper.UserConfigPath);
+                var configPath = Path.Combine(tempPath, StaticHelper.LegacyUserConfigPath);
                 if (Directory.Exists(imagePath))
                 {
                     var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
@@ -186,9 +186,9 @@ namespace CarCareTracker.Helper
                 if (File.Exists(configPath))
                 {
                     //check if config folder exists.
-                    if (!Directory.Exists("config/"))
+                    if (!Directory.Exists("data/config"))
                     {
-                        Directory.CreateDirectory("config/");
+                        Directory.CreateDirectory("data/config");
                     }
                     File.Move(configPath, StaticHelper.UserConfigPath, true);
                 }
