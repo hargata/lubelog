@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
     {
         public const string VersionNumber = "1.4.3";
         public const string DbName = "data/cartracker.db";
-        public const string UserConfigPath = "config/userConfig.json";
+        public const string UserConfigPath = "data/config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
         public const string GenericErrorMessage = "An error occurred, please try again later";
         public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
@@ -326,8 +326,8 @@ namespace CarCareTracker.Helper
             //Create folders if they don't exist.
             if (!Directory.Exists("data"))
             {
-                Console.WriteLine("Created data directory");
                 Directory.CreateDirectory("data");
+                Console.WriteLine("Created data directory");
             }
             if (!Directory.Exists("data/images"))
             {
@@ -336,22 +336,22 @@ namespace CarCareTracker.Helper
             }
             if (!Directory.Exists("data/documents"))
             {
-                Console.WriteLine("Created documents directory");
                 Directory.CreateDirectory("data/documents");
+                Console.WriteLine("Created documents directory");
             }
             if (!Directory.Exists("data/translations"))
             {
-                Console.WriteLine("Created translations directory");
                 Directory.CreateDirectory("data/translations");
+                Console.WriteLine("Created translations directory");
             }
             if (!Directory.Exists("data/temp"))
             {
-                Console.WriteLine("Created translations directory");
                 Directory.CreateDirectory("data/temp");
+                Console.WriteLine("Created translations directory");
             }
-            if (!Directory.Exists("config"))
+            if (!Directory.Exists("data/config"))
             {
-                Directory.CreateDirectory("config");
+                Directory.CreateDirectory("data/config");
                 Console.WriteLine("Created config directory");
             }
         }
@@ -363,6 +363,11 @@ namespace CarCareTracker.Helper
             var docsPath = Path.Combine(webRootPath, "documents");
             var translationPath = Path.Combine(webRootPath, "translations");
             var tempPath = Path.Combine(webRootPath, "temp");
+            var configPath = "config/userConfig.json";
+            if (File.Exists(configPath))
+            {
+                File.Move(configPath, UserConfigPath, true);
+            }
             if (Directory.Exists(imagePath))
             {
                 foreach (string fileToMove in Directory.GetFiles(imagePath))
