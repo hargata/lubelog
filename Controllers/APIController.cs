@@ -1223,6 +1223,7 @@ namespace CarCareTracker.Controllers
                 return Json(uploadedFiles);
             } else
             {
+                Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("No files to upload"));
             }
         }
