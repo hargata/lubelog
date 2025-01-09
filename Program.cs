@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 //Print Messages
 StaticHelper.InitMessage(builder.Configuration);
 //Check Migration
-StaticHelper.CheckMigration(builder.Environment.WebRootPath);
+StaticHelper.CheckMigration(builder.Environment.WebRootPath, builder.Environment.ContentRootPath);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
