@@ -322,7 +322,7 @@ namespace CarCareTracker.Helper
             Console.WriteLine($"Message Of The Day: {motd}");
             if (string.IsNullOrWhiteSpace(CultureInfo.CurrentCulture.Name))
             {
-                Console.WriteLine("No Locale or Culture Configured for LubeLogger, Check Environment Variables");
+                Console.WriteLine("WARNING: No Locale or Culture Configured for LubeLogger, Check Environment Variables");
             }
             //Create folders if they don't exist.
             if (!Directory.Exists("data"))
@@ -356,8 +356,15 @@ namespace CarCareTracker.Helper
                 Console.WriteLine("Created config directory");
             }
         }
-        public static void CheckMigration(string webRootPath)
+        public static void CheckMigration(string webRootPath, string webContentPath)
         {
+            //check if current working directory differs from content root.
+            if (Directory.GetCurrentDirectory() != webContentPath)
+            {
+                Console.WriteLine("WARNING: The Working Directory differs from the Web Content Path");
+                Console.WriteLine($"Working Directory: {Directory.GetCurrentDirectory()}");
+                Console.WriteLine($"Web Content Path: {webContentPath}");
+            }
             //migrates all user-uploaded files from webroot to new data folder
             //images
             var imagePath = Path.Combine(webRootPath, "images");
