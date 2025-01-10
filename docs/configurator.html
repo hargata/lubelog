@@ -49,9 +49,13 @@
 					<input type="text" id="inputFileExtensions" class="form-control">
 					<small class="text-body-secondary">Blank for default, * for all files</small>
 				</div>
+				<div class="form-check form-switch">
+					<input class="form-check-input"type="checkbox" role="switch" id="inputCustomWidgets">
+					<label class="form-check-label" for="inputCustomWidgets">Custom Widgets</label>
+				</div>
 			</div>
 			<div class="col-6">
-			<div class="form-group">
+				<div class="form-group">
 					<label for="inputCustomLogo">Custom Logo URL</label>
 					<input type="text" id="inputCustomLogo" class="form-control">
 					<small class="text-body-secondary">Default size: 204x48</small>
@@ -65,6 +69,10 @@
 					<label for="inputWebHook">WebHook URL</label>
 					<input type="text" id="inputWebHook" class="form-control">
 					<small class="text-body-secondary">URL to WebHook Consumer</small>
+				</div>
+				<div class="form-check form-switch">
+					<input class="form-check-input"type="checkbox" role="switch" id="inputInvariantAPI">
+					<label class="form-check-label" for="inputInvariantAPI">Invariant API</label>
 				</div>
 			</div>
 			</div>
@@ -262,6 +270,12 @@ function generateConfig(){
 		if ($("#inputPostgres").val().trim() != ''){
 			windowConfig["POSTGRES_CONNECTION"]=$("#inputPostgres").val();
 		}
+		if ($("#inputCustomWidgets").is(":checked")){
+			windowConfig["LUBELOGGER_CUSTOM_WIDGETS"]=$('#inputCustomWidgets').is(':checked');
+		}
+		if ($("#inputInvariantAPI").is(":checked")){
+			windowConfig["LUBELOGGER_INVARIANT_API"]=$('#inputInvariantAPI').is(':checked');
+		}
 		if ($('#inputSmtpServer').val().trim() != ''){
 			windowConfig["MailConfig"] = {
 				EmailServer: $("#inputSmtpServer").val(),
@@ -326,6 +340,12 @@ function generateConfig(){
 		}
 		if ($("#inputPostgres").val().trim() != ''){
 			dockerConfig.push(`POSTGRES_CONNECTION="${$('#inputPostgres').val()}"`);
+		}
+		if ($("#inputCustomWidgets").is(":checked")){
+			dockerConfig.push(`LUBELOGGER_CUSTOM_WIDGETS="${$('#inputCustomWidgets').is(':checked')}"`);
+		}
+		if ($("#inputInvariantAPI").is(":checked")){
+			dockerConfig.push(`LUBELOGGER_INVARIANT_API="${$('#inputInvariantAPI').is(':checked')}"`);
 		}
 		if ($('#inputSmtpServer').val().trim() != ''){
 			dockerConfig.push(`MailConfig__EmailServer="${$('#inputSmtpServer').val()}"`);
