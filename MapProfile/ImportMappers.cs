@@ -8,18 +8,21 @@ namespace CarCareTracker.MapProfile
         public ImportMapper()
         {
             Map(m => m.Date).Name(["date", "fuelup_date"]);
+            Map(m => m.Day).Name(["day"]);
+            Map(m => m.Month).Name(["month"]);
+            Map(m => m.Year).Name(["year"]);
             Map(m => m.DateCreated).Name(["datecreated"]);
             Map(m => m.DateModified).Name(["datemodified"]);
             Map(m => m.InitialOdometer).Name(["initialodometer"]);
-            Map(m => m.Odometer).Name(["odometer"]);
-            Map(m => m.FuelConsumed).Name(["gallons", "liters", "litres", "consumption", "quantity", "fuelconsumed"]);
+            Map(m => m.Odometer).Name(["odometer", "odo"]);
+            Map(m => m.FuelConsumed).Name(["gallons", "liters", "litres", "consumption", "quantity", "fuelconsumed", "qty"]);
             Map(m => m.Cost).Name(["cost", "total cost", "totalcost", "total price"]);
             Map(m => m.Notes).Name("notes", "note");
             Map(m => m.Price).Name(["price"]);
-            Map(m => m.PartialFuelUp).Name(["partial_fuelup"]);
+            Map(m => m.PartialFuelUp).Name(["partial_fuelup", "partial tank", "partial_fill"]);
             Map(m => m.IsFillToFull).Name(["isfilltofull", "filled up"]);
             Map(m => m.Description).Name(["description"]);
-            Map(m => m.MissedFuelUp).Name(["missed_fuelup", "missedfuelup"]);
+            Map(m => m.MissedFuelUp).Name(["missed_fuelup", "missedfuelup", "missed fill up", "missed_fill"]);
             Map(m => m.PartSupplier).Name(["partsupplier"]);
             Map(m => m.PartQuantity).Name(["partquantity"]);
             Map(m => m.PartNumber).Name(["partnumber"]);

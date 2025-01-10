@@ -1,24 +1,38 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
-@model List<SupplyUsageHistory>
+@model SupplyRequisitionHistory
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
-    var showDelete = Model.All(x => x.Id != default);
-    var showPartNumber = Model.Any(x => !string.IsNullOrWhiteSpace(x.PartNumber));
+    var showDelete = Model.RequisitionHistory.All(x => x.Id != default);
+    var showPartNumber = Model.RequisitionHistory.Any(x => !string.IsNullOrWhiteSpace(x.PartNumber));
 }
 <script>
     var supplyUsageHistory = [];
     var deletedSupplyUsageHistory = [];
+    function subtractFromCostInput(costToSubtract){
+        let costInputId = '@Model.CostInputId';
+        let costInput = $(`#${costInputId}`);
+        let newCostAmount = globalParseFloat(costInput.val()) - globalParseFloat(costToSubtract);
+        if (newCostAmount < 0){
+            newCostAmount = 0;
+        }
+        costInput.val(globalFloatToString(newCostAmount.toFixed(2)));
+    }
     function deleteSupplyUsageHistory(supplyId, quantity, cost, supplyRow){
         deletedSupplyUsageHistory.push({
             id: decodeHTMLEntities(supplyId),
             quantity: decodeHTMLEntities(quantity),
             cost: decodeHTMLEntities(cost)
         });
-        supplyUsageHistory = supplyUsageHistory.filter(x=>x.id != decodeHTMLEntities(supplyId));
+        let supplyIndexToRemove = supplyUsageHistory.findIndex(x=>x.id == decodeHTMLEntities(supplyId) && x.quantity == decodeHTMLEntities(quantity) && x.cost == decodeHTMLEntities(cost));
+        if (supplyIndexToRemove > -1){
+            supplyUsageHistory.splice(supplyIndexToRemove, 1);
+        }
         $(supplyRow).parents(".supply-row").remove();
+        //update cost input value
+        subtractFromCostInput(decodeHTMLEntities(cost));
     }
 </script>
 <div id="supplyUsageHistoryModalContainer" class="d-none">
@@ -26,7 +40,7 @@
         <h5 class="modal-title">@translator.Translate(userLanguage, "Supply Requisition History")</h5>
     </div>
     <div class="modal-body">
-        @if (Model.Any())
+        @if (Model.RequisitionHistory.Any())
         {
             <div class="row">
                 <div class="col-12" style="max-height:50vh; overflow-y:auto;">
@@ -49,7 +63,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (SupplyUsageHistory usageHistory in Model)
+                            @foreach (SupplyUsageHistory usageHistory in Model.RequisitionHistory)
                             {
                                 <script>
                                     supplyUsageHistory.push({ id: decodeHTMLEntities("@usageHistory.Id"), date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), partNumber: decodeHTMLEntities('@usageHistory.PartNumber'), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")") })

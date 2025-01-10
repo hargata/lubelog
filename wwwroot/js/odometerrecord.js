@@ -187,6 +187,9 @@ function recalculateDistance() {
 }
 
 function editMultipleOdometerRecords(ids) {
+    if (ids.length < 2) {
+        return;
+    }
     $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids }, function (data) {
         if (data) {
             $("#odometerRecordModalContent").html(data);

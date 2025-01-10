@@ -44,10 +44,7 @@
                     }
                     <label for="collisionRecordCost">@translator.Translate(userLanguage, "Cost")</label>
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="collisionRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the repair")" value="@(isNew ? "" : Model.Cost)">
-                    @if (isNew)
-                    {
-                        @await Html.PartialAsync("_SupplyStore", "RepairRecord")
-                    }
+                    @await Html.PartialAsync("_SupplyStore", new SupplyStore { Tab = "RepairRecord", AdditionalSupplies = Model.RequisitionHistory.Any() })
                     <label for="collisionRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
                     <select multiple class="form-select" id="collisionRecordTag">
                         @foreach (string tag in Model.Tags)
@@ -143,7 +140,7 @@
         <button type="button" class="btn btn-primary" onclick="saveCollisionRecordToVehicle(true)">@translator.Translate(userLanguage, "Edit Repair Record")</button>
     }
 </div>
-@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
+@await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "collisionRecordCost" })
 <script>
     var uploadedFiles = [];
     var selectedSupplies = [];

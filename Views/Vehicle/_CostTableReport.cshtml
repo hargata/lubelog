@@ -27,43 +27,45 @@
                             </tr>
                         </thead>
                         <tbody>
-                                <tr class="d-flex">
-                                    <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Service Records")</td>
-                                    <td class="col-3 flex-grow-1">@(hideZero && Model.ServiceRecordPerDay == default ? "---" : Model.ServiceRecordPerDay.ToString("C2"))</td>
-                                    <td class="col-3 flex-grow-1">@(hideZero && Model.ServiceRecordPerMile == default ? "---" :Model.ServiceRecordPerMile.ToString("C2"))</td>
-                                    <td class="col-3 flex-grow-1">@(hideZero && Model.ServiceRecordSum == default ? "---" :Model.ServiceRecordSum.ToString("C2"))</td>
-                                </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Service Records")</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.ServiceRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.ServiceRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.ServiceRecordSum.ToString("C2"), hideZero))</td>
+                            </tr>
                             <tr class="d-flex">
                                 <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Repairs")</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.CollisionRecordPerDay == default ? "---" :Model.CollisionRecordPerDay.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.CollisionRecordPerMile == default ? "---" :Model.CollisionRecordPerMile.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.CollisionRecordSum == default ? "---" :Model.CollisionRecordSum.ToString("C2"))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.CollisionRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.CollisionRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.CollisionRecordSum.ToString("C2"), hideZero))</td>
                             </tr>
                             <tr class="d-flex">
                                 <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Upgrades")</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.UpgradeRecordPerDay == default ? "---" :Model.UpgradeRecordPerDay.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.UpgradeRecordPerMile == default ? "---" :Model.UpgradeRecordPerMile.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.UpgradeRecordSum == default ? "---" :Model.UpgradeRecordSum.ToString("C2"))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.UpgradeRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.UpgradeRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.UpgradeRecordSum.ToString("C2"), hideZero))</td>
                             </tr>
                             <tr class="d-flex">
                                 <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Fuel")</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.GasRecordPerDay == default ? "---" :Model.GasRecordPerDay.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.GasRecordPerMile == default ? "---" :Model.GasRecordPerMile.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.GasRecordSum == default ? "---" :Model.GasRecordSum.ToString("C2"))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.GasRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.GasRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.GasRecordSum.ToString("C2"), hideZero))</td>
                             </tr>
                             <tr class="d-flex">
                                 <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Taxes")</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TaxRecordPerDay == default ? "---" :Model.TaxRecordPerDay.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TaxRecordPerMile == default ? "---" : Model.TaxRecordPerMile.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TaxRecordSum == default ? "---" :Model.TaxRecordSum.ToString("C2"))</td>
-                            </tr>
-                            <tr class="d-flex">
-                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Total")</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TotalPerDay == default ? "---" : Model.TotalPerDay.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TotalPerMile == default ? "---" : Model.TotalPerMile.ToString("C2"))</td>
-                                <td class="col-3 flex-grow-1">@(hideZero && Model.TotalCost == default ? "---" : Model.TotalCost.ToString("C2"))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordSum.ToString("C2"), hideZero))</td>
                             </tr>
                         </tbody>
+                        <tfoot>
+                            <tr class="d-flex fw-bold">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Total")</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TotalPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TotalPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TotalCost.ToString("C2"), hideZero))</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

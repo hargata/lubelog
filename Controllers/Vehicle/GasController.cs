@@ -62,6 +62,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), gasRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -76,10 +81,11 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), gasRecord.VehicleId, User.Identity.Name, $"{(gasRecord.Id == default ? "Created" : "Edited")} Gas Record - Mileage: {gasRecord.Mileage.ToString()}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetAddGasRecordPartialView(int vehicleId)
         {
@@ -92,6 +98,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordForEditById(int gasRecordId)
         {
             var result = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             var convertedResult = new GasRecordInput
             {
                 Id = result.Id,
@@ -127,16 +138,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteGasRecordById(int gasRecordId)
         {
             var result = DeleteGasRecordWithChecks(gasRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Gas Record - Id: {gasRecordId}");
-            }
             return Json(result);
         }
         [HttpPost]

@@ -34,7 +34,7 @@ namespace CarCareTracker.Helper
         }
         public List<string> GetLanguages()
         {
-            var languagePath = Path.Combine(_webEnv.WebRootPath, "translations");
+            var languagePath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
             var defaultList = new List<string>() { "en_US" };
             if (Directory.Exists(languagePath))
             {
@@ -72,7 +72,7 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string oldFilePath = currentFilePath.StartsWith("defaults/") ? Path.Combine(_webEnv.WebRootPath, currentFilePath) : Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (File.Exists(oldFilePath))
             {
                 return oldFilePath;
@@ -94,7 +94,7 @@ namespace CarCareTracker.Helper
             }
             try
             {
-                var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{Guid.NewGuid()}");
+                var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{Guid.NewGuid()}");
                 if (!Directory.Exists(tempPath))
                     Directory.CreateDirectory(tempPath);
                 //extract zip file
@@ -105,10 +105,10 @@ namespace CarCareTracker.Helper
                 var translationPath = Path.Combine(tempPath, "translations");
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
                 var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
-                var configPath = Path.Combine(tempPath, StaticHelper.UserConfigPath);
+                var configPath = Path.Combine(tempPath, StaticHelper.LegacyUserConfigPath);
                 if (Directory.Exists(imagePath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "images");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -130,7 +130,7 @@ namespace CarCareTracker.Helper
                 }
                 if (Directory.Exists(documentPath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "documents");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "documents");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -152,7 +152,7 @@ namespace CarCareTracker.Helper
                 }
                 if (Directory.Exists(translationPath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "translations");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -186,9 +186,9 @@ namespace CarCareTracker.Helper
                 if (File.Exists(configPath))
                 {
                     //check if config folder exists.
-                    if (!Directory.Exists("config/"))
+                    if (!Directory.Exists("data/config"))
                     {
-                        Directory.CreateDirectory("config/");
+                        Directory.CreateDirectory("data/config");
                     }
                     File.Move(configPath, StaticHelper.UserConfigPath, true);
                 }
@@ -203,7 +203,7 @@ namespace CarCareTracker.Helper
         public string MakeAttachmentsExport(List<GenericReportModel> exportData)
         {
             var folderName = Guid.NewGuid();
-            var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{folderName}");
+            var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{folderName}");
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             int fileIndex = 0;
@@ -227,10 +227,10 @@ namespace CarCareTracker.Helper
         public string MakeBackup()
         {
             var folderName = $"db_backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}";
-            var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{folderName}");
-            var imagePath = Path.Combine(_webEnv.WebRootPath, "images");
-            var documentPath = Path.Combine(_webEnv.WebRootPath, "documents");
-            var translationPath = Path.Combine(_webEnv.WebRootPath, "translations");
+            var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{folderName}");
+            var imagePath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
+            var documentPath = Path.Combine(_webEnv.ContentRootPath, "data", "documents");
+            var translationPath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
             var dataPath = StaticHelper.DbName;
             var widgetPath = StaticHelper.AdditionalWidgetsPath;
             var configPath = StaticHelper.UserConfigPath;
@@ -301,8 +301,8 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, newFolder);
-            string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", newFolder);
+            string oldFilePath = Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string newFileUploadPath = oldFilePath.Replace(tempPath, newFolder);
@@ -319,7 +319,7 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string filePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string filePath = Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);

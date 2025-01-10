@@ -81,7 +81,7 @@ namespace CarCareTracker.Controllers
         private string UploadFile(IFormFile fileToUpload)
         {
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string fileName = Guid.NewGuid() + Path.GetExtension(fileToUpload.FileName);
@@ -95,7 +95,7 @@ namespace CarCareTracker.Controllers
         public IActionResult UploadCoordinates(List<string> coordinates)
         {
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string fileName = Guid.NewGuid() + ".csv";

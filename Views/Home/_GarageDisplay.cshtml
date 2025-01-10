@@ -10,10 +10,10 @@
 @if (recordTags.Any())
 {
     <div class='row'>
-        <div class="d-flex align-items-center flex-wrap mt-4">
+        <div class="col-12 d-flex align-items-center flex-wrap mt-2 mb-2">
             @foreach (string recordTag in recordTags)
             {
-                <span onclick="filterGarage(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
             <datalist id="tagList">
                 @foreach (string recordTag in recordTags)
@@ -24,13 +24,12 @@
         </div>
     </div>
 }
-<div class="row">
-    <div class="row gy-3 align-items-stretch vehiclesContainer">
+    <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(recordTags.Any() ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
                     <div class="card" onclick="viewVehicle(@vehicle.Id)">
                         <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
@@ -82,10 +81,9 @@
                 </div>
             }
         }
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 garage-item-add">
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item-add">
             <div class="card" onclick="showAddVehicleModal()" style="height:100%;">
                 <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;" />
             </div>
         </div>
     </div>
-</div>

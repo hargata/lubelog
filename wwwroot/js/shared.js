@@ -28,6 +28,21 @@ function errorToast(message) {
         }
     })
 }
+function infoToast(message) {
+    Swal.fire({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        title: message,
+        timerProgressBar: true,
+        icon: "info",
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    })
+}
 function viewVehicle(vehicleId) {
     window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
 }
@@ -500,7 +515,7 @@ function updateAggregateLabels() {
     var sumLabel = $("[data-aggregate-type='sum']");
     if (sumLabel.length > 0) {
         var labelsToSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray();
-        var newSum = 0;
+        var newSum = "0.00";
         if (labelsToSum.length > 0) {
             newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
         }
@@ -846,6 +861,10 @@ function duplicateRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            break;
     }
 
     Swal.fire({
@@ -915,6 +934,10 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "PlanRecord":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            break;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -949,6 +972,55 @@ function duplicateRecordsToOtherVehicles(ids, source) {
         }
     })
 }
+function insertOdometer(ids, source) {
+    if (ids.length == 0) {
+        return;
+    }
+    $("#workAroundInput").show();
+    var friendlySource = "";
+    var refreshDataCallBack;
+    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
+    switch (source) {
+        case "ServiceRecord":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            break;
+        case "RepairRecord":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            break;
+        case "UpgradeRecord":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            break;
+        case "GasRecord":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            break;
+    }
+
+    Swal.fire({
+        title: "Create Odometer Records?",
+        text: `Create Odometer Records based on ${recordVerbiage}?`,
+        showCancelButton: true,
+        confirmButtonText: "Create",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/BulkCreateOdometerRecords', { recordIds: ids, importMode: source }, function (data) {
+                if (data) {
+                    successToast(`${ids.length} Odometer Record(s) Created`);
+                    var vehicleId = GetVehicleId().vehicleId;
+                    refreshDataCallBack(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
 var selectedRow = [];
 var isDragging = false;
 $(window).on('mouseup', function (e) {
@@ -981,8 +1053,9 @@ function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    var contextMenuAction = $(e.target).is(".table-context-menu > li > .dropdown-item")
-    if (!(e.ctrlKey || e.metaKey) && !contextMenuAction) {
+    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item");
+    var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
+    if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
     }
     isDragging = true;
@@ -1004,11 +1077,11 @@ function stopEvent() {
     event.stopPropagation();
 }
 function rangeMouseUp(e) {
-    if ($(".table-context-menu").length > 0) {
-        $(".table-context-menu").hide();
-    }
     if (isRightClick(e)) {
         return;
+    }
+    if ($(".table-context-menu").length > 0) {
+        $(".table-context-menu").fadeOut("fast");
     }
     isDragging = false;
     document.documentElement.onselectstart = function () { return true; };
@@ -1050,10 +1123,9 @@ function showTableContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".table-context-menu").show();
+    $(".table-context-menu").fadeIn("fast");
     determineContextMenuItems();
     $(".table-context-menu").css({
-        position: "absolute",
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
         top: getMenuPosition(event.clientY, 'height', 'scrollTop')
     });
@@ -1111,7 +1183,8 @@ function getMenuPosition(mouse, direction, scrollDir) {
     return position;
 }
 function handleTableRowClick(e, callBack, rowId) {
-    if (!(event.ctrlKey || event.metaKey)) {
+    var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
+    if (!(event.ctrlKey || event.metaKey || selectMode)) {
         callBack(rowId);
     } else if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
@@ -1128,13 +1201,12 @@ function showTableContextMenuForMobile(e, xPosition, yPosition) {
         $(e).addClass('table-active');
         shakeTableRow(e);
     } else {
-        $(".table-context-menu").show();
-        determineContextMenuItems();
+        $(".table-context-menu").fadeIn("fast");
         $(".table-context-menu").css({
-            position: "absolute",
             left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
             top: getMenuPosition(yPosition, 'height', 'scrollTop')
         });
+        determineContextMenuItems();
     }
 }
 function shakeTableRow(e) {

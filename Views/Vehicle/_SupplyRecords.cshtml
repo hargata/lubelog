@@ -46,6 +46,13 @@
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="searchTableRows('supply-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
@@ -141,7 +148,7 @@
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@supplyRecord.PartSupplier</td>
                         <td class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && supplyRecord.Cost == default) ? "---" : supplyRecord.Cost.ToString("C"))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(supplyRecord.Cost, hideZero))</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
@@ -161,12 +168,14 @@
                         }
                     </tr>
                 }
+            </tbody>
+            <tfoot>
                 <tr class="d-flex">
                     <td class="col-12 showOnPrint lubelogger-report-banner">
                         @StaticHelper.ReportNote
                     </td>
                 </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -180,12 +189,12 @@
 </div>
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
-    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
-    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'SupplyRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'SupplyRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'SupplyRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
 @if (userColumnPreferences.Any())
 {

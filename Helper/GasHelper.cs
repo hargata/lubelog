@@ -76,7 +76,8 @@ namespace CarCareTracker.Helper
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
                         Tags = currentObject.Tags,
-                        ExtraFields = currentObject.ExtraFields
+                        ExtraFields = currentObject.ExtraFields,
+                        Files = currentObject.Files
                     };
                     if (currentObject.MissedFuelUp)
                     {
@@ -130,7 +131,8 @@ namespace CarCareTracker.Helper
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
                         Tags = currentObject.Tags,
-                        ExtraFields = currentObject.ExtraFields
+                        ExtraFields = currentObject.ExtraFields,
+                        Files = currentObject.Files
                     });
                 }
                 previousMileage = currentObject.Mileage;

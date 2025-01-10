@@ -211,6 +211,11 @@ html {
     }
 }
 
+.btn-check:checked + .dropdown-item, :not(.btn-check) + .dropdown-item:active {
+    color: #fff;
+    background-color: #0d6efd;
+}
+
 /*Media Queries*/
 @media (max-width: 576px) {
     .lubelogger-tab {
@@ -282,6 +287,25 @@ html {
 
 .table-context-menu {
     z-index: 1030;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+    position: absolute;
+}
+
+.table-context-menu > li > .dropdown-item:hover {
+   background-color: rgba(var(--bs-primary-rgb)) !important;
+   color: #fff !important;
+}
+
+html[data-bs-theme="dark"] .table-context-menu {
+    background-color: rgba(33, 37, 41, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-bs-theme="light"] .table-context-menu {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 input[type="file"] {

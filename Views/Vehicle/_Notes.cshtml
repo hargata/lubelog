@@ -6,6 +6,7 @@
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var enableCsvImports = userConfig.EnableCsvImports;
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -23,7 +24,30 @@
             </datalist>
         </div>
         <div>
-            <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Note")</button>
+            @if (enableCsvImports)
+            {
+                <div class="btn-group">
+                    <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Note")</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="searchTableRows('notes-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <button onclick="showAddNoteModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Note")</button>
+            }
         </div>
     </div>
 </div>
@@ -37,8 +61,8 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-3">@translator.Translate(userLanguage,"Description")</th>
-                    <th scope="col" class="col-9">@translator.Translate(userLanguage,"Note")</th>
+                    <th scope="col" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Note")</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,20 +71,22 @@
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@note.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditNoteModal,@note.Id)" data-tags='@string.Join(" ", note.Tags)'>
                         @if (note.Pinned)
                         {
-                            <td class="col-3"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>
+                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>
                         } else
                         {
-                            <td class="col-3">@note.Description</td>
+                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate">@note.Description</td>
                         }
-                        <td class="col-9 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
                     </tr>
                 }
+            </tbody>
+            <tfoot>
                 <tr class="d-flex">
                     <td class="col-12 showOnPrint lubelogger-report-banner">
                         @StaticHelper.ReportNote
                     </td>
                 </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -74,14 +100,14 @@
 </div>
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
-    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()">@translator.Translate(userLanguage, "Select All")</a></li>
-    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()">@translator.Translate(userLanguage, "Deselect All")</a></li>
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
     <li><hr class="context-menu-multiple dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, true)">@translator.Translate(userLanguage, "Toggle Pin")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, false, true)">@translator.Translate(userLanguage, "Pin")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, false, false)">@translator.Translate(userLanguage, "Unpin")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, true)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Toggle Pin")</span><i class="bi bi-pin-angle-fill"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, false, true)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Pin")</span><i class="bi bi-pin-angle-fill"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="pinNotes(selectedRow, false, false)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Unpin")</span><i class="bi bi-pin-angle"></i></div></a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Duplicate")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Duplicate To Vehicle")</a></li>
-    <li><a class="dropdown-item" href="#" onclick="deleteRecords(selectedRow, 'NoteRecord')">@translator.Translate(userLanguage, "Delete")</a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'NoteRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'NoteRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'NoteRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>

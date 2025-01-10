@@ -12,7 +12,19 @@
     <div class="row mt-2">
         <div class="d-flex">
             <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
-            <span class="display-6 ms-5">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</span>
+            <div class="ms-5">
+                <span class="display-6">
+                    @translator.Translate(userLanguage, "Vehicle Maintenance Report")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(Model.StartDate) && !string.IsNullOrWhiteSpace(Model.EndDate))
+                {
+                <br />
+                <span class="lead ms-2">
+                    @($"{@translator.Translate(userLanguage, "From")} {Model.StartDate} {@translator.Translate(userLanguage, "To")} {Model.EndDate}")
+                </span>
+                }
+            </div>
+            
         </div>
     </div>
     <hr />
@@ -145,7 +157,7 @@
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@reportData.Date.ToShortDateString()</td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
                             <td class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@reportData.Description</td>
-                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@((hideZero && reportData.Cost == default) ? "---" : reportData.Cost.ToString("C"))</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@(StaticHelper.HideZeroCost(reportData.Cost, hideZero))</td>
                             <td class="col-4 flex-grow-1 flex-shrink-1 text-wrap text-break @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
                             @foreach(string extraField in extraFields)
                             {
@@ -153,12 +165,14 @@
                             }
                         </tr>
                     }
+                </tbody>
+                <tfoot>
                     <tr class="d-flex">
                         <td class="col-12 showOnPrint lubelogger-report-banner">
                             @StaticHelper.ReportNote
                         </td>
                     </tr>
-                </tbody>
+                </tfoot>
             </table>
         </div>
     </div>

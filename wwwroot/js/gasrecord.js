@@ -267,6 +267,7 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 break;
         }
     }
+    updateMPGLabels();
 }
 
 function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
@@ -281,31 +282,6 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                         elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     }
                 });
-                //update labels up top.
-                if ($("#averageFuelMileageLabel").length > 0) {
-                    var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().split(":")[1].trim());
-                    if (newAverage > 0) {
-                        newAverage = 100 / newAverage;
-                        var averageLabel = $("#averageFuelMileageLabel");
-                        averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(newAverage.toFixed(2))}`);
-                    }
-                }
-                if ($("#minFuelMileageLabel").length > 0) {
-                    var newMin = globalParseFloat($("#minFuelMileageLabel").text().split(":")[1].trim());
-                    if (newMin > 0) {
-                        newMin = 100 / newMin;
-                        var minLabel = $("#minFuelMileageLabel");
-                        minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(newMin.toFixed(2))}`);
-                    }
-                }
-                if ($("#maxFuelMileageLabel").length > 0) {
-                    var newMax = globalParseFloat($("#maxFuelMileageLabel").text().split(":")[1].trim());
-                    if (newMax > 0) {
-                        newMax = 100 / newMax;
-                        var maxLabel = $("#maxFuelMileageLabel");
-                        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(newMax.toFixed(2))}`);
-                    }
-                }
                 sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
                 sender.attr("data-unit", "km/l");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
@@ -321,36 +297,13 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                         elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
                     }
                 });
-                if ($("#averageFuelMileageLabel").length > 0) {
-                    var newAverage = globalParseFloat($("#averageFuelMileageLabel").text().split(":")[1].trim());
-                    if (newAverage > 0) {
-                        newAverage = 100 / newAverage;
-                        var averageLabel = $("#averageFuelMileageLabel");
-                        averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(newAverage.toFixed(2))}`);
-                    }
-                }
-                if ($("#minFuelMileageLabel").length > 0) {
-                    var newMin = globalParseFloat($("#minFuelMileageLabel").text().split(":")[1].trim());
-                    if (newMin > 0) {
-                        newMin = 100 / newMin;
-                        var minLabel = $("#minFuelMileageLabel");
-                        minLabel.text(`${minLabel.text().split(':')[0]}: ${globalFloatToString(newMin.toFixed(2))}`);
-                    }
-                }
-                if ($("#maxFuelMileageLabel").length > 0) {
-                    var newMax = globalParseFloat($("#maxFuelMileageLabel").text().split(":")[1].trim());
-                    if (newMax > 0) {
-                        newMax = 100 / newMax;
-                        var maxLabel = $("#maxFuelMileageLabel");
-                        maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(newMax.toFixed(2))}`);
-                    }
-                }
                 sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
                 sender.attr("data-unit", "l/100km");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     }
+    updateMPGLabels();
 }
 function toggleGasFilter(sender) {
     filterTable('gas-tab-pane', sender);
@@ -360,13 +313,20 @@ function updateMPGLabels() {
     var averageLabel = $("#averageFuelMileageLabel");
     var minLabel = $("#minFuelMileageLabel");
     var maxLabel = $("#maxFuelMileageLabel");
-    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0) {
+    var totalConsumedLabel = $("#totalFuelConsumedLabel");
+    var totalDistanceLabel = $("#totalDistanceLabel");
+    if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0 && totalDistanceLabel.length > 0) {
         var rowsToAggregate = $("[data-aggregated='true']").parent(":not('.override-hide')");
+        var rowsUnaggregated = $("[data-aggregated='false']").parent(":not('.override-hide')");
         var rowMPG = rowsToAggregate.children('[data-gas-type="fueleconomy"]').toArray().map(x => globalParseFloat(x.textContent));
         var maxMPG = rowMPG.length > 0 ? rowMPG.reduce((a, b) => a > b ? a : b) : 0;
         var minMPG = rowMPG.length > 0 ? rowMPG.filter(x=>x>0).reduce((a, b) => a < b ? a : b) : 0;
         var totalMilesTraveled = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
-        var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
+        var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
+        var totalUnaggregatedGasConsumed = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
+        var totalMilesTraveledUnaggregated = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
+        var fullGasConsumed = totalGasConsumed + totalUnaggregatedGasConsumed;
+        var fullDistanceTraveled = totalMilesTraveled + totalMilesTraveledUnaggregated;
         if (totalGasConsumed > 0) {
             var averageMPG = totalMilesTraveled / totalGasConsumed;
             if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l' && averageMPG > 0) {
@@ -374,7 +334,17 @@ function updateMPGLabels() {
             }
             averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString(averageMPG.toFixed(2))}`);
         } else {
-            averageLabel.text(`${averageLabel.text().split(':')[0]}: 0.00`);
+            averageLabel.text(`${averageLabel.text().split(':')[0]}: ${globalFloatToString('0.00')}`);
+        }
+        if (fullDistanceTraveled > 0) {
+            totalDistanceLabel.text(`${totalDistanceLabel.text().split(':')[0]}: ${fullDistanceTraveled} ${getGasModelData().distanceUnit}`);
+        } else {
+            totalDistanceLabel.text(`${totalDistanceLabel.text().split(':')[0]}: 0 ${getGasModelData().distanceUnit}`);
+        }
+        if (fullGasConsumed > 0) {
+            totalConsumedLabel.text(`${totalConsumedLabel.text().split(':')[0]}: ${globalFloatToString(fullGasConsumed.toFixed(2))}`);
+        } else {
+            totalConsumedLabel.text(`${totalConsumedLabel.text().split(':')[0]}: ${globalFloatToString('0.00')}`);
         }
         if (!getGlobalConfig().useMPG && $("[data-gas='fueleconomy']").attr("data-unit") != 'km/l') {
             maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(minMPG.toFixed(2))}`);
@@ -455,6 +425,9 @@ function searchGasTableRows() {
     });
 }
 function editMultipleGasRecords(ids) {
+    if (ids.length < 2) {
+        return;
+    }
     $.post('/Vehicle/GetGasRecordsEditModal', { recordIds: ids }, function (data) {
         if (data) {
             $("#gasRecordModalContent").html(data);

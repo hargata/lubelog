@@ -95,7 +95,6 @@ namespace CarCareTracker.Controllers
         public IActionResult Index(int vehicleId)
         {
             var data = _dataAccess.GetVehicleById(vehicleId);
-            UpdateRecurringTaxes(vehicleId);
             return View(data);
         }
         [HttpGet]
@@ -131,10 +130,10 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"Added Vehicle - Description: {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 } else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleInput.Id, User.Identity.Name, $"Edited Vehicle - Description: {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}");
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 return Json(result);
             }
@@ -164,7 +163,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), vehicleId, User.Identity.Name, "Deleted Vehicle");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
             return Json(result);
         }
@@ -389,7 +388,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -431,7 +430,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -490,7 +489,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -506,6 +505,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
                         }
                         break;
@@ -513,6 +513,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
                         }
                         break;
@@ -520,6 +521,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
                         }
                         break;
@@ -541,6 +543,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
                         }
                         break;
@@ -565,11 +568,20 @@ namespace CarCareTracker.Controllers
                             result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
                         }
                         break;
+                    case ImportMode.PlanRecord:
+                        {
+                            var existingRecord = _planRecordDataAccess.GetPlanRecordById(recordId);
+                            existingRecord.Id = default;
+                            existingRecord.ReminderRecordId = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
+                            result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
+                        }
+                        break;
                 }
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -589,7 +601,8 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
                             existingRecord.Id = default;
-                            foreach(int vehicleId in vehicleIds)
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
+                            foreach (int vehicleId in vehicleIds)
                             {
                                 existingRecord.VehicleId = vehicleId;
                                 result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
@@ -600,6 +613,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             foreach (int vehicleId in vehicleIds)
                             {
                                 existingRecord.VehicleId = vehicleId;
@@ -611,6 +625,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             foreach (int vehicleId in vehicleIds)
                             {
                                 existingRecord.VehicleId = vehicleId;
@@ -684,11 +699,88 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.PlanRecord:
+                        {
+                            var existingRecord = _planRecordDataAccess.GetPlanRecordById(recordId);
+                            existingRecord.Id = default;
+                            existingRecord.ReminderRecordId = default;
+                            existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
                 }
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
+            }
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult BulkCreateOdometerRecords(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            foreach (int recordId in recordIds)
+            {
+                switch (importMode)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}"
+                            });
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                            {
+                                Date = existingRecord.Date,
+                                VehicleId = existingRecord.VehicleId,
+                                Mileage = existingRecord.Mileage,
+                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}"
+                            });
+                        }
+                        break;
+                }
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }

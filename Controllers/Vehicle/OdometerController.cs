@@ -63,15 +63,21 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), odometerRecord.VehicleId))
+            {
+                return Json(false);
+            }
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), odometerRecord.VehicleId, User.Identity.Name, $"{(odometerRecord.Id == default ? "Created" : "Edited")} Odometer Record - Mileage: {odometerRecord.Mileage.ToString()}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetAddOdometerRecordPartialView(int vehicleId)
         {
@@ -149,6 +155,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new OdometerRecordInput
             {
@@ -173,16 +184,16 @@ namespace CarCareTracker.Controllers
                 return false;
             }
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteOdometerRecordById(int odometerRecordId)
         {
             var result = DeleteOdometerRecordWithChecks(odometerRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Odometer Record - Id: {odometerRecordId}");
-            }
             return Json(result);
         }
     }

@@ -119,7 +119,7 @@
         <button type="button" class="btn btn-primary" onclick="saveSupplyRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Supply Record")</button>
     }
 </div>
-@await Html.PartialAsync("_SupplyRequisitionHistory", Model.RequisitionHistory)
+@await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "" })
 <script>
     var uploadedFiles = [];
     getUploadedFilesFromModel();

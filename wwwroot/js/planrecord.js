@@ -269,6 +269,10 @@ function dragStart(event, planRecordId) {
 }
 function dragOver(event) {
     event.preventDefault();
+    if (planTouchTimer) {
+        clearTimeout(planTouchTimer);
+        planTouchTimer = null;
+    }
 }
 function dropBox(event, newProgress) {
     var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
@@ -349,4 +353,105 @@ function orderPlanSupplies(planRecordTemplateId, closeSwal) {
 function hideOrderSupplyModal() {
     $("#planRecordTemplateSupplyOrderModal").modal('hide');
     showPlanRecordTemplatesModal();
+}
+function configurePlanTableContextMenu(planRecordId, currentSwimLane) {
+    //clear any bound actions
+    $(".context-menu-move").off('click');
+    //bind context menu actions
+    $(".context-menu-delete").on('click', () => {
+        deletePlanRecord(planRecordId, true);
+    });
+    let planRecordIdArray = [planRecordId];
+    $(".context-menu-duplicate").on('click', () => {
+        duplicateRecords(planRecordIdArray, 'PlanRecord');
+    });
+    $(".context-menu-duplicate-vehicle").on('click', () => {
+        duplicateRecordsToOtherVehicles(planRecordIdArray, 'PlanRecord');
+    });
+    $(".context-menu-move.move-planned").on('click', () => {
+        draggedId = planRecordId;
+        updatePlanRecordProgress('Backlog');
+        draggedId = 0;
+    });
+    $(".context-menu-move.move-doing").on('click', () => {
+        draggedId = planRecordId;
+        updatePlanRecordProgress('InProgress');
+    });
+    $(".context-menu-move.move-testing").on('click', () => {
+        draggedId = planRecordId;
+        updatePlanRecordProgress('Testing');
+    });
+    $(".context-menu-move.move-done").on('click', () => {
+        draggedId = planRecordId;
+        updatePlanRecordProgress('Done');
+    });
+    //hide all move buttons
+    $(".context-menu-move").hide();
+    $(".context-menu-delete").show(); //delete is always visible.
+    switch (currentSwimLane) {
+        case 'Backlog':
+            $(".context-menu-move.move-header").show();
+            $(".context-menu-move.move-doing").show();
+            $(".context-menu-move.move-testing").show();
+            $(".context-menu-move.move-done").show();
+            break;
+        case 'InProgress':
+            $(".context-menu-move.move-header").show();
+            $(".context-menu-move.move-planned").show();
+            $(".context-menu-move.move-testing").show();
+            $(".context-menu-move.move-done").show();
+            break;
+        case 'Testing':
+            $(".context-menu-move.move-header").show();
+            $(".context-menu-move.move-planned").show();
+            $(".context-menu-move.move-doing").show();
+            $(".context-menu-move.move-done").show();
+            break;
+        case 'Done':
+            break;
+    }
+}
+function showPlanTableContextMenu(e, planRecordId, currentSwimLane) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    if (getDeviceIsTouchOnly()) {
+        return;
+    }
+    if (planRecordId == 0) {
+        return;
+    }
+    $(".table-context-menu").fadeIn("fast");
+    $(".table-context-menu").css({
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
+    configurePlanTableContextMenu(planRecordId, currentSwimLane);
+}
+function showPlanTableContextMenuForMobile(e, xPosition, yPosition, planRecordId, currentSwimLane) {
+    $(".table-context-menu").fadeIn("fast");
+    $(".table-context-menu").css({
+        left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
+        top: getMenuPosition(yPosition, 'height', 'scrollTop')
+    });
+    configurePlanTableContextMenu(planRecordId, currentSwimLane);
+    if (planTouchTimer) {
+        clearTimeout(planTouchTimer);
+        planTouchTimer = null;
+    }
+}
+var planTouchTimer;
+var planTouchDuration = 3000;
+function detectPlanItemLongTouch(sender, planRecordId, currentSwimLane) {
+    var touchX = event.touches[0].clientX;
+    var touchY = event.touches[0].clientY;
+    if (!planTouchTimer) {
+        planTouchTimer = setTimeout(function () { showPlanTableContextMenuForMobile(sender, touchX, touchY, planRecordId, currentSwimLane); detectPlanItemTouchEndPremature(sender); }, planTouchDuration);
+    }
+}
+function detectPlanItemTouchEndPremature(sender) {
+    if (planTouchTimer) {
+        clearTimeout(planTouchTimer);
+        planTouchTimer = null;
+    }
 }

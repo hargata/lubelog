@@ -26,6 +26,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), collisionRecord.VehicleId))
+            {
+                return Json(false);
+            }
             if (collisionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
@@ -48,7 +53,7 @@ namespace CarCareTracker.Controllers
             }
             if (collisionRecord.DeletedRequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(collisionRecord.DeletedRequisitionHistory, collisionRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(collisionRecord.DeletedRequisitionHistory, collisionRecord.Description);
             }
             //push back any reminders
             if (collisionRecord.ReminderRecordId.Any())
@@ -61,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), collisionRecord.VehicleId, User.Identity.Name, $"{(collisionRecord.Id == default ? "Created" : "Edited")} Repair Record - Description: {collisionRecord.Description}");
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -74,6 +79,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCollisionRecordForEditById(int collisionRecordId)
         {
             var result = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new CollisionRecordInput
             {
@@ -102,19 +112,19 @@ namespace CarCareTracker.Controllers
             //restore any requisitioned supplies.
             if (existingRecord.RequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
+            }
             return result;
         }
         [HttpPost]
         public IActionResult DeleteCollisionRecordById(int collisionRecordId)
         {
             var result = DeleteCollisionRecordWithChecks(collisionRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Repair Record - Id: {collisionRecordId}");
-            }
             return Json(result);
         }
     }

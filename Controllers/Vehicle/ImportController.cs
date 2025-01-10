@@ -25,7 +25,7 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
@@ -273,13 +273,22 @@ namespace CarCareTracker.Controllers
                             var requiredExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)mode).ExtraFields.Where(x => x.IsRequired).Select(y => y.Name);
                             foreach (ImportModel importModel in records)
                             {
+                                var parsedDate = DateTime.Now.Date;
+                                if (!string.IsNullOrWhiteSpace(importModel.Date))
+                                {
+                                    parsedDate = DateTime.Parse(importModel.Date);
+                                }
+                                else if (!string.IsNullOrWhiteSpace(importModel.Day) && !string.IsNullOrWhiteSpace(importModel.Month) && !string.IsNullOrWhiteSpace(importModel.Year))
+                                {
+                                    parsedDate = new DateTime(int.Parse(importModel.Year), int.Parse(importModel.Month), int.Parse(importModel.Day));
+                                }
                                 if (mode == ImportMode.GasRecord)
                                 {
                                     //convert to gas model.
                                     var convertedRecord = new GasRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
@@ -335,9 +344,9 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new ServiceRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
-                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {importModel.Date}" : importModel.Description,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Service Record on {parsedDate.ToShortDateString()}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
@@ -360,7 +369,7 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new OdometerRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         InitialMileage = string.IsNullOrWhiteSpace(importModel.InitialOdometer) ? 0 : decimal.ToInt32(decimal.Parse(importModel.InitialOdometer, NumberStyles.Any)),
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
@@ -394,9 +403,9 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new CollisionRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
-                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {importModel.Date}" : importModel.Description,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Repair Record on {parsedDate.ToShortDateString()}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
@@ -419,9 +428,9 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new UpgradeRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
-                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {importModel.Date}" : importModel.Description,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Upgrade Record on {parsedDate.ToShortDateString()}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
@@ -444,7 +453,7 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new SupplyRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
+                                        Date = parsedDate,
                                         PartNumber = importModel.PartNumber,
                                         PartSupplier = importModel.PartSupplier,
                                         Quantity = decimal.Parse(importModel.PartQuantity, NumberStyles.Any),
@@ -461,8 +470,8 @@ namespace CarCareTracker.Controllers
                                     var convertedRecord = new TaxRecord()
                                     {
                                         VehicleId = vehicleId,
-                                        Date = DateTime.Parse(importModel.Date),
-                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {importModel.Date}" : importModel.Description,
+                                        Date = parsedDate,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? $"Tax Record on {parsedDate.ToShortDateString()}" : importModel.Description,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Cost = decimal.Parse(importModel.Cost, NumberStyles.Any),
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
