@@ -87,9 +87,9 @@ namespace CarCareTracker.Helper
                         unFactoredConsumption = 0;
                         unFactoredMileage = 0;
                     }
-                    else if (currentObject.IsFillToFull)
+                    else if (currentObject.IsFillToFull && currentObject.Mileage != default)
                     {
-                        //if user filled to full.
+                        //if user filled to full and an odometer is provided, otherwise we will defer calculations
                         if (convertedConsumption > 0.00M && deltaMileage > 0)
                         {
                             try
@@ -112,6 +112,10 @@ namespace CarCareTracker.Helper
                         gasRecordViewModel.MilesPerGallon = 0;
                     }
                     computedResults.Add(gasRecordViewModel);
+                    if (currentObject.Mileage != default)
+                    {
+                        previousMileage = currentObject.Mileage;
+                    }
                 }
                 else
                 {
@@ -134,8 +138,8 @@ namespace CarCareTracker.Helper
                         ExtraFields = currentObject.ExtraFields,
                         Files = currentObject.Files
                     });
+                    previousMileage = currentObject.Mileage;
                 }
-                previousMileage = currentObject.Mileage;
             }
             return computedResults;
         }
