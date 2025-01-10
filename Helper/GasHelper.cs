@@ -112,10 +112,6 @@ namespace CarCareTracker.Helper
                         gasRecordViewModel.MilesPerGallon = 0;
                     }
                     computedResults.Add(gasRecordViewModel);
-                    if (currentObject.Mileage != default)
-                    {
-                        previousMileage = currentObject.Mileage;
-                    }
                 }
                 else
                 {
@@ -138,6 +134,9 @@ namespace CarCareTracker.Helper
                         ExtraFields = currentObject.ExtraFields,
                         Files = currentObject.Files
                     });
+                }
+                if (currentObject.Mileage != default)
+                {
                     previousMileage = currentObject.Mileage;
                 }
             }
