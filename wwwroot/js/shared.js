@@ -617,6 +617,17 @@ function printTab() {
         window.print();
     }, 500);
 }
+function printTabStickers(ids, source) {
+    $(".stickerPrintDiv").addClass("showOnPrint");
+    $(".stickerPrintDiv").removeClass("hideOnPrint");
+    setTimeout(function () {
+        window.print();
+        setTimeout(function () {
+            $(".stickerPrintDiv").removeClass("showOnPrint");
+            $(".stickerPrintDiv").addClass("hideOnPrint");
+        }, 1000);
+    }, 500);
+}
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
     $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {

@@ -487,3 +487,7 @@ html[data-bs-theme="light"] .api-method:hover {
     border-top: thin solid black;
     text-align: center;
 }
+
+.stickerPrintDiv {
+    z-index: 1030;
+}
