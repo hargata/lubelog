@@ -154,6 +154,7 @@ namespace CarCareTracker.Middleware
                 if (value.ToString().ToLower() == "api")
                 {
                     Response.StatusCode = 401;
+                    Response.Headers.Append("WWW-Authenticate", "Basic");
                     return Task.CompletedTask;
                 }
             }
