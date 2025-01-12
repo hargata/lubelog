@@ -81,6 +81,20 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+    .stickerPrintContainer {
+        background-color: #fff !important;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        font-size: 14px;
+        line-height: 18px;
+        color: #000 !important;
+        overflow: visible;
+        z-index: 1030;
+    }
 
     body {
         background-color: #fff !important;
@@ -486,8 +500,4 @@ html[data-bs-theme="light"] .api-method:hover {
 .lubelogger-report-banner {
     border-top: thin solid black;
     text-align: center;
-}
-
-.stickerPrintDiv {
-    z-index: 1030;
 }

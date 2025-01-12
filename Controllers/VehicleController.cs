@@ -956,6 +956,115 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
+        public IActionResult PrintRecordStickers(List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            if (!recordIds.Any())
+            {
+                return Json(result);
+            }
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    {
+                        var records = new List<ServiceRecord>();
+                        foreach(int recordId in recordIds)
+                        {
+                            records.Add(_serviceRecordDataAccess.GetServiceRecordById(recordId));
+                        }
+                        
+                    }
+                    break;
+                case ImportMode.RepairRecord:
+                    {
+                        var records = new List<CollisionRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_collisionRecordDataAccess.GetCollisionRecordById(recordId));
+                        }
+                    }
+                    break;
+                case ImportMode.UpgradeRecord:
+                    {
+                        var records = new List<UpgradeRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_upgradeRecordDataAccess.GetUpgradeRecordById(recordId));
+                        }
+                    }
+                    break;
+                case ImportMode.GasRecord:
+                    {
+                        var records = new List<GasRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_gasRecordDataAccess.GetGasRecordById(recordId));
+                        }
+                        
+                    }
+                    break;
+                case ImportMode.TaxRecord:
+                    {
+                        var records = new List<TaxRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_taxRecordDataAccess.GetTaxRecordById(recordId));
+                        }
+                    }
+                    break;
+                case ImportMode.SupplyRecord:
+                    {
+                        var records = new List<SupplyRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_supplyRecordDataAccess.GetSupplyRecordById(recordId));
+                        }
+                       
+                    }
+                    break;
+                case ImportMode.NoteRecord:
+                    {
+                        var records = new List<Note>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_noteDataAccess.GetNoteById(recordId));
+                        }
+                        
+                    }
+                    break;
+                case ImportMode.OdometerRecord:
+                    {
+                        var records = new List<OdometerRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_odometerRecordDataAccess.GetOdometerRecordById(recordId));
+                        }
+                        
+                    }
+                    break;
+                case ImportMode.ReminderRecord:
+                    {
+                        var records = new List<ReminderRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_reminderRecordDataAccess.GetReminderRecordById(recordId));
+                        }
+                        
+                    }
+                    break;
+                case ImportMode.PlanRecord:
+                    {
+                        var records = new List<PlanRecord>();
+                        foreach (int recordId in recordIds)
+                        {
+                            records.Add(_planRecordDataAccess.GetPlanRecordById(recordId));
+                        }
+                    }
+                    break;
+            }
+            return Json(result);
+        }
+        [HttpPost]
         public IActionResult SaveUserColumnPreferences(UserColumnPreference columnPreference)
         {
             try
