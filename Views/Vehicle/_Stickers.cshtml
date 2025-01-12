@@ -1,0 +1,69 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model StickerViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
+}
+@if( Model.VehicleRecords.ReminderRecords.Any()){
+    @foreach(ReminderRecord reminder in Model.VehicleRecords.ReminderRecords){
+        <div class="reminderSticker">
+            <div class="row justify-content-center mt-2">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo-sticker" />
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="display-1">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="display-2">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</p>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="display-2 text-uppercase fw-bold">@($"{reminder.Description}")</p>
+                    </div>
+                </div>
+                @if (reminder.Metric == ReminderMetric.Odometer || reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2">@($"{translator.Translate(userLanguage, "Odometer")}")</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 fw-bold">@($"{reminder.Mileage}")</p>
+                        </div>
+                    </div>
+                }
+                @if (reminder.Metric == ReminderMetric.Date || reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2">@($"{translator.Translate(userLanguage, "Date")}")</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 fw-bold">@($"{reminder.Date.ToShortDateString()}")</p>
+                        </div>
+                    </div>
+                }
+                @if (reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 text-uppercase">@($"{translator.Translate(userLanguage, "Whichever comes first")}")</p>
+                        </div>
+                    </div>
+                }
+        </div>
+    }
+} else {
+
+}

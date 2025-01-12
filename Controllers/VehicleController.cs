@@ -966,6 +966,15 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
             var stickerViewModel = new StickerViewModel();
+            if (vehicleId != default)
+            {
+                var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+                if (vehicleData != null && vehicleData.Id != default)
+                {
+                    stickerViewModel.VehicleData = vehicleData;
+                }
+            }
+
             int recordsAdded = 0;
             switch (importMode)
             {
@@ -1065,6 +1074,10 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     break;
+            }
+            if (recordsAdded > 0)
+            {
+                return PartialView("_Stickers", stickerViewModel);
             }
             return Json(result);
         }

@@ -631,7 +631,16 @@ function printContainer(htmlData) {
     }, 500);
 }
 function printTabStickers(ids, source) {
-    printContainer("");
+    var vehicleId = GetVehicleId().vehicleId;
+    $.post('/Vehicle/PrintRecordStickers', {
+        vehicleId: vehicleId,
+        recordIds: ids,
+        importMode: source
+    }, function (data) {
+        if (data) {
+            printContainer(data);
+        }
+    })
 }
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
