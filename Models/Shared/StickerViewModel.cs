@@ -3,6 +3,6 @@
     public class StickerViewModel
     {
         public Vehicle VehicleData { get; set; } = new Vehicle();
-        public VehicleRecords VehicleRecords { get; set; } = new VehicleRecords();
+        public List<ReminderRecord> ReminderRecords { get; set; } = new List<ReminderRecord>();
     }
 }
