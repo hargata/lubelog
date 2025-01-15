@@ -84,19 +84,35 @@
                 </div>
                 <div class="col-6">
                     <ul class="list-group">
-                        <li class="list-group-item text-wrap">
-                            @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
-                        </li>
-                        <li class="list-group-item">
-                            @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
-                        </li>
-                        <li class="list-group-item">
-                            @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Mileage}")
-                        </li>
-                        <li class="list-group-item">
-                            @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
-                        </li>
-
+                        @if(!string.IsNullOrWhiteSpace(genericRecord.Description)){
+                            <li class="list-group-item text-wrap">
+                                @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
+                            </li>
+                        }
+                        @switch(Model.RecordType){
+                            case ImportMode.ServiceRecord:
+                            case ImportMode.RepairRecord:
+                            case ImportMode.UpgradeRecord:
+                            case ImportMode.GasRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Mileage}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                            break;
+                            case ImportMode.TaxRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                            break;
+                        }
                     </ul>
                 </div>
             </div>

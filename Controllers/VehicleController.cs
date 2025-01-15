@@ -965,7 +965,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(result);
             }
-            var stickerViewModel = new StickerViewModel();
+            var stickerViewModel = new StickerViewModel() { RecordType = importMode };
             if (vehicleId != default)
             {
                 var vehicleData = _dataAccess.GetVehicleById(vehicleId);
@@ -1010,7 +1010,14 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.GasRecords.Add(_gasRecordDataAccess.GetGasRecordById(recordId));
+                            var record = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Cost = record.Cost,
+                                Date = record.Date,
+                                Notes = record.Notes,
+                                Mileage = record.Mileage
+                            });
                             recordsAdded++;
                         }
 
@@ -1020,7 +1027,14 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.TaxRecords.Add(_taxRecordDataAccess.GetTaxRecordById(recordId));
+                            var record = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Description = record.Description,
+                                Cost = record.Cost,
+                                Notes = record.Notes,
+                                Date = record.Date
+                            });
                             recordsAdded++;
                         }
                     }
@@ -1039,7 +1053,12 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.NoteRecords.Add(_noteDataAccess.GetNoteById(recordId));
+                            var record = _noteDataAccess.GetNoteById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Description = record.Description,
+                                Notes = record.NoteText
+                            });
                             recordsAdded++;
                         }
 
