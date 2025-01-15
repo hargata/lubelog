@@ -982,7 +982,7 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.ServiceRecords.Add(_serviceRecordDataAccess.GetServiceRecordById(recordId));
+                            stickerViewModel.GenericRecords.Add(_serviceRecordDataAccess.GetServiceRecordById(recordId));
                             recordsAdded++;
                         }
 
@@ -992,7 +992,7 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.CollisionRecords.Add(_collisionRecordDataAccess.GetCollisionRecordById(recordId));
+                            stickerViewModel.GenericRecords.Add(_collisionRecordDataAccess.GetCollisionRecordById(recordId));
                             recordsAdded++;
                         }
                     }
@@ -1001,7 +1001,7 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.UpgradeRecords.Add(_upgradeRecordDataAccess.GetUpgradeRecordById(recordId));
+                            stickerViewModel.GenericRecords.Add(_upgradeRecordDataAccess.GetUpgradeRecordById(recordId));
                             recordsAdded++;
                         }
                     }

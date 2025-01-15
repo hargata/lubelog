@@ -64,6 +64,51 @@
                 }
         </div>
     }
-} else {
+} else if (Model.GenericRecords.Any()){
+    @foreach(GenericRecord genericRecord in Model.GenericRecords){
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item text-wrap">
+                            @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Mileage}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                        </li>
 
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            <div class="row flex-grow-1 flex-shrink-1">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(genericRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
 }

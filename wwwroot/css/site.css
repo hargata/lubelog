@@ -102,6 +102,13 @@ html {
         border-width: 2px;
         page-break-after: always;
     }
+    .recordSticker {
+        height: 100%;
+        page-break-after: always;
+    }
+    .stickerNote {
+        height:100%;
+    }
 
     body {
         background-color: #fff !important;
