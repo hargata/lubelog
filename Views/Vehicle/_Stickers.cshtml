@@ -80,12 +80,21 @@
                         <li class="list-group-item">
                             <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
                         </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
                     </ul>
                 </div>
                 <div class="col-6">
                     <ul class="list-group">
                         @if(!string.IsNullOrWhiteSpace(genericRecord.Description)){
-                            <li class="list-group-item text-wrap">
+                            <li class="list-group-item">
                                 @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
                             </li>
                         }
