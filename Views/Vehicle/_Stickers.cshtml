@@ -1,0 +1,139 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model StickerViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
+}
+@if( Model.ReminderRecords.Any()){
+    @foreach(ReminderRecord reminder in Model.ReminderRecords){
+        <div class="reminderSticker">
+            <div class="row justify-content-center mt-2">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo-sticker" />
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="display-1">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="display-2">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</p>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="display-2 text-uppercase fw-bold">@($"{reminder.Description}")</p>
+                    </div>
+                </div>
+                @if (reminder.Metric == ReminderMetric.Odometer || reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2">@($"{translator.Translate(userLanguage, "Odometer")}")</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 fw-bold">@($"{reminder.Mileage}")</p>
+                        </div>
+                    </div>
+                }
+                @if (reminder.Metric == ReminderMetric.Date || reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2">@($"{translator.Translate(userLanguage, "Date")}")</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 fw-bold">@($"{reminder.Date.ToShortDateString()}")</p>
+                        </div>
+                    </div>
+                }
+                @if (reminder.Metric == ReminderMetric.Both)
+                {
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <p class="display-2 text-uppercase">@($"{translator.Translate(userLanguage, "Whichever comes first")}")</p>
+                        </div>
+                    </div>
+                }
+        </div>
+    }
+} else if (Model.GenericRecords.Any()){
+    @foreach(GenericRecord genericRecord in Model.GenericRecords){
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        @if(!string.IsNullOrWhiteSpace(genericRecord.Description)){
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
+                            </li>
+                        }
+                        @switch(Model.RecordType){
+                            case ImportMode.ServiceRecord:
+                            case ImportMode.RepairRecord:
+                            case ImportMode.UpgradeRecord:
+                            case ImportMode.GasRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Mileage}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                            break;
+                            case ImportMode.TaxRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                            break;
+                        }
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            <div class="row flex-grow-1 flex-shrink-1">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(genericRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
+}

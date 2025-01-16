@@ -81,6 +81,34 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+    .stickerPrintContainer {
+        background-color: #fff !important;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        font-size: 14px;
+        line-height: 18px;
+        color: #000 !important;
+        overflow: visible;
+        z-index: 1030;
+    }
+    .reminderSticker {
+        width: 98%;
+        aspect-ratio: 1/1;
+        border-style: dashed;
+        border-width: 2px;
+        page-break-after: always;
+    }
+    .recordSticker {
+        height: 100%;
+        page-break-after: always;
+    }
+    .stickerNote {
+        height:100%;
+    }
 
     body {
         background-color: #fff !important;
@@ -475,6 +503,12 @@ html[data-bs-theme="light"] .api-method:hover {
 .lubelogger-logo {
     height: 48px;
     width: 204px;
+    object-fit: scale-down;
+    pointer-events: none;
+}
+.lubelogger-logo-sticker {
+    height: 6rem;
+    width: auto;
     object-fit: scale-down;
     pointer-events: none;
 }

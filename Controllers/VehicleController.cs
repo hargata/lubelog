@@ -1,12 +1,12 @@
 using CarCareTracker.External.Interfaces;
-using CarCareTracker.Models;
-using Microsoft.AspNetCore.Mvc;
-using CarCareTracker.Helper;
-using System.Globalization;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using CarCareTracker.Logic;
 using CarCareTracker.Filter;
+using CarCareTracker.Helper;
+using CarCareTracker.Logic;
+using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -131,7 +131,8 @@ namespace CarCareTracker.Controllers
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
-                } else
+                }
+                else
                 {
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
@@ -198,7 +199,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed());
             }
         }
-        
+
         #region "Shared Methods"
         [HttpPost]
         public IActionResult GetFilesPendingUpload(List<UploadedFiles> uploadedFiles)
@@ -215,7 +216,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(searchResults);
             }
-            foreach(ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
+            foreach (ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
             {
                 switch (visibleTab)
                 {
@@ -843,14 +844,15 @@ namespace CarCareTracker.Controllers
                             }
                             if (extraFieldIsEdited)
                             {
-                                foreach(ExtraField extraField in genericRecordEditModel.EditRecord.ExtraFields)
+                                foreach (ExtraField extraField in genericRecordEditModel.EditRecord.ExtraFields)
                                 {
-                                    if (existingRecord.ExtraFields.Any(x=>x.Name == extraField.Name))
+                                    if (existingRecord.ExtraFields.Any(x => x.Name == extraField.Name))
                                     {
                                         var insertIndex = existingRecord.ExtraFields.FindIndex(x => x.Name == extraField.Name);
                                         existingRecord.ExtraFields.RemoveAll(x => x.Name == extraField.Name);
                                         existingRecord.ExtraFields.Insert(insertIndex, extraField);
-                                    } else
+                                    }
+                                    else
                                     {
                                         existingRecord.ExtraFields.Add(extraField);
                                     }
@@ -952,6 +954,149 @@ namespace CarCareTracker.Controllers
                         }
                         break;
                 }
+            }
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult PrintRecordStickers(int vehicleId, List<int> recordIds, ImportMode importMode)
+        {
+            bool result = false;
+            if (!recordIds.Any())
+            {
+                return Json(result);
+            }
+            var stickerViewModel = new StickerViewModel() { RecordType = importMode };
+            if (vehicleId != default)
+            {
+                var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+                if (vehicleData != null && vehicleData.Id != default)
+                {
+                    stickerViewModel.VehicleData = vehicleData;
+                }
+            }
+
+            int recordsAdded = 0;
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            stickerViewModel.GenericRecords.Add(_serviceRecordDataAccess.GetServiceRecordById(recordId));
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.RepairRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            stickerViewModel.GenericRecords.Add(_collisionRecordDataAccess.GetCollisionRecordById(recordId));
+                            recordsAdded++;
+                        }
+                    }
+                    break;
+                case ImportMode.UpgradeRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            stickerViewModel.GenericRecords.Add(_upgradeRecordDataAccess.GetUpgradeRecordById(recordId));
+                            recordsAdded++;
+                        }
+                    }
+                    break;
+                case ImportMode.GasRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            var record = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Cost = record.Cost,
+                                Date = record.Date,
+                                Notes = record.Notes,
+                                Mileage = record.Mileage
+                            });
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.TaxRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            var record = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Description = record.Description,
+                                Cost = record.Cost,
+                                Notes = record.Notes,
+                                Date = record.Date
+                            });
+                            recordsAdded++;
+                        }
+                    }
+                    break;
+                case ImportMode.SupplyRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            //stickerViewModel.VehicleRecords.SupplyRecords.Add(_supplyRecordDataAccess.GetSupplyRecordById(recordId));
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.NoteRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            var record = _noteDataAccess.GetNoteById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Description = record.Description,
+                                Notes = record.NoteText
+                            });
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.OdometerRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            //stickerViewModel.VehicleRecords.OdometerRecords.Add(_odometerRecordDataAccess.GetOdometerRecordById(recordId));
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.ReminderRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            stickerViewModel.ReminderRecords.Add(_reminderRecordDataAccess.GetReminderRecordById(recordId));
+                            recordsAdded++;
+                        }
+
+                    }
+                    break;
+                case ImportMode.PlanRecord:
+                    {
+                        foreach (int recordId in recordIds)
+                        {
+                            //stickerViewModel.VehicleRecords.PlanRecords.Add(_planRecordDataAccess.GetPlanRecordById(recordId));
+                            recordsAdded++;
+                        }
+                    }
+                    break;
+            }
+            if (recordsAdded > 0)
+            {
+                return PartialView("_Stickers", stickerViewModel);
             }
             return Json(result);
         }

@@ -114,10 +114,7 @@ function generateVehicleHistoryReport() {
                         reportParameter: result.value.selectedColumnsData
                     }, function (data) {
                         if (data) {
-                            $("#vehicleHistoryReport").html(data);
-                            setTimeout(function () {
-                                window.print();
-                            }, 500);
+                            printContainer(data);
                         }
                     })
                 }

@@ -608,6 +608,16 @@ function toggleMarkDownOverlay(textAreaName) {
         textArea.parent().children(`label[for=${textAreaName}]`).append(overlayDiv);
     }
 }
+function setMarkDownStickerNotes() {
+    var stickerContainers = $(".stickerNote");
+    if (stickerContainers.length > 0) {
+        stickerContainers.map((index, elem) => {
+            let originalStickerNote = $(elem).html().trim();
+            let markDownStickerNote = markdown(originalStickerNote);
+            $(elem).html(markDownStickerNote);
+        });
+    }
+}
 function showLinks(e) {
     var textAreaName = $(e.parentElement).attr("for");
     toggleMarkDownOverlay(textAreaName);
@@ -616,6 +626,33 @@ function printTab() {
     setTimeout(function () {
         window.print();
     }, 500);
+}
+function printContainer(htmlData) {
+    $(".vehicleDetailTabContainer").addClass("hideOnPrint");
+    $(".stickerPrintContainer").addClass("showOnPrint");
+    $(".stickerPrintContainer").removeClass("hideOnPrint");
+    $(".stickerPrintContainer").html(htmlData);
+    setTimeout(function () {
+        window.print();
+        setTimeout(function () {
+            $(".stickerPrintContainer").removeClass("showOnPrint");
+            $(".stickerPrintContainer").addClass("hideOnPrint");
+            $(".vehicleDetailTabContainer").removeClass("hideOnPrint");
+            $(".stickerPrintContainer").html("");
+        }, 1000);
+    }, 500);
+}
+function printTabStickers(ids, source) {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.post('/Vehicle/PrintRecordStickers', {
+        vehicleId: vehicleId,
+        recordIds: ids,
+        importMode: source
+    }, function (data) {
+        if (data) {
+            printContainer(data);
+        }
+    })
 }
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
