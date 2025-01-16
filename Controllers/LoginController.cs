@@ -240,6 +240,12 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
+        public IActionResult SendRegistrationToken(LoginModel credentials)
+        {
+            var result = _loginLogic.SendRegistrationToken(credentials);
+            return Json(result);
+        }
+        [HttpPost]
         public IActionResult RequestResetPassword(LoginModel credentials)
         {
             var result = _loginLogic.RequestResetPassword(credentials);

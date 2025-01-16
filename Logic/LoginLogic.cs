@@ -21,6 +21,7 @@ namespace CarCareTracker.Logic
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
+        OperationResponse SendRegistrationToken(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         UserData ValidateOpenIDUser(LoginModel credentials);
         bool CheckIfUserIsValid(int userId);
@@ -188,6 +189,16 @@ namespace CarCareTracker.Logic
             else
             {
                 return OperationResponse.Failed();
+            }
+        }
+        public OperationResponse SendRegistrationToken(LoginModel credentials)
+        {
+            if (_configHelper.GetServerOpenRegistration())
+            {
+                return GenerateUserToken(credentials.EmailAddress, true);
+            } else
+            {
+                return OperationResponse.Failed("Open Registration Disabled");
             }
         }
         /// <summary>
