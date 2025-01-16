@@ -68,3 +68,17 @@ function remoteLogin() {
         }
     })
 }
+function sendRegistrationToken() {
+    var userEmail = $("#inputEmail").val();
+    if (userEmail.trim() == '') {
+        errorToast("No Email Address Provided");
+        return;
+    }
+    $.post('/Login/SendRegistrationToken', { emailAddress: userEmail }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
