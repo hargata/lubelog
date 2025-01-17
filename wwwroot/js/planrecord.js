@@ -362,6 +362,9 @@ function configurePlanTableContextMenu(planRecordId, currentSwimLane) {
         deletePlanRecord(planRecordId, true);
     });
     let planRecordIdArray = [planRecordId];
+    $(".context-menu-print-tab-sticker").on('click', () => {
+        printTabStickers(planRecordIdArray, 'PlanRecord');
+    });
     $(".context-menu-duplicate").on('click', () => {
         duplicateRecords(planRecordIdArray, 'PlanRecord');
     });

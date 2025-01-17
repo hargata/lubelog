@@ -114,11 +114,20 @@
                                 </li>
                             break;
                             case ImportMode.TaxRecord:
+                            case ImportMode.PlanRecord:
                                 <li class="list-group-item">
                                     @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
                                 </li>
                                 <li class="list-group-item">
                                     @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                            break;
+                            case ImportMode.OdometerRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Mileage}")
                                 </li>
                             break;
                         }
