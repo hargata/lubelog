@@ -1068,7 +1068,13 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.OdometerRecords.Add(_odometerRecordDataAccess.GetOdometerRecordById(recordId));
+                            var record = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Date = record.Date,
+                                Mileage = record.Mileage,
+                                Notes = record.Notes
+                            });
                             recordsAdded++;
                         }
 
@@ -1088,7 +1094,14 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.PlanRecords.Add(_planRecordDataAccess.GetPlanRecordById(recordId));
+                            var record = _planRecordDataAccess.GetPlanRecordById(recordId);
+                            stickerViewModel.GenericRecords.Add(new GenericRecord
+                            {
+                                Description = record.Description,
+                                Cost = record.Cost,
+                                Notes = record.Notes,
+                                Date = record.DateModified
+                            });
                             recordsAdded++;
                         }
                     }
