@@ -155,7 +155,7 @@
                             <tbody>
                                 @foreach (SupplyUsageHistory usageHistory in genericRecord.RequisitionHistory)
                                 {
-                                    <tr class="d-flex supply-row">
+                                    <tr class="d-flex">
                                         <td class="col-2 text-truncate">@usageHistory.PartNumber</td>
                                         <td class="col-6 text-truncate">@usageHistory.Description</td>
                                         <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
