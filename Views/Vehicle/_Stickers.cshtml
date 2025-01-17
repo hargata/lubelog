@@ -131,10 +131,43 @@
                                 </li>
                             break;
                         }
+                        @foreach(ExtraField extraField in genericRecord.ExtraFields){
+                            <li class="list-group-item">
+                                @($"{extraField.Name}: {extraField.Value}")
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
             <hr />
+            @if(genericRecord.RequisitionHistory.Any()){
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-hover">
+                            <thead class="sticky-top">
+                                <tr class="d-flex">
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
+                                    <th scope="col" class="col-6">@translator.Translate(userLanguage, "Description")</th>
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Quantity")</th>
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Cost")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SupplyUsageHistory usageHistory in genericRecord.RequisitionHistory)
+                                {
+                                    <tr class="d-flex">
+                                        <td class="col-2 text-truncate">@usageHistory.PartNumber</td>
+                                        <td class="col-6 text-truncate">@usageHistory.Description</td>
+                                        <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
+                                        <td class="col-2">@usageHistory.Cost.ToString("C2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+            }
             <div class="row flex-grow-1 flex-shrink-1">
                 <div class="col-12">
                     <div class="stickerNote ms-1 me-1 p-1">

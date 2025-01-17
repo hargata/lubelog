@@ -1016,7 +1016,8 @@ namespace CarCareTracker.Controllers
                                 Cost = record.Cost,
                                 Date = record.Date,
                                 Notes = record.Notes,
-                                Mileage = record.Mileage
+                                Mileage = record.Mileage,
+                                ExtraFields = record.ExtraFields
                             });
                             recordsAdded++;
                         }
@@ -1033,7 +1034,8 @@ namespace CarCareTracker.Controllers
                                 Description = record.Description,
                                 Cost = record.Cost,
                                 Notes = record.Notes,
-                                Date = record.Date
+                                Date = record.Date,
+                                ExtraFields = record.ExtraFields
                             });
                             recordsAdded++;
                         }
@@ -1073,7 +1075,8 @@ namespace CarCareTracker.Controllers
                             {
                                 Date = record.Date,
                                 Mileage = record.Mileage,
-                                Notes = record.Notes
+                                Notes = record.Notes,
+                                ExtraFields = record.ExtraFields
                             });
                             recordsAdded++;
                         }
@@ -1100,7 +1103,9 @@ namespace CarCareTracker.Controllers
                                 Description = record.Description,
                                 Cost = record.Cost,
                                 Notes = record.Notes,
-                                Date = record.DateModified
+                                Date = record.DateModified,
+                                ExtraFields = record.ExtraFields,
+                                RequisitionHistory = record.RequisitionHistory
                             });
                             recordsAdded++;
                         }
