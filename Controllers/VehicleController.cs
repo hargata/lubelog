@@ -1045,10 +1045,10 @@ namespace CarCareTracker.Controllers
                     {
                         foreach (int recordId in recordIds)
                         {
-                            //stickerViewModel.VehicleRecords.SupplyRecords.Add(_supplyRecordDataAccess.GetSupplyRecordById(recordId));
+                            var record = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
+                            stickerViewModel.SupplyRecords.Add(record);
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.NoteRecord:

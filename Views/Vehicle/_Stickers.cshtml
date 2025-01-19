@@ -178,4 +178,100 @@
         </div>
     }
     <script>setMarkDownStickerNotes()</script>
+} else if (Model.SupplyRecords.Any()){
+    @foreach (SupplyRecord supplyRecord in Model.SupplyRecords)
+    {
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                @if(Model.VehicleData.Id != default){
+                    <div class="col-6">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                            </li>
+                            @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                            {
+                                if (!string.IsNullOrWhiteSpace(extraField.Value))
+                                {
+                                    <li class="list-group-item">
+                                        <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {supplyRecord.Description}")
+                            </li>
+                            @if(!string.IsNullOrWhiteSpace(supplyRecord.PartNumber)){
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Part Number")}: {supplyRecord.PartNumber}")
+                                </li>
+                            }
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Supplier/Vendor")}: {supplyRecord.PartSupplier}")
+                            </li>
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Cost")}: {supplyRecord.Cost.ToString("C")}")
+                            </li>
+                            @foreach (ExtraField extraField in supplyRecord.ExtraFields)
+                            {
+                                <li class="list-group-item">
+                                    @($"{extraField.Name}: {extraField.Value}")
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                } else {
+                    <div class="col-6">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {supplyRecord.Description}")
+                            </li>
+                            @if (!string.IsNullOrWhiteSpace(supplyRecord.PartNumber))
+                            {
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Part Number")}: {supplyRecord.PartNumber}")
+                                </li>
+                            }
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Supplier/Vendor")}: {supplyRecord.PartSupplier}")
+                            </li>
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Cost")}: {supplyRecord.Cost.ToString("C")}")
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-group">
+                            @foreach (ExtraField extraField in supplyRecord.ExtraFields)
+                            {
+                                <li class="list-group-item">
+                                    @($"{extraField.Name}: {extraField.Value}")
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+            <hr />
+            <div class="row flex-grow-1 flex-shrink-1">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(supplyRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
 }
