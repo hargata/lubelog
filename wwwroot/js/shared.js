@@ -362,7 +362,23 @@ function initTagSelector(input, noDataList) {
         input.tagsinput();
     }
 }
-
+function getAndValidateSelectedVehicle() {
+    var selectedVehiclesArray = [];
+    $("#vehicleSelector :checked").map(function () {
+        selectedVehiclesArray.push(this.value);
+    });
+    if (selectedVehiclesArray.length == 0) {
+        return {
+            hasError: true,
+            ids: []
+        }
+    } else {
+        return {
+            hasError: false,
+            ids: selectedVehiclesArray
+        }
+    }
+}
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
 }
@@ -1282,8 +1298,11 @@ function replenishSupplies() {
                 currentCost = 0;
             }
             var currentQuantity = globalParseFloat($('#supplyRecordQuantity').val());
+            if (isNaN(currentQuantity)) {
+                currentQuantity = 0;
+            }
             var newQuantity = currentQuantity + replenishedQuantity;
-            if (replenishedCost.trim() == '') {
+            if (replenishedCost.trim() == '' && currentCost > 0 && currentQuantity > 0) {
 
                 var unitCost = currentCost / currentQuantity;
                 var newCost = newQuantity * unitCost;
