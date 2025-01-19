@@ -116,7 +116,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         if (ctx.Context.Request.Path.StartsWithSegments("/images"))
         {
-            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
             if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
@@ -133,7 +133,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         if (ctx.Context.Request.Path.StartsWithSegments("/documents"))
         {
-            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
             if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
@@ -156,7 +156,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         if (ctx.Context.Request.Path.StartsWithSegments("/temp"))
         {
-            ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
             if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
