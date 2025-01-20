@@ -123,7 +123,7 @@ function checkCustomMonthIntervalForTax() {
         }).then(function (result) {
             if (result.isConfirmed) {
                 customMonthInterval = result.value.customMonth;
-                customMonthIntervalUnit = result.value.customMonthUnit
+                customMonthIntervalUnit = result.value.customMonthUnit;
                 $("#taxRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth} ${result.value.customMonthUnit}`);
             } else {
                 $("#taxRecurringMonth").val(getTaxRecordModelData().monthInterval);
