@@ -69,16 +69,29 @@ function remoteLogin() {
     })
 }
 function sendRegistrationToken() {
-    var userEmail = $("#inputEmail").val();
-    if (userEmail.trim() == '') {
-        errorToast("No Email Address Provided");
-        return;
-    }
-    $.post('/Login/SendRegistrationToken', { emailAddress: userEmail }, function (data) {
-        if (data.success) {
-            successToast(data.message);
-        } else {
-            errorToast(data.message);
+    Swal.fire({
+        title: 'Please Provide an Email Address',
+        html: `
+                            <input type="text" id="inputTokenEmail" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
+                            `,
+        confirmButtonText: 'Send',
+        focusConfirm: false,
+        preConfirm: () => {
+            const tokenEmail = $("#inputTokenEmail").val();
+            if (!tokenEmail || tokenEmail.trim() == '') {
+                Swal.showValidationMessage(`Please enter a valid email address`);
+            }
+            return { tokenEmail }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Login/SendRegistrationToken', { emailAddress: result.value.tokenEmail }, function (data) {
+                if (data.success) {
+                    successToast(data.message);
+                } else {
+                    errorToast(data.message);
+                }
+            });
         }
     });
 }
