@@ -57,7 +57,7 @@
                         <input class="form-check-input" type="checkbox" onChange="enableTaxRecurring()" role="switch" id="taxIsRecurring" checked="@Model.IsRecurring">
                         <label class="form-check-label" for="taxIsRecurring">@translator.Translate(userLanguage,"Is Recurring")</label>
                     </div>
-                    <label for="taxRecurringMonth">@translator.Translate(userLanguage,"Month")</label>
+                    <label for="taxRecurringMonth">@translator.Translate(userLanguage,"Time")</label>
                     <select class="form-select" onchange="checkCustomMonthIntervalForTax()" id="taxRecurringMonth" @(Model.IsRecurring ? "" : "disabled")>
                         <!option value="Other" @(Model.RecurringInterval == ReminderMonthInterval.Other ? "selected" : "")>@(Model.RecurringInterval == ReminderMonthInterval.Other && Model.CustomMonthInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMonthInterval} {Model.CustomMonthIntervalUnit}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="OneMonth" @(Model.RecurringInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>@translator.Translate(userLanguage,"1 Month")</!option>
