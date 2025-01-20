@@ -102,7 +102,7 @@ function checkCustomMonthIntervalForTax() {
     if (selectedValue == "Other") {
         $("#workAroundInput").show();
         Swal.fire({
-            title: 'Specify Custom Month Interval',
+            title: 'Specify Custom Time Interval',
             html: `
                             <input type="text" inputmode="numeric" id="inputCustomMonth" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
                             <select class="swal2-select" id="inputCustomMonthUnit">
