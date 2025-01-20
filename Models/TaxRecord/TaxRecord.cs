@@ -11,6 +11,7 @@
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.OneYear;
         public int CustomMonthInterval { get; set; } = 0;
+        public ReminderIntervalUnit CustomMonthIntervalUnit { get; set; } = ReminderIntervalUnit.Months;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
