@@ -90,6 +90,7 @@ namespace CarCareTracker.Controllers
                 IsRecurring = result.IsRecurring,
                 RecurringInterval = result.RecurringInterval,
                 CustomMonthInterval = result.CustomMonthInterval,
+                CustomMonthIntervalUnit = result.CustomMonthIntervalUnit,
                 Files = result.Files,
                 Tags = result.Tags,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields)

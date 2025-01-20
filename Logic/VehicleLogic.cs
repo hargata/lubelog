@@ -340,7 +340,8 @@ namespace CarCareTracker.Logic
             bool RecurringTaxIsOutdated(TaxRecord taxRecord)
             {
                 var monthInterval = taxRecord.RecurringInterval != ReminderMonthInterval.Other ? (int)taxRecord.RecurringInterval : taxRecord.CustomMonthInterval;
-                return DateTime.Now > taxRecord.Date.AddMonths(monthInterval);
+                bool addDays = taxRecord.RecurringInterval == ReminderMonthInterval.Other && taxRecord.CustomMonthIntervalUnit == ReminderIntervalUnit.Days;
+                return addDays ? DateTime.Now > taxRecord.Date.AddDays(monthInterval) : DateTime.Now > taxRecord.Date.AddMonths(monthInterval);
             }
             var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             var outdatedRecurringFees = result.Where(x => x.IsRecurring && RecurringTaxIsOutdated(x));
@@ -351,6 +352,7 @@ namespace CarCareTracker.Logic
                 {
                     var monthInterval = recurringFee.RecurringInterval != ReminderMonthInterval.Other ? (int)recurringFee.RecurringInterval : recurringFee.CustomMonthInterval;
                     bool isOutdated = true;
+                    bool addDays = recurringFee.RecurringInterval == ReminderMonthInterval.Other && recurringFee.CustomMonthIntervalUnit == ReminderIntervalUnit.Days;
                     //update the original outdated tax record
                     recurringFee.IsRecurring = false;
                     _taxRecordDataAccess.SaveTaxRecordToVehicle(recurringFee);
@@ -361,9 +363,9 @@ namespace CarCareTracker.Logic
                     {
                         try
                         {
-                            var nextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            var nextDate = addDays ? originalDate.AddDays(monthInterval * monthMultiplier) : originalDate.AddMonths(monthInterval * monthMultiplier);
                             monthMultiplier++;
-                            var nextnextDate = originalDate.AddMonths(monthInterval * monthMultiplier);
+                            var nextnextDate = addDays ? originalDate.AddDays(monthInterval * monthMultiplier) : originalDate.AddMonths(monthInterval * monthMultiplier);
                             recurringFee.Date = nextDate;
                             recurringFee.Id = default; //new record
                             recurringFee.IsRecurring = DateTime.Now <= nextnextDate;

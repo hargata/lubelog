@@ -156,6 +156,7 @@ namespace CarCareTracker.Controllers
                 ReminderMonthInterval = result.ReminderMonthInterval,
                 CustomMileageInterval = result.CustomMileageInterval,
                 CustomMonthInterval = result.CustomMonthInterval,
+                CustomMonthIntervalUnit = result.CustomMonthIntervalUnit,
                 Tags = result.Tags
             };
             return PartialView("_ReminderRecordModal", convertedResult);

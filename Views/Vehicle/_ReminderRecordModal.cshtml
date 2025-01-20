@@ -82,9 +82,9 @@
                         <!option value="OneHundredThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredThousandMiles ? "selected" : "")>100000 mi. / Km</!option>
                         <!option value="OneHundredFiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredFiftyThousandMiles ? "selected" : "")>150000 mi. / Km</!option>
                     </select>
-                    <label for="reminderRecurringMonth">@translator.Translate(userLanguage, "Month")</label>
+                    <label for="reminderRecurringMonth">@translator.Translate(userLanguage, "Time")</label>
                     <select class="form-select" onchange="checkCustomMonthInterval()" id="reminderRecurringMonth" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Date || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
-                        <!option value="Other" @(Model.ReminderMonthInterval == ReminderMonthInterval.Other ? "selected" : "")>@(Model.ReminderMonthInterval == ReminderMonthInterval.Other && Model.CustomMonthInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMonthInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
+                        <!option value="Other" @(Model.ReminderMonthInterval == ReminderMonthInterval.Other ? "selected" : "")>@(Model.ReminderMonthInterval == ReminderMonthInterval.Other && Model.CustomMonthInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMonthInterval} {Model.CustomMonthIntervalUnit}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
                         <!option value="OneMonth" @(Model.ReminderMonthInterval == ReminderMonthInterval.OneMonth ? "selected" : "")>@translator.Translate(userLanguage, "1 Month")</!option>
                         <!option value="ThreeMonths" @(Model.ReminderMonthInterval == ReminderMonthInterval.ThreeMonths || isNew ? "selected" : "")>@translator.Translate(userLanguage,"3 Months")</!option>
                         <!option value="SixMonths" @(Model.ReminderMonthInterval == ReminderMonthInterval.SixMonths ? "selected" : "")>@translator.Translate(userLanguage,"6 Months")</!option>
@@ -136,6 +136,7 @@
 <script>
     var customMileageInterval = @Model.CustomMileageInterval;
     var customMonthInterval = @Model.CustomMonthInterval;
+    var customMonthIntervalUnit = decodeHTMLEntities('@Model.CustomMonthIntervalUnit');
     function getReminderRecordModelData() {
         return { id: @Model.Id, mileageInterval: decodeHTMLEntities('@Model.ReminderMileageInterval.ToString()'), monthInterval: decodeHTMLEntities('@Model.ReminderMonthInterval.ToString()')}
     }
