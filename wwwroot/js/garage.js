@@ -279,9 +279,11 @@ function sortGarage(sender, isMobile) {
             sender.addClass('sort-asc');
             sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
             //append sortRowId to the vehicle container
-            $(`.garage-item`).map((index, elem) => {
-                $(elem).attr("default-sort", index);
-            });
+            if ($("[default-sort]").length == 0) {
+                $(`.garage-item`).map((index, elem) => {
+                    $(elem).attr("default-sort", index);
+                });
+            }
             sortVehicles(false);
         }
     }
