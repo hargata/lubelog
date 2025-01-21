@@ -412,7 +412,6 @@ function setDebounce(callBack) {
         callBack();
     }, 1000);
 }
-var storedTableRowState = null;
 function toggleSort(tabName, sender) {
     var sortColumn = sender.textContent;
     var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
@@ -428,14 +427,13 @@ function toggleSort(tabName, sender) {
         //restore table
         sender.removeClass('sort-desc');
         sender.html(`${sortColumn}`);
-        $(`#${tabName} table tbody`).html(storedTableRowState);
-        filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
+        resetSortTable(tabName);
     } else {
         //first time sorting.
         //check if table was sorted before by a different column(only relevant to fuel tab)
-        if (storedTableRowState != null && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
+        if ($("[default-sort]").length > 0 && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
             //restore table state.
-            $(`#${tabName} table tbody`).html(storedTableRowState);
+            resetSortTable(tabName);
             //reset other sorted columns
             if ($(".sort-asc").length > 0) {
                 $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
@@ -448,8 +446,10 @@ function toggleSort(tabName, sender) {
         }
         sender.addClass('sort-asc');
         sender.html(`${sortColumn}${sortAscIcon}`);
-        storedTableRowState = null;
-        storedTableRowState = $(`#${tabName} table tbody`).html();
+        //append sortRowId to the table rows.
+        $(`#${tabName} table tbody tr`).map((index, elem) => {
+            $(elem).attr("default-sort", index);
+        });
         sortTable(tabName, sortColumn, false);
     }
 }
@@ -469,9 +469,17 @@ function sortTable(tabName, columnName, desc) {
         }
     });
     $(`#${tabName} table tbody`).html(sortedRow);
-    filterTable(tabName, $(".tagfilter.bg-primary").get(0), true);
 }
-function filterTable(tabName, sender, isSort) {
+function resetSortTable(tabName) {
+    var rowData = $(`#${tabName} table tbody tr`);
+    var sortedRow = rowData.toArray().sort((a, b) => {
+        var currentVal = $(a).attr('default-sort');
+        var nextVal = $(b).attr('default-sort');
+        return currentVal - nextVal;
+    });
+    $(`#${tabName} table tbody`).html(sortedRow);
+}
+function filterTable(tabName, sender) {
     var rowData = $(`#${tabName} table tbody tr`);
     if (sender == undefined) {
         rowData.removeClass('override-hide');
@@ -480,16 +488,10 @@ function filterTable(tabName, sender, isSort) {
     var tagName = sender.textContent;
     //check for other applied filters
     if ($(sender).hasClass("bg-primary")) {
-        if (!isSort) {
-            rowData.removeClass('override-hide');
-            $(sender).removeClass('bg-primary');
-            $(sender).addClass('bg-secondary');
-            updateAggregateLabels();
-        } else {
-            rowData.addClass('override-hide');
-            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
-            updateAggregateLabels();
-        }
+        rowData.removeClass('override-hide');
+        $(sender).removeClass('bg-primary');
+        $(sender).addClass('bg-secondary');
+        updateAggregateLabels();
     } else {
         //hide table rows.
         rowData.addClass('override-hide');
