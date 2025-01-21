@@ -446,10 +446,12 @@ function toggleSort(tabName, sender) {
         }
         sender.addClass('sort-asc');
         sender.html(`${sortColumn}${sortAscIcon}`);
-        //append sortRowId to the table rows.
-        $(`#${tabName} table tbody tr`).map((index, elem) => {
-            $(elem).attr("default-sort", index);
-        });
+        //append sortRowId to the table rows if nothing has been appended yet.
+        if ($("[default-sort]").length == 0) {
+            $(`#${tabName} table tbody tr`).map((index, elem) => {
+                $(elem).attr("default-sort", index);
+            });
+        }
         sortTable(tabName, sortColumn, false);
     }
 }
