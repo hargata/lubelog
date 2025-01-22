@@ -1232,6 +1232,11 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/reminders/send")]
         public IActionResult SendReminders(List<ReminderUrgency> urgencies)
         {
+            if (!urgencies.Any())
+            {
+                //if no urgencies parameter, we will default to all urgencies.
+                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+            }
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
             var defaultEmailAddress = _config.GetUserConfig(User).DefaultReminderEmail;
