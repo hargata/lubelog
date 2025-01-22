@@ -30,7 +30,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/vehicles</code>
     </div>
     <div class="col-3">
@@ -44,7 +44,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/vehicle/info</code>
     </div>
     <div class="col-3">
@@ -582,7 +582,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/calendar</code>
     </div>
     <div class="col-3">
@@ -614,7 +614,7 @@
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable" data-testparam="?urgencies=NotUrgent&urgencies=VeryUrgent&urgencies=Urgent&urgencies=PastDue">
             <code>/api/vehicle/reminders/send</code>
         </div>
         <div class="col-3">
@@ -629,7 +629,7 @@
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable">
             <code>/api/makebackup</code>
         </div>
         <div class="col-3">
@@ -643,7 +643,7 @@
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable">
             <code>/api/cleanup</code>
         </div>
         <div class="col-3">
@@ -658,7 +658,14 @@
 <script>
     $('.copyable').on('click', function (e) {
         if (e.ctrlKey || e.metaKey){
-            window.location = e.currentTarget.textContent.trim();
+            let targetElement = $(e.currentTarget);
+            if (targetElement.hasClass("testable")){
+                if (targetElement.attr("data-testparam")){
+                    window.location = `${targetElement.text().trim()}${targetElement.attr("data-testparam")}`;
+                } else {
+                    window.location = targetElement.text().trim();
+                }
+            }
         } else {
             copyToClipboard(e.currentTarget);
         }
