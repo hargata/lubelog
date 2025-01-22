@@ -657,7 +657,11 @@
 }
 <script>
     $('.copyable').on('click', function (e) {
-        copyToClipboard(e.currentTarget);
+        if (e.ctrlKey || e.metaKey){
+            window.location = e.currentTarget.textContent.trim();
+        } else {
+            copyToClipboard(e.currentTarget);
+        }
     })
     function showExtraFieldsInfo(){
         Swal.fire({
