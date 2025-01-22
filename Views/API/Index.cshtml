@@ -30,7 +30,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/vehicles</code>
     </div>
     <div class="col-3">
@@ -44,7 +44,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/vehicle/info</code>
     </div>
     <div class="col-3">
@@ -582,7 +582,7 @@
     <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
-    <div class="col-5 copyable">
+    <div class="col-5 copyable testable">
         <code>/api/calendar</code>
     </div>
     <div class="col-3">
@@ -614,7 +614,7 @@
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable">
             <code>/api/vehicle/reminders/send</code>
         </div>
         <div class="col-3">
@@ -622,14 +622,14 @@
         </div>
         <div class="col-3">
             (must be root user)<br />
-            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue]
+            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)
         </div>
     </div>
     <div class="row api-method">
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable">
             <code>/api/makebackup</code>
         </div>
         <div class="col-3">
@@ -643,7 +643,7 @@
         <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
-        <div class="col-5 copyable">
+        <div class="col-5 copyable testable">
             <code>/api/cleanup</code>
         </div>
         <div class="col-3">
@@ -651,14 +651,17 @@
         </div>
         <div class="col-3">
             (must be root user)<br />
-            deepClean(bool) - Perform deep clean
+            deepClean(bool) - Perform deep clean(optional)
         </div>
     </div>
 }
 <script>
     $('.copyable').on('click', function (e) {
         if (e.ctrlKey || e.metaKey){
-            window.location = e.currentTarget.textContent.trim();
+            let targetElement = $(e.currentTarget);
+            if (targetElement.hasClass("testable")){
+                window.location = targetElement.text().trim();
+            }
         } else {
             copyToClipboard(e.currentTarget);
         }
