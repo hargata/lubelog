@@ -140,7 +140,7 @@
                                 <span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span>
                             }
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric">
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric" data-record-type="cost">
                             @if (reminderRecord.Metric == ReminderMetric.Date)
                             {
                             @reminderRecord.Date.ToShortDateString()

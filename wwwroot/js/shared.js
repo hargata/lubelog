@@ -1449,7 +1449,7 @@ function handleModalPaste(e, recordType) {
 }
 function handleEnter(e) {
     if ((event.ctrlKey || event.metaKey) && event.which == 13) {
-        var saveButton = $(e).parent().find(".modal-footer .btn-primary");
+        var saveButton = $(e).parent().find(".modal-footer .btn-primary:not('.d-none')");
         if (saveButton.length > 0) {
             saveButton.first().trigger('click');
         }
