@@ -199,9 +199,17 @@ namespace CarCareTracker.Controllers
             var totalDays = 0;
             if (year != default)
             {
-                if (year == DateTime.Now.Year)
+                if (year == DateTime.Now.Year) //current year selected, do math based on how many days have elapsed.
                 {
                     totalDays = DateTime.Now.DayOfYear;
+                    if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate)) //if vehicle is sold in current year, cap the number of days to sold date.
+                    {
+                        var endDate = DateTime.Parse(vehicleData.SoldDate);
+                        if (endDate.Year == DateTime.Now.Year)
+                        {
+                            totalDays = endDate.DayOfYear;
+                        }
+                    }
                 } else
                 {
                     totalDays = DateTime.IsLeapYear(year) ? 366 : 365;
