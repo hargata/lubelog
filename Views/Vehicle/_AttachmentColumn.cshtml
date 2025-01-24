@@ -1,0 +1,9 @@
+﻿@model List<UploadedFiles>
+@if (Model.Any()){
+    <span class="position-relative">
+        <i class="bi bi-paperclip"></i>
+        <span class="position-absolute attachment-badge-xs start-100 translate-middle badge rounded-pill bg-secondary">
+            @Model.Count()
+        </span>
+    </span>
+}
