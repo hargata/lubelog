@@ -275,6 +275,13 @@ function toggleBarChartTableData() {
         $('[report-data="cost"]').removeClass('d-none');
     }
 }
+function toggleCostTableHint() {
+    if ($(".cost-table-hint").hasClass("d-none")) {
+        $(".cost-table-hint").removeClass("d-none");
+    } else {
+        $(".cost-table-hint").addClass("d-none");
+    }
+}
 function updateReminderPie() {
     var vehicleId = GetVehicleId().vehicleId;
     var daysToAdd = $("#reminderOption").val();
