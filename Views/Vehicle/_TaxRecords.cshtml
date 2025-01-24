@@ -74,6 +74,12 @@
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Attachment">
+                                <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Notes" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
                             </div>
@@ -111,6 +117,7 @@
                     <th scope="col" class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
                     <th scope="col" class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('tax-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
@@ -125,6 +132,7 @@
                         <td class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@taxRecord.Description</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(taxRecord.Cost, hideZero))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", taxRecord.Files)</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {

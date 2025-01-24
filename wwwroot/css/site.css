@@ -521,3 +521,11 @@ html[data-bs-theme="light"] .api-method:hover {
     border-top: thin solid black;
     text-align: center;
 }
+
+.attachment-badge-xs {
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    font-size: 0.6em;
+    font-weight: 500;
+    top: 15%
+}
