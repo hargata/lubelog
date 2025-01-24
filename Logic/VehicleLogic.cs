@@ -13,7 +13,7 @@ namespace CarCareTracker.Logic
         int GetMaxMileage(VehicleRecords vehicleRecords);
         int GetMinMileage(int vehicleId);
         int GetMinMileage(VehicleRecords vehicleRecords);
-        int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
+        int GetOwnershipDays(string purchaseDate, string soldDate, int year, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords);
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId, int currentMileage);
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
@@ -199,22 +199,44 @@ namespace CarCareTracker.Logic
             }
             return numbersArray.Any() ? numbersArray.Min() : 0;
         }
-        public int GetOwnershipDays(string purchaseDate, string soldDate, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
+        public int GetOwnershipDays(string purchaseDate, string soldDate, int year, List<ServiceRecord> serviceRecords, List<CollisionRecord> repairRecords, List<GasRecord> gasRecords, List<UpgradeRecord> upgradeRecords, List<OdometerRecord> odometerRecords, List<TaxRecord> taxRecords)
         {
             var startDate = DateTime.Now;
             var endDate = DateTime.Now;
-            if (!string.IsNullOrWhiteSpace(soldDate))
+            bool usePurchaseDate = false;
+            bool useSoldDate = false;
+            if (!string.IsNullOrWhiteSpace(soldDate) && DateTime.TryParse(soldDate, out DateTime vehicleSoldDate))
             {
-                endDate = DateTime.Parse(soldDate);
+                if (year == default || year >= vehicleSoldDate.Year) //All Time is selected or the selected year is greater or equal to the year the vehicle is sold
+                {
+                    endDate = vehicleSoldDate; //cap end date to vehicle sold date.
+                    useSoldDate = true;
+                }
             }
-            if (!string.IsNullOrWhiteSpace(purchaseDate))
+            if (!string.IsNullOrWhiteSpace(purchaseDate) && DateTime.TryParse(purchaseDate, out DateTime vehiclePurchaseDate))
             {
-                //if purchase date is provided, then we just have to subtract the begin date to end date and return number of months
-                startDate = DateTime.Parse(purchaseDate);
+                if (year == default || year <= vehiclePurchaseDate.Year) //All Time is selected or the selected year is less or equal to the year the vehicle is purchased
+                {
+                    startDate = vehiclePurchaseDate; //cap start date to vehicle purchase date
+                    usePurchaseDate = true;
+                }
+            }
+            if (year != default)
+            {
+                var calendarYearStart = new DateTime(year, 1, 1);
+                var calendarYearEnd = new DateTime(year + 1, 1, 1);
+                if (!useSoldDate)
+                {
+                    endDate = endDate > calendarYearEnd ? calendarYearEnd : endDate;
+                }
+                if (!usePurchaseDate)
+                {
+                    startDate = startDate > calendarYearStart ? calendarYearStart : startDate;
+                }
                 var timeElapsed = (int)Math.Floor((endDate - startDate).TotalDays);
                 return timeElapsed;
             }
-            var dateArray = new List<DateTime>();
+            var dateArray = new List<DateTime>() { startDate };
             dateArray.AddRange(serviceRecords.Select(x => x.Date));
             dateArray.AddRange(repairRecords.Select(x => x.Date));
             dateArray.AddRange(gasRecords.Select(x => x.Date));
