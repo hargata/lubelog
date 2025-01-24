@@ -196,28 +196,7 @@ namespace CarCareTracker.Controllers
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var userConfig = _config.GetUserConfig(User);
             var totalDistanceTraveled = maxMileage - minMileage;
-            var totalDays = 0;
-            if (year != default)
-            {
-                if (year == DateTime.Now.Year) //current year selected, do math based on how many days have elapsed.
-                {
-                    totalDays = DateTime.Now.DayOfYear;
-                    if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate)) //if vehicle is sold in current year, cap the number of days to sold date.
-                    {
-                        var endDate = DateTime.Parse(vehicleData.SoldDate);
-                        if (endDate.Year == DateTime.Now.Year)
-                        {
-                            totalDays = endDate.DayOfYear;
-                        }
-                    }
-                } else
-                {
-                    totalDays = DateTime.IsLeapYear(year) ? 366 : 365;
-                }
-            } else
-            {
-                totalDays = _vehicleLogic.GetOwnershipDays(vehicleData.PurchaseDate, vehicleData.SoldDate, serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
-            }
+            var totalDays = _vehicleLogic.GetOwnershipDays(vehicleData.PurchaseDate, vehicleData.SoldDate, year, serviceRecords, collisionRecords, gasRecords, upgradeRecords, odometerRecords, taxRecords);
             var viewModel = new CostTableForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
