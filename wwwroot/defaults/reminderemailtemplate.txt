@@ -33,15 +33,7 @@ td, th {
 <h2>{VehicleInformation}</h2>
 <table>
 <tr>
-<th>
-Urgency
-</th>
-<th>
-Description
-</th>
-<th>
-Due
-</th>
+{TableHeader}
 </tr>
 {TableBody}
 </table>
