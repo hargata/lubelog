@@ -321,6 +321,10 @@ namespace CarCareTracker.Logic
             var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
             if (existingToken.Id != default)
             {
+                if (autoNotify) //re-send email
+                {
+                    _mailHelper.NotifyUserForRegistration(emailAddress, existingToken.Body);
+                }
                 return OperationResponse.Failed("There is an existing token tied to this email address");
             }
             var token = new Token()
