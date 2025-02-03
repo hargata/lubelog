@@ -92,6 +92,19 @@ namespace CarCareTracker.Controllers
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
         [HttpGet]
+        [Route("/api/whoami")]
+        public IActionResult WhoAmI()
+        {
+            var result = new ApiUser
+            {
+                Username = User.FindFirstValue(ClaimTypes.Name),
+                EmailAddress = User.FindFirstValue(ClaimTypes.Email),
+                IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)),
+                IsRoot = User.IsInRole(nameof(UserData.IsRootUser))
+            };
+            return Json(result);
+        }
+        [HttpGet]
         [Route("/api/vehicles")]
         public IActionResult Vehicles()
         {
