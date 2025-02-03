@@ -142,4 +142,13 @@ namespace CarCareTracker.Models
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
+    public class UserExportModel
+    {
+        public string Username { get; set; }
+        public string EmailAddress { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsAdmin { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsRoot { get; set; }
+    }
 }

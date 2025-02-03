@@ -95,14 +95,21 @@ namespace CarCareTracker.Controllers
         [Route("/api/whoami")]
         public IActionResult WhoAmI()
         {
-            var result = new ApiUser
+            var result = new UserExportModel
             {
                 Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.FindFirstValue(ClaimTypes.Email),
-                IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)),
-                IsRoot = User.IsInRole(nameof(UserData.IsRootUser))
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetUserConfig(User).DefaultReminderEmail : User.FindFirstValue(ClaimTypes.Email),
+                IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
+                IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [HttpGet]
         [Route("/api/vehicles")]
