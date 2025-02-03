@@ -126,14 +126,20 @@ namespace CarCareTracker.Models
     }
     public class PlanRecordExportModel 
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string DateCreated { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string DateModified { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
         public string Type { get; set; }
         public string Priority { get; set; }
         public string Progress { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
 }

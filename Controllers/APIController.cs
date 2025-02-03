@@ -153,6 +153,41 @@ namespace CarCareTracker.Controllers
                 return Json(convertedOdometer);
             }
         }
+        #region PlanRecord
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpGet]
+        [Route("/api/vehicle/planrecords")]
+        public IActionResult PlanRecords(int vehicleId)
+        {
+            if (vehicleId == default)
+            {
+                var response = OperationResponse.Failed("Must provide a valid vehicle id");
+                Response.StatusCode = 400;
+                return Json(response);
+            }
+            var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+            var result = vehicleRecords.Select(x => new PlanRecordExportModel { 
+                Id = x.Id.ToString(), 
+                DateCreated = x.DateCreated.ToShortDateString(),
+                DateModified = x.DateModified.ToShortDateString(),
+                Description = x.Description, 
+                Cost = x.Cost.ToString(), 
+                Notes = x.Notes,
+                Type = x.ImportMode.ToString(),
+                Priority = x.Priority.ToString(),
+                Progress = x.Progress.ToString(),
+                ExtraFields = x.ExtraFields, 
+                Files = x.Files });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
+        #endregion
         #region ServiceRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
