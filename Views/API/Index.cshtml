@@ -189,6 +189,69 @@
 </div>
 <div class="row api-method">
     <div class="col-1">
+        <span class="badge bg-primary">POST</span>
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle/planrecords/add</code>
+    </div>
+    <div class="col-3">
+        Adds Plan Record to the vehicle
+    </div>
+    <div class="col-3">
+        vehicleId - Id of Vehicle
+        <br />
+        Body(form-data): {<br />
+        description - Description<br />
+        cost - Cost<br />
+        type - ServiceRecord/RepairRecord/UpgradeRecord<br />
+        priority - Low/Normal/Critical<br />
+        progress - Backlog/InProgress/Testing<br />
+        notes - notes(optional)<br />
+        extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
+        files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
+        }
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
+        <span class="badge text-bg-warning">PUT</span>
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle/planrecords/update</code>
+    </div>
+    <div class="col-3">
+        Updates Plan Record
+    </div>
+    <div class="col-3">
+        Body(form-data): {<br />
+        Id - Id of Plan Record<br />
+        description - Description<br />
+        cost - Cost<br />
+        type - ServiceRecord/RepairRecord/UpgradeRecord<br />
+        priority - Low/Normal/Critical<br />
+        progress - Backlog/InProgress/Testing<br />
+        notes - notes(optional)<br />
+        extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
+        files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
+        }
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
+        <span class="badge text-bg-danger">DELETE</span>
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle/planrecords/delete</code>
+    </div>
+    <div class="col-3">
+        Deletes Plan Record
+    </div>
+    <div class="col-3">
+        Id - Id of Plan Record
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
     <div class="col-5 copyable">
