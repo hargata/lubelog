@@ -1527,6 +1527,7 @@ function handleTableColumnDragEnd(tabName) {
         $(`[data-column='${columnName}']`).css('order', $(elem).index());
     });
     saveUserColumnPreferences(tabName);
+    tableColumnDragToReorder = undefined;
     if (isDragging) {
         isDragging = false;
     }
