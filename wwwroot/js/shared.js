@@ -1391,7 +1391,9 @@ function loadUserColumnPreferences(columns, order) {
         //re-order items in menu
         var itemToMove = $(`[data-column-toggle='${x}'].col-visible-toggle`).closest('.dropdown-item');
         var itemCurrentlyInPosition = $('.dropdown-item[draggable="true"]')[y];
-        itemToMove.insertBefore(itemCurrentlyInPosition);
+        if (itemToMove != undefined && itemCurrentlyInPosition != undefined) {
+            itemToMove.insertBefore(itemCurrentlyInPosition);
+        }
         //re-order table columns
         $(`[data-column='${x}']`).css('order', y);
     });
@@ -1399,14 +1401,16 @@ function loadUserColumnPreferences(columns, order) {
 function saveUserColumnPreferences(importMode) {
     var visibleColumns = $('.col-visible-toggle:checked').map((index, elem) => $(elem).attr('data-column-toggle')).toArray();
     var columnOrder = [];
-    var sortedOrderedTabs = $("ul.dropdown-menu > li[draggable='true']").toArray().sort((a, b) => {
+    var sortedOrderedColumns = $("ul.dropdown-menu > li[draggable='true']").toArray().sort((a, b) => {
         var currentVal = $(a).css("order");
         var nextVal = $(b).css("order");
         return currentVal - nextVal;
     });
-    sortedOrderedTabs.map(elem => {
-        var elemName = $(elem).find('.col-visible-toggle').attr("data-column-toggle");
-        columnOrder.push(elemName);
+    sortedOrderedColumns.map(elem => {
+        var columnOrderName = $(elem).find('.col-visible-toggle').attr("data-column-toggle");
+        if (columnOrderName != null && columnOrderName != undefined) {
+            columnOrder.push(columnOrderName);
+        }
     });
     var columnPreference = {
         tab: importMode,
