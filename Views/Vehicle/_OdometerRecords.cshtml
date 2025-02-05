@@ -54,37 +54,37 @@
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Date" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='initialodometer' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_InitialOdometer" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_InitialOdometer">@translator.Translate(userLanguage, "Initial Odometer")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Odometer" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='distance' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Distance" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Distance">@translator.Translate(userLanguage, "Distance")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Attachment">
                                 <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="chkCol_Notes" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
@@ -93,7 +93,7 @@
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             var elementId = Guid.NewGuid();
-                            <li class="dropdown-item">
+                            <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('OdometerRecord')">
                                 <div class="list-group-item">
                                     <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'OdometerRecord')" type="checkbox" id="@elementId">
                                     <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>

@@ -1370,7 +1370,7 @@ function searchTableRows(tabName) {
         }
     });
 }
-function loadUserColumnPreferences(columns) {
+function loadUserColumnPreferences(columns, order) {
     if (columns.length == 0) {
         //user has no preference saved, reset to default
         return;
@@ -1387,12 +1387,31 @@ function loadUserColumnPreferences(columns) {
             $(`[data-column='${x}']`).show();
         }
     });
+    order.map((x, y) => {
+        //re-order items in menu
+        var itemToMove = $(`[data-column-toggle='${x}'].col-visible-toggle`).closest('.dropdown-item');
+        var itemCurrentlyInPosition = $('.dropdown-item[draggable="true"]')[y];
+        itemToMove.insertBefore(itemCurrentlyInPosition);
+        //re-order table columns
+        $(`[data-column='${x}']`).css('order', y);
+    });
 }
 function saveUserColumnPreferences(importMode) {
     var visibleColumns = $('.col-visible-toggle:checked').map((index, elem) => $(elem).attr('data-column-toggle')).toArray();
+    var columnOrder = [];
+    var sortedOrderedTabs = $("ul.dropdown-menu > li[draggable='true']").toArray().sort((a, b) => {
+        var currentVal = $(a).css("order");
+        var nextVal = $(b).css("order");
+        return currentVal - nextVal;
+    });
+    sortedOrderedTabs.map(elem => {
+        var elemName = $(elem).find('.col-visible-toggle').attr("data-column-toggle");
+        columnOrder.push(elemName);
+    });
     var columnPreference = {
         tab: importMode,
-        visibleColumns: visibleColumns
+        visibleColumns: visibleColumns,
+        columnOrder: columnOrder
     };
     $.post('/Vehicle/SaveUserColumnPreferences', { columnPreference: columnPreference }, function (data) {
         if (!data) {
@@ -1471,5 +1490,45 @@ function togglePasswordVisibility(elem) {
         passwordField.attr("type", "password");
         passwordButton.removeClass('bi-eye-slash');
         passwordButton.addClass('bi-eye');
+    }
+}
+var tableColumnDragToReorder = undefined;
+function handleTableColumnDragStart(e) {
+    tableColumnDragToReorder = $(e.target).closest('.dropdown-item');
+    //clear out order attribute.
+    $("ul.dropdown-menu > li[draggable='true']").map((index, elem) => {
+        $(elem).css('order', 0);
+    })
+}
+function handleTableColumnDragOver(e) {
+    if (tableColumnDragToReorder == undefined || tableColumnDragToReorder == "") {
+        return;
+    }
+    var potentialDropTarget = $(e.target).closest('.list-group-item').find('.col-visible-toggle').attr("data-column-toggle");
+    var draggedTarget = tableColumnDragToReorder.find('.col-visible-toggle').attr("data-column-toggle");
+    if (draggedTarget != potentialDropTarget) {
+        var targetObj = $(e.target).closest('.dropdown-item');
+        var draggedOrder = tableColumnDragToReorder.index();
+        var targetOrder = targetObj.index();
+        if (draggedOrder < targetOrder) {
+            tableColumnDragToReorder.insertAfter(targetObj);
+        } else {
+            tableColumnDragToReorder.insertBefore(targetObj);
+        }
+    }
+    else {
+        event.preventDefault();
+    }
+}
+function handleTableColumnDragEnd(tabName) {
+    $("ul.dropdown-menu > li[draggable='true']").map((index, elem) => {
+        $(elem).css('order', $(elem).index());
+        var columnName = $(elem).find('.col-visible-toggle').attr('data-column-toggle');
+        $(`[data-column='${columnName}']`).css('order', $(elem).index());
+    });
+    saveUserColumnPreferences(tabName);
+    tableColumnDragToReorder = undefined;
+    if (isDragging) {
+        isDragging = false;
     }
 }
