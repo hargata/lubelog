@@ -6,7 +6,7 @@ namespace CarCareTracker.Controllers
     {
         public IActionResult Unauthorized()
         {
-            if (!User.IsInRole("CookieAuth"))
+            if (User.IsInRole("APIAuth"))
             {
                 Response.StatusCode = 403;
                 return new EmptyResult();

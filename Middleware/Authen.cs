@@ -75,7 +75,9 @@ namespace CarCareTracker.Middleware
                             var userIdentity = new List<Claim>
                             {
                                 new(ClaimTypes.Name, splitString[0]),
-                                new(ClaimTypes.NameIdentifier, userData.Id.ToString())
+                                new(ClaimTypes.NameIdentifier, userData.Id.ToString()),
+                                new(ClaimTypes.Email, userData.EmailAddress),
+                                new(ClaimTypes.Role, "APIAuth")
                             };
                             if (userData.IsAdmin)
                             {
