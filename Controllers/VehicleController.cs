@@ -1129,6 +1129,7 @@ namespace CarCareTracker.Controllers
                 {
                     var existingPreference = existingUserColumnPreference.Single();
                     existingPreference.VisibleColumns = columnPreference.VisibleColumns;
+                    existingPreference.ColumnOrder = columnPreference.ColumnOrder;
                 }
                 else
                 {
