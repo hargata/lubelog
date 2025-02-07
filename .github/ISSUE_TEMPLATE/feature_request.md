@@ -13,5 +13,5 @@ Please make sure you have performed the following steps before submitting a new 
 - [ ] I have read the [Contributing Guidelines](https://github.com/hargata/lubelog/blob/main/.github/CONTRIBUTING.md) and [Scope and Purpose](https://github.com/hargata/lubelog/wiki/Scope-and-Purpose)
 - [ ] I have searched through existing issues.
 
-** Description**
+**Description**
 <!-- Describe the feature request below this line -->
