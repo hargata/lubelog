@@ -1391,7 +1391,7 @@ function loadUserColumnPreferences(columns, order) {
         //re-order items in menu
         var itemToMove = $(`[data-column-toggle='${x}'].col-visible-toggle`).closest('.dropdown-item');
         var itemCurrentlyInPosition = $('.dropdown-item[draggable="true"]')[y];
-        if (itemToMove != undefined && itemCurrentlyInPosition != undefined) {
+        if (itemToMove != undefined && itemToMove.length > 0 && itemCurrentlyInPosition != undefined) {
             itemToMove.insertBefore(itemCurrentlyInPosition);
         }
         //re-order table columns
