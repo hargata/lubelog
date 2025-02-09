@@ -9,6 +9,17 @@
         }
     });
 }
+
+function setLastOdometer() {
+     $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (isNaN(data)) {
+            return;
+        }
+        $("#gasRecordMileage").attr('placeholder', data);
+        return data;
+     });
+}
+
 function showEditGasRecordModal(gasRecordId, nocache) {
     if (!nocache) {
         var existingContent = $("#gasRecordModalContent").html();

@@ -59,6 +59,7 @@
                         <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading when refueled")" value="@(isNew || Model.GasRecord.Mileage == default ? "" : Model.GasRecord.Mileage)">
                         @if (isNew)
                         {
+                        <script>setLastOdometer();</script>
                             <div class="input-group-text">
                                 <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('gasRecordMileage')"><i class="bi bi-plus"></i></button>
                             </div>
