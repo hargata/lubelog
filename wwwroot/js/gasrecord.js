@@ -16,7 +16,6 @@ function setLastOdometer() {
             return;
         }
         $("#gasRecordMileage").attr('placeholder', data);
-        return data;
      });
 }
 
