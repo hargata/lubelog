@@ -16,6 +16,176 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("_BulkDataImporter", mode);
         }
+        [HttpGet]
+        public IActionResult GenerateCsvSample(ImportMode mode)
+        {
+            string uploadDirectory = "temp/";
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+            var fileNameToExport = $"temp/{Guid.NewGuid()}.csv";
+            var fullExportFilePath = _fileHelper.GetFullFilePath(fileNameToExport, false);
+            switch (mode)
+            {
+                case ImportMode.ServiceRecord:
+                case ImportMode.RepairRecord:
+                case ImportMode.UpgradeRecord:
+                    {
+                        var exportData = new List<GenericRecordExportModel> { new GenericRecordExportModel
+                        {
+                            Date = DateTime.Now.ToShortDateString(),
+                            Description = "Test",
+                            Cost = 123.45M.ToString("C"),
+                            Notes = "Test Note",
+                            Odometer = 12345.ToString(),
+                            Tags = "test1 test2"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteGenericRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                case ImportMode.GasRecord:
+                    {
+                        var exportData = new List<GasRecordExportModel> { new GasRecordExportModel
+                        {
+                            Date = DateTime.Now.ToShortDateString(),
+                            Odometer = 12345.ToString(),
+                            FuelConsumed = 12.34M.ToString(),
+                            Cost = 45.67M.ToString("C"),
+                            IsFillToFull = true.ToString(),
+                            MissedFuelUp = false.ToString(),
+                            Notes = "Test Note",
+                            Tags = "test1 test2"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteGasRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                case ImportMode.OdometerRecord:
+                    {
+                        var exportData = new List<OdometerRecordExportModel> {  new OdometerRecordExportModel
+                        {
+                            Date = DateTime.Now.ToShortDateString(),
+                            InitialOdometer = 12345.ToString(),
+                            Odometer = 12345.ToString(),
+                            Notes = "Test Note",
+                            Tags = "test1 test2"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteOdometerRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                case ImportMode.TaxRecord:
+                    {
+                        var exportData = new List<TaxRecordExportModel> {  new TaxRecordExportModel
+                        {
+                            Date = DateTime.Now.ToShortDateString(),
+                            Description = "Test",
+                            Cost = 123.45M.ToString("C"),
+                            Notes = "Test Note",
+                            Tags = "test1 test2"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteTaxRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                case ImportMode.SupplyRecord:
+                    {
+                        var exportData = new List<SupplyRecordExportModel> { new SupplyRecordExportModel
+                        {
+                            Date = DateTime.Now.ToShortDateString(),
+                            PartNumber = "TEST-123456",
+                            PartSupplier = "Test Supplier",
+                            PartQuantity = 1.5M.ToString(),
+                            Description = "Test",
+                            Cost = 123.45M.ToString("C"),
+                            Notes = "Test Note",
+                            Tags = "test1 test2"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteSupplyRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                case ImportMode.PlanRecord:
+                    {
+                        var exportData = new List<PlanRecordExportModel> {  new PlanRecordExportModel
+                        {
+                            DateCreated = DateTime.Now.ToString(),
+                            DateModified = DateTime.Now.ToString(),
+                            Description = "Test",
+                            Type = ImportMode.RepairRecord.ToString(),
+                            Priority = PlanPriority.Normal.ToString(),
+                            Progress = PlanProgress.Testing.ToString(),
+                            Cost = 123.45M.ToString("C"),
+                            Notes = "Test Note"
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WritePlanRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
+                default:
+                    return Json(OperationResponse.Failed("No parameters"));
+            }
+            try
+            {
+                var fileBytes = _fileHelper.GetFileBytes(fullExportFilePath, true);
+                if (fileBytes.Length > 0)
+                {
+                    return File(fileBytes, "text/csv", $"{mode.ToString().ToLower()}sample.csv");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("An error has occurred while generating CSV sample: file has zero bytes"));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Json(OperationResponse.Failed($"An error has occurred while generating CSV sample: {ex.Message}"));
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
