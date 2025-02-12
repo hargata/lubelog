@@ -9,5 +9,6 @@
         public bool FilterByDateRange { get; set; } = false;
         public string StartDate { get; set; } = "";
         public string EndDate { get; set; } = "";
+        public bool PrintIndividualRecords { get; set; } = false;
     }
 }

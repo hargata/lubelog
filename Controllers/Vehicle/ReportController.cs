@@ -473,7 +473,8 @@ namespace CarCareTracker.Controllers
                 Notes = x.Notes,
                 Cost = x.Cost,
                 DataType = ImportMode.ServiceRecord,
-                ExtraFields = x.ExtraFields
+                ExtraFields = x.ExtraFields,
+                RequisitionHistory = x.RequisitionHistory
             }));
             //repair records
             reportData.AddRange(vehicleRecords.CollisionRecords.Select(x => new GenericReportModel
@@ -484,7 +485,8 @@ namespace CarCareTracker.Controllers
                 Notes = x.Notes,
                 Cost = x.Cost,
                 DataType = ImportMode.RepairRecord,
-                ExtraFields = x.ExtraFields
+                ExtraFields = x.ExtraFields,
+                RequisitionHistory = x.RequisitionHistory
             }));
             reportData.AddRange(vehicleRecords.UpgradeRecords.Select(x => new GenericReportModel
             {
@@ -494,7 +496,8 @@ namespace CarCareTracker.Controllers
                 Notes = x.Notes,
                 Cost = x.Cost,
                 DataType = ImportMode.UpgradeRecord,
-                ExtraFields = x.ExtraFields
+                ExtraFields = x.ExtraFields,
+                RequisitionHistory = x.RequisitionHistory
             }));
             reportData.AddRange(vehicleRecords.TaxRecords.Select(x => new GenericReportModel
             {
