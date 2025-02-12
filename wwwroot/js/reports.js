@@ -7,6 +7,7 @@ function getAndValidateSelectedColumns() {
     var tagFilterMode = $("#tagSelector").val();
     var tagsToFilter = $("#tagSelectorInput").val();
     var filterByDateRange = $("#dateRangeSelector").is(":checked");
+    var printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
     var startDate = $("#dateRangeStartDate").val();
     var endDate = $("#dateRangeEndDate").val();
     $("#columnSelector :checked").map(function () {
@@ -42,7 +43,8 @@ function getAndValidateSelectedColumns() {
             tags: [],
             filterByDateRange: filterByDateRange,
             startDate: '',
-            endDate: ''
+            endDate: '',
+            printIndividualRecords: printIndividualRecords
         }
     } else {
         return {
@@ -54,7 +56,8 @@ function getAndValidateSelectedColumns() {
             tags: tagsToFilter,
             filterByDateRange: filterByDateRange,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            printIndividualRecords: printIndividualRecords
         }
     }
 }
@@ -80,6 +83,7 @@ function getSavedReportParameters() {
         $("#dateRangeSelector").prop('checked', selectedReportColumns.filterByDateRange);
         $("#dateRangeStartDate").val(selectedReportColumns.startDate);
         $("#dateRangeEndDate").val(selectedReportColumns.endDate);
+        $("#printIndividualRecordsCheck").prop('checked', selectedReportColumns.printIndividualRecords);
     }
 }
 function generateVehicleHistoryReport() {
