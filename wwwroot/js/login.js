@@ -55,12 +55,6 @@ function performPasswordReset() {
     });
 }
 
-function handlePasswordKeyPress(event) {
-    if (event.keyCode == 13) {
-        performLogin();
-    }
-}
-
 function remoteLogin() {
     $.get('/Login/GetRemoteLoginLink', function (data) {
         if (data) {
