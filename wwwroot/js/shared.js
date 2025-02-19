@@ -1536,3 +1536,9 @@ function handleTableColumnDragEnd(tabName) {
         isDragging = false;
     }
 }
+
+function callBackOnEnter(event, callBack) {
+    if (event.keyCode == 13) {
+        callBack();
+    }
+}

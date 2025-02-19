@@ -24,7 +24,7 @@
             <div class="form-group">
                 <label for="inputUserPassword">@translator.Translate(userLanguage, "Password")</label> 
                 <div class="input-group">
-                    <input type="password" id="inputUserPassword" onkeyup="handlePasswordKeyPress(event)" class="form-control">
+                    <input type="password" id="inputUserPassword" onkeyup="callBackOnEnter(event, performLogin)" class="form-control">
                     <div class="input-group-text">
                         <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
                     </div>
