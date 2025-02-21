@@ -26,6 +26,7 @@ namespace CarCareTracker.Helper
         string GetAllowedFileUploadExtensions();
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
+        bool GetServerOpenRegistration();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -60,6 +61,10 @@ namespace CarCareTracker.Helper
         {
             var motd = CheckString("LUBELOGGER_MOTD");
             return motd;
+        }
+        public bool GetServerOpenRegistration()
+        {
+            return CheckBool(CheckString("LUBELOGGER_OPEN_REGISTRATION"));
         }
         public OpenIDConfig GetOpenIDConfig()
         {

@@ -21,30 +21,7 @@
                     <div class="alert alert-danger" role="alert">
                         @translator.Translate(userLanguage, "Failure to format the data correctly can cause data corruption. Please make sure you make a copy of the local database before proceeding.")
                     </div>
-                    @if (Model == ImportMode.GasRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/gassample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
-                    else if (Model == ImportMode.ServiceRecord || Model == ImportMode.RepairRecord || Model == ImportMode.UpgradeRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/servicerecordsample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
-                    else if (Model == ImportMode.TaxRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/taxrecordsample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
-                    else if (Model == ImportMode.SupplyRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/supplysample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
-                    else if (Model == ImportMode.PlanRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/plansample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
-                    else if (Model == ImportMode.OdometerRecord)
-                    {
-                        <a class="btn btn-link" href="/defaults/odometersample.csv" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
-                    }
+                    <a class="btn btn-link" href="@($"/Vehicle/GenerateCsvSample?mode={Model.ToString()}")" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
                 </div>
             </div>
             <div class="row mt-2">

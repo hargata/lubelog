@@ -21,8 +21,8 @@
                         <thead class="sticky-top">
                             <tr class="d-flex">
                                 <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Type")</th>
-                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Cost Per Day")</th>
-                                <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, Model.DistanceUnit)</th>
+                                <th scope="col" style="cursor:pointer;" onclick="toggleCostTableHint()" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Cost Per Day")<span class="cost-table-hint d-none">@($"({Model.NumberOfDays.ToString("N0")})")</span></th>
+                                <th scope="col" style="cursor:pointer;" onclick="toggleCostTableHint()" class="col-3 flex-grow-1">@translator.Translate(userLanguage, Model.DistanceUnit)<span class="cost-table-hint d-none">@($"({Model.TotalDistance.ToString("N0")})")</span></th>
                                 <th scope="col" class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Total")</th>
                             </tr>
                         </thead>

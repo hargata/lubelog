@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a bug
-title: ''
+title: "[BUG]"
 labels: ''
 assignees: ''
 
@@ -18,7 +18,7 @@ Please make sure you have performed the following steps before opening a new bug
 
 **Platform**
 - [ ] Docker Image
-- [ ] Windows Standalone Executable
+- [ ] Windows/Linux Standalone Executable
 
 **Browser Console Errors(F12)**
 <!-- Attach a screenshot or codeblock containing the browser console error -->

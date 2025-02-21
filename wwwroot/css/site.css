@@ -81,6 +81,34 @@ html {
         color: #000 !important;
         overflow: visible;
     }
+    .stickerPrintContainer {
+        background-color: #fff !important;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        font-size: 14px;
+        line-height: 18px;
+        color: #000 !important;
+        overflow: visible;
+        z-index: 1030;
+    }
+    .reminderSticker {
+        width: 98%;
+        aspect-ratio: 1/1;
+        border-style: dashed;
+        border-width: 2px;
+        page-break-after: always;
+    }
+    .recordSticker {
+        height: 100%;
+        page-break-after: always;
+    }
+    .stickerNote {
+        height:100%;
+    }
 
     body {
         background-color: #fff !important;
@@ -478,6 +506,12 @@ html[data-bs-theme="light"] .api-method:hover {
     object-fit: scale-down;
     pointer-events: none;
 }
+.lubelogger-logo-sticker {
+    height: 6rem;
+    width: auto;
+    object-fit: scale-down;
+    pointer-events: none;
+}
 
 ::-ms-reveal {
     display: none;
@@ -486,4 +520,12 @@ html[data-bs-theme="light"] .api-method:hover {
 .lubelogger-report-banner {
     border-top: thin solid black;
     text-align: center;
+}
+
+.attachment-badge-xs {
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    font-size: 0.6em;
+    font-weight: 500;
+    top: 15%
 }

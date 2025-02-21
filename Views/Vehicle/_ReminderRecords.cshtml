@@ -140,7 +140,7 @@
                                 <span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span>
                             }
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric">
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric" data-record-type="cost">
                             @if (reminderRecord.Metric == ReminderMetric.Date)
                             {
                             @reminderRecord.Date.ToShortDateString()
@@ -200,6 +200,9 @@
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'ReminderRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'ReminderRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="printTabStickers(selectedRow, 'ReminderRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Print")</span><i class="bi bi-printer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'ReminderRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
 

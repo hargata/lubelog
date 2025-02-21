@@ -183,7 +183,7 @@ function hidePinnedNotes(vehicleId) {
     }
 }
 
-function filterGarage(sender, isSort) {
+function filterGarage(sender) {
     var rowData = $(".garage-item");
     if (sender == undefined) {
         rowData.removeClass('override-hide');
@@ -191,14 +191,9 @@ function filterGarage(sender, isSort) {
     }
     var tagName = sender.textContent;
     if ($(sender).hasClass("bg-primary")) {
-        if (!isSort) {
-            rowData.removeClass('override-hide');
-            $(sender).removeClass('bg-primary');
-            $(sender).addClass('bg-secondary');
-        } else {
-            rowData.addClass('override-hide');
-            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
-        }
+        rowData.removeClass('override-hide');
+        $(sender).removeClass('bg-primary');
+        $(sender).addClass('bg-secondary');
     } else {
         //hide table rows.
         rowData.addClass('override-hide');
@@ -264,14 +259,13 @@ function sortGarage(sender, isMobile) {
             //restore table
             sender.removeClass('sort-desc');
             sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}</span>` : `${garageIcon}${sortColumn}`);
-            $('.vehiclesContainer').html(storedTableRowState);
-            filterGarage($(".tagfilter.bg-primary").get(0), true);
+            resetSortGarage();
         } else {
             //first time sorting.
             //check if table was sorted before by a different column(only relevant to fuel tab)
-            if (storedTableRowState != null && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
+            if ($("[default-sort]").length > 0 && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
                 //restore table state.
-                $('.vehiclesContainer').html(storedTableRowState);
+                resetSortGarage();
                 //reset other sorted columns
                 if ($(".sort-asc").length > 0) {
                     $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
@@ -284,11 +278,27 @@ function sortGarage(sender, isMobile) {
             }
             sender.addClass('sort-asc');
             sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
-            storedTableRowState = null;
-            storedTableRowState = $('.vehiclesContainer').html();
+            //append sortRowId to the vehicle container
+            if ($("[default-sort]").length == 0) {
+                $(`.garage-item`).map((index, elem) => {
+                    $(elem).attr("default-sort", index);
+                });
+            }
             sortVehicles(false);
         }
     }
+}
+function resetSortGarage() {
+    var rowData = $(`.garage-item`);
+    var sortedRow = rowData.toArray().sort((a, b) => {
+        var currentVal = $(a).attr('default-sort');
+        var nextVal = $(b).attr('default-sort');
+        return currentVal - nextVal;
+    });
+    $(".garage-item-add").map((index, elem) => {
+        sortedRow.push(elem);
+    })
+    $(`.vehiclesContainer`).html(sortedRow);
 }
 
 let dragged = null;

@@ -54,25 +54,31 @@
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Date" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Description" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Cost" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
                             </div>
                         </li>
-                        <li class="dropdown-item">
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Attachment">
+                                <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
                             <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="chkCol_Notes" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
@@ -81,7 +87,7 @@
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             var elementId = Guid.NewGuid();
-                            <li class="dropdown-item">
+                            <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('TaxRecord')">
                                 <div class="list-group-item">
                                     <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'TaxRecord')" type="checkbox" id="@elementId">
                                     <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
@@ -111,6 +117,7 @@
                     <th scope="col" class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
                     <th scope="col" class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('tax-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
                     {
@@ -125,6 +132,7 @@
                         <td class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@taxRecord.Date.ToShortDateString()</td>
                         <td class="col-4 flex-grow-1 col-xl-6 text-truncate" data-column="description">@taxRecord.Description</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(taxRecord.Cost, hideZero))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", taxRecord.Files)</td>
                         <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(taxRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
@@ -170,6 +178,9 @@
     <li><hr class="context-menu-multiple dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'TaxRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
     <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'TaxRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="printTabStickers(selectedRow, 'TaxRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Print")</span><i class="bi bi-printer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'TaxRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
 @if (userColumnPreferences.Any())

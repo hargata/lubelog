@@ -49,10 +49,10 @@
                                                     <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@($"{StaticHelper.HideZeroCost(0M.ToString("C2"), hideZero, $"/{Model.DistanceUnit}")}")</td>
                                                 }
                                             }
-                                            }
                                         }
-                                    </tr>
-                                }
+                                    }
+                                </tr>
+                            }
                         </tbody>
                         <tfoot>
                             <tr class="d-flex fw-bold">
@@ -65,9 +65,11 @@
                                             var yearDataToDisplay = Model.CostData.Where(x => x.Year == year);
                                             if (yearDataToDisplay != null && yearDataToDisplay != default)
                                             {
-                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(yearDataToDisplay.Sum(x => x.Cost).ToString("C2"), hideZero))</td>
-                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@(yearDataToDisplay.Sum(x => x.DistanceTraveled) != default ? $"{yearDataToDisplay.Sum(x => x.DistanceTraveled).ToString("N0")} {Model.DistanceUnit}" : "---")</td>
-                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@(StaticHelper.HideZeroCost(yearDataToDisplay.Sum(x => x.CostPerDistanceTraveled).ToString("C2"), hideZero, $"/{Model.DistanceUnit}"))</td>
+                                                var distanceTraveled = yearDataToDisplay.Sum(x => x.DistanceTraveled);
+                                                var costAccrued = yearDataToDisplay.Sum(x => x.Cost);
+                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(costAccrued.ToString("C2"), hideZero))</td>
+                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@(distanceTraveled != default ? $"{distanceTraveled.ToString("N0")} {Model.DistanceUnit}" : "---")</td>
+                                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@(StaticHelper.HideZeroCost(distanceTraveled != default && costAccrued != default ? (costAccrued / distanceTraveled).ToString("C2") : 0M.ToString("C2"), hideZero, $"/{Model.DistanceUnit}"))</td>
                                             }                              
                                             else                           
                                             {                              

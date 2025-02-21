@@ -33,7 +33,7 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
         </li>
-        @if (User.IsInRole("CookieAuth"))
+        @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
         {
             @if (User.IsInRole(nameof(UserData.IsAdmin)))
             {
@@ -84,7 +84,7 @@
         <li class="nav-item ms-auto" role="presentation">
             <button class="nav-link resizable-nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Settings")</span></button>
         </li>
-        @if (User.IsInRole("CookieAuth"))
+        @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
         {
             <li class="nav-item dropdown" role="presentation">
                 <a class="nav-link resizable-nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person"></i><span class="ms-2 d-sm-none d-md-inline">@User.Identity.Name</span></a>
@@ -145,6 +145,8 @@
         <div class="modal-content" id="accountInformationModalContent">
         </div>
     </div>
+</div>
+<div class="stickerPrintContainer hideOnPrint">
 </div>
 <script>
     loadGarage();

@@ -600,23 +600,6 @@ function showMultipleRemindersSelector() {
         $("#recurringReminderInput").show();
     }
 }
-function getAndValidateSelectedVehicle() {
-    var selectedVehiclesArray = [];
-    $("#vehicleSelector :checked").map(function () {
-        selectedVehiclesArray.push(this.value);
-    });
-    if (selectedVehiclesArray.length == 0) {
-        return {
-            hasError: true,
-            ids: []
-        }
-    } else {
-        return {
-            hasError: false,
-            ids: selectedVehiclesArray
-        }
-    }
-}
 function getAndValidateSelectedRecurringReminder() {
     if ($("#multipleRemindersCheck").is(":checked")) {
         //validate multiple reminders

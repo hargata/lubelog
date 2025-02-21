@@ -75,7 +75,9 @@ namespace CarCareTracker.Middleware
                             var userIdentity = new List<Claim>
                             {
                                 new(ClaimTypes.Name, splitString[0]),
-                                new(ClaimTypes.NameIdentifier, userData.Id.ToString())
+                                new(ClaimTypes.NameIdentifier, userData.Id.ToString()),
+                                new(ClaimTypes.Email, userData.EmailAddress),
+                                new(ClaimTypes.Role, "APIAuth")
                             };
                             if (userData.IsAdmin)
                             {
@@ -154,6 +156,7 @@ namespace CarCareTracker.Middleware
                 if (value.ToString().ToLower() == "api")
                 {
                     Response.StatusCode = 401;
+                    Response.Headers.Append("WWW-Authenticate", "Basic");
                     return Task.CompletedTask;
                 }
             }

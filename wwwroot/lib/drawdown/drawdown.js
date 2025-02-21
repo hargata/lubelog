@@ -98,8 +98,8 @@
     replace(rx_link, function(all, p1, p2, p3, p4, p5, p6) {
         stash[--si] = p4
             ? p2
-                ? '<img src="' + p4 + '" alt="' + p3 + '"/>'
-                : '<a href="' + p4 + '">' + unesc(highlight(p3)) + '</a>'
+                ? '<img style="max-width:100%;max-height:100%;object-fit:scale-down;" src="' + p4 + '" alt="' + p3 + '"/>'
+                : '<a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" target="_blank" href="' + p4 + '">' + unesc(highlight(p3)) + '</a>'
             : p6;
         return si + '\uf8ff';
     });

@@ -174,7 +174,7 @@ function getAndValidateOdometerRecordValues() {
 
 function recalculateDistance() {
     //force distance recalculation
-    //reserved for when data is incoherent with negative distances due to non-chronologica order of odometer records.
+    //reserved for when data is incoherent with negative distances due to non-chronological order of odometer records.
     var vehicleId = GetVehicleId().vehicleId
     $.post(`/Vehicle/ForceRecalculateDistanceByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
@@ -397,15 +397,16 @@ function getRecordedOdometer() {
     return parseFloat(`${recordedOdometer}.${recordedSubOdometer}`);
 }
 function saveRecordedOdometer() {
-    //update current odometer value
-    $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
     //save coordinates into a CSV file and upload
-    if (tripCoordinates.length > 0) {
+    if (tripCoordinates.length > 1) {
+        //update current odometer value
+        $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
+        //generate attachment
         $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
             uploadedFiles.push(response);
             $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
                 $("#filesPendingUpload").html(viewData);
-                tripCoordinates = [];
+                tripCoordinates = ["Latitude,Longitude"];
             });
         });
     }

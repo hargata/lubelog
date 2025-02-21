@@ -8,6 +8,8 @@ Ideally, the Issues tab should only consist of bug reports and feature requests 
 ## Feature Requests
 Feature Requests are cool, but we do want to avoid bloat and scope/feature creep.
 
+Read [this](https://github.com/hargata/lubelog/wiki/Scope-and-Purpose) to better understand the scope and purpose of this project.
+
 LubeLogger is a Vehicle Maintenance and Fuel Mileage Tracker. 
 It is not and should not be used for the following:
 - Project Management Software(e.g.: Jira)

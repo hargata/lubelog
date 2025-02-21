@@ -1,9 +1,13 @@
 ﻿@model IEnumerable<UserColumnPreference>
 <script>
     var visibleColumns = [];
+    var columnsOrder = [];
      @foreach(string visibleColumn in Model.SelectMany(x=> x.VisibleColumns))
         {
             @:visibleColumns.push(decodeHTMLEntities('@visibleColumn'));
         }
-     loadUserColumnPreferences(visibleColumns);
+    @foreach(string columnOrder in Model.SelectMany(x=>x.ColumnOrder)){
+        @:columnsOrder.push(decodeHTMLEntities('@columnOrder'));
+    }
+     loadUserColumnPreferences(visibleColumns, columnsOrder);
 </script>

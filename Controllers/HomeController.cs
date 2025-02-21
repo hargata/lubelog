@@ -98,7 +98,6 @@ namespace CarCareTracker.Controllers
                         var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
                         return PartialView("_KioskPlan", kioskResult);
                     }
-                    break;
                 case KioskMode.Reminder:
                     {
                         var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);

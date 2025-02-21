@@ -6,6 +6,7 @@ namespace CarCareTracker.Helper
     public interface IFileHelper
     {
         string GetFullFilePath(string currentFilePath, bool mustExist = true);
+        byte[] GetFileBytes(string fullFilePath, bool deleteFile = false);
         string MoveFileFromTemp(string currentFilePath, string newFolder);
         bool RenameFile(string currentFilePath, string newName);
         bool DeleteFile(string currentFilePath);
@@ -84,6 +85,19 @@ namespace CarCareTracker.Helper
             {
                 return string.Empty;
             }
+        }
+        public byte[] GetFileBytes(string fullFilePath, bool deleteFile = false)
+        {
+            if (File.Exists(fullFilePath))
+            {
+                var fileBytes = File.ReadAllBytes(fullFilePath);
+                if (deleteFile)
+                {
+                    File.Delete(fullFilePath);
+                }
+                return fileBytes;
+            }
+            return Array.Empty<byte>();
         }
         public bool RestoreBackup(string fileName, bool clearExisting = false)
         {

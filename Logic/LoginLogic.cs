@@ -21,6 +21,7 @@ namespace CarCareTracker.Logic
         OperationResponse RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
+        OperationResponse SendRegistrationToken(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         UserData ValidateOpenIDUser(LoginModel credentials);
         bool CheckIfUserIsValid(int userId);
@@ -190,6 +191,16 @@ namespace CarCareTracker.Logic
                 return OperationResponse.Failed();
             }
         }
+        public OperationResponse SendRegistrationToken(LoginModel credentials)
+        {
+            if (_configHelper.GetServerOpenRegistration())
+            {
+                return GenerateUserToken(credentials.EmailAddress, true);
+            } else
+            {
+                return OperationResponse.Failed("Open Registration Disabled");
+            }
+        }
         /// <summary>
         /// Generates a token and notifies user via email so they can reset their password.
         /// </summary>
@@ -310,7 +321,18 @@ namespace CarCareTracker.Logic
             var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
             if (existingToken.Id != default)
             {
-                return OperationResponse.Failed("There is an existing token tied to this email address");
+                if (autoNotify) //re-send email
+                {
+                    var notificationResult = _mailHelper.NotifyUserForRegistration(emailAddress, existingToken.Body);
+                    if (notificationResult.Success)
+                    {
+                        return OperationResponse.Failed($"There is an existing token tied to {emailAddress}, a new email has been sent out");
+                    } else
+                    {
+                        return notificationResult;
+                    }
+                }
+                return OperationResponse.Failed($"There is an existing token tied to {emailAddress}");
             }
             var token = new Token()
             {

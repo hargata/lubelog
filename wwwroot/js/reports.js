@@ -7,6 +7,7 @@ function getAndValidateSelectedColumns() {
     var tagFilterMode = $("#tagSelector").val();
     var tagsToFilter = $("#tagSelectorInput").val();
     var filterByDateRange = $("#dateRangeSelector").is(":checked");
+    var printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
     var startDate = $("#dateRangeStartDate").val();
     var endDate = $("#dateRangeEndDate").val();
     $("#columnSelector :checked").map(function () {
@@ -42,7 +43,8 @@ function getAndValidateSelectedColumns() {
             tags: [],
             filterByDateRange: filterByDateRange,
             startDate: '',
-            endDate: ''
+            endDate: '',
+            printIndividualRecords: printIndividualRecords
         }
     } else {
         return {
@@ -54,7 +56,8 @@ function getAndValidateSelectedColumns() {
             tags: tagsToFilter,
             filterByDateRange: filterByDateRange,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            printIndividualRecords: printIndividualRecords
         }
     }
 }
@@ -80,6 +83,7 @@ function getSavedReportParameters() {
         $("#dateRangeSelector").prop('checked', selectedReportColumns.filterByDateRange);
         $("#dateRangeStartDate").val(selectedReportColumns.startDate);
         $("#dateRangeEndDate").val(selectedReportColumns.endDate);
+        $("#printIndividualRecordsCheck").prop('checked', selectedReportColumns.printIndividualRecords);
     }
 }
 function generateVehicleHistoryReport() {
@@ -114,10 +118,7 @@ function generateVehicleHistoryReport() {
                         reportParameter: result.value.selectedColumnsData
                     }, function (data) {
                         if (data) {
-                            $("#vehicleHistoryReport").html(data);
-                            setTimeout(function () {
-                                window.print();
-                            }, 500);
+                            printContainer(data);
                         }
                     })
                 }
@@ -276,6 +277,13 @@ function toggleBarChartTableData() {
         //currently cost per distance is shown.
         $('[report-data="costperdistance"]').addClass('d-none');
         $('[report-data="cost"]').removeClass('d-none');
+    }
+}
+function toggleCostTableHint() {
+    if ($(".cost-table-hint").hasClass("d-none")) {
+        $(".cost-table-hint").removeClass("d-none");
+    } else {
+        $(".cost-table-hint").addClass("d-none");
     }
 }
 function updateReminderPie() {
