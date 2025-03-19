@@ -253,7 +253,14 @@
             </div>
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
+                    <div class="row">
+                        <div class="col-10">
+                            <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
+                        </div>
+                        <div class="col-2">
+                            <button onclick="showServerConfigModal()" class="btn text-secondary btn-sm"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-6 d-grid">
                             <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Extra Fields")</button>
@@ -352,6 +359,12 @@
 <div class="modal fade" data-bs-focus="false" id="customWidgetModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="customWidgetModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="serverConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="serverConfigModalContent">
         </div>
     </div>
 </div>

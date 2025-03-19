@@ -555,6 +555,23 @@ namespace CarCareTracker.Controllers
             }
             return Json(false);
         }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult GetServerConfiguration()
+        {
+            var viewModel = new ServerSettingsViewModel
+            {
+                PostgresConnection = _config.GetServerPostgresConnection(),
+                AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
+                CustomLogoURL = _config.GetLogoUrl(),
+                MessageOfTheDay = _config.GetMOTD(),
+                WebHookURL = _config.GetWebHookUrl(),
+                CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),
+                InvariantAPIEnabled = _config.GetInvariantApi(),
+                SMTPConfig = _config.GetMailConfig(),
+                OIDCConfig = _config.GetOpenIDConfig()
+            };
+            return PartialView("_ServerConfig", viewModel);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

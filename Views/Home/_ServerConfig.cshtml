@@ -1,0 +1,62 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model ServerSettingsViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="serverConfigModalLabel">@translator.Translate(userLanguage, "Review Server Configurations")</h5>
+    <button type="button" class="btn-close" onclick="hideServerConfigModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form class="form-inline">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <label for="inputPostgres">@translator.Translate(userLanguage, "Postgres Connection")</label>
+                    <input type="text" readonly id="inputPostgres" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.PostgresConnection">
+                    <label for="inputFileExt">@translator.Translate(userLanguage, "Allowed File Extensions")</label>
+                    <input type="text" readonly id="inputFileExt" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.AllowedFileExtensions">
+                    <label for="inputLogoURL">@translator.Translate(userLanguage, "Logo URL")</label>
+                    <input type="text" readonly id="inputLogoURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.CustomLogoURL">
+                    <label for="inputMOTD">@translator.Translate(userLanguage, "Message of the Day")</label>
+                    <input type="text" readonly id="inputMOTD" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.MessageOfTheDay">
+                    <label for="inputWebHook">@translator.Translate(userLanguage, "WebHook URL")</label>
+                    <input type="text" readonly id="inputWebHook" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.WebHookURL">
+                    <label for="inputCustomWidget">@translator.Translate(userLanguage, "Custom Widgets")</label>
+                    <input type="text" readonly id="inputCustomWidget" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.CustomWidgetsEnabled ? "Enabled" : "Disabled")">
+                    <label for="inputInvariantAPI">@translator.Translate(userLanguage, "Invariant API")</label>
+                    <input type="text" readonly id="inputInvariantAPI" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.InvariantAPIEnabled ? "Enabled" : "Disabled")">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="inputSMTPServer">@translator.Translate(userLanguage, "SMTP Server")</label>
+                    <div class="input-group">
+                        <input type="text" readonly id="inputSMTPServer" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.EmailServer">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-send"></i></button>
+                        </div>
+                    </div>
+                    <label for="inputSMTPPort">@translator.Translate(userLanguage, "SMTP Server Port")</label>
+                    <input type="text" readonly id="inputSMTPPort" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Port">
+                    <label for="inputSMTPFrom">@translator.Translate(userLanguage, "SMTP Sender Address")</label>
+                    <input type="text" readonly id="inputSMTPFrom" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.EmailFrom">
+                    <label for="inputSMTPUsername">@translator.Translate(userLanguage, "SMTP Username")</label>
+                    <input type="text" readonly id="inputSMTPUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Username">
+                    <label for="inputSMTPPassword">@translator.Translate(userLanguage, "SMTP Password")</label>
+                    <div class="input-group">
+                        <input type="password" readonly id="inputSMTPPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Password">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@* <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAccountInformationModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" onclick="validateAndSaveRootUserAccount()" class="btn btn-primary">@translator.Translate(userLanguage, "Update")</button>
+</div> *@

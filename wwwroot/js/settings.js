@@ -4,6 +4,15 @@
         $("#extraFieldModal").modal('show');
     });
 }
+function showServerConfigModal() {
+    $.get(`/Home/GetServerConfiguration`, function (data) {
+        $("#serverConfigModalContent").html(data);
+        $("#serverConfigModal").modal('show');
+    });
+}
+function hideServerConfigModal() {
+    $("#serverConfigModal").modal('hide');
+}
 function hideExtraFieldModal() {
     $("#extraFieldModal").modal('hide');
 }
