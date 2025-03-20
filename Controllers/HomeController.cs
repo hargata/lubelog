@@ -23,6 +23,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly ITranslationHelper _translationHelper;
+        private readonly IMailHelper _mailHelper;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
@@ -33,7 +34,8 @@ namespace CarCareTracker.Controllers
             IExtraFieldDataAccess extraFieldDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IReminderHelper reminderHelper,
-            ITranslationHelper translationHelper)
+            ITranslationHelper translationHelper,
+            IMailHelper mailHelper)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -46,6 +48,7 @@ namespace CarCareTracker.Controllers
             _loginLogic = loginLogic;
             _vehicleLogic = vehicleLogic;
             _translationHelper = translationHelper;
+            _mailHelper = mailHelper;
         }
         private int GetUserID()
         {
@@ -571,6 +574,12 @@ namespace CarCareTracker.Controllers
                 OIDCConfig = _config.GetOpenIDConfig()
             };
             return PartialView("_ServerConfig", viewModel);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult SendTestEmail(string emailAddress)
+        {
+            var result = _mailHelper.SendTestEmail(emailAddress);
+            return Json(result);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

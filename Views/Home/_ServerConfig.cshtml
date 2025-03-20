@@ -78,7 +78,7 @@
                     <div class="input-group">
                         <input type="text" readonly id="inputSMTPServer" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.EmailServer">
                         <div class="input-group-text">
-                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-send"></i></button>
+                            <button type="button" @(string.IsNullOrWhiteSpace(Model.SMTPConfig.EmailServer) ? "disabled" : "") class="btn btn-sm text-secondary" onclick="sendTestEmail()"><i class="bi bi-send"></i></button>
                         </div>
                     </div>
                 </div>
