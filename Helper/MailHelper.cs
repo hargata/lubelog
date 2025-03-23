@@ -11,6 +11,7 @@ namespace CarCareTracker.Helper
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
         OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token);
         OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
+        OperationResponse SendTestEmail(string emailAddress);
     }
     public class MailHelper : IMailHelper
     {
@@ -64,6 +65,28 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your Password Reset Token for LubeLogger");
             string emailBody = $"{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please reset your password for LubeLogger using the token")}: {token}";
+            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
+            if (result)
+            {
+                return OperationResponse.Succeed("Email Sent!");
+            }
+            else
+            {
+                return OperationResponse.Failed();
+            }
+        }
+        public OperationResponse SendTestEmail(string emailAddress)
+        {
+            if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            {
+                return OperationResponse.Failed("SMTP Server Not Setup");
+            }
+            if (string.IsNullOrWhiteSpace(emailAddress))
+            {
+                return OperationResponse.Failed("Email Address or Token is invalid");
+            }
+            string emailSubject = _translator.Translate(serverLanguage, "Test Email from LubeLogger");
+            string emailBody = _translator.Translate(serverLanguage, "If you are seeing this email it means your SMTP configuration is functioning correctly");
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {

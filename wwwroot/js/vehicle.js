@@ -619,36 +619,37 @@ function getAndValidateSelectedRecurringReminder() {
     }
 }
 function getLastOdometerReadingAndIncrement(odometerFieldName) {
-    Swal.fire({
-        title: 'Increment Last Reported Odometer Reading',
-        html: `
+    $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (currentOdometer) {
+        let additionalHtml = isNaN(currentOdometer) || currentOdometer == 0 ? '' : `<span>Current Odometer: ${currentOdometer}</span><br/>`;
+        Swal.fire({
+            title: 'Increment Last Reported Odometer Reading',
+            html: `${additionalHtml}
                             <input type="text" inputmode="decimal" id="inputOdometerIncrement" class="swal2-input" placeholder="Increment" onkeydown="handleSwalEnter(event)">
               `,
-        confirmButtonText: 'Add',
-        focusConfirm: false,
-        preConfirm: () => {
-            const odometerIncrement = parseInt(globalParseFloat($("#inputOdometerIncrement").val()));
-            if (isNaN(odometerIncrement) || odometerIncrement <= 0) {
-                Swal.showValidationMessage(`Please enter a non-zero amount to increment`);
-            }
-            return { odometerIncrement }
-        },
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            var amountToIncrement = result.value.odometerIncrement;
-            $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
-                var newAmount = data + amountToIncrement;
-                if (!isNaN(newAmount)) {
-                    var odometerField = $(`#${odometerFieldName}`);
-                    if (odometerField.length > 0) {
-                        odometerField.val(newAmount);
+            confirmButtonText: 'Add',
+            focusConfirm: false,
+            preConfirm: () => {
+                const odometerIncrement = parseInt(globalParseFloat($("#inputOdometerIncrement").val()));
+                if (isNaN(odometerIncrement) || odometerIncrement < 0) {
+                    Swal.showValidationMessage(`Please enter a positive amount to increment or 0 to use current odometer`);
+                }
+                return { odometerIncrement }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var amountToIncrement = result.value.odometerIncrement;
+                    var newAmount = currentOdometer + amountToIncrement;
+                    if (!isNaN(newAmount)) {
+                        var odometerField = $(`#${odometerFieldName}`);
+                        if (odometerField.length > 0) {
+                            odometerField.val(newAmount);
+                        } else {
+                            errorToast(genericErrorMessage());
+                        }
                     } else {
                         errorToast(genericErrorMessage());
                     }
-                } else {
-                    errorToast(genericErrorMessage());
-                }
-            });
-        }
+            }
+        });
     });
 }
