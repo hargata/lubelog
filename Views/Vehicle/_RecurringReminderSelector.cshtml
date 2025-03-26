@@ -5,7 +5,7 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @using CarCareTracker.Helper
-@model List<ReminderRecord>
+@model List<ReminderRecordViewModel>
 @if (Model.Count() > 1)
 {
     <div class="mb-2">
@@ -16,9 +16,25 @@
 <select class="form-select" id="recurringReminderInput">
     @if (Model.Any())
     {
-        @foreach (ReminderRecord reminderRecord in Model)
+        @foreach (ReminderRecordViewModel reminderRecord in Model)
         {
-            <!option value="@reminderRecord.Id">@reminderRecord.Description</!option>
+            @switch(reminderRecord.UserMetric){
+                case (ReminderMetric.Both):
+                    <!option value="@reminderRecord.Id" data-description="@reminderRecord.Description" class="@StaticHelper.GetReminderUrgencyColor(reminderRecord.Urgency)">
+                        @($"{reminderRecord.Description} | {reminderRecord.Date.ToShortDateString()} | {reminderRecord.Mileage}")
+                    </!option>
+                    break;
+                case (ReminderMetric.Odometer):
+                    <!option value="@reminderRecord.Id" data-description="@reminderRecord.Description" class="@StaticHelper.GetReminderUrgencyColor(reminderRecord.Urgency)">
+                        @($"{reminderRecord.Description} | {reminderRecord.Mileage}")
+                    </!option>
+                    break;
+                case (ReminderMetric.Date):
+                    <!option value="@reminderRecord.Id" data-description="@reminderRecord.Description" class="@StaticHelper.GetReminderUrgencyColor(reminderRecord.Urgency)">
+                        @($"{reminderRecord.Description} | {reminderRecord.Date.ToShortDateString()}")
+                    </!option>
+                    break;
+            }
         }
     } else
     {
@@ -27,11 +43,26 @@
 </select>
 <div id="recurringMultipleReminders" style="display:none;">
     <ul class="list-group">
-        @foreach (ReminderRecord reminderRecord in Model)
+        @foreach (ReminderRecordViewModel reminderRecord in Model)
         {
             <li class="list-group-item text-start">
-                <input class="form-check-input" type="checkbox" value="@reminderRecord.Id" id="recurringReminder_@reminderRecord.Id">
-                <label class="form-check-label stretched-link" for="recurringReminder_@reminderRecord.Id">@reminderRecord.Description</label>
+                <input class="form-check-input" type="checkbox" value="@reminderRecord.Id" data-description="@reminderRecord.Description" id="recurringReminder_@reminderRecord.Id">
+                <label class="form-check-label stretched-link" for="recurringReminder_@reminderRecord.Id">
+                    @reminderRecord.Description
+                    <br /><small class="badge @StaticHelper.GetReminderUrgencyColor(reminderRecord.Urgency)">
+                    @switch (reminderRecord.UserMetric){
+                        case (ReminderMetric.Both):
+                            <i class='bi bi-calendar-event me-2'></i>@reminderRecord.Date.ToShortDateString()<i class='bi bi-speedometer ms-2 me-2'></i>@reminderRecord.Mileage
+                        break;
+                        case (ReminderMetric.Odometer):
+                            <i class='bi bi-speedometer me-2'></i>@reminderRecord.Mileage
+                        break;
+                        case (ReminderMetric.Date):
+                            <i class='bi bi-calendar-event me-2'></i>@reminderRecord.Date.ToShortDateString()
+                        break;
+                    }
+                </small>
+                </label>
             </li>
         }
     </ul>

@@ -336,7 +336,7 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
-function showRecurringReminderSelector(descriptionFieldName) {
+function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
     $.get(`/Vehicle/GetRecurringReminderRecordsByVehicleId?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
             //prompt user to select a recurring reminder
@@ -356,9 +356,16 @@ function showRecurringReminderSelector(descriptionFieldName) {
             }).then(function (result) {
                 if (result.isConfirmed) {
                     recurringReminderRecordId = result.value.selectedRecurringReminderData.ids;
-                    var descriptionField = $(`#${descriptionFieldName}`);
+                    let descriptionField = $(`#${descriptionFieldName}`);
+                    let noteField = $(`#${noteFieldName}`);
                     if (descriptionField.length > 0) {
-                        descriptionField.val(result.value.selectedRecurringReminderData.text);
+                        let descriptionFieldText = result.value.selectedRecurringReminderData.text.join(', ');
+                        descriptionField.val(descriptionFieldText);
+                    }
+                    if (noteField.length > 0 && result.value.selectedRecurringReminderData.text.length > 1) {
+                        result.value.selectedRecurringReminderData.text.map(x => {
+                            noteField.append(`- ${x}\r\n`);
+                        });
                     }
                 }
             });
@@ -583,7 +590,7 @@ function getAndValidateSelectedRecurringReminder() {
         $("#recurringMultipleReminders :checked").map(function () {
             selectedRecurringRemindersArray.push({
                 value: this.value,
-                text: $(this).parent().find('.form-check-label').text()
+                text: $(this).attr("data-description")
             });
         });
         if (selectedRecurringRemindersArray.length == 0) {
@@ -596,13 +603,13 @@ function getAndValidateSelectedRecurringReminder() {
             return {
                 hasError: false,
                 ids: selectedRecurringRemindersArray.map(x=>x.value),
-                text: selectedRecurringRemindersArray.map(x=>x.text).join(', ')
+                text: selectedRecurringRemindersArray.map(x=>x.text) 
             }
         }
     } else {
         //validate single reminder
         var selectedRecurringReminder = $("#recurringReminderInput").val();
-        var selectedRecurringReminderText = $("#recurringReminderInput option:selected").text();
+        var selectedRecurringReminderText = $("#recurringReminderInput option:selected").attr("data-description");
         if (!selectedRecurringReminder || parseInt(selectedRecurringReminder) == 0) {
             return {
                 hasError: true,
@@ -613,7 +620,7 @@ function getAndValidateSelectedRecurringReminder() {
             return {
                 hasError: false,
                 ids: [selectedRecurringReminder],
-                text: selectedRecurringReminderText
+                text: [selectedRecurringReminderText]
             }
         }
     }

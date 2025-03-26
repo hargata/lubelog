@@ -64,8 +64,9 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetRecurringReminderRecordsByVehicleId(int vehicleId)
         {
-            var result = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+            var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             result.RemoveAll(x => !x.IsRecurring);
+            result = result.OrderByDescending(x => x.Urgency).ThenBy(x => x.Description).ToList();
             return PartialView("_RecurringReminderSelector", result);
         }
         [HttpPost]
