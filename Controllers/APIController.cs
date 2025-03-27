@@ -120,7 +120,14 @@ namespace CarCareTracker.Controllers
             {
                 result = _userLogic.FilterUserVehicles(result, GetUserID());
             }
-            return Json(result);
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
         }
 
         [HttpGet]

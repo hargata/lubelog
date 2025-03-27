@@ -1,4 +1,6 @@
-﻿namespace CarCareTracker.Models
+﻿using System.Text.Json.Serialization;
+
+namespace CarCareTracker.Models
 {
     public class Vehicle
     {
@@ -8,7 +10,9 @@
         public string Make { get; set; }
         public string Model { get; set; }
         public string LicensePlate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string PurchaseDate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string SoldDate { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal SoldPrice { get; set; }
