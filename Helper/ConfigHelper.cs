@@ -238,6 +238,7 @@ namespace CarCareTracker.Helper
                 UserLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US"),
                 HideSoldVehicles = CheckBool(CheckString(nameof(UserConfig.HideSoldVehicles))),
                 EnableShopSupplies = CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies))),
+                ShowCalendar = CheckBool(CheckString(nameof(UserConfig.ShowCalendar))),
                 EnableExtraFieldColumns = CheckBool(CheckString(nameof(UserConfig.EnableExtraFieldColumns))),
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>() ?? new UserConfig().VisibleTabs,
                 TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>() ?? new UserConfig().TabOrder,

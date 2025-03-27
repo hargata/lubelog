@@ -86,6 +86,10 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
                 <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
             </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showCalendar" checked="@Model.UserConfig.ShowCalendar">
+                <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Calendar")</label>
+            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
