@@ -26,10 +26,12 @@ namespace CarCareTracker.Models
         /// <summary>
         /// Primarily used for vehicles with odometer units different from user's settings.
         /// </summary>
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string OdometerMultiplier { get; set; } = "1";
         /// <summary>
         /// Primarily used for vehicles where the odometer does not reflect actual mileage.
         /// </summary>
+        [JsonConverter(typeof(FromIntOptional))]
         public string OdometerDifference { get; set; } = "0";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
         /// <summary>
