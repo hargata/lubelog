@@ -115,6 +115,8 @@ namespace CarCareTracker.Models
     }
     public class ReminderExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
         public string Description { get; set; }
         public string Urgency { get; set; }
         public string Metric { get; set; }
