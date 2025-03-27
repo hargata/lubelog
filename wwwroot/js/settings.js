@@ -71,6 +71,7 @@ function updateSettings() {
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
+        showCalendar: $("#showCalendar").is(":checked"),
         enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
         hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
         preferredGasUnit: $("#preferredGasUnit").val(),
