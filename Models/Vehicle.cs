@@ -1,4 +1,6 @@
-﻿namespace CarCareTracker.Models
+﻿using System.Text.Json.Serialization;
+
+namespace CarCareTracker.Models
 {
     public class Vehicle
     {
@@ -8,7 +10,9 @@
         public string Make { get; set; }
         public string Model { get; set; }
         public string LicensePlate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string PurchaseDate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string SoldDate { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal SoldPrice { get; set; }
@@ -22,10 +26,12 @@
         /// <summary>
         /// Primarily used for vehicles with odometer units different from user's settings.
         /// </summary>
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string OdometerMultiplier { get; set; } = "1";
         /// <summary>
         /// Primarily used for vehicles where the odometer does not reflect actual mileage.
         /// </summary>
+        [JsonConverter(typeof(FromIntOptional))]
         public string OdometerDifference { get; set; } = "0";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
         /// <summary>
