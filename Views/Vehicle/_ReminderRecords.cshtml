@@ -85,6 +85,20 @@
                                 <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
                             </div>
                         </li>
+                        @if(hasRefresh){
+                            <li class="dropdown-item">
+                                <div class="list-group-item">
+                                    <input class="form-check-input col-visible-toggle" data-column-toggle='done' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Done" checked>
+                                    <label class="form-check-label stretched-link" for="chkCol_Done">@translator.Translate(userLanguage, "Done")</label>
+                                </div>
+                            </li>
+                        }
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='delete' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Delete" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Delete">@translator.Translate(userLanguage, "Delete")</label>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             }
@@ -113,9 +127,9 @@
                     <th scope="col" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
                     {
-                        <th scope="col" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Done")</th>
+                        <th scope="col" data-column="done" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Done")</th>
                     }
-                    <th scope="col" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Delete")</th>
+                    <th scope="col" data-column="delete" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">@translator.Translate(userLanguage, "Delete")</th>
                 </tr>
             </thead>
             <tbody>
@@ -164,14 +178,14 @@
                         <td data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
-                            <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">
+                            <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="done">
                                 @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
                                 {
                                     <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
                                 }
                             </td>
                         }
-                        <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint">
+                        <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="delete">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
