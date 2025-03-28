@@ -262,7 +262,9 @@ namespace CarCareTracker.Helper
             //update isrequired setting
             foreach (ExtraField extraField in recordExtraFields)
             {
-                extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
+                var firstMatchingField = templateExtraFields.First(x => x.Name == extraField.Name);
+                extraField.IsRequired = firstMatchingField.IsRequired;
+                extraField.FieldType = firstMatchingField.FieldType;
             }
             //append extra fields
             foreach (ExtraField extraField in templateExtraFields)

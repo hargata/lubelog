@@ -40,14 +40,7 @@
                         <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>@translator.Translate(userLanguage, "Doing")</!option>
                         <!option value = "Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>@translator.Translate(userLanguage, "Testing")</!option>
                     </select>
-                    @foreach (ExtraField field in Model.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                     @if (!isNew)
                     {
                         <label>@($"{translator.Translate(userLanguage, "Date Created")}: {Model.DateCreated}")</label>
