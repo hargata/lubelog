@@ -36,8 +36,9 @@
                     <table class="table table-hover">
                         <thead class="sticky-top">
                             <tr class="d-flex">
-                                <th scope="col" class="col-8">@translator.Translate(userLanguage, "Name")</th>
+                                <th scope="col" class="col-5">@translator.Translate(userLanguage, "Name")</th>
                                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Required")</th>
+                                <th scope="col" class="col-3">@translator.Translate(userLanguage, "Type")</th>
                                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
                             </tr>
                         </thead>
@@ -47,11 +48,21 @@
                                 @foreach (ExtraField extraField in Model.ExtraFields)
                                 {
                                     <script>
-                                        extraFields.push({ name: decodeHTMLEntities('@extraField.Name'), isRequired: @extraField.IsRequired.ToString().ToLower()});
+                                        extraFields.push({ name: decodeHTMLEntities('@extraField.Name'), isRequired: @extraField.IsRequired.ToString().ToLower(), fieldType: decodeHTMLEntities('@extraField.FieldType')});
                                     </script>
                                     <tr class="d-flex">
-                                        <td class="col-8">@extraField.Name</td>
+                                        <td class="col-5">@extraField.Name</td>
                                         <td class="col-2"><input class="form-check-input" type="checkbox" onchange="updateExtraFieldIsRequired(decodeHTMLEntities('@extraField.Name'), this)" value="" @(extraField.IsRequired ? "checked" : "") /></td>
+                                        <td class="col-3">
+                                            <select class="form-select" onchange="updateExtraFieldType(decodeHTMLEntities('@extraField.Name'), this)">
+                                                <!option @(extraField.FieldType == ExtraFieldType.Text ? "selected" : "") value="@((int)ExtraFieldType.Text)">@translator.Translate(userLanguage, "Text")</!option>
+                                                <!option @(extraField.FieldType == ExtraFieldType.Number ? "selected" : "") value="@((int)ExtraFieldType.Number)">@translator.Translate(userLanguage, "Number")</!option>
+                                                <!option @(extraField.FieldType == ExtraFieldType.Decimal ? "selected" : "") value="@((int)ExtraFieldType.Decimal)">@translator.Translate(userLanguage, "Decimal")</!option>
+                                                <!option @(extraField.FieldType == ExtraFieldType.Date ? "selected" : "") value="@((int)ExtraFieldType.Date)">@translator.Translate(userLanguage, "Date")</!option>
+                                                <!option @(extraField.FieldType == ExtraFieldType.Time ? "selected" : "") value="@((int)ExtraFieldType.Time)">@translator.Translate(userLanguage, "Time")</!option>
+                                                <!option @(extraField.FieldType == ExtraFieldType.Location ? "selected" : "") value="@((int)ExtraFieldType.Location)">@translator.Translate(userLanguage, "Location")</!option>
+                                            </select>
+                                        </td>
                                         <td class="col-2"><button type="button" onclick="deleteExtraField(decodeHTMLEntities('@extraField.Name'))" class="btn btn-danger"><i class="bi bi-trash"></i></button></td>
                                     </tr>
                                 }
@@ -97,6 +108,12 @@
         var indexToEdit = extraFields.findIndex(x => x.name == fieldId);
         var extraFieldToEdit = extraFields[indexToEdit];
         extraFieldToEdit.isRequired = $(checkbox).is(":checked");
+        updateExtraFields();
+    }
+    function updateExtraFieldType(fieldId, dropDown){
+        var indexToEdit = extraFields.findIndex(x => x.name == fieldId);
+        var extraFieldToEdit = extraFields[indexToEdit];
+        extraFieldToEdit.fieldType = $(dropDown).val();
         updateExtraFields();
     }
     function deleteExtraField(fieldId) {

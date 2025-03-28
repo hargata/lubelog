@@ -336,6 +336,16 @@ function isValidMoney(input) {
     const usRegex = /^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}((,\d{3}){0,8}|(\d{3}){0,8})(\.\d{1,3}?)?\)?$/;
     return (euRegex.test(input) || usRegex.test(input));
 }
+function initExtraFieldDatePicker(fieldName) {
+    let inputField = $(`#${fieldName}`);
+    if (inputField.length > 0) {
+        inputField.datepicker({
+            format: getShortDatePattern().pattern,
+            autoclose: true,
+            weekStart: getGlobalConfig().firstDayOfWeek
+        });
+    }
+}
 function initDatePicker(input, futureOnly) {
     if (futureOnly) {
         input.datepicker({
@@ -702,7 +712,7 @@ function getAndValidateExtraFields() {
     var extraFieldsVisible = $(".modal.fade.show").find(".extra-field");
     extraFieldsVisible.map((index, elem) => {
         var extraFieldName = $(elem).children("label").text();
-        var extraFieldInput = $(elem).children("input");
+        var extraFieldInput = $(elem).find("input");
         var extraFieldValue = extraFieldInput.val();
         var extraFieldIsRequired = extraFieldInput.hasClass('extra-field-required');
         if (extraFieldIsRequired && extraFieldValue.trim() == '') {
@@ -1540,5 +1550,30 @@ function handleTableColumnDragEnd(tabName) {
 function callBackOnEnter(event, callBack) {
     if (event.keyCode == 13) {
         callBack();
+    }
+}
+
+function populateLocationField(fieldName) {
+    let populateLocationFieldCallBack = (position) => {
+        $(`#${fieldName}`).val(`${position.coords.latitude},${position.coords.longitude}`)
+    };
+    let populateLocationFieldErrorCallBack = (errMsg) => {
+        if (errMsg && errMsg.code) {
+            switch (errMsg.code) {
+                case 1:
+                    errorToast(errMsg.message);
+                    break;
+                case 2:
+                    errorToast("Location Unavailable");
+                    break;
+            }
+        }
+    };
+    if (navigator.geolocation) {
+        try {
+            navigator.geolocation.getCurrentPosition(populateLocationFieldCallBack, populateLocationFieldErrorCallBack, { maximumAge: 1000, timeout: 4000, enableHighAccuracy: true });
+        } catch (err) {
+            errorToast('Location Services not Enabled');
+        }
     }
 }
