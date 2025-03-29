@@ -136,7 +136,15 @@ namespace CarCareTracker.Controllers
                         //validate JWT token
                         var tokenParser = new JwtSecurityTokenHandler();
                         var parsedToken = tokenParser.ReadJwtToken(userJwt);
-                        var userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        var userEmailAddress = string.Empty;
+                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        {
+                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        } else
+                        {
+                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                            _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
+                        }
                         if (!string.IsNullOrWhiteSpace(userEmailAddress))
                         {
                             var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
