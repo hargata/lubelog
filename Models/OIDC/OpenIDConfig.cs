@@ -8,7 +8,7 @@
         public string AuthURL { get; set; }
         public string TokenURL { get; set; }
         public string RedirectURL { get; set; }
-        public string Scope { get; set; }
+        public string Scope { get; set; } = "openid email";
         public string State { get; set; }
         public string CodeChallenge { get; set; }
         public bool ValidateState { get; set; } = false;
