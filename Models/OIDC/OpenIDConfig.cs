@@ -15,6 +15,7 @@
         public bool DisableRegularLogin { get; set; } = false;
         public bool UsePKCE { get; set; } = false;
         public string LogOutURL { get; set; } = "";
+        public bool TroubleshootingMode { get; set; } = false;
         public string RemoteAuthURL { get {
                 var redirectUrl = $"{AuthURL}?client_id={ClientId}&response_type=code&redirect_uri={RedirectURL}&scope={Scope}&state={State}";
                 if (UsePKCE)

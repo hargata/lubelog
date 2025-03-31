@@ -136,6 +136,10 @@ namespace CarCareTracker.Controllers
                         //validate JWT token
                         var tokenParser = new JwtSecurityTokenHandler();
                         var parsedToken = tokenParser.ReadJwtToken(userJwt);
+                        if (openIdConfig.TroubleshootingMode)
+                        {
+                            _logger.LogInformation($"OpenID Troubleshooting Mode Enabled - Token: {userJwt}");
+                        }
                         var userEmailAddress = string.Empty;
                         if (parsedToken.Claims.Any(x => x.Type == "email"))
                         {
