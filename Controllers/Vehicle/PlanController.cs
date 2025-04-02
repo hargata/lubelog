@@ -15,7 +15,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_PlanRecords", result);
         }
         [HttpPost]
-        public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
+        public async Task<IActionResult> SavePlanRecordToVehicleId(PlanRecordInput planRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
@@ -45,7 +45,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(planRecord.ToPlanRecord(), planRecord.Id == default ? "planrecord.add" : "planrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(planRecord.ToPlanRecord(), planRecord.Id == default ? "planrecord.add" : "planrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -300,7 +300,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_PlanRecordModal", convertedResult);
         }
         [HttpPost]
-        public IActionResult DeletePlanRecordById(int planRecordId)
+        public async Task<IActionResult> DeletePlanRecordById(int planRecordId)
         {
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
@@ -316,7 +316,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete", User.Identity.Name));
             }
             return Json(result);
         }

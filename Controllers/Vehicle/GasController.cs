@@ -33,7 +33,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_Gas", viewModel);
         }
         [HttpPost]
-        public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
+        public async Task<IActionResult> SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), gasRecord.VehicleId))
@@ -54,7 +54,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -102,7 +102,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_GasModal", viewModel);
         }
-        private bool DeleteGasRecordWithChecks(int gasRecordId)
+        private async Task<bool> DeleteGasRecordWithChecks(int gasRecordId)
         {
             var existingRecord = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
             //security check.
@@ -113,14 +113,14 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteGasRecordById(int gasRecordId)
+        public async Task<IActionResult> DeleteGasRecordById(int gasRecordId)
         {
-            var result = DeleteGasRecordWithChecks(gasRecordId);
+            var result = await DeleteGasRecordWithChecks(gasRecordId);
             return Json(result);
         }
         [HttpPost]

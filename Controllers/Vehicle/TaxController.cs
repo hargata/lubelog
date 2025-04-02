@@ -39,7 +39,7 @@ namespace CarCareTracker.Controllers
             }
         }
         [HttpPost]
-        public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
+        public async Task<IActionResult> SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId))
@@ -60,7 +60,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -97,7 +97,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_TaxRecordModal", convertedResult);
         }
-        private bool DeleteTaxRecordWithChecks(int taxRecordId)
+        private async Task<bool> DeleteTaxRecordWithChecks(int taxRecordId)
         {
             var existingRecord = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
             //security check.
@@ -108,14 +108,14 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteTaxRecordById(int taxRecordId)
+        public async Task<IActionResult> DeleteTaxRecordById(int taxRecordId)
         {
-            var result = DeleteTaxRecordWithChecks(taxRecordId);
+            var result = await DeleteTaxRecordWithChecks(taxRecordId);
             return Json(result);
         }
     }

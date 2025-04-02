@@ -143,14 +143,14 @@ namespace CarCareTracker.Controllers
             return PartialView("_SupplyUsage", viewModel);
         }
         [HttpPost]
-        public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
+        public async Task<IActionResult> SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -187,7 +187,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_SupplyRecordModal", convertedResult);
         }
-        private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
+        private async Task<bool> DeleteSupplyRecordWithChecks(int supplyRecordId)
         {
             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
             if (existingRecord.VehicleId != default)
@@ -201,14 +201,14 @@ namespace CarCareTracker.Controllers
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteSupplyRecordById(int supplyRecordId)
+        public async Task<IActionResult> DeleteSupplyRecordById(int supplyRecordId)
         {
-            var result = DeleteSupplyRecordWithChecks(supplyRecordId);
+            var result = await DeleteSupplyRecordWithChecks(supplyRecordId);
             return Json(result);
         }
     }

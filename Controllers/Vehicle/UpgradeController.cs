@@ -24,7 +24,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_UpgradeRecords", result);
         }
         [HttpPost]
-        public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
+        public async Task<IActionResult> SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), upgradeRecord.VehicleId))
@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(upgradeRecord.ToUpgradeRecord(), upgradeRecord.Id == default ? "upgraderecord.add" : "upgraderecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(upgradeRecord.ToUpgradeRecord(), upgradeRecord.Id == default ? "upgraderecord.add" : "upgraderecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -101,7 +101,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_UpgradeRecordModal", convertedResult);
         }
-        private bool DeleteUpgradeRecordWithChecks(int upgradeRecordId)
+        private async Task<bool> DeleteUpgradeRecordWithChecks(int upgradeRecordId)
         {
             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
             //security check.
@@ -117,14 +117,14 @@ namespace CarCareTracker.Controllers
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)
+        public async Task<IActionResult> DeleteUpgradeRecordById(int upgradeRecordId)
         {
-            var result = DeleteUpgradeRecordWithChecks(upgradeRecordId);
+            var result = await DeleteUpgradeRecordWithChecks(upgradeRecordId);
             return Json(result);
         }
     }

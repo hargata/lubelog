@@ -37,7 +37,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_OdometerRecords", result);
         }
         [HttpPost]
-        public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
+        public async Task<IActionResult> SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), odometerRecord.VehicleId))
@@ -49,7 +49,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -151,7 +151,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_OdometerRecordModal", convertedResult);
         }
-        private bool DeleteOdometerRecordWithChecks(int odometerRecordId)
+        private async Task<bool> DeleteOdometerRecordWithChecks(int odometerRecordId)
         {
             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
             //security check.
@@ -162,14 +162,14 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteOdometerRecordById(int odometerRecordId)
+        public async Task<IActionResult> DeleteOdometerRecordById(int odometerRecordId)
         {
-            var result = DeleteOdometerRecordWithChecks(odometerRecordId);
+            var result = await DeleteOdometerRecordWithChecks(odometerRecordId);
             return Json(result);
         }
     }

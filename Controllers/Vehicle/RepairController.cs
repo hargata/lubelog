@@ -24,7 +24,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_CollisionRecords", result);
         }
         [HttpPost]
-        public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
+        public async Task<IActionResult> SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), collisionRecord.VehicleId))
@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -101,7 +101,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_CollisionRecordModal", convertedResult);
         }
-        private bool DeleteCollisionRecordWithChecks(int collisionRecordId)
+        private async Task<bool> DeleteCollisionRecordWithChecks(int collisionRecordId)
         {
             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
             //security check.
@@ -117,14 +117,14 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteCollisionRecordById(int collisionRecordId)
+        public async Task<IActionResult> DeleteCollisionRecordById(int collisionRecordId)
         {
-            var result = DeleteCollisionRecordWithChecks(collisionRecordId);
+            var result = await DeleteCollisionRecordWithChecks(collisionRecordId);
             return Json(result);
         }
     }

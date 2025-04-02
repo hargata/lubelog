@@ -15,25 +15,23 @@ internal class NotificationService : INotificationService
         _client = httpClient;
     }
 
-    public Task NotifyAsync(WebHookPayload webHookPayload)
+    public async Task NotifyAsync(WebHookPayload webHookPayload)
     {
         var webhookUrl = _config.GetWebHookUrl();
         if (string.IsNullOrWhiteSpace(webhookUrl))
         {
-            return Task.CompletedTask;
+            return;
         }
 
         if (webhookUrl.StartsWith("discord://"))
         {
             webhookUrl = webhookUrl.Replace("discord://", "https://"); //cleanurl
             //format to discord
-            _client.PostAsJsonAsync(webhookUrl, DiscordWebHook.FromWebHookPayload(webHookPayload));
+            await _client.PostAsJsonAsync(webhookUrl, DiscordWebHook.FromWebHookPayload(webHookPayload));
         }
         else
         {
-            _client.PostAsJsonAsync(webhookUrl, webHookPayload);
+            await _client.PostAsJsonAsync(webhookUrl, webHookPayload);
         }
-
-        return Task.CompletedTask;
     }
 }

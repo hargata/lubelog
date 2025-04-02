@@ -105,7 +105,7 @@ namespace CarCareTracker.Controllers
             }
         }
         [HttpPost]
-        public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
+        public async Task<IActionResult> SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId))
@@ -115,7 +115,7 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -162,7 +162,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ReminderRecordModal", convertedResult);
         }
-        private bool DeleteReminderRecordWithChecks(int reminderRecordId)
+        private async Task<bool> DeleteReminderRecordWithChecks(int reminderRecordId)
         {
             var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
             //security check.
@@ -173,14 +173,14 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteReminderRecordById(int reminderRecordId)
+        public async Task<IActionResult> DeleteReminderRecordById(int reminderRecordId)
         {
-            var result = DeleteReminderRecordWithChecks(reminderRecordId);
+            var result = await DeleteReminderRecordWithChecks(reminderRecordId);
             return Json(result);
         }
     }

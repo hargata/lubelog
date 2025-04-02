@@ -24,7 +24,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_ServiceRecords", result);
         }
         [HttpPost]
-        public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
+        public async Task<IActionResult> SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), serviceRecord.VehicleId))
@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(serviceRecord.ToServiceRecord(), serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(serviceRecord.ToServiceRecord(), serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -101,7 +101,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_ServiceRecordModal", convertedResult);
         }
-        private bool DeleteServiceRecordWithChecks(int serviceRecordId)
+        private async Task<bool> DeleteServiceRecordWithChecks(int serviceRecordId)
         {
             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
             //security check.
@@ -117,14 +117,14 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteServiceRecordById(int serviceRecordId)
+        public async Task<IActionResult> DeleteServiceRecordById(int serviceRecordId)
         {
-            var result = DeleteServiceRecordWithChecks(serviceRecordId);
+            var result = await DeleteServiceRecordWithChecks(serviceRecordId);
             return Json(result);
         }
     }

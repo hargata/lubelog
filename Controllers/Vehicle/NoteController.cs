@@ -24,7 +24,7 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
-        public IActionResult SaveNoteToVehicleId(Note note)
+        public async Task<IActionResult> SaveNoteToVehicleId(Note note)
         {
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId))
@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -56,7 +56,7 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_NoteModal", result);
         }
-        private bool DeleteNoteWithChecks(int noteId)
+        private async Task<bool> DeleteNoteWithChecks(int noteId)
         {
             var existingRecord = _noteDataAccess.GetNoteById(noteId);
             //security check.
@@ -67,14 +67,14 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
+                await _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
             }
             return result;
         }
         [HttpPost]
-        public IActionResult DeleteNoteById(int noteId)
+        public async Task<IActionResult> DeleteNoteById(int noteId)
         {
-            var result = DeleteNoteWithChecks(noteId);
+            var result = await DeleteNoteWithChecks(noteId);
             return Json(result);
         }
         [HttpPost]
