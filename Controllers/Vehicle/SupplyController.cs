@@ -150,7 +150,7 @@ namespace CarCareTracker.Controllers
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -201,7 +201,7 @@ namespace CarCareTracker.Controllers
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
             }
             return result;
         }

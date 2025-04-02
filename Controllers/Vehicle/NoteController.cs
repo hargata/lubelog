@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -67,7 +67,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
             }
             return result;
         }

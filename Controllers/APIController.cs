@@ -6,6 +6,7 @@ using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using CarCareTracker.Abstractions;
 
 namespace CarCareTracker.Controllers
 {
@@ -35,6 +36,8 @@ namespace CarCareTracker.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _config;
         private readonly IWebHostEnvironment _webEnv;
+        private readonly INotificationService _notificationService;
+
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -57,7 +60,7 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             IVehicleLogic vehicleLogic,
             IOdometerLogic odometerLogic,
-            IWebHostEnvironment webEnv)
+            IWebHostEnvironment webEnv, INotificationService notificationService)
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -82,6 +85,7 @@ namespace CarCareTracker.Controllers
             _fileHelper = fileHelper;
             _config = config;
             _webEnv = webEnv;
+            _notificationService = notificationService;
         }
         public IActionResult Index()
         {
@@ -273,7 +277,7 @@ namespace CarCareTracker.Controllers
                     Files = input.Files
                 };
                 _planRecordDataAccess.SavePlanRecordToVehicle(planRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(planRecord, "planrecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(planRecord, "planrecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Plan Record Added"));
             }
             catch (Exception ex)
@@ -306,7 +310,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Plan Record Deleted"));
         }
@@ -368,7 +372,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.ExtraFields = input.ExtraFields;
                     _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.update.api", User.Identity.Name));
                 }
                 else
                 {
@@ -455,7 +459,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(serviceRecord, "servicerecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(serviceRecord, "servicerecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Service Record Added"));
             }
             catch (Exception ex)
@@ -488,7 +492,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Service Record Deleted"));
         }
@@ -530,7 +534,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.update.api", User.Identity.Name));
                 } else
                 {
                     Response.StatusCode = 400;
@@ -617,7 +621,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(repairRecord, "repairrecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(repairRecord, "repairrecord.add.api", User.Identity.Name));
 
                 return Json(OperationResponse.Succeed("Repair Record Added"));
             }
@@ -651,7 +655,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Repair Record Deleted"));
         }
@@ -693,7 +697,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.update.api", User.Identity.Name));
                 }
                 else
                 {
@@ -781,7 +785,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(upgradeRecord, "upgraderecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(upgradeRecord, "upgraderecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Upgrade Record Added"));
             }
             catch (Exception ex)
@@ -814,7 +818,7 @@ namespace CarCareTracker.Controllers
             var result = _upgradeRecordDataAccess.DeleteUpgradeRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result,"Upgrade Record Deleted"));
         }
@@ -856,7 +860,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.update.api", User.Identity.Name));
                 }
                 else
                 {
@@ -966,7 +970,7 @@ namespace CarCareTracker.Controllers
                 };
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 _vehicleLogic.UpdateRecurringTaxes(vehicleId);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord, "taxrecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(taxRecord, "taxrecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Tax Record Added"));
             }
             catch (Exception ex)
@@ -994,7 +998,7 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Tax Record Deleted"));
         }
@@ -1034,7 +1038,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.update.api", User.Identity.Name));
                 }
                 else
                 {
@@ -1127,7 +1131,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Odometer Record Added"));
             } catch (Exception ex)
             {
@@ -1154,7 +1158,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Odometer Record Deleted"));
         }
@@ -1194,7 +1198,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity.Name));
                 }
                 else
                 {
@@ -1301,7 +1305,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(gasRecord, "gasrecord.add.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(gasRecord, "gasrecord.add.api", User.Identity.Name));
                 return Json(OperationResponse.Succeed("Gas Record Added"));
             }
             catch (Exception ex)
@@ -1329,7 +1333,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete.api", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete.api", User.Identity.Name));
             }
             return Json(OperationResponse.Conditional(result, "Gas Record Deleted"));
         }
@@ -1375,7 +1379,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.update.api", User.Identity.Name));
+                    _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.update.api", User.Identity.Name));
                 }
                 else
                 {

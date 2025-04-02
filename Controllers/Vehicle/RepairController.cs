@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(collisionRecord.ToCollisionRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(collisionRecord.ToCollisionRecord(), collisionRecord.Id == default ? "repairrecord.add" : "repairrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -117,7 +117,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
+                _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete", User.Identity.Name));
             }
             return result;
         }
