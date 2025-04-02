@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -67,7 +67,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
             }
             return result;
         }

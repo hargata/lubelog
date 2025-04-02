@@ -60,7 +60,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -108,7 +108,7 @@ namespace CarCareTracker.Controllers
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
             }
             return result;
         }

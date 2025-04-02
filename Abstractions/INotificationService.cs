@@ -2,7 +2,7 @@
 
 namespace CarCareTracker.Abstractions;
 
-public interface INotificationService
+public interface INotificationSenderService
 {
-    Task NotifyAsync(WebHookPayload webHookPayload);
+    Task SendNotificationAsync(WebHookPayload webHookPayload, CancellationToken cancellationToken = default);
 }

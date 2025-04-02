@@ -2,6 +2,7 @@ using CarCareTracker.Abstractions;
 using CarCareTracker.External.Implementations;
 using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
+using CarCareTracker.HostedServices;
 using CarCareTracker.Logic;
 using CarCareTracker.Middleware;
 using CarCareTracker.Services;
@@ -104,8 +105,12 @@ builder.Services.Configure<FormOptions>(options =>
 });
 
 // configure services
-builder.Services.AddHttpClient<NotificationService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSingleton<INotificationChannelService, NotificationChannelService>();
+builder.Services.AddHttpClient<NotificationSenderService>();
+builder.Services.AddScoped<INotificationSenderService, NotificationSenderService>();
+
+// configure background services
+builder.Services.AddHostedService<NotificationsHostedService>();
 
 var app = builder.Build();
 

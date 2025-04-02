@@ -49,7 +49,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -162,7 +162,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
             }
             return result;
         }

@@ -4,18 +4,20 @@ using CarCareTracker.Models;
 
 namespace CarCareTracker.Services;
 
-internal class NotificationService : INotificationService
+internal class NotificationSenderService : INotificationSenderService
 {
     private readonly HttpClient _client;
     private readonly IConfigHelper _config;
+    
+    private const string DiscordSchemaPrefix = "discord://";
 
-    public NotificationService(HttpClient httpClient, IConfigHelper config)
+    public NotificationSenderService(HttpClient httpClient, IConfigHelper config)
     {
         _config = config;
         _client = httpClient;
     }
 
-    public async Task NotifyAsync(WebHookPayload webHookPayload)
+    public async Task SendNotificationAsync(WebHookPayload webHookPayload, CancellationToken cancellationToken = default)
     {
         var webhookUrl = _config.GetWebHookUrl();
         if (string.IsNullOrWhiteSpace(webhookUrl))
@@ -23,15 +25,15 @@ internal class NotificationService : INotificationService
             return;
         }
 
-        if (webhookUrl.StartsWith("discord://"))
+        if (webhookUrl.StartsWith(DiscordSchemaPrefix))
         {
-            webhookUrl = webhookUrl.Replace("discord://", "https://"); //cleanurl
-            //format to discord
-            await _client.PostAsJsonAsync(webhookUrl, DiscordWebHook.FromWebHookPayload(webHookPayload));
+            webhookUrl = webhookUrl.Replace(DiscordSchemaPrefix, "https://"); //cleanurl
+            // format payload to discord format
+            await _client.PostAsJsonAsync(webhookUrl, DiscordWebHook.FromWebHookPayload(webHookPayload), cancellationToken: cancellationToken);
         }
         else
         {
-            await _client.PostAsJsonAsync(webhookUrl, webHookPayload);
+            await _client.PostAsJsonAsync(webhookUrl, webHookPayload, cancellationToken: cancellationToken);
         }
     }
 }

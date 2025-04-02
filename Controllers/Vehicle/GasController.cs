@@ -54,7 +54,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -113,7 +113,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
             }
             return result;
         }

@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(serviceRecord.ToServiceRecord(), serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromGenericRecord(serviceRecord.ToServiceRecord(), serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -117,7 +117,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity.Name));
             }
             return result;
         }

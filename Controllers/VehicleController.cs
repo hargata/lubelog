@@ -38,7 +38,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
-        private readonly INotificationService _notificationService;
+        private readonly INotificationChannelService _notificationChannelService;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -62,7 +62,8 @@ namespace CarCareTracker.Controllers
             IOdometerLogic odometerLogic,
             IVehicleLogic vehicleLogic,
             IWebHostEnvironment webEnv,
-            IConfigHelper config, INotificationService notificationService)
+            IConfigHelper config, 
+            INotificationChannelService notificationChannelService)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -87,7 +88,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _webEnv = webEnv;
             _config = config;
-            _notificationService = notificationService;
+            _notificationChannelService = notificationChannelService;
         }
         private int GetUserID()
         {
@@ -133,11 +134,11 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    await _notificationService.NotifyAsync(WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
+                    await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 else
                 {
-                    await _notificationService.NotifyAsync(WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
+                    await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 return Json(result);
             }
@@ -167,7 +168,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
             return Json(result);
         }
@@ -392,7 +393,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -434,7 +435,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -493,7 +494,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -585,7 +586,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
@@ -720,7 +721,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
             }
             return Json(result);
         }
@@ -784,7 +785,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }

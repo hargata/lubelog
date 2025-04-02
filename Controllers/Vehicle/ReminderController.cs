@@ -115,7 +115,7 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
             }
             return Json(result);
         }
@@ -173,7 +173,7 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
             if (result)
             {
-                await _notificationService.NotifyAsync(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
+                await _notificationChannelService.WriteAsync(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
             }
             return result;
         }
