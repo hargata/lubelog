@@ -151,6 +151,11 @@
 					<small class="text-body-secondary">Token URL from Provider</small>
 				</div>
 				<div class="form-group">
+					<label for="inputOIDCUserInfoURL">User Info URL</label>
+					<input type="text" id="inputOIDCUserInfoURL" class="form-control">
+					<small class="text-body-secondary">Required by some Providers</small>
+				</div>
+				<div class="form-group">
 					<label for="inputOIDCRedirectURL">LubeLogger URL</label>
 					<input type="text" id="inputOIDCRedirectURL" class="form-control">
 					<small class="text-body-secondary">URL to LubeLogger Instance</small>
@@ -332,6 +337,7 @@ function generateConfig(){
 				ClientSecret: $("#inputOIDCClientSecret").val(),
 				AuthURL: $("#inputOIDCAuthURL").val(),
 				TokenURL: $("#inputOIDCTokenURL").val(),
+				UserInfoURL: $("#inputOIDCUserInfoURL").val(),
 				RedirectURL: redirectUrl,
 				Scope: $("#inputOIDCScope").val(),
 				ValidateState: $("#inputOIDCValidateState").is(":checked"),
@@ -405,6 +411,7 @@ function generateConfig(){
 			dockerConfig.push(`OpenIDConfig__ClientSecret="${$('#inputOIDCClientSecret').val()}"`);
 			dockerConfig.push(`OpenIDConfig__AuthURL="${$('#inputOIDCAuthURL').val()}"`);
 			dockerConfig.push(`OpenIDConfig__TokenURL="${$('#inputOIDCTokenURL').val()}"`);
+			dockerConfig.push(`OpenIDConfig__UserInfoURL="${$('#inputOIDCUserInfoURL').val()}"`);
 			dockerConfig.push(`OpenIDConfig__RedirectURL="${redirectUrl}"`);
 			dockerConfig.push(`OpenIDConfig__Scope="${$('#inputOIDCScope').val()}"`);
 			dockerConfig.push(`OpenIDConfig__ValidateState=${$('#inputOIDCValidateState').is(':checked')}`);
