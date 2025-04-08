@@ -256,6 +256,15 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Progress cannot be set to Done."));
             }
+            //hardening - turns null values for List types into empty lists.
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var planRecord = new PlanRecord()
@@ -346,6 +355,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Progress cannot be set to Done."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -429,6 +446,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var serviceRecord = new ServiceRecord()
@@ -508,6 +533,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -591,6 +624,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var repairRecord = new CollisionRecord()
@@ -671,6 +712,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -755,6 +804,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var upgradeRecord = new UpgradeRecord()
@@ -834,6 +891,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -951,6 +1016,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var taxRecord = new TaxRecord()
@@ -1013,6 +1086,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -1113,6 +1194,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, and Odometer cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var odometerRecord = new OdometerRecord()
@@ -1173,6 +1262,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Initial Odometer, and Odometer cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -1273,6 +1370,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var gasRecord = new GasRecord()
@@ -1351,6 +1456,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
