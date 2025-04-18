@@ -33,6 +33,11 @@ namespace CarCareTracker.Models
         /// </summary>
         [JsonConverter(typeof(FromIntOptional))]
         public string OdometerDifference { get; set; } = "0";
+        public bool OdometerValidation { get; set; }
+        /// <summary>
+        /// Maximum difference between last and current odometer value
+        /// </summary>
+        public string MaxOdometerDifference { get; set; } = "1000";
         public List<DashboardMetric> DashboardMetrics { get; set; } = new List<DashboardMetric>();
         /// <summary>
         /// Determines what is displayed in place of the license plate.

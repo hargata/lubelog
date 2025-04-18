@@ -50,5 +50,20 @@ namespace CarCareTracker.External.Implementations
             db.Checkpoint();
             return true;
         }
+
+        public List<GasRecord> GetGasRecordsByVehicleIdPaginated(int vehicleId, int from, int to)
+        {
+            var db = _liteDB.GetLiteDB();
+            var table = db.GetCollection<GasRecord>(tableName);
+            var gasRecords = table.Find(Query.EQ(nameof(GasRecord.VehicleId), vehicleId));
+            return gasRecords.ToList() ?? new List<GasRecord>();
+        }
+
+        public int GetGasRecordsByVehicleIdCount(int vehicleId)
+        {
+            var db = _liteDB.GetLiteDB();
+            var table = db.GetCollection<GasRecord>(tableName);
+            return table.Count();
+        }
     }
 }

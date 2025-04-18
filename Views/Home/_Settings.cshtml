@@ -34,6 +34,10 @@
             <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage, "Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
         </div>
         <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideOdometerTags" checked="@Model.UserConfig.HideOdometerTags">
+            <label class="form-check-label" for="hideOdometerTags">@translator.Translate(userLanguage, "Hide Odometer tags")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Hides the tags field when entering new odometer value")</small></label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
             <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
         </div>
@@ -56,6 +60,10 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUnitForFuelCost" checked="@Model.UserConfig.UseUnitForFuelCost">
                 <label class="form-check-label" for="useUnitForFuelCost">@translator.Translate(userLanguage, "Default to Fuel Unit Cost")</label>
             </div>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="disableOdometerNotes" checked="@Model.UserConfig.DisableOdometerNotes">
+            <label class="form-check-label" for="disableOdometerNotes">@translator.Translate(userLanguage, "Disable notes in odometer")</label>
         </div>
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimalGasConsumption" checked="@Model.UserConfig.UseThreeDecimalGasConsumption">
