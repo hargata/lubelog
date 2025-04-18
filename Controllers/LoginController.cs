@@ -136,7 +136,15 @@ namespace CarCareTracker.Controllers
                         //validate JWT token
                         var tokenParser = new JwtSecurityTokenHandler();
                         var parsedToken = tokenParser.ReadJwtToken(userJwt);
-                        var userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        var userEmailAddress = string.Empty;
+                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        {
+                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                        } else
+                        {
+                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                            _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
+                        }
                         if (!string.IsNullOrWhiteSpace(userEmailAddress))
                         {
                             var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
@@ -179,6 +187,108 @@ namespace CarCareTracker.Controllers
                 return new RedirectResult("/Login");
             }
             return new RedirectResult("/Login");
+        }
+        public async Task<IActionResult> RemoteAuthDebug(string code, string state = "")
+        {
+            List<OperationResponse> results = new List<OperationResponse>();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(code))
+                {
+                    results.Add(OperationResponse.Succeed($"Received code from OpenID Provider: {code}"));
+                    //received code from OIDC provider
+                    //create http client to retrieve user token from OIDC
+                    var httpClient = new HttpClient();
+                    var openIdConfig = _config.GetOpenIDConfig();
+                    //check if validate state is enabled.
+                    if (openIdConfig.ValidateState)
+                    {
+                        var storedStateValue = Request.Cookies["OIDC_STATE"];
+                        if (!string.IsNullOrWhiteSpace(storedStateValue))
+                        {
+                            Response.Cookies.Delete("OIDC_STATE");
+                        }
+                        if (string.IsNullOrWhiteSpace(storedStateValue) || string.IsNullOrWhiteSpace(state) || storedStateValue != state)
+                        {
+                            results.Add(OperationResponse.Failed($"Failed State Validation - Expected: {storedStateValue} Received: {state}"));
+                        } else
+                        {
+                            results.Add(OperationResponse.Succeed($"Passed State Validation - Expected: {storedStateValue} Received: {state}"));
+                        }
+                    }
+                    var httpParams = new List<KeyValuePair<string, string>>
+                {
+                     new KeyValuePair<string, string>("code", code),
+                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                     new KeyValuePair<string, string>("client_id", openIdConfig.ClientId),
+                     new KeyValuePair<string, string>("client_secret", openIdConfig.ClientSecret),
+                     new KeyValuePair<string, string>("redirect_uri", openIdConfig.RedirectURL)
+                };
+                    if (openIdConfig.UsePKCE)
+                    {
+                        //retrieve stored challenge verifier
+                        var storedVerifier = Request.Cookies["OIDC_VERIFIER"];
+                        if (!string.IsNullOrWhiteSpace(storedVerifier))
+                        {
+                            httpParams.Add(new KeyValuePair<string, string>("code_verifier", storedVerifier));
+                            Response.Cookies.Delete("OIDC_VERIFIER");
+                        }
+                    }
+                    var httpRequest = new HttpRequestMessage(HttpMethod.Post, openIdConfig.TokenURL)
+                    {
+                        Content = new FormUrlEncodedContent(httpParams)
+                    };
+                    var tokenResult = await httpClient.SendAsync(httpRequest).Result.Content.ReadAsStringAsync();
+                    var userJwt = JsonSerializer.Deserialize<OpenIDResult>(tokenResult)?.id_token ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    {
+                        results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
+                        //validate JWT token
+                        var tokenParser = new JwtSecurityTokenHandler();
+                        var parsedToken = tokenParser.ReadJwtToken(userJwt);
+                        var userEmailAddress = string.Empty;
+                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        {
+                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                            results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
+                        }
+                        else
+                        {
+                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                            results.Add(OperationResponse.Failed($"Failed Claim Validation - Expected: email Received: {string.Join(",", returnedClaims)}"));
+                        }
+                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                        {
+                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                            if (userData.Id != default)
+                            {
+                                results.Add(OperationResponse.Succeed($"Passed User Validation - Email: {userEmailAddress} Username: {userData.UserName}"));
+                            }
+                            else
+                            {
+                                results.Add(OperationResponse.Succeed($"Passed Email Validation - Email: {userEmailAddress} User not registered"));
+                            }
+                        }
+                        else
+                        {
+                            results.Add(OperationResponse.Failed($"Failed Email Validation - No email received from OpenID Provider"));
+                        }
+                    }
+                    else
+                    {
+                        results.Add(OperationResponse.Failed($"Failed to parse JWT - Expected: id_token Received: {tokenResult}"));
+                    }
+                }
+                else
+                {
+                    results.Add(OperationResponse.Failed("No code received from OpenID Provider"));
+                }
+            }
+            catch (Exception ex)
+            {
+                results.Add(OperationResponse.Failed($"Exception: {ex.Message}"));
+            }
+            return View(results);
         }
         [HttpPost]
         public IActionResult Login(LoginModel credentials)

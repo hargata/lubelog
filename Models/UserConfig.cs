@@ -26,6 +26,7 @@
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
         public bool UseUnitForFuelCost { get; set; }
+        public bool ShowCalendar { get; set; }
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public ReminderUrgencyConfig ReminderUrgencyConfig { get; set; } = new ReminderUrgencyConfig();
         public string UserNameHash { get; set; }

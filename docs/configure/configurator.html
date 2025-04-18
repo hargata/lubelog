@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="icon" type="image/x-icon" href="favicon.ico">
+	<link rel="icon" type="image/x-icon" href="../favicon.ico">
     <title>LubeLogger Configurator</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -227,7 +227,9 @@
         <textarea id="outputModalText" readonly style="width:100%; height:450px;"></textarea>
       </div>
       <div class="modal-footer">
-	  <button type="button" class="btn btn-secondary btn-strip me-auto" onclick="removeDoubleQuotes()">Remove Double Quotes</button>
+		<button type="button" class="btn btn-secondary btn-strip me-auto" onclick="removeDoubleQuotes()">Remove Double Quotes</button>
+		<input id="appSettingsUpload" onChange="readUploadedFile()" class="d-none" type="file" accept="application/json">
+		<button type="button" class="btn btn-secondary btn-upload me-auto" onclick="uploadAndMerge()">Upload appsettings.json</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 		<button type="button" class="btn btn-primary btn-copy" onclick="copyToClipboard()">Copy</button>
       </div>
@@ -237,6 +239,44 @@
 	</div>
 </body>
 <script>
+function uploadAndMerge(){
+	$("#appSettingsUpload").click();
+}
+function readUploadedFile(){
+	let fl_files = $("#appSettingsUpload")[0].files; // JS FileList object
+
+	if (fl_files.length == 0) {
+		return;
+	}
+	
+    // use the 1st file from the list
+    let fl_file = fl_files[0];
+
+    let reader = new FileReader(); // built in API
+
+    let display_file = ( e ) => { // set the contents of the <textarea>
+        mergeIntoUploadedFile(e.target.result);
+    };
+
+    let on_reader_load = ( fl ) => {
+        return display_file; // a function
+    };
+
+    // Closure to capture the file information.
+    reader.onload = on_reader_load( fl_file );
+
+    // Read the file as text.
+    reader.readAsText( fl_file );
+}
+function mergeIntoUploadedFile(fileContents){
+	var newJsonObject = JSON.parse("{" + $("#outputModalText").text() + "}");
+	var currentJsonObject = JSON.parse(fileContents);
+	var mergedJsonObject = {...currentJsonObject, ...newJsonObject};
+	$("#outputModalLabel").text("Content for appsettings.json");
+	$("#outputModalText").text(JSON.stringify(mergedJsonObject, null, 2));
+	//clear out uploaded file content
+	$("#appSettingsUpload").val("");
+}
 function removeDoubleQuotes(){
 	var currentText = $("#outputModalText").text();
 	$("#outputModalText").text(currentText.replaceAll('"', ''));
@@ -319,6 +359,11 @@ function generateConfig(){
 		$("#outputModalLabel").text("Append into appsettings.json");
 		$("#outputModalText").text(JSON.stringify(windowConfig, null, 2).slice(1,-1));
 		$(".btn-strip").hide();
+		if (jQuery.isEmptyObject(windowConfig)){
+			$(".btn-upload").hide();
+		} else {
+			$(".btn-upload").show();
+		}
 		$("#outputModal").modal("show");
 	} else {
 		var dockerConfig = [];
@@ -375,6 +420,7 @@ function generateConfig(){
 		$("#outputModalLabel").text("Content for .env");
 		$("#outputModalText").text(dockerConfig.join("\r\n"));
 		$(".btn-strip").show();
+		$(".btn-upload").hide();
 		$("#outputModal").modal("show");
 	}
 }

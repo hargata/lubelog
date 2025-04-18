@@ -323,10 +323,11 @@ function updateMPGLabels() {
         var maxMPG = rowMPG.length > 0 ? rowMPG.reduce((a, b) => a > b ? a : b) : 0;
         var minMPG = rowMPG.length > 0 && rowNonZeroMPG.length > 0 ? rowNonZeroMPG.reduce((a, b) => a < b ? a : b) : 0;
         var totalMilesTraveled = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
-        var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
-        var totalUnaggregatedGasConsumed = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
+        var totalGasConsumed = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
+        var totalGasConsumedFV = rowMPG.length > 0 ? rowsToAggregate.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
+        var totalUnaggregatedGasConsumedFV = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="consumption"]').toArray().map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b) : 0;
         var totalMilesTraveledUnaggregated = rowsUnaggregated.length > 0 ? rowsUnaggregated.children('[data-gas-type="mileage"]').toArray().map(x => globalParseFloat($(x).attr("data-gas-aggregate"))).reduce((a, b) => a + b) : 0;
-        var fullGasConsumed = totalGasConsumed + totalUnaggregatedGasConsumed;
+        var fullGasConsumed = totalGasConsumedFV + totalUnaggregatedGasConsumedFV;
         var fullDistanceTraveled = totalMilesTraveled + totalMilesTraveledUnaggregated;
         if (totalGasConsumed > 0 && rowNonZeroMPG.length > 0) {
             var averageMPG = totalMilesTraveled / totalGasConsumed;

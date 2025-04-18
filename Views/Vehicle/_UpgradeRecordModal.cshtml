@@ -38,7 +38,7 @@
                     {
                         <div class="row">
                             <div class="col-12">
-                                <a onclick="showRecurringReminderSelector('upgradeRecordDescription')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
+                                <a onclick="showRecurringReminderSelector('upgradeRecordDescription', 'upgradeRecordNotes')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
                             </div>
                         </div>
                     }
@@ -52,31 +52,7 @@
                             <!option value="@tag">@tag</!option>
                         }
                     </select>
-                    @foreach (ExtraField field in Model.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            @switch(field.FieldType)
-                            {
-                                case ExtraFieldType.Text: 
-                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Date: 
-                                    <input type="date" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Number: 
-                                    <input type="number" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Time: 
-                                    <input type="time" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                default:
-                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                                break;
-                            }
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="upgradeRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

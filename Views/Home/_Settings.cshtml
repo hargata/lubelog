@@ -94,6 +94,10 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableShopSupplies" checked="@Model.UserConfig.EnableShopSupplies">
                 <label class="form-check-label" for="enableShopSupplies">@translator.Translate(userLanguage, "Shop Supplies")</label>
             </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showCalendar" checked="@Model.UserConfig.ShowCalendar">
+                <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Calendar")</label>
+            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
@@ -261,7 +265,14 @@
             </div>
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
+                    <div class="row">
+                        <div class="col-10">
+                            <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
+                        </div>
+                        <div class="col-2">
+                            <button onclick="showServerConfigModal()" class="btn text-secondary btn-sm"><i class="bi bi-eyeglasses"></i></button>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-6 d-grid">
                             <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Extra Fields")</button>
@@ -360,6 +371,12 @@
 <div class="modal fade" data-bs-focus="false" id="customWidgetModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="customWidgetModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="serverConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="serverConfigModalContent">
         </div>
     </div>
 </div>

@@ -40,31 +40,7 @@
                         <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>@translator.Translate(userLanguage, "Doing")</!option>
                         <!option value = "Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>@translator.Translate(userLanguage, "Testing")</!option>
                     </select>
-                    @foreach (ExtraField field in Model.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            @switch(field.FieldType)
-                            {
-                                case ExtraFieldType.Text: 
-                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Date: 
-                                    <input type="date" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Number: 
-                                    <input type="number" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                case ExtraFieldType.Time: 
-                                    <input type="time" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" value="@field.Value">
-                                break;
-                                default:
-                                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                                break;
-                            }
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                     @if (!isNew)
                     {
                         <label>@($"{translator.Translate(userLanguage, "Date Created")}: {Model.DateCreated}")</label>
