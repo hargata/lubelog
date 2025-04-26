@@ -125,6 +125,7 @@ namespace CarCareTracker.Models
         public string DueDate { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string DueOdometer { get; set; }
+        public string Tags { get; set; }
     }
     public class PlanRecordExportModel 
     {
