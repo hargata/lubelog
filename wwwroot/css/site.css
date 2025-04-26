@@ -48,12 +48,10 @@ html {
 .swimlane{
     height:100%;
 }
-.swimlane.mid {
+
+.swimlane:not(:last-child) {
     border-right-style: solid;
 }
-.swimlane.end {
-        border-left-style: solid;
-    }
 
 .showOnPrint {
     display: none;

@@ -12,7 +12,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.4.6";
+        public const string VersionNumber = "1.4.7";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string LegacyUserConfigPath = "config/userConfig.json";
@@ -262,7 +262,9 @@ namespace CarCareTracker.Helper
             //update isrequired setting
             foreach (ExtraField extraField in recordExtraFields)
             {
-                extraField.IsRequired = templateExtraFields.Where(x => x.Name == extraField.Name).First().IsRequired;
+                var firstMatchingField = templateExtraFields.First(x => x.Name == extraField.Name);
+                extraField.IsRequired = firstMatchingField.IsRequired;
+                extraField.FieldType = firstMatchingField.FieldType;
             }
             //append extra fields
             foreach (ExtraField extraField in templateExtraFields)
