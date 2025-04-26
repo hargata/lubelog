@@ -1681,6 +1681,29 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [HttpDelete]
+        [Route("/api/vehicle/reminders/delete")]
+        public IActionResult DeleteReminderRecord(int id)
+        {
+            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Reminder Record Deleted"));
+        }
         [HttpGet]
         [Route("/api/calendar")]
         public IActionResult Calendar()
