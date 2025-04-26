@@ -1504,6 +1504,7 @@ namespace CarCareTracker.Controllers
             }
         }
         #endregion
+        #region ReminderRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
@@ -1516,7 +1517,7 @@ namespace CarCareTracker.Controllers
             }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString()});
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -1525,6 +1526,183 @@ namespace CarCareTracker.Controllers
             {
                 return Json(results);
             }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/reminders/add")]
+        [Consumes("application/json")]
+        public IActionResult AddReminderRecordJson(int vehicleId, [FromBody] ReminderExportModel input) => AddReminderRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/reminders/add")]
+        public IActionResult AddReminderRecord(int vehicleId, ReminderExportModel input)
+        {
+            if (vehicleId == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
+            }
+            if (string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Metric))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Description and Metric cannot be empty."));
+            }
+            bool validMetric = Enum.TryParse(input.Metric, out ReminderMetric parsedMetric);
+            bool validDate = DateTime.TryParse(input.DueDate, out DateTime parsedDate);
+            bool validOdometer = int.TryParse(input.DueOdometer, out int parsedOdometer);
+            if (!validMetric)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, values for Metric(Date, Odometer, Both) is invalid."));
+            }
+            //validate metrics
+            switch (parsedMetric)
+            {
+                case ReminderMetric.Both:
+                    //validate due date and odometer
+                    if (!validDate || !validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate and DueOdometer must be valid if Metric is Both"));
+                    }
+                    break;
+                case ReminderMetric.Date:
+                    if (!validDate)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate must be valid if Metric is Date"));
+                    }
+                    break;
+                case ReminderMetric.Odometer:
+                    if (!validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueOdometer must be valid if Metric is Odometer"));
+                    }
+                    break;
+            }
+            try
+            {
+                var reminderRecord = new ReminderRecord()
+                {
+                    VehicleId = vehicleId,
+                    Description = input.Description,
+                    Mileage = parsedOdometer,
+                    Date = parsedDate,
+                    Metric = parsedMetric,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                };
+                _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord);
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord, "reminderrecord.add.api", User.Identity.Name));
+                return Json(OperationResponse.Succeed("Reminder Record Added"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        [HttpPut]
+        [Route("/api/vehicle/reminders/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateReminderRecordJson([FromBody] ReminderExportModel input) => UpdateReminderRecord(input);
+        [HttpPut]
+        [Route("/api/vehicle/reminders/update")]
+        public IActionResult UpdateReminderRecord(ReminderExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Metric))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Description and Metric cannot be empty."));
+            }
+            bool validMetric = Enum.TryParse(input.Metric, out ReminderMetric parsedMetric);
+            bool validDate = DateTime.TryParse(input.DueDate, out DateTime parsedDate);
+            bool validOdometer = int.TryParse(input.DueOdometer, out int parsedOdometer);
+            if (!validMetric)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, values for Metric(Date, Odometer, Both) is invalid."));
+            }
+            //validate metrics
+            switch (parsedMetric)
+            {
+                case ReminderMetric.Both:
+                    //validate due date and odometer
+                    if (!validDate || !validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate and DueOdometer must be valid if Metric is Both"));
+                    }
+                    break;
+                case ReminderMetric.Date:
+                    if (!validDate)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate must be valid if Metric is Date"));
+                    }
+                    break;
+                case ReminderMetric.Odometer:
+                    if (!validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueOdometer must be valid if Metric is Odometer"));
+                    }
+                    break;
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = parsedDate;
+                    existingRecord.Mileage = parsedOdometer;
+                    existingRecord.Description = input.Description;
+                    existingRecord.Metric = parsedMetric;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.update.api", User.Identity.Name));
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Reminder Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        [HttpDelete]
+        [Route("/api/vehicle/reminders/delete")]
+        public IActionResult DeleteReminderRecord(int id)
+        {
+            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Reminder Record Deleted"));
         }
         [HttpGet]
         [Route("/api/calendar")]
@@ -1539,6 +1717,7 @@ namespace CarCareTracker.Controllers
             var calendarContent = StaticHelper.RemindersToCalendar(reminders);
             return File(calendarContent, "text/calendar");
         }
+        #endregion
         [HttpPost]
         [Route("/api/documents/upload")]
         public IActionResult UploadDocument(List<IFormFile> documents)
