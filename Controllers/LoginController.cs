@@ -49,21 +49,31 @@ namespace CarCareTracker.Controllers
             }
             return View(model: redirectURL);
         }
-        public IActionResult Registration()
+        public IActionResult Registration(string token = "", string email = "")
         {
             if (_config.GetServerDisabledRegistration())
             {
                 return RedirectToAction("Index");
             }
-            return View();
+            var viewModel = new LoginModel
+            {
+                EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
+                Token = string.IsNullOrWhiteSpace(token) ? string.Empty : token
+            };
+            return View(viewModel);
         }
         public IActionResult ForgotPassword()
         {
             return View();
         }
-        public IActionResult ResetPassword()
+        public IActionResult ResetPassword(string token = "", string email = "")
         {
-            return View();
+            var viewModel = new LoginModel
+            {
+                EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
+                Token = string.IsNullOrWhiteSpace(token) ? string.Empty : token
+            };
+            return View(viewModel);
         }
         public IActionResult GetRemoteLoginLink()
         {

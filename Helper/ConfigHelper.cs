@@ -24,6 +24,7 @@ namespace CarCareTracker.Helper
         bool GetServerEnableShopSupplies();
         string GetServerPostgresConnection();
         string GetAllowedFileUploadExtensions();
+        string GetServerDomain();
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
         bool GetServerOpenRegistration();
@@ -61,6 +62,11 @@ namespace CarCareTracker.Helper
         {
             var motd = CheckString("LUBELOGGER_MOTD");
             return motd;
+        }
+        public string GetServerDomain()
+        {
+            var domain = CheckString("LUBELOGGER_DOMAIN");
+            return domain;
         }
         public bool GetServerOpenRegistration()
         {
