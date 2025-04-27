@@ -30,14 +30,7 @@
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
                     <label for="gasRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
                     <select multiple class="form-select" id="gasRecordTag"></select>
-                    @foreach (ExtraField field in Model.EditRecord.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraFieldMultiple", Model.EditRecord.ExtraFields)
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="gasRecordNotes">@translator.Translate(userLanguage, "Notes(use --- to clear all existing notes)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

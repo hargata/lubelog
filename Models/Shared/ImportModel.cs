@@ -115,6 +115,8 @@ namespace CarCareTracker.Models
     }
     public class ReminderExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
         public string Description { get; set; }
         public string Urgency { get; set; }
         public string Metric { get; set; }
@@ -123,6 +125,7 @@ namespace CarCareTracker.Models
         public string DueDate { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string DueOdometer { get; set; }
+        public string Tags { get; set; }
     }
     public class PlanRecordExportModel 
     {

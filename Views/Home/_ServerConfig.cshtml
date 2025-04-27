@@ -166,6 +166,14 @@
                     <input type="text" readonly id="inputOIDCToken" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.TokenURL">
                 </div>
             </div>
+            <div class="row mb-2">
+                <div class="col-md-6 col-12">
+                    <label for="inputOIDCUserInfo">@translator.Translate(userLanguage, "OIDC UserInfo URL")</label>
+                </div>
+                <div class="col-md-6 col-12">
+                    <input type="text" readonly id="inputOIDCUserInfo" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.UserInfoURL">
+                </div>
+            </div>
              <div class="row mb-2">
                 <div class="col-md-6 col-12">
                     <label for="inputOIDCRedirect">@translator.Translate(userLanguage, "OIDC Redirect URL")</label>

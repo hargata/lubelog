@@ -97,14 +97,7 @@
                             <!option value="@tag">@tag</!option>
                         }
                     </select>
-                    @foreach (ExtraField field in Model.GasRecord.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraField", Model.GasRecord.ExtraFields)
                 </div>
                 <div class="col-md-6 col-12">
                     <label for="gasRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>

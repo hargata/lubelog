@@ -17,6 +17,7 @@ namespace CarCareTracker.Helper
     {
         private readonly MailConfig mailConfig;
         private readonly string serverLanguage;
+        private readonly string serverDomain;
         private readonly IFileHelper _fileHelper;
         private readonly ITranslationHelper _translator;
         private readonly ILogger<MailHelper> _logger;
@@ -29,6 +30,7 @@ namespace CarCareTracker.Helper
             //load mailConfig from Configuration
             mailConfig = config.GetMailConfig();
             serverLanguage = config.GetServerLanguage();
+            serverDomain = config.GetServerDomain();
             _fileHelper = fileHelper;
             _translator = translationHelper;
             _logger = logger;
@@ -43,7 +45,14 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed("Email Address or Token is invalid");
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your Registration Token for LubeLogger");
-            string emailBody = $"{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please complete your registration for LubeLogger using the token")}: {token}";
+            string tokenHtml = token;
+            if (!string.IsNullOrWhiteSpace(serverDomain))
+            {
+                string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
+                //construct registration URL.
+                tokenHtml = $"<a href='{cleanedURL}/Login/Registration?email={emailAddress}&token={token}' target='_blank'>{token}</a>";
+            }
+            string emailBody = $"<span>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please complete your registration for LubeLogger using the token")}: {tokenHtml}</span>";
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
@@ -64,7 +73,14 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed("Email Address or Token is invalid");
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your Password Reset Token for LubeLogger");
-            string emailBody = $"{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please reset your password for LubeLogger using the token")}: {token}";
+            string tokenHtml = token;
+            if (!string.IsNullOrWhiteSpace(serverDomain))
+            {
+                string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
+                //construct registration URL.
+                tokenHtml = $"<a href='{cleanedURL}/Login/ResetPassword?email={emailAddress}&token={token}' target='_blank'>{token}</a>";
+            }
+            string emailBody = $"<span>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please reset your password for LubeLogger using the token")}: {tokenHtml}</span>";
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {

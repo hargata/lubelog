@@ -49,21 +49,31 @@ namespace CarCareTracker.Controllers
             }
             return View(model: redirectURL);
         }
-        public IActionResult Registration()
+        public IActionResult Registration(string token = "", string email = "")
         {
             if (_config.GetServerDisabledRegistration())
             {
                 return RedirectToAction("Index");
             }
-            return View();
+            var viewModel = new LoginModel
+            {
+                EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
+                Token = string.IsNullOrWhiteSpace(token) ? string.Empty : token
+            };
+            return View(viewModel);
         }
         public IActionResult ForgotPassword()
         {
             return View();
         }
-        public IActionResult ResetPassword()
+        public IActionResult ResetPassword(string token = "", string email = "")
         {
-            return View();
+            var viewModel = new LoginModel
+            {
+                EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
+                Token = string.IsNullOrWhiteSpace(token) ? string.Empty : token
+            };
+            return View(viewModel);
         }
         public IActionResult GetRemoteLoginLink()
         {
@@ -130,7 +140,9 @@ namespace CarCareTracker.Controllers
                         Content = new FormUrlEncodedContent(httpParams)
                     };
                     var tokenResult = await httpClient.SendAsync(httpRequest).Result.Content.ReadAsStringAsync();
-                    var userJwt = JsonSerializer.Deserialize<OpenIDResult>(tokenResult)?.id_token ?? string.Empty;
+                    var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
+                    var userJwt = decodedToken?.id_token ?? string.Empty;
+                    var userAccessToken = decodedToken?.access_token ?? string.Empty;
                     if (!string.IsNullOrWhiteSpace(userJwt))
                     {
                         //validate JWT token
@@ -140,7 +152,23 @@ namespace CarCareTracker.Controllers
                         if (parsedToken.Claims.Any(x => x.Type == "email"))
                         {
                             userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
-                        } else
+                        }
+                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                        {
+                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            {
+                                userEmailAddress = userInfo?.email ?? string.Empty;
+                            } else
+                            {
+                                _logger.LogError($"OpenID Provider did not provide an email claim via UserInfo endpoint");
+                            }
+                        }
+                        else
                         {
                             var returnedClaims = parsedToken.Claims.Select(x => x.Type);
                             _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
@@ -239,7 +267,9 @@ namespace CarCareTracker.Controllers
                         Content = new FormUrlEncodedContent(httpParams)
                     };
                     var tokenResult = await httpClient.SendAsync(httpRequest).Result.Content.ReadAsStringAsync();
-                    var userJwt = JsonSerializer.Deserialize<OpenIDResult>(tokenResult)?.id_token ?? string.Empty;
+                    var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
+                    var userJwt = decodedToken?.id_token ?? string.Empty;
+                    var userAccessToken = decodedToken?.access_token ?? string.Empty;
                     if (!string.IsNullOrWhiteSpace(userJwt))
                     {
                         results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
@@ -251,6 +281,22 @@ namespace CarCareTracker.Controllers
                         {
                             userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
                             results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
+                        }
+                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                        {
+                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            {
+                                userEmailAddress = userInfo?.email ?? string.Empty;
+                                results.Add(OperationResponse.Succeed($"Passed Claim Validation - Retrieved email via UserInfo endpoint"));
+                            } else
+                            {
+                                results.Add(OperationResponse.Failed($"Failed Claim Validation - Unable to retrieve email via UserInfo endpoint: {openIdConfig.UserInfoURL} using access_token: {userAccessToken} - Received {userInfoResult}"));
+                            }
                         }
                         else
                         {
