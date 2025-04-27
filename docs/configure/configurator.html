@@ -112,6 +112,11 @@
 					<input type="text" id="inputSmtpFrom" class="form-control">
 					<small class="text-body-secondary">Sender Email Address</small>
 				</div>
+				<div class="form-group">
+					<label for="inputServerDomain">LubeLogger Domain</label>
+					<input type="text" id="inputServerDomain" class="form-control">
+					<small class="text-body-secondary">For Links in Emails</small>
+				</div>
 			</div>
 			</div>
 			</div>
@@ -321,6 +326,9 @@ function generateConfig(){
 		if ($("#inputInvariantAPI").is(":checked")){
 			windowConfig["LUBELOGGER_INVARIANT_API"]=$('#inputInvariantAPI').is(':checked');
 		}
+		if ($("#inputServerDomain").val().trim() != ''){
+			windowConfig["LUBELOGGER_DOMAIN"] = $('#inputServerDomain').val();
+		}
 		if ($('#inputSmtpServer').val().trim() != ''){
 			windowConfig["MailConfig"] = {
 				EmailServer: $("#inputSmtpServer").val(),
@@ -391,6 +399,9 @@ function generateConfig(){
 		}
 		if ($("#inputPostgres").val().trim() != ''){
 			dockerConfig.push(`POSTGRES_CONNECTION="${$('#inputPostgres').val()}"`);
+		}
+		if ($("#inputServerDomain").val().trim() != ''){
+			dockerConfig.push(`LUBELOGGER_DOMAIN="${$('#inputServerDomain').val()}"`);
 		}
 		if ($("#inputCustomWidgets").is(":checked")){
 			dockerConfig.push(`LUBELOGGER_CUSTOM_WIDGETS="${$('#inputCustomWidgets').is(':checked')}"`);
