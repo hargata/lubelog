@@ -112,6 +112,13 @@ namespace CarCareTracker.Controllers
             }
         }
         [HttpGet]
+        [Route("/api/version")]
+        public IActionResult ServerVersion()
+        {
+            var serverVersion = StaticHelper.VersionNumber;
+            return Json(serverVersion);
+        }
+        [HttpGet]
         [Route("/api/vehicles")]
         public IActionResult Vehicles()
         {
