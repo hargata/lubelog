@@ -72,6 +72,7 @@ function updateSettings() {
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
         showCalendar: $("#showCalendar").is(":checked"),
+        showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
         enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
         hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
         preferredGasUnit: $("#preferredGasUnit").val(),

@@ -252,7 +252,8 @@ namespace CarCareTracker.Helper
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
                 DefaultReminderEmail = CheckString(nameof(UserConfig.DefaultReminderEmail)),
-                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)))
+                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration))),
+                ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail)))
             };
             int userId = 0;
             if (user != null)
