@@ -161,6 +161,7 @@
     @await RenderSectionAsync("Scripts", required: false)
 </head>
 <body>
+    @await RenderSectionAsync("Nav", required: false)
     <div class="container" style="height:85vh;">
         <main role="main">
             @RenderBody()

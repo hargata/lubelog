@@ -1,7 +1,4 @@
-﻿function returnToGarage() {
-    window.location.href = '/Home';
-}
-$(document).ready(function () {
+﻿$(document).ready(function () {
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
