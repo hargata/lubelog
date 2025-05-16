@@ -30,7 +30,11 @@
         <div class="row mt-2">
             <div class="d-flex lubelogger-navbar">
                 <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
-                    <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                    @if(userConfig.ShowVehicleThumbnail) {
+                        <img src="@Model.ImageLocation" class="lubelogger-vehicle-logo @(string.IsNullOrWhiteSpace(Model.SoldDate) ? "" : "sold")" />
+                    } else {
+                        <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                    }
                 </div>
                 <ul class="nav nav-tabs lubelogger-tab flex-grow-1" id="vehicleTab" role="tablist">
                     <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.Dashboard)">

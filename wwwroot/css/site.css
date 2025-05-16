@@ -536,3 +536,15 @@ html[data-bs-theme="light"] .api-method:hover {
     font-weight: 500;
     top: 15%
 }
+
+.lubelogger-vehicle-logo {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+    .lubelogger-vehicle-logo.sold {
+        filter: grayscale(100%);
+    }
