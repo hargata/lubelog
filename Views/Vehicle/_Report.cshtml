@@ -8,6 +8,25 @@
 @model ReportViewModel
 <div class="container reportTabContainer">
     <div class="row hideOnPrint">
+        <div class="col-md-3 col-12 mt-2 text-center">
+            <span class="lead">@Model.ReportHeaderForVehicle.MaxOdometer.ToString("N0")</span><br />
+            <span class="text-secondary">Current Odometer</span>
+        </div>
+        <div class="col-md-3 col-12 mt-2 text-center">
+            <span class="lead">@Model.ReportHeaderForVehicle.DistanceTraveled.ToString("N0")</span><br />
+            <span class="text-secondary">Distance Traveled</span>
+        </div>
+        <div class="col-md-3 col-12 mt-2 text-center">
+            <span class="lead">@StaticHelper.HideZeroCost(Model.ReportHeaderForVehicle.DistanceTraveled.ToString("C2"), true)</span><br />
+            <span class="text-secondary">Total Cost</span>
+        </div>
+        <div class="col-md-3 col-12 mt-2 text-center">
+            <span class="lead">@Model.ReportHeaderForVehicle.AverageMPG.ToString("F")</span><br />
+            <span class="text-secondary">Average Fuel Economy</span>
+        </div>
+    </div>
+    <hr />
+    <div class="row hideOnPrint">
         <div class="col-md-3 col-12 mt-2">
             <div class="row">
                 <div class="col-12">
