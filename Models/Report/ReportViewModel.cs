@@ -2,6 +2,7 @@
 {
     public class ReportViewModel
     {
+        public ReportHeader ReportHeaderForVehicle { get; set; } = new ReportHeader();
         public List<CostForVehicleByMonth> CostForVehicleByMonth { get; set; } = new List<CostForVehicleByMonth>();
         public MPGForVehicleByMonth FuelMileageForVehicleByMonth { get; set; } = new MPGForVehicleByMonth();
         public CostMakeUpForVehicle CostMakeUpForVehicle { get; set; } = new CostMakeUpForVehicle();
