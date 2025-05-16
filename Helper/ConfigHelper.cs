@@ -19,6 +19,7 @@ namespace CarCareTracker.Helper
         bool GetCustomWidgetsEnabled();
         string GetMOTD();
         string GetLogoUrl();
+        string GetSmallLogoUrl();
         string GetServerLanguage();
         bool GetServerDisabledRegistration();
         bool GetServerEnableShopSupplies();
@@ -90,6 +91,11 @@ namespace CarCareTracker.Helper
         public string GetLogoUrl()
         {
             var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
+            return logoUrl;
+        }
+        public string GetSmallLogoUrl()
+        {
+            var logoUrl = CheckString("LUBELOGGER_LOGO_SMALL_URL", "/defaults/lubelogger_logo_small.png");
             return logoUrl;
         }
         public string GetAllowedFileUploadExtensions()
