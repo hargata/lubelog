@@ -130,11 +130,14 @@ namespace CarCareTracker.Controllers
             };
             viewModel.FuelMileageForVehicleByMonth = mpgViewModel;
             //report header
-            //total cost.
+
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+
             viewModel.ReportHeaderForVehicle.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
             viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
-            viewModel.ReportHeaderForVehicle.MaxOdometer = _vehicleLogic.GetMaxMileage(vehicleRecords);
-            viewModel.ReportHeaderForVehicle.DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled);
+            viewModel.ReportHeaderForVehicle.MaxOdometer = maxMileage;
+            viewModel.ReportHeaderForVehicle.DistanceTraveled = maxMileage - minMileage;
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -202,12 +205,15 @@ namespace CarCareTracker.Controllers
 
             var mpgUnit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit;
 
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+
             var viewModel = new ReportHeader()
             {
                 TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords),
                 AverageMPG = $"{averageMPG} {mpgUnit}",
-                MaxOdometer = _vehicleLogic.GetMaxMileage(vehicleRecords),
-                DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled)
+                MaxOdometer = maxMileage,
+                DistanceTraveled = maxMileage - minMileage
             };
 
             return PartialView("_ReportHeader", viewModel);
