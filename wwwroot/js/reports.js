@@ -143,6 +143,14 @@ function refreshMPGChart() {
     var year = getYear();
     $.post('/Vehicle/GetMonthMPGByVehicle', {vehicleId: vehicleId, year: year}, function (data) {
         $("#monthFuelMileageReportContent").html(data);
+        refreshReportHeader();
+    })
+}
+function refreshReportHeader() {
+    var vehicleId = GetVehicleId().vehicleId;
+    var year = getYear();
+    $.post('/Vehicle/GetSummaryForVehicle', { vehicleId: vehicleId, year: year }, function (data) {
+        $("#reportHeaderContent").html(data);
     })
 }
 function setSelectedMetrics() {
