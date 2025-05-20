@@ -90,6 +90,10 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showCalendar" checked="@Model.UserConfig.ShowCalendar">
                 <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Calendar")</label>
             </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showVehicleThumbnail" checked="@Model.UserConfig.ShowVehicleThumbnail">
+                <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Vehicle Thumbnail in Header")</label>
+            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {

@@ -6,10 +6,15 @@
     var barGraphColors = StaticHelper.GetBarChartColors();
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+
+    var graphGrace = Decimal.ToInt32(Model.CostData.Max(x => x.Cost) - Model.CostData.Min(x => x.Cost));
+    if (graphGrace < 0 || Model.CostData.Min(x=>x.Cost) - graphGrace < 0)
+    {
+        graphGrace = 0;
+    }
 }
 @if (Model.CostData.Any(x => x.Cost > 0))
 {
-
     <canvas id="bar-chart-mpg"></canvas>
     <script>
         renderChart();
@@ -54,7 +59,8 @@
                         },
                         scales: {
                             y: {
-                                beginAtZero: true,
+                                beginAtZero: false,
+                                grace: decodeHTMLEntities('@(graphGrace)'),
                                 ticks: {
                                     color: useDarkMode ? "#fff" : "#000"
                                 }

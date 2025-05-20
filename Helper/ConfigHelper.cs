@@ -19,6 +19,7 @@ namespace CarCareTracker.Helper
         bool GetCustomWidgetsEnabled();
         string GetMOTD();
         string GetLogoUrl();
+        string GetSmallLogoUrl();
         string GetServerLanguage();
         bool GetServerDisabledRegistration();
         bool GetServerEnableShopSupplies();
@@ -90,6 +91,11 @@ namespace CarCareTracker.Helper
         public string GetLogoUrl()
         {
             var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
+            return logoUrl;
+        }
+        public string GetSmallLogoUrl()
+        {
+            var logoUrl = CheckString("LUBELOGGER_LOGO_SMALL_URL", "/defaults/lubelogger_logo_small.png");
             return logoUrl;
         }
         public string GetAllowedFileUploadExtensions()
@@ -252,7 +258,8 @@ namespace CarCareTracker.Helper
                 ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
                 DefaultReminderEmail = CheckString(nameof(UserConfig.DefaultReminderEmail)),
-                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)))
+                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration))),
+                ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail)))
             };
             int userId = 0;
             if (user != null)

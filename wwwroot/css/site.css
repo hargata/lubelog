@@ -242,6 +242,18 @@ html {
     background-color: #0d6efd;
 }
 
+.lubelogger-navbar {
+    align-items: center;
+}
+
+.lubelogger-tab {
+   border:none;
+}
+
+    .lubelogger-tab .nav-link {
+        border: none;
+    }
+
 /*Media Queries*/
 @media (max-width: 576px) {
     .lubelogger-tab {
@@ -296,10 +308,6 @@ html {
 
     .lubelogger-mobile-nav {
         display: none;
-    }
-
-    .lubelogger-navbar {
-        justify-content: center;
     }
 
     .lubelogger-navbar-button {
@@ -500,7 +508,8 @@ html[data-bs-theme="light"] .api-method:hover {
 
 .lubelogger-logo {
     height: 48px;
-    width: 204px;
+    min-width: 48px;
+    max-width: 204px;
     object-fit: scale-down;
     pointer-events: none;
 }
@@ -527,3 +536,15 @@ html[data-bs-theme="light"] .api-method:hover {
     font-weight: 500;
     top: 15%
 }
+
+.lubelogger-vehicle-logo {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+    .lubelogger-vehicle-logo.sold {
+        filter: grayscale(100%);
+    }

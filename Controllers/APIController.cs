@@ -112,6 +112,34 @@ namespace CarCareTracker.Controllers
             }
         }
         [HttpGet]
+        [Route("/api/version")]
+        public async Task<IActionResult> ServerVersion(bool checkForUpdate = false)
+        {
+            var viewModel = new ReleaseVersion
+            {
+                CurrentVersion = StaticHelper.VersionNumber,
+                LatestVersion = StaticHelper.VersionNumber
+            };
+            if (checkForUpdate)
+            {
+                try
+                {
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+                    var releaseResponse = await httpClient.GetFromJsonAsync<ReleaseResponse>(StaticHelper.ReleasePath) ?? new ReleaseResponse();
+                    if (!string.IsNullOrWhiteSpace(releaseResponse.tag_name))
+                    {
+                        viewModel.LatestVersion = releaseResponse.tag_name;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(OperationResponse.Failed($"Unable to retrieve latest version from GitHub API: {ex.Message}"));
+                }
+            }
+            return Json(viewModel);
+        }
+        [HttpGet]
         [Route("/api/vehicles")]
         public IActionResult Vehicles()
         {

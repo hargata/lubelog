@@ -1,4 +1,7 @@
-﻿function successToast(message) {
+﻿function returnToGarage() {
+    window.location.href = '/Home';
+}
+function successToast(message) {
     Swal.fire({
         toast: true,
         position: "top-end",

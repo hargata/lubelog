@@ -7,6 +7,10 @@
 }
 @model ReportViewModel
 <div class="container reportTabContainer">
+    <div class="row hideOnPrint" id="reportHeaderContent">
+        @await Html.PartialAsync("_ReportHeader", Model.ReportHeaderForVehicle)
+    </div>
+    <hr />
     <div class="row hideOnPrint">
         <div class="col-md-3 col-12 mt-2">
             <div class="row">
