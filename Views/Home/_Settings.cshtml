@@ -196,6 +196,38 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.OdometerRecord)) value="OdometerRecord">@translator.Translate(userLanguage, "Odometer")</!option>
                 </select>
             </div>
+
+            
+            <div class="col-12 col-md-6">
+                <span class="lead">@translator.Translate(userLanguage, "Theme")</span>
+                <select class="form-select" onchange="updateSettings()" id="themeVariant">
+                    <!option value="">@translator.Translate(userLanguage, "Default")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "mint")) value="mint">@translator.Translate(userLanguage, "Mint")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "slate")) value="slate">@translator.Translate(userLanguage, "Slate")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "zinc")) value="zinc">@translator.Translate(userLanguage, "Zinc")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "neutral")) value="neutral">@translator.Translate(userLanguage, "Neutral")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "stone")) value="stone">@translator.Translate(userLanguage, "Stone")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "orange")) value="orange">@translator.Translate(userLanguage, "Orange")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "yellow")) value="yellow">@translator.Translate(userLanguage, "Yellow")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "lime")) value="lime">@translator.Translate(userLanguage, "Lime")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "green")) value="green">@translator.Translate(userLanguage, "Green")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "emerald")) value="emerald">@translator.Translate(userLanguage, "Emerald")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "teal")) value="teal">@translator.Translate(userLanguage, "Teal")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "cyan")) value="cyan">@translator.Translate(userLanguage, "Cyan")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "sky")) value="sky">@translator.Translate(userLanguage, "Sky")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "blue")) value="blue">@translator.Translate(userLanguage, "Blue")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "indigo")) value="indigo">@translator.Translate(userLanguage, "Indigo")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "violet")) value="violet">@translator.Translate(userLanguage, "Violet")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "purple")) value="purple">@translator.Translate(userLanguage, "Purple")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "fuchsia")) value="fuchsia">@translator.Translate(userLanguage, "Fuchsia")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "pink")) value="pink">@translator.Translate(userLanguage, "Pink")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "rose")) value="rose">@translator.Translate(userLanguage, "Rose")</!option>
+                    <!option @(StaticHelper.ThemeSelected(Model.UserConfig, "red")) value="red">@translator.Translate(userLanguage, "Red")</!option>
+                 </select>
+            </div>
+        </<div>
+
+        <div class="row">
             <div class="col-12 col-md-6">
                 <span class="lead">@translator.Translate(userLanguage, "Language")</span>
                 @if (User.IsInRole(nameof(UserData.IsRootUser)))

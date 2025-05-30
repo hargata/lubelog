@@ -1,0 +1,546 @@
+﻿
+/* slate #21293b */
+html[data-theme-variant="slate"] {
+    --color-50: 248, 250, 252;
+    --color-100: 241, 245, 249;
+    --color-200: 226, 232, 240;
+    --color-300: 203, 213, 225;
+    --color-400: 148, 163, 184;
+    --color-500: 100, 116, 139;
+    --color-600: 71, 85, 105;
+    --color-700: 51, 65, 85;
+    --color-800: 30, 41, 59;
+    --color-900: 15, 23, 42;
+    --color-logo-start: 148, 163, 184;
+    --color-logo-stop: 51, 65, 85
+}
+
+html[data-theme-variant="zinc"] {
+    --color-50: 250, 250, 250;
+    --color-100: 244, 244, 245;
+    --color-200: 228, 228, 231;
+    --color-300: 212, 212, 216;
+    --color-400: 161, 161, 170;
+    --color-500: 113, 113, 122;
+    --color-600: 82, 82, 91;
+    --color-700: 63, 63, 70;
+    --color-800: 39, 39, 42;
+    --color-900: 24, 24, 27;
+    --color-logo-start: 161, 161, 170;
+    --color-logo-stop: 63, 63, 70;
+}
+
+html[data-theme-variant="neutral"] {
+    --color-50: 250, 250, 250;
+    --color-100: 245, 245, 245;
+    --color-200: 229, 229, 229;
+    --color-300: 212, 212, 212;
+    --color-400: 163, 163, 163;
+    --color-500: 115, 115, 115;
+    --color-600: 82, 82, 82;
+    --color-700: 64, 64, 64;
+    --color-800: 38, 38, 38;
+    --color-900: 23, 23, 23;
+    --color-logo-start: 163, 163, 163;
+    --color-logo-stop: 64, 64, 64;
+}
+
+html[data-theme-variant="stone"] {
+    --color-50: 250, 250, 249;
+    --color-100: 245, 245, 244;
+    --color-200: 231, 229, 228;
+    --color-300: 214, 211, 209;
+    --color-400: 168, 162, 158;
+    --color-500: 120, 113, 108;
+    --color-600: 87, 83, 78;
+    --color-700: 68, 64, 60;
+    --color-800: 41, 37, 36;
+    --color-900: 28, 25, 23;
+    --color-logo-start: 168, 162, 158;
+    --color-logo-stop: 68, 64, 60;
+}
+
+html[data-theme-variant="red"] {
+    --color-50: 254, 242, 242;
+    --color-100: 254, 226, 226;
+    --color-200: 254, 202, 202;
+    --color-300: 252, 165, 165;
+    --color-400: 248, 113, 113;
+    --color-500: 239, 68, 68;
+    --color-600: 220, 38, 38;
+    --color-700: 185, 28, 28;
+    --color-800: 153, 27, 27;
+    --color-900: 127, 29, 29;
+    --color-logo-start: 248, 113, 113;
+    --color-logo-stop: 185, 28, 28;
+}
+
+html[data-theme-variant="orange"] {
+    --color-50: 255, 247, 237;
+    --color-100: 255, 237, 213;
+    --color-200: 254, 215, 170;
+    --color-300: 253, 186, 116;
+    --color-400: 251, 146, 60;
+    --color-500: 249, 115, 22;
+    --color-600: 234, 88, 12;
+    --color-700: 194, 65, 12;
+    --color-800: 154, 52, 18;
+    --color-900: 124, 45, 18;
+    --color-logo-start: 251, 146, 60;
+    --color-logo-stop: 194, 65, 12;
+}
+
+html[data-theme-variant="amber"] {
+    --color-50: 255, 251, 235;
+    --color-100: 254, 243, 199;
+    --color-200: 253, 230, 138;
+    --color-300: 252, 211, 77;
+    --color-400: 251, 191, 36;
+    --color-500: 245, 158, 11;
+    --color-600: 217, 119, 6;
+    --color-700: 180, 83, 9;
+    --color-800: 146, 64, 14;
+    --color-900: 120, 53, 15;
+    --color-logo-start: 251, 191, 36;
+    --color-logo-stop: 180, 83, 9;
+}
+
+html[data-theme-variant="yellow"] {
+    --color-50: 254, 252, 232;
+    --color-100: 254, 249, 195;
+    --color-200: 254, 240, 138;
+    --color-300: 253, 224, 71;
+    --color-400: 250, 204, 21;
+    --color-500: 234, 179, 8;
+    --color-600: 202, 138, 4;
+    --color-700: 161, 98, 7;
+    --color-800: 133, 77, 14;
+    --color-900: 113, 63, 18;
+    --color-logo-start: 250, 204, 21;
+    --color-logo-stop: 161, 98, 7;
+}
+
+html[data-theme-variant="lime"] {
+    --color-50: 247, 254, 231;
+    --color-100: 236, 252, 203;
+    --color-200: 217, 249, 157;
+    --color-300: 190, 242, 100;
+    --color-400: 163, 230, 53;
+    --color-500: 132, 204, 22;
+    --color-600: 101, 163, 13;
+    --color-700: 77, 124, 15;
+    --color-800: 63, 98, 18;
+    --color-900: 54, 83, 20;
+    --color-logo-start: 163, 230, 53;
+    --color-logo-stop: 77, 124, 15;
+}
+html[data-theme-variant="green"] {
+    --color-50: 240, 253, 244;
+    --color-100: 220, 252, 231;
+    --color-200: 187, 247, 208;
+    --color-300: 134, 239, 172;
+    --color-400: 74, 222, 128;
+    --color-500: 34, 197, 94;
+    --color-600: 22, 163, 74;
+    --color-700: 21, 128, 61;
+    --color-800: 22, 101, 52;
+    --color-900: 20, 83, 45;
+    --color-logo-start: 74, 222, 128;
+    --color-logo-stop: 21, 128, 61;
+}
+
+html[data-theme-variant="emerald"] {
+    --color-50: 236, 253, 245;
+    --color-100: 209, 250, 229;
+    --color-200: 167, 243, 208;
+    --color-300: 110, 231, 183;
+    --color-400: 52, 211, 153;
+    --color-500: 16, 185, 129;
+    --color-600: 5, 150, 105;
+    --color-700: 4, 120, 87;
+    --color-800: 6, 95, 70;
+    --color-900: 6, 78, 59;
+    --color-logo-start: 52, 211, 153;
+    --color-logo-stop: 4, 120, 87;
+}
+
+html[data-theme-variant="teal"] {
+    --color-50: 240, 253, 250;
+    --color-100: 204, 251, 241;
+    --color-200: 153, 246, 228;
+    --color-300: 94, 234, 212;
+    --color-400: 45, 212, 191;
+    --color-500: 20, 184, 166;
+    --color-600: 13, 148, 136;
+    --color-700: 15, 118, 110;
+    --color-800: 17, 94, 89;
+    --color-900: 19, 78, 74;
+    --color-logo-start: 45, 212, 191;
+    --color-logo-stop: 15, 118, 110;
+}
+
+html[data-theme-variant="cyan"] {
+    --color-50: 236, 254, 255;
+    --color-100: 207, 250, 254;
+    --color-200: 165, 243, 252;
+    --color-300: 103, 232, 249;
+    --color-400: 34, 211, 238;
+    --color-500: 6, 182, 212;
+    --color-600: 8, 145, 178;
+    --color-700: 14, 116, 144;
+    --color-800: 21, 94, 117;
+    --color-900: 22, 78, 99;
+    --color-logo-start: 34, 211, 238;
+    --color-logo-stop: 14, 116, 144;
+}
+
+html[data-theme-variant="sky"] {
+    --color-50: 240, 249, 255;
+    --color-100: 224, 242, 254;
+    --color-200: 186, 230, 253;
+    --color-300: 125, 211, 252;
+    --color-400: 56, 189, 248;
+    --color-500: 14, 165, 233;
+    --color-600: 2, 132, 199;
+    --color-700: 3, 105, 161;
+    --color-800: 7, 89, 133;
+    --color-900: 12, 74, 110;
+    --color-logo-start: 56, 189, 248;
+    --color-logo-stop: 3, 105, 161;
+}
+
+html[data-theme-variant="blue"] {
+    --color-50: 239, 246, 255;
+    --color-100: 219, 234, 254;
+    --color-200: 191, 219, 254;
+    --color-300: 147, 197, 253;
+    --color-400: 96, 165, 250;
+    --color-500: 59, 130, 246;
+    --color-600: 37, 99, 235;
+    --color-700: 29, 78, 216;
+    --color-800: 30, 64, 175;
+    --color-900: 30, 58, 138;
+    --color-logo-start: 96, 165, 250;
+    --color-logo-stop: 29, 78, 216;
+}
+
+html[data-theme-variant="indigo"] {
+    --color-50: 238, 242, 255;
+    --color-100: 224, 231, 255;
+    --color-200: 199, 210, 254;
+    --color-300: 165, 180, 252;
+    --color-400: 129, 140, 248;
+    --color-500: 99, 102, 241;
+    --color-600: 79, 70, 229;
+    --color-700: 67, 56, 202;
+    --color-800: 55, 48, 163;
+    --color-900: 49, 46, 129;
+    --color-logo-start: 129, 140, 248;
+    --color-logo-stop: 67, 56, 202;
+}
+
+html[data-theme-variant="violet"] {
+    --color-50: 245, 243, 255;
+    --color-100: 237, 233, 254;
+    --color-200: 221, 214, 254;
+    --color-300: 196, 181, 253;
+    --color-400: 167, 139, 250;
+    --color-500: 139, 92, 246;
+    --color-600: 124, 58, 237;
+    --color-700: 109, 40, 217;
+    --color-800: 91, 33, 182;
+    --color-900: 76, 29, 149;
+    --color-logo-start: 167, 139, 250;
+    --color-logo-stop: 109, 40, 217;
+}
+
+html[data-theme-variant="purple"] {
+    --color-50: 250, 245, 255;
+    --color-100: 243, 232, 255;
+    --color-200: 233, 213, 255;
+    --color-300: 216, 180, 254;
+    --color-400: 192, 132, 252;
+    --color-500: 168, 85, 247;
+    --color-600: 147, 51, 234;
+    --color-700: 126, 34, 206;
+    --color-800: 107, 33, 168;
+    --color-900: 88, 28, 135;
+    --color-logo-start: 192, 132, 252;
+    --color-logo-stop: 126, 34, 206;
+}
+
+html[data-theme-variant="fuchsia"] {
+    --color-50: 253, 244, 255;
+    --color-100: 250, 232, 255;
+    --color-200: 245, 208, 254;
+    --color-300: 240, 171, 252;
+    --color-400: 232, 121, 249;
+    --color-500: 217, 70, 239;
+    --color-600: 192, 38, 211;
+    --color-700: 162, 28, 175;
+    --color-800: 134, 25, 143;
+    --color-900: 112, 26, 117;
+    --color-logo-start: 232, 121, 249;
+    --color-logo-stop: 162, 28, 175;
+}
+
+html[data-theme-variant="pink"] {
+    --color-50: 253, 242, 248;
+    --color-100: 252, 231, 243;
+    --color-200: 251, 207, 232;
+    --color-300: 249, 168, 212;
+    --color-400: 244, 114, 182;
+    --color-500: 236, 72, 153;
+    --color-600: 219, 39, 119;
+    --color-700: 190, 24, 93;
+    --color-800: 157, 23, 77;
+    --color-900: 131, 24, 67;
+    --color-logo-start: 244, 114, 182;
+    --color-logo-stop: 190, 24, 93;
+}
+
+html[data-theme-variant="rose"] {
+    --color-50: 255, 241, 242;
+    --color-100: 255, 228, 230;
+    --color-200: 254, 205, 211;
+    --color-300: 253, 164, 175;
+    --color-400: 251, 113, 133;
+    --color-500: 244, 63, 94;
+    --color-600: 225, 29, 72;
+    --color-700: 190, 18, 60;
+    --color-800: 159, 18, 57;
+    --color-900: 136, 19, 55;
+    --color-logo-start: 251, 113, 133;
+    --color-logo-stop: 190, 18, 60;
+}
+
+
+html[data-bs-theme="light"][data-theme-variant] {
+    /* Main colors */
+    --bs-primary: rgb(var(--color-500));
+    --bs-secondary: rgb(var(--color-700)); 
+    --bs-primary-rgb: var(--color-500);
+    --bs-secondary-rgb: var(--color-700);
+    /* Document colors */
+    --bs-body-color: rgb(var(--color-800)); 
+    --bs-body-color-rgb: var(--color-800);
+    --bs-body-bg: rgb(var(--color-200)); 
+    --bs-body-bg-rgb: var(--color-200);
+    --bs-secondary-color: rgb(var(--color-700));
+    --bs-secondary-color-rgb: var(--color-700);
+    --bs-secondary-bg: rgb(var(--color-100));
+    --bs-secondary-bg-rgb: var(--color-100);
+    --bs-tertiary-color: rgba(var(--color-700), 0.6); 
+    --bs-tertiary-color-rgb: var(--color-700);
+    --bs-tertiary-bg: rgb(var(--color-200)); 
+    --bs-tertiary-bg-rgb: var(--color-200);
+    /* Links */
+    --bs-link-color: var(--bs-primary);
+    --bs-link-hover-color: var(--bs-secondary-color);
+    --bs-link-color-rgb: var(--bs-primary-rgb);
+    --bs-link-hover-color-rgb: var(--bs-secondary-rgb);
+    /* Borders */
+    --bs-border-color: rgb(var(--color-300)); 
+    --bs-border-color-translucent: rgba(var(--bs-secondary-rgb), 0.15);
+    /* Forms */
+    --bs-form-check-bg: rgb(var(--color-50));
+    --bs-form-check-border: rgb(var(--color-400));
+    --bs-form-check-checked-bg-color: var(--bs-secondary-color);
+    --bs-form-check-checked-border-color: var(--bs-secondary-color);
+    --bs-form-check-checked-color: rgb(var(--color-50)); 
+}
+
+html[data-bs-theme="dark"][data-theme-variant] {
+    /* Main colors */
+    --bs-primary: rgb(var(--color-400));
+    --bs-secondary: rgb(var(--color-600));
+    --bs-primary-rgb: var(--color-400);
+    --bs-secondary-rgb: var(--color-600);
+    /* Document colors */
+    --bs-body-color: rgb(var(--color-200));
+    --bs-body-color-rgb: var(--color-200);
+    --bs-body-bg: rgb(var(--color-800));
+    --bs-body-bg-rgb: var(--color-800);
+    --bs-secondary-color: rgb(var(--color-500));
+    --bs-secondary-color-rgb: var(--color-500);
+    --bs-secondary-bg: rgb(var(--color-700));
+    --bs-secondary-bg-rgb: var(--color-700);
+    --bs-tertiary-color: rgba( var(--color-800), 0.5);
+    --bs-tertiary-color-rgb: var(--color-800);
+    --bs-tertiary-bg: var(--color-800);
+    --bs-tertiary-bg-rgb: var(--color-800);
+    /* Links */
+    --bs-link-color: var(--bs-primary);
+    --bs-link-hover-color: var(--bs-secondary-color);
+    --bs-link-color-rgb: var(--bs-primary-rgb);
+    --bs-link-hover-color-rgb: var(--bs-secondary-rgb);
+    --bs-border-color: rgb(var(--color-600));
+    --bs-border-color-translucent: rgba(var(--bs-primary-rgb), 0.1);
+    /* Forms */
+    --bs-form-check-bg: rgb(var(--color-900));
+    --bs-form-check-border: rgb(var(--color-600));
+    --bs-form-check-checked-bg-color: var(--bs-secondary-color);
+    --bs-form-check-checked-border-color: var(--bs-secondary-color);
+    --bs-form-check-checked-color: rgb(var(--color-100));
+}
+
+
+
+/* mint */
+html[data-bs-theme="light"][data-theme-variant="mint"] {
+    /* Main colors */
+    --bs-primary: #6bb0b6;
+    --bs-secondary: #76c2c9;
+    --bs-primary-rgb: 118, 194, 201;
+    --bs-secondary-rgb: 108, 117, 125;
+    /* Document colors */
+    --bs-body-color: #000;
+    --bs-body-color-rgb: 0, 0, 0;
+    --bs-body-bg: #f4ffff;
+    --bs-body-bg-rgb: 246, 255, 255;
+    --bs-secondary-color: #6b999e;
+    --bs-secondary-color-rgb: 26, 33, 33; /*change*/
+    --bs-secondary-bg: #9cc0c0;
+    --bs-secondary-bg-rgb: 163, 191, 192;
+    --bs-tertiary-color: rgba(222, 226, 230, 0.5);
+    --bs-tertiary-color-rgb: 222, 226, 230;
+    --bs-tertiary-bg: #bfdbde;
+    --bs-tertiary-bg-rgb: 43, 48, 53;
+    /* Links */
+    --bs-link-color: var(--bs-primary);
+    --bs-link-hover-color: var(--bs-secondary);
+    --bs-link-color-rgb: var(--bs-primary-rgb);
+    --bs-link-hover-color-rgb: var(--bs-secondary-rgb);
+    --bs-border-color: #bfdbde;
+    --bs-border-color-translucent: rgba(var(--bs-primary-rgb), 0.1);
+    /* Forms */
+    --bs-form-check-bg: #212529;
+    --bs-form-check-border: #6c757d;
+    --bs-form-check-checked-bg-color: var(--bs-secondary-color);
+    --bs-form-check-checked-border-color: var(--bs-secondary-color);
+    --bs-form-check-checked-color: #fff;
+}
+html[data-bs-theme="dark"][data-theme-variant="mint"] {
+    /* Main colors */
+    --bs-primary: #76c2c9;
+    --bs-secondary: #6c757d;
+    --bs-primary-rgb: 118, 194, 201;
+    --bs-secondary-rgb: 108, 117, 125;
+    /* Document colors */
+    --bs-body-color: #ffffff;
+    --bs-body-color-rgb: 222, 226, 230;
+    --bs-body-bg: #171a1a;
+    --bs-body-bg-rgb: 23, 26, 26;
+    --bs-secondary-color: #4b7c81;
+    --bs-secondary-color-rgb: 75, 124, 129;
+    --bs-secondary-bg: #1a2121;
+    --bs-secondary-bg-rgb: 26, 33, 33;
+    --bs-tertiary-color: rgba(222, 226, 230, 0.5);
+    --bs-tertiary-color-rgb: 222, 226, 230;
+    --bs-tertiary-bg: #2b3035;
+    --bs-tertiary-bg-rgb: 43, 48, 53;
+    /* Links */
+    --bs-link-color: var(--bs-primary);
+    --bs-link-hover-color: var(--bs-secondary-color);
+    --bs-link-color-rgb: var(--bs-primary-rgb);
+    --bs-link-hover-color-rgb: var(--bs-secondary-rgb);
+    --bs-border-color: #495057;
+    --bs-border-color-translucent: rgba(var(--bs-primary-rgb), 0.1);
+    /* Forms */
+    --bs-form-check-bg: #212529;
+    --bs-form-check-border: #6c757d;
+    --bs-form-check-checked-bg-color: var(--bs-secondary-color);
+    --bs-form-check-checked-border-color: var(--bs-secondary-color);
+    --bs-form-check-checked-color: #fff;
+}
+
+
+
+/* Defaults overides for global themes to aid setting styles based on accent colour */
+
+/* Input Focus */
+html[data-theme-variant] .btn:focus,
+html[data-theme-variant] .btn:active:focus,
+html[data-theme-variant] .btn-link.nav-link:focus,
+html[data-theme-variant] .form-control:focus,
+html[data-theme-variant] .form-check-input:focus,
+html[data-theme-variant] .form-select:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--bs-link-hover-color);
+    border-color: var(--bs-body-color);
+}
+
+/* Input checkboxes */
+html[data-theme-variant] .form-check-input:checked {
+    background-color: var(--bs-form-check-checked-bg-color);
+    border-color: var(--bs-form-check-checked-border-color);
+}
+/* Cards */
+[data-theme-variant] .card, [data-theme-variant] .taskCard {
+    --bs-card-bg: var(--bs-secondary-bg);
+    --bs-card-color: var(--bs-body-color);
+    background-color: var(--bs-card-bg);
+}
+/* Horizontal and Vertical rules */
+html[data-theme-variant] hr, [data-theme-variant] .swimlane {
+    border-color: var(--bs-border-color);
+    opacity: 1;
+}
+/* date picker */
+html[data-theme-variant] .datepicker table tr td.active, html[data-theme-variant] .datepicker table tr td.active:hover {
+    background-color: var(--bs-primary);
+    background-image: none;
+}
+
+html[data-theme-variant] .datepicker table tr td.today, html[data-theme-variant] .datepicker table tr td.today:hover {
+    background-color: var(--bs-secondary);
+    background-image: none;
+}
+/* buttons */
+html[data-theme-variant] .btn-primary {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-link-hover-color);
+    --bs-btn-hover-border-color: var(--bs-link-hover-color);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-link-hover-color);
+    --bs-btn-active-border-color: var(--bs-link-hover-color);
+    --bs-btn-disabled-color: var(--bs-body-color);
+    --bs-btn-disabled-bg: var(--bs-link-hover-color);
+    --bs-btn-disabled-border-color: var(--bs-link-hover-color);
+}
+/* modal */
+html[data-theme-variant] .btn-close {
+    --bs-btn-close-color: var(--bs-body-color);
+    --bs-btn-close-opacity: 0.5;
+    --bs-btn-close-hover-opacity: 0.75;
+    --bs-btn-close-focus-shadow: 0 0 0 0.25rem var(--bs-primary);
+}
+
+
+/* drop down / context menus */
+html[data-theme-variant] .dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--bs-primary);
+    --bs-dropdown-bg: rgba(var(--bs-secondary-bg-rgb),0.8);
+    --bs-dropdown-divider-bg: var(--bs-secondary-color);
+    --bs-dropdown-header-color: var(--bs-secondary-color);
+    --bs-dropdown-link-hover-bg: var(--bs-secondary-color);
+}
+
+html[data-theme-variant] .dropdown-item.active, html[data-theme-variant] .dropdown-item:active {
+    background-color: var(--bs-dropdown-link-active-bg);
+}
+
+html[data-theme-variant] .table-context-menu > li > .dropdown-item:hover {
+    background-color: var(--bs-dropdown-link-hover-bg);
+}
+
+html[data-theme-variant] .btn-check:checked + .dropdown-item, html[data-theme-variant] :not(.btn-check) + .dropdown-item:active {
+    background-color: var(--bs-primary);
+}
+
+html[data-theme-variant] .nav-tabs {
+    --bs-nav-tabs-link-active-bg: transparent;
+}
+

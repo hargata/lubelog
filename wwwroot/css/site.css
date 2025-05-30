@@ -325,21 +325,14 @@ html {
     position: absolute;
 }
 
+.table-context-menu {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
 .table-context-menu > li > .dropdown-item:hover {
-   background-color: rgba(var(--bs-primary-rgb)) !important;
-   color: #fff !important;
-}
-
-html[data-bs-theme="dark"] .table-context-menu {
-    background-color: rgba(33, 37, 41, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-html[data-bs-theme="light"] .table-context-menu {
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+   background-color: rgba(var(--bs-primary-rgb));
+   color: #fff;
 }
 
 input[type="file"] {
