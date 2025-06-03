@@ -23,6 +23,7 @@
                     </div>
                     <label for="noteDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="noteDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of the note")" value="@(isNew ? "" : Model.Description)">
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                 </div>
                 <div class="col-12">
                     <label for="noteTextArea">@translator.Translate(userLanguage,"Notes")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
