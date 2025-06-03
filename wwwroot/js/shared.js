@@ -617,12 +617,24 @@ function editFileName(fileLocation, event) {
     });
 }
 var scrollPosition = 0;
+var savedTag = '';
 function saveScrollPosition() {
     scrollPosition = $(".vehicleDetailTabContainer").scrollTop();
+    let selectedTagElem = $(".tagfilter.bg-primary");
+    if (selectedTagElem.length > 0) {
+        savedTag = selectedTagElem.text();
+    }
 }
 function restoreScrollPosition() {
     $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
     scrollPosition = 0;
+    if (savedTag != '') {
+        let availableTagElem = $(".tagfilter").filter((index, elem) => $(elem).text() == savedTag);
+        if (availableTagElem.length > 0) {
+            availableTagElem.trigger('click');
+        }
+        savedTag = '';
+    }
 }
 function toggleMarkDownOverlay(textAreaName) {
     var textArea = $(`#${textAreaName}`);
