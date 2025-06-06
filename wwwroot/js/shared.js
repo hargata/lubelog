@@ -394,9 +394,13 @@ function getAndValidateSelectedVehicle() {
 }
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
+    //hide body scrollbar
+    $("body").css('overflow-y', 'hidden');
 }
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
+    //re-enable scrollbar.
+    $("body").css('overflow-y', 'auto');
 }
 var windowWidthForCompare = 0;
 function bindWindowResize() {

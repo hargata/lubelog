@@ -290,6 +290,7 @@ html {
         margin: 0;
         display: none;
         z-index: 2000;
+        overflow-y:auto;
     }
 
     .lubelogger-mobile-nav-show {
