@@ -70,6 +70,9 @@
                     <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.ReminderRecord)">
                         <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell"></i></div><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Reminders")</span></button>
                     </li>
+                    <li class="nav-item" role="presentation" style="order: @(userConfig.TabOrder.Count + 1)">
+                        <button class="nav-link resizable-nav-link" type="button" role="tab" aria-selected="false" onclick="showGlobalSearch()"><i class="bi bi-search"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Search")</span></button>
+                    </li>
                 </ul>
                 <span style="cursor:pointer;" onclick="editVehicle(@Model.Id)" class="text-truncate"><span class="lead">@($"{Model.Year} {Model.Make} {Model.Model}")<small class="text-body-secondary">@($"(#{StaticHelper.GetVehicleIdentifier(Model)})")</small></span><span class="ms-2 lubelogger-tab"><i class="bi bi-pencil-square"></i></span></span>
                 <div class="lubelogger-navbar-button">
@@ -82,11 +85,14 @@
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="nav navbar-nav" id="vehicleTab" role="tablist">
-        <li class="nav-item" role="presentation" style="order: -2">
+        <li class="nav-item" role="presentation" style="order: -3">
             <button class="nav-link" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: -1">
+        <li class="nav-item" role="presentation" style="order: -2">
             <button class="nav-link" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Edit Vehicle")</span></button>
+        </li>
+        <li class="nav-item" role="presentation" style="order: -1">
+            <button class="nav-link" onclick="showGlobalSearch()"><span class="display-3 ms-2"><i class="bi bi-search me-2"></i>@translator.Translate(userLanguage, "Search")</span></button>
         </li>
         <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.Dashboard)">
             <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>@translator.Translate(userLanguage, "Dashboard")</span></button>
@@ -165,6 +171,27 @@
 <div class="modal fade" data-bs-focus="false" id="inputSuppliesModal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="inputSuppliesModalContent"></div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="globalSearchModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="globalSearchModalContent">
+            <div class="modal-body">
+                <div class="input-group input-group-lg">
+                    <input type="text" id="globalSearchInput" autocomplete="off" onkeyup="handleGlobalSearchKeyPress(event)" class="form-control" placeholder="@translator.Translate(userLanguage, "Search by Keyword")">
+                    <button type="button" class="btn btn-outline-secondary" onclick="performGlobalSearch()"><i class="bi bi-search"></i></button>
+                </div>
+                <div class="form-check form-check-inline form-switch mt-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="globalSearchAutoSearchCheck" checked>
+                    <label class="form-check-label" for="globalSearchAutoSearchCheck">@translator.Translate(userLanguage, "Incremental Search")</label>
+                </div>
+                <div class="form-check form-check-inline form-switch mt-1">
+                    <input class="form-check-input" type="checkbox" onChange="performGlobalSearch()" role="switch" id="globalSearchCaseSensitiveCheck" checked>
+                    <label class="form-check-label" for="globalSearchCaseSensitiveCheck">@translator.Translate(userLanguage, "Case Sensitive")</label>
+                </div>
+                <div id="globalSearchModalResults"></div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="stickerPrintContainer hideOnPrint">
