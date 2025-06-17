@@ -135,7 +135,10 @@ namespace CarCareTracker.Controllers
                     ExtraFields = x.ExtraFields,
                     Tags = x.Tags,
                     DashboardMetrics = x.DashboardMetrics,
-                    VehicleIdentifier = x.VehicleIdentifier
+                    VehicleIdentifier = x.VehicleIdentifier,
+                    PurchaseDate = x.PurchaseDate,
+                    SoldPrice = x.SoldPrice,
+                    PurchasePrice = x.PurchasePrice
                 };
                 //dashboard metrics
                 if (x.DashboardMetrics.Any())
@@ -215,6 +218,7 @@ namespace CarCareTracker.Controllers
             //copy over stuff that persists
             userConfig.UserColumnPreferences = existingConfig.UserColumnPreferences;
             userConfig.ReminderUrgencyConfig = existingConfig.ReminderUrgencyConfig;
+            userConfig.VehicleSortField = existingConfig.VehicleSortField;
             var result = _config.SaveUserConfig(User, userConfig);
             return Json(result);
         }
@@ -224,6 +228,15 @@ namespace CarCareTracker.Controllers
             //retrieve existing userConfig.
             var existingConfig = _config.GetUserConfig(User);
             existingConfig.ReminderUrgencyConfig = reminderUrgencyConfig;
+            var result = _config.SaveUserConfig(User, existingConfig);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult SaveVehicleSort(string vehicleSortField)
+        {
+            //retrieve existing userConfig.
+            var existingConfig = _config.GetUserConfig(User);
+            existingConfig.VehicleSortField = vehicleSortField;
             var result = _config.SaveUserConfig(User, existingConfig);
             return Json(result);
         }

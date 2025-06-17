@@ -724,9 +724,10 @@ function getAndValidateExtraFields() {
         } else {
             extraFieldInput.removeClass("is-invalid");
         }
+        var extraFieldType = extraFieldInput.data('fieldtype');
         //only push fields with value in them
         if (extraFieldValue.trim() != '') {
-            outputData.push({ name: extraFieldName, value: extraFieldValue, isRequired: extraFieldIsRequired });
+            outputData.push({ name: extraFieldName, value: extraFieldValue, isRequired: extraFieldIsRequired, FieldType: extraFieldType });
         }
     });
     return { hasError: hasError, extraFields: outputData };

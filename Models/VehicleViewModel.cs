@@ -8,7 +8,10 @@
         public string Make { get; set; }
         public string Model { get; set; }
         public string LicensePlate { get; set; }
+        public string PurchaseDate { get; set; }
         public string SoldDate { get; set; }
+        public decimal SoldPrice { get; set; }
+        public decimal PurchasePrice { get; set; }
         public bool IsElectric { get; set; } = false;
         public bool IsDiesel { get; set; } = false;
         public bool UseHours { get; set; } = false;
