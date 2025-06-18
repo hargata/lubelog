@@ -606,7 +606,7 @@ function uploadVehicleLinksAsync(event) {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, uploadType: 1, isPending: true });
+            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, isPending: true });
             $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
                 $("#filesPendingUpload").html(viewData);
             });
@@ -1509,10 +1509,10 @@ function bindModalInputChanges(modalName) {
 }
 function handleModalPaste(e) {
     let recordType = getUploaderId().uploaderId;
-    var clipboardFiles = e.clipboardData.files;
-    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
-    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
-    var acceptableFiles = new DataTransfer();
+    let clipboardFiles = e.clipboardData.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
     if (clipboardFiles.length > 0) {
         for (var x = 0; x < clipboardFiles.length; x++) {
             if (acceptableFileFormats != "*") {
