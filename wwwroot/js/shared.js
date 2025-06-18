@@ -1509,10 +1509,10 @@ function bindModalInputChanges(modalName) {
 }
 function handleModalPaste(e) {
     let recordType = getUploaderId().uploaderId;
-    var clipboardFiles = e.clipboardData.files;
-    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
-    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
-    var acceptableFiles = new DataTransfer();
+    let clipboardFiles = e.clipboardData.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
     if (clipboardFiles.length > 0) {
         for (var x = 0; x < clipboardFiles.length; x++) {
             if (acceptableFileFormats != "*") {
