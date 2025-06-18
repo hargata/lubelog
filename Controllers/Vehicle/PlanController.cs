@@ -29,7 +29,7 @@ namespace CarCareTracker.Controllers
             }
             planRecord.DateModified = DateTime.Now.ToString("G");
             //move files from temp.
-            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (planRecord.Supplies.Any())
             {
                 planRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(planRecord.Supplies, DateTime.Parse(planRecord.DateCreated), planRecord.Description));
@@ -63,7 +63,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(OperationResponse.Failed("A template with that description already exists for this vehicle"));
             }
-            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
             return Json(OperationResponse.Conditional(result, "Template Added", string.Empty));
         }

@@ -57,30 +57,19 @@
                 <div class="col-md-6 col-12">
                     <label for="upgradeRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="upgradeRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
-                    @if (Model.Files.Any())
+                    @if (isNew)
                     {
-                        <div>
-                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            <label for="upgradeRecordFiles">@translator.Translate(userLanguage, "Upload more documents")</label>
-                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="upgradeRecordFiles">
-                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
+                            <label class="form-check-label" for="addReminderCheck">
+                                @translator.Translate(userLanguage, "Add Reminder")
+                            </label>
                         </div>
                     }
-                    else
-                    {
-                        @if (isNew)
-                        {
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
-                                <label class="form-check-label" for="addReminderCheck">
-                                    @translator.Translate(userLanguage, "Add Reminder")
-                                </label>
-                            </div>
-                        }
-                        <label for="upgradeRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
-                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="upgradeRecordFiles">
-                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
-                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
                     <div id="filesPendingUpload"></div>
                 </div>
             </div>
@@ -118,17 +107,9 @@
 </div>
 @await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "upgradeRecordCost" })
 <script>
-    var uploadedFiles = [];
     var selectedSupplies = [];
     var recurringReminderRecordId = [];
     var copySuppliesAttachments = false;
-    getUploadedFilesFromModel();
-    function getUploadedFilesFromModel() {
-    @foreach (UploadedFiles filesUploaded in Model.Files)
-    {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
-    }
-            }
     function getUpgradeRecordModelData() {
         return { id: @Model.Id}
     }

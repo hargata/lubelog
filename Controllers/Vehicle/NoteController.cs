@@ -31,7 +31,7 @@ namespace CarCareTracker.Controllers
             {
                 return Json(false);
             }
-            note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)

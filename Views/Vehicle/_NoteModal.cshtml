@@ -30,22 +30,10 @@
                     <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
                 </div>
                 <div class="col-12">
-                    @if (Model.Files.Any())
-                    {
-                        <div>
-                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            <label for="noteFiles">@translator.Translate(userLanguage, "Upload more documents")</label>
-                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="noteFiles">
-                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
-                        </div>
-                    }
-                    else
-                    {
-                        <label for="noteFiles">@translator.Translate(userLanguage, "Upload documents(optional)")</label>
-                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="noteFiles">
-                        <br />
-                        <small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small>
-                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
                     <div id="filesPendingUpload"></div>
                 </div>
                 <div class="col-12">
@@ -77,14 +65,6 @@
     }
 </div>
 <script>
-    var uploadedFiles = [];
-    getUploadedFilesFromModel();
-    function getUploadedFilesFromModel() {
-        @foreach (UploadedFiles filesUploaded in Model.Files)
-            {
-            @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
-        }
-    }
     function getNoteModelData(){
         return { id: @Model.Id}
     }

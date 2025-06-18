@@ -549,3 +549,24 @@ html[data-bs-theme="light"] .api-method:hover {
     .lubelogger-vehicle-logo.sold {
         filter: grayscale(100%);
     }
+
+.lubelogger-uploader {
+    border: 1px dashed rgb(73,80,87);
+    border-radius: 0.375rem;
+    cursor:pointer;
+    position:relative;
+}
+.lubelogger-link-uploader{
+    position:absolute;
+    right:0;
+    top:0;
+}
+    .lubelogger-link-uploader > .btn {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+.lubelogger-uploader.solid {
+    border-style: solid;
+}

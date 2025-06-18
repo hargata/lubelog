@@ -1868,7 +1868,7 @@ namespace CarCareTracker.Controllers
         {
             if (documents.Any())
             {
-                List<UploadedFiles> uploadedFiles = new List<UploadedFiles>();
+                List<UploadedFileExportModel> uploadedFiles = new List<UploadedFileExportModel>();
                 string uploadDirectory = "documents/";
                 string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
                 if (!Directory.Exists(uploadPath))
@@ -1881,10 +1881,11 @@ namespace CarCareTracker.Controllers
                     {
                         document.CopyTo(stream);
                     }
-                    uploadedFiles.Add(new UploadedFiles
+                    uploadedFiles.Add(new UploadedFileExportModel
                     {
                         Location = Path.Combine("/", uploadDirectory, fileName),
-                        Name = Path.GetFileName(document.FileName)
+                        Name = Path.GetFileName(document.FileName),
+                        UploadType = FileUploadType.File.ToString()
                     });
                 }
                 return Json(uploadedFiles);
