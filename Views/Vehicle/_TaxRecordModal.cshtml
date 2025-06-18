@@ -65,9 +65,7 @@
                     {
                         <div>
                             @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            <label for="taxRecordFiles">@translator.Translate(userLanguage,"Upload more documents")</label>
-                            <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="taxRecordFiles">
-                            <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
+                            @await Html.PartialAsync("_FileUploader", true)
                         </div>
                     }
                     else
@@ -81,9 +79,7 @@
                                 </label>
                             </div>
                         }
-                        <label for="taxRecordFiles">@translator.Translate(userLanguage,"Upload documents(optional)")</label>
-                        <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="form-control-file" id="taxRecordFiles">
-                        <br /><small class="text-body-secondary">@translator.Translate(userLanguage,"Max File Size: 28.6MB")</small>
+                        @await Html.PartialAsync("_FileUploader", false)
                     }
                     <div id="filesPendingUpload"></div>
                 </div>
@@ -111,13 +107,6 @@
     var customMonthInterval = @Model.CustomMonthInterval;
     var customMonthIntervalUnit = decodeHTMLEntities('@Model.CustomMonthIntervalUnit');
     var recurringReminderRecordId = [];
-    getUploadedFilesFromModel();
-    function getUploadedFilesFromModel() {
-    @foreach (UploadedFiles filesUploaded in Model.Files)
-    {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
-    }
-        }
     function getTaxRecordModelData() {
         return { id: @Model.Id, monthInterval: decodeHTMLEntities('@Model.RecurringInterval.ToString()') }
     }

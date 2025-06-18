@@ -204,7 +204,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetFilesPendingUpload(List<UploadedFiles> uploadedFiles)
         {
-            var filesPendingUpload = uploadedFiles.Where(x => x.Location.StartsWith("/temp/")).ToList();
+            var filesPendingUpload = uploadedFiles.Where(x => x.IsPending).ToList();
             return PartialView("_FilesToUpload", filesPendingUpload);
         }
         [HttpPost]

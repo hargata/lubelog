@@ -50,7 +50,7 @@ namespace CarCareTracker.Controllers
                     Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}"
                 });
             }
-            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
             if (result)
             {

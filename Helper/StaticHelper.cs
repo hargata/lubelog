@@ -727,6 +727,38 @@ namespace CarCareTracker.Helper
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
         }
+        public static string GetIconByFileExtension(FileUploadType uploadType, string fileExt)
+        {
+            if (uploadType == FileUploadType.Link)
+            {
+                return "bi-link-45deg";
+            }
+            switch (fileExt)
+            {
+                case ".pdf":
+                    return "bi-file-earmark-pdf";
+                case ".zip":
+                case ".7z":
+                case ".rar":
+                    return "bi-file-earmark-zip";
+                case ".png":
+                case ".jpg":
+                case ".jpeg":
+                    return "bi-file-earmark-image";
+                case ".xls":
+                case ".xlsx":
+                case ".xlsm":
+                case ".ods":
+                case ".csv":
+                    return "bi-file-earmark-spreadsheet";
+                case ".docx":
+                case ".odt":
+                case ".rtf":
+                    return "bi-file-earmark-richtext";
+                default:
+                    return "bi-file-earmark";
+            }
+        }
         public static JsonSerializerOptions GetInvariantOption()
         {
             var serializerOption = new JsonSerializerOptions();
