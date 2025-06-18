@@ -50,17 +50,10 @@
                 <div class="col-md-6 col-12">
                     <label for="planRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="planRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
-                    @if (Model.Files.Any())
-                    {
-                        <div>
-                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            @await Html.PartialAsync("_FileUploader", true)
-                        </div>
-                    }
-                    else
-                    {
-                        @await Html.PartialAsync("_FileUploader", false)
-                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
                     <div id="filesPendingUpload"></div>
                 </div>
             </div>
@@ -96,7 +89,6 @@
 </div>
 @await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "planRecordCost" })
 <script>
-    var uploadedFiles = [];
     var selectedSupplies = [];
     var copySuppliesAttachments = false;
     function getPlanRecordModelData() {

@@ -566,3 +566,7 @@ html[data-bs-theme="light"] .api-method:hover {
         border-top-left-radius: 0;
         border-bottom-right-radius: 0;
     }
+
+.lubelogger-uploader.solid {
+    border-style: solid;
+}

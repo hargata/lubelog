@@ -61,26 +61,19 @@
                         <!option value="ThreeYears" @(Model.RecurringInterval == ReminderMonthInterval.ThreeYears ? "selected" : "")>@translator.Translate(userLanguage, "3 Years")</!option>
                         <!option value="FiveYears" @(Model.RecurringInterval == ReminderMonthInterval.FiveYears ? "selected" : "")>@translator.Translate(userLanguage, "5 Years")</!option>
                     </select>
-                    @if (Model.Files.Any())
+                    @if (isNew)
                     {
-                        <div>
-                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            @await Html.PartialAsync("_FileUploader", true)
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
+                            <label class="form-check-label" for="addReminderCheck">
+                                @translator.Translate(userLanguage, "Add Reminder")
+                            </label>
                         </div>
                     }
-                    else
-                    {
-                        @if (isNew)
-                        {
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="addReminderCheck">
-                                <label class="form-check-label" for="addReminderCheck">
-                                    @translator.Translate(userLanguage,"Add Reminder")
-                                </label>
-                            </div>
-                        }
-                        @await Html.PartialAsync("_FileUploader", false)
-                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
                     <div id="filesPendingUpload"></div>
                 </div>
             </div>
@@ -103,7 +96,6 @@
     }
 </div>
 <script>
-    var uploadedFiles = [];
     var customMonthInterval = @Model.CustomMonthInterval;
     var customMonthIntervalUnit = decodeHTMLEntities('@Model.CustomMonthIntervalUnit');
     var recurringReminderRecordId = [];

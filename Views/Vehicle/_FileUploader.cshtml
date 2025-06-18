@@ -9,16 +9,12 @@
 @model bool
 <label for="@uploaderId">@translator.Translate(userLanguage, Model ? "Upload more documents" : "Upload documents(optional)")</label>
 <input onChange="uploadVehicleFilesAsync(this)" type="file" multiple accept="@config.GetAllowedFileUploadExtensions()" class="d-none" id="@uploaderId">
-<div class="lubelogger-uploader d-flex justify-content-center align-items-center align-content-center" onclick="toggleUploadFileBrowser(this)">
-    <div class="lubelogger-link-uploader"><button class="btn btn-sm btn-primary" type="button" onclick="uploadVehicleLinksAsync(event)">Attach Link</button></div>
+<div class="lubelogger-uploader d-flex justify-content-center align-items-center align-content-center" onclick="toggleUploadFileBrowser(this)" ondragover="handlePotentialFileDrop(event)" ondragleave="handleNoFileDrop(event)" ondrop="handleEndFileDrop(event)">
+    <div class="lubelogger-link-uploader"><button class="btn btn-sm btn-primary" type="button" onclick="uploadVehicleLinksAsync(event)">@translator.Translate(userLanguage, "Attach Link")</button></div>
     <span class="text-center"><span class="lead"><i class="bi bi-upload"></i></span><br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Max File Size: 28.6MB")</small></span>
 </div>
 <script>
     function getUploaderId(){
         return {uploaderId: '@uploaderId'};
-    }
-    function toggleUploadFileBrowser(sender){
-        let uploaderId = getUploaderId().uploaderId;
-        $(`#${uploaderId}`).trigger('click');
     }
 </script>

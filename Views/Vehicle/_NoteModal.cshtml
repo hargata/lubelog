@@ -30,17 +30,10 @@
                     <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
                 </div>
                 <div class="col-12">
-                    @if (Model.Files.Any())
-                    {
-                        <div>
-                            @await Html.PartialAsync("_UploadedFiles", Model.Files)
-                            @await Html.PartialAsync("_FileUploader", true)
-                        </div>
-                    }
-                    else
-                    {
-                        @await Html.PartialAsync("_FileUploader", false)
-                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
                     <div id="filesPendingUpload"></div>
                 </div>
                 <div class="col-12">
@@ -72,7 +65,6 @@
     }
 </div>
 <script>
-    var uploadedFiles = [];
     function getNoteModelData(){
         return { id: @Model.Id}
     }
