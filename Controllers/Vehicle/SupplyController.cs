@@ -146,7 +146,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
             //move files from temp.
-            supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {

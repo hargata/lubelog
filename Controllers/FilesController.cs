@@ -53,7 +53,7 @@ namespace CarCareTracker.Controllers
             foreach (IFormFile fileToUpload in file)
             {
                 var fileName = UploadFile(fileToUpload);
-                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName, UploadType = FileUploadType.File, IsPending = true});
+                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName, IsPending = true});
             }
             return Json(uploadedFiles);
         }

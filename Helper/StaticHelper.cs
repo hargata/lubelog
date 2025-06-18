@@ -727,9 +727,10 @@ namespace CarCareTracker.Helper
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
         }
-        public static string GetIconByFileExtension(FileUploadType uploadType, string fileExt)
+        public static string GetIconByFileExtension(string fileLocation)
         {
-            if (uploadType == FileUploadType.Link)
+            var fileExt = Path.GetExtension(fileLocation);
+            if (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"))
             {
                 return "bi-link-45deg";
             }

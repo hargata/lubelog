@@ -606,7 +606,7 @@ function uploadVehicleLinksAsync(event) {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, uploadType: 1, isPending: true });
+            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, isPending: true });
             $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
                 $("#filesPendingUpload").html(viewData);
             });

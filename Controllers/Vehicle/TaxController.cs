@@ -47,7 +47,7 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             //move files from temp.
-            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, UploadType = x.UploadType, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             //push back any reminders
             if (taxRecord.ReminderRecordId.Any())
             {
