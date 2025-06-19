@@ -39,6 +39,14 @@
             </div>
             <div class="row mb-2">
                 <div class="col-md-6 col-12">
+                    <label for="inputSmallLogoURL">@translator.Translate(userLanguage, "Small Logo URL")</label>
+                </div>
+                <div class="col-md-6 col-12">
+                    <input type="text" readonly id="inputSmallLogoURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.CustomSmallLogoURL">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6 col-12">
                     <label for="inputMOTD">@translator.Translate(userLanguage, "Message of the Day")</label>
                 </div>
                 <div class="col-md-6 col-12">
