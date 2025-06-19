@@ -3,7 +3,6 @@
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
-    var enableAuth = userConfig.EnableAuth;
     var userLanguage = userConfig.UserLanguage;
 }
 @model string

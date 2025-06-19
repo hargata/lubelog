@@ -80,6 +80,7 @@ builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true, reloadOnChange: true);
 
 //Configure Auth
 builder.Services.AddDataProtection();

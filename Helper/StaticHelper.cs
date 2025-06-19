@@ -17,6 +17,7 @@ namespace CarCareTracker.Helper
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
         public const string LegacyUserConfigPath = "config/userConfig.json";
+        public const string LegacyServerConfigPath = "config/serverConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
         public const string DefaultLogoPath = "/defaults/lubelogger_logo.png";
         public const string DefaultSmallLogoPath = "/defaults/lubelogger_logo_small.png";
