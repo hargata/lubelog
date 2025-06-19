@@ -576,6 +576,12 @@ html[data-bs-theme="light"] .api-method:hover {
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
 
+.setup-wizard-content{
+    height: calc(100% - 60px);
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
 .setup-wizard-nav{
     position: absolute;
     width:100%;
