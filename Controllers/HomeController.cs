@@ -577,6 +577,12 @@ namespace CarCareTracker.Controllers
             return PartialView("_ServerConfig", viewModel);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult WriteServerConfiguration(ServerConfig serverConfig)
+        {
+            var result = _config.SaveServerConfig(serverConfig);
+            return Json(result);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult SendTestEmail(string emailAddress)
         {
             var result = _mailHelper.SendTestEmail(emailAddress);

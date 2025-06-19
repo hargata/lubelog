@@ -13,6 +13,7 @@ namespace CarCareTracker.Helper
         MailConfig GetMailConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
+        bool SaveServerConfig(ServerConfig serverConfig);
         bool AuthenticateRootUser(string username, string password);
         bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
@@ -141,6 +142,59 @@ namespace CarCareTracker.Helper
         public bool GetServerEnableShopSupplies()
         {
             return CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies)));
+        }
+        public bool SaveServerConfig(ServerConfig serverConfig)
+        {
+            //nullify default values
+            if (string.IsNullOrWhiteSpace(serverConfig.PostgresConnection))
+            {
+                serverConfig.PostgresConnection = null;
+            }
+            if (serverConfig.AllowedFileExtensions == StaticHelper.DefaultAllowedFileExtensions || string.IsNullOrWhiteSpace(serverConfig.AllowedFileExtensions))
+            {
+                serverConfig.AllowedFileExtensions = null;
+            }
+            if (serverConfig.CustomLogoURL == StaticHelper.DefaultLogoPath || string.IsNullOrWhiteSpace(serverConfig.CustomLogoURL))
+            {
+                serverConfig.CustomLogoURL = null;
+            }
+            if (serverConfig.CustomSmallLogoURL == StaticHelper.DefaultSmallLogoPath || string.IsNullOrWhiteSpace(serverConfig.CustomSmallLogoURL))
+            {
+                serverConfig.CustomSmallLogoURL = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.MessageOfTheDay))
+            {
+                serverConfig.MessageOfTheDay = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.WebHookURL))
+            {
+                serverConfig.WebHookURL = null;
+            }
+            if (!serverConfig.CustomWidgetsEnabled.Value)
+            {
+                serverConfig.CustomWidgetsEnabled = null;
+            }
+            if (!serverConfig.InvariantAPIEnabled.Value)
+            {
+                serverConfig.InvariantAPIEnabled = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig.EmailServer))
+            {
+                serverConfig.SMTPConfig = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.OIDCConfig.Name))
+            {
+                serverConfig.OIDCConfig = null;
+            }
+            try
+            {
+                File.WriteAllText(StaticHelper.ServerConfigPath, JsonSerializer.Serialize(serverConfig));
+                return true;
+            } catch (Exception ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return false;
+            }
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {
