@@ -90,12 +90,12 @@ namespace CarCareTracker.Helper
         }
         public string GetLogoUrl()
         {
-            var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
+            var logoUrl = CheckString("LUBELOGGER_LOGO_URL", StaticHelper.DefaultLogoPath);
             return logoUrl;
         }
         public string GetSmallLogoUrl()
         {
-            var logoUrl = CheckString("LUBELOGGER_LOGO_SMALL_URL", "/defaults/lubelogger_logo_small.png");
+            var logoUrl = CheckString("LUBELOGGER_LOGO_SMALL_URL", StaticHelper.DefaultSmallLogoPath);
             return logoUrl;
         }
         public string GetAllowedFileUploadExtensions()

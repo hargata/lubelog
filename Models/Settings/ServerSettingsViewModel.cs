@@ -6,6 +6,7 @@ namespace CarCareTracker.Models
         public string PostgresConnection { get; set; }
         public string AllowedFileExtensions { get; set; }
         public string CustomLogoURL { get; set; }
+        public string CustomSmallLogoURL { get; set; }
         public string MessageOfTheDay { get; set; }
         public string WebHookURL { get; set; }
         public bool CustomWidgetsEnabled { get; set; }

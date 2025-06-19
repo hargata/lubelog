@@ -566,6 +566,7 @@ namespace CarCareTracker.Controllers
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
                 CustomLogoURL = _config.GetLogoUrl(),
+                CustomSmallLogoURL = _config.GetSmallLogoUrl(),
                 MessageOfTheDay = _config.GetMOTD(),
                 WebHookURL = _config.GetWebHookUrl(),
                 CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),

@@ -15,8 +15,11 @@ namespace CarCareTracker.Helper
         public const string VersionNumber = "1.4.8";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
+        public const string ServerConfigPath = "data/config/serverConfig.json";
         public const string LegacyUserConfigPath = "config/userConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
+        public const string DefaultLogoPath = "/defaults/lubelogger_logo.png";
+        public const string DefaultSmallLogoPath = "/defaults/lubelogger_logo_small.png";
         public const string GenericErrorMessage = "An error occurred, please try again later";
         public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public const string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
