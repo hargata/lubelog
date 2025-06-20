@@ -574,12 +574,14 @@ html[data-bs-theme="light"] .api-method:hover {
 .setup-wizard-container {
     position:relative;
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+    height:85vh;
 }
 
 .setup-wizard-content{
     height: calc(100% - 60px);
     overflow-y:auto;
     overflow-x:hidden;
+    padding: 10px 15px;
 }
 
 .setup-wizard-nav{

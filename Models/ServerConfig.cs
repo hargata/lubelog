@@ -28,6 +28,10 @@ namespace CarCareTracker.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? WebHookURL { get; set; }
 
+        [JsonPropertyName("LUBELOGGER_DOMAIN")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ServerURL { get; set; }
+
         [JsonPropertyName("LUBELOGGER_CUSTOM_WIDGETS")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? CustomWidgetsEnabled { get; set; }
@@ -43,5 +47,25 @@ namespace CarCareTracker.Models
         [JsonPropertyName("OpenIDConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public OpenIDConfig? OIDCConfig { get; set; }
+
+        [JsonPropertyName("ReminderUrgencyConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ReminderUrgencyConfig? ReminderUrgencyConfig { get; set; }
+
+        [JsonPropertyName("LUBELOGGER_OPEN_REGISTRATION")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? OpenRegistration { get; set; }
+
+        [JsonPropertyName("DisableRegistration")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? DisableRegistration { get; set; }
+
+        [JsonPropertyName("DefaultReminderEmail")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? DefaultReminderEmail { get; set; } = string.Empty;
+
+        [JsonPropertyName("EnableRootUserOIDC")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? EnableRootUserOIDC { get; set; }
     }
 }

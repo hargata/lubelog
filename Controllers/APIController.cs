@@ -98,7 +98,7 @@ namespace CarCareTracker.Controllers
             var result = new UserExportModel
             {
                 Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetUserConfig(User).DefaultReminderEmail : User.FindFirstValue(ClaimTypes.Email),
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email),
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
                 IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
@@ -1906,7 +1906,7 @@ namespace CarCareTracker.Controllers
             }
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
-            var defaultEmailAddress = _config.GetUserConfig(User).DefaultReminderEmail;
+            var defaultEmailAddress = _config.GetDefaultReminderEmail();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;

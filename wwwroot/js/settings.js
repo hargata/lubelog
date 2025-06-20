@@ -4,15 +4,6 @@
         $("#extraFieldModal").modal('show');
     });
 }
-function showServerConfigModal() {
-    $.get(`/Home/GetServerConfiguration`, function (data) {
-        $("#serverConfigModalContent").html(data);
-        $("#serverConfigModal").modal('show');
-    });
-}
-function hideServerConfigModal() {
-    $("#serverConfigModal").modal('hide');
-}
 function hideExtraFieldModal() {
     $("#extraFieldModal").modal('hide');
 }
@@ -51,10 +42,6 @@ function updateSettings() {
         defaultTab = "Dashboard"; //default to dashboard.
     }
     var tabOrder = getTabOrder();
-    //Root User Only Settings that aren't rendered:
-    var defaultReminderEmail = $("#inputDefaultEmail").length > 0 ? $("#inputDefaultEmail").val() : "";
-    var disableRegistration = $("#disableRegistration").length > 0 ? $("#disableRegistration").is(":checked") : false;
-    var enableRootUserOIDC = $("#enableRootUserOIDC").length > 0 ? $("#enableRootUserOIDC").is(":checked") : false;
 
     var userConfigObject = {
         useDarkMode: $("#enableDarkMode").is(':checked'),
@@ -81,10 +68,7 @@ function updateSettings() {
         useUnitForFuelCost: $("#useUnitForFuelCost").is(":checked"),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
-        tabOrder: tabOrder,
-        disableRegistration: disableRegistration,
-        defaultReminderEmail: defaultReminderEmail,
-        enableRootUserOIDC: enableRootUserOIDC
+        tabOrder: tabOrder
     }
     sloader.show();
     $.post('/Home/WriteToSettings', { userConfig: userConfigObject }, function (data) {
