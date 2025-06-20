@@ -153,12 +153,6 @@ function restoreBackup(event) {
     });
 }
 
-function handleDefaultReminderInputKeyDown() {
-    if (event.which == 13) {
-        updateSettings();
-    }
-}
-
 function loadSponsors() {
     $.get('/Home/Sponsors', function (data) {
         $("#sponsorsContainer").html(data);
