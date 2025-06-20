@@ -115,7 +115,7 @@
             </div>
             <div class="form-group">
                 <div class="d-flex align-items-center justify-content-center flex-column">
-                    <div class="mt-2"><a class="btn btn-warning" onclick="">@translator.Translate(userLanguage, "Test SMTP Settings")</a></div>
+                    <div class="mt-2"><a class="btn btn-warning" onclick="sendTestEmail()">@translator.Translate(userLanguage, "Test SMTP Settings")</a></div>
                 </div>
             </div>
         </form>
@@ -189,7 +189,7 @@
         </form>
     </div>
     <div class="setup-wizard-content" data-page="4" style="display:none;">
-        <span class="display-5">Miscellaneous</span>
+        <span class="display-5">@translator.Translate(userLanguage, "Miscellaneous")</span>
         <hr />
         <form class="form-inline">
             @if (Model.EnableAuth)
@@ -236,19 +236,34 @@
             </div>
         </form>
     </div>
+    <div class="setup-wizard-content" data-page="5" style="display:none;">
+        <div class="d-flex text-center align-items-center justify-content-center flex-column" style="height:100%;">
+            <div><span class="display-5">@translator.Translate(userLanguage, "Server Settings Saved")<span class="text-success"><i class="bi bi-check-lg"></i></span></span></div>
+            <div class="mt-2"><a class="btn btn-secondary me-2" onclick="loadSetupPage(0)">@translator.Translate(userLanguage, "Restart Wizard")</a><a class="btn btn-primary" onclick="returnToGarage()">@translator.Translate(userLanguage, "Return to Garage")</a></div>
+        </div>
+    </div>
     <div class="setup-wizard-nav" style="display:none;">
         <div class="d-flex align-items-center justify-content-between pe-2" style="height:100%;">
-            <a class="btn btn-prev btn-link" onclick="previousSetupPage()">Back</a>
-            <a class="btn btn-next btn-primary" onclick="nextSetupPage()">Next</a>
-            <a class="btn btn-save btn-success" onclick="saveSetup()">Save</a>
+            <a class="btn btn-prev btn-link" onclick="previousSetupPage()">@translator.Translate(userLanguage, "Back")</a>
+            <a class="btn btn-next btn-primary" onclick="nextSetupPage()">@translator.Translate(userLanguage, "Next")</a>
+            <a class="btn btn-save btn-success" onclick="saveSetup()">@translator.Translate(userLanguage, "Save")</a>
         </div>
     </div>
 </div>
 <script>
+    function loadSetupPage(pageNumber){
+        let pageElem = $(`.setup-wizard-content[data-page="${pageNumber}"]`);
+        if (pageElem.length > 0){
+            $('.setup-wizard-content').hide();
+            pageElem.show();
+        }
+        determineSetupButtons();
+    }
     function determineSetupButtons(){
         let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
         switch(currentVisiblePage){
             case '0':
+            case '5':
                 $(".setup-wizard-nav").hide();
                 break;
             case '1':
@@ -270,22 +285,12 @@
     function nextSetupPage(){
         let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
         let nextPage = parseInt(currentVisiblePage) + 1;
-        let nextPageElem = $(`.setup-wizard-content[data-page="${nextPage}"]`);
-        if (nextPageElem.length > 0){
-            $('.setup-wizard-content').hide();
-            nextPageElem.show();
-        }
-        determineSetupButtons();
+        loadSetupPage(nextPage);
     }
     function previousSetupPage(){
         let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
         let prevPage = parseInt(currentVisiblePage) - 1;
-        let prevPageElem = $(`.setup-wizard-content[data-page="${prevPage}"]`);
-        if (prevPageElem.length > 0){
-            $('.setup-wizard-content').hide();
-            prevPageElem.show();
-        }
-        determineSetupButtons();
+        loadSetupPage(prevPage);
     }
     function saveSetup() {
         let setupData = {
@@ -350,7 +355,41 @@
             setupData["EnableRootUserOIDC"] = $("#inputOIDCRootUser").val();
         }
         $.post('/Home/WriteServerConfiguration', {serverConfig: setupData}, function(data){
-            successToast('Settings Saved');
+            nextSetupPage();
         })
+    }
+    function sendTestEmail() {
+        let mailConfig = {
+            EmailServer: $("#inputSMTPServer").val(),
+            EmailFrom: $("#inputSMTPFrom").val(),
+            Port: $("#inputSMTPPort").val(),
+            Username: $("#inputSMTPUsername").val(),
+            Password: $("#inputSMTPPassword").val()
+        }
+        Swal.fire({
+            title: 'Send Test Email',
+            html: `
+                                        <input type="text" id="testEmailRecipient" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
+                                        `,
+            confirmButtonText: 'Send',
+            focusConfirm: false,
+            preConfirm: () => {
+                const emailRecipient = $("#testEmailRecipient").val();
+                if (!emailRecipient || emailRecipient.trim() == '') {
+                    Swal.showValidationMessage(`Please enter a valid email address`);
+                }
+                return { emailRecipient }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.post('/Home/SendTestEmail', { emailAddress: result.value.emailRecipient, mailConfig: mailConfig }, function (data) {
+                    if (data.success) {
+                        successToast(data.message);
+                    } else {
+                        errorToast(data.message);
+                    }
+                });
+            }
+        });
     }
 </script>

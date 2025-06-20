@@ -207,11 +207,11 @@ namespace CarCareTracker.Helper
             {
                 serverConfig.OIDCConfig = null;
             }
-            if (!serverConfig.OpenRegistration.Value)
+            if (serverConfig.OpenRegistration.HasValue && !serverConfig.OpenRegistration.Value)
             {
                 serverConfig.OpenRegistration = null;
             }
-            if (!serverConfig.DisableRegistration.Value)
+            if (serverConfig.DisableRegistration.HasValue && !serverConfig.DisableRegistration.Value)
             {
                 serverConfig.DisableRegistration = null;
             }
@@ -219,7 +219,7 @@ namespace CarCareTracker.Helper
             {
                 serverConfig.DefaultReminderEmail = null;
             }
-            if (!serverConfig.EnableRootUserOIDC.Value)
+            if (serverConfig.EnableRootUserOIDC.HasValue && !serverConfig.EnableRootUserOIDC.Value)
             {
                 serverConfig.EnableRootUserOIDC = null;
             }

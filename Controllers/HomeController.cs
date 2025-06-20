@@ -582,9 +582,9 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult SendTestEmail(string emailAddress)
+        public IActionResult SendTestEmail(string emailAddress, MailConfig mailConfig)
         {
-            var result = _mailHelper.SendTestEmail(emailAddress);
+            var result = _mailHelper.SendTestEmail(emailAddress, mailConfig);
             return Json(result);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -80,33 +80,6 @@ function updateSettings() {
         }
     })
 }
-function sendTestEmail() {
-    Swal.fire({
-        title: 'Send Test Email',
-        html: `
-                                    <input type="text" id="testEmailRecipient" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
-                                    `,
-        confirmButtonText: 'Send',
-        focusConfirm: false,
-        preConfirm: () => {
-            const emailRecipient = $("#testEmailRecipient").val();
-            if (!emailRecipient || emailRecipient.trim() == '') {
-                Swal.showValidationMessage(`Please enter a valid email address`);
-            }
-            return { emailRecipient }
-        },
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            $.post('/Home/SendTestEmail', { emailAddress: result.value.emailRecipient }, function (data) {
-                if (data.success) {
-                    successToast(data.message);
-                } else {
-                    errorToast(data.message);
-                }
-            });
-        }
-    });
-}
 function makeBackup() {
     $.get('/Files/MakeBackup', function (data) {
         window.location.href = data;

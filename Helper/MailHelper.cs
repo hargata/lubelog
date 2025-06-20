@@ -11,7 +11,7 @@ namespace CarCareTracker.Helper
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
         OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token);
         OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
-        OperationResponse SendTestEmail(string emailAddress);
+        OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig);
     }
     public class MailHelper : IMailHelper
     {
@@ -91,9 +91,9 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed();
             }
         }
-        public OperationResponse SendTestEmail(string emailAddress)
+        public OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig)
         {
-            if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+            if (string.IsNullOrWhiteSpace(testMailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
             }
@@ -103,7 +103,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = _translator.Translate(serverLanguage, "Test Email from LubeLogger");
             string emailBody = _translator.Translate(serverLanguage, "If you are seeing this email it means your SMTP configuration is functioning correctly");
-            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
+            var result = SendEmail(testMailConfig, new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return OperationResponse.Succeed("Email Sent!");
@@ -209,6 +209,46 @@ namespace CarCareTracker.Helper
                     client.Disconnect(true);
                     return true;
                 } catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return false;
+                }
+            }
+        }
+        private bool SendEmail(MailConfig testMailConfig, List<string> emailTo, string emailSubject, string emailBody)
+        {
+            string from = testMailConfig.EmailFrom;
+            var server = testMailConfig.EmailServer;
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(from, from));
+            foreach (string emailRecipient in emailTo)
+            {
+                message.To.Add(new MailboxAddress(emailRecipient, emailRecipient));
+            }
+            message.Subject = emailSubject;
+
+            var builder = new BodyBuilder();
+
+            builder.HtmlBody = emailBody;
+
+            message.Body = builder.ToMessageBody();
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect(server, testMailConfig.Port, SecureSocketOptions.Auto);
+                //perform authentication if either username or password is provided.
+                //do not perform authentication if neither are provided.
+                if (!string.IsNullOrWhiteSpace(testMailConfig.Username) || !string.IsNullOrWhiteSpace(testMailConfig.Password))
+                {
+                    client.Authenticate(testMailConfig.Username, testMailConfig.Password);
+                }
+                try
+                {
+                    client.Send(message);
+                    client.Disconnect(true);
+                    return true;
+                }
+                catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
                     return false;
