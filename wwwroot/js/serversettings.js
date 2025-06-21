@@ -97,6 +97,16 @@ function saveSetup() {
                 break;
         }
     }
+    //nullify skipped settings
+    if ($("#skipSMTP").is(":checked")) {
+        setupData["SMTPConfig"] = null;
+    }
+    if ($("#skipOIDC").is(":checked")) {
+        setupData["OIDCConfig"] = null;
+    }
+    if ($("#skipPostgres").is(":checked")) {
+        setupData["PostgresConnection"] = null;
+    }
     let rootUserOIDC = $("#inputOIDCRootUser");
     if (rootUserOIDC.length > 0) {
         setupData["EnableRootUserOIDC"] = $("#inputOIDCRootUser").val();
@@ -142,4 +152,9 @@ function sendTestEmail() {
             });
         }
     });
+}
+function nextOnSkip(sender) {
+    if ($(sender).is(":checked")) {
+        nextSetupPage();
+    }
 }

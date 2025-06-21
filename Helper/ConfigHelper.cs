@@ -191,19 +191,19 @@ namespace CarCareTracker.Helper
             {
                 serverConfig.ServerURL = null;
             }
-            if (!serverConfig.CustomWidgetsEnabled.Value)
+            if (serverConfig.CustomWidgetsEnabled.HasValue && !serverConfig.CustomWidgetsEnabled.Value)
             {
                 serverConfig.CustomWidgetsEnabled = null;
             }
-            if (!serverConfig.InvariantAPIEnabled.Value)
+            if (serverConfig.InvariantAPIEnabled.HasValue && !serverConfig.InvariantAPIEnabled.Value)
             {
                 serverConfig.InvariantAPIEnabled = null;
             }
-            if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig.EmailServer))
+            if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig?.EmailServer ?? string.Empty))
             {
                 serverConfig.SMTPConfig = null;
             }
-            if (string.IsNullOrWhiteSpace(serverConfig.OIDCConfig.Name))
+            if (string.IsNullOrWhiteSpace(serverConfig.OIDCConfig?.Name ?? string.Empty))
             {
                 serverConfig.OIDCConfig = null;
             }

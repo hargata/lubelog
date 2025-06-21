@@ -44,7 +44,16 @@
         <form class="form-inline">
             <div class="form-group">
                 <label for="inputPostgres">@translator.Translate(userLanguage, "Postgres Connection")</label>
-                <input type="text" id="inputPostgres" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.PostgresConnection">
+                <div class="input-group">
+                    <input type="text" id="inputPostgres" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.PostgresConnection">
+                    <div class="input-group-text">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="skipPostgres">
+                            <label class="form-check-label" for="skipPostgres">@translator.Translate(userLanguage, "Skip")</label>
+                        </div>
+                    </div>
+                </div>
+               
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
@@ -88,7 +97,13 @@
         </form>
     </div>
     <div class="setup-wizard-content" data-page="2" style="display:none;">
-        <span class="display-5">@translator.Translate(userLanguage, "SMTP")</span>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="display-5">@translator.Translate(userLanguage, "SMTP")</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipSMTP">
+                <label class="form-check-label" for="skipSMTP">@translator.Translate(userLanguage, "Skip")</label>
+            </div>
+        </div>
         <hr />
         <form class="form-inline">
             <div class="form-group">
@@ -124,7 +139,13 @@
         </form>
     </div>
     <div class="setup-wizard-content" data-page="3" style="display:none;">
-        <span class="display-5">@translator.Translate(userLanguage, "Single Sign On")</span>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="display-5">@translator.Translate(userLanguage, "Single Sign On")</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipOIDC">
+                <label class="form-check-label" for="skipOIDC">@translator.Translate(userLanguage, "Skip")</label>
+            </div>
+        </div>
         <hr />
         <form class="form-inline">
             <div class="form-group">
