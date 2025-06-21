@@ -13,29 +13,25 @@
     <div class="col-12 col-md-6">
         <input id="preferredGasUnit" style="display:none;" value="@Model.UserConfig.PreferredGasUnit" />
         <input id="preferredFuelMileageUnit" style="display:none;" value="@Model.UserConfig.PreferredGasMileageUnit" />
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
-            <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage, "Dark Mode")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
+                <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage, "Dark Mode")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
+                <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
+            </div>
         </div>
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
-            <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.UserConfig.EnableCsvImports">
-            <label class="form-check-label" for="enableCsvImports">@translator.Translate(userLanguage, "Enable CSV Imports")</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UserConfig.UseMPG">
-            <label class="form-check-label" for="useMPG">@translator.Translate(userLanguage, "Use Imperial Calculation for Fuel Economy Calculations(MPG)")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "This Will Also Change Units to Miles and Gallons")</small></label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UserConfig.UseUKMPG">
-            <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage, "Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
-            <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.UserConfig.EnableCsvImports">
+                <label class="form-check-label" for="enableCsvImports">@translator.Translate(userLanguage, "Enable CSV Imports")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
+                <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
+            </div>
         </div>
         <div>
             <div class="form-check form-switch form-check-inline">
@@ -46,6 +42,29 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="automaticDecimalFormat" checked="@Model.UserConfig.AutomaticDecimalFormat">
                 <label class="form-check-label" for="automaticDecimalFormat">@translator.Translate(userLanguage, "Automatically Format Decimal Inputs")</label>
             </div>
+        </div>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
+                <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
+                <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")</label>
+            </div>
+        </div>
+        <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showVehicleThumbnail" checked="@Model.UserConfig.ShowVehicleThumbnail">
+            <label class="form-check-label" for="showVehicleThumbnail">@translator.Translate(userLanguage, "Show Vehicle Thumbnail in Header")</label>
+        </div>
+        <hr />
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UserConfig.UseMPG">
+            <label class="form-check-label" for="useMPG">@translator.Translate(userLanguage, "Use Imperial Calculation for Fuel Economy Calculations(MPG)")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "This Will Also Change Units to Miles and Gallons")</small></label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UserConfig.UseUKMPG">
+            <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage, "Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
         </div>
         <div>
             <div class="form-check form-switch form-check-inline">
@@ -61,10 +80,7 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimalGasConsumption" checked="@Model.UserConfig.UseThreeDecimalGasConsumption">
             <label class="form-check-label" for="useThreeDecimalGasConsumption">@translator.Translate(userLanguage, "Use Three Decimals For Fuel Consumption")</label>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
-            <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
-        </div>
+        <hr />
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.UserConfig.EnableAutoReminderRefresh">
             <label class="form-check-label" for="enableAutoReminderRefresh">@translator.Translate(userLanguage, "Auto Refresh Lapsed Recurring Reminders")</label>
@@ -73,10 +89,7 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.UserConfig.EnableAutoOdometerInsert">
             <label class="form-check-label" for="enableAutoOdometerInsert">@translator.Translate(userLanguage, "Auto Insert Odometer Records")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
-            <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Enabling this may cause performance issues")</small></label>
-        </div>
+        <hr />
         <div>
             <div class="form-check form-switch form-check-inline">
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideSoldVehicles" checked="@Model.UserConfig.HideSoldVehicles">
@@ -90,13 +103,10 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showCalendar" checked="@Model.UserConfig.ShowCalendar">
                 <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Calendar")</label>
             </div>
-            <div class="form-check form-switch form-check-inline">
-                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showVehicleThumbnail" checked="@Model.UserConfig.ShowVehicleThumbnail">
-                <label class="form-check-label" for="showVehicleThumbnail">@translator.Translate(userLanguage, "Show Vehicle Thumbnail in Header")</label>
-            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
+            <hr />
             <div class="form-check form-switch form-check-inline">
                 <input class="form-check-input" onChange="enableAuthCheckChanged()" type="checkbox" role="switch" id="enableAuth" checked="@Model.UserConfig.EnableAuth">
                 <label class="form-check-label" for="enableAuth">@translator.Translate(userLanguage, "Enable Authentication")</label>
