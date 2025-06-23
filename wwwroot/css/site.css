@@ -36,7 +36,6 @@ html {
     overflow-x: auto;
 }
 .reportTabContainer {
-    max-height: 85vh;
     overflow-y: auto;
     overflow-x: auto;
 }
@@ -602,4 +601,13 @@ html[data-bs-theme="light"] .setup-wizard-container {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+}
+
+body {
+    height:100vh;
+}
+
+.lubelogger-body-container {
+    flex:1;
+    overflow:auto;
 }

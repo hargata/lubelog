@@ -160,13 +160,14 @@
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </head>
-<body>
+<body class="d-flex flex-column">
     @await RenderSectionAsync("Nav", required: false)
-    <div class="container" style="height:85vh;">
+    <div class="container lubelogger-body-container">
         <main role="main">
             @RenderBody()
         </main>
     </div>
+    @await RenderSectionAsync("Footer", required: false)
 </body>
 </html>
 @if (useSystemColorMode)
