@@ -7,17 +7,21 @@
     var userLanguage = config.GetServerLanguage();
 }
 @using CarCareTracker.Helper
+@section Nav {
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="d-flex lubelogger-navbar">
+                <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
+                    <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                </div>
+                <span class="text-truncate lead">@translator.Translate(userLanguage, "Database Migration")</span>
+            </div>
+        </div>
+        <hr />
+    </div>
+}
 @model AdminViewModel
 <div class="container">
-    <div class="row">
-        <div class="col-1">
-            <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
-        </div>
-        <div class="col-11">
-            <span class="display-6">@translator.Translate(userLanguage, "Database Migration")</span>
-        </div>
-    </div>
-    <hr />
     <div class="row">
         <div class="col-12">
             <ul class="list-group list-group-flush">
