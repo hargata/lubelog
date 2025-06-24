@@ -77,6 +77,7 @@ html {
         line-height: 18px;
         color: #000 !important;
         overflow: visible;
+        z-index: 1030;
     }
     .stickerPrintContainer {
         background-color: #fff !important;
@@ -241,6 +242,14 @@ html {
     background-color: #0d6efd;
 }
 
+.lubelogger-navbar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--bs-body-bg);
+    z-index: 1020;
+}
+
 .lubelogger-navbar {
     align-items: center;
 }
@@ -283,7 +292,7 @@ html {
         background-color: var(--bs-body-bg);
         height: max(100vh, 100%);
         width: 100%;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         margin: 0;
@@ -603,11 +612,11 @@ html[data-bs-theme="light"] .setup-wizard-container {
     -webkit-backdrop-filter: blur(10px);
 }
 
-body {
-    height:100vh;
+.lubelogger-body-container {
+    padding-top: calc(48px + 2.5rem);
+    min-height: 100vh;
 }
 
-.lubelogger-body-container {
-    flex:1;
-    overflow:auto;
+.kiosk-container {
+    padding-top: calc(-48px - 2.5rem);
 }

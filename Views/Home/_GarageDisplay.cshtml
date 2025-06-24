@@ -10,7 +10,7 @@
 @if (recordTags.Any())
 {
     <div class='row'>
-        <div class="col-12 d-flex align-items-center flex-wrap mt-2 mb-2">
+        <div class="col-12 d-flex align-items-center flex-wrap mb-2">
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
