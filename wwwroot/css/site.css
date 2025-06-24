@@ -246,7 +246,6 @@ html {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: var(--bs-body-bg);
     z-index: 1020;
 }
 
@@ -600,13 +599,13 @@ html[data-bs-theme="light"] .api-method:hover {
     border-top: #E6E6E6 solid 1px;
 }
 
-html[data-bs-theme="dark"] .setup-wizard-container {
+html[data-bs-theme="dark"] .setup-wizard-container, html[data-bs-theme="dark"] .lubelogger-navbar-container {
     background-color: rgba(33, 37, 41, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
-html[data-bs-theme="light"] .setup-wizard-container {
+html[data-bs-theme="light"] .setup-wizard-container, html[data-bs-theme="light"] .lubelogger-navbar-container {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
