@@ -7,7 +7,7 @@
         public int UrgentReminderCount { get; set;}
         public int NotUrgentReminderCount { get; set; }
         public int PastDueReminderCount { get; set; }
-        public ReminderExportModel NextReminder { get; set; }
+        public ReminderAPIExportModel NextReminder { get; set; }
         public int ServiceRecordCount { get; set; }
         public decimal ServiceRecordCost { get; set; }
         public int RepairRecordCount { get; set; }

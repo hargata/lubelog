@@ -7,6 +7,12 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var enableCsvImports = userConfig.EnableCsvImports;
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.NoteRecord);
 }
 <div class="row">
     <div class="d-flex justify-content-between">
@@ -41,6 +47,36 @@
                                 <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
                             </div>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('NoteRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'NoteRecord')" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('NoteRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'NoteRecord')" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('NoteRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'NoteRecord')" type="checkbox" id="chkCol_Attachment">
+                                <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                            </div>
+                        </li>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            var elementId = Guid.NewGuid();
+                            <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('NoteRecord')">
+                                <div class="list-group-item">
+                                    <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'NoteRecord')" type="checkbox" id="@elementId">
+                                    <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                                </div>
+                            </li>
+                        }
                     </ul>
                 </div>
             }
@@ -61,8 +97,13 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Description")</th>
-                    <th scope="col" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Note")</th>
+                    <th scope="col" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Note")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -71,12 +112,29 @@
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@note.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditNoteModal,@note.Id)" data-tags='@string.Join(" ", note.Tags)'>
                         @if (note.Pinned)
                         {
-                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>
+                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>
                         } else
                         {
-                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate">@note.Description</td>
+                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@note.Description</td>
                         }
-                        <td class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost" data-column="notes">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", note.Files)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                @{
+                                    var extraFieldValue = note.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
+                                    if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
+                                    {
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                    }
+                                    else
+                                    {
+                                        @extraFieldValue
+                                    }
+                                }
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -92,7 +150,7 @@
 </div>
 
 
-<div class="modal fade" data-bs-focus="false" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'noteFiles')">
+<div class="modal fade" data-bs-focus="false" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="noteModalContent">
         </div>
@@ -114,3 +172,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'NoteRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}

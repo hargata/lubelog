@@ -49,7 +49,7 @@
         </div>
         <div class="row swimlane">
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Backlog')">
-                <div class="row">
+                <div class="row sticky-top frosted">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="display-7">@translator.Translate(userLanguage,"Planned")</span>
                     </div>
@@ -60,7 +60,7 @@
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'InProgress')">
-                <div class="row">
+                <div class="row sticky-top frosted">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="display-7">@translator.Translate(userLanguage,"Doing")</span>
                     </div>
@@ -71,7 +71,7 @@
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Testing')">
-                <div class="row">
+                <div class="row sticky-top frosted">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="display-7">@translator.Translate(userLanguage,"Testing")</span>
                     </div>
@@ -82,7 +82,7 @@
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Done')">
-                <div class="row">
+                <div class="row sticky-top frosted">
                     <div class="col-12 d-flex justify-content-center" style="height:5vh;">
                         <span class="display-7">@translator.Translate(userLanguage,"Done")</span>
                     </div>
@@ -97,14 +97,14 @@
 </div>
 
 
-<div class="modal fade" data-bs-focus="false" id="planRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'planRecordFiles')">
+<div class="modal fade" data-bs-focus="false" id="planRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="planRecordModalContent">
         </div>
     </div>
 </div>
 
-<div class="modal fade" data-bs-focus="false" id="planRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event, 'planRecordFiles')">
+<div class="modal fade" data-bs-focus="false" id="planRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="planRecordTemplateModalContent">
         </div>

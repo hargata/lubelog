@@ -1,17 +1,23 @@
-﻿@{
+﻿@using CarCareTracker.Helper
+@{
     ViewData["Title"] = "API";
 }
-<div class="row">
-    <div class="d-flex justify-content-center">
-        <h6 class="display-6 mt-2">API</h6>
+@inject IConfigHelper config
+@section Nav {
+    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
+        <div class="row mt-2">
+            <div class="d-flex lubelogger-navbar">
+                <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
+                    <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                </div>
+                <span class="text-truncate lead">API</span>
+                <span class="lead text-end flex-grow-1 d-none flex-wrap d-md-block">If authentication is enabled, use the credentials of the user for Basic Auth(RFC2617)</span>
+            </div>
+        </div>
+        <hr />
     </div>
-</div>
-<div class="row">
-    <div class="d-flex justify-content-center">
-        <p class="lead">If authentication is enabled, use the credentials of the user for Basic Auth(RFC2617)</p>
-    </div>
-</div>
-<hr />
+}
+<div style="overflow-x:hidden;">
 <div class="row">
     <div class="col-1">
         <h6>Method</h6>
@@ -38,6 +44,20 @@
     </div>
     <div class="col-3">
         No Params
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
+        <span class="badge bg-success">GET</span>
+    </div>
+    <div class="col-5 copyable testable">
+        <code>/api/version</code>
+    </div>
+    <div class="col-3">
+        Returns current version of LubeLogger and checks for updates
+    </div>
+    <div class="col-3">
+        CheckForUpdate(bool) - checks for update(optional)
     </div>
 </div>
 <div class="row api-method">
@@ -805,6 +825,7 @@
         </div>
     </div>
 }
+</div>
 <script>
     $('.copyable').on('click', function (e) {
         if (e.ctrlKey || e.metaKey){

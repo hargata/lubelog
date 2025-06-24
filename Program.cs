@@ -11,6 +11,10 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Additional JsonFile
+builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true, reloadOnChange: true);
+
 //Print Messages
 StaticHelper.InitMessage(builder.Configuration);
 //Check Migration
@@ -77,9 +81,6 @@ builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
-
-//Additional JsonFile
-builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 
 //Configure Auth
 builder.Services.AddDataProtection();

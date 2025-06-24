@@ -1,4 +1,7 @@
-﻿function successToast(message) {
+﻿function returnToGarage() {
+    window.location.href = '/Home';
+}
+function successToast(message) {
     Swal.fire({
         toast: true,
         position: "top-end",
@@ -391,9 +394,15 @@ function getAndValidateSelectedVehicle() {
 }
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
+    //hide body scrollbar
+    $("body").css('overflow-y', 'hidden');
+    $("body").css('position', 'fixed'); //iOS SafariWebKit hack fix
 }
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
+    //re-enable scrollbar.
+    $("body").css('overflow-y', 'auto');
+    $("body").css('position', ''); //iOS SafariWebKit hack fix
 }
 var windowWidthForCompare = 0;
 function bindWindowResize() {
@@ -576,50 +585,90 @@ function uploadVehicleFilesAsync(event) {
         }
     });
 }
+function uploadVehicleLinksAsync(event) {
+    event.stopPropagation();
+    Swal.fire({
+        title: 'Add Link',
+        html: `
+                    <input type="text" id="newLinkName" class="swal2-input" placeholder="Link Name" onkeydown="handleSwalEnter(event)">
+                    <input type="text" id="newLinkLocation" class="swal2-input" placeholder="Link Location" onkeydown="handleSwalEnter(event)">
+                    `,
+        confirmButtonText: 'Add Link',
+        focusConfirm: false,
+        preConfirm: () => {
+            const newLinkName = $("#newLinkName").val();
+            const newLinkLocation = $("#newLinkLocation").val();
+            if (!newLinkName) {
+                Swal.showValidationMessage(`Please enter a valid link name`);
+            }
+            if (!newLinkLocation) {
+                Swal.showValidationMessage(`Please enter a valid link location`);
+            }
+            return { newLinkName, newLinkLocation }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, isPending: true });
+            $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                $("#filesPendingUpload").html(viewData);
+            });
+        }
+    });
+}
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-    if (fileLocation.startsWith("/temp/")) {
-        if ($("#documentsPendingUploadList > li").length == 0) {
-            $("#documentsPendingUploadLabel").text("");
-        }
-    } else if (fileLocation.startsWith("/documents/")) {
-        if ($("#uploadedDocumentsList > li").length == 0) {
-            $("#uploadedDocumentsLabel").text("");
-        }
+    if ($("#documentsPendingUploadList > li").length == 0) {
+        $("#documentsPendingUploadLabel").text("");
+    }
+    if ($("#uploadedDocumentsList > li").length == 0) {
+        $("#uploadedDocumentsLabel").text("");
     }
 }
 function editFileName(fileLocation, event) {
+    let currentFileName = $(event.parentElement.parentElement).find('a > .text-link').text();
     Swal.fire({
-        title: 'Rename File',
+        title: 'Rename File or Link',
         html: `
-                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name" onkeydown="handleSwalEnter(event)">
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New Name" onkeydown="handleSwalEnter(event)" value="${currentFileName}">
                     `,
         confirmButtonText: 'Rename',
         focusConfirm: false,
         preConfirm: () => {
             const newFileName = $("#newFileName").val();
             if (!newFileName) {
-                Swal.showValidationMessage(`Please enter a valid file name`)
+                Swal.showValidationMessage(`Please enter a valid name`)
             }
             return { newFileName }
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            var linkDisplayObject = $(event.parentElement.parentElement).find('a')[0];
-            linkDisplayObject.text = result.value.newFileName;
+            var linkDisplayObject = $(event.parentElement.parentElement).find('a > .text-link');
+            linkDisplayObject.text(result.value.newFileName);
             var editFileIndex = uploadedFiles.findIndex(x => x.location == fileLocation);
             uploadedFiles[editFileIndex].name = result.value.newFileName;
         }
     });
 }
 var scrollPosition = 0;
+var savedTag = '';
 function saveScrollPosition() {
     scrollPosition = $(".vehicleDetailTabContainer").scrollTop();
+    let selectedTagElem = $(".tagfilter.bg-primary");
+    if (selectedTagElem.length > 0) {
+        savedTag = selectedTagElem.text();
+    }
 }
 function restoreScrollPosition() {
     $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
     scrollPosition = 0;
+    if (savedTag != '') {
+        let availableTagElem = $(".tagfilter").filter((index, elem) => $(elem).text() == savedTag);
+        if (availableTagElem.length > 0) {
+            availableTagElem.trigger('click');
+        }
+        savedTag = '';
+    }
 }
 function toggleMarkDownOverlay(textAreaName) {
     var textArea = $(`#${textAreaName}`);
@@ -1460,11 +1509,12 @@ function bindModalInputChanges(modalName) {
         $(e.currentTarget).attr('data-changed', true);
     });
 }
-function handleModalPaste(e, recordType) {
-    var clipboardFiles = e.clipboardData.files;
-    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
-    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
-    var acceptableFiles = new DataTransfer();
+function handleModalPaste(e) {
+    let recordType = getUploaderId().uploaderId;
+    let clipboardFiles = e.clipboardData.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
     if (clipboardFiles.length > 0) {
         for (var x = 0; x < clipboardFiles.length; x++) {
             if (acceptableFileFormats != "*") {
@@ -1575,5 +1625,41 @@ function populateLocationField(fieldName) {
         } catch (err) {
             errorToast('Location Services not Enabled');
         }
+    }
+}
+function toggleUploadFileBrowser() {
+    let uploaderId = getUploaderId().uploaderId;
+    $(`#${uploaderId}`).trigger('click');
+}
+function handlePotentialFileDrop(event) {
+    event.preventDefault();
+    $('.lubelogger-uploader').addClass('solid');
+}
+function handleNoFileDrop(event) {
+    event.preventDefault();
+    $('.lubelogger-uploader').removeClass('solid');
+}
+function handleEndFileDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    $('.lubelogger-uploader').removeClass('solid');
+    let recordType = getUploaderId().uploaderId;
+    let clipboardFiles = event.dataTransfer.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
+    if (clipboardFiles.length > 0) {
+        for (var x = 0; x < clipboardFiles.length; x++) {
+            if (acceptableFileFormats != "*") {
+                var fileExtension = `.${clipboardFiles[x].name.split('.').pop()}`;
+                if (acceptableFileFormatsArray.includes(fileExtension)) {
+                    acceptableFiles.items.add(clipboardFiles[x]);
+                }
+            } else {
+                acceptableFiles.items.add(clipboardFiles[x]);
+            }
+        }
+        $(`#${recordType}`)[0].files = acceptableFiles.files;
+        $(`#${recordType}`).trigger('change');
     }
 }

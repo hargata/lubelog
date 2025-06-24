@@ -36,7 +36,6 @@ html {
     overflow-x: auto;
 }
 .reportTabContainer {
-    max-height: 85vh;
     overflow-y: auto;
     overflow-x: auto;
 }
@@ -78,6 +77,7 @@ html {
         line-height: 18px;
         color: #000 !important;
         overflow: visible;
+        z-index: 1030;
     }
     .stickerPrintContainer {
         background-color: #fff !important;
@@ -242,6 +242,25 @@ html {
     background-color: #0d6efd;
 }
 
+.lubelogger-navbar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1020;
+}
+
+.lubelogger-navbar {
+    align-items: center;
+}
+
+.lubelogger-tab {
+   border:none;
+}
+
+    .lubelogger-tab .nav-link {
+        border: none;
+    }
+
 /*Media Queries*/
 @media (max-width: 576px) {
     .lubelogger-tab {
@@ -270,14 +289,15 @@ html {
 
     .lubelogger-mobile-nav {
         background-color: var(--bs-body-bg);
-        height: max(100vh, 100%);
+        height: 100vh;
         width: 100%;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         margin: 0;
         display: none;
         z-index: 2000;
+        overflow-y:auto;
     }
 
     .lubelogger-mobile-nav-show {
@@ -296,10 +316,6 @@ html {
 
     .lubelogger-mobile-nav {
         display: none;
-    }
-
-    .lubelogger-navbar {
-        justify-content: center;
     }
 
     .lubelogger-navbar-button {
@@ -500,7 +516,8 @@ html[data-bs-theme="light"] .api-method:hover {
 
 .lubelogger-logo {
     height: 48px;
-    width: 204px;
+    min-width: 48px;
+    max-width: 204px;
     object-fit: scale-down;
     pointer-events: none;
 }
@@ -526,4 +543,82 @@ html[data-bs-theme="light"] .api-method:hover {
     font-size: 0.6em;
     font-weight: 500;
     top: 15%
+}
+
+.lubelogger-vehicle-logo {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+    .lubelogger-vehicle-logo.sold {
+        filter: grayscale(100%);
+    }
+
+.lubelogger-uploader {
+    border: 1px dashed rgb(73,80,87);
+    border-radius: 0.375rem;
+    cursor:pointer;
+    position:relative;
+}
+.lubelogger-link-uploader{
+    position:absolute;
+    right:0;
+    top:0;
+}
+    .lubelogger-link-uploader > .btn {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+.lubelogger-uploader.solid {
+    border-style: solid;
+}
+
+.setup-wizard-container {
+    position:relative;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+    height:85vh;
+}
+
+.setup-wizard-content{
+    height: calc(100% - 60px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding: 10px 15px;
+}
+
+.setup-wizard-nav{
+    position: absolute;
+    width:100%;
+    height: 60px;
+    bottom: 0;
+    border-top: #E6E6E6 solid 1px;
+}
+
+html[data-bs-theme="dark"] .frosted {
+    background-color: rgba(33, 37, 41, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-bs-theme="light"] .frosted {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.lubelogger-body-container {
+    padding-top: calc(48px + 2.5rem);
+    min-height: 100vh;
+}
+
+.no-top-pad {
+    margin-top: calc(-48px - 2.5rem);
+}
+.sticky-top-nav {
+    top: calc(48px + 2.5rem);
 }

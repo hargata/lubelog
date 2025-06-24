@@ -98,7 +98,7 @@ namespace CarCareTracker.Controllers
             var result = new UserExportModel
             {
                 Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetUserConfig(User).DefaultReminderEmail : User.FindFirstValue(ClaimTypes.Email),
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email),
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
                 IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
@@ -110,6 +110,34 @@ namespace CarCareTracker.Controllers
             {
                 return Json(result);
             }
+        }
+        [HttpGet]
+        [Route("/api/version")]
+        public async Task<IActionResult> ServerVersion(bool checkForUpdate = false)
+        {
+            var viewModel = new ReleaseVersion
+            {
+                CurrentVersion = StaticHelper.VersionNumber,
+                LatestVersion = StaticHelper.VersionNumber
+            };
+            if (checkForUpdate)
+            {
+                try
+                {
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+                    var releaseResponse = await httpClient.GetFromJsonAsync<ReleaseResponse>(StaticHelper.ReleasePath) ?? new ReleaseResponse();
+                    if (!string.IsNullOrWhiteSpace(releaseResponse.tag_name))
+                    {
+                        viewModel.LatestVersion = releaseResponse.tag_name;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(OperationResponse.Failed($"Unable to retrieve latest version from GitHub API: {ex.Message}"));
+                }
+            }
+            return Json(viewModel);
         }
         [HttpGet]
         [Route("/api/vehicles")]
@@ -184,15 +212,27 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/planrecords")]
-        public IActionResult PlanRecords(int vehicleId)
+        public IActionResult PlanRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(parameters.VehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated > endDate);
+            }
             var result = vehicleRecords.Select(x => new PlanRecordExportModel {
                 Id = x.Id.ToString(),
                 DateCreated = x.DateCreated.ToShortDateString(),
@@ -405,15 +445,32 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
-        public IActionResult ServiceRecords(int vehicleId)
+        public IActionResult ServiceRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(parameters.VehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -582,15 +639,32 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
-        public IActionResult RepairRecords(int vehicleId)
+        public IActionResult RepairRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(parameters.VehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -762,15 +836,32 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
-        public IActionResult UpgradeRecords(int vehicleId)
+        public IActionResult UpgradeRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(parameters.VehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -941,15 +1032,33 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
-        public IActionResult TaxRecords(int vehicleId)
+        public IActionResult TaxRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(parameters.VehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -1149,19 +1258,36 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
-        public IActionResult OdometerRecords(int vehicleId)
+        public IActionResult OdometerRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(parameters.VehicleId);
             //determine if conversion is needed.
             if (vehicleRecords.All(x => x.InitialMileage == default))
             {
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
             var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
@@ -1311,16 +1437,34 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
-        public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
+        public IActionResult GasRecords(MethodParameter parameters)
         {
-            if (vehicleId == default)
+            if (parameters.VehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG)
+            var rawVehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _gasHelper.GetGasRecordViewModels(rawVehicleRecords, parameters.UseMPG, parameters.UseUKMPG);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords
                 .Select(x => new GasRecordExportModel { 
                     Id = x.Id.ToString(),
                     Date = x.Date, 
@@ -1517,7 +1661,7 @@ namespace CarCareTracker.Controllers
             }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), Tags = string.Join(' ', x.Tags) });
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -1762,7 +1906,7 @@ namespace CarCareTracker.Controllers
             }
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
-            var defaultEmailAddress = _config.GetUserConfig(User).DefaultReminderEmail;
+            var defaultEmailAddress = _config.GetDefaultReminderEmail();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;

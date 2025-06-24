@@ -13,17 +13,21 @@
         emailServerIsSetup = false;
     }
 }
+@section Nav {
+    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
+        <div class="row mt-2">
+            <div class="d-flex lubelogger-navbar">
+                <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
+                    <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                </div>
+                <span class="text-truncate lead">@translator.Translate(userLanguage, "Admin Panel")</span>
+            </div>
+        </div>
+        <hr />
+    </div>
+}
 @model AdminViewModel
 <div class="container">
-    <div class="row d-flex align-items-center justify-content-between justify-content-md-start">
-        <div class="col-2 col-md-1">
-            <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
-        </div>
-        <div class="col-6 col-md-7 text-end text-md-start">
-            <span class="display-6">@translator.Translate(userLanguage, "Admin Panel")</span>
-        </div>
-    </div>
-    <hr />
     <div class="row">
         <div class="col-12">
             <div class="row">
@@ -38,7 +42,7 @@
             </div>
             <hr />
             <table class="table table-hover">
-                <thead class="sticky-top">
+                <thead class="sticky-top sticky-top-nav">
                     <tr class="d-flex">
                         <th scope="col" class="col-4">@translator.Translate(userLanguage, "Username")</th>
                         <th scope="col" class="col-4">@translator.Translate(userLanguage, "Email")</th>
@@ -56,23 +60,23 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                        <div class="d-flex align-items-center">
-                            <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
+                    <div class="d-flex align-items-center">
+                        <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
+                    </div>
+                    <div class="d-flex align-items-center ms-auto">
+                        <div class="btn-group">
+                            <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1">
+                                <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate")
+                            </button>
+                            <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify(event)">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
+                                    <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Notify")</label>
+                                </div>
+                            </button>
                         </div>
-                        <div class="d-flex align-items-center ms-auto">
-                            <div class="btn-group">
-                                <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1">
-                                    <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate")
-                                </button>
-                                <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify(event)">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
-                                        <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Notify")</label>
-                                    </div>
-                                </button>
-                            </div>
                         <button class="btn btn-close btn-md mt-1 mb-1 ms-2" onclick="hideTokenModal()" aria-label="Close"></button>
-                        </div>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <table class="table table-hover">

@@ -43,12 +43,14 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddNotePartialView()
         {
-            return PartialView("_NoteModal", new Note());
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields;
+            return PartialView("_NoteModal", new Note() { ExtraFields = extraFields });
         }
         [HttpGet]
         public IActionResult GetNoteForEditById(int noteId)
         {
             var result = _noteDataAccess.GetNoteById(noteId);
+            result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
             {
