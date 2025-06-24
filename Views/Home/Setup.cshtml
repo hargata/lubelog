@@ -17,7 +17,7 @@
     <script src="~/js/serversettings.js?v=@StaticHelper.VersionNumber"></script>
 }
 @section Nav {
-    <div class="container-fluid lubelogger-navbar-container hideOnPrint">
+    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
         <div class="row mt-2">
             <div class="d-flex lubelogger-navbar">
                 <div style="cursor:pointer;" onclick="returnToGarage()" class="me-2">
@@ -30,7 +30,7 @@
     </div>
 }
 @model ServerSettingsViewModel
-<div class="setup-wizard-container">
+<div class="setup-wizard-container frosted">
     <div class="setup-wizard-content" data-page="0">
         <div class="d-flex text-center align-items-center justify-content-center flex-column" style="height:100%;">
             <div><span class="display-5">@translator.Translate(userLanguage, "Server Settings Configurator")</span></div>
