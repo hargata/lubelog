@@ -317,7 +317,7 @@ function generateConfig(){
 			windowConfig["LUBELOGGER_LOGO_URL"] = $("#inputCustomLogo").val();
 		}
 		if ($('#inputCustomSmallLogo').val().trim() != ''){
-			windowConfig["LUBELOGGER_SMALL_LOGO_URL"] = $("#inputCustomSmallLogo").val();
+            windowConfig["LUBELOGGER_LOGO_SMALL_URL"] = $("#inputCustomSmallLogo").val();
 		}
 		if ($('#inputMOTD').val().trim() != '') {
 			windowConfig["LUBELOGGER_MOTD"] = $("#inputMOTD").val();
@@ -400,7 +400,7 @@ function generateConfig(){
 			dockerConfig.push(`LUBELOGGER_LOGO_URL="${$('#inputCustomLogo').val()}"`);
 		}
 		if ($('#inputCustomSmallLogo').val().trim() != ''){
-			dockerConfig.push(`LUBELOGGER_SMALL_LOGO_URL="${$('#inputCustomSmallLogo').val()}"`);
+            dockerConfig.push(`LUBELOGGER_LOGO_SMALL_URL="${$('#inputCustomSmallLogo').val()}"`);
 		}
 		if ($('#inputMOTD').val().trim() != '') {
 			dockerConfig.push(`LUBELOGGER_MOTD="${$('#inputMOTD').val()}"`);
