@@ -289,7 +289,7 @@ html {
 
     .lubelogger-mobile-nav {
         background-color: var(--bs-body-bg);
-        height: max(100vh, 100%);
+        height: 100vh;
         width: 100%;
         position: fixed;
         top: 0;

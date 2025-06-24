@@ -396,11 +396,13 @@ function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
     //hide body scrollbar
     $("body").css('overflow-y', 'hidden');
+    $("body").css('position', 'fixed'); //iOS SafariWebKit hack fix
 }
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
     //re-enable scrollbar.
     $("body").css('overflow-y', 'auto');
+    $("body").css('position', ''); //iOS SafariWebKit hack fix
 }
 var windowWidthForCompare = 0;
 function bindWindowResize() {
