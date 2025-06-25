@@ -1668,11 +1668,11 @@ function checkNavBarOverflow() {
     //check height
     $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
     $('.nav-item-more > ul > li').remove(); //clear out cloned items.
-    let navbarHeight = $('.lubelogger-navbar').height();
     //check if icons loaded
     let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
     let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
     const removeNavbarItems = () => {
+        let navbarHeight = $('.lubelogger-navbar').height();
         if (navbarHeight > 48) {
             //get all elems in the nav
             let sortedElems = $('.lubelogger-navbar > .lubelogger-tab > .nav-item:visible:not(".nav-item-persist")').toArray().sort((a, b) => {
