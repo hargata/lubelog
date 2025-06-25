@@ -855,5 +855,19 @@ namespace CarCareTracker.Helper
             string calendarContent = sb.ToString();
             return Encoding.UTF8.GetBytes(calendarContent);
         }
+        public static decimal CalculateNiceStepSize(decimal min, decimal max, int desiredTicks)
+        {
+            double range = Convert.ToDouble(max - min);
+            double roughStep = range / desiredTicks;
+            double exponent = Math.Floor(Math.Log10(roughStep));
+            double stepPower = Math.Pow(10, exponent);
+            double normalizedStep = roughStep / stepPower;
+
+            // Choose the closest nice interval (1, 2, or 5)
+            double[] niceSteps = { 1, 2, 5 };
+            double goodNormalizedStep = niceSteps.OrderBy(s => Math.Abs(s - normalizedStep)).First();
+
+            return Convert.ToDecimal(goodNormalizedStep * stepPower);
+        }
     }
 }
