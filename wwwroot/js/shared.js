@@ -410,6 +410,7 @@ function bindWindowResize() {
     $(window).on('resize', function () {
         if (window.innerWidth != windowWidthForCompare) {
             hideMobileNav();
+            checkNavBarOverflow();
             windowWidthForCompare = window.innerWidth;
         }
     });
@@ -1661,5 +1662,44 @@ function handleEndFileDrop(event) {
         }
         $(`#${recordType}`)[0].files = acceptableFiles.files;
         $(`#${recordType}`).trigger('change');
+    }
+}
+function checkNavBarOverflow() {
+    //check height
+    $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
+    $('.nav-item-more > ul > li').remove(); //clear out cloned items.
+    let navbarHeight = $('.lubelogger-navbar').height();
+    //check if icons loaded
+    let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
+    let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
+    const removeNavbarItems = () => {
+        if (navbarHeight > 48) {
+            //get all elems in the nav
+            let sortedElems = $('.lubelogger-navbar > .lubelogger-tab > .nav-item:visible:not(".nav-item-persist")').toArray().sort((a, b) => {
+                let orderA = $(a).css('order');
+                let orderB = $(b).css('order');
+                return orderA - orderB;
+            });
+            for (let i = sortedElems.length - 1; i > -1; i--) {
+                navbarHeight = $('.lubelogger-navbar').height();
+                if (navbarHeight > 48) {
+                    $(sortedElems[i]).hide(); //hide elem.
+                    //clone item into additional nav dropdown
+                    let buttonToClone = $(sortedElems[i]).find('button').clone();
+                    let clonedItem = $(`<li class='text-truncate'></li>`)
+                    clonedItem.prepend(buttonToClone);
+                    $('.nav-item-more > ul').prepend(clonedItem);
+                } else {
+                    break;
+                }
+            }
+        } else {
+            $('.nav-item-more').hide();
+        }
+    }
+    if (iconWidth != iconFontSize) {
+        setTimeout(() => { removeNavbarItems() }, 500);
+    } else {
+        removeNavbarItems()
     }
 }

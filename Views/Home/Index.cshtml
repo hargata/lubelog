@@ -25,27 +25,32 @@
                 </div>
                 <ul class="nav nav-tabs lubelogger-tab flex-grow-1" id="homeTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link resizable-nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Garage")</span></button>
+                        <button class="nav-link resizable-nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2">@translator.Translate(userLanguage, "Garage")</span></button>
                     </li>
                     @if (config.GetServerEnableShopSupplies())
                     {
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link resizable-nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Supplies")</span></button>
+                            <button class="nav-link resizable-nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2">@translator.Translate(userLanguage, "Supplies")</span></button>
                         </li>
                     }
                     @if (userConfig.ShowCalendar)
                     {
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Calendar")</span></button>
+                            <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2">@translator.Translate(userLanguage, "Calendar")</span></button>
                         </li>
                     }
+                    <li class="nav-item dropdown nav-item-persist nav-item-more me-5" role="presentation" style="display:none;">
+                        <a class="nav-link resizable-nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu">
+                        </ul>
+                    </li>
                     <li class="nav-item ms-auto" role="presentation">
-                        <button class="nav-link resizable-nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2 d-sm-none d-md-inline">@translator.Translate(userLanguage, "Settings")</span></button>
+                        <button class="nav-link resizable-nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
                     </li>
                     @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
                     {
-                        <li class="nav-item dropdown" role="presentation">
-                            <a class="nav-link resizable-nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person"></i><span class="ms-2 d-sm-none d-md-inline">@User.Identity.Name</span></a>
+                        <li class="nav-item dropdown nav-item-persist" role="presentation">
+                            <a class="nav-link resizable-nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person"></i><span class="ms-2">@User.Identity.Name</span></a>
                             <ul class="dropdown-menu">
                                 @if (User.IsInRole(nameof(UserData.IsAdmin)))
                                 {
@@ -163,4 +168,5 @@
 <script>
     loadGarage();
     bindWindowResize();
+    checkNavBarOverflow();
 </script>
