@@ -10,5 +10,6 @@
         public List<int> Years { get; set; } = new List<int>();
         public List<UserCollaborator> Collaborators { get; set; } = new List<UserCollaborator>();
         public bool CustomWidgetsConfigured { get; set; } = false;
+        public List<ImportMode> AvailableMetrics { get; set; } = new List<ImportMode>();
     }
 }
