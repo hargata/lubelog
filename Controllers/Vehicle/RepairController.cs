@@ -21,7 +21,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             }
-            return PartialView("_CollisionRecords", result);
+            return PartialView("Collision/_CollisionRecords", result);
         }
         [HttpPost]
         public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
@@ -73,7 +73,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddCollisionRecordPartialView()
         {
-            return PartialView("_CollisionRecordModal", new CollisionRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields });
+            return PartialView("Collision/_CollisionRecordModal", new CollisionRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetCollisionRecordForEditById(int collisionRecordId)
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.RepairRecord).ExtraFields)
             };
-            return PartialView("_CollisionRecordModal", convertedResult);
+            return PartialView("Collision/_CollisionRecordModal", convertedResult);
         }
         private bool DeleteCollisionRecordWithChecks(int collisionRecordId)
         {

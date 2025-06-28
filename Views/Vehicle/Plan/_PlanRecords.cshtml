@@ -56,7 +56,7 @@
                 </div>
                 @foreach (PlanRecord planRecord in backLogItems)
                 {
-                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'InProgress')">
@@ -67,7 +67,7 @@
                 </div>
                 @foreach (PlanRecord planRecord in inProgressItems)
                 {
-                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Testing')">
@@ -78,7 +78,7 @@
                 </div>
                 @foreach (PlanRecord planRecord in testingItems)
                 {
-                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
                 }
             </div>
             <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Done')">
@@ -89,7 +89,7 @@
                 </div>
                 @foreach (PlanRecord planRecord in doneItems)
                 {
-                    @await Html.PartialAsync("_PlanRecordItem", planRecord)
+                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
                 }
             </div>
         </div>

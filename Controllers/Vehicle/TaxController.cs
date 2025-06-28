@@ -21,7 +21,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ToList();
             }
-            return PartialView("_TaxRecords", result);
+            return PartialView("Tax/_TaxRecords", result);
         }
 
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -67,7 +67,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddTaxRecordPartialView()
         {
-            return PartialView("_TaxRecordModal", new TaxRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields });
+            return PartialView("Tax/_TaxRecordModal", new TaxRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetTaxRecordForEditById(int taxRecordId)
@@ -95,7 +95,7 @@ namespace CarCareTracker.Controllers
                 Tags = result.Tags,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.TaxRecord).ExtraFields)
             };
-            return PartialView("_TaxRecordModal", convertedResult);
+            return PartialView("Tax/_TaxRecordModal", convertedResult);
         }
         private bool DeleteTaxRecordWithChecks(int taxRecordId)
         {

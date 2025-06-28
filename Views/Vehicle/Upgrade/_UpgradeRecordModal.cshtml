@@ -44,7 +44,7 @@
                     }
                     <label for="upgradeRecordCost">@translator.Translate(userLanguage, "Cost")</label>
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="upgradeRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of the upgrade/mods")" value="@(isNew ? "" : Model.Cost)">
-                    @await Html.PartialAsync("_SupplyStore", new SupplyStore { Tab = "UpgradeRecord", AdditionalSupplies = Model.RequisitionHistory.Any() })
+                    @await Html.PartialAsync("Supply/_SupplyStore", new SupplyStore { Tab = "UpgradeRecord", AdditionalSupplies = Model.RequisitionHistory.Any() })
                     <label for="upgradeRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
                     <select multiple class="form-select" id="upgradeRecordTag">
                         @foreach (string tag in Model.Tags)
@@ -105,7 +105,7 @@
         <button type="button" class="btn btn-primary" onclick="saveUpgradeRecordToVehicle(true)">@translator.Translate(userLanguage, "Edit Upgrade Record")</button>
     }
 </div>
-@await Html.PartialAsync("_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "upgradeRecordCost" })
+@await Html.PartialAsync("Supply/_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "upgradeRecordCost" })
 <script>
     var selectedSupplies = [];
     var recurringReminderRecordId = [];
