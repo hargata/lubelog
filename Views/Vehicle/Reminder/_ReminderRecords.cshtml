@@ -75,6 +75,18 @@
                         </li>
                         <li class="dropdown-item">
                             <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='duedays' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_DueDays">
+                                <label class="form-check-label stretched-link" for="chkCol_DueDays">@translator.Translate(userLanguage, "Due Days")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='duedistance' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_DueDistance">
+                                <label class="form-check-label stretched-link" for="chkCol_DueDistance">@translator.Translate(userLanguage, "Due Distance")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'ReminderRecord')" type="checkbox" id="chkCol_Description" checked>
                                 <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
                             </div>
@@ -123,6 +135,8 @@
                     <th scope="col" data-column="metric" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Metric")</th>
                     <th scope="col" data-column="date" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Date")</th>
                     <th scope="col" data-column="odometer" style="display:none;"  class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" data-column="duedays" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Days")</th>
+                    <th scope="col" data-column="duedistance" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Distance")</th>
                     <th scope="col" data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)
@@ -173,6 +187,12 @@
                         </td>
                         <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="odometer">
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.Mileage : "---")
+                        </td>
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedays">
+                            @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Date ? reminderRecord.DueDays : "---")
+                        </td>
+                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedistance">
+                            @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.DueMileage : "---")
                         </td>
                         <td data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@reminderRecord.Description</td>
                         <td data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>

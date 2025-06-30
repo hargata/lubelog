@@ -1661,7 +1661,7 @@ namespace CarCareTracker.Controllers
             }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), Tags = string.Join(' ', x.Tags) });
+            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
