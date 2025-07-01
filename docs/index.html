@@ -7,187 +7,200 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .customCarouselCaption{
-            background-image: linear-gradient(to bottom, rgba(255,0,0,0), #000);
-            padding-top: 3rem;
-            color: #fff !important
-        }
+		.full-height {
+			height: 80vh;
+			max-height: 80vh;
+			overflow:auto;
+			padding-left: 5%;
+			padding-right: 5%;
+		}
+		.full-height.alt {
+			background-color: #191B1E;
+		}
+		.frosted {
+			background-color: rgba(33, 37, 41, 0.7);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+		}
+		.carousel-img {
+			height: 50vh;
+			width: 100%;
+			object-fit: scale-down;
+			border: #495057 1px solid;
+			border-radius: .375em;
+			padding: 2%;
+			background-color: #212529;
+		}
+		.big-container{
+			width: 100%;
+		}
+		.half {
+			width: 50%;
+		}
+		@media (max-width: 991px) {
+			.half {
+				width: 100%;
+			}
+			h6.half {
+				order: 1;
+			}
+			.full-height{
+				flex-direction:column;
+			}
+		}
+		.ll-footer {
+			padding: 15px 10px;
+		}
     </style>
 </head>
 <body>
-    <div class="container" style="height:85vh;">
-        <main role="main">
-            <div class="row mt-2">
-                <div class="d-flex justify-content-center">
-                    <img src="lubelogger_logo.png"/>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Self-Hosted, Open-Source, Unconventionally-Named Vehicle Maintenance Records and Fuel Mileage Tracker</h6>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="#download"><i class="bi bi-download me-2"></i>Download</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></div>
-                <div class="col-12 col-sm-6 col-md-2"><a class="btn btn-dark" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></div>
-            </div>
-			<hr>
-            <div class="row" id="showcase">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Showcase</h6>
-                </div>
-            </div>
-            <div class="row">
-                <div id="carouselGallery" class="carousel slide">
-                    <div class="carousel-indicators">
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="0" class="active" aria-current="true"></button>
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="1"></button>
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="2"></button>
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="3"></button>
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="4"></button>
-                      <button type="button" data-bs-target="#carouselGallery" style='background-color: #fff' data-bs-slide-to="5"></button>
-                    </div>
-                    <div class="carousel-inner">
-                      <div class="carousel-item active">
-                        <img src="garage.png" class="d-block w-100" alt="Gallery View">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Garage</h5>
-                          <p>All of your vehicles conveniently displayed in one place</p>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <img src="dashboard.png" class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Dashboard</h5>
-                          <p>Get an overview of your vehicle expenses</p>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <img src="planner.png" class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Planner(Kanban Board)</h5>
-                          <p>Plan and track the progress of your To-Do's</p>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <img src="servicerecord.png" class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Service, Repair, and Upgrade Records</h5>
-                          <p>Track all of the work done on your vehicles</p>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <img src="fuelmileage.png" class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Fuel Mileage</h5>
-                          <p>Keeps track of the fuel economy of your vehicles</p>
-                        </div>
-                      </div>
-                      <div class="carousel-item">
-                        <img src="reminder.png" class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block customCarouselCaption">
-                          <h5>Reminders</h5>
-                          <p>Set up reminders so you never miss another scheduled maintenance</p>
-                        </div>
-                      </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselGallery" data-bs-slide="prev">
-                      <span class="carousel-control-prev-icon" style='filter:inherit;' aria-hidden="true"></span>
-                      <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselGallery" data-bs-slide="next">
-                      <span class="carousel-control-next-icon" style='filter:inherit;' aria-hidden="true"></span>
-                      <span class="visually-hidden">Next</span>
-                    </button>
-                  </div>
-            </div>
-            <hr>
-            <div class="row" id="features">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Features</h6>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <ul class="list-group">
-                        <li class="list-group-item">Keeps track of all your maintenance, repair, and upgrade records</li>
-                        <li class="list-group-item">Keeps track of your fuel economy(supports MPG, UK MPG, and L/100KM)</li>
-                        <li class="list-group-item">Keeps track of taxes(registration, going fast tax, etc)</li>
-                        <li class="list-group-item">Keeps track of supplies(parts, fluids, etc)</li>
-                        <li class="list-group-item">No limit on how many vehicles you have in your garage</li>
-                        <li class="list-group-item">Import existing records from CSV(supports imports from Fuelly)</li>
-                        <li class="list-group-item">Attach documents for each record(receipts, invoices, etc)</li>
-						<li class="list-group-item">Keeps track of your To-Do's(Kanban Planner)</li>
-						<li class="list-group-item">Set recurring reminders so you never miss another scheduled maintenance</li>
-                    </ul>
-                </div>
-                <div class="col-12 col-md-6">
-                    <ul class="list-group">
-                        <li class="list-group-item">User-customizable fields</li>
-                        <li class="list-group-item">Supports multiple users</li>
-						<li class="list-group-item">Reminder Emails</li>
-                        <li class="list-group-item">Dark Mode</li>
-                        <li class="list-group-item">Mobile/Small screen support</li>
-                        <li class="list-group-item">Basic and OpenID Connect(OIDC) Authentication for security</li>
-                        <li class="list-group-item">API Endpoints</li>
-                        <li class="list-group-item">Consolidated Vehicle Maintenance Report</li>
-						<li class="list-group-item">Trip Recorder(GPS Integration)</li>
-                      </ul>
-                </div>
-            </div>
-            <hr>
-            <div class="row" id="demo">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Try It Out</h6>
-                </div>
-            </div>
-            <div class="col-12 d-flex justify-content-center">
-                <p class="lead">
-                    Live demo available <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://demo.lubelogger.com">here</a>
-                </p>
-            </div>
-            <div class="col-12 d-flex justify-content-center">
-                <p class="lead">Login to the demo using the username "test" and password "1234". The demo site resets every 20 minutes.
-                </p>
-            </div>
-            <hr>
-            <div class="row" id="download">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">Download</h6>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">
-                        LubeLogger is available as a Docker Image, a Windows Standalone Executable(EXE), and a Linux Standalone Executable
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">
-                        Read this <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='https://docs.lubelogger.com/Installation/Getting%20Started'>Getting Started Guide</a> on how to download either of them
-                    </p>
-                </div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center">
-                    <h6 class="display-6 text-center">About</h6>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead">LubeLogger is proudly developed in <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://www.visitutah.com/Places-To-Go/Cities-and-Towns/Price" target="_blank">Price Utah</a> by <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='mailto:hargatasoftworks@gmail.com'>Hargata Softworks</a>
-                    </p>
-                </div>
-                <div class="col-12 d-flex justify-content-center">
-                    <p class="lead"><a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://www.patreon.com/LubeLogger">Support us on Patreon</a> or <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='https://buy.stripe.com/aEU9Egc8DdMc9bO144'>Donate on Stripe</a>
-                    </p>
-                </div>
-            </div>
-        </main>
-    </div>
+	<div class="container-fluid sticky-top frosted" style="padding-top: 7px;">
+		<div class="d-flex align-items-center">
+			<div class="flex-grow-1">
+				<a href="#"><img src="lubelogger_logo.png"/></a>
+			</div>
+			<ul class="nav d-none d-lg-flex">
+				<li class="nav-item"><a class="nav-link" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></li>
+                <li class="nav-item"><a class="nav-link" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></li>
+				<li class="nav-item"><a class="nav-link" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></li>
+			</ul>
+			<ul class="nav d-flex d-lg-none">
+				<li class="nav-item dropdown">
+				<a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<span class="navbar-toggler-icon"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li class="dropdown-item"><a class="nav-link" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></li>
+					<li class="dropdown-item"><a class="nav-link" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></li>
+					<li class="dropdown-item"><a class="nav-link" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
+					<li class="dropdown-item"><a class="nav-link" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></li>
+					<li class="dropdown-item"><a class="nav-link" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></li>
+				</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="big-container">
+		<div class="full-height d-flex align-items-center">
+			<h6 class="display-6 half text-center">Self-Hosted, Open-Source, Unconventionally-Named Vehicle Maintenance Records and Fuel Mileage Tracker<br/><a class='me-2 mt-2 btn btn-lg btn-primary' href="https://docs.lubelogger.com/Installation/Getting%20Started">Get Started</a><a class='mt-2 btn-lg btn btn-outline-primary' href="#demo">Try the demo</a></h6>
+			<div class="half">
+				<img class="carousel-img" src="garage.png"/>
+			</div>
+		</div>
+		<div id="showcase" class="full-height alt d-flex align-items-center">
+			<div class="half">
+				<img class="carousel-img" src="dashboard.png"/>
+			</div>
+			<h6 class="half display-6 text-center">Get an overview of your vehicle expenses<br/><small class="text-secondary">View expenses by year, month, and category</small></h6>
+		</div>
+		<div class="full-height d-flex align-items-center">
+			<h6 class="half display-6 text-center">Plan and track the progress of your To-Do's<br/><small class="text-secondary">Group by type, priority, and progress</small></h6>
+			<div class="half">
+				<img class="carousel-img" src="planner.png"/>
+			</div>
+		</div>
+		<div class="full-height alt d-flex align-items-center">
+			<div class="half">
+				<img class="carousel-img" src="servicerecord.png"/>
+			</div>
+			<h6 class="half display-6 text-center">Track all the work done on your vehicles<br/><small class="text-secondary">Attach documents such as invoices and receipts</small></h6>
+		</div>
+		<div class="full-height d-flex align-items-center">
+			<h6 class="half display-6 text-center">Track the fuel economy of your vehicles<br/><small class="text-secondary">Supports MPG, UK MPG, L/100KM, and KM/L</small></h6>
+			<div class="half">
+				<img class="carousel-img" src="fuelmileage.png"/>
+			</div>
+		</div>
+		<div class="full-height alt d-flex align-items-center">
+			<div class="half">
+				<img class="carousel-img" src="reminder.png"/>
+			</div>
+			<h6 class="half display-6 text-center">Never miss another scheduled maintenance<br/><small class="text-secondary">Set recurring reminders based on date, odometer, or whichever comes first</small></h6>
+		</div>
+		<div id="features" class="full-height d-flex align-items-center justify-content-center flex-column">
+			<h6 class="display-6 mb-3 text-center">Core Features</h6>
+			<div style="width:100%;" class="d-none d-md-flex row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-file-bar-graph"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Dashboard</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-bar-chart-steps"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Planner</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-card-checklist"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Vehicle Records</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-fuel-pump"></i><br class="d-none d-md-block"/>
+					<span class="lead">Fuel Tracker</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-shop"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Supplies</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi bi-bell"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Reminders</span>
+				</div>
+			</div>
+			<ul class="d-block d-md-none">
+				<li>Dashboard</li>
+				<li>Planner</li>
+				<li>Vehicle Records</li>
+				<li>Fuel Tracker</li>
+				<li>Supplies</li>
+				<li>Reminders</li>
+			</ul>
+			<h6 class="mt-3 mb-3 display-6 text-center">Other Features<br class="d-none d-md-block"/><small class="d-none d-md-block text-secondary">There's way too many to list, but here's a few we think you'd like</small></h6>
+			<div style="width:100%;" class="d-none d-md-flex row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-newspaper"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Professional Vehicle Reports</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-people-fill"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Multiple Users</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-input-cursor-text"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">User Customizable Fields</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-upload"></i><br class="d-none d-md-block"/>
+					<span class="lead">CSV Imports/Exports</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-database-fill-gear"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">API</span>
+				</div>
+				<div class="col text-center">
+					<span class="display-6"><i class="bi bi-box-arrow-in-right"></i></span><br class="d-none d-md-block"/>
+					<span class="lead">Single Sign On</span>
+				</div>
+			</div>
+			<ul class="d-block d-md-none">
+				<li>Professional Vehicle Reports</li>
+				<li>Multiple Users</li>
+				<li>User Customizable Fields</li>
+				<li>CSV Imports/Exports</li>
+				<li>API</li>
+				<li>Single Sign On</li>
+			</ul>
+		</div>
+		<div id="demo" class="full-height alt d-flex align-items-center">
+			<div class="half">
+				<img class="carousel-img" src="demo.png"/>
+			</div>
+			<h6 class="half display-6 text-center">Try the <a href="https://demo.lubelogger.com" class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover'>demo<i style="font-size:1.5rem;" class="ms-2 bi bi-box-arrow-up-right"></i></a><br/><small class="text-secondary">Login using the username <code>test</code> and password <code>1234</code></small></h6>
+		</div>
+		<div class="ll-footer d-flex justify-content-center">
+			<span class="lead">Proudly developed in <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href="https://www.visitutah.com/Places-To-Go/Cities-and-Towns/Price" target="_blank">Price Utah</a> by <a class='link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' href='mailto:hargatasoftworks@gmail.com'>Hargata Softworks</a></span>
+		</div>
+	</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>
