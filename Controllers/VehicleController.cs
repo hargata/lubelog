@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json;
+using CarCareTracker.Abstractions;
 
 namespace CarCareTracker.Controllers
 {
@@ -37,6 +38,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
+        private readonly INotificationChannelService _notificationChannelService;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -60,7 +62,8 @@ namespace CarCareTracker.Controllers
             IOdometerLogic odometerLogic,
             IVehicleLogic vehicleLogic,
             IWebHostEnvironment webEnv,
-            IConfigHelper config)
+            IConfigHelper config, 
+            INotificationChannelService notificationChannelService)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -85,6 +88,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _webEnv = webEnv;
             _config = config;
+            _notificationChannelService = notificationChannelService;
         }
         private int GetUserID()
         {
@@ -111,7 +115,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_VehicleModal", data);
         }
         [HttpPost]
-        public IActionResult SaveVehicle(Vehicle vehicleInput)
+        public async Task<IActionResult> SaveVehicle(Vehicle vehicleInput)
         {
             try
             {
@@ -130,11 +134,11 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
+                    await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
+                    await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 return Json(result);
             }
@@ -146,7 +150,7 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
-        public IActionResult DeleteVehicle(int vehicleId)
+        public async Task<IActionResult> DeleteVehicle(int vehicleId)
         {
             //Delete all service records, gas records, notes, etc.
             var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
@@ -164,7 +168,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
             return Json(result);
         }
@@ -412,7 +416,7 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
-        public IActionResult MoveRecords(List<int> recordIds, ImportMode source, ImportMode destination)
+        public async Task<IActionResult> MoveRecords(List<int> recordIds, ImportMode source, ImportMode destination)
         {
             var genericRecord = new GenericRecord();
             bool result = false;
@@ -463,11 +467,11 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
-        public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
+        public async Task<IActionResult> DeleteRecords(List<int> recordIds, ImportMode importMode)
         {
             bool result = false;
             foreach (int recordId in recordIds)
@@ -475,43 +479,43 @@ namespace CarCareTracker.Controllers
                 switch (importMode)
                 {
                     case ImportMode.ServiceRecord:
-                        result = DeleteServiceRecordWithChecks(recordId);
+                        result = await DeleteServiceRecordWithChecks(recordId);
                         break;
                     case ImportMode.RepairRecord:
-                        result = DeleteCollisionRecordWithChecks(recordId);
+                        result = await DeleteCollisionRecordWithChecks(recordId);
                         break;
                     case ImportMode.UpgradeRecord:
-                        result = DeleteUpgradeRecordWithChecks(recordId);
+                        result = await DeleteUpgradeRecordWithChecks(recordId);
                         break;
                     case ImportMode.GasRecord:
-                        result = DeleteGasRecordWithChecks(recordId);
+                        result = await DeleteGasRecordWithChecks(recordId);
                         break;
                     case ImportMode.TaxRecord:
-                        result = DeleteTaxRecordWithChecks(recordId);
+                        result = await DeleteTaxRecordWithChecks(recordId);
                         break;
                     case ImportMode.SupplyRecord:
-                        result = DeleteSupplyRecordWithChecks(recordId);
+                        result = await DeleteSupplyRecordWithChecks(recordId);
                         break;
                     case ImportMode.NoteRecord:
-                        result = DeleteNoteWithChecks(recordId);
+                        result = await DeleteNoteWithChecks(recordId);
                         break;
                     case ImportMode.OdometerRecord:
-                        result = DeleteOdometerRecordWithChecks(recordId);
+                        result = await DeleteOdometerRecordWithChecks(recordId);
                         break;
                     case ImportMode.ReminderRecord:
-                        result = DeleteReminderRecordWithChecks(recordId);
+                        result = await DeleteReminderRecordWithChecks(recordId);
                         break;
                 }
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
-        public IActionResult AdjustRecordsOdometer(List<int> recordIds, int vehicleId, ImportMode importMode)
+        public async Task<IActionResult> AdjustRecordsOdometer(List<int> recordIds, int vehicleId, ImportMode importMode)
         {
             bool result = false;
             //get vehicle's odometer adjustments
@@ -564,12 +568,12 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
         [HttpPost]
-        public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
+        public async Task<IActionResult> DuplicateRecords(List<int> recordIds, ImportMode importMode)
         {
             bool result = false;
             foreach (int recordId in recordIds)
@@ -656,12 +660,12 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
         [HttpPost]
-        public IActionResult DuplicateRecordsToOtherVehicles(List<int> recordIds, List<int> vehicleIds, ImportMode importMode)
+        public async Task<IActionResult> DuplicateRecordsToOtherVehicles(List<int> recordIds, List<int> vehicleIds, ImportMode importMode)
         {
             bool result = false;
             if (!recordIds.Any() || !vehicleIds.Any())
@@ -791,12 +795,12 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
             }
             return Json(result);
         }
         [HttpPost]
-        public IActionResult BulkCreateOdometerRecords(List<int> recordIds, ImportMode importMode)
+        public async Task<IActionResult> BulkCreateOdometerRecords(List<int> recordIds, ImportMode importMode)
         {
             bool result = false;
             foreach (int recordId in recordIds)
@@ -855,7 +859,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
+                await _notificationChannelService.WriteAsync(WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
             }
             return Json(result);
         }
