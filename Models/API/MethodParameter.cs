@@ -4,7 +4,6 @@ namespace CarCareTracker.Models
 {
     public class MethodParameter
     {
-        public int VehicleId { get; set; }
         public int Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string StartDate { get; set; }

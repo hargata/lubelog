@@ -212,15 +212,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/planrecords")]
-        public IActionResult PlanRecords(MethodParameter parameters)
+        public IActionResult PlanRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
             if (parameters.Id != default)
             {
                 vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
@@ -445,15 +445,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
-        public IActionResult ServiceRecords(MethodParameter parameters)
+        public IActionResult ServiceRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
             if (parameters.Id != default)
             {
                 vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
@@ -639,15 +639,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
-        public IActionResult RepairRecords(MethodParameter parameters)
+        public IActionResult RepairRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             if (parameters.Id != default)
             {
                 vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
@@ -836,15 +836,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
-        public IActionResult UpgradeRecords(MethodParameter parameters)
+        public IActionResult UpgradeRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             if (parameters.Id != default)
             {
                 vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
@@ -1032,15 +1032,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
-        public IActionResult TaxRecords(MethodParameter parameters)
+        public IActionResult TaxRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
             if (parameters.Id != default)
             {
                 vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
@@ -1258,15 +1258,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
-        public IActionResult OdometerRecords(MethodParameter parameters)
+        public IActionResult OdometerRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(parameters.VehicleId);
+            var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             //determine if conversion is needed.
             if (vehicleRecords.All(x => x.InitialMileage == default))
             {
@@ -1437,15 +1437,15 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
-        public IActionResult GasRecords(MethodParameter parameters)
+        public IActionResult GasRecords(int vehicleId, MethodParameter parameters)
         {
-            if (parameters.VehicleId == default)
+            if (vehicleId == default)
             {
                 var response = OperationResponse.Failed("Must provide a valid vehicle id");
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var rawVehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(parameters.VehicleId);
+            var rawVehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var vehicleRecords = _gasHelper.GetGasRecordViewModels(rawVehicleRecords, parameters.UseMPG, parameters.UseUKMPG);
             if (parameters.Id != default)
             {
