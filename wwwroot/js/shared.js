@@ -1443,9 +1443,9 @@ function loadUserColumnPreferences(columns, order) {
     columns.map(x => {
         var defaultColumn = $(`[data-column-toggle='${x}'].col-visible-toggle`);
         if (defaultColumn.length > 0) {
-            defaultColumn.prop("checked", true);
-            $(`[data-column='${x}']`).show();
+            defaultColumn.prop("checked", true); 
         }
+        $(`[data-column='${x}']`).show();
     });
     order.map((x, y) => {
         //re-order items in menu
