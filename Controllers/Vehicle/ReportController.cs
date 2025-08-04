@@ -117,7 +117,7 @@ namespace CarCareTracker.Controllers
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
             viewModel.Collaborators = collaborators;
             //get MPG per month.
-            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             var averageMPG = _gasHelper.GetAverageGasMileage(mileageData, userConfig.UseMPG);
@@ -215,7 +215,7 @@ namespace CarCareTracker.Controllers
 
             var userConfig = _config.GetUserConfig(User);
 
-            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             var averageMPG = _gasHelper.GetAverageGasMileage(mileageData, userConfig.UseMPG);
@@ -453,7 +453,7 @@ namespace CarCareTracker.Controllers
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
             bool useMPG = _config.GetUserConfig(User).UseMPG;
-            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
+            bool useUKMPG = !vehicleHistory.VehicleData.IsElectric && _config.GetUserConfig(User).UseUKMPG;
             var gasViewModels = _gasHelper.GetGasRecordViewModels(vehicleRecords.GasRecords, useMPG, useUKMPG);
             //filter by tags
             if (reportParameter.Tags.Any())
@@ -624,7 +624,7 @@ namespace CarCareTracker.Controllers
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
-            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             if (year != 0)
             {
                 mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);

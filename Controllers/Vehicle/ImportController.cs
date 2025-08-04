@@ -382,8 +382,9 @@ namespace CarCareTracker.Controllers
             else if (mode == ImportMode.GasRecord)
             {
                 var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                var vehicleData = _dataAccess.GetVehicleById(vehicleId);
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
-                bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
+                bool useUKMPG = !vehicleData.IsElectric && _config.GetUserConfig(User).UseUKMPG; //do not apply UK conversion on electric vehicles.
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
                 var exportData = convertedRecords.Select(x => new GasRecordExportModel
                 {
