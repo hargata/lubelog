@@ -152,6 +152,7 @@ function saveVehicle(isEdit) {
     $.post('/Vehicle/SaveVehicle', {
         id: vehicleId,
         imageLocation: uploadedFile,
+        mapLocation: uploadedMap,
         year: vehicleYear,
         make: vehicleMake,
         model: vehicleModel,
@@ -196,6 +197,16 @@ function toggleOdometerAdjustment() {
         $("#odometerAdjustments").collapse('hide');
     }
 }
+function setUploadedFile(data) {
+    uploadedFile = data;
+}
+function setUploadedMap(data) {
+    uploadedMap = data;
+}
+function uploadMap(event) {
+    let selectedMapFile = event.files[0];
+    uploadFileAsync(selectedMapFile, setUploadedMap);
+}
 function uploadThumbnail(event) {
     var originalImage = event.files[0];
     var maxHeight = 290;
@@ -214,16 +225,16 @@ function uploadThumbnail(event) {
                 var resizedCanvas = hermiteResize(img, newImgWidth, newImgHeight);
                 resizedCanvas.toBlob((blob) => {
                     let file = new File([blob], originalImage.name, { type: "image/jpeg" });
-                    uploadFileAsync(file);
+                    uploadFileAsync(file, setUploadedFile);
                 }, 'image/jpeg');
             } else {
-                uploadFileAsync(originalImage);
+                uploadFileAsync(originalImage, setUploadedFile);
             }
         }
         img.src = URL.createObjectURL(originalImage);
     } catch (error) {
         console.log(`Error while attempting to upload and resize thumbnail - ${error}`);
-        uploadFileAsync(originalImage);
+        uploadFileAsync(originalImage, setUploadedFile);
     }
 }
 //Resize method using Hermite interpolation
@@ -307,7 +318,7 @@ function hermiteResize(origImg, width, height) {
     ctx.putImageData(img2, 0, 0);
     return canvas;
 }
-function uploadFileAsync(event) {
+function uploadFileAsync(event, callBack) {
     let formData = new FormData();
     if (event.files != undefined && event.files.length > 0) {
         formData.append("file", event.files[0]);
@@ -325,12 +336,12 @@ function uploadFileAsync(event) {
         success: function (response) {
             sloader.hide();
             if (response.trim() != '') {
-                uploadedFile = response;
+                callBack(response);
             }
         },
         error: function () {
             sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.")
+            errorToast("An error has occurred, please check the file size and try again later.");
         }
     });
 }
