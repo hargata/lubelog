@@ -6,6 +6,7 @@ namespace CarCareTracker.Models
     {
         public int Id { get; set; }
         public string ImageLocation { get; set; } = "/defaults/noimage.png";
+        public string MapLocation { get; set; } = "";
         public int Year { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }

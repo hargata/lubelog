@@ -137,6 +137,12 @@
             <div class="d-grid">
                 <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
             </div>
+            @if (Model.HasVehicleImageMap)
+            {
+                <div class="d-grid">
+                    <button onclick="loadVehicleImageMap()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Map")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+            }
             @if (Model.CustomWidgetsConfigured)
             {
                 <div class="d-grid">

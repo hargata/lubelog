@@ -1,0 +1,39 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var hideZero = userConfig.HideZero;
+}
+@model VehicleImageMap
+@if (!string.IsNullOrWhiteSpace(Model.ImageLink))
+{
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title">@(translator.Translate(userLanguage, "Vehicle Maintenance Map"))</h5>
+            <button type="button" class="btn-close" onclick="hideDataTable()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-12">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 @Model.Width @Model.Height">
+                        <image width="@Model.Width" height="@Model.Height" xlink:href="@Model.ImageLink"></image>
+                        @foreach(ImageMap imageMap in Model.Map)
+                        {
+                            <a style='cursor:pointer;' onclick='loadRecordsByTags("@(string.Join(" ", imageMap.Tags))")'>
+                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="0.5"></polygon>
+                            </a>
+                        }
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h4>@translator.Translate(userLanguage, "Invalid Image Map.")</h4>
+    </div>
+}

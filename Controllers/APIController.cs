@@ -1983,6 +1983,10 @@ namespace CarCareTracker.Controllers
                 var vehicleDocuments = new List<string>();
                 foreach(Vehicle vehicle in vehicles)
                 {
+                    if (!string.IsNullOrWhiteSpace(vehicle.MapLocation))
+                    {
+                        vehicleDocuments.Add(Path.GetFileName(vehicle.MapLocation));
+                    }
                     vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y=>Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));

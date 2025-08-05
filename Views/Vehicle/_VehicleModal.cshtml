@@ -138,6 +138,16 @@
                         <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
                         <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     }
+                    @if (!string.IsNullOrWhiteSpace(Model.MapLocation))
+                    {
+                        <label for="inputMap">@translator.Translate(userLanguage, "Replace vehicle map(optional)")</label>
+                        <input onChange="uploadMap(this)" type="file" accept=".json" class="form-control-file" id="inputMap">
+                    }
+                    else
+                    {
+                        <label for="inputMap">@translator.Translate(userLanguage, "Upload vehicle map(optional)")</label>
+                        <input onChange="uploadMap(this)" type="file" accept=".json" class="form-control-file" id="inputMap">
+                    }
                 </div>
             </div>
         </div>
@@ -157,6 +167,7 @@
 </div>
 <script>
     var uploadedFile = "@Model.ImageLocation";
+    var uploadedMap = "@Model.MapLocation";
     function getVehicleModelData() {
         return { id: @Model.Id}
     }

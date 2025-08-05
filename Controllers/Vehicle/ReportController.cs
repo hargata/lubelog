@@ -3,6 +3,7 @@ using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -23,6 +24,8 @@ namespace CarCareTracker.Controllers
             var odometerRecords = vehicleRecords.OdometerRecords;
             var userConfig = _config.GetUserConfig(User);
             var viewModel = new ReportViewModel() { ReportHeaderForVehicle = new ReportHeader() };
+            //check if vehicle map exists
+            viewModel.HasVehicleImageMap = !string.IsNullOrWhiteSpace(vehicleData.MapLocation);
             //check if custom widgets are configured
             viewModel.CustomWidgetsConfigured = _fileHelper.WidgetsExist();
             //get totalCostMakeUp
@@ -311,6 +314,22 @@ namespace CarCareTracker.Controllers
                 NumberOfDays = totalDays
             };
             return PartialView("_CostTableReport", viewModel);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult GetVehicleImageMap(int vehicleId)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            VehicleImageMap imageMap = new VehicleImageMap();
+            if (!string.IsNullOrWhiteSpace(vehicleData.MapLocation))
+            {
+                var fullFilePath = _fileHelper.GetFullFilePath(vehicleData.MapLocation);
+                if (!string.IsNullOrWhiteSpace(fullFilePath))
+                {
+                    var fullFileText = _fileHelper.GetFileText(fullFilePath);
+                    imageMap = JsonSerializer.Deserialize<VehicleImageMap>(fullFileText) ?? new VehicleImageMap();
+                }
+            }
+            return PartialView("_VehicleImageMap", imageMap);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)

@@ -125,6 +125,7 @@ namespace CarCareTracker.Controllers
                 }
                 //move image from temp folder to images folder.
                 vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
+                vehicleInput.MapLocation = _fileHelper.MoveFileFromTemp(vehicleInput.MapLocation, "documents/");
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)

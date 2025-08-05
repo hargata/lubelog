@@ -395,6 +395,13 @@ function showDataTable(elemClicked) {
 function hideDataTable() {
     $("#vehicleDataTableModal").modal('hide');
 }
+function loadVehicleImageMap() {
+    var vehicleId = GetVehicleId().vehicleId;
+    $.get(`/Vehicle/GetVehicleImageMap?vehicleId=${vehicleId}`, function (data) {
+        $("#vehicleDataTableModalContent").html(data);
+        $("#vehicleDataTableModal").modal('show');
+    });
+}
 function loadCustomWidgets() {
     $.get('/Vehicle/GetAdditionalWidgets', function (data) {
         $("#vehicleCustomWidgetsModalContent").html(data);
