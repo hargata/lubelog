@@ -12,5 +12,6 @@
         public string Tags { get; set; }
         public string Coordinates { get; set; }
         public string Color { get; set; }
+        public decimal Opacity { get; set; }
     }
 }

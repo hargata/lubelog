@@ -22,7 +22,7 @@
                         @foreach(ImageMap imageMap in Model.Map)
                         {
                             <a style='cursor:pointer;' onclick='loadRecordsByTags("@imageMap.Tags")'>
-                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="0.5"></polygon>
+                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="@imageMap.Opacity"></polygon>
                             </a>
                         }
                     </svg>
