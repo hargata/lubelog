@@ -21,13 +21,16 @@
                         <image width="@Model.Width" height="@Model.Height" xlink:href="@Model.ImageLink"></image>
                         @foreach(ImageMap imageMap in Model.Map)
                         {
-                            <a style='cursor:pointer;' onclick='loadRecordsByTags("@(string.Join(" ", imageMap.Tags))")'>
+                            <a style='cursor:pointer;' onclick='loadRecordsByTags("@imageMap.Tags")'>
                                 <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="0.5"></polygon>
                             </a>
                         }
                     </svg>
                 </div>
             </div>
+        </div>
+        <div class="modal-footer" id="vehicleMaintenanceMapResults" style="display:none;">
+
         </div>
     </div>
 }

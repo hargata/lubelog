@@ -9,7 +9,7 @@
     }
     public class ImageMap
     {
-        public List<string> Tags { get; set; }
+        public string Tags { get; set; }
         public string Coordinates { get; set; }
         public string Color { get; set; }
     }
