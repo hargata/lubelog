@@ -550,6 +550,19 @@ namespace CarCareTracker.Controllers
             return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult GetLocaleSample(string locale)
+        {
+            var cultureInfo = CultureInfo.GetCultureInfo(locale);
+            var viewModel = new LocaleSample
+            {
+                ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern),
+                CurrencySample = 13.45M.ToString("C", cultureInfo),
+                NumberSample = 123456.ToString("N", cultureInfo),
+                DecimalSample = 123456.78M.ToString("N2", cultureInfo)
+            };
+            return PartialView("_LocaleSample", viewModel);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [Route("/setup")]
         public IActionResult Setup()
         {

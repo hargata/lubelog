@@ -39,6 +39,17 @@ function previousSetupPage() {
     let prevPage = parseInt(currentVisiblePage) - 1;
     loadSetupPage(prevPage);
 }
+function loadLocaleSample() {
+    let selectedLocale = $("#inputLocale").val();
+    if (selectedLocale.trim() == '') {
+        $("#localeSampleContainer").hide();
+    } else {
+        $.get(`/Home/GetLocaleSample?locale=${selectedLocale}`, function (data) {
+            $("#localeSampleContainer").html(data);
+            $("#localeSampleContainer").show();
+        })
+    }
+}
 function saveSetup() {
     let setupData = {
         LocaleOverride: $("#inputLocale").val(),
