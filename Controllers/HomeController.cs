@@ -6,6 +6,7 @@ using CarCareTracker.Helper;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using CarCareTracker.Logic;
+using System.Globalization;
 
 namespace CarCareTracker.Controllers
 {
@@ -552,8 +553,13 @@ namespace CarCareTracker.Controllers
         [Route("/setup")]
         public IActionResult Setup()
         {
+            var installedLocales = CultureInfo.GetCultures(CultureTypes.AllCultures).Select(x=>x.Name).ToList();
+            installedLocales.RemoveAll(x => string.IsNullOrWhiteSpace(x));
+            installedLocales.Insert(0, "");
             var viewModel = new ServerSettingsViewModel
             {
+                LocaleOverride = _config.GetLocaleOverride(),
+                AvailableLocales = installedLocales,
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
                 CustomLogoURL = _config.GetLogoUrl(),

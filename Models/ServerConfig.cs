@@ -67,5 +67,9 @@ namespace CarCareTracker.Models
         [JsonPropertyName("EnableRootUserOIDC")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? EnableRootUserOIDC { get; set; }
+
+        [JsonPropertyName("LUBELOGGER_LOCALE_OVERRIDE")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? LocaleOverride { get; set; } = string.Empty;
     }
 }

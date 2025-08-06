@@ -18,6 +18,7 @@ namespace CarCareTracker.Helper
         bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
         bool GetCustomWidgetsEnabled();
+        string GetLocaleOverride();
         string GetMOTD();
         string GetLogoUrl();
         string GetSmallLogoUrl();
@@ -72,6 +73,11 @@ namespace CarCareTracker.Helper
         {
             var domain = CheckString("LUBELOGGER_DOMAIN");
             return domain;
+        }
+        public string GetLocaleOverride()
+        {
+            var locale = CheckString("LUBELOGGER_LOCALE_OVERRIDE");
+            return locale;
         }
         public bool GetServerOpenRegistration()
         {
@@ -166,6 +172,10 @@ namespace CarCareTracker.Helper
             if (string.IsNullOrWhiteSpace(serverConfig.PostgresConnection))
             {
                 serverConfig.PostgresConnection = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.LocaleOverride))
+            {
+                serverConfig.LocaleOverride = null;
             }
             if (serverConfig.AllowedFileExtensions == StaticHelper.DefaultAllowedFileExtensions || string.IsNullOrWhiteSpace(serverConfig.AllowedFileExtensions))
             {
