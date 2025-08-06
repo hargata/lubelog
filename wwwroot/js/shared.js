@@ -203,6 +203,17 @@ function setUploadedFile(data) {
 function setUploadedMap(data) {
     uploadedMap = data;
 }
+function handleVehicleMapCheckChanged() {
+    let vehicleHasMap = $("#inputHasVehicleMap").is(":checked");
+    if (vehicleHasMap) {
+        $("#inputMap").off('cancel').on('cancel', function () {
+            $("#inputHasVehicleMap").prop('checked', false);
+        });
+        $("#inputMap").trigger('click');
+    } else {
+        uploadedMap = '';
+    }
+}
 function uploadMap(event) {
     let selectedMapFile = event.files[0];
     uploadFileAsync(selectedMapFile, setUploadedMap);
