@@ -2,7 +2,7 @@ namespace CarCareTracker.Models
 {
     public class ServerSettingsViewModel
     {
-        public string LocaleInfo { get; set; }
+        public string LocaleOverride { get; set; }
         public string PostgresConnection { get; set; }
         public string AllowedFileExtensions { get; set; }
         public string CustomLogoURL { get; set; }
@@ -20,5 +20,6 @@ namespace CarCareTracker.Models
         public string DefaultReminderEmail { get; set; } = string.Empty;
         public bool EnableRootUserOIDC { get; set; }
         public bool EnableAuth { get; set; }
+        public List<string> AvailableLocales { get; set; }
     }
 }

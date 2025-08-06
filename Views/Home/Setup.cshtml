@@ -53,8 +53,17 @@
                         </div>
                     </div>
                 </div>
-               
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+            <div class="form-group">
+                <label for="inputLocale">@translator.Translate(userLanguage, "Locale Override")</label>
+                <select class="form-select" id="inputLocale">
+                    @foreach(string installedLocale in Model.AvailableLocales)
+                    {
+                        <!option value="@installedLocale" @(Model.LocaleOverride == installedLocale ? "selected" : "")>@installedLocale</!option>
+                    }
+                </select>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use system locale. Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputFileExt">@translator.Translate(userLanguage, "Allowed File Extensions")</label>

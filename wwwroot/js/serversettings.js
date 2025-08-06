@@ -41,6 +41,7 @@ function previousSetupPage() {
 }
 function saveSetup() {
     let setupData = {
+        LocaleOverride: $("#inputLocale").val(),
         PostgresConnection: $("#inputPostgres").val(),
         AllowedFileExtensions: $("#inputFileExt").val(),
         CustomLogoURL: $("#inputLogoURL").val(),
