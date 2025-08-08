@@ -357,7 +357,6 @@ function generateTokenForUser() {
     });
 }
 function sortGarage(sender) {
-    console.log(sender);
     if (event != undefined) {
         event.preventDefault();
     }
@@ -370,8 +369,6 @@ function sortGarage(sender) {
     var sortDescIcon = '<i class="bi bi-sort-numeric-up-alt ms-2"></i>';
     $('[aria-labelledby="sortDropdown"] li button').removeClass('active');
     
-    console.log(sortColumn + ' ' + sortFieldType);
-
     if (sender.hasClass('sort-asc')) {
         // change to descending sort
         sortDirection = 'desc';
@@ -425,7 +422,6 @@ function sortGarage(sender) {
 function sortVehicles(sortColumnField, sortFieldType, desc) {
     var rowData = $('.garage-item');
 
-    // Get secondary sort field details
     var secondaryButton = $('[aria-labelledby="sortDropdown"] li button.secondary');
     var secondarySortColumnField = secondaryButton.attr('data-sortcolumn');
     var secondarySortFieldType = secondaryButton.attr('data-sorttype');
@@ -434,7 +430,14 @@ function sortVehicles(sortColumnField, sortFieldType, desc) {
         var currentVal = getSortValue(a, sortColumnField, sortFieldType);
         var nextVal = getSortValue(b, sortColumnField, sortFieldType);
 
-        // Primary sort
+        var isEmpty = (v) => v === '' || v === 0 || v === Number.NEGATIVE_INFINITY;
+
+        var currentEmpty = isEmpty(currentVal);
+        var nextEmpty = isEmpty(nextVal);
+
+        if (currentEmpty && !nextEmpty) return 1;
+        if (!currentEmpty && nextEmpty) return -1;
+
         if (['number', 'decimal', 'date', 'time'].includes(sortFieldType)) {
             if (currentVal !== nextVal) {
                 return desc ? nextVal - currentVal : currentVal - nextVal;
@@ -445,17 +448,16 @@ function sortVehicles(sortColumnField, sortFieldType, desc) {
                 return desc ? -comparison : comparison;
             }
         }
-
-        // If primary values are equal, apply secondary sort
         var currentSecondaryVal = getSortValue(a, secondarySortColumnField, secondarySortFieldType);
         var nextSecondaryVal = getSortValue(b, secondarySortColumnField, secondarySortFieldType);
 
         if (['number', 'decimal', 'date', 'time'].includes(secondarySortFieldType)) {
-            return currentSecondaryVal - nextSecondaryVal; // always ascending for secondary
+            return currentSecondaryVal - nextSecondaryVal; 
         } else {
             return currentSecondaryVal.localeCompare(nextSecondaryVal, undefined, { sensitivity: 'base' });
         }
     });
+
 
     sortedRow.push($('.garage-item-add'));
     $('.vehiclesContainer').html(sortedRow);
