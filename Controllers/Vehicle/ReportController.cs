@@ -48,6 +48,34 @@ namespace CarCareTracker.Controllers
                 Cost = x.Sum(y => y.Cost),
                 DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
+
+            //set available metrics
+            var visibleTabs = userConfig.VisibleTabs;
+            if (visibleTabs.Contains(ImportMode.OdometerRecord) || odometerRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.OdometerRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.ServiceRecord) || serviceRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.ServiceRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.RepairRecord) || collisionRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.RepairRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.UpgradeRecord) || upgradeRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.UpgradeRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.GasRecord) || gasRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.GasRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.TaxRecord) || taxRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.TaxRecord);
+            }
+
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             viewModel.ReminderMakeUpForVehicle = new ReminderMakeUpForVehicle

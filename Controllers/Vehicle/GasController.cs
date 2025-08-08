@@ -30,7 +30,7 @@ namespace CarCareTracker.Controllers
                 UseHours = vehicleUseHours,
                 GasRecords = computedResults
             };
-            return PartialView("_Gas", viewModel);
+            return PartialView("Gas/_Gas", viewModel);
         }
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
@@ -65,7 +65,7 @@ namespace CarCareTracker.Controllers
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
-            return PartialView("_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
+            return PartialView("Gas/_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
@@ -100,7 +100,7 @@ namespace CarCareTracker.Controllers
                 UseHours = vehicleUseHours,
                 GasRecord = convertedResult
             };
-            return PartialView("_GasModal", viewModel);
+            return PartialView("Gas/_GasModal", viewModel);
         }
         private bool DeleteGasRecordWithChecks(int gasRecordId)
         {
@@ -136,7 +136,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordsEditModal(List<int> recordIds)
         {
             var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields;
-            return PartialView("_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds, EditRecord = new GasRecord { ExtraFields = extraFields } });
+            return PartialView("Gas/_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds, EditRecord = new GasRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult SaveMultipleGasRecords(GasRecordEditModel editModel)

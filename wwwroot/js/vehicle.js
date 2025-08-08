@@ -657,3 +657,75 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
         });
     });
 }
+
+function showGlobalSearch() {
+    $('#globalSearchModal').modal('show');
+}
+function hideGlobalSearch() {
+    $('#globalSearchModal').modal('hide');
+}
+function performGlobalSearch() {
+    var searchQuery = $('#globalSearchInput').val();
+    if (searchQuery.trim() == '') {
+        $('#globalSearchInput').addClass('is-invalid');
+    } else {
+        $('#globalSearchInput').removeClass('is-invalid');
+    }
+    let caseSensitiveSearch = $("#globalSearchCaseSensitiveCheck").is(':checked');
+    $.post('/Vehicle/SearchRecords', { vehicleId: GetVehicleId().vehicleId, searchQuery: searchQuery, caseSensitive: caseSensitiveSearch }, function (data) {
+        $('#globalSearchModalResults').html(data);
+    });
+}
+function handleGlobalSearchKeyPress(event) {
+    if ($('#globalSearchAutoSearchCheck').is(':checked')) {
+        setDebounce(performGlobalSearch);
+    } else if (event.keyCode == 13) {
+        performGlobalSearch();
+    }
+}
+
+function loadGlobalSearchResult(recordId, recordType) {
+    hideGlobalSearch();
+    switch (recordType) {
+        case "ServiceRecord":
+            $('#servicerecord-tab').tab('show');
+            waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
+            break;
+        case "RepairRecord":
+            $('#accident-tab').tab('show');
+            waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
+            break;
+        case "UpgradeRecord":
+            $('#upgrade-tab').tab('show');
+            waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
+            break;
+        case "TaxRecord":
+            $('#tax-tab').tab('show');
+            waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
+            break;
+        case "SupplyRecord":
+            $('#supply-tab').tab('show');
+            waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
+            break;
+        case "NoteRecord":
+            $('#notes-tab').tab('show');
+            waitForElement('#noteModalContent', showEditNoteModal, recordId);
+            break;
+        case "OdometerRecord":
+            $('#odometer-tab').tab('show');
+            waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
+            break;
+        case "ReminderRecord":
+            $('#reminder-tab').tab('show');
+            waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
+            break;
+        case "GasRecord":
+            $('#gas-tab').tab('show');
+            waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
+            break;
+        case "PlanRecord":
+            $('#plan-tab').tab('show');
+            waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
+            break;
+    }
+}

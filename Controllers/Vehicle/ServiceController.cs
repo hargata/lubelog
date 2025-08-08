@@ -21,7 +21,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             }
-            return PartialView("_ServiceRecords", result);
+            return PartialView("Service/_ServiceRecords", result);
         }
         [HttpPost]
         public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
@@ -73,7 +73,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddServiceRecordPartialView()
         {
-            return PartialView("_ServiceRecordModal", new ServiceRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields });
+            return PartialView("Service/_ServiceRecordModal", new ServiceRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetServiceRecordForEditById(int serviceRecordId)
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields)
             };
-            return PartialView("_ServiceRecordModal", convertedResult);
+            return PartialView("Service/_ServiceRecordModal", convertedResult);
         }
         private bool DeleteServiceRecordWithChecks(int serviceRecordId)
         {

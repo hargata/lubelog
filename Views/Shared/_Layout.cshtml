@@ -32,7 +32,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-title" content="LubeLogger" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#181818">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f3f3">
     <title>@ViewData["Title"] - LubeLogger</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -162,11 +164,12 @@
 </head>
 <body>
     @await RenderSectionAsync("Nav", required: false)
-    <div class="container" style="height:85vh;">
+    <div class="container lubelogger-body-container">
         <main role="main">
             @RenderBody()
         </main>
     </div>
+    @await RenderSectionAsync("Footer", required: false)
 </body>
 </html>
 @if (useSystemColorMode)

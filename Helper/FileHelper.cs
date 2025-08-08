@@ -120,6 +120,7 @@ namespace CarCareTracker.Helper
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
                 var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
                 var configPath = Path.Combine(tempPath, StaticHelper.LegacyUserConfigPath);
+                var serverConfigPath = Path.Combine(tempPath, StaticHelper.LegacyServerConfigPath);
                 if (Directory.Exists(imagePath))
                 {
                     var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
@@ -206,6 +207,15 @@ namespace CarCareTracker.Helper
                     }
                     File.Move(configPath, StaticHelper.UserConfigPath, true);
                 }
+                if (File.Exists(serverConfigPath))
+                {
+                    //check if config folder exists.
+                    if (!Directory.Exists("data/config"))
+                    {
+                        Directory.CreateDirectory("data/config");
+                    }
+                    File.Move(serverConfigPath, StaticHelper.ServerConfigPath, true);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -248,6 +258,7 @@ namespace CarCareTracker.Helper
             var dataPath = StaticHelper.DbName;
             var widgetPath = StaticHelper.AdditionalWidgetsPath;
             var configPath = StaticHelper.UserConfigPath;
+            var serverConfigPath = StaticHelper.ServerConfigPath;
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             if (Directory.Exists(imagePath))
@@ -297,6 +308,12 @@ namespace CarCareTracker.Helper
                 var newPath = Path.Combine(tempPath, "config");
                 Directory.CreateDirectory(newPath);
                 File.Copy(configPath, $"{newPath}/{Path.GetFileName(configPath)}");
+            }
+            if (File.Exists(serverConfigPath))
+            {
+                var newPath = Path.Combine(tempPath, "config");
+                Directory.CreateDirectory(newPath);
+                File.Copy(serverConfigPath, $"{newPath}/{Path.GetFileName(serverConfigPath)}");
             }
             var destFilePath = $"{tempPath}.zip";
             ZipFile.CreateFromDirectory(tempPath, destFilePath);

@@ -13,29 +13,25 @@
     <div class="col-12 col-md-6">
         <input id="preferredGasUnit" style="display:none;" value="@Model.UserConfig.PreferredGasUnit" />
         <input id="preferredFuelMileageUnit" style="display:none;" value="@Model.UserConfig.PreferredGasMileageUnit" />
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
-            <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage, "Dark Mode")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="enableDarkMode" checked="@Model.UserConfig.UseDarkMode">
+                <label class="form-check-label" for="enableDarkMode">@translator.Translate(userLanguage, "Dark Mode")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
+                <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
+            </div>
         </div>
-        <div class="form-check form-switch form-check-inline">
-            <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
-            <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.UserConfig.EnableCsvImports">
-            <label class="form-check-label" for="enableCsvImports">@translator.Translate(userLanguage, "Enable CSV Imports")</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UserConfig.UseMPG">
-            <label class="form-check-label" for="useMPG">@translator.Translate(userLanguage, "Use Imperial Calculation for Fuel Economy Calculations(MPG)")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "This Will Also Change Units to Miles and Gallons")</small></label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UserConfig.UseUKMPG">
-            <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage, "Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
-            <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableCsvImports" checked="@Model.UserConfig.EnableCsvImports">
+                <label class="form-check-label" for="enableCsvImports">@translator.Translate(userLanguage, "Enable CSV Imports")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useDescending" checked="@Model.UserConfig.UseDescending">
+                <label class="form-check-label" for="useDescending">@translator.Translate(userLanguage, "Sort lists in Descending Order(Newest to Oldest)")</label>
+            </div>
         </div>
         <div>
             <div class="form-check form-switch form-check-inline">
@@ -46,6 +42,29 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="automaticDecimalFormat" checked="@Model.UserConfig.AutomaticDecimalFormat">
                 <label class="form-check-label" for="automaticDecimalFormat">@translator.Translate(userLanguage, "Automatically Format Decimal Inputs")</label>
             </div>
+        </div>
+        <div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
+                <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
+            </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
+                <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")</label>
+            </div>
+        </div>
+        <div class="form-check form-switch form-check-inline">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showVehicleThumbnail" checked="@Model.UserConfig.ShowVehicleThumbnail">
+            <label class="form-check-label" for="showVehicleThumbnail">@translator.Translate(userLanguage, "Show Vehicle Thumbnail in Header")</label>
+        </div>
+        <hr />
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMPG" checked="@Model.UserConfig.UseMPG">
+            <label class="form-check-label" for="useMPG">@translator.Translate(userLanguage, "Use Imperial Calculation for Fuel Economy Calculations(MPG)")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "This Will Also Change Units to Miles and Gallons")</small></label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useUKMPG" checked="@Model.UserConfig.UseUKMPG">
+            <label class="form-check-label" for="useUKMPG">@translator.Translate(userLanguage, "Use UK MPG Calculation")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Input Gas Consumption in Liters, it will be converted to UK Gals for MPG Calculation")</small></label>
         </div>
         <div>
             <div class="form-check form-switch form-check-inline">
@@ -61,10 +80,7 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useThreeDecimalGasConsumption" checked="@Model.UserConfig.UseThreeDecimalGasConsumption">
             <label class="form-check-label" for="useThreeDecimalGasConsumption">@translator.Translate(userLanguage, "Use Three Decimals For Fuel Consumption")</label>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
-            <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
-        </div>
+        <hr />
         <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.UserConfig.EnableAutoReminderRefresh">
             <label class="form-check-label" for="enableAutoReminderRefresh">@translator.Translate(userLanguage, "Auto Refresh Lapsed Recurring Reminders")</label>
@@ -73,10 +89,7 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.UserConfig.EnableAutoOdometerInsert">
             <label class="form-check-label" for="enableAutoOdometerInsert">@translator.Translate(userLanguage, "Auto Insert Odometer Records")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
         </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableExtraFieldColumns" checked="@Model.UserConfig.EnableExtraFieldColumns">
-            <label class="form-check-label" for="enableExtraFieldColumns">@translator.Translate(userLanguage, "Show Extra Field Columns")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Enabling this may cause performance issues")</small></label>
-        </div>
+        <hr />
         <div>
             <div class="form-check form-switch form-check-inline">
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="hideSoldVehicles" checked="@Model.UserConfig.HideSoldVehicles">
@@ -90,28 +103,14 @@
                 <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showCalendar" checked="@Model.UserConfig.ShowCalendar">
                 <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Calendar")</label>
             </div>
-            <div class="form-check form-switch form-check-inline">
-                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="showVehicleThumbnail" checked="@Model.UserConfig.ShowVehicleThumbnail">
-                <label class="form-check-label" for="showCalendar">@translator.Translate(userLanguage, "Show Vehicle Thumbnail in Header")</label>
-            </div>
         </div>
         @if (User.IsInRole(nameof(UserData.IsRootUser)))
         {
+            <hr />
             <div class="form-check form-switch form-check-inline">
                 <input class="form-check-input" onChange="enableAuthCheckChanged()" type="checkbox" role="switch" id="enableAuth" checked="@Model.UserConfig.EnableAuth">
                 <label class="form-check-label" for="enableAuth">@translator.Translate(userLanguage, "Enable Authentication")</label>
             </div>
-            @if (Model.UserConfig.EnableAuth)
-            {
-                <div class="form-check form-switch form-check-inline">
-                    <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="disableRegistration" checked="@Model.UserConfig.DisableRegistration">
-                    <label class="form-check-label" for="disableRegistration">@translator.Translate(userLanguage, "Disable Registration")</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableRootUserOIDC" checked="@Model.UserConfig.EnableRootUserOIDC">
-                    <label class="form-check-label" for="enableRootUserOIDC">@translator.Translate(userLanguage, "Enable OIDC for Root User")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Uses the Default Reminder Email for OIDC Auth")</small></label>
-                </div>
-            }
         }
     </div>
     <div class="col-12 col-md-6">
@@ -260,13 +259,10 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 col-md-6">
+                <div class="col-12">
                     <div class="row">
-                        <div class="col-10">
+                        <div class="col-12">
                             <span class="lead text-wrap">@translator.Translate(userLanguage, "Server-wide Settings")</span>
-                        </div>
-                        <div class="col-2">
-                            <button onclick="showServerConfigModal()" class="btn text-secondary btn-sm"><i class="bi bi-eyeglasses"></i></button>
                         </div>
                     </div>
                     <div class="row">
@@ -274,20 +270,7 @@
                             <button onclick="showExtraFieldModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Extra Fields")</button>
                         </div>
                         <div class="col-6 d-grid">
-                            <button onclick="showReminderUrgencyThresholdModal()" class="btn btn-primary btn-md text-truncate">@translator.Translate(userLanguage, "Reminders")</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <span class="lead text-wrap">@translator.Translate(userLanguage, "Default Reminder Email")</span>
-                    <div class="row">
-                        <div class="col-12 d-grid">
-                            <div class="input-group">
-                                <input id="inputDefaultEmail" class="form-control" placeholder="@translator.Translate(userLanguage,"Default Email for Reminder")" value="@Model.UserConfig.DefaultReminderEmail" onkeydown="handleDefaultReminderInputKeyDown()">
-                                 <div class="input-group-text">
-                                    <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="updateSettings()"><i class="bi bi-floppy"></i></button>
-                                 </div>
-                            </div>
+                            <a href="/setup" class="btn btn-secondary btn-md text-truncate">@translator.Translate(userLanguage, "Configure")</a>
                         </div>
                     </div>
                 </div>
@@ -370,12 +353,6 @@
         </div>
     </div>
 </div>
-<div class="modal fade" data-bs-focus="false" id="serverConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" id="serverConfigModalContent">
-        </div>
-    </div>
-</div>
 <div class="modal fade" data-bs-focus="false" id="tabReorderModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="tabReorderModalContent">
@@ -411,53 +388,6 @@
     </div>
 </div>
 <script>
-    function showReminderUrgencyThresholdModal(){
-        Swal.fire({
-            title: decodeHTMLEntities('@translator.Translate(userLanguage, "Configure Reminder Urgency Thresholds")'),
-            html: `
-                        <form>
-                                <div class='d-flex flex-row align-items-center'>
-                        <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent(Days)")')}</label>
-                        <input type="text" id="inputUrgentDays" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDays'>
-                        </div>
-                            <div class='d-flex flex-row align-items-center mt-2'>
-                                <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent(Days)")')}</label>
-                                <input type="text" id="inputVeryUrgentDays" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDays'>
-                            </div>
-                            <div class='d-flex flex-row align-items-center mt-2'>
-                                    <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent(Distance)")')}</label>
-                                <input type="text" id="inputUrgentDistance" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.UrgentDistance'>
-                           </div>
-                               <div class='d-flex flex-row align-items-center mt-2'>
-                                <label class='form-label me-auto'>${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent(Distance)")')}</label>
-                            <input type="text" id="inputVeryUrgentDistance" class="form-control" style='width:40%' placeholder="${decodeHTMLEntities('@translator.Translate(userLanguage, "Very Urgent")')}" value='@Model.UserConfig.ReminderUrgencyConfig.VeryUrgentDistance'>
-                        </div>
-                        </form>
-                    `,
-            confirmButtonText: decodeHTMLEntities('@translator.Translate(userLanguage, "Save")'),
-            focusConfirm: false,
-            preConfirm: () => {
-                const urgentDays = $("#inputUrgentDays").val();
-                const veryUrgentDays = $("#inputVeryUrgentDays").val();
-                const urgentDistance = $("#inputUrgentDistance").val();
-                const veryUrgentDistance = $("#inputVeryUrgentDistance").val();
-                if (!urgentDays || isNaN(urgentDays) || !veryUrgentDays || isNaN(veryUrgentDays) || !urgentDistance || isNaN(urgentDistance) || !veryUrgentDistance || isNaN(veryUrgentDistance)) {
-                    Swal.showValidationMessage(`Invalid parameters`)
-                }
-                return { urgentDays, veryUrgentDays, urgentDistance, veryUrgentDistance }
-            },
-        }).then(function (result) {
-            if (result.isConfirmed) {
-                $.post('/Home/SaveReminderUrgencyThreshold', { urgentDays: result.value.urgentDays, veryUrgentDays: result.value.veryUrgentDays, urgentDistance: result.value.urgentDistance, veryUrgentDistance: result.value.veryUrgentDistance }, function (data) {
-                    if (data) {
-                        setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
-                    } else {
-                        errorToast(genericErrorMessage());
-                    }
-                })
-            }
-        });
-    }
     function enableAuthCheckChanged() {
         var enableAuth = $("#enableAuth").is(":checked");
         if (enableAuth) {

@@ -12,11 +12,15 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.4.8";
+        public const string VersionNumber = "1.4.9";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
+        public const string ServerConfigPath = "data/config/serverConfig.json";
         public const string LegacyUserConfigPath = "config/userConfig.json";
+        public const string LegacyServerConfigPath = "config/serverConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
+        public const string DefaultLogoPath = "/defaults/lubelogger_logo.png";
+        public const string DefaultSmallLogoPath = "/defaults/lubelogger_logo_small.png";
         public const string GenericErrorMessage = "An error occurred, please try again later";
         public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public const string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";
@@ -746,6 +750,39 @@ namespace CarCareTracker.Helper
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
         }
+        public static string GetIconByFileExtension(string fileLocation)
+        {
+            var fileExt = Path.GetExtension(fileLocation);
+            if (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"))
+            {
+                return "bi-link-45deg";
+            }
+            switch (fileExt)
+            {
+                case ".pdf":
+                    return "bi-file-earmark-pdf";
+                case ".zip":
+                case ".7z":
+                case ".rar":
+                    return "bi-file-earmark-zip";
+                case ".png":
+                case ".jpg":
+                case ".jpeg":
+                    return "bi-file-earmark-image";
+                case ".xls":
+                case ".xlsx":
+                case ".xlsm":
+                case ".ods":
+                case ".csv":
+                    return "bi-file-earmark-spreadsheet";
+                case ".docx":
+                case ".odt":
+                case ".rtf":
+                    return "bi-file-earmark-richtext";
+                default:
+                    return "bi-file-earmark";
+            }
+        }
         public static JsonSerializerOptions GetInvariantOption()
         {
             var serializerOption = new JsonSerializerOptions();
@@ -837,6 +874,21 @@ namespace CarCareTracker.Helper
             string calendarContent = sb.ToString();
             return Encoding.UTF8.GetBytes(calendarContent);
         }
+        public static decimal CalculateNiceStepSize(decimal min, decimal max, int desiredTicks)
+        {
+            double range = Convert.ToDouble(max - min);
+            double roughStep = range / desiredTicks;
+            double exponent = Math.Floor(Math.Log10(roughStep));
+            double stepPower = Math.Pow(10, exponent);
+            double normalizedStep = roughStep / stepPower;
+
+            // Choose the closest nice interval (1, 2, or 5)
+            double[] niceSteps = { 1, 2, 5 };
+            double goodNormalizedStep = niceSteps.OrderBy(s => Math.Abs(s - normalizedStep)).First();
+
+            return Convert.ToDecimal(goodNormalizedStep * stepPower);
+        }
+
 
         public static string ToDataAttributeSafe(string input)
         {

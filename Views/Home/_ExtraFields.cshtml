@@ -27,6 +27,7 @@
                         <!option @(Model.Id == (int)ImportMode.SupplyRecord ? "selected" : "") value="@((int)ImportMode.SupplyRecord)">@translator.Translate(userLanguage, "Supplies")</!option>
                         <!option @(Model.Id == (int)ImportMode.PlanRecord ? "selected" : "") value="@((int)ImportMode.PlanRecord)">@translator.Translate(userLanguage, "Planner")</!option>
                         <!option @(Model.Id == (int)ImportMode.OdometerRecord ? "selected" : "") value="@((int)ImportMode.OdometerRecord)">@translator.Translate(userLanguage, "Odometer")</!option>
+                        <!option @(Model.Id == (int)ImportMode.NoteRecord ? "selected" : "") value="@((int)ImportMode.NoteRecord)">@translator.Translate(userLanguage, "Notes")</!option>
                         <!option @(Model.Id == (int)ImportMode.VehicleRecord ? "selected" : "") value="@((int)ImportMode.VehicleRecord)">@translator.Translate(userLanguage, "Vehicle")</!option>
                     </select>
                 </div>

@@ -88,7 +88,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ToList();
             }
-            return PartialView("_SupplyRecords", result);
+            return PartialView("Supply/_SupplyRecords", result);
         }
         [HttpGet]
         public IActionResult GetSupplyRecordsForPlanRecordTemplate(int planRecordTemplateId)
@@ -115,7 +115,7 @@ namespace CarCareTracker.Controllers
                 viewModel.Supplies = supplies;
                 viewModel.Usage = planRecordTemplate.Supplies;
             }
-            return PartialView("_SupplyUsage", viewModel);
+            return PartialView("Supply/_SupplyUsage", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -140,7 +140,7 @@ namespace CarCareTracker.Controllers
             {
                 Supplies = result
             };
-            return PartialView("_SupplyUsage", viewModel);
+            return PartialView("Supply/_SupplyUsage", viewModel);
         }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
@@ -157,7 +157,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddSupplyRecordPartialView()
         {
-            return PartialView("_SupplyRecordModal", new SupplyRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields });
+            return PartialView("Supply/_SupplyRecordModal", new SupplyRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
@@ -185,7 +185,7 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields)
             };
-            return PartialView("_SupplyRecordModal", convertedResult);
+            return PartialView("Supply/_SupplyRecordModal", convertedResult);
         }
         private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
         {

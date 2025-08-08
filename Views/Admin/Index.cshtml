@@ -14,7 +14,7 @@
     }
 }
 @section Nav {
-    <div class="container-fluid">
+    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
         <div class="row mt-2">
             <div class="d-flex lubelogger-navbar">
                 <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
@@ -42,7 +42,7 @@
             </div>
             <hr />
             <table class="table table-hover">
-                <thead class="sticky-top">
+                <thead class="sticky-top sticky-top-nav">
                     <tr class="d-flex">
                         <th scope="col" class="col-4">@translator.Translate(userLanguage, "Username")</th>
                         <th scope="col" class="col-4">@translator.Translate(userLanguage, "Email")</th>

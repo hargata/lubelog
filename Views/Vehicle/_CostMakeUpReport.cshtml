@@ -10,30 +10,51 @@
 {
     <canvas id="pie-chart"></canvas>
     <script>
+        function getCostMakeUpChart() {
+            let costMakeUpChartLabels = [];
+            let costMakeUpChartData = [];
+            availableMetrics.map(x=> {
+                switch(x) {
+                    case 'ServiceRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Service Records")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.ServiceRecordSum'));
+                        break;
+                    case 'RepairRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Repairs")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.CollisionRecordSum'));
+                        break;
+                    case 'UpgradeRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Upgrades")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.UpgradeRecordSum'));
+                        break;
+                    case 'GasRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.GasRecordSum'));
+                        break;
+                    case 'TaxRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Tax")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.TaxRecordSum'));
+                        break;
+                }
+            })
+            return {
+                labels: costMakeUpChartLabels,
+                data: costMakeUpChartData
+            }
+        }
         renderChart();
         function renderChart() {
+            let chartData = getCostMakeUpChart();
             var useDarkMode = getGlobalConfig().useDarkMode;
             new Chart($("#pie-chart"), {
                 type: 'pie',
                 data: {
-                    labels: [
-                        decodeHTMLEntities('@translator.Translate(userLanguage, "Service Records")'),
-                        decodeHTMLEntities('@translator.Translate(userLanguage, "Repairs")'),
-                        decodeHTMLEntities('@translator.Translate(userLanguage, "Upgrades")'),
-                        decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel")'),
-                        decodeHTMLEntities('@translator.Translate(userLanguage, "Tax")')
-                    ],
+                    labels: chartData.labels,
                     datasets: [
                         {
                             label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
                             backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ffa600", "#ff6361" ],
-                            data: [
-                                globalParseFloat('@Model.ServiceRecordSum'),
-                                globalParseFloat('@Model.CollisionRecordSum'),
-                                globalParseFloat('@Model.UpgradeRecordSum'),
-                                globalParseFloat('@Model.GasRecordSum'),
-                                globalParseFloat('@Model.TaxRecordSum')
-                            ]
+                            data: chartData.data
                         }
                     ]
                 },
