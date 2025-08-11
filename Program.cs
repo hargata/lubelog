@@ -8,12 +8,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.FileProviders;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true, reloadOnChange: true);
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
+{
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
+    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
+}
 
 //Print Messages
 StaticHelper.InitMessage(builder.Configuration);

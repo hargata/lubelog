@@ -125,6 +125,7 @@ namespace CarCareTracker.Controllers
                 }
                 //move image from temp folder to images folder.
                 vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
+                vehicleInput.MapLocation = _fileHelper.MoveFileFromTemp(vehicleInput.MapLocation, "documents/");
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
@@ -357,6 +358,87 @@ namespace CarCareTracker.Controllers
                 }
             }
             return PartialView("_GlobalSearchResult", searchResults);
+        }
+        [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult SearchRecordsByTags(int vehicleId, string tags)
+        {
+            List<SearchResult> searchResults = new List<SearchResult>();
+            if (string.IsNullOrWhiteSpace(tags))
+            {
+                return Json(searchResults);
+            }
+            var tagsFilter = tags.Split(' ').Distinct();
+            foreach (ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
+            {
+                switch (visibleTab)
+                {
+                    case ImportMode.ServiceRecord:
+                        {
+                            var results = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ServiceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.RepairRecord:
+                        {
+                            var results = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.RepairRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.UpgradeRecord:
+                        {
+                            var results = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.UpgradeRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.TaxRecord:
+                        {
+                            var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.TaxRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.SupplyRecord:
+                        {
+                            var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.SupplyRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.OdometerRecord:
+                        {
+                            var results = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.OdometerRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
+                        }
+                        break;
+                    case ImportMode.GasRecord:
+                        {
+                            var results = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.GasRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
+                        }
+                        break;
+                    case ImportMode.NoteRecord:
+                        {
+                            var results = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.NoteRecord, Description = $"{x.Description}" }));
+                        }
+                        break;
+                    case ImportMode.ReminderRecord:
+                        {
+                            var results = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ReminderRecord, Description = $"{x.Description}" }));
+                        }
+                        break;
+                }
+            }
+            return PartialView("_MapSearchResult", searchResults);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetMaxMileage(int vehicleId)

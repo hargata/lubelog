@@ -6,6 +6,7 @@ using CarCareTracker.Helper;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using CarCareTracker.Logic;
+using System.Globalization;
 
 namespace CarCareTracker.Controllers
 {
@@ -549,11 +550,29 @@ namespace CarCareTracker.Controllers
             return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult GetLocaleSample(string locale)
+        {
+            var cultureInfo = CultureInfo.GetCultureInfo(locale);
+            var viewModel = new LocaleSample
+            {
+                ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern),
+                CurrencySample = 13.45M.ToString("C", cultureInfo),
+                NumberSample = 123456.ToString("N", cultureInfo),
+                DecimalSample = 123456.78M.ToString("N2", cultureInfo)
+            };
+            return PartialView("_LocaleSample", viewModel);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [Route("/setup")]
         public IActionResult Setup()
         {
+            var installedLocales = CultureInfo.GetCultures(CultureTypes.AllCultures).Select(x=>x.Name).ToList();
+            installedLocales.RemoveAll(x => string.IsNullOrWhiteSpace(x));
+            installedLocales.Insert(0, "");
             var viewModel = new ServerSettingsViewModel
             {
+                LocaleOverride = _config.GetLocaleOverride(),
+                AvailableLocales = installedLocales,
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
                 CustomLogoURL = _config.GetLogoUrl(),

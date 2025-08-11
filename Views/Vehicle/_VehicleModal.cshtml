@@ -58,6 +58,10 @@
                         <label class="form-check-label" for="inputUseHours">@translator.Translate(userLanguage, "Use Engine Hours")</label>
                     </div>
                     <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="inputHasVehicleMap" onchange="handleVehicleMapCheckChanged()" checked="@(!string.IsNullOrWhiteSpace(Model.MapLocation))">
+                        <label class="form-check-label" for="inputHasVehicleMap">@translator.Translate(userLanguage, "Vehicle Map")</label>
+                    </div>
+                    <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="inputOdometerOptional" checked="@Model.OdometerOptional">
                         <label class="form-check-label" for="inputOdometerOptional">@translator.Translate(userLanguage, "Odometer Optional")</label>
                     </div>
@@ -138,6 +142,7 @@
                         <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
                         <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     }
+                    <input style="display:none;" onChange="uploadMap(this)" type="file" accept=".json" class="form-control-file" id="inputMap">
                 </div>
             </div>
         </div>
@@ -157,6 +162,7 @@
 </div>
 <script>
     var uploadedFile = "@Model.ImageLocation";
+    var uploadedMap = "@Model.MapLocation";
     function getVehicleModelData() {
         return { id: @Model.Id}
     }

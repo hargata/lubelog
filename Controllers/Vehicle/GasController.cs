@@ -15,13 +15,13 @@ namespace CarCareTracker.Controllers
             //check if the user uses MPG or Liters per 100km.
             var userConfig = _config.GetUserConfig(User);
             bool useMPG = userConfig.UseMPG;
-            bool useUKMPG = userConfig.UseUKMPG;
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            bool useUKMPG = !vehicleData.IsElectric && userConfig.UseUKMPG; //do not apply UK conversion on electric vehicles.
             var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
             if (userConfig.UseDescending)
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
-            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
             var viewModel = new GasRecordViewModelContainer()
