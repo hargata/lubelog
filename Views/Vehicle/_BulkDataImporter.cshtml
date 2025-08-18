@@ -27,7 +27,7 @@
             <div class="row mt-2">
                 <div class="col-12">
                     <label for="csvFileUploader">@translator.Translate(userLanguage, "Upload CSV File")</label>
-                    <input onChange="uploadFileAsync(this)" type="file" multiple accept=".csv" class="form-control-file" id="csvFileUploader">
+                    <input onChange="uploadFileAsync(this, setUploadedFile)" type="file" multiple accept=".csv" class="form-control-file" id="csvFileUploader">
                 </div>
             </div>
         </div>
