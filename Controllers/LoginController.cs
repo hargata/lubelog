@@ -4,7 +4,7 @@ using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.JsonWebTokens;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -146,8 +146,8 @@ namespace CarCareTracker.Controllers
                     if (!string.IsNullOrWhiteSpace(userJwt))
                     {
                         //validate JWT token
-                        var tokenParser = new JwtSecurityTokenHandler();
-                        var parsedToken = tokenParser.ReadJwtToken(userJwt);
+                        var tokenParser = new JsonWebTokenHandler();
+                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
                         var userEmailAddress = string.Empty;
                         if (parsedToken.Claims.Any(x => x.Type == "email"))
                         {
@@ -274,8 +274,8 @@ namespace CarCareTracker.Controllers
                     {
                         results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
                         //validate JWT token
-                        var tokenParser = new JwtSecurityTokenHandler();
-                        var parsedToken = tokenParser.ReadJwtToken(userJwt);
+                        var tokenParser = new JsonWebTokenHandler();
+                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
                         var userEmailAddress = string.Empty;
                         if (parsedToken.Claims.Any(x => x.Type == "email"))
                         {
