@@ -71,5 +71,8 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_LOCALE_OVERRIDE")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? LocaleOverride { get; set; } = string.Empty;
+        [JsonPropertyName("LUBELOGGER_LOCALE_DT_OVERRIDE")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? LocaleDateTimeOverride { get; set; } = string.Empty;
     }
 }

@@ -19,6 +19,7 @@ namespace CarCareTracker.Helper
         string GetWebHookUrl();
         bool GetCustomWidgetsEnabled();
         string GetLocaleOverride();
+        string GetLocaleDateTimeOverride();
         string GetMOTD();
         string GetLogoUrl();
         string GetSmallLogoUrl();
@@ -77,6 +78,11 @@ namespace CarCareTracker.Helper
         public string GetLocaleOverride()
         {
             var locale = CheckString("LUBELOGGER_LOCALE_OVERRIDE");
+            return locale;
+        }
+        public string GetLocaleDateTimeOverride()
+        {
+            var locale = CheckString("LUBELOGGER_LOCALE_DT_OVERRIDE");
             return locale;
         }
         public bool GetServerOpenRegistration()
@@ -176,6 +182,11 @@ namespace CarCareTracker.Helper
             if (string.IsNullOrWhiteSpace(serverConfig.LocaleOverride))
             {
                 serverConfig.LocaleOverride = null;
+                serverConfig.LocaleDateTimeOverride = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.LocaleDateTimeOverride))
+            {
+                serverConfig.LocaleDateTimeOverride = null;
             }
             if (serverConfig.AllowedFileExtensions == StaticHelper.DefaultAllowedFileExtensions || string.IsNullOrWhiteSpace(serverConfig.AllowedFileExtensions))
             {
