@@ -18,8 +18,14 @@ builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true,
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
 {
-    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
-    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
+    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
+    if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]))
+    {
+        var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]);
+        overrideCulture.DateTimeFormat = overrideDTFormat.DateTimeFormat;
+    }
+    CultureInfo.DefaultThreadCurrentCulture = overrideCulture;
+    CultureInfo.DefaultThreadCurrentUICulture = overrideCulture;
 }
 
 //Print Messages

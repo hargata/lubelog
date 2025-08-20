@@ -41,10 +41,13 @@ function previousSetupPage() {
 }
 function loadLocaleSample() {
     let selectedLocale = $("#inputLocale").val();
+    let selectedDateTimeLocale = $("#inputDateTimeLocale").val();
     if (selectedLocale.trim() == '') {
         $("#localeSampleContainer").hide();
+        $("#dateTimeLocaleOverride").hide();
     } else {
-        $.get(`/Home/GetLocaleSample?locale=${selectedLocale}`, function (data) {
+        $("#dateTimeLocaleOverride").show();
+        $.get(`/Home/GetLocaleSample?locale=${selectedLocale}&dtlocale=${selectedDateTimeLocale}`, function (data) {
             $("#localeSampleContainer").html(data);
             $("#localeSampleContainer").show();
         })
@@ -53,6 +56,7 @@ function loadLocaleSample() {
 function saveSetup() {
     let setupData = {
         LocaleOverride: $("#inputLocale").val(),
+        LocaleDateTimeOverride: $("#inputDateTimeLocale").val(),
         PostgresConnection: $("#inputPostgres").val(),
         AllowedFileExtensions: $("#inputFileExt").val(),
         CustomLogoURL: $("#inputLogoURL").val(),

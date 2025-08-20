@@ -550,12 +550,18 @@ namespace CarCareTracker.Controllers
             return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult GetLocaleSample(string locale)
+        public IActionResult GetLocaleSample(string locale, string dtlocale)
         {
-            var cultureInfo = CultureInfo.GetCultureInfo(locale);
+            var cultureInfo = new CultureInfo(locale);
+            if (!string.IsNullOrWhiteSpace(dtlocale))
+            {
+                var datetimeCulture = CultureInfo.GetCultureInfo(dtlocale);
+                cultureInfo.DateTimeFormat = datetimeCulture.DateTimeFormat;
+            }
             var viewModel = new LocaleSample
             {
-                ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern),
+                ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern, cultureInfo.DateTimeFormat),
+                ShortDateTimeSample = DateTime.Now.ToString("G", cultureInfo.DateTimeFormat),
                 CurrencySample = 13.45M.ToString("C", cultureInfo),
                 NumberSample = 123456.ToString("N", cultureInfo),
                 DecimalSample = 123456.78M.ToString("N2", cultureInfo)
@@ -572,6 +578,7 @@ namespace CarCareTracker.Controllers
             var viewModel = new ServerSettingsViewModel
             {
                 LocaleOverride = _config.GetLocaleOverride(),
+                LocaleDateTimeOverride = _config.GetLocaleDateTimeOverride(),
                 AvailableLocales = installedLocales,
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
