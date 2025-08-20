@@ -1,4 +1,5 @@
 ﻿@using CarCareTracker.Helper
+@using System.Net
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @model List<VehicleViewModel>
@@ -6,11 +7,12 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var extraFields = Model.SelectMany(x => x.ExtraFields).Select(f => new ExtraFieldSort { Name = f.Name, FieldType = f.FieldType }).Distinct().ToList();
 }
+    <div class='row'>
+        <div class="col-12 d-flex align-items-center flex-wrap mt-2 mb-2">
 @if (recordTags.Any())
 {
-    <div class='row'>
-        <div class="col-12 d-flex align-items-center flex-wrap mb-2">
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -21,17 +23,68 @@
                     <!option value="@recordTag"></!option>
                 }
             </datalist>
+}
+            <div class="ms-auto d-flex align-items-center mt-1 mb-1">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Sort by: <span class="fst-italic">@translator.Translate(userLanguage, "Default")</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "id"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="id">@translator.Translate(userLanguage, "Default")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "year"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="year">@translator.Translate(userLanguage, "Year")</button></li>
+                    <li><button class="dropdown-item secondary @(StaticHelper.VehicleSortSelected(userConfig, "makemodel"))" onclick="sortGarage(this)" data-sorttype="text" data-sortcolumn="makemodel">@translator.Translate(userLanguage, "Make") @translator.Translate(userLanguage, "Model")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "licenseplate"))" onclick="sortGarage(this)" data-sorttype="text" data-sortcolumn="licenseplate">@translator.Translate(userLanguage, "License Plate")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "fuel"))" onclick="sortGarage(this)" data-sorttype="text" data-sortcolumn="fuel">@translator.Translate(userLanguage, "Fuel Type")</button></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "purchasedate"))" onclick="sortGarage(this)" data-sorttype="date" data-sortcolumn="purchasedate">@translator.Translate(userLanguage, "Purchased Date")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "solddate"))" onclick="sortGarage(this)" data-sorttype="date" data-sortcolumn="solddate">@translator.Translate(userLanguage, "Sold Date")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "purchaseprice"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="purchaseprice">@translator.Translate(userLanguage, "Purchased Price(optional)")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "soldprice"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="soldprice">@translator.Translate(userLanguage, "Sold Price(optional)")</button></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "lastreportedmileage"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="lastreportedmileage">@translator.Translate(userLanguage, "Last Odometer")</button></li>
+                    <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "totalcost"))" onclick="sortGarage(this)" data-sorttype="number" data-sortcolumn="totalcost">@translator.Translate(userLanguage, "Total Cost")</button></li>
+                    @if (extraFields != null && extraFields.Any())
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                        @foreach (ExtraFieldSort field in extraFields)
+                        {
+                            <li><button class="dropdown-item @(StaticHelper.VehicleSortSelected(userConfig, "extraField-" + @StaticHelper.ToDataAttributeSafe(field.Name)))" onclick="sortGarage(this)" data-sorttype="@field.FieldType.ToString().ToLower()" data-sortcolumn="extraField-@StaticHelper.ToDataAttributeSafe(field.Name)">@field.Name</button></li>
+                         }
+                    }
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-}
     <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(recordTags.Any() ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
-                    <div class="card" onclick="viewVehicle(@vehicle.Id)">
-                        <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
+
+                @{
+                    var extraFieldAttrs = "";
+                    if (extraFields != null && vehicle.ExtraFields.Any())
+                    {
+                        extraFieldAttrs = string.Join(" ", vehicle.ExtraFields.Select(f =>
+                        $"data-extrafield-{StaticHelper.ToDataAttributeSafe(f.Name)}=\"{WebUtility.HtmlEncode(f.Value)}\""));
+                    }
+                }
+                    <div class="card" onclick="viewVehicle(@vehicle.Id)"
+                     data-id="@vehicle.Id"
+                     data-year="@vehicle.Year"
+                     data-makemodel="@WebUtility.HtmlEncode(vehicle.Make) @WebUtility.HtmlEncode(vehicle.Model)"
+                     data-licenseplate="@WebUtility.HtmlEncode(vehicle.LicensePlate)"
+                     data-fuel="@StaticHelper.GetFuelType(vehicle)"
+                     data-purchasedate="@vehicle.PurchaseDate"
+                     data-solddate="@vehicle.SoldDate"
+                     data-purchaseprice="@vehicle.PurchasePrice"
+                     data-soldprice="@vehicle.SoldPrice"
+                     data-lastreportedmileage="@vehicle.LastReportedMileage"
+                     data-totalcost="@vehicle.TotalCost"
+                     @Html.Raw(extraFieldAttrs)>
+                        <img src="@vehicle.ImageLocation" class="object-fit-cover" style="height:145px; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
                             <div class="vehicle-sold-banner"><p class='display-6 mb-0'>@translator.Translate(userLanguage, "SOLD")</p></div>
@@ -87,3 +140,27 @@
             </div>
         </div>
     </div>
+<script>
+    function defaultVehicleSort(){
+        var defaultSortButton = $('[aria-labelledby="sortDropdown"] li button.default');
+        console.log(defaultSortButton);
+        if (defaultSortButton.length) {
+            var sortColumn = defaultSortButton.text();
+            var sortColumnField = defaultSortButton.attr('data-sortcolumn');
+            var sortFieldType = defaultSortButton.attr('data-sorttype');
+            var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
+            var sortDescIcon = '<i class="bi bi-sort-numeric-up-alt ms-2"></i>';
+
+            if (defaultSortButton.hasClass('sort-desc')) {
+                defaultSortButton.html(`${sortColumn}${sortDescIcon}`);
+                sortVehicles(sortColumnField, sortFieldType, true); // descending
+            } else {
+                defaultSortButton.html(`${sortColumn}${sortAscIcon}`);
+                sortVehicles(sortColumnField, sortFieldType); 
+            }
+
+            $('#sortDropdown span').text(sortColumn);
+        }
+    }
+    defaultVehicleSort();
+</script>

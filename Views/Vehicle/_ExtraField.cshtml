@@ -7,34 +7,34 @@
             <label for="@elementId">@field.Name</label>
             @switch(field.FieldType){
                 case (ExtraFieldType.Text):
-                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                    <input type="text" id="@elementId" data-fieldtype="Text" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                     break;
                 case (ExtraFieldType.Number):
-                    <input type="number" inputmode="numeric" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                    <input type="number" inputmode="numeric" id="@elementId" data-fieldtype="Number" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                     break;
                 case (ExtraFieldType.Decimal):
-                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="@elementId" data-fieldtype="Decimal" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                     break;
                 case (ExtraFieldType.Date):
                     <div class="input-group">
-                        <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                        <input type="text" id="@elementId" data-fieldtype="Date" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                         <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                     </div>
                     <script>initExtraFieldDatePicker('@elementId')</script>
                     break;
                 case (ExtraFieldType.Time):
-                    <input type="time" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                    <input type="time" id="@elementId" data-fieldtype="Time" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                     break;
                 case (ExtraFieldType.Location):
                     <div class="input-group">
-                        <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                        <input type="text" id="@elementId" data-fieldtype="Location" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                         <div class="input-group-text">
                             <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="populateLocationField('@elementId')"><i class="bi bi-geo-alt"></i></button>
                         </div>
                     </div>
                     break;
                 default:
-                    <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
+                    <input type="text" id="@elementId" data-fieldtype="Text" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
                     break;
             }
         </div>
