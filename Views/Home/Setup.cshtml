@@ -64,6 +64,16 @@
                     }
                 </select>
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use system locale. Restart Required")</small>
+                <div id="dateTimeLocaleOverride" style="@(string.IsNullOrWhiteSpace(Model.LocaleOverride) ? "display:none;" : "")">
+                    <label for="inputDateTimeLocale">@translator.Translate(userLanguage, "Locale DateTime Override")</label>
+                    <select class="form-select" id="inputDateTimeLocale" onchange="loadLocaleSample()">
+                        @foreach (string installedLocale in Model.AvailableLocales)
+                        {
+                            <!option value="@installedLocale" @(Model.LocaleDateTimeOverride == installedLocale ? "selected" : "")>@installedLocale</!option>
+                        }
+                    </select>
+                    <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use default datetime format. Restart Required")</small>
+                </div>
                 <div id="localeSampleContainer" style="display:none;"></div>
             </div>
             <div class="form-group">

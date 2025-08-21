@@ -3,6 +3,7 @@ namespace CarCareTracker.Models
     public class ServerSettingsViewModel
     {
         public string LocaleOverride { get; set; }
+        public string LocaleDateTimeOverride { get; set; }
         public string PostgresConnection { get; set; }
         public string AllowedFileExtensions { get; set; }
         public string CustomLogoURL { get; set; }
