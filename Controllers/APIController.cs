@@ -2023,5 +2023,65 @@ namespace CarCareTracker.Controllers
             var result = _fileHelper.RestoreBackup("/defaults/demo_default.zip", true);
             return Json(result);
         }
+        [HttpPut]
+        [Route("/api/vehicle")]
+        [Consumes("application/json")]
+        public IActionResult AddVehicleJson([FromBody] VehicleExportModel input) => AddVehicle(input);
+        [HttpPut]
+        [Route("/api/vehicle")]
+        public IActionResult AddVehicle(VehicleExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Make) || string.IsNullOrWhiteSpace(input.Model))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Make and Model are required"));
+            }
+            try
+            {
+                var vehicleInput = new Vehicle();
+                vehicleInput.Year = int.TryParse(input.Year, out int year) ? year : DateTime.Now.Year;
+                vehicleInput.Make = input.Make;
+                vehicleInput.Model = input.Model;
+                vehicleInput.LicensePlate = input.LicensePlate ?? "";
+                if (DateTime.TryParse(input.PurchaseDate, out DateTime purchaseDate))
+                {
+                    vehicleInput.PurchaseDate = purchaseDate.ToShortDateString();
+                }
+                if (DateTime.TryParse(input.SoldDate, out DateTime soldDate))
+                {
+                    vehicleInput.SoldDate = soldDate.ToShortDateString();
+                }
+                vehicleInput.PurchasePrice = decimal.TryParse(input.PurchasePrice, out decimal purchasePrice) ? purchasePrice : 0;
+                vehicleInput.SoldPrice = decimal.TryParse(input.SoldPrice, out decimal soldPrice) ? soldPrice : 0;
+                vehicleInput.IsElectric = bool.TryParse(input.IsElectric, out bool isElectric) && isElectric;
+                vehicleInput.IsDiesel = bool.TryParse(input.IsDiesel, out bool isDiesel) && isDiesel;
+                vehicleInput.UseHours = bool.TryParse(input.UseHours, out bool useHours) && useHours;
+                vehicleInput.OdometerOptional = bool.TryParse(input.OdometerOptional, out bool odometerOptional) && odometerOptional;
+                vehicleInput.ExtraFields = input.ExtraFields ?? new List<ExtraField>();
+                vehicleInput.Tags = !string.IsNullOrWhiteSpace(input.Tags) ? input.Tags.Split(' ').Where(t => !string.IsNullOrWhiteSpace(t)).ToList() : new List<string>();
+                vehicleInput.HasOdometerAdjustment = bool.TryParse(input.HasOdometerAdjustment, out bool hasOdometerAdjustment) && hasOdometerAdjustment;
+                vehicleInput.OdometerMultiplier = !string.IsNullOrWhiteSpace(input.OdometerMultiplier) ? input.OdometerMultiplier : "1";
+                vehicleInput.OdometerDifference = !string.IsNullOrWhiteSpace(input.OdometerDifference) ? input.OdometerDifference : "0";
+                vehicleInput.VehicleIdentifier = !string.IsNullOrWhiteSpace(input.VehicleIdentifier) ? input.VehicleIdentifier : "LicensePlate";
+                vehicleInput.ImageLocation = "/defaults/noimage.png";
+                vehicleInput.MapLocation = "";
+                var result = _dataAccess.SaveVehicle(vehicleInput);
+                if (result)
+                {
+                    _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
+                    return Json(OperationResponse.Succeed("Vehicle created successfully"));
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("Failed to create vehicle"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed($"Error creating vehicle: {ex.Message}"));
+            }
+        }
     }
 }
