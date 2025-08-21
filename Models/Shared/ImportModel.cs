@@ -176,4 +176,37 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromBoolOptional))]
         public string IsRoot { get; set; }
     }
+    public class VehicleExportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Year { get; set; }
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public string LicensePlate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
+        public string PurchaseDate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
+        public string SoldDate { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string PurchasePrice { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string SoldPrice { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsElectric { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsDiesel { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string UseHours { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string OdometerOptional { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public string Tags { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string HasOdometerAdjustment { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string OdometerMultiplier { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string OdometerDifference { get; set; }
+        public string VehicleIdentifier { get; set; }
+    }
 }

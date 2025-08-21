@@ -76,6 +76,39 @@
 </div>
 <div class="row api-method">
     <div class="col-1">
+        <span class="badge text-bg-warning">PUT</span>
+    </div>
+    <div class="col-5 copyable">
+        <code>/api/vehicle</code>
+    </div>
+    <div class="col-3">
+        Creates a new vehicle
+    </div>
+    <div class="col-3">
+        Body(form-data): {<br />
+        make - Vehicle Make<br />
+        model - Vehicle Model<br />
+        year - Year(optional)<br />
+        licensePlate - License Plate(optional)<br />
+        purchaseDate - Purchase Date(optional)<br />
+        soldDate - Sold Date(optional)<br />
+        purchasePrice - Purchase Price(optional)<br />
+        soldPrice - Sold Price(optional)<br />
+        isElectric(bool) - Electric Vehicle(optional)<br />
+        isDiesel(bool) - Diesel Vehicle(optional)<br />
+        useHours(bool) - Use Hours Instead of Odometer(optional)<br />
+        odometerOptional(bool) - Make Odometer Optional(optional)<br />
+        tags - Tags separated by space(optional)<br />
+        extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
+        hasOdometerAdjustment(bool) - Has Odometer Adjustment(optional)<br />
+        odometerMultiplier - Odometer Multiplier(optional)<br />
+        odometerDifference - Odometer Difference(optional)<br />
+        vehicleIdentifier - Vehicle Identifier Field(optional)<br />
+        }
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
         <span class="badge bg-success">GET</span>
     </div>
     <div class="col-5 copyable testable">
