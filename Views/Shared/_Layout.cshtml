@@ -1,4 +1,4 @@
-﻿@using CarCareTracker.Helper
+@using CarCareTracker.Helper
 @using System.Globalization
 <!DOCTYPE html>
 @inject IConfigHelper config
@@ -26,7 +26,7 @@
         shortDatePattern = shortDatePattern.Replace("m", "mm");
     }
 }
-<html lang="en" data-bs-theme="@(useDarkMode ? "dark" : "light")">
+<html lang="en" class="bg-white dark:bg-gray-950 scheme-light dark:scheme-dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -37,13 +37,13 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f3f3">
     <title>@ViewData["Title"] - LubeLogger</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/app.css"/>
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.css" />
     <link rel="stylesheet" href="~/css/site.css"/>
     <link rel="stylesheet" href="~/css/loader.css"/>
     <link rel="stylesheet" href="~/sweetalert/sweetalert2.min.css"/>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="icon" sizes="192x192" href="~/defaults/lubelogger_icon_192.png" />
     <link rel="icon" sizes="128x128" href="~/defaults/lubelogger_icon_128.png" />
     <link rel="apple-touch-icon" sizes="128x128" href="~/defaults/lubelogger_icon_128.png" />
@@ -52,11 +52,11 @@
     <link rel="manifest" href="~/manifest.json">
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/shared.js?v=@StaticHelper.VersionNumber"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
     <script src="~/sweetalert/sweetalert2.all.min.js"></script>
     <script src="~/js/loader.js?v=@StaticHelper.VersionNumber"></script>
+    <script src="~/lib/tailwindplus/elements.min.js" type="module"></script>
     <script>
         function getGlobalConfig() {
             return {

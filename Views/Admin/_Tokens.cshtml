@@ -1,12 +1,77 @@
 ﻿@using CarCareTracker.Helper
-@model List<Token>
-@foreach (Token token in Model)
-{
-    <tr class="d-flex">
-        <td class="col-4" style="cursor:pointer;" onclick="copyToClipboard(this)">@token.Body</td>
-        <td class="col-6 text-truncate">@StaticHelper.TruncateStrings(token.EmailAddress)</td>
-        <td class="col-2">
-            <button type="button" class="btn btn-danger" onclick="deleteToken(@token.Id, this)"><i class="bi bi-trash"></i></button>
-        </td>
-    </tr>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userLanguage = config.GetServerLanguage();
 }
+@model List<Token>
+
+
+<div class="grid grid-cols-1 gap-3 max-h-[80vh] overflow-y-auto sm:max-h-none sm:overflow-y-hidden">
+    <div class="hidden sm:block relative sm:max-h-[65vh] lg:max-h-[60vh] overflow-x-auto overflow-y-auto shadow-md border border-1 border-gray-300 dark:border-gray-700 rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead class="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3 w-4/12">@translator.Translate(userLanguage, "Token")</th>
+                <th scope="col" class="px-6 py-3 w-6/12">@translator.Translate(userLanguage, "Issued To")</th>
+                <th scope="col" class="px-6 py-3 w-2/12">@translator.Translate(userLanguage, "Delete")</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (Token token in Model)
+            {
+                <tr class="bg-white border-t dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="px-6 py-2 w-4/12 cursor-pointer" onclick="copyToClipboard(this)">@token.Body</td>
+                    <td class="px-6 py-2 w-6/12 truncate">@StaticHelper.TruncateStrings(token.EmailAddress)</td>
+                    <td class="px-6 py-2 w-2/12">
+                        <button type="button"
+                                class="w-full justify-center rounded-md transition-all duration-100 ease-out bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-700/25 dark:focus:ring-red-600/25"
+                                onclick="deleteToken(@token.Id, this)">
+                            <heroicon class="size-4 mx-auto" kind="Outline" name="Trash"/>
+                        </button>
+                    </td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            {
+                <tr class="light:bg-white border-t dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td colspan="3" class="text-center px-6 py-2 w-full">@translator.Translate(userLanguage, "No token yet")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @foreach (Token smToken in Model)
+    {
+        <div class="sm:hidden bg-white dark:bg-gray-800 shadow-md p-2 border border-1 border-gray-300 dark:border-gray-700 rounded-md">
+            <div class="flex items-center pb-3 pt-1 px-1 mb-2 border-b border-b-1 border-gray-300 dark:border-gray-700">
+                <heroicon class="size-6 text-gray-900 dark:text-white" kind="Outline" name="Key"/>
+                <h5 class="text-xl font-medium text-gray-900 dark:text-white ml-2">@translator.Translate(userLanguage, "Token")</h5>
+            </div>
+            <div>
+                <code class="w-full text-sm flex justify-between text-left items-center space-x-4 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg p-3 pl-6">
+                    <span class="flex gap-4">
+                        <span id="token-@smToken.Id" class="flex-1">@smToken.Body</span>
+                    </span>
+                    <button onclick="copyToClipboard(document.getElementById('token-@smToken.Id'))">
+                        <heroicon class="shrink-0 h-5 w-5 transition text-gray-500 group-hover:text-white" kind="Mini" name="Clipboard"/>
+                    </button>
+                </code>
+
+                <p class="w-full text-gray-900 dark:text-white p-2">
+                    <span class="font-semibold mr-0.5">@translator.Translate(userLanguage, "Issued To")</span>
+                    <span>@StaticHelper.TruncateStrings(smToken.EmailAddress)</span>
+                </p>
+            </div>
+            <div class="p-1 grid grid-cols-1 gap-2">
+                <button
+                    type="button"
+                    onclick="deleteToken(@smToken.Id, this)"
+                    class="inline-flex w-full justify-center rounded-md transition-all duration-100 ease-out bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-700/25 dark:focus:ring-red-600/25">
+                    @translator.Translate(userLanguage, "Delete")
+                </button>
+            </div>
+        </div>
+    }
+</div>

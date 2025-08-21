@@ -35,7 +35,7 @@
                     <span class="lead">@translator.Translate(userLanguage, "Users")</span>
                 </div>
                 <div class="col-10 d-flex align-items-center justify-content-end">
-                    <button onclick="showTokenModal()" class="btn btn-primary btn-md mt-1 mb-1">
+                    <button onclick="showTokenDialog()" class="btn btn-primary btn-md mt-1 mb-1">
                         <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Manage Tokens")
                     </button>
                 </div>
@@ -43,69 +43,102 @@
             <hr />
             <table class="table table-hover">
                 <thead class="sticky-top sticky-top-nav">
-                    <tr class="d-flex">
-                        <th scope="col" class="col-4">@translator.Translate(userLanguage, "Username")</th>
-                        <th scope="col" class="col-4">@translator.Translate(userLanguage, "Email")</th>
-                        <th scope="col" class="col-2">@translator.Translate(userLanguage, "Is Admin")</th>
-                        <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
-                    </tr>
+                <tr class="d-flex">
+                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Username")</th>
+                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Email")</th>
+                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Is Admin")</th>
+                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                </tr>
                 </thead>
                 <tbody id="userTable">
-                    @await Html.PartialAsync("_Users", Model.Users)
+                @await Html.PartialAsync("_Users", Model.Users)
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="modal fade" data-bs-focus="false" id="tokenModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex align-items-center">
-                        <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
-                    </div>
-                    <div class="d-flex align-items-center ms-auto">
-                        <div class="btn-group">
-                            <button onclick="generateNewToken()" class="btn btn-primary btn-md mt-1 mb-1">
-                                <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Generate")
-                            </button>
-                            <button class="btn btn-outline-primary btn-md mt-1 mb-1" @(emailServerIsSetup ? "" : "disabled") onclick="toggleAutoNotify(event)">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="enableAutoNotify" @(emailServerIsSetup ? "checked" : "disabled")>
-                                    <label class="form-check-label" for="enableAutoNotify">@translator.Translate(userLanguage, "Notify")</label>
-                                </div>
-                            </button>
+    <dialog class="w-11/12 lg:w-5/12 lg:mt-32 bg-white dark:bg-gray-900 rounded-xl border border-1 border-gray-300 dark:border-gray-700" id="tokenDialog">
+        <div class="p-3 sm:py-2 sm:px-4 border-b border-b-1 border-gray-300 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">@translator.Translate(userLanguage, "Tokens")</h3>
+            <div class="flex items-center gap-3">
+                <button onclick="showEmailDialog()" class="hidden sm:inline-flex w-auto justify-center rounded-md transition-all duration-100 ease-out bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-700/25 dark:focus:ring-blue-600/25">
+                    <heroicon kind="Outline" name="Plus" class="size-5 mr-1.5"/>@translator.Translate(userLanguage, "Generate")
+                </button>
+                <el-dropdown class="inline-block">
+                    <button class="inline-flex justify-center rounded-md transition-all duration-100 ease-out bg-transparent px-1 py-1 text-sm text-gray-400 dark:text-gray-600 shadow-xs inset-ring inset-ring-gray-300 dark:inset-ring-white/5 hover:text-gray-700 dark:hover:text-gray-400 focus:ring-2 focus:ring-gray-900/5 dark:focus:ring-white/5 w-auto">
+                        <heroicon kind="Outline" name="EllipsisVertical" class="size-5"/>
+                    </button>
+                    
+                    <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 p-0 shadow-lg outline outline-1 outline-black/5 dark:-outline-offset-1 dark:outline-white/10 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in">
+                        <div class="py-1">
+                            <div class="block px-4 py-2 text-sm text-gray-300 focus:outline-none focus:bg-gray-100 focus:text-gray-900 dark:focus:bg-white/5 dark:focus:text-white">
+                                <label class="inline-flex items-center cursor-pointer w-full">
+                                    <span class="me-auto">@translator.Translate(userLanguage, "Notify")</span>
+                                    <input type="checkbox" role="switch" id="enableAutoNotify" value="" class="sr-only peer" @(emailServerIsSetup ? "checked" : "disabled") onclick="toggleAutoNotify(event)">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
                         </div>
-                        <button class="btn btn-close btn-md mt-1 mb-1 ms-2" onclick="hideTokenModal()" aria-label="Close"></button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-hover">
-                        <thead class="sticky-top">
-                            <tr class="d-flex">
-                                <th scope="col" class="col-4">@translator.Translate(userLanguage, "Token")</th>
-                                <th scope="col" class="col-6">@translator.Translate(userLanguage, "Issued To")</th>
-                                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tokenTable">
-                            @await Html.PartialAsync("_Tokens", Model.Tokens)
-                        </tbody>
-                    </table>
-                </div>
+                    </el-menu>
+                </el-dropdown>
+                <button onclick="hideTokenDialog()" class="inline-flex justify-center rounded-md transition-all duration-100 ease-out bg-transparent px-1 py-1 text-sm text-gray-400 dark:text-gray-600 shadow-xs inset-ring inset-ring-gray-300 dark:inset-ring-white/5 hover:text-gray-700 dark:hover:text-gray-400 focus:ring-2 focus:ring-gray-900/5 dark:focus:ring-white/5 w-auto">
+                    <heroicon kind="Outline" name="XMark" class="size-5"/>
+                </button>
             </div>
         </div>
-    </div>
+        <div class="p-3 sm:p-4">
+            <button onclick="showEmailDialog()" class="sm:hidden inline-flex w-full justify-center rounded-md transition-all duration-100 ease-out bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-700/25 dark:focus:ring-blue-600/25 mb-3">
+                <heroicon kind="Outline" name="Plus" class="size-5 mr-2"/>@translator.Translate(userLanguage, "Generate")
+            </button>
+            <div id="tokenGrid">
+                @await Html.PartialAsync("_Tokens", Model.Tokens)
+            </div>
+        </div>
+        
+        <dialog id="emailDialog" aria-labelledby="dialog-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
+            <el-dialog-backdrop class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
+
+            <div tabindex="0" class="flex min-h-full items-center justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
+                <el-dialog-panel class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl dark:outline dark:-outline-offset-1 dark:outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95">
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/10 sm:mx-0 sm:size-10">
+                                <heroicon kind="Outline" name="AtSymbol" class="size-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">@translator.Translate(userLanguage, "Generate Token")</h3>
+                                <div class="mt-2">
+                                    <input id="inputEmail" type="email" placeholder="redneath@github.com" class="block min-w-0 grow transition-all duration-100 ease-out rounded-md dark:bg-gray-800 border-gray-300 dark:border-gray-600 py-1.5 pr-3 text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-4 focus:outline-none focus:ring-blue-700/25 sm:text-sm/6 dark:focus:ring-blue-600/25"/>
+                                    <p id="emailValidationMessage" class="hidden font-medium text-sm text-red-400 dark:text-red-600 mt-1">@translator.Translate(userLanguage, "Please enter an email address")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/25 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" onclick="generateNewToken()" class="inline-flex w-full justify-center rounded-md transition-all duration-100 ease-out bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-700/25 sm:ml-3 sm:w-auto dark:focus:ring-blue-600/25">@translator.Translate(userLanguage, "Generate")</button>
+                        <button type="button" onclick="hideEmailDialog()" class="mt-3 inline-flex w-full justify-center rounded-md transition-all duration-100 ease-out bg-transparent dark:bg-white/10 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-xs inset-ring inset-ring-gray-300 dark:inset-ring-white/5 hover:bg-white dark:hover:bg-white/20 focus:ring-4 focus:ring-gray-900/5 dark:focus:ring-white/5 sm:mt-0 sm:w-auto">@translator.Translate(userLanguage, "Cancel")</button>
+                    </div>
+                </el-dialog-panel>
+            </div>
+      </dialog>
+    </dialog>
 </div>
 <script>
-    function showTokenModal() {
-        $("#tokenModal").modal('show');
+    function showTokenDialog() {
+        $("#tokenDialog")[0].showModal();
     }
-    function hideTokenModal() {
-        $("#tokenModal").modal('hide');
+    function hideTokenDialog() {
+        $("#tokenDialog")[0].close();
+    }
+    function showEmailDialog() {
+        $("#emailDialog")[0].showModal();
+    }
+    function hideEmailDialog() {
+        $("#emailValidationMessage")[0].classList.add("hidden");
+        $("#emailDialog")[0].close();
     }
     function reloadTokenTable() {
         $.get('/Admin/GetTokenPartialView', function (data) {
-            $("#tokenTable").html(data);
+            $("#tokenGrid").html(data);
         });
     }
     function reloadUserTable() {
@@ -159,30 +192,20 @@
         });
     }
     function generateNewToken() {
-        Swal.fire({
-            title: 'Generate Token',
-            html: `
-                                <input type="text" id="inputEmail" class="swal2-input" placeholder="Email Address" onkeydown="handleSwalEnter(event)">
-                                `,
-            confirmButtonText: 'Generate',
-            focusConfirm: false,
-            preConfirm: () => {
-                const emailAddress = $("#inputEmail").val();
-                if (!emailAddress) {
-                    Swal.showValidationMessage(`Please enter an email address`)
-                }
-                return { emailAddress }
-            },
-        }).then(function (result) {
-            if (result.isConfirmed) {
-                var autoNotify = $("#enableAutoNotify").is(":checked");
-                $.get('/Admin/GenerateNewToken', { emailAddress: result.value.emailAddress, autoNotify: autoNotify }, function (data) {
-                    if (data.success) {
-                        reloadTokenTable();
-                    } else {
-                        errorToast(data.message)
-                    }
-                });
+        let emailAddress = $("#inputEmail").val();
+        let autoNotify = $("#enableAutoNotify").is(":checked");
+        
+        if (!emailAddress) {
+            $("#emailValidationMessage")[0].classList.remove("hidden");
+            return;
+        }
+        
+        $.get('/Admin/GenerateNewToken', { emailAddress: emailAddress, autoNotify: autoNotify }, function (data) {
+            if (data.success) {
+                reloadTokenTable();
+                hideEmailDialog();
+            } else {
+                errorToast(data.message)
             }
         });
     }

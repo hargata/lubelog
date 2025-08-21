@@ -33,7 +33,7 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getti
 [Search Existing Issues](https://github.com/hargata/lubelog/issues)
 
 ## Dependencies
-- [Bootstrap](https://github.com/twbs/bootstrap)
+- [TailwindPlus](https://tailwindcss.com/plus/ui-blocks/documentation)
 - [LiteDB](https://github.com/mbdavid/litedb)
 - [Npgsql](https://github.com/npgsql/npgsql)
 - [Bootstrap-DatePicker](https://github.com/uxsolutions/bootstrap-datepicker)
