@@ -34,6 +34,7 @@ namespace CarCareTracker.Helper
         bool GetInvariantApi();
         bool GetServerOpenRegistration();
         string GetDefaultReminderEmail();
+        bool GetDefaultCaseSensitiveSearch();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -116,6 +117,10 @@ namespace CarCareTracker.Helper
         {
             var reminderEmail = CheckString(nameof(ServerConfig.DefaultReminderEmail));
             return reminderEmail;
+        }
+        public bool GetDefaultCaseSensitiveSearch()
+        {
+            return CheckBool(CheckString("LUBELOGGER_DEFAULT_CASE_SENSITIVE_SEARCH"), false);
         }
         public string GetAllowedFileUploadExtensions()
         {
@@ -356,7 +361,8 @@ namespace CarCareTracker.Helper
                 TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>() ?? new UserConfig().TabOrder,
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
-                ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail)))
+                ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail))),
+                UseDefaultCaseSensitiveSearch = CheckBool(CheckString(nameof(UserConfig.UseDefaultCaseSensitiveSearch)), GetDefaultCaseSensitiveSearch())
             };
             int userId = 0;
             if (user != null)

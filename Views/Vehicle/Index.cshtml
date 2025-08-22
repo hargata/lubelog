@@ -191,7 +191,7 @@
                     <label class="form-check-label" for="globalSearchAutoSearchCheck">@translator.Translate(userLanguage, "Incremental Search")</label>
                 </div>
                 <div class="form-check form-check-inline form-switch mt-1">
-                    <input class="form-check-input" type="checkbox" onChange="performGlobalSearch()" role="switch" id="globalSearchCaseSensitiveCheck" checked>
+                    <input class="form-check-input" type="checkbox" onChange="performGlobalSearch()" role="switch" id="globalSearchCaseSensitiveCheck" @(userConfig.UseDefaultCaseSensitiveSearch ? "checked" : "")>
                     <label class="form-check-label" for="globalSearchCaseSensitiveCheck">@translator.Translate(userLanguage, "Case Sensitive")</label>
                 </div>
                 <div id="globalSearchModalResults"></div>

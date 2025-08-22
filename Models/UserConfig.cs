@@ -24,6 +24,7 @@
         public bool UseUnitForFuelCost { get; set; }
         public bool ShowCalendar { get; set; }
         public bool ShowVehicleThumbnail { get; set; }
+        public bool UseDefaultCaseSensitiveSearch { get; set; } = false;
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}
