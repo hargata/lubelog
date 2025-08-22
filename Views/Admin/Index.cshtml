@@ -41,19 +41,9 @@
                 </div>
             </div>
             <hr />
-            <table class="table table-hover">
-                <thead class="sticky-top sticky-top-nav">
-                <tr class="d-flex">
-                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Username")</th>
-                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Email")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Is Admin")</th>
-                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
-                </tr>
-                </thead>
-                <tbody id="userTable">
+            <div id="userTable" class="p-4 sm:p-4">
                 @await Html.PartialAsync("_Users", Model.Users)
-                </tbody>
-            </table>
+            </div>
         </div>
     </div>
     <dialog class="w-11/12 lg:w-5/12 lg:mt-32 bg-white dark:bg-gray-900 rounded-xl border border-1 border-gray-300 dark:border-gray-700" id="tokenDialog">

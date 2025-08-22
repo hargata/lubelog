@@ -1,11 +1,73 @@
 ﻿@using CarCareTracker.Helper
-@model List<UserData>
-@foreach (UserData userData in Model)
-{
-    <tr class="d-flex" style="cursor:pointer;">
-        <td class="col-4 d-flex align-items-center">@StaticHelper.TruncateStrings(userData.UserName)</td>
-        <td class="col-4 d-flex align-items-center">@StaticHelper.TruncateStrings(userData.EmailAddress)</td>
-        <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") /></td>
-        <td class="col-2 d-flex align-items-center"><button type="button" class="btn btn-danger" onclick="deleteUser(@userData.Id, this)"><i class="bi bi-trash"></i></button></td>
-    </tr>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userLanguage = config.GetServerLanguage();
 }
+@model List<UserData>
+
+@* Mobile layout *@
+<ul role="list" class="sm:hidden divide-y divide-gray-100 dark:divide-white/5">
+    @foreach (UserData userData in Model)
+    {
+        <li class="flex justify-between items-center gap-x-6 py-5">
+            <div class="min-w-0">
+                <p class="text-base/6 font-semibold text-gray-900 dark:text-white">@StaticHelper.TruncateStrings(userData.UserName)</p>
+                <p class="mt-1 truncate text-sm/5 text-gray-500 dark:text-gray-400">@StaticHelper.TruncateStrings(userData.EmailAddress)</p>
+            </div>
+            <el-dropdown class="inline-block">
+                <button class="inline-flex justify-center rounded-md transition-all duration-100 ease-out bg-transparent px-1.5 py-1.5 text-sm text-gray-500 dark:text-gray-500 shadow-xs inset-ring inset-ring-gray-400 dark:inset-ring-white/10 hover:text-gray-800 dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900/10 dark:focus:ring-white/10 w-auto">
+                    <label><heroicon kind="Outline" name="EllipsisVertical" class="size-6"/></label>
+                </button>
+                
+                <el-menu anchor="bottom end" popover class="m-0 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 p-0 shadow-lg outline outline-1 outline-black/5 dark:-outline-offset-1 dark:outline-white/10 transition [--anchor-gap:theme(spacing.2)] [transition-behavior:allow-discrete] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in">
+                    <div class="py-1">
+                        <div class="flex justify-between items-center w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:outline-none hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-white/5 dark:hover:text-white">
+                            <label for="admin-@userData.Id" class="w-full cursor-pointer">@translator.Translate(userLanguage, "Is Admin")</label>
+                            <input id="admin-@userData.Id" type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") class="cursor-pointer rounded-md transition-all duration-100 ease-out shadow-xs inset-ring inset-ring-gray-400 dark:inset-ring-white/10 focus:ring-2 focus:ring-gray-900/10 dark:focus:ring-white/10">
+                        </div>
+                        <button type="button" onclick="deleteUser(@userData.Id, this)" class="flex w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:outline-none hover:bg-red-100 hover:text-white dark:hover:bg-white/5 dark:hover:text-white">
+                            @translator.Translate(userLanguage, "Delete")
+                        </button>
+                    </div>
+                </el-menu>
+            </el-dropdown>
+        </li>
+    }
+</ul>
+
+@* Desktop layout *@
+<div class="hidden sm:block relative sm:max-h-[55vh] lg:max-h-[70vh] overflow-x-auto overflow-y-auto shadow-md border border-1 border-gray-300 dark:border-gray-700 rounded-lg">
+    <table class="hidden sm:table w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="sticky top-0 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+            <th scope="col" class="px-6 py-3 w-4/12">@translator.Translate(userLanguage, "Username")</th>
+            <th scope="col" class="px-6 py-3 w-5/12">@translator.Translate(userLanguage, "Email")</th>
+            <th scope="col" class="px-6 py-3 w-2/12">@translator.Translate(userLanguage, "Is Admin")</th>
+            <th scope="col" class="px-6 py-3 w-1/12">@translator.Translate(userLanguage, "Delete")</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (UserData userData in Model)
+        {
+            <tr class="bg-white border-t dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <td class="px-6 py-2 w-4/12 truncate">@StaticHelper.TruncateStrings(userData.UserName)</td>
+                <td class="px-6 py-2 w-5/12 truncate">@StaticHelper.TruncateStrings(userData.EmailAddress)</td>
+                <td class="px-6 py-2 w-2/12"><input type="checkbox" value="" onchange="updateUserAdmin(@userData.Id, this)" @(userData.IsAdmin ? "checked" : "") class="cursor-pointer rounded-md transition-all duration-100 ease-out shadow-xs inset-ring inset-ring-gray-400 dark:inset-ring-white/10 focus:ring-2 focus:ring-gray-900/10 dark:focus:ring-white/10"/></td>
+                <td class="px-6 py-2 w-1/12">
+                    <button type="button"
+                            class="w-full justify-center rounded-md transition-all duration-100 ease-out bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-700/25 dark:focus:ring-red-600/25"
+                            onclick="deleteUser(@userData.Id, this)">
+                        <heroicon class="size-4 mx-auto" kind="Outline" name="Trash"/>
+                    </button>
+                </td>
+            </tr>
+        }
+        @if (Model.Count == 0)
+        {
+            <tr class="light:bg-white border-t dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <td colspan="4" class="text-center px-6 py-2 w-full">@translator.Translate(userLanguage, "Empty")</td>
+            </tr>
+        }
+    </table>
+</div>
