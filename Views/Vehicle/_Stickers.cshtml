@@ -11,7 +11,7 @@
     @foreach(ReminderRecord reminder in Model.ReminderRecords){
         <div class="reminderSticker">
             <div class="row justify-content-center mt-2">
-                <img src="@config.GetLogoUrl()" class="lubelogger-logo-sticker" />
+                <application-logo class="lubelogger-logo-sticker" />
             </div>
             <div class="row">
                 <div class="col-12 text-center">
@@ -68,7 +68,7 @@
     @foreach(GenericRecord genericRecord in Model.GenericRecords){
         <div class="d-flex flex-column recordSticker">
             <div class="d-flex">
-                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+                <application-logo class="lubelogger-logo" />
             </div>
             <hr />
             <div class="row">
@@ -183,7 +183,7 @@
     {
         <div class="d-flex flex-column recordSticker">
             <div class="d-flex">
-                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+                <application-logo class="lubelogger-logo" />
             </div>
             <hr />
             <div class="row">
