@@ -19,8 +19,8 @@ namespace CarCareTracker.Helper
         public const string LegacyUserConfigPath = "config/userConfig.json";
         public const string LegacyServerConfigPath = "config/serverConfig.json";
         public const string AdditionalWidgetsPath = "data/widgets.html";
-        public const string DefaultLogoPath = "/defaults/lubelogger_logo.png";
-        public const string DefaultSmallLogoPath = "/defaults/lubelogger_logo_small.png";
+        public const string DefaultLogoPath = "/defaults/wind-logger-logo.min.svg";
+        public const string DefaultSmallLogoPath = "/defaults/wind-logger-fan.min.svg";
         public const string GenericErrorMessage = "An error occurred, please try again later";
         public const string ReminderEmailTemplate = "defaults/reminderemailtemplate.txt";
         public const string DefaultAllowedFileExtensions = ".png,.jpg,.jpeg,.pdf,.xls,.xlsx,.docx";

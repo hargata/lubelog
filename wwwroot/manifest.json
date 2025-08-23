@@ -4,46 +4,10 @@
   "display": "standalone",
   "icons": [
     {
-      "src": "/defaults/lubelogger_icon_72.png",
-      "sizes": "72x72",
-      "type": "image/png",
+      "src": "/defaults/wind-logger-fan.min.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
-    },
-    {
-      "src": "/defaults/lubelogger_maskable_icon_72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/defaults/lubelogger_icon_128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/defaults/lubelogger_maskable_icon_128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/defaults/lubelogger_icon_144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/defaults/lubelogger_icon_192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/defaults/lubelogger_maskable_icon_192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ],
   "screenshots": [

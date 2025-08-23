@@ -33,7 +33,7 @@
                     @if(userConfig.ShowVehicleThumbnail) {
                         <img src="@Model.ImageLocation" class="lubelogger-vehicle-logo @(string.IsNullOrWhiteSpace(Model.SoldDate) ? "" : "sold")" />
                     } else {
-                        <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                        <application-logo variant="small" class="lubelogger-logo" />
                     }
                 </div>
                 <ul class="nav nav-tabs lubelogger-tab flex-grow-1" id="vehicleTab" role="tablist">
