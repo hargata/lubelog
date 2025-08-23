@@ -1,8 +1,9 @@
-![image](https://github.com/hargata/lubelog/assets/155338622/545debcd-d80a-44da-b892-4c652ab0384a)
+![image](https://github.com/RedNeath/tailwind-lubelog/blob/main/wwwroot/defaults/wind-logger-logo-white-64.png#gh-dark-mode-only)
+![image](https://github.com/RedNeath/tailwind-lubelog/blob/main/wwwroot/defaults/wind-logger-logo-64.png#gh-light-mode-only)
 
-Self-Hosted, Open-Source, Web-Based Vehicle Maintenance and Fuel Mileage Tracker
+Self-Hosted, Open-Source, Web-Based Vehicle Maintenance and Fuel Mileage Tracker; Tailwind stylised fork of LubeLogger. Note that this is still a work-in-progress (more about that [here](https://github.com/RedNeath/tailwind-lubelog/wiki)).
 
-Website: https://lubelogger.com
+LubeLogger Website: https://lubelogger.com
 
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintenance.
@@ -49,3 +50,6 @@ MIT
 
 ## Support
 Support this project by [Subscribing on Patreon](https://patreon.com/LubeLogger) or [Making a Donation](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
+
+> **NOTE:**  
+> Patreon subscriptions and donations will go to the original author, and I'm not interested in receiving any at the moment. I'm not the one to thank for what you'll get here 😊
