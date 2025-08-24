@@ -1,0 +1,114 @@
+@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = config.GetServerLanguage();
+}
+
+<nav class="bg-gray-800 dark:bg-gray-800/50">
+    <div class="mx-auto container px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center">
+                <a class="shrink-0" href="/Home">
+                    <application-logo variant="small" class="hidden md:block size-8 text-white" />
+                    <application-logo class="md:hidden h-8 text-white" />
+                </a>
+                <div class="hidden md:block">
+                    <div class="ml-6 flex items-baseline space-x-4">
+                        <!-- Current: "bg-gray-900 dark:bg-gray-950/50 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
+                        <a href="/Home#garage-tab-pane" @(Context.Request.Path.Value == "/Home#garage-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#garage-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") rounded-md px-3 py-2 text-sm font-medium">@translator.Translate(userLanguage, "Garage")</a>
+                        @if (config.GetServerEnableShopSupplies())
+                        {
+                            <a href="/Home#supply-tab-pane" @(Context.Request.Path.Value == "/Home#supply-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#supply-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") rounded-md px-3 py-2 text-sm font-medium">@translator.Translate(userLanguage, "Supplies")</a>
+                        }
+                        @if (userConfig.ShowCalendar)
+                        {
+                            <a href="/Home#calendar-tab-pane" @(Context.Request.Path.Value == "/Home#calendar-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#calendar-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") rounded-md px-3 py-2 text-sm font-medium">@translator.Translate(userLanguage, "Calendar")</a>
+                        }
+                        @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth") && User.IsInRole(nameof(UserData.IsAdmin)))
+                        {
+                            <a href="/Admin" @(Context.Request.Path.Value == "/Admin" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Admin" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") rounded-md px-3 py-2 text-sm font-medium">@translator.Translate(userLanguage,"Admin Panel")</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="ml-4 flex items-center md:ml-6">
+
+                    <!-- Profile dropdown -->
+                    <el-dropdown class="relative">
+                        <button class="relative flex max-w-xs items-center text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
+                            <heroicon kind="Outline" name="User" class="size-5" />
+                            <span class="ml-3">@User.Identity.Name</span>
+                        </button>
+
+                        <el-menu anchor="bottom end" popover class="m-0 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 p-0 py-1 shadow-lg outline outline-1 outline-black/5 dark:-outline-offset-1 dark:outline-white/10 transition [transition-behavior:allow-discrete] [--anchor-gap:theme(spacing.2)] data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in">
+                            @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                            {
+                                <button type="button" onclick="showRootAccountInformationModal()" class="block w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-white/5 focus:outline-hidden">@translator.Translate(userLanguage, "Profile")</button>
+                            }
+                            else
+                            {
+                                <button type="button" onclick="showAccountInformationModal()" class="block w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-white/5 focus:outline-hidden">@translator.Translate(userLanguage, "Profile")</button>
+                            }
+                            <a href="/Home#settings-tab-pane" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-white/5 focus:outline-hidden">@translator.Translate(userLanguage, "Settings")</a>
+                            <button type="button" onclick="performLogOut()" class="block w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-white/5 focus:outline-hidden">@translator.Translate(userLanguage, "Logout")</button>
+                        </el-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+            <div class="-mr-2 flex md:hidden">
+                <!-- Mobile menu button -->
+                <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-blue-500">
+                    <span class="absolute -inset-0.5"></span>
+                    <span class="sr-only">Open main menu</span>
+                    <heroicon kind="Outline" name="Bars3" data-slot="icon" aria-hidden="true" class="size-6 [[aria-expanded='true']_&]:hidden" />
+                    <heroicon kind="Outline" name="XMark" data-slot="icon" aria-hidden="true" class="size-6 [&:not([aria-expanded='true']_*)]:hidden" />
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <el-disclosure id="mobile-menu" hidden class="md:hidden [&:not([hidden])]:block">
+        <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+            <!-- Current: "bg-gray-900 dark:bg-gray-950/50 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
+            <a href="/Home#garage-tab-pane" @(Context.Request.Path.Value == "/Home#garage-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#garage-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") block rounded-md px-3 py-2 text-base font-medium">@translator.Translate(userLanguage, "Garage")</a>
+            @if (config.GetServerEnableShopSupplies())
+            {
+                <a href="/Home#supply-tab-pane" @(Context.Request.Path.Value == "/Home#supply-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#supply-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") block rounded-md px-3 py-2 text-base font-medium">@translator.Translate(userLanguage, "Supplies")</a>
+            }
+            @if (userConfig.ShowCalendar)
+            {
+                <a href="/Home#calendar-tab-pane" @(Context.Request.Path.Value == "/Home#calendar-tab-pane" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Home#calendar-tab-pane" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") block rounded-md px-3 py-2 text-base font-medium">@translator.Translate(userLanguage, "Calendar")</a>
+            }
+            @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth") && User.IsInRole(nameof(UserData.IsAdmin)))
+            {
+                <a href="/Admin" @(Context.Request.Path.Value == "/Admin" ? "aria-current=\"page\"": "") class="@(Context.Request.Path.Value == "/Admin" ? "bg-gray-900 dark:bg-gray-950/50 text-white": "text-gray-300 hover:bg-white/5 hover:text-white") block rounded-md px-3 py-2 text-base font-medium">@translator.Translate(userLanguage,"Admin Panel")</a>
+            }
+        </div>
+        <div class="border-t border-white/10 pt-4 pb-3">
+            <div class="flex items-center px-5">
+                <div class="shrink-0">
+                    <heroicon kind="Outline" name="User" class="size-5 text-gray-300" />
+                </div>
+                <div class="ml-3">
+                    <div class="text-base/5 font-medium text-white">@User.Identity.Name</div>
+                    <div class="text-sm font-medium text-gray-400">@User.Identity.AuthenticationType</div>
+                </div>
+            </div>
+            <div class="mt-3 space-y-1 px-2">
+                @if (User.IsInRole(nameof(UserData.IsRootUser)))
+                {
+                    <button type="button" onclick="showRootAccountInformationModal()" class="block w-full text-start rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white">@translator.Translate(userLanguage, "Profile")</button>
+                }
+                else
+                {
+                    <button type="button" onclick="showAccountInformationModal()" class="block w-full text-start rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white">@translator.Translate(userLanguage, "Profile")</button>
+                }
+                <a href="/Home#settings-tab-pane" class="block w-full text-start rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white">@translator.Translate(userLanguage, "Settings")</a>
+                <button type="button" onclick="performLogOut()" class="block w-full text-start rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-white/5 hover:text-white">@translator.Translate(userLanguage, "Logout")</button>
+            </div>
+        </div>
+    </el-disclosure>
+</nav>

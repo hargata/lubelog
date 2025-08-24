@@ -26,7 +26,7 @@
         shortDatePattern = shortDatePattern.Replace("m", "mm");
     }
 }
-<html lang="en" class="bg-white dark:bg-gray-950 text-gray-900 dark:text-white scheme-light dark:scheme-dark">
+<html lang="en" class="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white scheme-light dark:scheme-dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -55,6 +55,7 @@
     <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
     <script src="~/sweetalert/sweetalert2.all.min.js"></script>
     <script src="~/js/loader.js?v=@StaticHelper.VersionNumber"></script>
+    <script src="~/js/garage.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/lib/tailwindplus/elements.min.js" type="module"></script>
     <script>
         function getGlobalConfig() {
@@ -162,10 +163,26 @@
     @await RenderSectionAsync("Scripts", required: false)
 </head>
 <body>
-    @await RenderSectionAsync("Nav", required: false)
-    <div class="container lubelogger-body-container mx-auto">
+    @* Navigation should not be displayed unless authenticated or authentication disabled *@
+    @if (!config.GetServerAuthEnabled() || User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
+    {
+        @await Html.PartialAsync("_Nav")
+        <header class="relative bg-white dark:bg-gray-800 shadow-sm dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:inset-y-0 dark:after:border-y dark:after:border-white/10">
+            <div class="mx-auto container px-4 py-6 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">@await RenderSectionAsync("Nav", required: false)</h1>
+            </div>
+        </header>
+    }
+
+    <div class="container pt-10 mx-auto">
         <main role="main">
             @RenderBody()
+            <dialog class="modal fade" id="accountInformationModal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content" id="accountInformationModalContent">
+                    </div>
+                </div>
+            </dialog>
         </main>
     </div>
     @await RenderSectionAsync("Footer", required: false)

@@ -13,19 +13,7 @@
         emailServerIsSetup = false;
     }
 }
-@section Nav {
-    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
-        <div class="row mt-2">
-            <div class="d-flex lubelogger-navbar">
-                <div class="me-2" style="cursor:pointer;" onclick="returnToGarage()">
-                    <application-logo variant="small" class="lubelogger-logo" />
-                </div>
-                <span class="text-truncate lead">@translator.Translate(userLanguage, "Admin Panel")</span>
-            </div>
-        </div>
-        <hr />
-    </div>
-}
+@section Nav { @translator.Translate(userLanguage, "Admin Panel") }
 @model AdminViewModel
 <div class="container">
     <div class="row">
