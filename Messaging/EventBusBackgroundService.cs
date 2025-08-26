@@ -10,7 +10,14 @@ public sealed class EventBusBackgroundService : BackgroundService
     {
         await foreach (var work in _bus.Reader.ReadAllAsync(ct))
         {
-            try { await work(ct); } catch { /* MVP: ignore handler failures */ }
+            try
+            {
+                await work.Run(ct);
+            }
+            catch
+            {
+                // MVP: ignore handler failures
+            }
         }
     }
 }
