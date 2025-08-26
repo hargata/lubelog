@@ -440,24 +440,6 @@ namespace CarCareTracker.Helper
             }
         }
 
-        public static async Task NotifyAsyncV2(string webhookURL, WebHookPayload webHookPayload)
-        {
-            if (string.IsNullOrWhiteSpace(webhookURL))
-            {
-                return;
-            }
-            var httpClient = new HttpClient();
-            if (webhookURL.StartsWith("discord://"))
-            {
-                webhookURL = webhookURL.Replace("discord://", "https://"); //cleanurl
-                //format to discord
-                await httpClient.PostAsJsonAsync(webhookURL, DiscordWebHook.FromWebHookPayload(webHookPayload));
-            }
-            else
-            {
-                await httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
-            }
-        }
         public static string GetImportModeIcon(ImportMode importMode)
         {
             switch (importMode)
