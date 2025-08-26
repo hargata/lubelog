@@ -6,5 +6,5 @@ public interface IEventBus
 
     void Publish(object @event);
 
-    IDisposable Subscribe<TEvent>(Func<TEvent, CancellationToken, Task> handler);
+    void Subscribe<TEvent>(Func<TEvent, CancellationToken, Task> handler);
 }
