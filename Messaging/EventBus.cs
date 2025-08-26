@@ -53,61 +53,51 @@ public sealed class EventBus : IEventBus
         }
         // If not thrown and not written, the event is dropped by design.
     }
+    
+    private readonly object _gate = new();
 
     public IDisposable Subscribe<TEvent>(Func<TEvent, CancellationToken, Task> handler)
     {
         if (handler is null) throw new ArgumentNullException(nameof(handler));
-
-        // Wrap strongly-typed handler into an object-based one, with a fast cast.
         Task Wrapper(object e, CancellationToken ct) => handler((TEvent)e, ct);
 
         var type = typeof(TEvent);
-
-        ImmutableArray<Func<object, CancellationToken, Task>> original, updated;
-        do
+        lock (_gate)
         {
-            original = _handlers.TryGetValue(type, out var arr) ? arr : ImmutableArray<Func<object, CancellationToken, Task>>.Empty;
-            updated = original.Add(Wrapper);
+            var arr = _handlers.TryGetValue(type, out var a)
+                ? a
+                : ImmutableArray<Func<object, CancellationToken, Task>>.Empty;
+            _handlers = _handlers.SetItem(type, arr.Add(Wrapper));
         }
-        while (Interlocked.CompareExchange(
-                   ref _handlers,
-                   _handlers.SetItem(type, updated),
-                   _handlers) != _handlers);
 
-        var disposable = new Removal(this);
-        _subscriptions[disposable] = (type, Wrapper);
-        return disposable;
+        return new Removal(this, type, Wrapper);
     }
 
     private sealed class Removal : IDisposable
     {
-        private EventBus? _owner;
-        public Removal(EventBus owner) => _owner = owner;
+        private readonly EventBus _owner;
+        private readonly Type _type;
+        private readonly Func<object, CancellationToken, Task> _wrapper;
+
+        public Removal(EventBus owner, Type type, Func<object, CancellationToken, Task> wrapper)
+            => (_owner, _type, _wrapper) = (owner, type, wrapper);
+
         public void Dispose()
         {
-            var owner = Interlocked.Exchange(ref _owner, null);
-            if (owner is null) return;
-
-            if (!owner._subscriptions.TryRemove(this, out var sub)) return;
-
-            var (type, wrapper) = sub;
-            ImmutableArray<Func<object, CancellationToken, Task>> updated;
-            do
+            lock (_owner._gate)
             {
-                if (!owner._handlers.TryGetValue(type, out var original))
-                    return;
-
-                var idx = original.IndexOf(wrapper);
+                if (!_owner._handlers.TryGetValue(_type, out var arr)) return;
+                var idx = arr.IndexOf(_wrapper);
                 if (idx < 0) return;
 
-                updated = original.RemoveAt(idx);
+                var newArr = arr.RemoveAt(idx);
+                _owner._handlers = newArr.Length == 0
+                    ? _owner._handlers.Remove(_type)
+                    : _owner._handlers.SetItem(_type, newArr);
             }
-            while (Interlocked.CompareExchange(
-                       ref owner._handlers,
-                       updated.Length == 0 ? owner._handlers.Remove(type) : owner._handlers.SetItem(type, updated),
-                       owner._handlers) != owner._handlers);
         }
     }
+
 
     /// <summary>
     /// Dispatch one event to all compatible handlers.

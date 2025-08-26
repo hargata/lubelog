@@ -39,7 +39,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
-        private readonly IEventBus eventBus;
+        private readonly IEventBus _eventBus;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -64,7 +64,7 @@ namespace CarCareTracker.Controllers
             IVehicleLogic vehicleLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config,
-            IEventBus _eventBus)
+            IEventBus eventBus)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -89,7 +89,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _webEnv = webEnv;
             _config = config;
-            _eventBus = _eventBus;
+            _eventBus = eventBus;
         }
         private int GetUserID()
         {
@@ -135,7 +135,7 @@ namespace CarCareTracker.Controllers
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
                 {
-                    eventBus.Publish(new VehicleAdded
+                    _eventBus.Publish(new VehicleAdded
                     {
                         Make = vehicleInput.Make,
                         Identifier = StaticHelper.GetVehicleIdentifier(vehicleInput),
@@ -150,7 +150,7 @@ namespace CarCareTracker.Controllers
                 }
                 else
                 {
-                    eventBus.Publish(new VehicleUpdated
+                    _eventBus.Publish(new VehicleUpdated
                     {
                         Make = vehicleInput.Make,
                         Identifier = StaticHelper.GetVehicleIdentifier(vehicleInput),
