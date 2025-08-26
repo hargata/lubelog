@@ -9,11 +9,7 @@ public static class EventBusServiceCollectionExtensions
         var opts = new EventBusOptions();
         configure?.Invoke(opts);
 
-        services.AddSingleton<EventBus>(sp =>
-        {
-            var logger = sp.GetService<ILogger<EventBus>>();
-            return new EventBus(opts, logger);
-        });
+        services.AddSingleton<EventBus>(_ => new EventBus(opts));
 
         services.AddHostedService(sp =>
         {

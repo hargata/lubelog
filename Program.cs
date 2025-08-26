@@ -46,7 +46,6 @@ builder.Services.AddEventBus(o =>
 {
     // Sensible defaults
     o.BoundedCapacity = 10_000;
-    o.PreserveHandlerOrder = true;
     o.ThrowOnSyncPublishWhenFull = true;
 });
 

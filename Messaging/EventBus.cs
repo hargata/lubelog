@@ -7,21 +7,19 @@ namespace CarCareTracker.Messaging;
 public sealed class EventBus : IEventBus
 {
     private readonly Channel<object> _channel;
-    private readonly ILogger<EventBus>? _logger;
     private readonly EventBusOptions _options;
 
-    private ImmutableDictionary<Type, ImmutableArray<Func<object, CancellationToken, Task>>> _handlers
-        = ImmutableDictionary<Type, ImmutableArray<Func<object, CancellationToken, Task>>>.Empty;
+    // Exact-type subscriptions; simple and fast
+    private readonly Dictionary<Type, List<Func<object, CancellationToken, Task>>> _handlers = new();
+    private readonly object _gate = new();
 
-    // For removals we need to know which wrapper we added.
-    private readonly ConcurrentDictionary<IDisposable, (Type type, Func<object, CancellationToken, Task> wrapper)> _subscriptions = new();
+    internal ChannelReader<object> Reader => _channel.Reader;
 
-    public EventBus(EventBusOptions? options = null, ILogger<EventBus>? logger = null)
+    public EventBus(EventBusOptions? options = null)
     {
         _options = options ?? new EventBusOptions();
-        _logger = logger;
 
-        _channel = _options.BoundedCapacity is { } cap
+        _channel = _options.BoundedCapacity is int cap
             ? Channel.CreateBounded<object>(new BoundedChannelOptions(cap)
               {
                   SingleReader = _options.SingleReader,
@@ -35,8 +33,6 @@ public sealed class EventBus : IEventBus
               });
     }
 
-    internal ChannelReader<object> Reader => _channel.Reader;
-
     public Task Publish(object @event, CancellationToken ct = default)
     {
         if (@event is null) throw new ArgumentNullException(nameof(@event));
@@ -46,133 +42,75 @@ public sealed class EventBus : IEventBus
     public void Publish(object @event)
     {
         if (@event is null) throw new ArgumentNullException(nameof(@event));
-        var written = _channel.Writer.TryWrite(@event);
-        if (!written && _options.ThrowOnSyncPublishWhenFull)
+        var wrote = _channel.Writer.TryWrite(@event);
+        if (!wrote && _options.ThrowOnSyncPublishWhenFull)
         {
-            throw new InvalidOperationException("Event channel is full; use the async Publish overload to respect backpressure.");
+            throw new InvalidOperationException("Event channel is full; use async Publish to respect backpressure.");
         }
-        // If not thrown and not written, the event is dropped by design.
+        // else: best-effort drop (bounded + full) or always success (unbounded)
     }
-    
-    private readonly object _gate = new();
 
     public IDisposable Subscribe<TEvent>(Func<TEvent, CancellationToken, Task> handler)
     {
         if (handler is null) throw new ArgumentNullException(nameof(handler));
-        Task Wrapper(object e, CancellationToken ct) => handler((TEvent)e, ct);
 
+        Task Wrapper(object e, CancellationToken ct) => handler((TEvent)e, ct);
         var type = typeof(TEvent);
+
         lock (_gate)
         {
-            var arr = _handlers.TryGetValue(type, out var a)
-                ? a
-                : ImmutableArray<Func<object, CancellationToken, Task>>.Empty;
-            _handlers = _handlers.SetItem(type, arr.Add(Wrapper));
+            if (!_handlers.TryGetValue(type, out var list))
+            {
+                list = new List<Func<object, CancellationToken, Task>>();
+                _handlers[type] = list;
+            }
+            list.Add(Wrapper);
         }
 
-        return new Removal(this, type, Wrapper);
+        return new Subscription(this, type, Wrapper);
     }
 
-    private sealed class Removal : IDisposable
+    private sealed class Subscription : IDisposable
     {
         private readonly EventBus _owner;
         private readonly Type _type;
         private readonly Func<object, CancellationToken, Task> _wrapper;
 
-        public Removal(EventBus owner, Type type, Func<object, CancellationToken, Task> wrapper)
+        public Subscription(EventBus owner, Type type, Func<object, CancellationToken, Task> wrapper)
             => (_owner, _type, _wrapper) = (owner, type, wrapper);
 
         public void Dispose()
         {
             lock (_owner._gate)
             {
-                if (!_owner._handlers.TryGetValue(_type, out var arr)) return;
-                var idx = arr.IndexOf(_wrapper);
-                if (idx < 0) return;
-
-                var newArr = arr.RemoveAt(idx);
-                _owner._handlers = newArr.Length == 0
-                    ? _owner._handlers.Remove(_type)
-                    : _owner._handlers.SetItem(_type, newArr);
+                if (!_owner._handlers.TryGetValue(_type, out var list)) return;
+                list.Remove(_wrapper);
+                if (list.Count == 0) _owner._handlers.Remove(_type);
             }
         }
     }
 
-
-    /// <summary>
-    /// Dispatch one event to all compatible handlers.
-    /// </summary>
+    // Internal: drained by the background dispatcher
     internal async Task Dispatch(object @event, CancellationToken ct)
     {
-        try
+        var evtType = @event.GetType();
+
+        Func<object, CancellationToken, Task>[] snapshot;
+        lock (_gate)
         {
-            var evtType = @event.GetType();
-
-            // Collect handlers where subscribed type is assignable from the event type
-            // (i.e., subscribing to a base class or interface receives derived events).
-            var toInvoke = Array.Empty<Func<object, CancellationToken, Task>>();
-
-            foreach (var kvp in _handlers)
-            {
-                if (kvp.Key.IsAssignableFrom(evtType))
-                {
-                    // concatenate without allocations when possible
-                    var src = kvp.Value;
-                    if (toInvoke.Length == 0)
-                    {
-                        toInvoke = src.ToArray();
-                    }
-                    else
-                    {
-                        var tmp = new Func<object, CancellationToken, Task>[toInvoke.Length + src.Length];
-                        Array.Copy(toInvoke, 0, tmp, 0, toInvoke.Length);
-                        src.AsSpan().CopyTo(tmp.AsSpan(toInvoke.Length));
-                        toInvoke = tmp;
-                    }
-                }
-            }
-
-            if (toInvoke.Length == 0) return;
-
-            if (_options.PreserveHandlerOrder)
-            {
-                foreach (var h in toInvoke)
-                {
-                    ct.ThrowIfCancellationRequested();
-                    try
-                    {
-                        await h(@event, ct);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger?.LogError(ex, "Event handler failed for {EventType}", evtType.FullName);
-                    }
-                }
-            }
-            else
-            {
-                var tasks = new Task[toInvoke.Length];
-                for (var i = 0; i < toInvoke.Length; i++)
-                {
-                    var h = toInvoke[i];
-                    tasks[i] = InvokeSafe(h, @event, ct);
-                }
-                await Task.WhenAll(tasks);
-            }
+            if (!_handlers.TryGetValue(evtType, out var list) || list.Count == 0) return;
+            snapshot = list.ToArray(); // safe copy
         }
-        catch (OperationCanceledException)
+
+        // Process all the handlers associated with this event concurrently
+
+        var tasks = new Task[snapshot.Length];
+        for (var i = 0; i < snapshot.Length; i++)
         {
-            // normal during shutdown
+            var h = snapshot[i];
+            tasks[i] = h(@event, ct);
         }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Unhandled exception while dispatching event {Event}", @event);
-        }
-    }
 
-    private async Task InvokeSafe(Func<object, CancellationToken, Task> h, object e, CancellationToken ct)
-    {
-        try { await h(e, ct); }
-        catch (Exception ex) { _logger?.LogError(ex, "Event handler failed for {EventType}", e.GetType().FullName); }
+        await Task.WhenAll(tasks);
     }
 }

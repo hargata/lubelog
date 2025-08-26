@@ -8,12 +8,6 @@ public sealed class EventBusOptions
     public int? BoundedCapacity { get; set; }
 
     /// <summary>
-    /// If true, handlers for a single event are awaited in sequence.
-    /// If false, handlers run concurrently (failures still logged individually).
-    /// </summary>
-    public bool PreserveHandlerOrder { get; set; } = true;
-
-    /// <summary>
     /// If true, attempt single-reader optimizations.
     /// </summary>
     public bool SingleReader { get; set; } = true;
