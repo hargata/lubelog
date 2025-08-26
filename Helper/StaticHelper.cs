@@ -419,6 +419,8 @@ namespace CarCareTracker.Helper
                 }
             }
         }
+
+        [Obsolete("Prefer usages of IEventBus, and Webhook registration based on those events. See Program.cs AddWebhooks")]
         public static async void NotifyAsync(string webhookURL, WebHookPayload webHookPayload)
         {
             if (string.IsNullOrWhiteSpace(webhookURL))
@@ -435,6 +437,25 @@ namespace CarCareTracker.Helper
             else
             {
                 httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
+            }
+        }
+
+        public static async Task NotifyAsyncV2(string webhookURL, WebHookPayload webHookPayload)
+        {
+            if (string.IsNullOrWhiteSpace(webhookURL))
+            {
+                return;
+            }
+            var httpClient = new HttpClient();
+            if (webhookURL.StartsWith("discord://"))
+            {
+                webhookURL = webhookURL.Replace("discord://", "https://"); //cleanurl
+                //format to discord
+                await httpClient.PostAsJsonAsync(webhookURL, DiscordWebHook.FromWebHookPayload(webHookPayload));
+            }
+            else
+            {
+                await httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
             }
         }
         public static string GetImportModeIcon(ImportMode importMode)

@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.FileProviders;
 using System.Globalization;
+using CarCareTracker.Events;
+using CarCareTracker.Messaging;
+using CarCareTracker.Models;
+using CarCareTracker.Webhooks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +39,32 @@ StaticHelper.CheckMigration(builder.Environment.WebRootPath, builder.Environment
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton<IWebhookPublisher, WebhookPublisher>();
+
+builder.Services.AddEventBus(o =>
+{
+    // Sensible defaults
+    o.BoundedCapacity = 10_000;
+    o.PreserveHandlerOrder = true;
+    o.ThrowOnSyncPublishWhenFull = true;
+});
+
+// If this get's too verbose in Program.cs, could move into a separate method where the registrations are done
+builder.Services.AddWebhooks(x =>
+{
+    x.Register<VehicleAdded>(vehicleAdded => WebHookPayload.Generic(
+        $"Created Vehicle {vehicleAdded.Year} {vehicleAdded.Make} {vehicleAdded.Model}({vehicleAdded.Identifier})",
+        "vehicle.add",
+        vehicleAdded.UserName,
+        vehicleAdded.VehicleId.ToString()));
+
+    x.Register<VehicleUpdated>(vehicleInput => WebHookPayload.Generic(
+        $"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({vehicleInput.Identifier})",
+        "vehicle.update",
+        vehicleInput.UserName,
+        vehicleInput.Id.ToString()));
+});
 
 //LiteDB is always injected even if user uses Postgres.
 builder.Services.AddSingleton<ILiteDBHelper, LiteDBHelper>();
@@ -182,6 +212,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseWebhooks();
 
 app.MapControllerRoute(
     name: "default",

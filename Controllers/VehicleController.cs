@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json;
+using CarCareTracker.Events;
+using CarCareTracker.Messaging;
 
 namespace CarCareTracker.Controllers
 {
@@ -37,6 +39,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
+        private readonly IEventBus eventBus;
 
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
@@ -60,7 +63,8 @@ namespace CarCareTracker.Controllers
             IOdometerLogic odometerLogic,
             IVehicleLogic vehicleLogic,
             IWebHostEnvironment webEnv,
-            IConfigHelper config)
+            IConfigHelper config,
+            IEventBus _eventBus)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -85,6 +89,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _webEnv = webEnv;
             _config = config;
+            _eventBus = _eventBus;
         }
         private int GetUserID()
         {
@@ -130,12 +135,31 @@ namespace CarCareTracker.Controllers
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
                 {
+                    eventBus.Publish(new VehicleAdded
+                    {
+                        Make = vehicleInput.Make,
+                        Identifier = StaticHelper.GetVehicleIdentifier(vehicleInput),
+                        Model = vehicleInput.Model,
+                        Year = vehicleInput.Year,
+                        VehicleId = vehicleInput.Id,
+                        UserId = GetUserID(),
+                        UserName = User.Identity.Name
+                    });
+
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
                 else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
+                    eventBus.Publish(new VehicleUpdated
+                    {
+                        Make = vehicleInput.Make,
+                        Identifier = StaticHelper.GetVehicleIdentifier(vehicleInput),
+                        Model = vehicleInput.Model,
+                        Year = vehicleInput.Year,
+                        Id = vehicleInput.Id,
+                        UserId = GetUserID(),
+                        UserName = User.Identity.Name
+                    });
                 }
                 return Json(result);
             }
