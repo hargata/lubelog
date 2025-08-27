@@ -1,4 +1,10 @@
-﻿@model PlanRecord
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+}
+@model PlanRecord
 <div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
     <div class="card-body">
         <div class="row">
@@ -12,7 +18,7 @@
                 }
             </div>
             <div class="col-12 col-lg-4 d-flex align-items-center">
-                <span class="text-truncate">@Model.Cost.ToString("C2")</span>
+                <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
             </div>
         </div>
         <div class="row">

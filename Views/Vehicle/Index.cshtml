@@ -187,11 +187,11 @@
                     <button type="button" class="btn btn-outline-secondary" onclick="performGlobalSearch()"><i class="bi bi-search"></i></button>
                 </div>
                 <div class="form-check form-check-inline form-switch mt-1">
-                    <input class="form-check-input" type="checkbox" role="switch" id="globalSearchAutoSearchCheck" checked>
+                    <input class="form-check-input" type="checkbox" role="switch" onchange="saveGlobalSearchSettings()" id="globalSearchAutoSearchCheck" checked>
                     <label class="form-check-label" for="globalSearchAutoSearchCheck">@translator.Translate(userLanguage, "Incremental Search")</label>
                 </div>
                 <div class="form-check form-check-inline form-switch mt-1">
-                    <input class="form-check-input" type="checkbox" onChange="performGlobalSearch()" role="switch" id="globalSearchCaseSensitiveCheck" checked>
+                    <input class="form-check-input" type="checkbox" onchange="performGlobalSearch()" role="switch" id="globalSearchCaseSensitiveCheck" checked>
                     <label class="form-check-label" for="globalSearchCaseSensitiveCheck">@translator.Translate(userLanguage, "Case Sensitive")</label>
                 </div>
                 <div id="globalSearchModalResults"></div>

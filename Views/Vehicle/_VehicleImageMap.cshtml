@@ -1,4 +1,5 @@
 ﻿@using CarCareTracker.Helper
+@using System.Globalization
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
@@ -22,7 +23,7 @@
                         @foreach(ImageMap imageMap in Model.Map)
                         {
                             <a style='cursor:pointer;' onclick='loadRecordsByTags("@imageMap.Tags")'>
-                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="@imageMap.Opacity"></polygon>
+                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></polygon>
                             </a>
                         }
                     </svg>
