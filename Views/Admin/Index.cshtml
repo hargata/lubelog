@@ -15,25 +15,23 @@
 }
 @section Nav { @translator.Translate(userLanguage, "Admin Panel") }
 @model AdminViewModel
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="row">
-                <div class="col-2 d-flex align-items-center">
-                    <span class="lead">@translator.Translate(userLanguage, "Users")</span>
-                </div>
-                <div class="col-10 d-flex align-items-center justify-content-end">
-                    <button onclick="showTokenDialog()" class="btn btn-primary btn-md mt-1 mb-1">
-                        <i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Manage Tokens")
-                    </button>
-                </div>
-            </div>
-            <hr />
-            <div id="userTable" class="p-4 sm:p-4">
-                @await Html.PartialAsync("_Users", Model.Users)
+<div>
+    <div class="px-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@translator.Translate(userLanguage, "Users")</h2>
+            <div class="flex items-center gap-2"> @* Future-proof (will work with more than 1 element) *@
+                <button onclick="showTokenDialog()" class="inline-flex w-auto justify-center rounded-md transition-all duration-100 ease-out bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-700/25 dark:focus:ring-blue-600/25">
+                    <heroicon kind="Outline" name="PencilSquare" class="size-5 mr-2" />
+                    @translator.Translate(userLanguage, "Manage Tokens")
+                </button>
             </div>
         </div>
+        <hr class="md:hidden border-gray-200 dark:border-gray-800 mt-4" />
+        <div id="userTable" class="py-4">
+            @await Html.PartialAsync("_Users", Model.Users)
+        </div>
     </div>
+    
     <dialog class="w-11/12 lg:w-5/12 lg:mt-32 bg-white dark:bg-gray-900 rounded-xl border border-1 border-gray-300 dark:border-gray-700" id="tokenDialog">
         <div class="p-3 sm:py-2 sm:px-4 border-b border-b-1 border-gray-300 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">@translator.Translate(userLanguage, "Tokens")</h3>
