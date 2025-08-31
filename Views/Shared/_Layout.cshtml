@@ -174,8 +174,8 @@
         </header>
     }
 
-    <div class="container pt-10 mx-auto">
-        <main role="main">
+    <div class="@( (!config.GetServerAuthEnabled() || User.IsInRole("CookieAuth") || User.IsInRole("APIAuth")) ? "container pt-10 mx-auto" : "bg-white dark:bg-transparent h-screen" )">
+        <main role="main" class="h-full">
             @RenderBody()
             <dialog class="modal fade" id="accountInformationModal">
                 <div class="modal-dialog" role="document">

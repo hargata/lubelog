@@ -66,6 +66,7 @@ function saveSetup() {
         ServerURL: $("#inputDomain").val(),
         CustomWidgetsEnabled: $("#inputCustomWidget").val(),
         InvariantAPIEnabled: $("#inputInvariantAPI").val(),
+        UnsplashAccessKey: $("#inputUnsplashAccessKey").val(),
         SMTPConfig: {
             EmailServer: $("#inputSMTPServer").val(),
             EmailFrom: $("#inputSMTPFrom").val(),

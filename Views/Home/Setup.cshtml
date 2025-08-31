@@ -114,6 +114,10 @@
                     <!option value="false" @(Model.InvariantAPIEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="inputUnsplashAccessKey">@translator.Translate(userLanguage, "Unsplash access key")</label>
+                <input type="text" id="inputUnsplashAccessKey" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.UnsplashAccessKey">
+            </div>
         </form>
     </div>
     <div class="setup-wizard-content" data-page="2" style="display:none;">

@@ -588,6 +588,7 @@ namespace CarCareTracker.Controllers
                 WebHookURL = _config.GetWebHookUrl(),
                 CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),
                 InvariantAPIEnabled = _config.GetInvariantApi(),
+                UnsplashAccessKey = _config.GetUnsplashAccessKey(),
                 SMTPConfig = _config.GetMailConfig(),
                 Domain = _config.GetServerDomain(),
                 OIDCConfig = _config.GetOpenIDConfig(),

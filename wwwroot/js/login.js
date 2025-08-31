@@ -1,4 +1,9 @@
 ﻿function performLogin() {
+    if (!$("#loginForm")[0].checkValidity()) {
+        $("#loginForm")[0].reportValidity();
+        return;
+    }
+    
     var userName = $("#inputUserName").val();
     var userPassword = $("#inputUserPassword").val();
     var isPersistent = $("#inputPersistent").is(":checked");
