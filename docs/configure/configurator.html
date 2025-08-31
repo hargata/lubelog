@@ -53,6 +53,11 @@
 					<input class="form-check-input"type="checkbox" role="switch" id="inputCustomWidgets">
 					<label class="form-check-label" for="inputCustomWidgets">Custom Widgets</label>
 				</div>
+                <div class="form-group">
+                    <label for="inputUnsplashAccessKey">Unsplash access key</label>
+                    <input type="text" id="inputUnsplashAccessKey" class="form-control">
+                    <small class="text-body-secondary">Setting this key will allow for random images to de displayed in the login and related forms</small>
+                </div>
 			</div>
 			<div class="col-6">
 				<div class="form-group">
@@ -334,6 +339,9 @@ function generateConfig(){
 		if ($("#inputInvariantAPI").is(":checked")){
 			windowConfig["LUBELOGGER_INVARIANT_API"]=$('#inputInvariantAPI').is(':checked');
 		}
+        if ($("#inputUnsplashAccessKey").val().trim() != ''){
+            windowConfig["LUBELOGGER_UNSPLASH_ACCESS_KEY"]=$("#inputUnsplashAccessKey").val();
+        }
 		if ($("#inputServerDomain").val().trim() != ''){
 			windowConfig["LUBELOGGER_DOMAIN"] = $('#inputServerDomain').val();
 		}
@@ -420,6 +428,9 @@ function generateConfig(){
 		if ($("#inputInvariantAPI").is(":checked")){
 			dockerConfig.push(`LUBELOGGER_INVARIANT_API="${$('#inputInvariantAPI').is(':checked')}"`);
 		}
+        if ($("#inputUnsplashAccessKey").val().trim() != ''){
+            dockerConfig.push(`LUBELOGGER_UNSPLASH_ACCESS_KEY="${$('#inputUnsplashAccessKey').val()}"`);
+        }
 		if ($('#inputSmtpServer').val().trim() != ''){
 			dockerConfig.push(`MailConfig__EmailServer="${$('#inputSmtpServer').val()}"`);
 			dockerConfig.push(`MailConfig__EmailFrom="${$('#inputSmtpFrom').val()}"`);

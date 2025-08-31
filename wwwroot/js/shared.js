@@ -1569,7 +1569,7 @@ function handleSwalEnter(e) {
 function togglePasswordVisibility(elem) {
     var passwordField = $(elem).parent().siblings("input");
     var passwordButton = $(elem).find('.bi');
-    if (passwordField.attr("type") == "password") {
+    if (passwordField.attr("type") === "password") {
         passwordField.attr("type", "text");
         passwordButton.removeClass('bi-eye');
         passwordButton.addClass('bi-eye-slash');
@@ -1577,6 +1577,21 @@ function togglePasswordVisibility(elem) {
         passwordField.attr("type", "password");
         passwordButton.removeClass('bi-eye-slash');
         passwordButton.addClass('bi-eye');
+    }
+}
+function twTogglePasswordVisibility(elem) {
+    let passwordField = $(elem).parent().siblings("input");
+    let passwordVisibleIcon = $(elem).find('#userPasswordVisible');
+    let passwordHiddenIcon = $(elem).find('#userPasswordHidden');
+
+    if (passwordField.attr("type") === "password") {
+        passwordField.attr("type", "text");
+        passwordVisibleIcon.removeClass('hidden');
+        passwordHiddenIcon.addClass('hidden');
+    } else {
+        passwordField.attr("type", "password");
+        passwordHiddenIcon.removeClass('hidden');
+        passwordVisibleIcon.addClass('hidden');
     }
 }
 var tableColumnDragToReorder = undefined;

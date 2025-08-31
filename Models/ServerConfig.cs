@@ -39,6 +39,10 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_INVARIANT_API")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? InvariantAPIEnabled { get; set; }
+        
+        [JsonPropertyName("LUBELOGGER_UNSPLASH_ACCESS_KEY")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? UnsplashAccessKey { get; set; }
 
         [JsonPropertyName("MailConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

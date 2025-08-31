@@ -33,6 +33,7 @@ namespace CarCareTracker.Helper
         string GetServerDomain();
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
+        string GetUnsplashAccessKey();
         bool GetServerOpenRegistration();
         string GetDefaultReminderEmail();
     }
@@ -64,6 +65,11 @@ namespace CarCareTracker.Helper
         public bool GetInvariantApi()
         {
             return CheckBool(CheckString("LUBELOGGER_INVARIANT_API"));
+        }
+        public string GetUnsplashAccessKey()
+        {
+            var unsplashAccessKey = CheckString("LUBELOGGER_UNSPLASH_ACCESS_KEY");
+            return unsplashAccessKey;
         }
         public string GetMOTD()
         {
@@ -219,6 +225,10 @@ namespace CarCareTracker.Helper
             if (serverConfig.InvariantAPIEnabled.HasValue && !serverConfig.InvariantAPIEnabled.Value)
             {
                 serverConfig.InvariantAPIEnabled = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.UnsplashAccessKey))
+            {
+                serverConfig.UnsplashAccessKey = null;
             }
             if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig?.EmailServer ?? string.Empty))
             {
