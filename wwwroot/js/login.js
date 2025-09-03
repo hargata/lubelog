@@ -36,11 +36,16 @@ function performRegistration() {
     });
 }
 function requestPasswordReset() {
+    if (!$("#forgotPasswordForm")[0].checkValidity()) {
+        $("#forgotPasswordForm")[0].reportValidity();
+        return;
+    }
+    
     var userName = $("#inputUserName").val();
     $.post('/Login/RequestResetPassword', { userName: userName }, function (data) {
         if (data.success) {
             successToast(data.message);
-            setTimeout(function () { window.location.href = '/Login/Index' }, 500);
+            setTimeout(function () { window.location.href = '/Login/ResetPassword' }, 500);
         } else {
             errorToast(data.message);
         }
