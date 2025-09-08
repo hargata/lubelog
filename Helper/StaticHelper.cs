@@ -709,6 +709,23 @@ namespace CarCareTracker.Helper
                 _csv.NextRecord();
             }
         }
+        public static void WriteAttachmentExportModel(CsvWriter _csv, IEnumerable<AttachmentExportModel> genericRecords)
+        {
+            //write headers
+            _csv.WriteField(nameof(AttachmentExportModel.DataType));
+            _csv.WriteField(nameof(AttachmentExportModel.Date));
+            _csv.WriteField(nameof(AttachmentExportModel.Name));
+            _csv.WriteField(nameof(AttachmentExportModel.Location));
+            _csv.NextRecord();
+            foreach (AttachmentExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.DataType);
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Name);
+                _csv.WriteField(genericRecord.Location);
+                _csv.NextRecord();
+            }
+        }
         public static string HideZeroCost(string input, bool hideZero, string decorations = "")
         {
             if (input == 0M.ToString("C2") && hideZero)
