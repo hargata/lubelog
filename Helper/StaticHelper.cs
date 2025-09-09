@@ -12,7 +12,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.0";
+        public const string VersionNumber = "1.5.1";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -706,6 +706,23 @@ namespace CarCareTracker.Helper
                     var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
                     _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
                 }
+                _csv.NextRecord();
+            }
+        }
+        public static void WriteAttachmentExportModel(CsvWriter _csv, IEnumerable<AttachmentExportModel> genericRecords)
+        {
+            //write headers
+            _csv.WriteField(nameof(AttachmentExportModel.DataType));
+            _csv.WriteField(nameof(AttachmentExportModel.Date));
+            _csv.WriteField(nameof(AttachmentExportModel.Name));
+            _csv.WriteField(nameof(AttachmentExportModel.Location));
+            _csv.NextRecord();
+            foreach (AttachmentExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.DataType);
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Name);
+                _csv.WriteField(genericRecord.Location);
                 _csv.NextRecord();
             }
         }
