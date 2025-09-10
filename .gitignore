@@ -4,3 +4,6 @@ obj/
 data/
 CarCareTracker.csproj.user
 Properties/launchSettings.json
+
+# For now remove everything Jetbrains related. In future, could look at adding back in as needed
+.idea/
