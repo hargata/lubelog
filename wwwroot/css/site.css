@@ -622,3 +622,74 @@ html[data-bs-theme="light"] .frosted {
 .sticky-top-nav {
     top: calc(48px + 2.5rem);
 }
+.garage-item img {
+    height: 145px;
+    object-fit: scale-down;
+    pointer-events: none;
+}
+.garage-item-add img {
+    object-fit: scale-down;
+    height: 100%;
+    pointer-events: none;
+}
+.garage-item-row {
+    flex: 0 0 auto;
+    width: 100%;
+}
+.garage-item-row .card {
+    flex-direction: row;
+}
+    .garage-item-row .card img {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+    .garage-item-row .card .vehicle-sold-banner {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+.garage-item-row .card .card-body {
+    flex: 0 0 auto;
+    width: 66.66666667%;
+}
+.garage-item-row.garage-item-add .card {
+    justify-content:center;
+}
+    .garage-item-row.garage-item-add .card img{
+        height:145px;
+    }
+.garage-item-col {
+    flex: 0 0 auto;
+    width: 50%;
+}
+@media (min-width: 576px) {
+    .garage-item-col {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+}
+@media (min-width: 768px) {
+    .garage-item-col {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+}
+@media (min-width: 992px) {
+    .garage-item-col {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+    .garage-item-row .card img {
+        flex: 0 0 auto;
+        width: 16.66666667%;
+    }
+    .garage-item-row .card .vehicle-sold-banner {
+        flex: 0 0 auto;
+        width: 16.66666667%;
+    }
+}
+@media (min-width: 1200px) {
+    .garage-item-col {
+        flex: 0 0 auto;
+        width: 16.66666667%;
+    }
+}

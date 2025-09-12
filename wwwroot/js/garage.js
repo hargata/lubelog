@@ -186,7 +186,22 @@ function hidePinnedNotes(vehicleId) {
         $(`#gridVehicle_${vehicleId}`).tooltip("hide");
     }
 }
-
+function setGarageView(viewType) {
+    switch (viewType) {
+        case 'row':
+            $('.garage-item').removeClass('garage-item-col');
+            $('.garage-item').addClass('garage-item-row');
+            $('.garage-item-add').removeClass('garage-item-col');
+            $('.garage-item-add').addClass('garage-item-row');
+            break;
+        case 'col':
+            $('.garage-item').removeClass('garage-item-row');
+            $('.garage-item').addClass('garage-item-col');
+            $('.garage-item-add').removeClass('garage-item-row');
+            $('.garage-item-add').addClass('garage-item-col');
+            break;
+    }
+}
 function filterGarage(sender) {
     let searchQuery = $('#garageSearchInput').val();
     if (sender == undefined) {
