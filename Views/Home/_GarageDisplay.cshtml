@@ -10,7 +10,7 @@
 @if (recordTags.Any())
 {
     <div class='row'>
-        <div class="col-12 d-flex align-items-center flex-wrap mb-2">
+        <div class="col-xl-10 col-lg-9 col-md-8 col-sm-8 col-12 d-flex align-items-center flex-wrap mb-2">
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -21,6 +21,11 @@
                     <!option value="@recordTag"></!option>
                 }
             </datalist>
+        </div>
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-12 pt-2 pb-2">
+            <div class="input-group">
+                <input type="text" id="garageSearchInput" class="form-control" onkeyup="handleGarageSearchKeyPress(event)" placeholder="@translator.Translate(userLanguage, "Search by Keyword")" />
+            </div>
         </div>
     </div>
 }
@@ -72,10 +77,10 @@
                             </div>
                         }
                         <div class="card-body">
-                            <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Model}")</h5>
-                            <p class="card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
+                            <h5 class="garage-item-attribute card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Make}")</h5>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Model}")</h5>
+                            <p class="garage-item-attribute card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
                         </div>
                     </div>
                 </div>

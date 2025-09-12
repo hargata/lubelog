@@ -1,4 +1,9 @@
-﻿function returnToGarage() {
+﻿$.expr[":"].containsNC = $.expr.createPseudo(function (arg) {
+    return function (elem) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+function returnToGarage() {
     window.location.href = '/Home';
 }
 function successToast(message) {
@@ -1419,7 +1424,7 @@ function searchTableRows(tabName) {
     Swal.fire({
         title: 'Search Records',
         html: `
-                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)" onkeydown="handleSwalEnter(event)">
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword" onkeydown="handleSwalEnter(event)">
                             `,
         confirmButtonText: 'Search',
         focusConfirm: false,
@@ -1430,7 +1435,7 @@ function searchTableRows(tabName) {
     }).then(function (result) {
         if (result.isConfirmed) {
             var rowData = $(`#${tabName} table tbody tr`);
-            var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
+            var filteredRows = $(`#${tabName} table tbody tr td:containsNC('${result.value.searchString}')`).parent();
             var splitSearchString = result.value.searchString.split('=');
             if (result.value.searchString.includes('=') && splitSearchString.length == 2) {
                 //column specific search.
@@ -1439,7 +1444,7 @@ function searchTableRows(tabName) {
                 var columnName = splitSearchString[0];
                 var colSearchString = splitSearchString[1];
                 var colIndex = columns.findIndex(x => x == columnName) + 1;
-                filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):contains('${colSearchString}')`).parent();
+                filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):containsNC('${colSearchString}')`).parent();
             }
             if (result.value.searchString.trim() == '') {
                 rowData.removeClass('override-hide');
