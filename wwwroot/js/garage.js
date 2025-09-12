@@ -188,20 +188,18 @@ function hidePinnedNotes(vehicleId) {
 }
 
 function filterGarage(sender) {
-    var rowData = $(".garage-item");
+    let searchQuery = $('#garageSearchInput').val();
     if (sender == undefined) {
-        rowData.removeClass('override-hide');
+        searchAndFilterGarage(undefined, searchQuery);
         return;
     }
     var tagName = sender.textContent;
     if ($(sender).hasClass("bg-primary")) {
-        rowData.removeClass('override-hide');
+        searchAndFilterGarage(undefined, searchQuery);
         $(sender).removeClass('bg-primary');
         $(sender).addClass('bg-secondary');
     } else {
-        //hide table rows.
-        rowData.addClass('override-hide');
-        $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+        searchAndFilterGarage(tagName, searchQuery);
         if ($(".tagfilter.bg-primary").length > 0) {
             //disabling other filters
             $(".tagfilter.bg-primary").addClass('bg-secondary');
@@ -209,6 +207,42 @@ function filterGarage(sender) {
         }
         $(sender).addClass('bg-primary');
         $(sender).removeClass('bg-secondary');
+    }
+}
+function handleGarageSearchKeyPress(event) {
+    if (event.keyCode == 13) {
+        searchGarage();
+    } else {
+        setDebounce(searchGarage);
+    }
+}
+function searchGarage() {
+    let searchTerm = $('#garageSearchInput').val();
+    let activeTag = $(".tagfilter.bg-primary").length > 0 ? $(".tagfilter.bg-primary")[0].textContent : undefined;
+    searchAndFilterGarage(activeTag, searchTerm);
+}
+function searchAndFilterGarage(searchTag, searchTerm) {
+    let rowData = $(".garage-item");
+    let searchTagEmpty = searchTag == undefined || searchTag.trim() == '';
+    let searchQueryEmpty = searchTerm == undefined || searchTerm.trim() == '';
+    if (searchTagEmpty && searchQueryEmpty) {
+        //show all garage items
+        rowData.removeClass('override-hide');
+        return;
+    }
+    //hide all garage items
+    rowData.addClass('override-hide');
+    if (!searchQueryEmpty && !searchTagEmpty) {
+        $(`.garage-item .card-body .garage-item-attribute:containsNC('${searchTerm}')`).closest(`.garage-item[data-tags~='${searchTag}']`).removeClass('override-hide');
+    } else {
+        if (!searchTagEmpty) {
+            //show all garage items with matching tags
+            $(`[data-tags~='${searchTag}']`).removeClass('override-hide');
+        }
+        if (!searchQueryEmpty) {
+            //show all garage items with matching search terms
+            $(`.garage-item .card-body .garage-item-attribute:containsNC('${searchTerm}')`).closest('.garage-item').removeClass('override-hide');
+        }
     }
 }
 function sortVehicles(desc) {
