@@ -156,6 +156,25 @@ namespace CarCareTracker.Helper
             }
             return "";
         }
+        public static string VehicleSortSelected(UserConfig userConfig, string vehicleSortField)
+        {
+            var userVehicleSortField = userConfig.VehicleSortField?.Trim();
+            var baseField = userVehicleSortField;
+            var sortClass = "sort-asc";
+
+            if (!string.IsNullOrEmpty(userVehicleSortField) && userVehicleSortField.EndsWith(" desc", StringComparison.OrdinalIgnoreCase))
+            {
+                baseField = userVehicleSortField.Substring(0, userVehicleSortField.Length - 5).Trim(); 
+                sortClass = "sort-desc";
+            }
+
+            if (vehicleSortField == baseField)
+            {
+                return $"active default {sortClass}";
+            }
+
+            return "";
+        }
         public static List<CostForVehicleByMonth> GetBaseLineCosts()
         {
             return new List<CostForVehicleByMonth>()
@@ -885,6 +904,36 @@ namespace CarCareTracker.Helper
             double goodNormalizedStep = niceSteps.OrderBy(s => Math.Abs(s - normalizedStep)).First();
 
             return Convert.ToDecimal(goodNormalizedStep * stepPower);
+        }
+
+
+        public static string ToDataAttributeSafe(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return "unknown";
+
+            // Lowercase, trim, replace spaces with hyphens
+            var cleaned = input.Trim().ToLowerInvariant();
+
+            // Remove any characters that are not letters, digits, or hyphens
+            return System.Text.RegularExpressions.Regex.Replace(cleaned, @"[^a-z0-9\-]", "");
+        }
+        public static string GetFuelType(VehicleViewModel vehicle)
+        {
+            if (vehicle == null) return "";
+
+            if (vehicle.IsElectric)
+            {
+                return "Electric";
+            }
+            else if (vehicle.IsDiesel)
+            {
+                return "Diesel";
+            }
+            else
+            {
+                return "Gasoline";
+            }
         }
     }
 }

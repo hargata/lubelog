@@ -211,99 +211,6 @@ function filterGarage(sender) {
         $(sender).removeClass('bg-secondary');
     }
 }
-function sortVehicles(desc) {
-    //get row data
-    var rowData = $('.garage-item');
-    var sortedRow = rowData.toArray().sort((a, b) => {
-        var currentVal = globalParseFloat($(a).find(".garage-item-year").attr('data-unit'));
-        var nextVal = globalParseFloat($(b).find(".garage-item-year").attr('data-unit'));
-        if (desc) {
-            return nextVal - currentVal;
-        } else {
-            return currentVal - nextVal;
-        }
-    });
-    sortedRow.push($('.garage-item-add'))
-    $('.vehiclesContainer').html(sortedRow);
-}
-
-var touchtimer;
-var touchduration = 800;
-function detectLongTouch(sender) {
-    if ($(sender).hasClass("active")) {
-        if (!touchtimer) {
-            touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
-        }
-    }
-}
-function detectTouchEndPremature(sender) {
-    if (touchtimer) {
-        clearTimeout(touchtimer);
-        touchtimer = null;
-    }
-}
-
-function sortGarage(sender, isMobile) {
-    if (event != undefined) {
-        event.preventDefault();
-    }
-    sender = $(sender);
-    if (sender.hasClass("active")) {
-        //do sorting only if garage is the active tab.
-        var sortColumn = sender.text();
-        var garageIcon = '<i class="bi bi-car-front me-2"></i>';
-        var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
-        var sortDescIcon = '<i class="bi bi-sort-numeric-down-alt ms-2"></i>';
-        if (sender.hasClass('sort-asc')) {
-            sender.removeClass('sort-asc');
-            sender.addClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortDescIcon}</span>` : `${garageIcon}${sortColumn}${sortDescIcon}`);
-            sortVehicles(true);
-        } else if (sender.hasClass('sort-desc')) {
-            //restore table
-            sender.removeClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}</span>` : `${garageIcon}${sortColumn}`);
-            resetSortGarage();
-        } else {
-            //first time sorting.
-            //check if table was sorted before by a different column(only relevant to fuel tab)
-            if ($("[default-sort]").length > 0 && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
-                //restore table state.
-                resetSortGarage();
-                //reset other sorted columns
-                if ($(".sort-asc").length > 0) {
-                    $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
-                    $(".sort-asc").removeClass("sort-asc");
-                }
-                if ($(".sort-desc").length > 0) {
-                    $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
-                    $(".sort-desc").removeClass("sort-desc");
-                }
-            }
-            sender.addClass('sort-asc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
-            //append sortRowId to the vehicle container
-            if ($("[default-sort]").length == 0) {
-                $(`.garage-item`).map((index, elem) => {
-                    $(elem).attr("default-sort", index);
-                });
-            }
-            sortVehicles(false);
-        }
-    }
-}
-function resetSortGarage() {
-    var rowData = $(`.garage-item`);
-    var sortedRow = rowData.toArray().sort((a, b) => {
-        var currentVal = $(a).attr('default-sort');
-        var nextVal = $(b).attr('default-sort');
-        return currentVal - nextVal;
-    });
-    $(".garage-item-add").map((index, elem) => {
-        sortedRow.push(elem);
-    })
-    $(`.vehiclesContainer`).html(sortedRow);
-}
 
 let dragged = null;
 let draggedId = 0;
@@ -448,4 +355,150 @@ function generateTokenForUser() {
             errorToast(genericErrorMessage())
         }
     });
+}
+function sortGarage(sender) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    sender = $(sender);
+    var sortColumn = sender.text();
+    var sortColumnField = sender.attr('data-sortcolumn');
+    var sortDirection;
+    var sortFieldType = sender.attr('data-sorttype');
+    var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
+    var sortDescIcon = '<i class="bi bi-sort-numeric-up-alt ms-2"></i>';
+    $('[aria-labelledby="sortDropdown"] li button').removeClass('active');
+    
+    if (sender.hasClass('sort-asc')) {
+        // change to descending sort
+        sortDirection = 'desc';
+        sender.removeClass('sort-asc');
+        sender.addClass('sort-desc');
+        sender.html(`${sortColumn}${sortDescIcon}`);
+        sender.addClass('active');
+        $('#sortDropdown span').text(sortColumn);
+        sortVehicles(sortColumnField, sortFieldType, true);
+
+    } else if (sender.hasClass('sort-desc')) {
+        // restore to default sort 
+
+        sender.removeClass('sort-desc');
+        sender.html(`${sortColumn}`);
+        $('[aria-labelledby="sortDropdown"] li button').first().addClass('active');
+        $('#sortDropdown span').text($('[aria-labelledby="sortDropdown"] li button').first().text());
+        var defaultSort = $('[aria-labelledby="sortDropdown"] li button').first();
+        var defaultSortName = defaultSort.text();
+        var defaultSortField = defaultSort.attr('data-sortcolumn');
+        var defaultSortType = defaultSort.attr('data-sorttype');
+
+        $('#sortDropdown span').text(defaultSortName);
+
+        sortVehicles(defaultSortField, defaultSortType);
+    } else {
+        //first time sorting, default ascending sort
+
+        if ($(".sort-asc").length > 0) {
+            $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
+            $(".sort-asc").removeClass("sort-asc");
+        }
+        if ($(".sort-desc").length > 0) {
+            $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
+            $(".sort-desc").removeClass("sort-desc");
+        }
+
+        sender.addClass('sort-asc');
+        sender.addClass('active');
+        $('#sortDropdown span').text(sortColumn);
+        sender.html(`${sortColumn}${sortAscIcon}`);
+
+        sortVehicles(sortColumnField, sortFieldType);     
+    }
+    $.post('/Home/SaveVehicleSort', { vehicleSortField: sortColumnField + (sortDirection ? ' ' + sortDirection : '') }, function (data) {
+        if (!data) {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
+function sortVehicles(sortColumnField, sortFieldType, desc) {
+    var rowData = $('.garage-item');
+
+    var secondaryButton = $('[aria-labelledby="sortDropdown"] li button.secondary');
+    var secondarySortColumnField = secondaryButton.attr('data-sortcolumn');
+    var secondarySortFieldType = secondaryButton.attr('data-sorttype');
+
+    var sortedRow = rowData.toArray().sort((a, b) => {
+        var currentVal = getSortValue(a, sortColumnField, sortFieldType);
+        var nextVal = getSortValue(b, sortColumnField, sortFieldType);
+
+        var isEmpty = (v) => v === '' || v === 0 || v === Number.NEGATIVE_INFINITY;
+
+        var currentEmpty = isEmpty(currentVal);
+        var nextEmpty = isEmpty(nextVal);
+
+        if (currentEmpty && !nextEmpty) return 1;
+        if (!currentEmpty && nextEmpty) return -1;
+
+        if (['number', 'decimal', 'date', 'time'].includes(sortFieldType)) {
+            if (currentVal !== nextVal) {
+                return desc ? nextVal - currentVal : currentVal - nextVal;
+            }
+        } else {
+            const comparison = currentVal.localeCompare(nextVal, undefined, { sensitivity: 'base' });
+            if (comparison !== 0) {
+                return desc ? -comparison : comparison;
+            }
+        }
+        var currentSecondaryVal = getSortValue(a, secondarySortColumnField, secondarySortFieldType);
+        var nextSecondaryVal = getSortValue(b, secondarySortColumnField, secondarySortFieldType);
+
+        if (['number', 'decimal', 'date', 'time'].includes(secondarySortFieldType)) {
+            return currentSecondaryVal - nextSecondaryVal; 
+        } else {
+            return currentSecondaryVal.localeCompare(nextSecondaryVal, undefined, { sensitivity: 'base' });
+        }
+    });
+
+
+    sortedRow.push($('.garage-item-add'));
+    $('.vehiclesContainer').html(sortedRow);
+}
+
+function getSortValue(element, sortColumnField, sortFieldType) {
+    sortFieldType = (sortFieldType || 'text').toLowerCase(); // Default to 'text'
+
+    const attrElement = $(element).find('[data-' + sortColumnField + ']');
+    if (!attrElement.length) return '';
+
+    const value = attrElement.attr('data-' + sortColumnField);
+    if (value == null || value === '') return '';
+
+    switch (sortFieldType) {
+        case 'decimal':
+        case 'number': {
+            const num = parseFloat(value);
+            return isNaN(num) ? Number.NEGATIVE_INFINITY : num;
+        }
+        case 'date': {
+            const timestamp = Date.parse(value);
+            return isNaN(timestamp) ? new Date(0) : new Date(timestamp);
+        }
+        case 'time': {
+            // Expecting HH:mm or similar format
+            const timeParts = value.split(':');
+            if (timeParts.length === 2) {
+                const hours = parseInt(timeParts[0], 10);
+                const minutes = parseInt(timeParts[1], 10);
+                if (!isNaN(hours) && !isNaN(minutes)) {
+                    return hours * 60 + minutes; // Convert to minutes for comparison
+                }
+            }
+            return 0;
+        }
+        case 'location': {
+            return value.trim().toLowerCase(); // Just treat as string for now
+        }
+        case 'text':
+        default:
+            return value.toString().toLowerCase(); // Case-insensitive string sort
+    }
 }

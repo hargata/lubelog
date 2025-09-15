@@ -18,6 +18,7 @@
         public bool EnableShopSupplies { get; set; }
         public bool EnableExtraFieldColumns { get; set; }
         public bool HideSoldVehicles { get; set; }
+        public string VehicleSortField { get; set; }
         public bool AutomaticDecimalFormat { get; set; }
         public string PreferredGasUnit { get; set; } = string.Empty;
         public string PreferredGasMileageUnit { get; set; } = string.Empty;
