@@ -748,10 +748,23 @@ namespace CarCareTracker.Helper
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
         }
+        public static bool GetAttachmentIsLink(string fileLocation)
+        {
+            return (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"));
+        }
+        public static string GetAttachmentOriginalName(string fileLocation, string originalName)
+        {
+            var fileExt = Path.GetExtension(fileLocation);
+            if (originalName.EndsWith(fileExt))
+            {
+                return originalName;
+            }
+            return $"{originalName}{fileExt}";
+        }
         public static string GetIconByFileExtension(string fileLocation)
         {
             var fileExt = Path.GetExtension(fileLocation);
-            if (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"))
+            if (GetAttachmentIsLink(fileLocation))
             {
                 return "bi-link-45deg";
             }
