@@ -660,9 +660,25 @@ function getLastOdometerReadingAndIncrement(odometerFieldName) {
 
 function showGlobalSearch() {
     $('#globalSearchModal').modal('show');
+    restoreGlobalSearchSettings();
 }
 function hideGlobalSearch() {
     $('#globalSearchModal').modal('hide');
+}
+function saveGlobalSearchSettings() {
+    let globalSearchSettings = {
+        incrementalSearch: $('#globalSearchAutoSearchCheck').is(':checked'),
+        caseSensitive: $('#globalSearchCaseSensitiveCheck').is(':checked')
+    };
+    localStorage.setItem('globalSearchSettings', JSON.stringify(globalSearchSettings));
+}
+function restoreGlobalSearchSettings() {
+    let globalSearchSettings = localStorage.getItem('globalSearchSettings');
+    if (globalSearchSettings != null) {
+        let parsedGlobalSearchSettings = JSON.parse(globalSearchSettings);
+        $('#globalSearchAutoSearchCheck').attr('checked', parsedGlobalSearchSettings.incrementalSearch);
+        $('#globalSearchCaseSensitiveCheck').attr('checked', parsedGlobalSearchSettings.caseSensitive);
+    }
 }
 function performGlobalSearch() {
     var searchQuery = $('#globalSearchInput').val();
@@ -672,6 +688,7 @@ function performGlobalSearch() {
         $('#globalSearchInput').removeClass('is-invalid');
     }
     let caseSensitiveSearch = $("#globalSearchCaseSensitiveCheck").is(':checked');
+    saveGlobalSearchSettings();
     $.post('/Vehicle/SearchRecords', { vehicleId: GetVehicleId().vehicleId, searchQuery: searchQuery, caseSensitive: caseSensitiveSearch }, function (data) {
         $('#globalSearchModalResults').html(data);
     });

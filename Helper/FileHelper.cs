@@ -1,4 +1,6 @@
 ﻿using CarCareTracker.Models;
+using CsvHelper;
+using System.Globalization;
 using System.IO.Compression;
 
 namespace CarCareTracker.Helper
@@ -241,14 +243,41 @@ namespace CarCareTracker.Helper
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             int fileIndex = 0;
+            List<AttachmentExportModel> urlAttachments = new List<AttachmentExportModel>();
             foreach (GenericReportModel reportModel in exportData)
             {
                 foreach (UploadedFiles file in reportModel.Files)
                 {
                     var fileToCopy = GetFullFilePath(file.Location);
                     var destFileName = $"{tempPath}/{fileIndex}_{reportModel.DataType}_{reportModel.Date.ToString("yyyy-MM-dd")}_{file.Name}{Path.GetExtension(file.Location)}";
-                    File.Copy(fileToCopy, destFileName);
-                    fileIndex++;
+                    if (File.Exists(fileToCopy))
+                    {
+                        File.Copy(fileToCopy, destFileName);
+                        fileIndex++;
+                    } else
+                    {
+                        //file not found, must be a URL
+                        urlAttachments.Add(new AttachmentExportModel { 
+                            DataType = reportModel.DataType.ToString(),
+                            Date = reportModel.Date.ToString("yyyy-MM-dd"),
+                            Name = file.Name,
+                            Location = file.Location
+                        });
+                    }
+                }
+            }
+            if (urlAttachments.Any())
+            {
+                //write csv file detailing all urls.
+                var destFileName = $"{tempPath}/link_attachments.csv";
+                using (var writer = new StreamWriter(destFileName))
+                {
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        //custom writer
+                        StaticHelper.WriteAttachmentExportModel(csv, urlAttachments);
+                    }
+                    writer.Dispose();
                 }
             }
             var destFilePath = $"{tempPath}.zip";

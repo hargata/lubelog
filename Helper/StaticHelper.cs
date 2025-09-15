@@ -12,7 +12,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.0";
+        public const string VersionNumber = "1.5.1";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -709,6 +709,23 @@ namespace CarCareTracker.Helper
                 _csv.NextRecord();
             }
         }
+        public static void WriteAttachmentExportModel(CsvWriter _csv, IEnumerable<AttachmentExportModel> genericRecords)
+        {
+            //write headers
+            _csv.WriteField(nameof(AttachmentExportModel.DataType));
+            _csv.WriteField(nameof(AttachmentExportModel.Date));
+            _csv.WriteField(nameof(AttachmentExportModel.Name));
+            _csv.WriteField(nameof(AttachmentExportModel.Location));
+            _csv.NextRecord();
+            foreach (AttachmentExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.DataType);
+                _csv.WriteField(genericRecord.Date);
+                _csv.WriteField(genericRecord.Name);
+                _csv.WriteField(genericRecord.Location);
+                _csv.NextRecord();
+            }
+        }
         public static string HideZeroCost(string input, bool hideZero, string decorations = "")
         {
             if (input == 0M.ToString("C2") && hideZero)
@@ -731,10 +748,23 @@ namespace CarCareTracker.Helper
                 return string.IsNullOrWhiteSpace(decorations) ? input.ToString("C2") : $"{input.ToString("C2")}{decorations}";
             }
         }
+        public static bool GetAttachmentIsLink(string fileLocation)
+        {
+            return (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"));
+        }
+        public static string GetAttachmentOriginalName(string fileLocation, string originalName)
+        {
+            var fileExt = Path.GetExtension(fileLocation);
+            if (originalName.EndsWith(fileExt))
+            {
+                return originalName;
+            }
+            return $"{originalName}{fileExt}";
+        }
         public static string GetIconByFileExtension(string fileLocation)
         {
             var fileExt = Path.GetExtension(fileLocation);
-            if (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"))
+            if (GetAttachmentIsLink(fileLocation))
             {
                 return "bi-link-45deg";
             }

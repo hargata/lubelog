@@ -176,4 +176,11 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromBoolOptional))]
         public string IsRoot { get; set; }
     }
+    public class AttachmentExportModel
+    {
+        public string DataType { get; set; }
+        public string Date { get; set; }
+        public string Name { get; set; }
+        public string Location { get; set; }
+    }
 }
