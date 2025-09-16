@@ -14,7 +14,7 @@
         {
             <li class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                    <a class="uploadedFileName d-flex align-items-center text-truncate" href="@filesUploaded.Location" title="@filesUploaded.Name" @(StaticHelper.GetAttachmentIsLink(filesUploaded.Location) ? "target=_blank" : $"download={StaticHelper.GetAttachmentOriginalName(filesUploaded.Location, filesUploaded.Name)}")>
+                    <a style="cursor:pointer;" class="uploadedFileName d-flex align-items-center text-truncate" title="@filesUploaded.Name" onclick="openAttachmentPreview('@filesUploaded.Name', '@filesUploaded.Location')">
                         <span class="lead me-2"><i class="bi @StaticHelper.GetIconByFileExtension(filesUploaded.Location)"></i></span><span class="text-link">@filesUploaded.Name</span>
                     </a>
                     <div class="d-flex align-items-center">

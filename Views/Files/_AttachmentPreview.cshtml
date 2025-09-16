@@ -1,0 +1,43 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model UploadedFiles
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+    {
+        <a href="@Model.Location" target="_blank">
+            <span class="link-body-emphasis"><i class="bi bi-box-arrow-up-right"></i></span>
+        </a>
+    } else
+    {
+        <a href="@Model.Location" download="@StaticHelper.GetAttachmentOriginalName(Model.Location, Model.Name)">
+            <span class="link-body-emphasis"><i class="bi bi-download"></i></span>
+        </a>
+    }
+    <h5 class="modal-title" id="updateAccountModalLabel">@Model.Name</h5>
+    <a style="cursor:pointer;" onclick="closeAttachmentPreview()"><span class="link-body-emphasis"><i class="bi bi-x-lg"></i></span></a>
+</div>
+<div class="modal-body">
+    <div class="d-flex justify-content-center" style="height:100%; width:100%;" onclick="closeAttachmentPreview()">
+        @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+        {
+            <div class="align-self-center">
+                <a href="@Model.Location" target="_blank" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Open Link in New Tab")</span><span><i class="bi bi-box-arrow-up-right"></i></span></a>
+            </div>
+        } 
+        else if (StaticHelper.GetAttachmentIsImage(Model.Location))
+        {
+            <img src="@Model.Location" style="height:100%; max-width:100%; object-fit:scale-down; pointer-events:none;" />
+        } 
+        else
+        {
+            <div class="align-self-center">
+                <a href="@Model.Location" download="@StaticHelper.GetAttachmentOriginalName(Model.Location, Model.Name)" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Download File")</span><span><i class="bi bi-download"></i></span></a>
+            </div>
+        }
+    </div>
+</div>

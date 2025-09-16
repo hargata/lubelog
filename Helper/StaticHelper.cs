@@ -761,6 +761,12 @@ namespace CarCareTracker.Helper
             }
             return $"{originalName}{fileExt}";
         }
+        public static bool GetAttachmentIsImage(string fileLocation)
+        {
+            var fileExt = Path.GetExtension(fileLocation);
+            var imageExtensions = new[] { ".png", ".jpg", ".jpeg" };
+            return imageExtensions.Contains(fileExt);
+        }
         public static string GetIconByFileExtension(string fileLocation)
         {
             var fileExt = Path.GetExtension(fileLocation);

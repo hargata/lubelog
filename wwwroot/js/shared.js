@@ -1730,3 +1730,12 @@ function checkNavBarOverflow() {
         removeNavbarItems()
     }
 }
+function openAttachmentPreview(fileName, fileLocation) {
+    $.get('/Files/PreviewFile', { fileName: fileName, fileLocation: fileLocation }, function (data) {
+        $('#attachmentPreviewModalContent').html(data);
+        $('#attachmentPreviewModal').modal('show');
+    });
+}
+function closeAttachmentPreview() {
+    $('#attachmentPreviewModal').modal('hide');
+}
