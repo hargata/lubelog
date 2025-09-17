@@ -12,7 +12,7 @@
     {
         <li class="list-group-item">
             <div class="d-flex justify-content-between">
-                <a class="uploadedFileName d-flex align-items-center text-truncate" href="@filesUploaded.Location" title="@filesUploaded.Name" target="_blank">
+                <a style="cursor:pointer;" class="uploadedFileName d-flex align-items-center text-truncate" title="@filesUploaded.Name" onclick="openAttachmentPreview('@filesUploaded.Name', '@filesUploaded.Location')">
                     <span class="lead me-2"><i class="bi @StaticHelper.GetIconByFileExtension(filesUploaded.Location)"></i></span><span class="text-link">@filesUploaded.Name</span>
                 </a>
                 <div class="d-flex align-items-center">

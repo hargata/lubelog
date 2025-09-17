@@ -105,5 +105,10 @@ namespace CarCareTracker.Controllers
             var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName) };
             return Json(uploadedFile);
         }
+        public IActionResult PreviewFile(string fileName, string fileLocation)
+        {
+            var viewModel = new UploadedFiles { Name = fileName, Location = fileLocation };
+            return PartialView("_AttachmentPreview", viewModel);
+        }
     }
 }
