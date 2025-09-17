@@ -114,6 +114,10 @@
                     <!option value="false" @(Model.InvariantAPIEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="inputCookieLifeSpan" class="form-label"><span>@($"{translator.Translate(userLanguage, "Auth Cookie Lifespan")} - ")</span><span id="inputCookieLifeSpanRangeLabel">@Model.CookieLifeSpan</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
+                <input type="range" class="form-range" oninput="updateCookieLifeSpanRange()" min="1" max="90" id="inputCookieLifeSpan" value="@Model.CookieLifeSpan">
+            </div>
         </form>
     </div>
     <div class="setup-wizard-content" data-page="2" style="display:none;">

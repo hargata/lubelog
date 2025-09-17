@@ -53,6 +53,9 @@ function loadLocaleSample() {
         })
     }
 }
+function updateCookieLifeSpanRange() {
+    $("#inputCookieLifeSpanRangeLabel").text($("#inputCookieLifeSpan").val());
+}
 function saveSetup() {
     let setupData = {
         LocaleOverride: $("#inputLocale").val(),
@@ -66,6 +69,7 @@ function saveSetup() {
         ServerURL: $("#inputDomain").val(),
         CustomWidgetsEnabled: $("#inputCustomWidget").val(),
         InvariantAPIEnabled: $("#inputInvariantAPI").val(),
+        CookieLifeSpan: $("#inputCookieLifeSpan").val(),
         SMTPConfig: {
             EmailServer: $("#inputSMTPServer").val(),
             EmailFrom: $("#inputSMTPFrom").val(),

@@ -1,4 +1,5 @@
-﻿using CarCareTracker.Logic;
+﻿using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
@@ -49,7 +50,7 @@ namespace CarCareTracker.Middleware
             else
             {
                 //auth is enabled by user, we will have to authenticate the user via a ticket retrieved from the auth cookie.
-                var access_token = _httpContext.HttpContext.Request.Cookies["ACCESS_TOKEN"];
+                var access_token = _httpContext.HttpContext.Request.Cookies[StaticHelper.LoginCookieName];
                 //auth using Basic Auth for API.
                 var request_header = _httpContext.HttpContext.Request.Headers["Authorization"];
                 if (string.IsNullOrWhiteSpace(access_token) && string.IsNullOrWhiteSpace(request_header))

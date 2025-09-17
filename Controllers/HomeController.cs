@@ -596,7 +596,8 @@ namespace CarCareTracker.Controllers
                 ReminderUrgencyConfig = _config.GetReminderUrgencyConfig(),
                 EnableAuth = _config.GetServerAuthEnabled(),
                 DefaultReminderEmail = _config.GetDefaultReminderEmail(),
-                EnableRootUserOIDC = _config.GetEnableRootUserOIDC()
+                EnableRootUserOIDC = _config.GetEnableRootUserOIDC(),
+                CookieLifeSpan = _config.GetAuthCookieLifeSpan().ToString()
             };
             return View(viewModel);
         }
