@@ -23,9 +23,9 @@
                         @foreach(ImageMap imageMap in Model.Map)
                         {
                             <a style='cursor:pointer;' onclick='loadRecordsByTags("@imageMap.Tags")'>
-                            string[] cordParts = @imageMap.Coordinates.ToString().Split(',');
-                            @if(cordParts.Length == 3) {
-                                <circle cx="cordParts[0]" cy="cordParts[1]" r="cordParts[2]" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></circle>
+                            @if(!string.IsNullOrWhiteSpace(imageMap.Shape) && imageMap.Shape.ToLower() == "circle") {
+                                    var cordParts = imageMap.Coordinates.Split(',');
+                                    <circle cx="@cordParts[0]" cy="@cordParts[1]" r="@cordParts[2]" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></circle>
                             } else {
                                 <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></polygon>
                             }
