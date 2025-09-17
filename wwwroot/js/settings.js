@@ -60,6 +60,7 @@ function updateSettings() {
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
         showCalendar: $("#showCalendar").is(":checked"),
         showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
+        showSearch: $("#showGarageSearch").is(":checked"),
         enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
         hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
         preferredGasUnit: $("#preferredGasUnit").val(),
