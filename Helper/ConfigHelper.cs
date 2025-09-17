@@ -35,6 +35,7 @@ namespace CarCareTracker.Helper
         bool GetInvariantApi();
         bool GetServerOpenRegistration();
         string GetDefaultReminderEmail();
+        int GetAuthCookieLifeSpan();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -88,6 +89,26 @@ namespace CarCareTracker.Helper
         public bool GetServerOpenRegistration()
         {
             return CheckBool(CheckString("LUBELOGGER_OPEN_REGISTRATION"));
+        }
+        public int GetAuthCookieLifeSpan()
+        {
+            var lifespan = CheckString("LUBELOGGER_COOKIE_LIFESPAN", StaticHelper.DefaultCookieLifeSpan);
+            if (!string.IsNullOrWhiteSpace(lifespan) && int.TryParse(lifespan, out int lifespandays))
+            {
+                if (lifespandays > 90) //max 90 days because that is the max lifetime of the DPAPI keys
+                {
+                    lifespandays = 90;
+                }
+                if (lifespandays < 1) //min 1 day because cookie lifespan is incremented in days for our implementation
+                {
+                    lifespandays = 1;
+                }
+                return lifespandays;
+            } 
+            else
+            {
+                return int.Parse(StaticHelper.DefaultCookieLifeSpan); //default is 30 days for when remember me is selected.
+            }
         }
         public bool GetServerAuthEnabled()
         {
@@ -243,6 +264,10 @@ namespace CarCareTracker.Helper
             if (serverConfig.EnableRootUserOIDC.HasValue && !serverConfig.EnableRootUserOIDC.Value)
             {
                 serverConfig.EnableRootUserOIDC = null;
+            }
+            if (serverConfig.CookieLifeSpan == StaticHelper.DefaultCookieLifeSpan || string.IsNullOrWhiteSpace(serverConfig.CookieLifeSpan))
+            {
+                serverConfig.CookieLifeSpan = null;
             }
             try
             {

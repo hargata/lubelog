@@ -185,7 +185,7 @@ namespace CarCareTracker.Controllers
                                 };
                                 var serializedCookie = JsonSerializer.Serialize(authCookie);
                                 var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                                Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                                Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                                 return new RedirectResult("/Home");
                             } else
                             {
@@ -353,11 +353,11 @@ namespace CarCareTracker.Controllers
                     AuthCookie authCookie = new AuthCookie
                     {
                         UserData = userData,
-                        ExpiresOn = DateTime.Now.AddDays(credentials.IsPersistent ? 30 : 1)
+                        ExpiresOn = DateTime.Now.AddDays(credentials.IsPersistent ? _config.GetAuthCookieLifeSpan() : 1)
                     };
                     var serializedCookie = JsonSerializer.Serialize(authCookie);
                     var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                    Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                    Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                     return Json(true);
                 }
             }
@@ -390,7 +390,7 @@ namespace CarCareTracker.Controllers
                     };
                     var serializedCookie = JsonSerializer.Serialize(authCookie);
                     var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                    Response.Cookies.Append("ACCESS_TOKEN", encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                    Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                 }
             }
             return Json(result);
@@ -438,7 +438,7 @@ namespace CarCareTracker.Controllers
                 //destroy any login cookies.
                 if (result)
                 {
-                    Response.Cookies.Delete("ACCESS_TOKEN");
+                    Response.Cookies.Delete(StaticHelper.LoginCookieName);
                 }
                 return Json(result);
             }
@@ -452,7 +452,7 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult LogOut()
         {
-            Response.Cookies.Delete("ACCESS_TOKEN");
+            Response.Cookies.Delete(StaticHelper.LoginCookieName);
             var remoteAuthConfig = _config.GetOpenIDConfig();
             if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
             {

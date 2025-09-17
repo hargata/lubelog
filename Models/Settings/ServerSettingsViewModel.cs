@@ -22,5 +22,6 @@ namespace CarCareTracker.Models
         public bool EnableRootUserOIDC { get; set; }
         public bool EnableAuth { get; set; }
         public List<string> AvailableLocales { get; set; }
+        public string CookieLifeSpan { get; set; }
     }
 }

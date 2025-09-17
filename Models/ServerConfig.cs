@@ -74,5 +74,8 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_LOCALE_DT_OVERRIDE")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? LocaleDateTimeOverride { get; set; } = string.Empty;
+        [JsonPropertyName("LUBELOGGER_COOKIE_LIFESPAN")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? CookieLifeSpan { get; set; } = string.Empty;
     }
 }
