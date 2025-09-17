@@ -13,5 +13,6 @@
         public string Coordinates { get; set; }
         public string Color { get; set; }
         public decimal Opacity { get; set; }
+        public string Shape { get; set; }
     }
 }
