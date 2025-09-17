@@ -393,7 +393,7 @@ namespace CarCareTracker.Helper
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
                 ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail))),
-                ShowSearch = CheckBool(CheckString(nameof(UserConfig.ShowSearch))),
+                ShowSearch = CheckBool(CheckString(nameof(UserConfig.ShowSearch)))
             };
             int userId = 0;
             if (user != null)
