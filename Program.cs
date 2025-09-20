@@ -1,8 +1,11 @@
+using CarCareTracker.Abstractions;
 using CarCareTracker.External.Implementations;
 using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
+using CarCareTracker.HostedServices;
 using CarCareTracker.Logic;
 using CarCareTracker.Middleware;
+using CarCareTracker.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
@@ -114,6 +117,14 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = int.MaxValue; // if don't set default value is: 128 MB
     options.MultipartHeadersLengthLimit = int.MaxValue;
 });
+
+// configure services
+builder.Services.AddSingleton<INotificationChannelService, NotificationChannelService>();
+builder.Services.AddHttpClient<NotificationSenderService>();
+builder.Services.AddScoped<INotificationSenderService, NotificationSenderService>();
+
+// configure background services
+builder.Services.AddHostedService<NotificationsHostedService>();
 
 var app = builder.Build();
 
