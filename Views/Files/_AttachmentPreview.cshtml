@@ -35,8 +35,9 @@
         } 
         else
         {
-            <div class="align-self-center">
+            <div class="d-flex align-self-center flex-column">
                 <a href="@Model.Location" download="@StaticHelper.GetAttachmentOriginalName(Model.Location, Model.Name)" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Download File")</span><span><i class="bi bi-download"></i></span></a>
+                <a href="@Model.Location" target="_blank" onclick="noPropagation()" class="mt-2 btn btn-secondary"><span class="me-2">@translator.Translate(userLanguage, "Open Link in New Tab")</span><span><i class="bi bi-box-arrow-up-right"></i></span></a>
             </div>
         }
     </div>
