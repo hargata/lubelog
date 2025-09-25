@@ -123,24 +123,10 @@ namespace CarCareTracker.Helper
         }
         public static string DefaultActiveTab(UserConfig userConfig, ImportMode tab)
         {
-            var defaultTab = userConfig.DefaultTab;
             var visibleTabs = userConfig.VisibleTabs;
-            if (visibleTabs.Contains(tab) && tab == defaultTab)
-            {
-                return "active";
-            }
-            else if (!visibleTabs.Contains(tab))
+            if (!visibleTabs.Contains(tab))
             {
                 return "d-none";
-            }
-            return "";
-        }
-        public static string DefaultActiveTabContent(UserConfig userConfig, ImportMode tab)
-        {
-            var defaultTab = userConfig.DefaultTab;
-            if (tab == defaultTab)
-            {
-                return "show active";
             }
             return "";
         }
