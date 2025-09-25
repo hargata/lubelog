@@ -53,5 +53,8 @@
             ImportMode.NoteRecord,
             ImportMode.ReminderRecord
         };
+        // When true, force dashboard Fuel Mileage by Month chart to display km/l
+        // when the vehicle's base unit is l/100km.
+        public bool ForceKmPerLForChart { get; set; } = false;
     }
 }

@@ -138,7 +138,9 @@ namespace CarCareTracker.Controllers
                 MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
                 Cost = x.Sum(y => y.Cost)
             }).ToList();
-            if (invertedFuelMileageUnit)
+            // If the vehicle's base fuel economy unit is l/100km and the user has opted
+            // to force the chart to km/l, convert the monthly values to km/l.
+            if (fuelEconomyMileageUnit == "l/100km" && userConfig.ForceKmPerLForChart)
             {
                 foreach (CostForVehicleByMonth monthMileage in monthlyMileageData)
                 {
@@ -147,16 +149,20 @@ namespace CarCareTracker.Controllers
                         monthMileage.Cost = 100 / monthMileage.Cost;
                     }
                 }
+                // Also convert the average MPG display value so header matches chart units
                 var newAverageMPG = decimal.Parse(averageMPG, NumberStyles.Any);
                 if (newAverageMPG != 0)
                 {
                     newAverageMPG = 100 / newAverageMPG;
                 }
                 averageMPG = newAverageMPG.ToString("F");
+                // ensure sorting and unit label reflect the converted display
+                invertedFuelMileageUnit = true;
             }
+            var displayUnit = (fuelEconomyMileageUnit == "l/100km" && userConfig.ForceKmPerLForChart) ? "km/l" : (invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit);
             var mpgViewModel = new MPGForVehicleByMonth {
                 CostData = monthlyMileageData,
-                Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
+                Unit = displayUnit,
                 SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
             };
             viewModel.FuelMileageForVehicleByMonth = mpgViewModel;

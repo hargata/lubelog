@@ -86,6 +86,10 @@
         </div>
         <hr />
         <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="forceKmPerLForChart" checked="@Model.UserConfig.ForceKmPerLForChart">
+            <label class="form-check-label" for="forceKmPerLForChart">@translator.Translate(userLanguage, "Show Fuel Mileage Chart as km/l instead of l/100km")</label>
+        </div>
+        <div class="form-check form-switch">
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoReminderRefresh" checked="@Model.UserConfig.EnableAutoReminderRefresh">
             <label class="form-check-label" for="enableAutoReminderRefresh">@translator.Translate(userLanguage, "Auto Refresh Lapsed Recurring Reminders")</label>
         </div>
