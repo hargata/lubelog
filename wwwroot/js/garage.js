@@ -275,13 +275,42 @@ function showGarageContextMenu(e) {
     }
     $(".garage-context-menu").fadeIn("fast");
     $(".garage-context-menu").css({
-        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
-        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+        left: getGarageMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getGarageMenuPosition(event.clientY, 'height', 'scrollTop')
     });
     if (!$(e).hasClass('garage-active')) {
         clearSelectedVehicles();
         addToSelectedVehicles($(e).attr('data-rowId'));
         $(e).addClass('garage-active');
+    }
+    determineGarageContextMenu();
+}
+function determineGarageContextMenu() {
+    let garageItems = $('.garage-item:visible');
+    let garageItemsActive = $('.garage-item.garage-active:visible');
+    if (garageItemsActive.length == 1) {
+        $(".context-menu-active-single").show();
+        $(".context-menu-active-multiple").hide();
+    } else if (garageItemsActive.length > 1) {
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").show();
+    } else {
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").hide();
+    }
+    if (garageItems.length > 1) {
+        $(".context-menu-multiple").show();
+        if (garageItems.length == garageItemsActive.length) {
+            //all rows are selected, show deselect all button.
+            $(".context-menu-deselect-all").show();
+            $(".context-menu-select-all").hide();
+        } else if (garageItems.length != garageItemsActive.length) {
+            //not all rows are selected, show select all button.
+            $(".context-menu-select-all").show();
+            $(".context-menu-deselect-all").hide();
+        }
+    } else {
+        $(".context-menu-multiple").hide();
     }
 }
 function garageRangeMouseMove(e) {
@@ -292,7 +321,54 @@ function garageRangeMouseMove(e) {
         }
     }
 }
-
+function removeFromSelectedVehicles(id) {
+    var rowIndex = selectedVehicles.findIndex(x => x == id)
+    if (rowIndex != -1) {
+        selectedVehicles.splice(rowIndex, 1);
+    }
+}
+function handleGarageItemClick(e, vehicleId) {
+    if (!(event.ctrlKey || event.metaKey)) {
+        viewVehicle(vehicleId);
+    } else if (!$(e).hasClass('garage-active')) {
+        addToSelectedVehicles($(e).attr('data-rowId'));
+        $(e).addClass('garage-active');
+    } else if ($(e).hasClass('garage-active')) {
+        removeFromSelectedVehicles($(e).attr('data-rowId'));
+        $(e).removeClass('garage-active');
+    }
+}
+function deleteVehicles(vehicleIds) {
+    if (vehicleIds.length == 0) {
+        return;
+    }
+    let messageWording = vehicleIds.length > 1 ? `these ${vehicleIds.length} vehicles` : 'this vehicle';
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: `This will also delete all data tied to ${messageWording}. Deleted Vehicles and their associated data cannot be restored.`,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
+                if (data) {
+                    loadGarage();
+                }
+            })
+        }
+    });
+}
+function manageCollaborators(vehicleIds) {
+    if (vehicleIds.length == 0) {
+        return;
+    }
+    $.post('/Vehicle/GetVehiclesCollaborators', { vehicleIds: vehicleIds }, function (data) {
+        if (data) {
+            console.log(data);
+        }
+    })
+}
 // end context menu
 function sortGarage() {
     //check current sort state

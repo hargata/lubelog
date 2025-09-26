@@ -1159,6 +1159,7 @@ $(window).on('keydown', function (e) {
             e.preventDefault();
             e.stopPropagation();
             selectAllRows();
+            selectAllVehicles();
         }
     }
 });
@@ -1172,11 +1173,18 @@ function selectAllRows() {
         addToSelectedRows($(elem).attr('data-rowId'));
     });
 }
+function selectAllVehicles() {
+    clearSelectedVehicles();
+    $('.garage-item:visible').addClass('garage-active');
+    $('.garage-item:visible').map((index, elem) => {
+        addToSelectedVehicles($(elem).attr('data-rowId'));
+    });
+}
 function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item");
+    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item") || $(e.target).parents(".garage-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".garage-context-menu > li > .dropdown-item");
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
     if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
@@ -1255,7 +1263,6 @@ function showTableContextMenu(e) {
         return;
     }
     $(".table-context-menu").fadeIn("fast");
-    determineContextMenuItems();
     $(".table-context-menu").css({
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
         top: getMenuPosition(event.clientY, 'height', 'scrollTop')
@@ -1265,6 +1272,7 @@ function showTableContextMenu(e) {
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
     }
+    determineContextMenuItems();
 }
 function determineContextMenuItems() {
     var tableRows = $('.table tbody tr:visible');
@@ -1306,6 +1314,17 @@ function getMenuPosition(mouse, direction, scrollDir) {
     var win = $(window)[direction](),
         scroll = $(window)[scrollDir](),
         menu = $(".table-context-menu")[direction](),
+        position = mouse + scroll;
+
+    // opening menu would pass the side of the page
+    if (mouse + menu > win && menu < mouse)
+        position -= menu;
+    return position;
+}
+function getGarageMenuPosition(mouse, direction, scrollDir) {
+    var win = $(window)[direction](),
+        scroll = $(window)[scrollDir](),
+        menu = $(".garage-context-menu")[direction](),
         position = mouse + scroll;
 
     // opening menu would pass the side of the page
