@@ -167,6 +167,12 @@
 </div>
 <div class="stickerPrintContainer hideOnPrint">
 </div>
+<ul class="garage-context-menu dropdown-menu" style="display:none;">
+    <li><a class="dropdown-item" href="#" onclick=""><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Edit")</span><i class="bi bi-pencil-square"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick=""><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick=""><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>
 <script>
     bindTabEvent();
     loadTabFromURL();

@@ -1180,6 +1180,7 @@ function rangeMouseDown(e) {
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
     if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
+        clearSelectedVehicles();
     }
     isDragging = true;
 
@@ -1206,6 +1207,9 @@ function rangeMouseUp(e) {
     if ($(".table-context-menu").length > 0) {
         $(".table-context-menu").fadeOut("fast");
     }
+    if ($(".garage-context-menu").length > 0) {
+        $(".garage-context-menu").fadeOut("fast");
+    }
     isDragging = false;
     document.documentElement.onselectstart = function () { return true; };
 }
@@ -1231,6 +1235,10 @@ function removeFromSelectedRows(id) {
 function clearSelectedRows() {
     selectedRow = [];
     $('.table tr').removeClass('table-active');
+}
+function clearSelectedVehicles() {
+    selectedVehicles = [];
+    $('.garage-item').removeClass('garage-active');
 }
 function getDeviceIsTouchOnly() {
     if (navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) {

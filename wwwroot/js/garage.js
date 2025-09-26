@@ -258,6 +258,41 @@ function searchAndFilterGarage(searchTag, searchTerm) {
         }
     }
 }
+// begin context menu
+var selectedVehicles = [];
+function addToSelectedVehicles(vehicleId) {
+    if (selectedVehicles.findIndex(x => x == vehicleId) == -1) {
+        selectedVehicles.push(vehicleId);
+    }
+}
+function showGarageContextMenu(e) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    if (getDeviceIsTouchOnly()) {
+        return;
+    }
+    $(".garage-context-menu").fadeIn("fast");
+    $(".garage-context-menu").css({
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
+    if (!$(e).hasClass('garage-active')) {
+        clearSelectedVehicles();
+        addToSelectedVehicles($(e).attr('data-rowId'));
+        $(e).addClass('garage-active');
+    }
+}
+function garageRangeMouseMove(e) {
+    if (isDragging) {
+        if (!$(e).hasClass('garage-active')) {
+            addToSelectedVehicles($(e).attr('data-rowId'));
+            $(e).addClass('garage-active');
+        }
+    }
+}
+
+// end context menu
 function sortVehicles(desc) {
     //get row data
     var rowData = $('.garage-item');
@@ -273,129 +308,6 @@ function sortVehicles(desc) {
     sortedRow.push($('.garage-item-add'))
     $('.vehiclesContainer').html(sortedRow);
 }
-
-var touchtimer;
-var touchduration = 800;
-function detectLongTouch(sender) {
-    if ($(sender).hasClass("active")) {
-        if (!touchtimer) {
-            touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
-        }
-    }
-}
-function detectTouchEndPremature(sender) {
-    if (touchtimer) {
-        clearTimeout(touchtimer);
-        touchtimer = null;
-    }
-}
-
-function sortGarage(sender, isMobile) {
-    if (event != undefined) {
-        event.preventDefault();
-    }
-    sender = $(sender);
-    if (sender.hasClass("active")) {
-        //do sorting only if garage is the active tab.
-        var sortColumn = sender.text();
-        var garageIcon = '<i class="bi bi-car-front me-2"></i>';
-        var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
-        var sortDescIcon = '<i class="bi bi-sort-numeric-down-alt ms-2"></i>';
-        if (sender.hasClass('sort-asc')) {
-            sender.removeClass('sort-asc');
-            sender.addClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortDescIcon}</span>` : `${garageIcon}${sortColumn}${sortDescIcon}`);
-            sortVehicles(true);
-        } else if (sender.hasClass('sort-desc')) {
-            //restore table
-            sender.removeClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}</span>` : `${garageIcon}${sortColumn}`);
-            resetSortGarage();
-        } else {
-            //first time sorting.
-            //check if table was sorted before by a different column(only relevant to fuel tab)
-            if ($("[default-sort]").length > 0 && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
-                //restore table state.
-                resetSortGarage();
-                //reset other sorted columns
-                if ($(".sort-asc").length > 0) {
-                    $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
-                    $(".sort-asc").removeClass("sort-asc");
-                }
-                if ($(".sort-desc").length > 0) {
-                    $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
-                    $(".sort-desc").removeClass("sort-desc");
-                }
-            }
-            sender.addClass('sort-asc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
-            //append sortRowId to the vehicle container
-            if ($("[default-sort]").length == 0) {
-                $(`.garage-item`).map((index, elem) => {
-                    $(elem).attr("default-sort", index);
-                });
-            }
-            sortVehicles(false);
-        }
-    }
-}
-function resetSortGarage() {
-    var rowData = $(`.garage-item`);
-    var sortedRow = rowData.toArray().sort((a, b) => {
-        var currentVal = $(a).attr('default-sort');
-        var nextVal = $(b).attr('default-sort');
-        return currentVal - nextVal;
-    });
-    $(".garage-item-add").map((index, elem) => {
-        sortedRow.push(elem);
-    })
-    $(`.vehiclesContainer`).html(sortedRow);
-}
-
-let dragged = null;
-let draggedId = 0;
-function dragEnter(event) {
-    event.preventDefault();
-}
-function dragStart(event, vehicleId) {
-    dragged = event.target;
-    draggedId = vehicleId;
-    event.dataTransfer.setData('text/plain', draggedId);
-}
-function dragOver(event) {
-    event.preventDefault();
-}
-function dropBox(event, targetVehicleId) {
-    if (dragged.parentElement != event.target && event.target != dragged && draggedId != targetVehicleId) {
-        copyContributors(draggedId, targetVehicleId);
-    }
-    event.preventDefault();
-}
-function copyContributors(sourceVehicleId, destVehicleId) {
-    var sourceVehicleName = $(`#gridVehicle_${sourceVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
-    var destVehicleName = $(`#gridVehicle_${destVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
-    Swal.fire({
-        title: "Copy Collaborators?",
-        text: `Copy collaborators over from ${sourceVehicleName} to ${destVehicleName}?`,
-        showCancelButton: true,
-        confirmButtonText: "Copy",
-        confirmButtonColor: "#0d6efd"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('/Vehicle/DuplicateVehicleCollaborators', { sourceVehicleId: sourceVehicleId, destVehicleId: destVehicleId }, function (data) {
-                if (data.success) {
-                    successToast("Collaborators Copied");
-                    loadGarage();
-                } else {
-                    errorToast(data.message);
-                }
-            })
-        } else {
-            $("#workAroundInput").hide();
-        }
-    });
-}
-
 function showAccountInformationModal() {
     $.get('/Home/GetUserAccountInformationModal', function (data) {
         $('#accountInformationModalContent').html(data);
