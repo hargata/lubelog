@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(function () {
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {

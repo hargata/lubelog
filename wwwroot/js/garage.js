@@ -71,6 +71,7 @@ function bindTabEvent() {
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
+        resetGarageSort(); //reset the garage sort, we're not persisting this across tab changes.
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
     });
 }
@@ -293,6 +294,50 @@ function garageRangeMouseMove(e) {
 }
 
 // end context menu
+function sortGarage() {
+    //check current sort state
+    let sortState = $('.garage-sort-icon');
+    if (sortState.hasClass('bi-arrow-down-up')) {
+        //no sort
+        if ($("[default-sort]").length == 0) {
+            $(`.garage-item`).map((index, elem) => {
+                $(elem).attr("default-sort", index);
+            });
+        }
+        sortState.removeClass('bi-arrow-down-up');
+        sortState.addClass('bi-sort-numeric-down');
+        sortVehicles(false);
+    } else if (sortState.hasClass('bi-sort-numeric-down')) {
+        //sorted asc
+        sortState.removeClass('bi-sort-numeric-down');
+        sortState.addClass('bi-sort-numeric-up');
+        sortVehicles(true);
+    } else if (sortState.hasClass('bi-sort-numeric-up')){
+        //sorted desc, reset sort state
+        resetGarageSort();
+    }
+}
+function resetGarageSort() {
+    let sortState = $('.garage-sort-icon');
+    sortState.removeClass('bi-sort-numeric-up');
+    sortState.removeClass('bi-sort-numeric-down');
+    sortState.addClass('bi-arrow-down-up');
+    if ($('[default-sort]').length == 0) {
+        //if never sorted before, return prematurely
+        return;
+    }
+    //reset sort
+    let rowData = $(`.garage-item`);
+    let sortedRow = rowData.toArray().sort((a, b) => {
+        let currentVal = $(a).attr('default-sort');
+        let nextVal = $(b).attr('default-sort');
+        return currentVal - nextVal;
+    });
+    $(".garage-item-add").map((index, elem) => {
+        sortedRow.push(elem);
+    })
+    $(`.vehiclesContainer`).html(sortedRow);
+}
 function sortVehicles(desc) {
     //get row data
     var rowData = $('.garage-item');
@@ -412,3 +457,7 @@ function loadTabFromURL() {
     let tabFromURL = getTabNameFromURL('garage');
     waitForElement(`#${tabFromURL}`, () => { $(`#${tabFromURL}`).tab('show'); }, '');
 }
+$(function () {
+    bindTabEvent();
+    loadTabFromURL();
+})
