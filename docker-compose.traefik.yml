@@ -13,8 +13,6 @@ services:
     # expose port and/or use serving via traefik
     ports:
       - 8080:8080
-    env_file:
-      - .env
     # traefik configurations, including networks can be commented out if not needed
     networks:
       - traefik-ingress
