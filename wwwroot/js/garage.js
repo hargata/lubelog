@@ -71,6 +71,7 @@ function bindTabEvent() {
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
+        resetGarageSort(); //reset the garage sort, we're not persisting this across tab changes.
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
     });
 }
@@ -258,6 +259,161 @@ function searchAndFilterGarage(searchTag, searchTerm) {
         }
     }
 }
+// begin context menu
+var selectedVehicles = [];
+function addToSelectedVehicles(vehicleId) {
+    if (selectedVehicles.findIndex(x => x == vehicleId) == -1) {
+        selectedVehicles.push(vehicleId);
+    }
+}
+function showGarageContextMenu(e) {
+    if (event != undefined) {
+        event.preventDefault();
+    }
+    if (getDeviceIsTouchOnly()) {
+        return;
+    }
+    $(".garage-context-menu").fadeIn("fast");
+    $(".garage-context-menu").css({
+        left: getGarageMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getGarageMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
+    if (!$(e).hasClass('garage-active')) {
+        clearSelectedVehicles();
+        addToSelectedVehicles($(e).attr('data-rowId'));
+        $(e).addClass('garage-active');
+    }
+    determineGarageContextMenu();
+}
+function determineGarageContextMenu() {
+    let garageItems = $('.garage-item:visible');
+    let garageItemsActive = $('.garage-item.garage-active:visible');
+    if (garageItemsActive.length == 1) {
+        $(".context-menu-active-single").show();
+        $(".context-menu-active-multiple").hide();
+    } else if (garageItemsActive.length > 1) {
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").show();
+    } else {
+        $(".context-menu-active-single").hide();
+        $(".context-menu-active-multiple").hide();
+    }
+    if (garageItems.length > 1) {
+        $(".context-menu-multiple").show();
+        if (garageItems.length == garageItemsActive.length) {
+            //all rows are selected, show deselect all button.
+            $(".context-menu-deselect-all").show();
+            $(".context-menu-select-all").hide();
+        } else if (garageItems.length != garageItemsActive.length) {
+            //not all rows are selected, show select all button.
+            $(".context-menu-select-all").show();
+            $(".context-menu-deselect-all").hide();
+        }
+    } else {
+        $(".context-menu-multiple").hide();
+    }
+}
+function garageRangeMouseMove(e) {
+    if (isDragging) {
+        if (!$(e).hasClass('garage-active')) {
+            addToSelectedVehicles($(e).attr('data-rowId'));
+            $(e).addClass('garage-active');
+        }
+    }
+}
+function removeFromSelectedVehicles(id) {
+    var rowIndex = selectedVehicles.findIndex(x => x == id)
+    if (rowIndex != -1) {
+        selectedVehicles.splice(rowIndex, 1);
+    }
+}
+function handleGarageItemClick(e, vehicleId) {
+    if (!(event.ctrlKey || event.metaKey)) {
+        viewVehicle(vehicleId);
+    } else if (!$(e).hasClass('garage-active')) {
+        addToSelectedVehicles($(e).attr('data-rowId'));
+        $(e).addClass('garage-active');
+    } else if ($(e).hasClass('garage-active')) {
+        removeFromSelectedVehicles($(e).attr('data-rowId'));
+        $(e).removeClass('garage-active');
+    }
+}
+function deleteVehicles(vehicleIds) {
+    if (vehicleIds.length == 0) {
+        return;
+    }
+    let messageWording = vehicleIds.length > 1 ? `these ${vehicleIds.length} vehicles` : 'this vehicle';
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: `This will also delete all data tied to ${messageWording}. Deleted Vehicles and their associated data cannot be restored.`,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
+                if (data) {
+                    loadGarage();
+                }
+            })
+        }
+    });
+}
+function manageCollaborators(vehicleIds) {
+    if (vehicleIds.length == 0) {
+        return;
+    }
+    $.post('/Vehicle/GetVehiclesCollaborators', { vehicleIds: vehicleIds }, function (data) {
+        if (data) {
+            console.log(data);
+        }
+    })
+}
+// end context menu
+function sortGarage() {
+    //check current sort state
+    let sortState = $('.garage-sort-icon');
+    if (sortState.hasClass('bi-arrow-down-up')) {
+        //no sort
+        if ($("[default-sort]").length == 0) {
+            $(`.garage-item`).map((index, elem) => {
+                $(elem).attr("default-sort", index);
+            });
+        }
+        sortState.removeClass('bi-arrow-down-up');
+        sortState.addClass('bi-sort-numeric-down');
+        sortVehicles(false);
+    } else if (sortState.hasClass('bi-sort-numeric-down')) {
+        //sorted asc
+        sortState.removeClass('bi-sort-numeric-down');
+        sortState.addClass('bi-sort-numeric-up');
+        sortVehicles(true);
+    } else if (sortState.hasClass('bi-sort-numeric-up')){
+        //sorted desc, reset sort state
+        resetGarageSort();
+    }
+}
+function resetGarageSort() {
+    let sortState = $('.garage-sort-icon');
+    sortState.removeClass('bi-sort-numeric-up');
+    sortState.removeClass('bi-sort-numeric-down');
+    sortState.addClass('bi-arrow-down-up');
+    if ($('[default-sort]').length == 0) {
+        //if never sorted before, return prematurely
+        return;
+    }
+    //reset sort
+    let rowData = $(`.garage-item`);
+    let sortedRow = rowData.toArray().sort((a, b) => {
+        let currentVal = $(a).attr('default-sort');
+        let nextVal = $(b).attr('default-sort');
+        return currentVal - nextVal;
+    });
+    $(".garage-item-add").map((index, elem) => {
+        sortedRow.push(elem);
+    })
+    $(`.vehiclesContainer`).html(sortedRow);
+}
 function sortVehicles(desc) {
     //get row data
     var rowData = $('.garage-item');
@@ -273,129 +429,6 @@ function sortVehicles(desc) {
     sortedRow.push($('.garage-item-add'))
     $('.vehiclesContainer').html(sortedRow);
 }
-
-var touchtimer;
-var touchduration = 800;
-function detectLongTouch(sender) {
-    if ($(sender).hasClass("active")) {
-        if (!touchtimer) {
-            touchtimer = setTimeout(function () { sortGarage(sender, true); detectTouchEndPremature(sender); }, touchduration);
-        }
-    }
-}
-function detectTouchEndPremature(sender) {
-    if (touchtimer) {
-        clearTimeout(touchtimer);
-        touchtimer = null;
-    }
-}
-
-function sortGarage(sender, isMobile) {
-    if (event != undefined) {
-        event.preventDefault();
-    }
-    sender = $(sender);
-    if (sender.hasClass("active")) {
-        //do sorting only if garage is the active tab.
-        var sortColumn = sender.text();
-        var garageIcon = '<i class="bi bi-car-front me-2"></i>';
-        var sortAscIcon = '<i class="bi bi-sort-numeric-down ms-2"></i>';
-        var sortDescIcon = '<i class="bi bi-sort-numeric-down-alt ms-2"></i>';
-        if (sender.hasClass('sort-asc')) {
-            sender.removeClass('sort-asc');
-            sender.addClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortDescIcon}</span>` : `${garageIcon}${sortColumn}${sortDescIcon}`);
-            sortVehicles(true);
-        } else if (sender.hasClass('sort-desc')) {
-            //restore table
-            sender.removeClass('sort-desc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}</span>` : `${garageIcon}${sortColumn}`);
-            resetSortGarage();
-        } else {
-            //first time sorting.
-            //check if table was sorted before by a different column(only relevant to fuel tab)
-            if ($("[default-sort]").length > 0 && ($(".sort-asc").length > 0 || $(".sort-desc").length > 0)) {
-                //restore table state.
-                resetSortGarage();
-                //reset other sorted columns
-                if ($(".sort-asc").length > 0) {
-                    $(".sort-asc").html($(".sort-asc").html().replace(sortAscIcon, ""));
-                    $(".sort-asc").removeClass("sort-asc");
-                }
-                if ($(".sort-desc").length > 0) {
-                    $(".sort-desc").html($(".sort-desc").html().replace(sortDescIcon, ""));
-                    $(".sort-desc").removeClass("sort-desc");
-                }
-            }
-            sender.addClass('sort-asc');
-            sender.html(isMobile ? `<span class="ms-2 display-3">${garageIcon}${sortColumn}${sortAscIcon}</span>` : `${garageIcon}${sortColumn}${sortAscIcon}`);
-            //append sortRowId to the vehicle container
-            if ($("[default-sort]").length == 0) {
-                $(`.garage-item`).map((index, elem) => {
-                    $(elem).attr("default-sort", index);
-                });
-            }
-            sortVehicles(false);
-        }
-    }
-}
-function resetSortGarage() {
-    var rowData = $(`.garage-item`);
-    var sortedRow = rowData.toArray().sort((a, b) => {
-        var currentVal = $(a).attr('default-sort');
-        var nextVal = $(b).attr('default-sort');
-        return currentVal - nextVal;
-    });
-    $(".garage-item-add").map((index, elem) => {
-        sortedRow.push(elem);
-    })
-    $(`.vehiclesContainer`).html(sortedRow);
-}
-
-let dragged = null;
-let draggedId = 0;
-function dragEnter(event) {
-    event.preventDefault();
-}
-function dragStart(event, vehicleId) {
-    dragged = event.target;
-    draggedId = vehicleId;
-    event.dataTransfer.setData('text/plain', draggedId);
-}
-function dragOver(event) {
-    event.preventDefault();
-}
-function dropBox(event, targetVehicleId) {
-    if (dragged.parentElement != event.target && event.target != dragged && draggedId != targetVehicleId) {
-        copyContributors(draggedId, targetVehicleId);
-    }
-    event.preventDefault();
-}
-function copyContributors(sourceVehicleId, destVehicleId) {
-    var sourceVehicleName = $(`#gridVehicle_${sourceVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
-    var destVehicleName = $(`#gridVehicle_${destVehicleId} .card-body`).children('h5').map((index, elem) => { return elem.innerText }).toArray().join(" ");
-    Swal.fire({
-        title: "Copy Collaborators?",
-        text: `Copy collaborators over from ${sourceVehicleName} to ${destVehicleName}?`,
-        showCancelButton: true,
-        confirmButtonText: "Copy",
-        confirmButtonColor: "#0d6efd"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.post('/Vehicle/DuplicateVehicleCollaborators', { sourceVehicleId: sourceVehicleId, destVehicleId: destVehicleId }, function (data) {
-                if (data.success) {
-                    successToast("Collaborators Copied");
-                    loadGarage();
-                } else {
-                    errorToast(data.message);
-                }
-            })
-        } else {
-            $("#workAroundInput").hide();
-        }
-    });
-}
-
 function showAccountInformationModal() {
     $.get('/Home/GetUserAccountInformationModal', function (data) {
         $('#accountInformationModalContent').html(data);
@@ -500,3 +533,7 @@ function loadTabFromURL() {
     let tabFromURL = getTabNameFromURL('garage');
     waitForElement(`#${tabFromURL}`, () => { $(`#${tabFromURL}`).tab('show'); }, '');
 }
+$(function () {
+    bindTabEvent();
+    loadTabFromURL();
+})
