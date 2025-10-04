@@ -55,9 +55,9 @@ namespace CarCareTracker.Controllers
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
-        public IActionResult Index(string tab = "garage")
+        public IActionResult Index()
         {
-            return View(model: tab);
+            return View();
         }
         [Route("/kiosk")]
         public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)

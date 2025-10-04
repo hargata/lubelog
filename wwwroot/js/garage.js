@@ -16,9 +16,7 @@ function hideAddVehicleModal() {
 //refreshable function to reload Garage PartialView
 function loadGarage() {
     $.get('/Home/Garage', function (data) {
-        $("#garageContainer").html(data);
-        loadSettings();
-        bindTabEvent();
+        $("#garage-tab-pane").html(data);
     });
 }
 function loadSettings() {
@@ -40,6 +38,12 @@ function GetVehicleId() {
 function bindTabEvent() {
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
         switch (e.target.id) {
+            case "garage-tab":
+                loadGarage();
+                break;
+            case "settings-tab":
+                loadSettings();
+                break;
             case "supply-tab":
                 getVehicleSupplyRecords();
                 break;
@@ -47,18 +51,27 @@ function bindTabEvent() {
                 getVehicleCalendarEvents();
                 break;
         }
-        switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
-            case "supply-tab":
-                $("#supply-tab-pane").html("");
-                break;
-            case "calendar-tab":
-                $("#calendar-tab-pane").html("");
-                break;
-        }
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
         $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
-        $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
-        $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
+        if (e.relatedTarget != null) {
+            switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
+                case "garage-tab":
+                    $("#garage-tab-pane").html("");
+                    break;
+                case "settings-tab":
+                    $("#settings-tab-pane").html("");
+                    break;
+                case "supply-tab":
+                    $("#supply-tab-pane").html("");
+                    break;
+                case "calendar-tab":
+                    $("#calendar-tab-pane").html("");
+                    break;
+            }
+            $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
+            $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
+        }
+        setBrowserHistory('tab', getTabNameForURL(e.target.id));
     });
 }
 function getVehicleCalendarEvents() {
@@ -482,4 +495,8 @@ function generateTokenForUser() {
             errorToast(genericErrorMessage())
         }
     });
+}
+function loadTabFromURL() {
+    let tabFromURL = getTabNameFromURL('garage');
+    waitForElement(`#${tabFromURL}`, () => { $(`#${tabFromURL}`).tab('show'); }, '');
 }

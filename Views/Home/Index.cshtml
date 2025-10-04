@@ -5,7 +5,6 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
-@model string
 @{
     ViewData["Title"] = "Garage";
 }
@@ -25,7 +24,7 @@
                 </div>
                 <ul class="nav nav-tabs lubelogger-tab flex-grow-1" id="homeTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link resizable-nav-link @(Model == "garage" ? "active" : "")" oncontextmenu="sortGarage(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2">@translator.Translate(userLanguage, "Garage")</span></button>
+                        <button class="nav-link resizable-nav-link" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2">@translator.Translate(userLanguage, "Garage")</span></button>
                     </li>
                     @if (config.GetServerEnableShopSupplies())
                     {
@@ -45,7 +44,7 @@
                         </ul>
                     </li>
                     <li class="nav-item ms-auto" role="presentation">
-                        <button class="nav-link resizable-nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
+                        <button class="nav-link resizable-nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
                     </li>
                     @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
                     {
@@ -88,7 +87,7 @@
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="navbar-nav" id="homeTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link user-select-none @(Model == "garage" ? "active" : "")" ontouchstart="detectLongTouch(this)" ontouchend="detectTouchEndPremature(this)" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
+            <button class="nav-link" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
         @if(config.GetServerEnableShopSupplies())
         {
@@ -102,7 +101,7 @@
             </li>
         }
         <li class="nav-item" role="presentation">
-            <button class="nav-link @(Model == "settings" ? "active" : "")" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
         {
@@ -131,16 +130,13 @@
 </div>
 <div class="container">
     <div class="tab-content" id="homeTab">
-        <div class="tab-pane fade @(Model == "garage" ? "show active" : "")" id="garage-tab-pane" role="tabpanel" tabindex="0">
-            <div id="garageContainer">
-
-            </div>
+        <div class="tab-pane fade" id="garage-tab-pane" role="tabpanel" tabindex="0">
         </div>
         <div class="tab-pane fade" id="supply-tab-pane" role="tabpanel" tabindex="0">
         </div>
         <div class="tab-pane fade" id="calendar-tab-pane" role="tabpanel" tabindex="0">
         </div>
-        <div class="tab-pane fade @(Model == "settings" ? "show active" : "")" id="settings-tab-pane" role="tabpanel" tabindex="0">
+        <div class="tab-pane fade" id="settings-tab-pane" role="tabpanel" tabindex="0">
         </div>
     </div>
 </div>
@@ -172,7 +168,8 @@
 <div class="stickerPrintContainer hideOnPrint">
 </div>
 <script>
-    loadGarage();
+    bindTabEvent();
+    loadTabFromURL();
     bindWindowResize();
     checkNavBarOverflow();
 </script>

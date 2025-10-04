@@ -1739,3 +1739,21 @@ function openAttachmentPreview(fileName, fileLocation) {
 function closeAttachmentPreview() {
     $('#attachmentPreviewModal').modal('hide');
 }
+function setBrowserHistory(param, val) {
+    let currentParams = new URLSearchParams(window.location.search);
+    currentParams.set(param, val);
+    let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
+    window.history.pushState({}, '', updatedURL);
+}
+function getTabNameForURL(tabName) {
+    return tabName.toLowerCase().split('-')[0];
+}
+function getTabNameFromURL(defaultValue) {
+    let currentParams = new URLSearchParams(window.location.search);
+    let currentTab = currentParams.get('tab');
+    if (currentTab == null || currentTab == undefined || currentTab == '') {
+        return `${defaultValue.toLowerCase()}-tab`;
+    } else {
+        return `${currentTab}-tab`;
+    }
+}

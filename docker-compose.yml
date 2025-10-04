@@ -1,10 +1,8 @@
 ---
-version: "3.4"
 
 services:
   app:
     image: ghcr.io/hargata/lubelogger:latest
-    build: .
     restart: unless-stopped
     # volumes used to keep data persistent
     volumes:
@@ -13,8 +11,6 @@ services:
     # expose port and/or use serving via traefik
     ports:
       - 8080:8080
-    env_file:
-      - .env
 
 volumes:
   data:

@@ -10,6 +10,7 @@
     var searchExist = userConfig.ShowSearch && Model.Count() > 1;
     var renderTopRow = tagsExist || searchExist;
 }
+<div id="garageContainer">
 @if (renderTopRow)
 {
     <div class='row'>
@@ -102,3 +103,4 @@
             </div>
         </div>
     </div>
+</div>
