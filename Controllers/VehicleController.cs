@@ -203,22 +203,19 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult GetVehiclesCollaborators(List<int> vehicleIds)
         {
-            List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
+            var viewModel = new UserCollaboratorViewModel() { VehicleIds = vehicleIds };
             if (vehicleIds.Count() == 1)
             {
                 //only one vehicle to manage
                 if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First()))
                 {
-                    var vehicleCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First());
-                    return Json(vehicleCollaborators);
-                } else
-                {
-                    return Json(new List<UserCollaborator>());
+                    viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x=>x.UserName).ToList();
                 }
             } 
             else
             {
-                foreach(int vehicleId in vehicleIds)
+                List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
+                foreach (int vehicleId in vehicleIds)
                 {
                     if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
                     {
@@ -227,10 +224,10 @@ namespace CarCareTracker.Controllers
                     }
                 }
                 var groupedCollaborations = allCollaborators.GroupBy(x => x.UserName);
-                var commonCollaborators = groupedCollaborations.Where(x => x.Count() == vehicleIds.Count()).Select(y => y.Key);
-                var partialCollaborators = groupedCollaborations.Where(x => x.Count() != vehicleIds.Count()).Select(y => y.Key);
-                return Json(allCollaborators);
+                viewModel.CommonCollaborators = groupedCollaborations.Where(x => x.Count() == vehicleIds.Count()).Select(y => y.Key).ToList();
+                viewModel.PartialCollaborators = groupedCollaborations.Where(x => x.Count() != vehicleIds.Count()).Select(y => y.Key).ToList();
             }
+            return Json(viewModel);
         }
         [HttpPost]
         public IActionResult DuplicateVehicleCollaborators(int sourceVehicleId, int destVehicleId)
