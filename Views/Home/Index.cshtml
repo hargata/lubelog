@@ -165,11 +165,24 @@
         </div>
     </div>
 </div>
+<div class="modal fade" data-bs-focus="false" id="userCollaboratorsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="userCollaboratorsModalContent">
+        </div>
+    </div>
+</div>
 <div class="stickerPrintContainer hideOnPrint">
 </div>
+<ul class="garage-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="manageCollaborators(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="sortGarage()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Sort")</span><i class="garage-sort-icon bi bi-arrow-down-up"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteVehicles(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>
 <script>
-    bindTabEvent();
-    loadTabFromURL();
     bindWindowResize();
     checkNavBarOverflow();
 </script>

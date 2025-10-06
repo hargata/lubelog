@@ -170,6 +170,106 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
+        public IActionResult DeleteVehicles(List<int> vehicleIds)
+        {
+            List<bool> results = new List<bool>();
+            foreach(int vehicleId in vehicleIds)
+            { 
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                {
+                    //Delete all service records, gas records, notes, etc.
+                    var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
+                        _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
+                        _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
+                        _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
+                        _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
+                        _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
+                        _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                        _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
+                        _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
+                        _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
+                        _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
+                        _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
+                        _dataAccess.DeleteVehicle(vehicleId);
+                    if (result)
+                    {
+                        StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
+                    }
+                    results.Add(result);
+                }
+            }
+            return Json(results.All(x => x));
+        }
+        [HttpPost]
+        public IActionResult GetVehiclesCollaborators(List<int> vehicleIds)
+        {
+            var viewModel = new UserCollaboratorViewModel();
+            if (vehicleIds.Count() == 1)
+            {
+                //only one vehicle to manage
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First()))
+                {
+                    viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x=>x.UserName).ToList();
+                    viewModel.VehicleIds.Add(vehicleIds.First());
+                }
+            } 
+            else
+            {
+                List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
+                foreach (int vehicleId in vehicleIds)
+                {
+                    if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                    {
+                        var vehicleCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
+                        allCollaborators.AddRange(vehicleCollaborators);
+                        viewModel.VehicleIds.Add(vehicleId);
+                    }
+                }
+                var groupedCollaborations = allCollaborators.GroupBy(x => x.UserName);
+                viewModel.CommonCollaborators = groupedCollaborations.Where(x => x.Count() == vehicleIds.Count()).Select(y => y.Key).ToList();
+                viewModel.PartialCollaborators = groupedCollaborations.Where(x => x.Count() != vehicleIds.Count()).Select(y => y.Key).ToList();
+            }
+            return PartialView("_UserCollaborators",viewModel);
+        }
+        [HttpPost]
+        public IActionResult AddCollaboratorsToVehicles(List<string> usernames, List<int> vehicleIds)
+        {
+            List<OperationResponse> results = new List<OperationResponse>();
+            foreach(string username in usernames)
+            {
+                foreach(int vehicleId in vehicleIds)
+                {
+                    var result = _userLogic.AddCollaboratorToVehicle(vehicleId, username);
+                    results.Add(result);
+                }
+            }
+            var allFailed = results.All(x => !x.Success);
+            if (allFailed && results.Any())
+            {
+                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success).Message));
+            }
+            return Json(OperationResponse.Succeed());
+        }
+        [HttpPost]
+        public IActionResult RemoveCollaboratorsFromVehicles(List<string> usernames, List<int> vehicleIds)
+        {
+            List<OperationResponse> results = new List<OperationResponse>();
+            foreach (string username in usernames)
+            {
+                foreach (int vehicleId in vehicleIds)
+                {
+                    var result = _userLogic.DeleteCollaboratorFromVehicle(vehicleId, username);
+                    results.Add(result);
+                }
+            }
+            var allFailed = results.All(x => !x.Success);
+            if (allFailed && results.Any())
+            {
+                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success).Message));
+            }
+            return Json(OperationResponse.Succeed());
+        }
+        [HttpPost]
         public IActionResult DuplicateVehicleCollaborators(int sourceVehicleId, int destVehicleId)
         {
             try
