@@ -10,6 +10,7 @@
     var searchExist = userConfig.ShowSearch && Model.Count() > 1;
     var renderTopRow = tagsExist || searchExist;
 }
+<div id="garageContainer">
 @if (renderTopRow)
 {
     <div class='row'>
@@ -44,8 +45,8 @@
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
-                    <div class="card" onclick="viewVehicle(@vehicle.Id)">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)" onmousemove="garageRangeMouseMove(this)">
+                    <div class="card">
                         <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
@@ -102,3 +103,4 @@
             </div>
         </div>
     </div>
+</div>

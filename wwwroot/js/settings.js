@@ -372,7 +372,30 @@ function deleteCustomWidgets() {
         }
     })
 }
+function saveCustomWidgetsAcknowledgement() {
+    sessionStorage.setItem('customWidgetsAcknowledged', true);
+}
+function getCustomWidgetsAcknowledgement() {
+    let storedItem = sessionStorage.getItem('customWidgetsAcknowledged');
+    if (storedItem == null || storedItem == undefined) {
+        return false;
+    } else {
+        return storedItem;
+    }
+}
 function showCustomWidgets() {
+    let acknowledged = getCustomWidgetsAcknowledgement();
+    if (acknowledged) {
+        $.get('/Home/GetCustomWidgetEditor', function (data) {
+            if (data.trim() != '') {
+                $("#customWidgetModalContent").html(data);
+                $("#customWidgetModal").modal('show');
+            } else {
+                errorToast("Custom Widgets Not Enabled");
+            }
+        });
+        return;
+    }
     Swal.fire({
         title: 'Warning',
         icon: "warning",
@@ -396,6 +419,7 @@ function showCustomWidgets() {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
+            saveCustomWidgetsAcknowledgement();
             $.get('/Home/GetCustomWidgetEditor', function (data) {
                 if (data.trim() != '') {
                     $("#customWidgetModalContent").html(data);

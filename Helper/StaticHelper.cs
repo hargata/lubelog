@@ -12,7 +12,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.2";
+        public const string VersionNumber = "1.5.3";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -123,24 +123,10 @@ namespace CarCareTracker.Helper
         }
         public static string DefaultActiveTab(UserConfig userConfig, ImportMode tab)
         {
-            var defaultTab = userConfig.DefaultTab;
             var visibleTabs = userConfig.VisibleTabs;
-            if (visibleTabs.Contains(tab) && tab == defaultTab)
-            {
-                return "active";
-            }
-            else if (!visibleTabs.Contains(tab))
+            if (!visibleTabs.Contains(tab))
             {
                 return "d-none";
-            }
-            return "";
-        }
-        public static string DefaultActiveTabContent(UserConfig userConfig, ImportMode tab)
-        {
-            var defaultTab = userConfig.DefaultTab;
-            if (tab == defaultTab)
-            {
-                return "show active";
             }
             return "";
         }
