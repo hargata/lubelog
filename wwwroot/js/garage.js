@@ -365,11 +365,120 @@ function manageCollaborators(vehicleIds) {
     }
     $.post('/Vehicle/GetVehiclesCollaborators', { vehicleIds: vehicleIds }, function (data) {
         if (data) {
-            console.log(data);
+            $("#userCollaboratorsModalContent").html(data);
+            $("#userCollaboratorsModal").modal('show');
         }
     })
 }
 // end context menu
+function hideCollaboratorsModal() {
+    $("#userCollaboratorsModal").modal('hide');
+}
+function selectAllPartialCollaborators() {
+    let checkedCollaborators = $('.list-group.partial-collaborators input[type="checkbox"]:checked');
+    let partialCollaborators = $('.list-group.partial-collaborators input[type="checkbox"]');
+    if (checkedCollaborators.length == partialCollaborators.length) {
+        partialCollaborators.prop('checked', false);
+    } else {
+        partialCollaborators.prop('checked', true);
+    }
+}
+function selectAllCommonCollaborators() {
+    let checkedCollaborators = $('.list-group.common-collaborators input[type="checkbox"]:checked');
+    let commonCollaborators = $('.list-group.common-collaborators input[type="checkbox"]');
+    if (checkedCollaborators.length == commonCollaborators.length) {
+        commonCollaborators.prop('checked', false);
+    } else {
+        commonCollaborators.prop('checked', true);
+    }
+}
+function copySelectedPartialCollaborators() {
+    let checkedCollaborators = $('.list-group.partial-collaborators input[type="checkbox"]:checked');
+    let collaboratorsToAdd = [];
+    checkedCollaborators.map((index, elem) => {
+        collaboratorsToAdd.push($(elem).parent().find('.form-check-label').text());
+    });
+    if (collaboratorsToAdd.length == 0) {
+        errorToast('No collaborators selected');
+        return;
+    }
+    $.post('/Vehicle/AddCollaboratorsToVehicles', { usernames: collaboratorsToAdd, vehicleIds: vehiclesToEdit }, function (data) {
+        if (data.success) {
+            manageCollaborators(vehiclesToEdit);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function removeSelectedCollaborators() {
+    let checkedPartialCollaborators = $('.list-group.partial-collaborators input[type="checkbox"]:checked');
+    let checkedCommonCollaborators = $('.list-group.common-collaborators input[type="checkbox"]:checked');
+    let collaboratorsToRemove = [];
+    checkedPartialCollaborators.map((index, elem) => {
+        collaboratorsToRemove.push($(elem).parent().find('.form-check-label').text());
+    });
+    checkedCommonCollaborators.map((index, elem) => {
+        collaboratorsToRemove.push($(elem).parent().find('.form-check-label').text());
+    });
+    if (collaboratorsToRemove.length == 0) {
+        errorToast('No collaborators selected');
+        return;
+    }
+    $.post('/Vehicle/RemoveCollaboratorsFromVehicles', { usernames: collaboratorsToRemove, vehicleIds: vehiclesToEdit }, function (data) {
+        if (data.success) {
+            manageCollaborators(vehiclesToEdit);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function removeCollaborators(e) {
+    let collaboratorsToRemove = [];
+    collaboratorsToRemove.push($(e).parent().find('.form-check-label').text());
+    $.post('/Vehicle/RemoveCollaboratorsFromVehicles', { usernames: collaboratorsToRemove, vehicleIds: vehiclesToEdit }, function (data) {
+        if (data.success) {
+            manageCollaborators(vehiclesToEdit);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function addCollaboratorToVehicles() {
+    Swal.fire({
+        title: 'Add Collaborator',
+        html: `
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username" onkeydown="handleSwalEnter(event)">
+                            `,
+        confirmButtonText: 'Add',
+        focusConfirm: false,
+        preConfirm: () => {
+            const userName = $("#inputUserName").val();
+            if (!userName) {
+                Swal.showValidationMessage(`Please enter a username`);
+            }
+            return { userName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            let usernames = [];
+            usernames.push(result.value.userName);
+            $.post('/Vehicle/AddCollaboratorsToVehicles', { usernames: usernames, vehicleIds: vehiclesToEdit }, function (data) {
+                if (data.success) {
+                    manageCollaborators(vehiclesToEdit);
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+    });
+}
+function adjustCollaboratorsModalSize(expand) {
+    if (expand) {
+        $("#userCollaboratorsModal .modal-dialog").addClass('modal-lg');
+    } else {
+        $("#userCollaboratorsModal .modal-dialog").removeClass('modal-lg');
+    }
+}
 function sortGarage() {
     //check current sort state
     let sortState = $('.garage-sort-icon');
