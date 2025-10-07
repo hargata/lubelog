@@ -45,7 +45,7 @@
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)" onmousemove="garageRangeMouseMove(this)">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-extra-fields="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" onmousemove="garageRangeMouseMove(this)" ontouchstart="detectGarageLongTouch(this)" ontouchend="detectGarageTouchEndPremature(this)">
                     <div class="card">
                         <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
@@ -104,3 +104,13 @@
         </div>
     </div>
 </div>
+<ul class="garage-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="context-menu-multiple dropdown-item" href="#" onclick="sortGarage()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Sort")</span><i class="garage-sort-icon bi bi-arrow-down-up"></i></div></a></li>
+    <li><a class="context-menu-extra-field dropdown-item" href="#" onclick="showVehicleExtraFields(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Extra Fields")</span><i class="bi bi-list-ul"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="manageCollaborators(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteVehicles(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>

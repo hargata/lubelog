@@ -71,7 +71,6 @@ function bindTabEvent() {
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
-        resetGarageSort(); //reset the garage sort, we're not persisting this across tab changes.
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
     });
 }
@@ -189,17 +188,6 @@ function performLogOut() {
         }
     })
 }
-function loadPinnedNotes(vehicleId) {
-    var hoveredGrid = $(`#gridVehicle_${vehicleId}`);
-    if (hoveredGrid.attr("data-bs-title") != '') {
-        hoveredGrid.tooltip("show");
-    }
-}
-function hidePinnedNotes(vehicleId) {
-    if ($(`#gridVehicle_${vehicleId}`).attr('data-bs-title') != '') {
-        $(`#gridVehicle_${vehicleId}`).tooltip("hide");
-    }
-}
 
 function filterGarage(sender) {
     let searchQuery = $('#garageSearchInput').val();
@@ -285,6 +273,19 @@ function showGarageContextMenu(e) {
     }
     determineGarageContextMenu();
 }
+function showGarageContextMenuForMobile(e, xPosition, yPosition) {
+    if (!$(e).hasClass('garage-active')) {
+        addToSelectedVehicles($(e).attr('data-rowId'));
+        $(e).addClass('garage-active');
+    } else {
+        $(".garage-context-menu").fadeIn("fast");
+        $(".garage-context-menu").css({
+            left: getGarageMenuPosition(xPosition, 'width', 'scrollLeft'),
+            top: getGarageMenuPosition(yPosition, 'height', 'scrollTop')
+        });
+        determineGarageContextMenu();
+    }
+}
 function determineGarageContextMenu() {
     let garageItems = $('.garage-item:visible');
     let garageItemsActive = $('.garage-item.garage-active:visible');
@@ -297,6 +298,11 @@ function determineGarageContextMenu() {
     } else {
         $(".context-menu-active-single").hide();
         $(".context-menu-active-multiple").hide();
+    }
+    if (garageItemsActive.length == 1 && garageItemsActive.attr('data-extra-fields') != '') {
+        $(".context-menu-extra-field").show();
+    } else {
+        $(".context-menu-extra-field").hide();
     }
     if (garageItems.length > 1) {
         $(".context-menu-multiple").show();
@@ -369,6 +375,31 @@ function manageCollaborators(vehicleIds) {
             $("#userCollaboratorsModal").modal('show');
         }
     })
+}
+function showVehicleExtraFields(vehicleIds) {
+    if (vehicleIds.length != 1) {
+        return;
+    }
+    let extraFieldsHtml = $(`[data-rowId="${vehicleIds[0]}"]`).attr('data-extra-fields');
+    Swal.fire({
+        title: 'Vehicle Extra Fields',
+        html: extraFieldsHtml,
+        confirmButtonText: 'Close',
+        focusConfirm: false
+    });
+}
+function detectGarageLongTouch(sender) {
+    var touchX = event.touches[0].clientX;
+    var touchY = event.touches[0].clientY;
+    if (!rowTouchTimer) {
+        rowTouchTimer = setTimeout(function () { showGarageContextMenuForMobile(sender, touchX, touchY); detectGarageTouchEndPremature(sender); }, rowTouchDuration);
+    }
+}
+function detectGarageTouchEndPremature(sender) {
+    if (rowTouchTimer) {
+        clearTimeout(rowTouchTimer);
+        rowTouchTimer = null;
+    }
 }
 // end context menu
 function hideCollaboratorsModal() {
