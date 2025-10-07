@@ -12,8 +12,18 @@
     <button type="button" class="btn-close" onclick="hideCollaboratorsModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body">
+    @if (showTwoColumns)
+    {
+        <div class="d-block d-md-none row">
+            <div class="d-flex flex-row justify-content-between btn-group">
+                <button type="button" onclick="addCollaboratorToVehicles()" class="btn btn-primary align-self-center">@translator.Translate(userLanguage, "Add Collaborator")</button>
+                <button type="button" onclick="copySelectedPartialCollaborators()" class="btn btn-warning align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Move Selected")</button>
+                <button type="button" onclick="removeSelectedCollaborators()" class="btn btn-danger align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Remove Selected")<i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+    }
     <div class="row">
-        <div class="@(showTwoColumns ? "col-4" : "col-12")">
+        <div class="@(showTwoColumns ? "col-6 col-md-4" : "col-12")">
             <div class="d-flex justify-content-between">
                 <span class="lead">@translator.Translate(userLanguage, "Common Collaborators")</span>
                 @if (showTwoColumns)
@@ -60,14 +70,14 @@
         </div>
         @if (showTwoColumns)
         {
-            <div class="col-4">
+            <div class="d-none d-md-block col-md-4">
                 <div class="d-flex flex-column">
                     <button type="button" onclick="addCollaboratorToVehicles()" class="btn btn-primary align-self-center">@translator.Translate(userLanguage, "Add Collaborator")</button>
                     <button type="button" onclick="copySelectedPartialCollaborators()" class="mt-2 btn btn-warning align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Move Selected")</button>
                     <button type="button" onclick="removeSelectedCollaborators()" class="mt-2 btn btn-danger align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Remove Selected")<i class="bi bi-arrow-right ms-2"></i></button>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-4">
                 <div class="d-flex justify-content-between">
                     <span class="lead">@translator.Translate(userLanguage, "Partial Collaborators")</span>
                     <div>
