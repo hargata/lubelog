@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -143,73 +144,109 @@ namespace CarCareTracker.Controllers
                     var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
                     var userJwt = decodedToken?.id_token ?? string.Empty;
                     var userAccessToken = decodedToken?.access_token ?? string.Empty;
-                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    var tokenParser = new JsonWebTokenHandler();
+                    bool passedSignatureCheck = true;
+                    if (!string.IsNullOrWhiteSpace(openIdConfig.JwksURL))
                     {
-                        //validate JWT token
-                        var tokenParser = new JsonWebTokenHandler();
-                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
-                        var userEmailAddress = string.Empty;
-                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        //validate token signature if jwks endpoint is provided
+                        var jwksData = await httpClient.GetStringAsync(openIdConfig.JwksURL);
+                        if (!string.IsNullOrWhiteSpace(jwksData))
                         {
-                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                            var signingKeys = new JsonWebKeySet(jwksData).GetSigningKeys();
+                            var tokenValidationParams = new TokenValidationParameters
+                            {
+                                ValidateAudience = false,
+                                ValidateIssuer = false,
+                                RequireAudience = false,
+                                IssuerSigningKeys = signingKeys,
+                                ValidateIssuerSigningKey = true
+                            };
+                            var validatedIdToken = await tokenParser.ValidateTokenAsync(userJwt, tokenValidationParams);
+                            if (!validatedIdToken.IsValid)
+                            {
+                                passedSignatureCheck = false;
+                            }
                         }
-                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                    }
+                    if (passedSignatureCheck)
+                    {
+                        if (!string.IsNullOrWhiteSpace(userJwt))
                         {
-                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
-                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
-                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
-                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
-                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
-                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            //validate JWT token
+                            var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
+                            var userEmailAddress = string.Empty;
+                            if (parsedToken.Claims.Any(x => x.Type == "email"))
                             {
-                                userEmailAddress = userInfo?.email ?? string.Empty;
-                            } else
+                                userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                            }
+                            else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
                             {
-                                _logger.LogError($"OpenID Provider did not provide an email claim via UserInfo endpoint");
+                                //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                                var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                                userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                                var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                                var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                                if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                                {
+                                    userEmailAddress = userInfo?.email ?? string.Empty;
+                                }
+                                else
+                                {
+                                    _logger.LogError($"OpenID Provider did not provide an email claim via UserInfo endpoint");
+                                }
+                            }
+                            else
+                            {
+                                var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                                _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
+                            }
+                            if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                            {
+                                var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                                if (userData.Id != default)
+                                {
+                                    AuthCookie authCookie = new AuthCookie
+                                    {
+                                        UserData = userData,
+                                        ExpiresOn = DateTime.Now.AddDays(1)
+                                    };
+                                    var serializedCookie = JsonSerializer.Serialize(authCookie);
+                                    var encryptedCookie = _dataProtector.Protect(serializedCookie);
+                                    Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                                    return new RedirectResult("/Home");
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
+                                    return View("OpenIDRegistration", model: userEmailAddress);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogInformation("OpenID Provider did not provide a valid email address for the user");
                             }
                         }
                         else
                         {
-                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
-                            _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
-                        }
-                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
-                        {
-                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
-                            if (userData.Id != default)
+                            _logger.LogInformation("OpenID Provider did not provide a valid id_token");
+                            if (!string.IsNullOrWhiteSpace(tokenResult))
                             {
-                                AuthCookie authCookie = new AuthCookie
-                                {
-                                    UserData = userData,
-                                    ExpiresOn = DateTime.Now.AddDays(1)
-                                };
-                                var serializedCookie = JsonSerializer.Serialize(authCookie);
-                                var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                                Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
-                                return new RedirectResult("/Home");
-                            } else
-                            {
-                                _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
-                                return View("OpenIDRegistration", model: userEmailAddress);
+                                //if something was returned from the IdP but it's invalid, we want to log it as an error.
+                                _logger.LogError($"Expected id_token, received {tokenResult}");
                             }
-                        } else
-                        {
-                            _logger.LogInformation("OpenID Provider did not provide a valid email address for the user");
                         }
-                    } else
+                    } 
+                    else
                     {
-                        _logger.LogInformation("OpenID Provider did not provide a valid id_token");
-                        if (!string.IsNullOrWhiteSpace(tokenResult))
-                        {
-                            //if something was returned from the IdP but it's invalid, we want to log it as an error.
-                            _logger.LogError($"Expected id_token, received {tokenResult}");
-                        }
+                        _logger.LogError($"OpenID Provider did not provide a valid id_token: check jwks endpoint");
                     }
-                } else
+                }
+                else
                 {
                     _logger.LogInformation("OpenID Provider did not provide a code.");
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return new RedirectResult("/Login");
@@ -239,7 +276,8 @@ namespace CarCareTracker.Controllers
                         if (string.IsNullOrWhiteSpace(storedStateValue) || string.IsNullOrWhiteSpace(state) || storedStateValue != state)
                         {
                             results.Add(OperationResponse.Failed($"Failed State Validation - Expected: {storedStateValue} Received: {state}"));
-                        } else
+                        }
+                        else
                         {
                             results.Add(OperationResponse.Succeed($"Passed State Validation - Expected: {storedStateValue} Received: {state}"));
                         }
@@ -270,59 +308,93 @@ namespace CarCareTracker.Controllers
                     var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
                     var userJwt = decodedToken?.id_token ?? string.Empty;
                     var userAccessToken = decodedToken?.access_token ?? string.Empty;
-                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    var tokenParser = new JsonWebTokenHandler();
+                    bool passedSignatureCheck = true;
+                    if (!string.IsNullOrWhiteSpace(openIdConfig.JwksURL))
                     {
-                        results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
-                        //validate JWT token
-                        var tokenParser = new JsonWebTokenHandler();
-                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
-                        var userEmailAddress = string.Empty;
-                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        //validate token signature if jwks endpoint is provided
+                        var jwksData = await httpClient.GetStringAsync(openIdConfig.JwksURL);
+                        if (!string.IsNullOrWhiteSpace(jwksData))
                         {
-                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
-                            results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
-                        }
-                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
-                        {
-                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
-                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
-                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
-                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
-                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
-                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            var signingKeys = new JsonWebKeySet(jwksData).GetSigningKeys();
+                            var tokenValidationParams = new TokenValidationParameters
                             {
-                                userEmailAddress = userInfo?.email ?? string.Empty;
-                                results.Add(OperationResponse.Succeed($"Passed Claim Validation - Retrieved email via UserInfo endpoint"));
+                                ValidateAudience = false,
+                                ValidateIssuer = false,
+                                RequireAudience = false,
+                                IssuerSigningKeys = signingKeys,
+                                ValidateIssuerSigningKey = true
+                            };
+                            var validatedIdToken = await tokenParser.ValidateTokenAsync(userJwt, tokenValidationParams);
+                            if (!validatedIdToken.IsValid)
+                            {
+                                passedSignatureCheck = false;
                             } else
                             {
-                                results.Add(OperationResponse.Failed($"Failed Claim Validation - Unable to retrieve email via UserInfo endpoint: {openIdConfig.UserInfoURL} using access_token: {userAccessToken} - Received {userInfoResult}"));
+                                results.Add(OperationResponse.Succeed($"Passed JWT Validation - Valid To: {validatedIdToken.SecurityToken.ValidTo}"));
                             }
                         }
-                        else
+                    }
+                    if (passedSignatureCheck)
+                    {
+                        if (!string.IsNullOrWhiteSpace(userJwt))
                         {
-                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
-                            results.Add(OperationResponse.Failed($"Failed Claim Validation - Expected: email Received: {string.Join(",", returnedClaims)}"));
-                        }
-                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
-                        {
-                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
-                            if (userData.Id != default)
+                            results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
+                            //validate JWT token
+                            var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
+                            var userEmailAddress = string.Empty;
+                            if (parsedToken.Claims.Any(x => x.Type == "email"))
                             {
-                                results.Add(OperationResponse.Succeed($"Passed User Validation - Email: {userEmailAddress} Username: {userData.UserName}"));
+                                userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                                results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
+                            }
+                            else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                            {
+                                //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                                var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                                userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                                var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                                var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                                if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                                {
+                                    userEmailAddress = userInfo?.email ?? string.Empty;
+                                    results.Add(OperationResponse.Succeed($"Passed Claim Validation - Retrieved email via UserInfo endpoint"));
+                                }
+                                else
+                                {
+                                    results.Add(OperationResponse.Failed($"Failed Claim Validation - Unable to retrieve email via UserInfo endpoint: {openIdConfig.UserInfoURL} using access_token: {userAccessToken} - Received {userInfoResult}"));
+                                }
                             }
                             else
                             {
-                                results.Add(OperationResponse.Succeed($"Passed Email Validation - Email: {userEmailAddress} User not registered"));
+                                var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                                results.Add(OperationResponse.Failed($"Failed Claim Validation - Expected: email Received: {string.Join(",", returnedClaims)}"));
+                            }
+                            if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                            {
+                                var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                                if (userData.Id != default)
+                                {
+                                    results.Add(OperationResponse.Succeed($"Passed User Validation - Email: {userEmailAddress} Username: {userData.UserName}"));
+                                }
+                                else
+                                {
+                                    results.Add(OperationResponse.Succeed($"Passed Email Validation - Email: {userEmailAddress} User not registered"));
+                                }
+                            }
+                            else
+                            {
+                                results.Add(OperationResponse.Failed($"Failed Email Validation - No email received from OpenID Provider"));
                             }
                         }
                         else
                         {
-                            results.Add(OperationResponse.Failed($"Failed Email Validation - No email received from OpenID Provider"));
+                            results.Add(OperationResponse.Failed($"Failed to parse JWT - Expected: id_token Received: {tokenResult}"));
                         }
-                    }
+                    } 
                     else
                     {
-                        results.Add(OperationResponse.Failed($"Failed to parse JWT - Expected: id_token Received: {tokenResult}"));
+                        results.Add(OperationResponse.Failed("Failed JWT Validation: Check Signing Keys"));
                     }
                 }
                 else
