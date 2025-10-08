@@ -23,5 +23,6 @@ namespace CarCareTracker.Models
         public bool EnableAuth { get; set; }
         public List<string> AvailableLocales { get; set; }
         public string CookieLifeSpan { get; set; }
+        public KestrelAppConfig KestrelAppConfig { get; set; }
     }
 }

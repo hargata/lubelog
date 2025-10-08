@@ -12,6 +12,7 @@ namespace CarCareTracker.Helper
         ReminderUrgencyConfig GetReminderUrgencyConfig();
         MailConfig GetMailConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
+        KestrelAppConfig GetKestrelAppConfig();
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool SaveServerConfig(ServerConfig serverConfig);
         bool AuthenticateRootUser(string username, string password);
@@ -52,6 +53,12 @@ namespace CarCareTracker.Helper
             _userConfig = userConfig;
             _cache = memoryCache;
             _logger = logger;
+        }
+
+        public KestrelAppConfig GetKestrelAppConfig()
+        {
+            KestrelAppConfig kestrelConfig = _config.GetSection("Kestrel").Get<KestrelAppConfig>() ?? new KestrelAppConfig();
+            return kestrelConfig;
         }
         public string GetWebHookUrl()
         {
@@ -268,6 +275,43 @@ namespace CarCareTracker.Helper
             if (serverConfig.CookieLifeSpan == StaticHelper.DefaultCookieLifeSpan || string.IsNullOrWhiteSpace(serverConfig.CookieLifeSpan))
             {
                 serverConfig.CookieLifeSpan = null;
+            }
+            if (serverConfig.KestrelAppConfig != null)
+            {
+                if (serverConfig.KestrelAppConfig.Endpoints.Http != null)
+                {
+                    //validate http endpoint
+                    if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.Http.Url))
+                    {
+                        serverConfig.KestrelAppConfig.Endpoints.Http = null;
+                    }
+                }
+                if (serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile != null)
+                {
+                    //https endpoint provided
+                    if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Url))
+                    {
+                        serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile = null;
+                    }
+                    else if (serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password))
+                        {
+                            //cert not null but password is null
+                            serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password = null;
+                        }
+                        if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Path))
+                        {
+                            //cert not null but path is null
+                            serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate = null;
+                        }
+                    }
+                }
+                if (serverConfig.KestrelAppConfig.Endpoints.Http == null && serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile == null)
+                {
+                    //if no endpoints are provided
+                    serverConfig.KestrelAppConfig = null;
+                }
             }
             try
             {
