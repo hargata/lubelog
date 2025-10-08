@@ -6,6 +6,7 @@ using CarCareTracker.Helper;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using CarCareTracker.Logic;
+using System.Globalization;
 
 namespace CarCareTracker.Controllers
 {
@@ -54,9 +55,9 @@ namespace CarCareTracker.Controllers
         {
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
-        public IActionResult Index(string tab = "garage")
+        public IActionResult Index()
         {
-            return View(model: tab);
+            return View();
         }
         [Route("/kiosk")]
         public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
@@ -214,17 +215,7 @@ namespace CarCareTracker.Controllers
             var existingConfig = _config.GetUserConfig(User);
             //copy over stuff that persists
             userConfig.UserColumnPreferences = existingConfig.UserColumnPreferences;
-            userConfig.ReminderUrgencyConfig = existingConfig.ReminderUrgencyConfig;
             var result = _config.SaveUserConfig(User, userConfig);
-            return Json(result);
-        }
-        [HttpPost]
-        public IActionResult SaveReminderUrgencyThreshold(ReminderUrgencyConfig reminderUrgencyConfig)
-        {
-            //retrieve existing userConfig.
-            var existingConfig = _config.GetUserConfig(User);
-            existingConfig.ReminderUrgencyConfig = reminderUrgencyConfig;
-            var result = _config.SaveUserConfig(User, existingConfig);
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -559,26 +550,69 @@ namespace CarCareTracker.Controllers
             return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult GetServerConfiguration()
+        public IActionResult GetLocaleSample(string locale, string dtlocale)
         {
+            var cultureInfo = new CultureInfo(locale);
+            if (!string.IsNullOrWhiteSpace(dtlocale))
+            {
+                var datetimeCulture = CultureInfo.GetCultureInfo(dtlocale);
+                cultureInfo.DateTimeFormat = datetimeCulture.DateTimeFormat;
+            }
+            var viewModel = new LocaleSample
+            {
+                ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern, cultureInfo.DateTimeFormat),
+                ShortDateTimeSample = DateTime.Now.ToString("G", cultureInfo.DateTimeFormat),
+                CurrencySample = 13.45M.ToString("C", cultureInfo),
+                NumberSample = 123456.ToString("N", cultureInfo),
+                DecimalSample = 123456.78M.ToString("N2", cultureInfo)
+            };
+            return PartialView("_LocaleSample", viewModel);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [Route("/setup")]
+        public IActionResult Setup()
+        {
+            var installedLocales = CultureInfo.GetCultures(CultureTypes.AllCultures).Select(x=>x.Name).ToList();
+            installedLocales.RemoveAll(x => string.IsNullOrWhiteSpace(x));
+            installedLocales.Insert(0, "");
             var viewModel = new ServerSettingsViewModel
             {
+                LocaleOverride = _config.GetLocaleOverride(),
+                LocaleDateTimeOverride = _config.GetLocaleDateTimeOverride(),
+                AvailableLocales = installedLocales,
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),
                 CustomLogoURL = _config.GetLogoUrl(),
+                CustomSmallLogoURL = _config.GetSmallLogoUrl(),
                 MessageOfTheDay = _config.GetMOTD(),
                 WebHookURL = _config.GetWebHookUrl(),
                 CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),
                 InvariantAPIEnabled = _config.GetInvariantApi(),
                 SMTPConfig = _config.GetMailConfig(),
-                OIDCConfig = _config.GetOpenIDConfig()
+                Domain = _config.GetServerDomain(),
+                OIDCConfig = _config.GetOpenIDConfig(),
+                OpenRegistration = _config.GetServerOpenRegistration(),
+                DisableRegistration = _config.GetServerDisabledRegistration(),
+                ReminderUrgencyConfig = _config.GetReminderUrgencyConfig(),
+                EnableAuth = _config.GetServerAuthEnabled(),
+                DefaultReminderEmail = _config.GetDefaultReminderEmail(),
+                EnableRootUserOIDC = _config.GetEnableRootUserOIDC(),
+                CookieLifeSpan = _config.GetAuthCookieLifeSpan().ToString(),
+                KestrelAppConfig = _config.GetKestrelAppConfig()
             };
-            return PartialView("_ServerConfig", viewModel);
+            return View(viewModel);
+        }
+        [HttpPost]
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult WriteServerConfiguration(ServerConfig serverConfig)
+        {
+            var result = _config.SaveServerConfig(serverConfig);
+            return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult SendTestEmail(string emailAddress)
+        public IActionResult SendTestEmail(string emailAddress, MailConfig mailConfig)
         {
-            var result = _mailHelper.SendTestEmail(emailAddress);
+            var result = _mailHelper.SendTestEmail(emailAddress, mailConfig);
             return Json(result);
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

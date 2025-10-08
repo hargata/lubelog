@@ -98,7 +98,7 @@ namespace CarCareTracker.Controllers
             var result = new UserExportModel
             {
                 Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetUserConfig(User).DefaultReminderEmail : User.FindFirstValue(ClaimTypes.Email),
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email),
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
                 IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
@@ -110,6 +110,34 @@ namespace CarCareTracker.Controllers
             {
                 return Json(result);
             }
+        }
+        [HttpGet]
+        [Route("/api/version")]
+        public async Task<IActionResult> ServerVersion(bool checkForUpdate = false)
+        {
+            var viewModel = new ReleaseVersion
+            {
+                CurrentVersion = StaticHelper.VersionNumber,
+                LatestVersion = StaticHelper.VersionNumber
+            };
+            if (checkForUpdate)
+            {
+                try
+                {
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+                    var releaseResponse = await httpClient.GetFromJsonAsync<ReleaseResponse>(StaticHelper.ReleasePath) ?? new ReleaseResponse();
+                    if (!string.IsNullOrWhiteSpace(releaseResponse.tag_name))
+                    {
+                        viewModel.LatestVersion = releaseResponse.tag_name;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(OperationResponse.Failed($"Unable to retrieve latest version from GitHub API: {ex.Message}"));
+                }
+            }
+            return Json(viewModel);
         }
         [HttpGet]
         [Route("/api/vehicles")]
@@ -184,7 +212,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/planrecords")]
-        public IActionResult PlanRecords(int vehicleId)
+        public IActionResult PlanRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -193,6 +221,18 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated > endDate);
+            }
             var result = vehicleRecords.Select(x => new PlanRecordExportModel {
                 Id = x.Id.ToString(),
                 DateCreated = x.DateCreated.ToShortDateString(),
@@ -255,6 +295,15 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Progress cannot be set to Done."));
+            }
+            //hardening - turns null values for List types into empty lists.
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -346,6 +395,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Progress cannot be set to Done."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -388,7 +445,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
-        public IActionResult ServiceRecords(int vehicleId)
+        public IActionResult ServiceRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -397,6 +454,23 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -428,6 +502,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -509,6 +591,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -549,7 +639,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
-        public IActionResult RepairRecords(int vehicleId)
+        public IActionResult RepairRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -558,6 +648,23 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -590,6 +697,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -672,6 +787,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -713,7 +836,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
-        public IActionResult UpgradeRecords(int vehicleId)
+        public IActionResult UpgradeRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -722,6 +845,23 @@ namespace CarCareTracker.Controllers
                 return Json(response);
             }
             var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -754,6 +894,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, Odometer, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -835,6 +983,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Odometer, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -876,7 +1032,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
-        public IActionResult TaxRecords(int vehicleId)
+        public IActionResult TaxRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -884,7 +1040,25 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var result = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId).Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -951,6 +1125,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Description, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 var taxRecord = new TaxRecord()
@@ -1014,6 +1196,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -1068,7 +1258,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
-        public IActionResult OdometerRecords(int vehicleId)
+        public IActionResult OdometerRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -1081,6 +1271,23 @@ namespace CarCareTracker.Controllers
             if (vehicleRecords.All(x => x.InitialMileage == default))
             {
                 vehicleRecords = _odometerLogic.AutoConvertOdometerRecord(vehicleRecords);
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
             var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
@@ -1112,6 +1319,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, and Odometer cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -1174,6 +1389,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Initial Odometer, and Odometer cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -1214,7 +1437,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
-        public IActionResult GasRecords(int vehicleId, bool useMPG, bool useUKMPG)
+        public IActionResult GasRecords(int vehicleId, MethodParameter parameters)
         {
             if (vehicleId == default)
             {
@@ -1222,8 +1445,26 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(response);
             }
-            var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var result = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG)
+            var rawVehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _gasHelper.GetGasRecordViewModels(rawVehicleRecords, parameters.UseMPG, parameters.UseUKMPG);
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords
                 .Select(x => new GasRecordExportModel { 
                     Id = x.Id.ToString(),
                     Date = x.Date, 
@@ -1272,6 +1513,14 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
+            }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
             }
             try
             {
@@ -1352,6 +1601,14 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
             }
+            if (input.Files == null)
+            {
+                input.Files = new List<UploadedFiles>();
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
             try
             {
                 //retrieve existing record
@@ -1391,19 +1648,27 @@ namespace CarCareTracker.Controllers
             }
         }
         #endregion
+        #region ReminderRecord
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
-        public IActionResult Reminders(int vehicleId)
+        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies)
         {
             if (vehicleId == default)
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
+            if (!urgencies.Any())
+            {
+                //if no urgencies parameter, we will default to all urgencies.
+                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+            }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-            var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).Select(x=> new ReminderExportModel {  Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString()});
+            var reminderResults = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
+            reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
+            var results = reminderResults.Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -1412,6 +1677,183 @@ namespace CarCareTracker.Controllers
             {
                 return Json(results);
             }
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/reminders/add")]
+        [Consumes("application/json")]
+        public IActionResult AddReminderRecordJson(int vehicleId, [FromBody] ReminderExportModel input) => AddReminderRecord(vehicleId, input);
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        [Route("/api/vehicle/reminders/add")]
+        public IActionResult AddReminderRecord(int vehicleId, ReminderExportModel input)
+        {
+            if (vehicleId == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
+            }
+            if (string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Metric))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Description and Metric cannot be empty."));
+            }
+            bool validMetric = Enum.TryParse(input.Metric, out ReminderMetric parsedMetric);
+            bool validDate = DateTime.TryParse(input.DueDate, out DateTime parsedDate);
+            bool validOdometer = int.TryParse(input.DueOdometer, out int parsedOdometer);
+            if (!validMetric)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, values for Metric(Date, Odometer, Both) is invalid."));
+            }
+            //validate metrics
+            switch (parsedMetric)
+            {
+                case ReminderMetric.Both:
+                    //validate due date and odometer
+                    if (!validDate || !validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate and DueOdometer must be valid if Metric is Both"));
+                    }
+                    break;
+                case ReminderMetric.Date:
+                    if (!validDate)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate must be valid if Metric is Date"));
+                    }
+                    break;
+                case ReminderMetric.Odometer:
+                    if (!validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueOdometer must be valid if Metric is Odometer"));
+                    }
+                    break;
+            }
+            try
+            {
+                var reminderRecord = new ReminderRecord()
+                {
+                    VehicleId = vehicleId,
+                    Description = input.Description,
+                    Mileage = parsedOdometer,
+                    Date = parsedDate,
+                    Metric = parsedMetric,
+                    Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                };
+                _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord);
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord, "reminderrecord.add.api", User.Identity.Name));
+                return Json(OperationResponse.Succeed("Reminder Record Added"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        [HttpPut]
+        [Route("/api/vehicle/reminders/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateReminderRecordJson([FromBody] ReminderExportModel input) => UpdateReminderRecord(input);
+        [HttpPut]
+        [Route("/api/vehicle/reminders/update")]
+        public IActionResult UpdateReminderRecord(ReminderExportModel input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Description) ||
+                string.IsNullOrWhiteSpace(input.Metric))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Description and Metric cannot be empty."));
+            }
+            bool validMetric = Enum.TryParse(input.Metric, out ReminderMetric parsedMetric);
+            bool validDate = DateTime.TryParse(input.DueDate, out DateTime parsedDate);
+            bool validOdometer = int.TryParse(input.DueOdometer, out int parsedOdometer);
+            if (!validMetric)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, values for Metric(Date, Odometer, Both) is invalid."));
+            }
+            //validate metrics
+            switch (parsedMetric)
+            {
+                case ReminderMetric.Both:
+                    //validate due date and odometer
+                    if (!validDate || !validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate and DueOdometer must be valid if Metric is Both"));
+                    }
+                    break;
+                case ReminderMetric.Date:
+                    if (!validDate)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueDate must be valid if Metric is Date"));
+                    }
+                    break;
+                case ReminderMetric.Odometer:
+                    if (!validOdometer)
+                    {
+                        return Json(OperationResponse.Failed("Input object invalid, DueOdometer must be valid if Metric is Odometer"));
+                    }
+                    break;
+            }
+            try
+            {
+                //retrieve existing record
+                var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(int.Parse(input.Id));
+                if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
+                {
+                    //check if user has access to the vehicleId
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingRecord.Date = parsedDate;
+                    existingRecord.Mileage = parsedOdometer;
+                    existingRecord.Description = input.Description;
+                    existingRecord.Metric = parsedMetric;
+                    existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
+                    existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.update.api", User.Identity.Name));
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Record Id"));
+                }
+                return Json(OperationResponse.Succeed("Reminder Record Updated"));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        [HttpDelete]
+        [Route("/api/vehicle/reminders/delete")]
+        public IActionResult DeleteReminderRecord(int id)
+        {
+            var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete.api", User.Identity.Name));
+            }
+            return Json(OperationResponse.Conditional(result, "Reminder Record Deleted"));
         }
         [HttpGet]
         [Route("/api/calendar")]
@@ -1426,6 +1868,7 @@ namespace CarCareTracker.Controllers
             var calendarContent = StaticHelper.RemindersToCalendar(reminders);
             return File(calendarContent, "text/calendar");
         }
+        #endregion
         [HttpPost]
         [Route("/api/documents/upload")]
         public IActionResult UploadDocument(List<IFormFile> documents)
@@ -1470,7 +1913,7 @@ namespace CarCareTracker.Controllers
             }
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
-            var defaultEmailAddress = _config.GetUserConfig(User).DefaultReminderEmail;
+            var defaultEmailAddress = _config.GetDefaultReminderEmail();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;
@@ -1547,6 +1990,10 @@ namespace CarCareTracker.Controllers
                 var vehicleDocuments = new List<string>();
                 foreach(Vehicle vehicle in vehicles)
                 {
+                    if (!string.IsNullOrWhiteSpace(vehicle.MapLocation))
+                    {
+                        vehicleDocuments.Add(Path.GetFileName(vehicle.MapLocation));
+                    }
                     vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y=>Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));

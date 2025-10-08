@@ -131,6 +131,8 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
+                    reminderViewModel.DueDays = (reminder.Date - dateCompare).Days;
+                    reminderViewModel.DueMileage = reminder.Mileage - currentMileage;
                 }
                 else if (reminder.Metric == ReminderMetric.Date)
                 {
@@ -146,6 +148,7 @@ namespace CarCareTracker.Helper
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
+                    reminderViewModel.DueDays = (reminder.Date - dateCompare).Days;
                 }
                 else if (reminder.Metric == ReminderMetric.Odometer)
                 {
@@ -162,6 +165,7 @@ namespace CarCareTracker.Helper
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
+                    reminderViewModel.DueMileage = reminder.Mileage - currentMileage;
                 }
                 reminderViewModels.Add(reminderViewModel);
             }

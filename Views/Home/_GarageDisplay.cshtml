@@ -6,31 +6,47 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var tagsExist = recordTags.Any();
+    var searchExist = userConfig.ShowSearch && Model.Count() > 1;
+    var renderTopRow = tagsExist || searchExist;
 }
-@if (recordTags.Any())
+<div id="garageContainer">
+@if (renderTopRow)
 {
     <div class='row'>
-        <div class="col-12 d-flex align-items-center flex-wrap mt-2 mb-2">
-            @foreach (string recordTag in recordTags)
-            {
-                <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
-            }
-            <datalist id="tagList">
+        @if (tagsExist)
+        {
+            <div class="@(searchExist ? "col-xl-10 col-lg-9 col-md-8 col-sm-8" : "") col-12 d-flex align-items-center flex-wrap mb-2">
                 @foreach (string recordTag in recordTags)
                 {
-                    <!option value="@recordTag"></!option>
+                    <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
                 }
-            </datalist>
-        </div>
+                <datalist id="tagList">
+                    @foreach (string recordTag in recordTags)
+                    {
+                        <!option value="@recordTag"></!option>
+                    }
+                </datalist>
+            </div>
+        }
+        @if (searchExist)
+        {
+            <div class="@(tagsExist ? "col-xl-2 col-lg-3 col-md-4 col-sm-4" : "") col-12 pt-2 pb-2">
+                <div class="input-group">
+                    <input type="text" id="garageSearchInput" class="form-control" onkeyup="handleGarageSearchKeyPress(event)" placeholder="@translator.Translate(userLanguage, "Search")" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="searchGarage()"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+        }
     </div>
 }
-    <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(recordTags.Any() ? "" : "mt-2")">
+<div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(renderTopRow ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
-                    <div class="card" onclick="viewVehicle(@vehicle.Id)">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item user-select-none" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-extra-fields="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" onmousemove="garageRangeMouseMove(this)" ontouchstart="detectGarageLongTouch(this)" ontouchend="detectGarageTouchEndPremature(this)">
+                    <div class="card">
                         <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
@@ -72,18 +88,29 @@
                             </div>
                         }
                         <div class="card-body">
-                            <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Model}")</h5>
-                            <p class="card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
+                            <h5 class="garage-item-attribute card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Make}")</h5>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Model}")</h5>
+                            <p class="garage-item-attribute card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
                         </div>
                     </div>
                 </div>
             }
         }
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item-add">
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item-add user-select-none">
             <div class="card" onclick="showAddVehicleModal()" style="height:100%;">
-                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;" />
+                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;pointer-events:none;" />
             </div>
         </div>
     </div>
+</div>
+<ul class="garage-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="context-menu-multiple dropdown-item" href="#" onclick="sortGarage()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Sort")</span><i class="garage-sort-icon bi bi-arrow-down-up"></i></div></a></li>
+    <li><a class="context-menu-extra-field dropdown-item" href="#" onclick="showVehicleExtraFields(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Extra Fields")</span><i class="bi bi-list-ul"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="manageCollaborators(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteVehicles(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>

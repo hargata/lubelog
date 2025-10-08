@@ -1,0 +1,24 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ReportHeader
+<div class="col-md-3 col-12 mt-2 text-center">
+    <span class="lead">@Model.MaxOdometer.ToString("N0")</span><br />
+    <span class="text-secondary">@translator.Translate(userLanguage, "Last Reported Odometer Reading")</span>
+</div>
+<div class="col-md-3 col-12 mt-2 text-center">
+    <span class="lead">@Model.DistanceTraveled.ToString("N0")</span><br />
+    <span class="text-secondary">@translator.Translate(userLanguage, "Distance Traveled")</span>
+</div>
+<div class="col-md-3 col-12 mt-2 text-center">
+    <span class="lead">@StaticHelper.HideZeroCost(Model.TotalCost.ToString("C2"), true)</span><br />
+    <span class="text-secondary">@translator.Translate(userLanguage, "Total Cost")</span>
+</div>
+<div class="col-md-3 col-12 mt-2 text-center">
+    <span class="lead">@Model.AverageMPG</span><br />
+    <span class="text-secondary">@translator.Translate(userLanguage, "Average Fuel Economy")</span>
+</div>

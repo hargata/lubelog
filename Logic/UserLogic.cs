@@ -9,6 +9,7 @@ namespace CarCareTracker.Logic
         List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId);
         bool AddUserAccessToVehicle(int userId, int vehicleId);
         bool DeleteCollaboratorFromVehicle(int userId, int vehicleId);
+        OperationResponse DeleteCollaboratorFromVehicle(int vehicleId, string username);
         OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
         bool UserCanEditVehicle(int userId, int vehicleId);
@@ -57,6 +58,28 @@ namespace CarCareTracker.Logic
                 if (result)
                 {
                     return OperationResponse.Succeed("Collaborator Added");
+                }
+                return OperationResponse.Failed();
+            }
+            return OperationResponse.Failed($"Unable to find user {username} in the system");
+        }
+        public OperationResponse DeleteCollaboratorFromVehicle(int vehicleId, string username)
+        {
+            //try to find existing user.
+            var existingUser = _userData.GetUserRecordByUserName(username);
+            if (existingUser.Id != default)
+            {
+                //user exists.
+                //check if user is already a collaborator
+                var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(existingUser.Id, vehicleId);
+                if (userAccess == null)
+                {
+                    return OperationResponse.Failed("User doesn't have access to this vehicle");
+                }
+                var result = _userAccess.DeleteUserAccess(existingUser.Id, vehicleId);
+                if (result)
+                {
+                    return OperationResponse.Succeed("Collaborator Removed");
                 }
                 return OperationResponse.Failed();
             }

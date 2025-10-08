@@ -3,6 +3,7 @@ using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -14,14 +15,17 @@ namespace CarCareTracker.Controllers
         {
             //get records
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
-            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-            var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-            var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-            var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
+            var serviceRecords = vehicleRecords.ServiceRecords;
+            var gasRecords = vehicleRecords.GasRecords;
+            var collisionRecords = vehicleRecords.CollisionRecords;
+            var taxRecords = vehicleRecords.TaxRecords;
+            var upgradeRecords = vehicleRecords.UpgradeRecords;
+            var odometerRecords = vehicleRecords.OdometerRecords;
             var userConfig = _config.GetUserConfig(User);
-            var viewModel = new ReportViewModel();
+            var viewModel = new ReportViewModel() { ReportHeaderForVehicle = new ReportHeader() };
+            //check if vehicle map exists
+            viewModel.HasVehicleImageMap = !string.IsNullOrWhiteSpace(vehicleData.MapLocation);
             //check if custom widgets are configured
             viewModel.CustomWidgetsConfigured = _fileHelper.WidgetsExist();
             //get totalCostMakeUp
@@ -47,6 +51,34 @@ namespace CarCareTracker.Controllers
                 Cost = x.Sum(y => y.Cost),
                 DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
+
+            //set available metrics
+            var visibleTabs = userConfig.VisibleTabs;
+            if (visibleTabs.Contains(ImportMode.OdometerRecord) || odometerRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.OdometerRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.ServiceRecord) || serviceRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.ServiceRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.RepairRecord) || collisionRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.RepairRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.UpgradeRecord) || upgradeRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.UpgradeRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.GasRecord) || gasRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.GasRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.TaxRecord) || taxRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.TaxRecord);
+            }
+
             //get reminders
             var reminders = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             viewModel.ReminderMakeUpForVehicle = new ReminderMakeUpForVehicle
@@ -88,9 +120,10 @@ namespace CarCareTracker.Controllers
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
             viewModel.Collaborators = collaborators;
             //get MPG per month.
-            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
+            var averageMPG = _gasHelper.GetAverageGasMileage(mileageData, userConfig.UseMPG);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
             bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
             var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
@@ -114,6 +147,12 @@ namespace CarCareTracker.Controllers
                         monthMileage.Cost = 100 / monthMileage.Cost;
                     }
                 }
+                var newAverageMPG = decimal.Parse(averageMPG, NumberStyles.Any);
+                if (newAverageMPG != 0)
+                {
+                    newAverageMPG = 100 / newAverageMPG;
+                }
+                averageMPG = newAverageMPG.ToString("F");
             }
             var mpgViewModel = new MPGForVehicleByMonth {
                 CostData = monthlyMileageData,
@@ -121,6 +160,15 @@ namespace CarCareTracker.Controllers
                 SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
             };
             viewModel.FuelMileageForVehicleByMonth = mpgViewModel;
+            //report header
+
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+
+            viewModel.ReportHeaderForVehicle.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
+            viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
+            viewModel.ReportHeaderForVehicle.MaxOdometer = maxMileage;
+            viewModel.ReportHeaderForVehicle.DistanceTraveled = maxMileage - minMileage;
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -143,6 +191,63 @@ namespace CarCareTracker.Controllers
         {
             var result = _userLogic.DeleteCollaboratorFromVehicle(userId, vehicleId);
             return Json(result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        [HttpPost]
+        public IActionResult GetSummaryForVehicle(int vehicleId, int year = 0)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
+
+            var serviceRecords = vehicleRecords.ServiceRecords;
+            var gasRecords = vehicleRecords.GasRecords;
+            var collisionRecords = vehicleRecords.CollisionRecords;
+            var taxRecords = vehicleRecords.TaxRecords;
+            var upgradeRecords = vehicleRecords.UpgradeRecords;
+            var odometerRecords = vehicleRecords.OdometerRecords;
+
+            if (year != default)
+            {
+                serviceRecords.RemoveAll(x => x.Date.Year != year);
+                gasRecords.RemoveAll(x => x.Date.Year != year);
+                collisionRecords.RemoveAll(x => x.Date.Year != year);
+                taxRecords.RemoveAll(x => x.Date.Year != year);
+                upgradeRecords.RemoveAll(x => x.Date.Year != year);
+                odometerRecords.RemoveAll(x => x.Date.Year != year);
+            }
+
+            var userConfig = _config.GetUserConfig(User);
+
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
+            string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
+            var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
+            var averageMPG = _gasHelper.GetAverageGasMileage(mileageData, userConfig.UseMPG);
+            bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
+
+            if (invertedFuelMileageUnit)
+            {
+                var newAverageMPG = decimal.Parse(averageMPG, NumberStyles.Any);
+                if (newAverageMPG != 0)
+                {
+                    newAverageMPG = 100 / newAverageMPG;
+                }
+                averageMPG = newAverageMPG.ToString("F");
+            }
+
+            var mpgUnit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit;
+
+            var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
+            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
+
+            var viewModel = new ReportHeader()
+            {
+                TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords),
+                AverageMPG = $"{averageMPG} {mpgUnit}",
+                MaxOdometer = maxMileage,
+                DistanceTraveled = maxMileage - minMileage
+            };
+
+            return PartialView("_ReportHeader", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -209,6 +314,22 @@ namespace CarCareTracker.Controllers
                 NumberOfDays = totalDays
             };
             return PartialView("_CostTableReport", viewModel);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult GetVehicleImageMap(int vehicleId)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            VehicleImageMap imageMap = new VehicleImageMap();
+            if (!string.IsNullOrWhiteSpace(vehicleData.MapLocation))
+            {
+                var fullFilePath = _fileHelper.GetFullFilePath(vehicleData.MapLocation);
+                if (!string.IsNullOrWhiteSpace(fullFilePath))
+                {
+                    var fullFileText = _fileHelper.GetFileText(fullFilePath);
+                    imageMap = JsonSerializer.Deserialize<VehicleImageMap>(fullFileText) ?? new VehicleImageMap();
+                }
+            }
+            return PartialView("_VehicleImageMap", imageMap);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)
@@ -351,7 +472,7 @@ namespace CarCareTracker.Controllers
             vehicleHistory.VehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleRecords = _vehicleLogic.GetVehicleRecords(vehicleId);
             bool useMPG = _config.GetUserConfig(User).UseMPG;
-            bool useUKMPG = _config.GetUserConfig(User).UseUKMPG;
+            bool useUKMPG = !vehicleHistory.VehicleData.IsElectric && _config.GetUserConfig(User).UseUKMPG;
             var gasViewModels = _gasHelper.GetGasRecordViewModels(vehicleRecords.GasRecords, useMPG, useUKMPG);
             //filter by tags
             if (reportParameter.Tags.Any())
@@ -522,7 +643,7 @@ namespace CarCareTracker.Controllers
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
-            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG);
+            var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             if (year != 0)
             {
                 mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);

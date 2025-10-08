@@ -61,6 +61,11 @@
 					<small class="text-body-secondary">Default size: 204x48</small>
 				</div>
 				<div class="form-group">
+					<label for="inputCustomSmallLogo">Custom Small Logo URL</label>
+					<input type="text" id="inputCustomSmallLogo" class="form-control">
+					<small class="text-body-secondary">Default size: 48x48</small>
+				</div>
+				<div class="form-group">
 					<label for="inputMOTD">Message Of The Day</label>
 					<input type="text" id="inputMOTD" class="form-control">
 					<small class="text-body-secondary">MOTD</small>
@@ -112,6 +117,11 @@
 					<input type="text" id="inputSmtpFrom" class="form-control">
 					<small class="text-body-secondary">Sender Email Address</small>
 				</div>
+				<div class="form-group">
+					<label for="inputServerDomain">LubeLogger Domain</label>
+					<input type="text" id="inputServerDomain" class="form-control">
+					<small class="text-body-secondary">For Links in Emails</small>
+				</div>
 			</div>
 			</div>
 			</div>
@@ -149,6 +159,11 @@
 					<label for="inputOIDCTokenURL">Token URL</label>
 					<input type="text" id="inputOIDCTokenURL" class="form-control">
 					<small class="text-body-secondary">Token URL from Provider</small>
+				</div>
+				<div class="form-group">
+					<label for="inputOIDCUserInfoURL">User Info URL</label>
+					<input type="text" id="inputOIDCUserInfoURL" class="form-control">
+					<small class="text-body-secondary">Required by some Providers</small>
 				</div>
 				<div class="form-group">
 					<label for="inputOIDCRedirectURL">LubeLogger URL</label>
@@ -301,6 +316,9 @@ function generateConfig(){
 		if ($('#inputCustomLogo').val().trim() != ''){
 			windowConfig["LUBELOGGER_LOGO_URL"] = $("#inputCustomLogo").val();
 		}
+		if ($('#inputCustomSmallLogo').val().trim() != ''){
+            windowConfig["LUBELOGGER_LOGO_SMALL_URL"] = $("#inputCustomSmallLogo").val();
+		}
 		if ($('#inputMOTD').val().trim() != '') {
 			windowConfig["LUBELOGGER_MOTD"] = $("#inputMOTD").val();
 		}
@@ -315,6 +333,9 @@ function generateConfig(){
 		}
 		if ($("#inputInvariantAPI").is(":checked")){
 			windowConfig["LUBELOGGER_INVARIANT_API"]=$('#inputInvariantAPI').is(':checked');
+		}
+		if ($("#inputServerDomain").val().trim() != ''){
+			windowConfig["LUBELOGGER_DOMAIN"] = $('#inputServerDomain').val();
 		}
 		if ($('#inputSmtpServer').val().trim() != ''){
 			windowConfig["MailConfig"] = {
@@ -332,6 +353,7 @@ function generateConfig(){
 				ClientSecret: $("#inputOIDCClientSecret").val(),
 				AuthURL: $("#inputOIDCAuthURL").val(),
 				TokenURL: $("#inputOIDCTokenURL").val(),
+				UserInfoURL: $("#inputOIDCUserInfoURL").val(),
 				RedirectURL: redirectUrl,
 				Scope: $("#inputOIDCScope").val(),
 				ValidateState: $("#inputOIDCValidateState").is(":checked"),
@@ -377,6 +399,9 @@ function generateConfig(){
 		if ($('#inputCustomLogo').val().trim() != ''){
 			dockerConfig.push(`LUBELOGGER_LOGO_URL="${$('#inputCustomLogo').val()}"`);
 		}
+		if ($('#inputCustomSmallLogo').val().trim() != ''){
+            dockerConfig.push(`LUBELOGGER_LOGO_SMALL_URL="${$('#inputCustomSmallLogo').val()}"`);
+		}
 		if ($('#inputMOTD').val().trim() != '') {
 			dockerConfig.push(`LUBELOGGER_MOTD="${$('#inputMOTD').val()}"`);
 		}
@@ -385,6 +410,9 @@ function generateConfig(){
 		}
 		if ($("#inputPostgres").val().trim() != ''){
 			dockerConfig.push(`POSTGRES_CONNECTION="${$('#inputPostgres').val()}"`);
+		}
+		if ($("#inputServerDomain").val().trim() != ''){
+			dockerConfig.push(`LUBELOGGER_DOMAIN="${$('#inputServerDomain').val()}"`);
 		}
 		if ($("#inputCustomWidgets").is(":checked")){
 			dockerConfig.push(`LUBELOGGER_CUSTOM_WIDGETS="${$('#inputCustomWidgets').is(':checked')}"`);
@@ -405,6 +433,7 @@ function generateConfig(){
 			dockerConfig.push(`OpenIDConfig__ClientSecret="${$('#inputOIDCClientSecret').val()}"`);
 			dockerConfig.push(`OpenIDConfig__AuthURL="${$('#inputOIDCAuthURL').val()}"`);
 			dockerConfig.push(`OpenIDConfig__TokenURL="${$('#inputOIDCTokenURL').val()}"`);
+			dockerConfig.push(`OpenIDConfig__UserInfoURL="${$('#inputOIDCUserInfoURL').val()}"`);
 			dockerConfig.push(`OpenIDConfig__RedirectURL="${redirectUrl}"`);
 			dockerConfig.push(`OpenIDConfig__Scope="${$('#inputOIDCScope').val()}"`);
 			dockerConfig.push(`OpenIDConfig__ValidateState=${$('#inputOIDCValidateState').is(':checked')}`);

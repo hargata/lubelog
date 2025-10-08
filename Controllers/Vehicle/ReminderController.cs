@@ -58,7 +58,7 @@ namespace CarCareTracker.Controllers
         {
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             result = result.OrderByDescending(x => x.Urgency).ToList();
-            return PartialView("_ReminderRecords", result);
+            return PartialView("Reminder/_ReminderRecords", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -124,11 +124,11 @@ namespace CarCareTracker.Controllers
         {
             if (reminderModel is not null)
             {
-                return PartialView("_ReminderRecordModal", reminderModel);
+                return PartialView("Reminder/_ReminderRecordModal", reminderModel);
             }
             else
             {
-                return PartialView("_ReminderRecordModal", new ReminderRecordInput());
+                return PartialView("Reminder/_ReminderRecordModal", new ReminderRecordInput());
             }
         }
         [HttpGet]
@@ -160,7 +160,7 @@ namespace CarCareTracker.Controllers
                 CustomMonthIntervalUnit = result.CustomMonthIntervalUnit,
                 Tags = result.Tags
             };
-            return PartialView("_ReminderRecordModal", convertedResult);
+            return PartialView("Reminder/_ReminderRecordModal", convertedResult);
         }
         private bool DeleteReminderRecordWithChecks(int reminderRecordId)
         {

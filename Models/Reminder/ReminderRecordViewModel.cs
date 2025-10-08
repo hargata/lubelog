@@ -6,6 +6,8 @@
         public int VehicleId { get; set; }
         public DateTime Date { get; set; }
         public int Mileage { get; set; }
+        public int DueDays { get; set; }
+        public int DueMileage { get; set; }
         public string Description { get; set; }
         public string Notes { get; set; }
         /// <summary>

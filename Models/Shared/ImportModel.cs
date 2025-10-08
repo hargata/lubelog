@@ -115,6 +115,8 @@ namespace CarCareTracker.Models
     }
     public class ReminderExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
         public string Description { get; set; }
         public string Urgency { get; set; }
         public string Metric { get; set; }
@@ -123,6 +125,29 @@ namespace CarCareTracker.Models
         public string DueDate { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string DueOdometer { get; set; }
+        public string Tags { get; set; }
+    }
+    /// <summary>
+    /// Only used for the API GET Method
+    /// </summary>
+    public class ReminderAPIExportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        public string Description { get; set; }
+        public string Urgency { get; set; }
+        public string Metric { get; set; }
+        public string UserMetric { get; set; }
+        public string Notes { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
+        public string DueDate { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string DueOdometer { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string DueDays { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string DueDistance { get; set; }
+        public string Tags { get; set; }
     }
     public class PlanRecordExportModel 
     {
@@ -150,5 +175,12 @@ namespace CarCareTracker.Models
         public string IsAdmin { get; set; }
         [JsonConverter(typeof(FromBoolOptional))]
         public string IsRoot { get; set; }
+    }
+    public class AttachmentExportModel
+    {
+        public string DataType { get; set; }
+        public string Date { get; set; }
+        public string Name { get; set; }
+        public string Location { get; set; }
     }
 }

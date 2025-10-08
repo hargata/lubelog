@@ -9,7 +9,27 @@
 }
 @if (Model.CostData.Any(x => x.Cost > 0))
 {
-
+    var chartMax = Math.Ceiling(Model.CostData.Max(x => x.Cost));
+    var graphGrace = Decimal.ToInt32(Model.CostData.Max(x => x.Cost) - Model.CostData.Min(x => x.Cost));
+    var chartMin = Math.Floor(Model.CostData.Min(x => x.Cost) - graphGrace);
+    if (graphGrace < 0 || chartMin < 0)
+    {
+        graphGrace = 0;
+        chartMin = 0;
+    }
+    var stepSize = StaticHelper.CalculateNiceStepSize(chartMin, chartMax, 8);
+    var remMin = stepSize > 0 ? chartMin % stepSize : 0;
+    var cleanedMin = chartMin - remMin;
+    if (remMin >= (stepSize / 2))
+    {
+        cleanedMin += stepSize;
+    }
+    var remMax = stepSize > 0 ? chartMax % stepSize : 0;
+    var cleanedMax = chartMax - remMax;
+    if (remMax >= (stepSize / 2))
+    {
+        cleanedMax += stepSize;
+    }
     <canvas id="bar-chart-mpg"></canvas>
     <script>
         renderChart();
@@ -54,9 +74,12 @@
                         },
                         scales: {
                             y: {
-                                beginAtZero: true,
+                                beginAtZero: false,
+                                max: Math.ceil(decodeHTMLEntities('@(cleanedMax)')),
+                                min: Math.floor(decodeHTMLEntities('@(cleanedMin)')),
                                 ticks: {
-                                    color: useDarkMode ? "#fff" : "#000"
+                                    color: useDarkMode ? "#fff" : "#000",
+                                    stepSize: Math.ceil(decodeHTMLEntities('@(stepSize)'))
                                 }
                             },
                             x: {

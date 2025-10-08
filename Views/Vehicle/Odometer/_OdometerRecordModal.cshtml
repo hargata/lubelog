@@ -1,0 +1,137 @@
+﻿@using CarCareTracker.Helper
+@using CarCareTracker.Models
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model OdometerRecordInput
+@{
+    var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Odometer Record") : translator.Translate(userLanguage, "Edit Odometer Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditOdometerRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
+    <button type="button" class="btn-close" onclick="hideAddOdometerRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body d-none trip-modal">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning alert-dismissable" role="alert">
+                @translator.Translate(userLanguage, "Experimental Feature - Do not exit or minimize this app when recording. Verify all starting and ending odometers. Accuracy subject to hardware limitations.")
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+            <h1 class="display-6 text-body-secondary">@translator.Translate(userLanguage, "Current Odometer")</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center align-items-center">
+            <h1 class="display-1 trip-odometer" onclick="toggleSubOdometer()"></h1>
+            <h1 class="display-6 trip-odometer-sub ms-2 d-none">0</h1>
+        </div>
+    </div>
+</div>
+<div class="modal-body odometer-modal" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="odometerRecordDate">@translator.Translate(userLanguage,"Date")</label>
+                    <div class="input-group">
+                        <input type="text" id="odometerRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Date recorded")" value="@Model.Date">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="initialOdometerRecordMileage">@translator.Translate(userLanguage, "Initial Odometer")</label>
+                    <div class="input-group">
+                        <input type="number" inputmode="numeric" id="initialOdometerRecordMileage" @(Model.InitialMileage != default ? "disabled" : "") class="form-control" placeholder="@translator.Translate(userLanguage,"Initial Odometer reading")" value="@(Model.InitialMileage)">
+                        @if (Model.InitialMileage != default)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-secondary zero-y-padding" onclick="toggleInitialOdometerEnabled()"><i class="bi bi-pencil"></i></button>
+                            </div>
+                        }
+                    </div>
+                    <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
+                    <div class="input-group has-validation">
+                        <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
+                        @if (isNew)
+                        {
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="getLastOdometerReadingAndIncrement('odometerRecordMileage')"><i class="bi bi-plus"></i></button>
+                            </div>
+                            <div class="input-group-text trip-show d-none">
+                                <button type="button" class="btn btn-sm btn-danger zero-y-padding" onclick="showTripModal()"><i class="bi bi-record-fill"></i></button>
+                            </div>
+                        }
+                        <div id="maxDifference-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Difference between initial odometer reading and input is more than configured in odometer validation")
+                        </div>
+                        <div id="empty-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value cannot be empty or negative")
+                        </div>
+                        <div id="negative-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value can't be less than initial value")
+                        </div>
+                    </div>
+                    @if (!userConfig.HideOdometerTags)
+                    {
+                        <label for="odometerRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                        <select multiple class="form-select" id="odometerRecordTag">
+                            @foreach (string tag in Model.Tags)
+                            {
+                                <!option value="@tag">@tag</!option>
+                            }
+                        </select>
+                    }
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
+                </div>
+                <div class="col-md-6 col-12">
+                    @if (!userConfig.DisableOdometerNotes)
+                    {
+                        <label for="odometerRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                        <textarea id="odometerRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
+                    <div id="filesPendingUpload"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer d-none trip-modal">
+    <button type="button" class="btn btn-danger trip-start" onclick="startRecording()" style="margin-right:auto;">@translator.Translate(userLanguage, "Start Recording")</button>
+    <button type="button" class="btn btn-danger d-none trip-stop" onclick="stopRecording()" style="margin-right:auto;">@translator.Translate(userLanguage, "Stop Recording")</button>
+    <button type="button" class="btn btn-secondary" onclick="hideTripModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary d-none trip-save" onclick="saveRecordedOdometer()">@translator.Translate(userLanguage, "Save")</button>
+</div>
+<div class="modal-footer odometer-modal">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteOdometerRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddOdometerRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveOdometerRecordToVehicle()">@translator.Translate(userLanguage,"Add New Odometer Record")</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveOdometerRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Odometer Record")</button>
+    }
+</div>
+<script>
+    //Trip Recording Variables
+    var tripTimer = undefined; //interval to check GPS Location every 5 seconds.
+    var tripWakeLock = undefined; //wakelock handler to prevent screen from going to sleep.
+    var tripLastPosition = undefined; //last coordinates to compare/calculate distance from.
+    var tripCoordinates = ["Latitude,Longitude"]; //list of coordinates to generate a CSV for.
+    function getOdometerRecordModelData() {
+        return { id: @Model.Id}
+    }
+    checkTripRecorder();
+</script>

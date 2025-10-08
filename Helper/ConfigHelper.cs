@@ -12,21 +12,31 @@ namespace CarCareTracker.Helper
         ReminderUrgencyConfig GetReminderUrgencyConfig();
         MailConfig GetMailConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
+        KestrelAppConfig GetKestrelAppConfig();
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
+        bool SaveServerConfig(ServerConfig serverConfig);
         bool AuthenticateRootUser(string username, string password);
         bool AuthenticateRootUserOIDC(string email);
         string GetWebHookUrl();
         bool GetCustomWidgetsEnabled();
+        string GetLocaleOverride();
+        string GetLocaleDateTimeOverride();
         string GetMOTD();
         string GetLogoUrl();
+        string GetSmallLogoUrl();
         string GetServerLanguage();
         bool GetServerDisabledRegistration();
         bool GetServerEnableShopSupplies();
+        bool GetServerAuthEnabled();
+        bool GetEnableRootUserOIDC();
         string GetServerPostgresConnection();
         string GetAllowedFileUploadExtensions();
+        string GetServerDomain();
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
         bool GetServerOpenRegistration();
+        string GetDefaultReminderEmail();
+        int GetAuthCookieLifeSpan();
     }
     public class ConfigHelper : IConfigHelper
     {
@@ -43,6 +53,12 @@ namespace CarCareTracker.Helper
             _userConfig = userConfig;
             _cache = memoryCache;
             _logger = logger;
+        }
+
+        public KestrelAppConfig GetKestrelAppConfig()
+        {
+            KestrelAppConfig kestrelConfig = _config.GetSection("Kestrel").Get<KestrelAppConfig>() ?? new KestrelAppConfig();
+            return kestrelConfig;
         }
         public string GetWebHookUrl()
         {
@@ -62,9 +78,48 @@ namespace CarCareTracker.Helper
             var motd = CheckString("LUBELOGGER_MOTD");
             return motd;
         }
+        public string GetServerDomain()
+        {
+            var domain = CheckString("LUBELOGGER_DOMAIN");
+            return domain;
+        }
+        public string GetLocaleOverride()
+        {
+            var locale = CheckString("LUBELOGGER_LOCALE_OVERRIDE");
+            return locale;
+        }
+        public string GetLocaleDateTimeOverride()
+        {
+            var locale = CheckString("LUBELOGGER_LOCALE_DT_OVERRIDE");
+            return locale;
+        }
         public bool GetServerOpenRegistration()
         {
             return CheckBool(CheckString("LUBELOGGER_OPEN_REGISTRATION"));
+        }
+        public int GetAuthCookieLifeSpan()
+        {
+            var lifespan = CheckString("LUBELOGGER_COOKIE_LIFESPAN", StaticHelper.DefaultCookieLifeSpan);
+            if (!string.IsNullOrWhiteSpace(lifespan) && int.TryParse(lifespan, out int lifespandays))
+            {
+                if (lifespandays > 90) //max 90 days because that is the max lifetime of the DPAPI keys
+                {
+                    lifespandays = 90;
+                }
+                if (lifespandays < 1) //min 1 day because cookie lifespan is incremented in days for our implementation
+                {
+                    lifespandays = 1;
+                }
+                return lifespandays;
+            } 
+            else
+            {
+                return int.Parse(StaticHelper.DefaultCookieLifeSpan); //default is 30 days for when remember me is selected.
+            }
+        }
+        public bool GetServerAuthEnabled()
+        {
+            return CheckBool(CheckString(nameof(UserConfig.EnableAuth)));
         }
         public OpenIDConfig GetOpenIDConfig()
         {
@@ -83,8 +138,18 @@ namespace CarCareTracker.Helper
         }
         public string GetLogoUrl()
         {
-            var logoUrl = CheckString("LUBELOGGER_LOGO_URL", "/defaults/lubelogger_logo.png");
+            var logoUrl = CheckString("LUBELOGGER_LOGO_URL", StaticHelper.DefaultLogoPath);
             return logoUrl;
+        }
+        public string GetSmallLogoUrl()
+        {
+            var logoUrl = CheckString("LUBELOGGER_LOGO_SMALL_URL", StaticHelper.DefaultSmallLogoPath);
+            return logoUrl;
+        }
+        public string GetDefaultReminderEmail()
+        {
+            var reminderEmail = CheckString(nameof(ServerConfig.DefaultReminderEmail));
+            return reminderEmail;
         }
         public string GetAllowedFileUploadExtensions()
         {
@@ -103,13 +168,18 @@ namespace CarCareTracker.Helper
         }
         public bool AuthenticateRootUserOIDC(string email)
         {
-            var rootEmail = CheckString(nameof(UserConfig.DefaultReminderEmail));
-            var rootUserOIDC = CheckBool(CheckString(nameof(UserConfig.EnableRootUserOIDC)));
+            var rootEmail = CheckString(nameof(ServerConfig.DefaultReminderEmail));
+            var rootUserOIDC = CheckBool(CheckString(nameof(ServerConfig.EnableRootUserOIDC)));
             if (!rootUserOIDC || string.IsNullOrWhiteSpace(rootEmail))
             {
                 return false;
             }
             return email == rootEmail;
+        }
+        public bool GetEnableRootUserOIDC()
+        {
+            var rootUserOIDC = CheckBool(CheckString(nameof(ServerConfig.EnableRootUserOIDC)));
+            return rootUserOIDC;
         }
         public string GetServerLanguage()
         {
@@ -118,7 +188,7 @@ namespace CarCareTracker.Helper
         }
         public bool GetServerDisabledRegistration()
         {
-            var registrationDisabled = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)));
+            var registrationDisabled = CheckBool(CheckString(nameof(ServerConfig.DisableRegistration)));
             return registrationDisabled;
         }
         public string GetServerPostgresConnection()
@@ -129,6 +199,129 @@ namespace CarCareTracker.Helper
         public bool GetServerEnableShopSupplies()
         {
             return CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies)));
+        }
+        public bool SaveServerConfig(ServerConfig serverConfig)
+        {
+            //nullify default values
+            if (string.IsNullOrWhiteSpace(serverConfig.PostgresConnection))
+            {
+                serverConfig.PostgresConnection = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.LocaleOverride))
+            {
+                serverConfig.LocaleOverride = null;
+                serverConfig.LocaleDateTimeOverride = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.LocaleDateTimeOverride))
+            {
+                serverConfig.LocaleDateTimeOverride = null;
+            }
+            if (serverConfig.AllowedFileExtensions == StaticHelper.DefaultAllowedFileExtensions || string.IsNullOrWhiteSpace(serverConfig.AllowedFileExtensions))
+            {
+                serverConfig.AllowedFileExtensions = null;
+            }
+            if (serverConfig.CustomLogoURL == StaticHelper.DefaultLogoPath || string.IsNullOrWhiteSpace(serverConfig.CustomLogoURL))
+            {
+                serverConfig.CustomLogoURL = null;
+            }
+            if (serverConfig.CustomSmallLogoURL == StaticHelper.DefaultSmallLogoPath || string.IsNullOrWhiteSpace(serverConfig.CustomSmallLogoURL))
+            {
+                serverConfig.CustomSmallLogoURL = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.MessageOfTheDay))
+            {
+                serverConfig.MessageOfTheDay = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.WebHookURL))
+            {
+                serverConfig.WebHookURL = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.ServerURL))
+            {
+                serverConfig.ServerURL = null;
+            }
+            if (serverConfig.CustomWidgetsEnabled.HasValue && !serverConfig.CustomWidgetsEnabled.Value)
+            {
+                serverConfig.CustomWidgetsEnabled = null;
+            }
+            if (serverConfig.InvariantAPIEnabled.HasValue && !serverConfig.InvariantAPIEnabled.Value)
+            {
+                serverConfig.InvariantAPIEnabled = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig?.EmailServer ?? string.Empty))
+            {
+                serverConfig.SMTPConfig = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.OIDCConfig?.Name ?? string.Empty))
+            {
+                serverConfig.OIDCConfig = null;
+            }
+            if (serverConfig.OpenRegistration.HasValue && !serverConfig.OpenRegistration.Value)
+            {
+                serverConfig.OpenRegistration = null;
+            }
+            if (serverConfig.DisableRegistration.HasValue && !serverConfig.DisableRegistration.Value)
+            {
+                serverConfig.DisableRegistration = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.DefaultReminderEmail))
+            {
+                serverConfig.DefaultReminderEmail = null;
+            }
+            if (serverConfig.EnableRootUserOIDC.HasValue && !serverConfig.EnableRootUserOIDC.Value)
+            {
+                serverConfig.EnableRootUserOIDC = null;
+            }
+            if (serverConfig.CookieLifeSpan == StaticHelper.DefaultCookieLifeSpan || string.IsNullOrWhiteSpace(serverConfig.CookieLifeSpan))
+            {
+                serverConfig.CookieLifeSpan = null;
+            }
+            if (serverConfig.KestrelAppConfig != null)
+            {
+                if (serverConfig.KestrelAppConfig.Endpoints.Http != null)
+                {
+                    //validate http endpoint
+                    if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.Http.Url))
+                    {
+                        serverConfig.KestrelAppConfig.Endpoints.Http = null;
+                    }
+                }
+                if (serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile != null)
+                {
+                    //https endpoint provided
+                    if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Url))
+                    {
+                        serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile = null;
+                    }
+                    else if (serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password))
+                        {
+                            //cert not null but password is null
+                            serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password = null;
+                        }
+                        if (string.IsNullOrWhiteSpace(serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Path))
+                        {
+                            //cert not null but path is null
+                            serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate = null;
+                        }
+                    }
+                }
+                if (serverConfig.KestrelAppConfig.Endpoints.Http == null && serverConfig.KestrelAppConfig.Endpoints.HttpsInlineCertFile == null)
+                {
+                    //if no endpoints are provided
+                    serverConfig.KestrelAppConfig = null;
+                }
+            }
+            try
+            {
+                File.WriteAllText(StaticHelper.ServerConfigPath, JsonSerializer.Serialize(serverConfig));
+                return true;
+            } catch (Exception ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return false;
+            }
         }
         public bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData)
         {
@@ -225,7 +418,6 @@ namespace CarCareTracker.Helper
                 UseMPG = CheckBool(CheckString(nameof(UserConfig.UseMPG)), true),
                 UseDescending = CheckBool(CheckString(nameof(UserConfig.UseDescending))),
                 EnableAuth = CheckBool(CheckString(nameof(UserConfig.EnableAuth))),
-                EnableRootUserOIDC = CheckBool(CheckString(nameof(UserConfig.EnableRootUserOIDC))),
                 HideZero = CheckBool(CheckString(nameof(UserConfig.HideZero))),
                 AutomaticDecimalFormat = CheckBool(CheckString(nameof(UserConfig.AutomaticDecimalFormat))),
                 UseUKMPG = CheckBool(CheckString(nameof(UserConfig.UseUKMPG))),
@@ -245,10 +437,9 @@ namespace CarCareTracker.Helper
                 VisibleTabs = _config.GetSection(nameof(UserConfig.VisibleTabs)).Get<List<ImportMode>>() ?? new UserConfig().VisibleTabs,
                 TabOrder = _config.GetSection(nameof(UserConfig.TabOrder)).Get<List<ImportMode>>() ?? new UserConfig().TabOrder,
                 UserColumnPreferences = _config.GetSection(nameof(UserConfig.UserColumnPreferences)).Get<List<UserColumnPreference>>() ?? new List<UserColumnPreference>(),
-                ReminderUrgencyConfig = _config.GetSection(nameof(UserConfig.ReminderUrgencyConfig)).Get<ReminderUrgencyConfig>() ?? new ReminderUrgencyConfig(),
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
-                DefaultReminderEmail = CheckString(nameof(UserConfig.DefaultReminderEmail)),
-                DisableRegistration = CheckBool(CheckString(nameof(UserConfig.DisableRegistration)))
+                ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail))),
+                ShowSearch = CheckBool(CheckString(nameof(UserConfig.ShowSearch)))
             };
             int userId = 0;
             if (user != null)

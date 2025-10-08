@@ -1,0 +1,61 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+}
+@model PlanRecord
+<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-8 text-truncate">
+                @if (Model.Progress == PlanProgress.Done)
+                {
+                    <span class="taskCard-title text-truncate"><s>@Model.Description</s></span>
+                } else
+                {
+                    <span class="taskCard-title text-truncate">@Model.Description</span>
+                }
+            </div>
+            <div class="col-12 col-lg-4 d-flex align-items-center">
+                <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model.ReminderRecordId != default)
+            {
+                <div class="col-3 col-md-1">
+                    <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
+                </div>
+            }
+            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
+                @if (Model.ImportMode == ImportMode.ServiceRecord)
+                {
+                    <span class="badge text-bg-primary planner-indicator"><i class="bi bi-card-checklist text-white"></i></span>
+                }
+                else if (Model.ImportMode == ImportMode.UpgradeRecord)
+                {
+                    <span class="badge text-bg-success planner-indicator"><i class="bi bi-wrench-adjustable text-white"></i></span>
+                }
+                else if (Model.ImportMode == ImportMode.RepairRecord)
+                {
+                    <span class="badge text-bg-warning planner-indicator"><i class="bi bi-exclamation-octagon text-white"></i></span>
+                }
+            </div>
+            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
+                @if (Model.Priority == PlanPriority.Critical)
+                {
+                    <span class="badge text-bg-danger planner-indicator"><i class="bi bi-fire text-white"></i></span>
+                }
+                else if (Model.Priority == PlanPriority.Normal)
+                {
+                    <span class="badge text-bg-primary planner-indicator"><i class="bi bi-water text-white"></i></span>
+                }
+                else if (Model.Priority == PlanPriority.Low)
+                {
+                    <span class="badge text-bg-info planner-indicator"><i class="bi bi-snow text-white"></i></span>
+                }
+            </div>
+        </div>
+    </div>
+</div>

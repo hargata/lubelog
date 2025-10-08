@@ -1,0 +1,292 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject IGasHelper gasHelper
+@inject ITranslationHelper translator
+@model GasRecordViewModelContainer
+@{
+    var userConfig = config.GetUserConfig(User);
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var useMPG = userConfig.UseMPG;
+    var useUKMPG = userConfig.UseUKMPG;
+    var hideZero = userConfig.HideZero;
+    var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
+    var useThreeDecimalsConsumption = userConfig.UseThreeDecimalGasConsumption;
+    var gasCostFormat = useThreeDecimals ? "C3" : "C2";
+    var gasConsumptionFormat = useThreeDecimalsConsumption ? "F3" : "F2";
+    var userLanguage = userConfig.UserLanguage;
+    var useKwh = Model.UseKwh;
+    var useHours = Model.UseHours;
+    var recordTags = Model.GasRecords.SelectMany(x => x.Tags).Distinct();
+    string preferredFuelEconomyUnit = userConfig.PreferredGasMileageUnit;
+    string preferredGasUnit = userConfig.PreferredGasUnit;
+    string consumptionUnit;
+    string fuelEconomyUnit;
+    string distanceUnit = useHours ? "h" : (useMPG ? "mi." : "km");
+    if (useKwh)
+    {
+        consumptionUnit = "kWh";
+        fuelEconomyUnit = useMPG ? $"{distanceUnit}/kWh" : $"kWh/100{distanceUnit}";
+    }
+    else if (useMPG && useUKMPG)
+    {
+        consumptionUnit = "imp gal";
+        fuelEconomyUnit = useHours ? "h/g" : "mpg";
+    }
+    else if (useUKMPG)
+    {
+        fuelEconomyUnit = useHours ? "l/100h" : "l/100mi.";
+        consumptionUnit = "l";
+        distanceUnit = useHours ? "h" : "mi.";
+    }
+    else
+    {
+        consumptionUnit = useMPG ? "US gal" : "l";
+        fuelEconomyUnit = useHours ? (useMPG ? "h/g" : "l/100h") : (useMPG ? "mpg" : "l/100km");
+    }
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.GasRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
+}
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Gas Records")}: {Model.GasRecords.Count()}")</span>
+            @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
+            {
+                <span class="ms-2 badge bg-primary" id="averageFuelMileageLabel">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
+                if (useMPG)
+                {
+                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                }
+                else
+                {
+                    <span class="ms-2 badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="ms-2 badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                }
+                <span class="ms-2 badge bg-success" id="totalDistanceLabel">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.GasRecords.Sum(x => x.DeltaMileage).ToString() ?? "0"} {distanceUnit}")</span>
+            }
+            <span class="ms-2 badge bg-success" id="totalFuelConsumedLabel">@($"{translator.Translate(userLanguage, "Total Fuel Consumed")}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
+            <span class="ms-2 badge bg-success" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total Cost")}: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="toggleGasFilter(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
+        </div>
+        @if (enableCsvImports)
+        {
+            <div class="btn-group">
+                <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Gas Record")</button>
+                <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('GasRecord')">@translator.Translate(userLanguage, "Import via CSV")</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exportVehicleData('GasRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="searchGasTableRows()">@translator.Translate(userLanguage, "Search")</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <div class="list-group-item">
+                            <input class="btn-check" type="checkbox" id="chkSelectMode">
+                            <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='daterefueled' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_DateRefueled" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@translator.Translate(userLanguage, "Date Refueled")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Odometer" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='delta' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Delta" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_Delta">@translator.Translate(userLanguage, "Delta")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='consumption' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Consumption" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_Consumption">@translator.Translate(userLanguage, "Consumption")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='fueleconomy' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_FuelEconomy" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_FuelEconomy">@translator.Translate(userLanguage, "Fuel Economy")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Cost" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='unitcost' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_UnitCost" checked>
+                            <label class="form-check-label stretched-link" for="chkCol_UnitCost">@translator.Translate(userLanguage, "Unit Cost")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Attachment">
+                            <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Notes">
+                            <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                        </div>
+                    </li>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        var elementId = Guid.NewGuid();
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="@elementId">
+                                <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Gas Record")</button>
+        }
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer">
+    <div class="col-12">
+        <div class="row mt-2 showOnPrint">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead class="sticky-top">
+                <tr class="d-flex">
+                    <th scope="col" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
+                {
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
+                        <td class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@gasRecord.Date</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@(gasRecord.Mileage == default ? "---" : gasRecord.Mileage.ToString())</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta" data-gas-type="totaldistance">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString(gasConsumptionFormat)</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", gasRecord.Files)</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                @{
+                                    var extraFieldValue = gasRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
+                                    if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
+                                    {
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                    }
+                                    else
+                                    {
+                                        @extraFieldValue
+                                    }
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" data-bs-focus="false" id="gasRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="gasRecordModalContent">
+        </div>
+    </div>
+</div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleGasRecords(selectedRow)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Edit Multiple")</span><i class="bi bi-pencil-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="insertOdometer(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Create Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="printTabStickers(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Print")</span><i class="bi bi-printer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+    <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
+    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'GasRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Adjust Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+</ul>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
+<script>
+    @if (!string.IsNullOrWhiteSpace(preferredFuelEconomyUnit))
+    {
+        @:convertFuelMileageUnits(decodeHTMLEntities('@fuelEconomyUnit'), decodeHTMLEntities('@preferredFuelEconomyUnit'), false);
+    }
+    @if (!string.IsNullOrWhiteSpace(preferredGasUnit))
+    {
+        @:convertGasConsumptionUnits(decodeHTMLEntities('@consumptionUnit'), decodeHTMLEntities('@preferredGasUnit'), false);
+    }
+    function getGasModelData(){
+        return {
+            distanceUnit: decodeHTMLEntities('@distanceUnit'),
+            consumptionUnit: decodeHTMLEntities('@consumptionUnit'),
+            gasCostFormat: decodeHTMLEntities('@gasCostFormat'),
+            gasConsumptionFormat: decodeHTMLEntities('@gasConsumptionFormat')
+        }
+    }
+</script>

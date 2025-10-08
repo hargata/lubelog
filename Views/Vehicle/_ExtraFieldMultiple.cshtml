@@ -1,0 +1,49 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<ExtraField>
+@if (Model.Any()){
+    @foreach (ExtraField field in Model)
+    {
+        var elementId = Guid.NewGuid();
+        <div class="extra-field">
+            <label for="@elementId">@field.Name</label>
+            @switch(field.FieldType){
+                case (ExtraFieldType.Text):
+                    <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    break;
+                case (ExtraFieldType.Number):
+                    <input type="number" inputmode="numeric" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    break;
+                case (ExtraFieldType.Decimal):
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    break;
+                case (ExtraFieldType.Date):
+                    <div class="input-group">
+                        <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <script>initExtraFieldDatePicker('@elementId')</script>
+                    break;
+                case (ExtraFieldType.Time):
+                    <input type="time" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    break;
+                case (ExtraFieldType.Location):
+                    <div class="input-group">
+                        <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm btn-primary zero-y-padding" onclick="populateLocationField('@elementId')"><i class="bi bi-geo-alt"></i></button>
+                        </div>
+                    </div>
+                    break;
+                default:
+                    <input type="text" id="@elementId" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    break;
+            }
+        </div>
+    }
+}

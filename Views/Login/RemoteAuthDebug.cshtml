@@ -2,16 +2,19 @@
 @{
     ViewData["Title"] = "Remote Auth Debug";
 }
-<div class="mt-2">
-    @foreach (OperationResponse result in Model)
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="alert text-wrap text-break @(result.Success ? "alert-success" : "alert-danger")" role="alert">
-                    @result.Message
+<div class="no-top-pad">
+    <div class="mt-2">
+        @foreach (OperationResponse result in Model)
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert text-wrap text-break @(result.Success ? "alert-success" : "alert-danger")" role="alert">
+                        @result.Message
+                    </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
+
     

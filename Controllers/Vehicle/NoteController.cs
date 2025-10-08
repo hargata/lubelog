@@ -13,7 +13,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
             result = result.OrderByDescending(x => x.Pinned).ThenBy(x => x.Description).ToList();
-            return PartialView("_Notes", result);
+            return PartialView("Note/_Notes", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -43,18 +43,20 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddNotePartialView()
         {
-            return PartialView("_NoteModal", new Note());
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields;
+            return PartialView("Note/_NoteModal", new Note() { ExtraFields = extraFields });
         }
         [HttpGet]
         public IActionResult GetNoteForEditById(int noteId)
         {
             var result = _noteDataAccess.GetNoteById(noteId);
+            result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
             {
                 return Redirect("/Error/Unauthorized");
             }
-            return PartialView("_NoteModal", result);
+            return PartialView("Note/_NoteModal", result);
         }
         private bool DeleteNoteWithChecks(int noteId)
         {

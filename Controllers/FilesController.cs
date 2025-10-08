@@ -53,7 +53,7 @@ namespace CarCareTracker.Controllers
             foreach (IFormFile fileToUpload in file)
             {
                 var fileName = UploadFile(fileToUpload);
-                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName});
+                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName, IsPending = true});
             }
             return Json(uploadedFiles);
         }
@@ -104,6 +104,11 @@ namespace CarCareTracker.Controllers
             System.IO.File.WriteAllText(filePath, fileData);
             var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName) };
             return Json(uploadedFile);
+        }
+        public IActionResult PreviewFile(string fileName, string fileLocation)
+        {
+            var viewModel = new UploadedFiles { Name = fileName, Location = fileLocation };
+            return PartialView("_AttachmentPreview", viewModel);
         }
     }
 }

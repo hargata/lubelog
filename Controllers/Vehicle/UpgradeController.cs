@@ -21,7 +21,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             }
-            return PartialView("_UpgradeRecords", result);
+            return PartialView("Upgrade/_UpgradeRecords", result);
         }
         [HttpPost]
         public IActionResult SaveUpgradeRecordToVehicleId(UpgradeRecordInput upgradeRecord)
@@ -73,7 +73,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddUpgradeRecordPartialView()
         {
-            return PartialView("_UpgradeRecordModal", new UpgradeRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields });
+            return PartialView("Upgrade/_UpgradeRecordModal", new UpgradeRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetUpgradeRecordForEditById(int upgradeRecordId)
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.UpgradeRecord).ExtraFields)
             };
-            return PartialView("_UpgradeRecordModal", convertedResult);
+            return PartialView("Upgrade/_UpgradeRecordModal", convertedResult);
         }
         private bool DeleteUpgradeRecordWithChecks(int upgradeRecordId)
         {

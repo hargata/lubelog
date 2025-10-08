@@ -12,7 +12,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPlanRecordsByVehicleId(int vehicleId)
         {
             var result = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
-            return PartialView("_PlanRecords", result);
+            return PartialView("Plan/_PlanRecords", result);
         }
         [HttpPost]
         public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
@@ -72,7 +72,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPlanRecordTemplatesForVehicleId(int vehicleId)
         {
             var result = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicleId);
-            return PartialView("_PlanRecordTemplateModal", result);
+            return PartialView("Plan/_PlanRecordTemplateModal", result);
         }
         [HttpPost]
         public IActionResult DeletePlanRecordTemplateById(int planRecordTemplateId)
@@ -106,7 +106,7 @@ namespace CarCareTracker.Controllers
             if (existingRecord.Supplies.Any())
             {
                 var suppliesToOrder = CheckSupplyRecordsAvailability(existingRecord.Supplies);
-                return PartialView("_PlanOrderSupplies", suppliesToOrder);
+                return PartialView("Plan/_PlanOrderSupplies", suppliesToOrder);
             } 
             else
             {
@@ -166,7 +166,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
         {
-            return PartialView("_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
+            return PartialView("Plan/_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
         }
         [HttpPost]
         public IActionResult GetAddPlanRecordPartialView(PlanRecordInput? planModel)
@@ -174,9 +174,9 @@ namespace CarCareTracker.Controllers
             if (planModel is not null)
             {
                 planModel.ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields;
-                return PartialView("_PlanRecordModal", planModel);
+                return PartialView("Plan/_PlanRecordModal", planModel);
             }
-            return PartialView("_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
+            return PartialView("Plan/_PlanRecordModal", new PlanRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields });
         }
         [HttpPost]
         public IActionResult UpdatePlanRecordProgress(int planRecordId, PlanProgress planProgress, int odometer = 0)
@@ -268,7 +268,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPlanRecordTemplateForEditById(int planRecordTemplateId)
         {
             var result = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
-            return PartialView("_PlanRecordTemplateEditModal", result);
+            return PartialView("Plan/_PlanRecordTemplateEditModal", result);
         }
         [HttpGet]
         public IActionResult GetPlanRecordForEditById(int planRecordId)
@@ -297,7 +297,7 @@ namespace CarCareTracker.Controllers
                 ReminderRecordId = result.ReminderRecordId,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields)
             };
-            return PartialView("_PlanRecordModal", convertedResult);
+            return PartialView("Plan/_PlanRecordModal", convertedResult);
         }
         [HttpPost]
         public IActionResult DeletePlanRecordById(int planRecordId)

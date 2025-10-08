@@ -1,0 +1,108 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model UserCollaboratorViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var showTwoColumns = Model.VehicleIds.Count > 1 && Model.PartialCollaborators.Count > 0;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="userCollaboratorsModalLabel">@translator.Translate(userLanguage, "Manage Collaborators")</h5>
+    <button type="button" class="btn-close" onclick="hideCollaboratorsModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (showTwoColumns)
+    {
+        <div class="d-block d-md-none row">
+            <div class="d-flex flex-row justify-content-between btn-group">
+                <button type="button" onclick="addCollaboratorToVehicles()" class="btn btn-primary align-self-center">@translator.Translate(userLanguage, "Add Collaborator")</button>
+                <button type="button" onclick="copySelectedPartialCollaborators()" class="btn btn-warning align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Move Selected")</button>
+                <button type="button" onclick="removeSelectedCollaborators()" class="btn btn-danger align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Remove Selected")<i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="@(showTwoColumns ? "col-6 col-md-4" : "col-12")">
+            <div class="d-flex justify-content-between">
+                <span class="lead">@translator.Translate(userLanguage, "Common Collaborators")</span>
+                @if (showTwoColumns)
+                {
+                    <a class="link-body-emphasis" onclick="selectAllCommonCollaborators()"><i class="bi bi-check-all"></i></a>
+                } else
+                {
+                    <a class="link-body-emphasis" onclick="addCollaboratorToVehicles()"><i class="bi bi-person-add"></i></a>
+                }
+            </div>
+            @if (Model.CommonCollaborators.Any())
+            {
+                <ul class="list-group common-collaborators">
+                    @foreach (string commonCollaborator in Model.CommonCollaborators)
+                    {
+                        var checkBoxId = Guid.NewGuid();
+                        @if(User.Identity.Name != commonCollaborator && showTwoColumns)
+                        {
+                            <li class="list-group-item">
+                                <input class="form-check-input me-1" type="checkbox" value="@commonCollaborator" id="@checkBoxId">
+                                <label class="form-check-label stretched-link" for="@checkBoxId">@commonCollaborator</label>
+                            </li>
+                        } else if (User.Identity.Name != commonCollaborator)
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span class="form-check-label">@commonCollaborator</span>
+                                    <button onclick="removeCollaborators(this)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </li>
+                        } else
+                        {
+                            <li class="list-group-item">
+                                @commonCollaborator
+                            </li>
+                        }
+                    }
+                </ul>
+            }
+            else
+            {
+                <span class="text-secondary">@translator.Translate(userLanguage, "No Common Collaborators")</span>
+            }
+        </div>
+        @if (showTwoColumns)
+        {
+            <div class="d-none d-md-block col-md-4">
+                <div class="d-flex flex-column">
+                    <button type="button" onclick="addCollaboratorToVehicles()" class="btn btn-primary align-self-center">@translator.Translate(userLanguage, "Add Collaborator")</button>
+                    <button type="button" onclick="copySelectedPartialCollaborators()" class="mt-2 btn btn-warning align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Move Selected")</button>
+                    <button type="button" onclick="removeSelectedCollaborators()" class="mt-2 btn btn-danger align-self-center"><i class="bi bi-arrow-left me-2"></i>@translator.Translate(userLanguage, "Remove Selected")<i class="bi bi-arrow-right ms-2"></i></button>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="d-flex justify-content-between">
+                    <span class="lead">@translator.Translate(userLanguage, "Partial Collaborators")</span>
+                    <div>
+                        <a class="link-body-emphasis" onclick="selectAllPartialCollaborators()"><i class="bi bi-check-all"></i></a>
+                    </div>
+                </div>
+                <ul class="list-group partial-collaborators">
+                    @foreach (string partialCollaborator in Model.PartialCollaborators)
+                    {
+                        var checkBoxId = Guid.NewGuid();
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="@partialCollaborator" id="@checkBoxId">
+                            <label class="form-check-label stretched-link" for="@checkBoxId">@partialCollaborator</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    var vehiclesToEdit = [];
+    @foreach (int recordId in Model.VehicleIds)
+    {
+        @:vehiclesToEdit.push(@recordId);
+    }
+    adjustCollaboratorsModalSize(@showTwoColumns.ToString().ToLower());
+</script>

@@ -34,7 +34,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             }
-            return PartialView("_OdometerRecords", result);
+            return PartialView("Odometer/_OdometerRecords", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -81,13 +81,13 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddOdometerRecordPartialView(int vehicleId)
         {
-            return PartialView("_OdometerRecordModal", new OdometerRecordInput() { InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()), ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
+            return PartialView("Odometer/_OdometerRecordModal", new OdometerRecordInput() { InitialMileage = _odometerLogic.GetLastOdometerRecordMileage(vehicleId, new List<OdometerRecord>()), ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields });
         }
         [HttpPost]
         public IActionResult GetOdometerRecordsEditModal(List<int> recordIds)
         {
             var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields;
-            return PartialView("_OdometerRecordsModal", new OdometerRecordEditModel { RecordIds = recordIds, EditRecord = new OdometerRecord { ExtraFields = extraFields } });
+            return PartialView("Odometer/_OdometerRecordsModal", new OdometerRecordEditModel { RecordIds = recordIds, EditRecord = new OdometerRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult SaveMultipleOdometerRecords(OdometerRecordEditModel editModel)
@@ -173,7 +173,7 @@ namespace CarCareTracker.Controllers
                 Tags = result.Tags,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields)
             };
-            return PartialView("_OdometerRecordModal", convertedResult);
+            return PartialView("Odometer/_OdometerRecordModal", convertedResult);
         }
         private bool DeleteOdometerRecordWithChecks(int odometerRecordId)
         {

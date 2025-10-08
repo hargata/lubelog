@@ -91,6 +91,10 @@ function getAndValidateNoteValues() {
     var noteTags = $("#noteRecordTag").val();
     //validation
     var hasError = false;
+    var extraFields = getAndValidateExtraFields();
+    if (extraFields.hasError) {
+        hasError = true;
+    }
     if (noteDescription.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#noteDescription").addClass("is-invalid");
@@ -111,7 +115,8 @@ function getAndValidateNoteValues() {
         noteText: noteText,
         files: uploadedFiles,
         pinned: noteIsPinned,
-        tags: noteTags
+        tags: noteTags,
+        extraFields: extraFields.extraFields
     }
 }
 function pinNotes(ids, toggle, pinStatus) {

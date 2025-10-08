@@ -1,4 +1,12 @@
-﻿function successToast(message) {
+﻿$.expr[":"].containsNC = $.expr.createPseudo(function (arg) {
+    return function (elem) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+function returnToGarage() {
+    window.location.href = '/Home';
+}
+function successToast(message) {
     Swal.fire({
         toast: true,
         position: "top-end",
@@ -160,6 +168,7 @@ function saveVehicle(isEdit) {
     $.post('/Vehicle/SaveVehicle', {
         id: vehicleId,
         imageLocation: uploadedFile,
+        mapLocation: uploadedMap,
         year: vehicleYear,
         make: vehicleMake,
         model: vehicleModel,
@@ -206,6 +215,27 @@ function toggleOdometerAdjustment() {
         $("#odometerAdjustments").collapse('hide');
     }
 }
+function setUploadedFile(data) {
+    uploadedFile = data;
+}
+function setUploadedMap(data) {
+    uploadedMap = data;
+}
+function handleVehicleMapCheckChanged() {
+    let vehicleHasMap = $("#inputHasVehicleMap").is(":checked");
+    if (vehicleHasMap) {
+        $("#inputMap").off('cancel').on('cancel', function () {
+            $("#inputHasVehicleMap").prop('checked', false);
+        });
+        $("#inputMap").trigger('click');
+    } else {
+        uploadedMap = '';
+    }
+}
+function uploadMap(event) {
+    let selectedMapFile = event.files[0];
+    uploadFileAsync(selectedMapFile, setUploadedMap);
+}
 function toggleOdometerValidation() {
     var isChecked = $("#inputOdometerValidation").is(':checked');
     if (isChecked) {
@@ -232,16 +262,16 @@ function uploadThumbnail(event) {
                 var resizedCanvas = hermiteResize(img, newImgWidth, newImgHeight);
                 resizedCanvas.toBlob((blob) => {
                     let file = new File([blob], originalImage.name, { type: "image/jpeg" });
-                    uploadFileAsync(file);
+                    uploadFileAsync(file, setUploadedFile);
                 }, 'image/jpeg');
             } else {
-                uploadFileAsync(originalImage);
+                uploadFileAsync(originalImage, setUploadedFile);
             }
         }
         img.src = URL.createObjectURL(originalImage);
     } catch (error) {
         console.log(`Error while attempting to upload and resize thumbnail - ${error}`);
-        uploadFileAsync(originalImage);
+        uploadFileAsync(originalImage, setUploadedFile);
     }
 }
 //Resize method using Hermite interpolation
@@ -325,7 +355,7 @@ function hermiteResize(origImg, width, height) {
     ctx.putImageData(img2, 0, 0);
     return canvas;
 }
-function uploadFileAsync(event) {
+function uploadFileAsync(event, callBack) {
     let formData = new FormData();
     if (event.files != undefined && event.files.length > 0) {
         formData.append("file", event.files[0]);
@@ -343,12 +373,12 @@ function uploadFileAsync(event) {
         success: function (response) {
             sloader.hide();
             if (response.trim() != '') {
-                uploadedFile = response;
+                callBack(response);
             }
         },
         error: function () {
             sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.")
+            errorToast("An error has occurred, please check the file size and try again later.");
         }
     });
 }
@@ -412,9 +442,15 @@ function getAndValidateSelectedVehicle() {
 }
 function showMobileNav() {
     $(".lubelogger-mobile-nav").addClass("lubelogger-mobile-nav-show");
+    //hide body scrollbar
+    $("body").css('overflow-y', 'hidden');
+    $("body").css('position', 'fixed'); //iOS SafariWebKit hack fix
 }
 function hideMobileNav() {
     $(".lubelogger-mobile-nav").removeClass("lubelogger-mobile-nav-show");
+    //re-enable scrollbar.
+    $("body").css('overflow-y', 'auto');
+    $("body").css('position', ''); //iOS SafariWebKit hack fix
 }
 var windowWidthForCompare = 0;
 function bindWindowResize() {
@@ -422,6 +458,7 @@ function bindWindowResize() {
     $(window).on('resize', function () {
         if (window.innerWidth != windowWidthForCompare) {
             hideMobileNav();
+            checkNavBarOverflow();
             windowWidthForCompare = window.innerWidth;
         }
     });
@@ -597,50 +634,90 @@ function uploadVehicleFilesAsync(event) {
         }
     });
 }
+function uploadVehicleLinksAsync(event) {
+    event.stopPropagation();
+    Swal.fire({
+        title: 'Add Link',
+        html: `
+                    <input type="text" id="newLinkName" class="swal2-input" placeholder="Link Name" onkeydown="handleSwalEnter(event)">
+                    <input type="text" id="newLinkLocation" class="swal2-input" placeholder="Link Location" onkeydown="handleSwalEnter(event)">
+                    `,
+        confirmButtonText: 'Add Link',
+        focusConfirm: false,
+        preConfirm: () => {
+            const newLinkName = $("#newLinkName").val();
+            const newLinkLocation = $("#newLinkLocation").val();
+            if (!newLinkName) {
+                Swal.showValidationMessage(`Please enter a valid link name`);
+            }
+            if (!newLinkLocation) {
+                Swal.showValidationMessage(`Please enter a valid link location`);
+            }
+            return { newLinkName, newLinkLocation }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            uploadedFiles.push({ name: result.value.newLinkName, location: result.value.newLinkLocation, isPending: true });
+            $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                $("#filesPendingUpload").html(viewData);
+            });
+        }
+    });
+}
 function deleteFileFromUploadedFiles(fileLocation, event) {
     event.parentElement.parentElement.parentElement.remove();
     uploadedFiles = uploadedFiles.filter(x => x.location != fileLocation);
-    if (fileLocation.startsWith("/temp/")) {
-        if ($("#documentsPendingUploadList > li").length == 0) {
-            $("#documentsPendingUploadLabel").text("");
-        }
-    } else if (fileLocation.startsWith("/documents/")) {
-        if ($("#uploadedDocumentsList > li").length == 0) {
-            $("#uploadedDocumentsLabel").text("");
-        }
+    if ($("#documentsPendingUploadList > li").length == 0) {
+        $("#documentsPendingUploadLabel").text("");
+    }
+    if ($("#uploadedDocumentsList > li").length == 0) {
+        $("#uploadedDocumentsLabel").text("");
     }
 }
 function editFileName(fileLocation, event) {
+    let currentFileName = $(event.parentElement.parentElement).find('a > .text-link').text();
     Swal.fire({
-        title: 'Rename File',
+        title: 'Rename File or Link',
         html: `
-                    <input type="text" id="newFileName" class="swal2-input" placeholder="New File Name" onkeydown="handleSwalEnter(event)">
+                    <input type="text" id="newFileName" class="swal2-input" placeholder="New Name" onkeydown="handleSwalEnter(event)" value="${currentFileName}">
                     `,
         confirmButtonText: 'Rename',
         focusConfirm: false,
         preConfirm: () => {
             const newFileName = $("#newFileName").val();
             if (!newFileName) {
-                Swal.showValidationMessage(`Please enter a valid file name`)
+                Swal.showValidationMessage(`Please enter a valid name`)
             }
             return { newFileName }
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            var linkDisplayObject = $(event.parentElement.parentElement).find('a')[0];
-            linkDisplayObject.text = result.value.newFileName;
+            var linkDisplayObject = $(event.parentElement.parentElement).find('a > .text-link');
+            linkDisplayObject.text(result.value.newFileName);
             var editFileIndex = uploadedFiles.findIndex(x => x.location == fileLocation);
             uploadedFiles[editFileIndex].name = result.value.newFileName;
         }
     });
 }
 var scrollPosition = 0;
+var savedTag = '';
 function saveScrollPosition() {
     scrollPosition = $(".vehicleDetailTabContainer").scrollTop();
+    let selectedTagElem = $(".tagfilter.bg-primary");
+    if (selectedTagElem.length > 0) {
+        savedTag = selectedTagElem.text();
+    }
 }
 function restoreScrollPosition() {
     $(".vehicleDetailTabContainer").scrollTop(scrollPosition);
     scrollPosition = 0;
+    if (savedTag != '') {
+        let availableTagElem = $(".tagfilter").filter((index, elem) => $(elem).text() == savedTag);
+        if (availableTagElem.length > 0) {
+            availableTagElem.trigger('click');
+        }
+        savedTag = '';
+    }
 }
 function toggleMarkDownOverlay(textAreaName) {
     var textArea = $(`#${textAreaName}`);
@@ -1103,6 +1180,7 @@ $(window).on('keydown', function (e) {
             e.preventDefault();
             e.stopPropagation();
             selectAllRows();
+            selectAllVehicles();
         }
     }
 });
@@ -1116,14 +1194,22 @@ function selectAllRows() {
         addToSelectedRows($(elem).attr('data-rowId'));
     });
 }
+function selectAllVehicles() {
+    clearSelectedVehicles();
+    $('.garage-item:visible').addClass('garage-active');
+    $('.garage-item:visible').map((index, elem) => {
+        addToSelectedVehicles($(elem).attr('data-rowId'));
+    });
+}
 function rangeMouseDown(e) {
     if (isRightClick(e)) {
         return;
     }
-    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item");
+    var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item") || $(e.target).parents(".garage-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".garage-context-menu > li > .dropdown-item");
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
     if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
+        clearSelectedVehicles();
     }
     isDragging = true;
 
@@ -1149,6 +1235,9 @@ function rangeMouseUp(e) {
     }
     if ($(".table-context-menu").length > 0) {
         $(".table-context-menu").fadeOut("fast");
+    }
+    if ($(".garage-context-menu").length > 0) {
+        $(".garage-context-menu").fadeOut("fast");
     }
     isDragging = false;
     document.documentElement.onselectstart = function () { return true; };
@@ -1176,6 +1265,10 @@ function clearSelectedRows() {
     selectedRow = [];
     $('.table tr').removeClass('table-active');
 }
+function clearSelectedVehicles() {
+    selectedVehicles = [];
+    $('.garage-item').removeClass('garage-active');
+}
 function getDeviceIsTouchOnly() {
     if (navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) {
         return true;
@@ -1191,7 +1284,6 @@ function showTableContextMenu(e) {
         return;
     }
     $(".table-context-menu").fadeIn("fast");
-    determineContextMenuItems();
     $(".table-context-menu").css({
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
         top: getMenuPosition(event.clientY, 'height', 'scrollTop')
@@ -1201,6 +1293,7 @@ function showTableContextMenu(e) {
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
     }
+    determineContextMenuItems();
 }
 function determineContextMenuItems() {
     var tableRows = $('.table tbody tr:visible');
@@ -1242,6 +1335,17 @@ function getMenuPosition(mouse, direction, scrollDir) {
     var win = $(window)[direction](),
         scroll = $(window)[scrollDir](),
         menu = $(".table-context-menu")[direction](),
+        position = mouse + scroll;
+
+    // opening menu would pass the side of the page
+    if (mouse + menu > win && menu < mouse)
+        position -= menu;
+    return position;
+}
+function getGarageMenuPosition(mouse, direction, scrollDir) {
+    var win = $(window)[direction](),
+        scroll = $(window)[scrollDir](),
+        menu = $(".garage-context-menu")[direction](),
         position = mouse + scroll;
 
     // opening menu would pass the side of the page
@@ -1368,7 +1472,7 @@ function searchTableRows(tabName) {
     Swal.fire({
         title: 'Search Records',
         html: `
-                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword(case sensitive)" onkeydown="handleSwalEnter(event)">
+                            <input type="text" id="inputSearch" class="swal2-input" placeholder="Keyword" onkeydown="handleSwalEnter(event)">
                             `,
         confirmButtonText: 'Search',
         focusConfirm: false,
@@ -1379,7 +1483,7 @@ function searchTableRows(tabName) {
     }).then(function (result) {
         if (result.isConfirmed) {
             var rowData = $(`#${tabName} table tbody tr`);
-            var filteredRows = $(`#${tabName} table tbody tr td:contains('${result.value.searchString}')`).parent();
+            var filteredRows = $(`#${tabName} table tbody tr td:containsNC('${result.value.searchString}')`).parent();
             var splitSearchString = result.value.searchString.split('=');
             if (result.value.searchString.includes('=') && splitSearchString.length == 2) {
                 //column specific search.
@@ -1388,7 +1492,7 @@ function searchTableRows(tabName) {
                 var columnName = splitSearchString[0];
                 var colSearchString = splitSearchString[1];
                 var colIndex = columns.findIndex(x => x == columnName) + 1;
-                filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):contains('${colSearchString}')`).parent();
+                filteredRows = $(`#${tabName} table tbody tr td:nth-child(${colIndex}):containsNC('${colSearchString}')`).parent();
             }
             if (result.value.searchString.trim() == '') {
                 rowData.removeClass('override-hide');
@@ -1414,9 +1518,9 @@ function loadUserColumnPreferences(columns, order) {
     columns.map(x => {
         var defaultColumn = $(`[data-column-toggle='${x}'].col-visible-toggle`);
         if (defaultColumn.length > 0) {
-            defaultColumn.prop("checked", true);
-            $(`[data-column='${x}']`).show();
+            defaultColumn.prop("checked", true); 
         }
+        $(`[data-column='${x}']`).show();
     });
     order.map((x, y) => {
         //re-order items in menu
@@ -1481,11 +1585,12 @@ function bindModalInputChanges(modalName) {
         $(e.currentTarget).attr('data-changed', true);
     });
 }
-function handleModalPaste(e, recordType) {
-    var clipboardFiles = e.clipboardData.files;
-    var acceptableFileFormats = $(`#${recordType}`).attr("accept");
-    var acceptableFileFormatsArray = acceptableFileFormats.split(',');
-    var acceptableFiles = new DataTransfer();
+function handleModalPaste(e) {
+    let recordType = getUploaderId().uploaderId;
+    let clipboardFiles = e.clipboardData.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
     if (clipboardFiles.length > 0) {
         for (var x = 0; x < clipboardFiles.length; x++) {
             if (acceptableFileFormats != "*") {
@@ -1597,5 +1702,107 @@ function populateLocationField(fieldName) {
         } catch (err) {
             errorToast('Location Services not Enabled');
         }
+    }
+}
+function toggleUploadFileBrowser() {
+    let uploaderId = getUploaderId().uploaderId;
+    $(`#${uploaderId}`).trigger('click');
+}
+function handlePotentialFileDrop(event) {
+    event.preventDefault();
+    $('.lubelogger-uploader').addClass('solid');
+}
+function handleNoFileDrop(event) {
+    event.preventDefault();
+    $('.lubelogger-uploader').removeClass('solid');
+}
+function handleEndFileDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    $('.lubelogger-uploader').removeClass('solid');
+    let recordType = getUploaderId().uploaderId;
+    let clipboardFiles = event.dataTransfer.files;
+    let acceptableFileFormats = $(`#${recordType}`).attr("accept");
+    let acceptableFileFormatsArray = acceptableFileFormats.split(',');
+    let acceptableFiles = new DataTransfer();
+    if (clipboardFiles.length > 0) {
+        for (var x = 0; x < clipboardFiles.length; x++) {
+            if (acceptableFileFormats != "*") {
+                var fileExtension = `.${clipboardFiles[x].name.split('.').pop()}`;
+                if (acceptableFileFormatsArray.includes(fileExtension)) {
+                    acceptableFiles.items.add(clipboardFiles[x]);
+                }
+            } else {
+                acceptableFiles.items.add(clipboardFiles[x]);
+            }
+        }
+        $(`#${recordType}`)[0].files = acceptableFiles.files;
+        $(`#${recordType}`).trigger('change');
+    }
+}
+function checkNavBarOverflow() {
+    //check height
+    $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
+    $('.nav-item-more > ul > li').remove(); //clear out cloned items.
+    //check if icons loaded
+    let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
+    let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
+    const removeNavbarItems = () => {
+        let navbarHeight = $('.lubelogger-navbar').height();
+        if (navbarHeight > 48) {
+            //get all elems in the nav
+            let sortedElems = $('.lubelogger-navbar > .lubelogger-tab > .nav-item:visible:not(".nav-item-persist")').toArray().sort((a, b) => {
+                let orderA = $(a).css('order');
+                let orderB = $(b).css('order');
+                return orderA - orderB;
+            });
+            for (let i = sortedElems.length - 1; i > -1; i--) {
+                navbarHeight = $('.lubelogger-navbar').height();
+                if (navbarHeight > 48) {
+                    $(sortedElems[i]).hide(); //hide elem.
+                    //clone item into additional nav dropdown
+                    let buttonToClone = $(sortedElems[i]).find('button').clone();
+                    let clonedItem = $(`<li class='text-truncate'></li>`)
+                    clonedItem.prepend(buttonToClone);
+                    $('.nav-item-more > ul').prepend(clonedItem);
+                } else {
+                    break;
+                }
+            }
+        } else {
+            $('.nav-item-more').hide();
+        }
+    }
+    if (iconWidth != iconFontSize) {
+        setTimeout(() => { removeNavbarItems() }, 500);
+    } else {
+        removeNavbarItems()
+    }
+}
+function openAttachmentPreview(fileName, fileLocation) {
+    $.get('/Files/PreviewFile', { fileName: fileName, fileLocation: fileLocation }, function (data) {
+        $('#attachmentPreviewModalContent').html(data);
+        $('#attachmentPreviewModal').modal('show');
+    });
+}
+function closeAttachmentPreview() {
+    $('#attachmentPreviewModal').modal('hide');
+}
+function setBrowserHistory(param, val) {
+    let currentParams = new URLSearchParams(window.location.search);
+    currentParams.set(param, val);
+    let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
+    window.history.pushState({}, '', updatedURL);
+}
+function getTabNameForURL(tabName) {
+    return tabName.toLowerCase().split('-')[0];
+}
+function getTabNameFromURL(defaultValue) {
+    let currentParams = new URLSearchParams(window.location.search);
+    let currentTab = currentParams.get('tab');
+    if (currentTab == null || currentTab == undefined || currentTab == '') {
+        return `${defaultValue.toLowerCase()}-tab`;
+    } else {
+        return `${currentTab}-tab`;
     }
 }
