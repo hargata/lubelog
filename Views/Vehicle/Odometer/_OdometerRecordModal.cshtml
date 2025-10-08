@@ -1,4 +1,5 @@
 ﻿@using CarCareTracker.Helper
+@using CarCareTracker.Models
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @model OdometerRecordInput
@@ -53,7 +54,7 @@
                         }
                     </div>
                     <label for="odometerRecordMileage">@translator.Translate(userLanguage,"Odometer")</label>
-                    <div class="input-group">
+                    <div class="input-group has-validation">
                         <input type="number" inputmode="numeric" id="odometerRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"Odometer reading")" value="@(isNew ? "" : Model.Mileage)">
                         @if (isNew)
                         {
@@ -64,19 +65,34 @@
                                 <button type="button" class="btn btn-sm btn-danger zero-y-padding" onclick="showTripModal()"><i class="bi bi-record-fill"></i></button>
                             </div>
                         }
+                        <div id="maxDifference-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Difference between initial odometer reading and input is more than configured in odometer validation")
+                        </div>
+                        <div id="empty-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value cannot be empty or negative")
+                        </div>
+                        <div id="negative-feedback" class="d-none">
+                            @translator.Translate(userLanguage, "Odometer value can't be less than initial value")
+                        </div>
                     </div>
-                    <label for="odometerRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
-                    <select multiple class="form-select" id="odometerRecordTag">
-                        @foreach (string tag in Model.Tags)
-                        {
-                            <!option value="@tag">@tag</!option>
-                        }
-                    </select>
+                    @if (!userConfig.HideOdometerTags)
+                    {
+                        <label for="odometerRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                        <select multiple class="form-select" id="odometerRecordTag">
+                            @foreach (string tag in Model.Tags)
+                            {
+                                <!option value="@tag">@tag</!option>
+                            }
+                        </select>
+                    }
                     @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                 </div>
                 <div class="col-md-6 col-12">
-                    <label for="odometerRecordNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
-                    <textarea id="odometerRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    @if (!userConfig.DisableOdometerNotes)
+                    {
+                        <label for="odometerRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                        <textarea id="odometerRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    }
                     <div>
                         @await Html.PartialAsync("_UploadedFiles", Model.Files)
                         @await Html.PartialAsync("_FileUploader", Model.Files.Any())

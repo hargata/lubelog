@@ -339,6 +339,9 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult Login(LoginModel credentials)
         {
+            // Trim the trailing spaces from the username
+            credentials.UserName = credentials.UserName.TrimEnd();
+
             if (string.IsNullOrWhiteSpace(credentials.UserName) ||
                 string.IsNullOrWhiteSpace(credentials.Password))
             {

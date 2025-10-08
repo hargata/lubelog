@@ -1,5 +1,10 @@
-﻿$(function () {
+function returnToGarage() {
+    window.location.href = '/Home';
+}
+var page = 1;
+$(function () {
     var vehicleId = GetVehicleId().vehicleId;
+
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
         switch (e.target.id) {
@@ -34,7 +39,7 @@
                 getVehiclePlanRecords(vehicleId);
                 break;
             case "odometer-tab":
-                getVehicleOdometerRecords(vehicleId);
+                getPaginatedVehicleOdometerRecords(vehicleId);
                 break;
         }
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
@@ -117,6 +122,28 @@ function getVehicleOdometerRecords(vehicleId) {
             getVehicleHaveImportantReminders(vehicleId);
         }
     });
+}
+function getPaginatedVehicleOdometerRecords(vehicleId) {
+    let pageSize = 10;
+    $.get(`/Vehicle/GetPaginatedOdometerRecordsByVehicleId?vehicleId=${vehicleId}&pageSize=${pageSize}&page=${page}`, function (data) {
+        if (data) {
+            $("#odometer-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function handleNextPage() {
+    var vehicleId = GetVehicleId().vehicleId;
+    page++;
+    getPaginatedVehicleOdometerRecords(vehicleId)
+}
+function handlePreviousPage() {
+    var vehicleId = GetVehicleId().vehicleId;
+    if (page > 1) {
+        page--;
+        getPaginatedVehicleOdometerRecords(vehicleId)
+    }
 }
 function getVehicleSupplyRecords(vehicleId) {
     $.get(`/Vehicle/GetSupplyRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
@@ -508,7 +535,7 @@ function adjustRecordsOdometer(ids, source) {
             break;
         case "OdometerRecord":
             friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
+            refreshDataCallBack = getPaginatedVehicleOdometerRecords;
             break;
         case "GasRecord":
             friendlySource = "Fuel Records";

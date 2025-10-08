@@ -1,4 +1,4 @@
-﻿namespace CarCareTracker.Models
+namespace CarCareTracker.Models
 {
     public enum ExtraFieldType
     {
