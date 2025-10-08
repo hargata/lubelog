@@ -597,7 +597,8 @@ namespace CarCareTracker.Controllers
                 EnableAuth = _config.GetServerAuthEnabled(),
                 DefaultReminderEmail = _config.GetDefaultReminderEmail(),
                 EnableRootUserOIDC = _config.GetEnableRootUserOIDC(),
-                CookieLifeSpan = _config.GetAuthCookieLifeSpan().ToString()
+                CookieLifeSpan = _config.GetAuthCookieLifeSpan().ToString(),
+                KestrelAppConfig = _config.GetKestrelAppConfig()
             };
             return View(viewModel);
         }

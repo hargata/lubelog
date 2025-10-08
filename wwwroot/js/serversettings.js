@@ -10,18 +10,19 @@ function determineSetupButtons() {
     let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
     switch (currentVisiblePage) {
         case '0':
-        case '5':
+        case '6':
             $(".setup-wizard-nav").hide();
             break;
         case '1':
         case '2':
         case '3':
+        case '4':
             $(".setup-wizard-nav").show();
             $(".btn-prev").show();
             $(".btn-next").show();
             $(".btn-save").hide();
             break;
-        case '4':
+        case '5':
             $(".setup-wizard-nav").show();
             $(".btn-prev").show();
             $(".btn-next").hide();
@@ -98,7 +99,21 @@ function saveSetup() {
             VeryUrgentDistance: $("#inputVeryUrgentDistance").val()
         },
         DefaultReminderEmail: $("#inputDefaultReminderEmail").val(),
-        EnableRootUserOIDC: $("#inputOIDCRootUser").val()
+        EnableRootUserOIDC: $("#inputOIDCRootUser").val(),
+        KestrelAppConfig: {
+            Endpoints: {
+                Http: {
+                    Url: $("#inputHTTPURL").val()
+                },
+                HttpsInlineCertFile: {
+                    Url: $("#inputHTTPSURL").val(),
+                    Certificate: {
+                        Path: $("#inputHTTPSCertLocation").val(),
+                        Password: $("#inputHTTPSCertPassword").val()
+                    }
+                }
+            }
+        }
     };
     let registrationMode = $("#inputRegistrationMode");
     if (registrationMode.length > 0) {
@@ -126,6 +141,9 @@ function saveSetup() {
     }
     if ($("#skipPostgres").is(":checked")) {
         setupData["PostgresConnection"] = null;
+    }
+    if ($("#skipHTTPS").is(":checked")) {
+        setupData["KestrelAppConfig"] = null;
     }
     let rootUserOIDC = $("#inputOIDCRootUser");
     if (rootUserOIDC.length > 0) {
