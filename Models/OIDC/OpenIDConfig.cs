@@ -16,6 +16,7 @@
         public bool UsePKCE { get; set; } = false;
         public string LogOutURL { get; set; } = "";
         public string UserInfoURL { get; set; } = "";
+        public string JwksURL { get; set; } = "";
         public string RemoteAuthURL { get {
                 var redirectUrl = $"{AuthURL}?client_id={ClientId}&response_type=code&redirect_uri={RedirectURL}&scope={Scope}&state={State}";
                 if (UsePKCE)

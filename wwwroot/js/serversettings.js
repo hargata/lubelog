@@ -90,7 +90,8 @@ function saveSetup() {
             DisableRegularLogin: $("#inputOIDCDisable").val(),
             UsePKCE: $("#inputOIDCPKCE").val(),
             LogOutURL: $("#inputOIDCLogout").val(),
-            UserInfoURL: $("#inputOIDCUserInfo").val()
+            UserInfoURL: $("#inputOIDCUserInfo").val(),
+            JwksURL: $("#inputOIDCJwks").val()
         },
         ReminderUrgencyConfig: {
             UrgentDays: $("#inputUrgentDays").val(),
