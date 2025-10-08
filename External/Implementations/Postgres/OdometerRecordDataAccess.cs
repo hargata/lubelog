@@ -52,6 +52,65 @@ namespace CarCareTracker.External.Implementations
                 return new List<OdometerRecord>();
             }
         }
+        
+        public List<OdometerRecord> GetPaginatedOdometerRecordsByVehicleId(int vehicleId, int pageSize, int page, SortDirection sortDirection)
+        {
+            try
+            {
+                string cmd = $"SELECT data FROM app.{tableName} WHERE vehicleId = @vehicleId";
+                var results = new List<OdometerRecord>();
+                using (var ctext = pgDataSource.CreateCommand(cmd))
+                {
+                    ctext.Parameters.AddWithValue("vehicleId", vehicleId);
+                    ctext.Parameters.AddWithValue("limit", pageSize);
+                    ctext.Parameters.AddWithValue("offset", (page -1) * pageSize);
+                    using NpgsqlDataReader reader = ctext.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        OdometerRecord odometerRecord = JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string);
+                        results.Add(odometerRecord);
+                    }
+                }
+                switch (sortDirection)
+                {
+                    case SortDirection.Ascending:
+                        results = results.OrderBy(x => x.Date).ThenBy(x => x.Mileage).Skip((page -1) * pageSize).Take(pageSize).ToList();
+                        break;
+                    case SortDirection.Descending:
+                        results = results.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                        break;
+                    default:
+                        break;
+                }
+                return results;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return new List<OdometerRecord>();
+            }
+        }
+
+        public int GetNumberOfOdometerRecordsByVehicleId(int vehicleId)
+        {
+            try
+            {
+                string cmd = $"SELECT COUNT(*) FROM app.{tableName} WHERE vehicleId = @vehicleId";
+                int? result = 0;
+                using (var ctext = pgDataSource.CreateCommand(cmd))
+                {
+                    ctext.Parameters.AddWithValue("vehicleId", vehicleId);
+                    result = (int)ctext.ExecuteScalar();
+                }
+                return result ?? 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return 0;
+            }
+        }
+
         public OdometerRecord GetOdometerRecordById(int odometerRecordId)
         {
             try

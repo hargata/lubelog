@@ -1,4 +1,4 @@
-﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
@@ -366,6 +366,8 @@ namespace CarCareTracker.Helper
         {
             var serverConfig = new UserConfig
             {
+                DisableOdometerNotes = CheckBool(CheckString(nameof(UserConfig.DisableOdometerNotes))),
+                HideOdometerTags = CheckBool(CheckString(nameof(UserConfig.HideOdometerTags))),
                 EnableCsvImports = CheckBool(CheckString(nameof(UserConfig.EnableCsvImports)), true),
                 UseDarkMode = CheckBool(CheckString(nameof(UserConfig.UseDarkMode))),
                 UseSystemColorMode = CheckBool(CheckString(nameof(UserConfig.UseSystemColorMode))),
