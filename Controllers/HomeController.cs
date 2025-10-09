@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using CarCareTracker.Logic;
 using System.Globalization;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -304,15 +305,28 @@ namespace CarCareTracker.Controllers
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
-        public IActionResult SaveTranslation(string userLanguage, Dictionary<string, string> translationData)
+        public IActionResult SaveTranslation(IFormFile file)
         {
+            var userLanguage = Path.GetFileNameWithoutExtension(file.FileName);
+            var translationData = new Dictionary<string, string>();
+            using (var sReader = new StreamReader(file.OpenReadStream()))
+            {
+                var sData = sReader.ReadToEnd();
+                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData);
+            }
             var result = _translationHelper.SaveTranslation(userLanguage, translationData);
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
-        public IActionResult ExportTranslation(Dictionary<string, string> translationData)
+        public IActionResult ExportTranslation(IFormFile file)
         {
+            var translationData = new Dictionary<string, string>();
+            using (var sReader = new StreamReader(file.OpenReadStream()))
+            {
+                var sData = sReader.ReadToEnd();
+                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData);
+            }
             var result = _translationHelper.ExportTranslation(translationData);
             return Json(result);
         }
