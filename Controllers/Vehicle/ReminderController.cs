@@ -151,6 +151,7 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Metric = result.Metric,
                 IsRecurring = result.IsRecurring,
+                FixedIntervals = result.FixedIntervals,
                 UseCustomThresholds = result.UseCustomThresholds,
                 CustomThresholds = result.CustomThresholds,
                 ReminderMileageInterval = result.ReminderMileageInterval,

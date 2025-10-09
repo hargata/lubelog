@@ -10,6 +10,7 @@
         public string Notes { get; set; }
         public bool IsRecurring { get; set; } = false;
         public bool UseCustomThresholds { get; set; } = false;
+        public bool FixedIntervals { get; set; } = false;
         public ReminderUrgencyConfig CustomThresholds { get; set; } = new ReminderUrgencyConfig();
         public int CustomMileageInterval { get; set; } = 0;
         public int CustomMonthInterval { get; set; } = 0;
@@ -29,6 +30,7 @@
                 Description = Description,
                 Metric = Metric,
                 IsRecurring = IsRecurring,
+                FixedIntervals = FixedIntervals,
                 UseCustomThresholds = UseCustomThresholds,
                 CustomThresholds = CustomThresholds,
                 ReminderMileageInterval = ReminderMileageInterval,
