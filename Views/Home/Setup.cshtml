@@ -173,12 +173,12 @@
         <hr />
         <form class="form-inline">
             <div class="form-group">
-                <label for="inputHTTPURL">@translator.Translate(userLanguage, "Http Endpoint")</label>
+                <label for="inputHTTPURL">@translator.Translate(userLanguage, "HTTP Endpoint")</label>
                 <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.Http.Url">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
-                <label for="inputHTTPSURL">@translator.Translate(userLanguage, "Https Endpoint")</label>
+                <label for="inputHTTPSURL">@translator.Translate(userLanguage, "HTTPS Endpoint")</label>
                 <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Url">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
@@ -189,7 +189,12 @@
             </div>
             <div class="form-group">
                 <label for="inputHTTPSCertPassword">@translator.Translate(userLanguage, "HTTPS Certificate Password")</label>
-                <input type="text" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password">
+                <div class="input-group">
+                    <input type="password" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password">
+                    <div class="input-group-text">
+                        <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                    </div>
+                </div>
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
         </form>
