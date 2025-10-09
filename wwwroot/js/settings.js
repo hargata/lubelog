@@ -169,13 +169,69 @@ function showTranslationEditor() {
 function hideTranslationEditor() {
     $('#translationEditorModal').modal('hide');
 }
+function createAndUploadTranslation(translationName, translationData) {
+    let jsonData = JSON.stringify(translationData);
+    let translationBlob = new Blob([jsonData], { type: "application/json" });
+    let translationFile = new File([translationBlob], `${translationName}.json`, { type: "application/json" });
+    let formData = new FormData();
+    formData.append("file", translationFile);
+    sloader.show();
+    $.ajax({
+        url: "/Home/SaveTranslation",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (response.success) {
+                setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+            } else {
+                errorToast(response.message);
+            }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.");
+        }
+    });
+}
+function createAndExportTranslation(translationData) {
+    let jsonData = JSON.stringify(translationData);
+    let translationBlob = new Blob([jsonData], { type: "application/json" });
+    let translationFile = new File([translationBlob], `translationexport.json`, { type: "application/json" });
+    let formData = new FormData();
+    formData.append("file", translationFile);
+    sloader.show();
+    $.ajax({
+        url: "/Home/ExportTranslation",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (!response) {
+                errorToast(genericErrorMessage());
+            } else {
+                window.location.href = response;
+            }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.");
+        }
+    });
+}
 function saveTranslation() {
     var currentLanguage = $("#defaultLanguage").val();
-    var translationData = [];
+    var translationData = {};
     $(".translation-keyvalue").map((index, elem) => {
         var translationKey = $(elem).find('.translation-key');
         var translationValue = $(elem).find('.translation-value textarea');
-        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+        translationData[translationKey.text().replaceAll(' ', '_').trim()] = translationValue.val().trim();
     });
     if (translationData.length == 0) {
         errorToast(genericErrorMessage());
@@ -200,35 +256,22 @@ function saveTranslation() {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            $.post('/Home/SaveTranslation', { userLanguage: result.value.translationFileName, translationData: translationData }, function (data) {
-                if (data.success) {
-                    successToast("Translation Updated");
-                    updateSettings();
-                } else {
-                    errorToast(genericErrorMessage());
-                }
-            });
+            createAndUploadTranslation(result.value.translationFileName, translationData);
         }
     });
 }
 function exportTranslation(){
-    var translationData = [];
+    var translationData = {};
     $(".translation-keyvalue").map((index, elem) => {
         var translationKey = $(elem).find('.translation-key');
         var translationValue = $(elem).find('.translation-value textarea');
-        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+        translationData[translationKey.text().replaceAll(' ', '_').trim()] = translationValue.val().trim();
     });
     if (translationData.length == 0) {
         errorToast(genericErrorMessage());
         return;
     }
-    $.post('/Home/ExportTranslation', { translationData: translationData }, function (data) {
-        if (!data) {
-            errorToast(genericErrorMessage());
-        } else {
-            window.location.href = data;
-        }
-    });
+    createAndExportTranslation(translationData);
 }
 function showTranslationDownloader() {
     $.get('/Home/GetAvailableTranslations', function(data){
