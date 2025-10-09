@@ -151,6 +151,7 @@ function appendMileageToOdometer(increment) {
 function enableRecurring() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     if (reminderIsRecurring) {
+        $("#reminderFixedIntervals").attr('disabled', false);
         //check selected metric
         var reminderMetric = $('#reminderOptions input:radio:checked').val();
         if (reminderMetric == "Date") {
@@ -168,6 +169,7 @@ function enableRecurring() {
     } else {
         $("#reminderRecurringMileage").attr('disabled', true);
         $("#reminderRecurringMonth").attr('disabled', true);
+        $("#reminderFixedIntervals").attr('disabled', true);
     }
 }
 
@@ -201,6 +203,7 @@ function getAndValidateReminderRecordValues() {
     var reminderVeryUrgentDays = $("#reminderVeryUrgentDays").val();
     var reminderUrgentDistance = $("#reminderUrgentDistance").val();
     var reminderVeryUrgentDistance = $("#reminderVeryUrgentDistance").val();
+    var reminderFixedIntervals = $("#reminderFixedIntervals").is(":checked");
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
@@ -271,6 +274,7 @@ function getAndValidateReminderRecordValues() {
         notes: reminderNotes,
         metric: reminderOption,
         isRecurring: reminderIsRecurring,
+        fixedIntervals: reminderFixedIntervals,
         useCustomThresholds: reminderUseCustomThresholds,
         customThresholds: {
             urgentDays: reminderUrgentDays,

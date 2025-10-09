@@ -57,9 +57,15 @@
                 <div class="col-md-6 col-12">
                     <label for="reminderNotes">@translator.Translate(userLanguage,"Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="reminderNotes" class="form-control" rows="5">@Model.Notes</textarea>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" onChange="enableRecurring()" role="switch" id="reminderIsRecurring" checked="@Model.IsRecurring">
-                        <label class="form-check-label" for="reminderIsRecurring">@translator.Translate(userLanguage,"Is Recurring")</label>
+                    <div>
+                        <div class="form-check form-switch form-check-inline">
+                            <input class="form-check-input" type="checkbox" onChange="enableRecurring()" role="switch" id="reminderIsRecurring" checked="@Model.IsRecurring">
+                            <label class="form-check-label" for="reminderIsRecurring">@translator.Translate(userLanguage, "Is Recurring")</label>
+                        </div>
+                        <div class="form-check form-switch form-check-inline">
+                            <input class="form-check-input" type="checkbox" role="switch" id="reminderFixedIntervals" checked="@Model.FixedIntervals" @(Model.IsRecurring ? "" : "disabled")>
+                            <label class="form-check-label" for="reminderFixedIntervals">@translator.Translate(userLanguage, "Fixed Intervals")</label>
+                        </div>
                     </div>
                     <label for="reminderRecurringMileage">@translator.Translate(userLanguage,"Odometer")</label>
                     <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Odometer || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
