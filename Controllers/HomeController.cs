@@ -583,6 +583,24 @@ namespace CarCareTracker.Controllers
             return PartialView("_LocaleSample", viewModel);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public async Task<IActionResult> ImportOpenIDConfiguration(string configUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(configUrl))
+            {
+                try
+                {
+                    var httpClient = new HttpClient();
+                    var openIdConfig = await httpClient.GetFromJsonAsync<OpenIDProviderConfig>(configUrl);
+                    return Json(openIdConfig);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Unable to retrieve OpenID Provider Config: {ex.Message}");
+                }
+            }
+            return Json(new OpenIDProviderConfig());
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [Route("/setup")]
         public IActionResult Setup()
         {

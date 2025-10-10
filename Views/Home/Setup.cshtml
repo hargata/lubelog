@@ -275,6 +275,11 @@
                     <!option value="false" @(Model.OIDCConfig.DisableRegularLogin ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
             </div>
+            <div class="form-group">
+                <div class="d-flex align-items-center justify-content-center flex-column">
+                    <div class="mt-2"><a class="btn btn-warning" onclick="importOpenIDConfig()">@translator.Translate(userLanguage, "Import OpenID Config")</a></div>
+                </div>
+            </div>
         </form>
     </div>
     <div class="setup-wizard-content" data-page="5" style="display:none;">

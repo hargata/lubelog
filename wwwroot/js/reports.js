@@ -429,3 +429,50 @@ function showReportAdvancedParameters() {
         $(".report-advanced-parameters").addClass("d-none");
     }
 }
+function getCostDataTablePage(pageNumber) {
+    let years = $(".monthlyCostBreakDownTable").find("th").map((index, elem) => $(elem).text()).toArray().filter(y => !isNaN(y));
+    if (years.length < 5) {
+        return;
+    }
+    let firstYear = years[0];
+    let lastYear = years[years.length - 1];
+    let pageSize = 5;
+    // Calculate the starting index for the current page.
+    // Page numbers are usually 1-based, so we subtract 1 for 0-based array indexing.
+    let startIndex = (pageNumber - 1) * pageSize;
+
+    // Calculate the ending index for the current page.
+    // slice() extracts up to (but not including) the end index.
+    let endIndex = startIndex + pageSize;
+
+    // Use slice() to extract the elements for the current page.
+    let yearsToDisplay = years.slice(startIndex, endIndex);
+    $(".monthlyCostBreakDownTable").find("th").map((index, elem) => {
+        let year = $(elem).text();
+        if (yearsToDisplay.includes(year)) {
+            $(elem).show();
+            $(".monthlyCostBreakDownTable").find(`tr > td[report-year='${year}']`).show();
+        } else if (index != 0) {
+            $(elem).hide();
+            $(".monthlyCostBreakDownTable").find(`tr > td[report-year='${year}']`).hide();
+        }
+    });
+    let leftNavButton = $('.monthlyCostBreakDownTable').find('.btn-costdata-prev');
+    let rightNavButton = $('.monthlyCostBreakDownTable').find('.btn-costdata-next');
+    leftNavButton.off('click');
+    rightNavButton.off('click');
+    if (yearsToDisplay.includes(firstYear)) {
+        leftNavButton.attr('disabled', true);
+    } else {
+        let prevPage = pageNumber - 1
+        leftNavButton.on('click', function () { getCostDataTablePage(prevPage); });
+        leftNavButton.attr('disabled', false);
+    }
+    if (yearsToDisplay.includes(lastYear)) {
+        rightNavButton.attr('disabled', true);
+    } else {
+        let nextPage = pageNumber + 1
+        rightNavButton.on('click', function () { getCostDataTablePage(nextPage); });
+        rightNavButton.attr('disabled', false);
+    }
+}
