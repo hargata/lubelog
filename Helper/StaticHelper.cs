@@ -407,6 +407,8 @@ namespace CarCareTracker.Helper
                 }
             }
         }
+
+        [Obsolete("Prefer usages of IEventBus, and Webhook registration based on those events. See Program.cs AddWebhooks")]
         public static async void NotifyAsync(string webhookURL, WebHookPayload webHookPayload)
         {
             if (string.IsNullOrWhiteSpace(webhookURL))
@@ -425,6 +427,7 @@ namespace CarCareTracker.Helper
                 httpClient.PostAsJsonAsync(webhookURL, webHookPayload);
             }
         }
+
         public static string GetImportModeIcon(ImportMode importMode)
         {
             switch (importMode)
