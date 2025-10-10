@@ -1262,17 +1262,17 @@ function showTableContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".table-context-menu").fadeIn("fast");
-    $(".table-context-menu").css({
-        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
-        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
-    });
     if (!$(e).hasClass('table-active')) {
         clearSelectedRows();
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
     }
+    $(".table-context-menu").fadeIn("fast");
     determineContextMenuItems();
+    $(".table-context-menu").css({
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
 }
 function determineContextMenuItems() {
     var tableRows = $('.table tbody tr:visible');
@@ -1352,11 +1352,11 @@ function showTableContextMenuForMobile(e, xPosition, yPosition) {
         shakeTableRow(e);
     } else {
         $(".table-context-menu").fadeIn("fast");
+        determineContextMenuItems();
         $(".table-context-menu").css({
             left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
             top: getMenuPosition(yPosition, 'height', 'scrollTop')
         });
-        determineContextMenuItems();
     }
 }
 function shakeTableRow(e) {

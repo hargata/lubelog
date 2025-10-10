@@ -261,17 +261,17 @@ function showGarageContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".garage-context-menu").fadeIn("fast");
-    $(".garage-context-menu").css({
-        left: getGarageMenuPosition(event.clientX, 'width', 'scrollLeft'),
-        top: getGarageMenuPosition(event.clientY, 'height', 'scrollTop')
-    });
     if (!$(e).hasClass('garage-active')) {
         clearSelectedVehicles();
         addToSelectedVehicles($(e).attr('data-rowId'));
         $(e).addClass('garage-active');
     }
+    $(".garage-context-menu").fadeIn("fast");
     determineGarageContextMenu();
+    $(".garage-context-menu").css({
+        left: getGarageMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getGarageMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
 }
 function showGarageContextMenuForMobile(e, xPosition, yPosition) {
     if (!$(e).hasClass('garage-active')) {
@@ -279,11 +279,11 @@ function showGarageContextMenuForMobile(e, xPosition, yPosition) {
         $(e).addClass('garage-active');
     } else {
         $(".garage-context-menu").fadeIn("fast");
+        determineGarageContextMenu();
         $(".garage-context-menu").css({
             left: getGarageMenuPosition(xPosition, 'width', 'scrollLeft'),
             top: getGarageMenuPosition(yPosition, 'height', 'scrollTop')
         });
-        determineGarageContextMenu();
     }
 }
 function determineGarageContextMenu() {
