@@ -333,6 +333,13 @@ function removeFromSelectedVehicles(id) {
         selectedVehicles.splice(rowIndex, 1);
     }
 }
+function viewVehicleWithTab(vehicleIds, tab) {
+    if (vehicleIds.length != 1) {
+        return;
+    }
+    let vehicleId = vehicleIds[0];
+    window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}&tab=${tab}`;
+}
 function handleGarageItemClick(e, vehicleId) {
     if (!(event.ctrlKey || event.metaKey)) {
         viewVehicle(vehicleId);
