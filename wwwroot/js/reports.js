@@ -430,13 +430,13 @@ function showReportAdvancedParameters() {
     }
 }
 function getCostDataTablePage(pageNumber) {
+    let pageSize = 5;
     let years = $(".monthlyCostBreakDownTable").find("th").map((index, elem) => $(elem).text()).toArray().filter(y => !isNaN(y));
-    if (years.length < 5) {
+    if (years.length < pageSize) {
         return;
     }
     let firstYear = years[0];
     let lastYear = years[years.length - 1];
-    let pageSize = 5;
     // Calculate the starting index for the current page.
     // Page numbers are usually 1-based, so we subtract 1 for 0-based array indexing.
     let startIndex = (pageNumber - 1) * pageSize;
