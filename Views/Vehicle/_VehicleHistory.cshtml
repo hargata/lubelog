@@ -122,7 +122,7 @@
                         <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.DataType)) ? "" : "d-none")">@translator.Translate(userLanguage, "Type")</th>
                         <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@translator.Translate(userLanguage, "Date")</th>
                         <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@translator.Translate(userLanguage, "Odometer")</th>
-                        <th scope="col" class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@translator.Translate(userLanguage, "Description")</th>
+                        <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@translator.Translate(userLanguage, "Description")</th>
                         <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@translator.Translate(userLanguage, "Cost")</th>
                         <th scope="col" class="col-4 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@translator.Translate(userLanguage, "Notes")</th>
                         @foreach(string extraField in extraFields)
@@ -155,7 +155,7 @@
                             </td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@reportData.Date.ToShortDateString()</td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
-                            <td class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@reportData.Description</td>
+                            <td class="col-3 flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none") text-wrap text-break">@reportData.Description</td>
                             <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@(StaticHelper.HideZeroCost(reportData.Cost, hideZero))</td>
                             <td class="col-4 flex-grow-1 flex-shrink-1 text-wrap text-break @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
                             @foreach(string extraField in extraFields)
