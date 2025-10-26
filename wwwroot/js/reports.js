@@ -412,10 +412,12 @@ function loadMapSearchResult(id, recordType) {
     hideDataTable();
     loadGlobalSearchResult(id, recordType);
 }
+function showCustomWidgets() {
+    $("#vehicleCustomWidgetsModal").modal('show');
+}
 function loadCustomWidgets() {
     $.get('/Vehicle/GetAdditionalWidgets', function (data) {
         $("#vehicleCustomWidgetsModalContent").html(data);
-        $("#vehicleCustomWidgetsModal").modal('show');
     })
 }
 function hideCustomWidgetsModal() {
