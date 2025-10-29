@@ -1652,7 +1652,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
-        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies)
+        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies, string tags)
         {
             if (vehicleId == default)
             {
@@ -1668,6 +1668,11 @@ namespace CarCareTracker.Controllers
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var reminderResults = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
             reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                var tagsFilter = tags.Split(' ').Distinct();
+                reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var results = reminderResults.Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -1904,7 +1909,7 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
-        public IActionResult SendReminders(List<ReminderUrgency> urgencies)
+        public IActionResult SendReminders(List<ReminderUrgency> urgencies, string tags)
         {
             if (!urgencies.Any())
             {
@@ -1914,6 +1919,7 @@ namespace CarCareTracker.Controllers
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
             var defaultEmailAddress = _config.GetDefaultReminderEmail();
+            List<string> tagsFilter = !string.IsNullOrWhiteSpace(tags) ? tags.Split(' ').Distinct().ToList() : new List<string>();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;
@@ -1922,6 +1928,10 @@ namespace CarCareTracker.Controllers
                 var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
                 var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
                 results.RemoveAll(x => !urgencies.Contains(x.Urgency));
+                if (tagsFilter.Any())
+                {
+                    results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                }
                 if (!results.Any())
                 {
                     continue;
