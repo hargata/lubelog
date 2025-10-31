@@ -36,6 +36,9 @@
             case "odometer-tab":
                 getVehicleOdometerRecords(vehicleId);
                 break;
+            case "inspection-tab":
+                getVehicleInspectionRecords(vehicleId);
+                break;
         }
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
         $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
@@ -73,6 +76,9 @@
                     break;
                 case "odometer-tab":
                     $("#odometer-tab-pane").html("");
+                    break;
+                case "inspection-tab":
+                    $("#inspection-tab-pane").html("");
                     break;
             }
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
@@ -159,6 +165,7 @@ function getVehicleTaxRecords(vehicleId) {
         if (data) {
             $("#tax-tab-pane").html(data);
             restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
         }
     });
 }
@@ -166,6 +173,15 @@ function getVehicleReminders(vehicleId) {
     $.get(`/Vehicle/GetReminderRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#reminder-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehicleInspectionRecords(vehicleId) {
+    $.get(`/Vehicle/GetInspectionRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#inspection-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }

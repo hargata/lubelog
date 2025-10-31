@@ -11,5 +11,6 @@
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<InspectionRecordResult> Results { get; set; } = new List<InspectionRecordResult>();
+        public bool Failed { get { return Results.Any(x => x.Failed); } }
     }
 }
