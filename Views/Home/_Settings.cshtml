@@ -132,12 +132,12 @@
             <div class="col-12 col-md-6">
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
-                        <label class="form-check-label stretched-link" for="serviceRecordTab">@translator.Translate(userLanguage, "Service Records")</label>
-                    </li>
-                    <li class="list-group-item d-none">
                         <input onChange="updateSettings()" disabled class="form-check-input me-1" type="checkbox" value="Dashboard" id="dashboardTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.Dashboard) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="dashboardTab">@translator.Translate(userLanguage, "Dashboard")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="ServiceRecord" id="serviceRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.ServiceRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="serviceRecordTab">@translator.Translate(userLanguage, "Service Records")</label>
                     </li>
                     <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="RepairRecord" id="repairRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.RepairRecord) ? "checked" : "")>
@@ -179,6 +179,10 @@
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="PlanRecord" id="planRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.PlanRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="planRecordTab">@translator.Translate(userLanguage, "Planner")</label>
                     </li>
+                    <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="InspectionRecord" id="inspectionRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.InspectionRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inspectionRecordTab">@translator.Translate(userLanguage, "Inspections")</label>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -197,6 +201,7 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.SupplyRecord)) value="SupplyRecord">@translator.Translate(userLanguage, "Supplies")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.PlanRecord)) value="PlanRecord">@translator.Translate(userLanguage, "Planner")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.OdometerRecord)) value="OdometerRecord">@translator.Translate(userLanguage, "Odometer")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.InspectionRecord)) value="InspectionRecord">@translator.Translate(userLanguage, "Inspections")</!option>
                 </select>
             </div>
             <div class="col-12 col-md-6">
@@ -379,6 +384,7 @@
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.TaxRecord)" draggable="true" data-tab="@ImportMode.TaxRecord">@translator.Translate(userLanguage, "Taxes")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.NoteRecord)" draggable="true" data-tab="@ImportMode.NoteRecord">@translator.Translate(userLanguage, "Notes")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.ReminderRecord)" draggable="true" data-tab="@ImportMode.ReminderRecord">@translator.Translate(userLanguage, "Reminder")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x => x == ImportMode.InspectionRecord)" draggable="true" data-tab="@ImportMode.InspectionRecord">@translator.Translate(userLanguage, "Inspections")</li>
                         </ul>
                     </div>
                 </div>

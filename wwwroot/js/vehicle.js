@@ -756,5 +756,8 @@ function getDefaultTabName() {
         case "OdometerRecord":
             return 'odometer';
             break;
+        case "InspectionRecord":
+            return 'inspection';
+            break;
     }
 }
