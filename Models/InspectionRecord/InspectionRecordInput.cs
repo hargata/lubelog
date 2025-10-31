@@ -11,7 +11,7 @@
         public List<int> ReminderRecordId { get; set; } = new List<int>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
-        public List<InspectionRecordResult> Results { get; set; } = new List<InspectionRecordResult>();
+        public List<InspectionRecordTemplateField> Fields { get; set; } = new List<InspectionRecordTemplateField>();
         public InspectionRecord ToInspectionRecord()
         {
             return new InspectionRecord
@@ -22,17 +22,10 @@
                 Cost = Cost,
                 Mileage = Mileage,
                 Description = Description,
-                Results = Results,
+                Results = Fields.Select(x => x.ToInspectionRecordResult()).ToList(),
                 Files = Files,
                 Tags = Tags,
             };
         }
-    }
-    public class InspectionRecordResult
-    {
-        public string Description { get; set; }
-        public string Value { get; set; }
-        public string Failed { get; set; }
-        public string Notes { get; set; }
     }
 }
