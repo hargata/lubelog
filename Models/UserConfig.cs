@@ -51,6 +51,7 @@
             ImportMode.SupplyRecord,
             ImportMode.TaxRecord,
             ImportMode.NoteRecord,
+            ImportMode.InspectionRecord,
             ImportMode.ReminderRecord
         };
     }
