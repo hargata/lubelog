@@ -1,0 +1,63 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<InspectionRecordInput>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(translator.Translate(userLanguage, "Select Inspection Record Template"))</h5>
+    <button type="button" class="btn-close" onclick="hideInspectionRecordTemplateSelectorModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (Model.Any())
+    {
+        <div class="row">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;">
+                <table class="table table-hover">
+                    <thead class="sticky-top">
+                        <tr class="d-flex">
+                            <th scope="col" class="col-8">@translator.Translate(userLanguage, "Description")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Use")</th>
+                            <th scope="col" class="col-2">@translator.Translate(userLanguage, "Edit")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (InspectionRecordInput inspectionRecordTemplate in Model)
+                        {
+                            <tr class="d-flex" id="supplyRows">
+                                <td class="col-8 text-truncate">
+                                    @StaticHelper.TruncateStrings(inspectionRecordTemplate.Description)
+                                    @if (inspectionRecordTemplate.ReminderRecordId.Any())
+                                    {
+                                        <i class="bi bi-bell ms-2"></i>
+                                    }
+                                    @if (inspectionRecordTemplate.Fields.Any(x=>x.HasActionItem))
+                                    {
+                                        <i class="bi bi-paperclip ms-2"></i>
+                                    }
+                                </td>
+                                <td class="col-2"><button type="button" class="btn btn-primary" onclick="useInspectionRecordTemplate(@inspectionRecordTemplate.Id)"><i class="bi bi-plus-square"></i></button></td>
+                                <td class="col-2"><button type="button" class="btn btn-warning" onclick="showEditInspectionRecordTemplateModal(@inspectionRecordTemplate.Id)"><i class="bi bi-pencil-square"></i></button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>@translator.Translate(userLanguage, "No templates are found.")</h4>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" onclick="showAddInspectionRecordTemplateModal()">@translator.Translate(userLanguage, "Add New Inspection Template")</button>
+</div>

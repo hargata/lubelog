@@ -1,0 +1,61 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model InspectionRecordTemplateField
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div data-type="field">
+    <label>@translator.Translate(userLanguage, "Description")</label>
+    <div class="d-flex justify-content-between align-items-center">
+        <input type="text" data-type="fieldDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Description of Inspected Item")" value="@Model.Description">
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="duplicateInspectionRecordField(this)"><i class="bi bi-copy"></i></button>
+        <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="deleteInspectionRecordField(this)"><i class="bi bi-trash"></i></button>
+    </div>
+    <label>@translator.Translate(userLanguage, "Type")</label>
+    <select class="form-select" data-type="fieldType" onchange="handleInspectionRecordFieldTypeChange(this)">
+        <!option value="Text" @(Model.FieldType == InspectionFieldType.Text ? "selected" : "")>@translator.Translate(userLanguage, "Text")</!option>
+        <!option value="Check" @(Model.FieldType == InspectionFieldType.Check ? "selected" : "")>@translator.Translate(userLanguage, "Check")</!option>
+        <!option value="Radio" @(Model.FieldType == InspectionFieldType.Radio ? "selected" : "")>@translator.Translate(userLanguage, "Radio")</!option>
+    </select>
+    <div data-type="fieldOptions">
+        @if (Model.Options.Any())
+        {
+            @switch (Model.FieldType)
+            {
+                case InspectionFieldType.Radio:
+                case InspectionFieldType.Check:
+                    @await Html.PartialAsync("Inspection/_InspectionRecordFieldOptions", Model.Options)
+                    break;
+            }
+        }
+    </div>
+    <div data-type="fieldActionItem" style="@(Model.FieldType == InspectionFieldType.Text ? "display:none;" : "")">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" data-type="fieldHasNotes" type="checkbox" role="switch" @(Model.HasNotes ? "checked" : "")>
+            <label class="form-check-label">@translator.Translate(userLanguage, "Has Notes")</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" data-type="fieldHasActionItem" type="checkbox" role="switch" onchange="handleInspectionRecordFieldHasActionItemChange(this)" @(Model.HasActionItem ? "checked" : "")>
+            <label class="form-check-label">@translator.Translate(userLanguage, "Has Action Item")</label>
+        </div>
+        <div class="collapse @(Model.HasActionItem ? "show" : "")" data-type="fieldActionItemContainer">
+            <label>@translator.Translate(userLanguage, "Action Item Description")</label>
+            <input type="text" data-type="fieldActionItemDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Description of Action Item")" value="@Model.ActionItemDescription">
+            <label>@translator.Translate(userLanguage, "Action Item Type")</label>
+            <select class="form-select" data-type="fieldActionItemType">
+                <!option value="ServiceRecord" @(Model.ActionItemType == ImportMode.ServiceRecord ? "selected" : "")>@translator.Translate(userLanguage, "Service")</!option>
+                <!option value="RepairRecord" @(Model.ActionItemType == ImportMode.RepairRecord ? "selected" : "")>@translator.Translate(userLanguage, "Repair")</!option>
+                <!option value="UpgradeRecord" @(Model.ActionItemType == ImportMode.UpgradeRecord ? "selected" : "")>@translator.Translate(userLanguage, "Upgrade")</!option>
+            </select>
+            <label>@translator.Translate(userLanguage, "Action Item Priority")</label>
+            <select class="form-select" data-type="fieldActionItemPriority">
+                <!option value="Critical" @(Model.ActionItemPriority == PlanPriority.Critical ? "selected" : "")>@translator.Translate(userLanguage, "Critical")</!option>
+                <!option value="Normal" @(Model.ActionItemPriority == PlanPriority.Normal ? "selected" : "")>@translator.Translate(userLanguage, "Normal")</!option>
+                <!option value="Low" @(Model.ActionItemPriority == PlanPriority.Low ? "selected" : "")>@translator.Translate(userLanguage, "Low")</!option>
+            </select>
+        </div>
+    </div>
+    <hr />
+</div>
