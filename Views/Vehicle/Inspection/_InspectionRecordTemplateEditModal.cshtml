@@ -19,11 +19,11 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="inspectionRecordDescription">@translator.Translate(userLanguage, "Description")</label>
                     <input type="text" id="inspectionRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Description of Inspection")" value="@Model.Description">
-                        <div class="row">
-                            <div class="col-12">
-                                <a onclick="showRecurringReminderSelector('inspectionRecordDescription', 'inspectionRecordNotes')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
-                            </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <a onclick="showRecurringReminderSelector('inspectionRecordDescription', 'inspectionRecordNotes')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
                         </div>
+                    </div>
                     <div id="inspectionRecordFields" style="overflow-y:auto;">
                         @foreach (InspectionRecordTemplateField inspectionRecordField in Model.Fields)
                         {
@@ -33,8 +33,8 @@
                     <div class="d-grid p-2">
                         <button type="button" class="btn btn-warning" onclick="addInspectionRecordField()">@translator.Translate(userLanguage, "Add Field")</button>
                     </div>
-                    <label for="inspectionRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
-                    <select multiple class="form-select" id="inspectionRecordTag">
+                    <label for="inspectionRecordTemplateTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                    <select multiple class="form-select" id="inspectionRecordTemplateTag">
                         @foreach (string tag in Model.Tags)
                         {
                             <!option value="@tag">@tag</!option>
@@ -48,7 +48,7 @@
 <div class="modal-footer">
     @if (!isNew)
     {
-        <button type="button" class="btn btn-danger" onclick="deleteInspectionRecord(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
+        <button type="button" class="btn btn-danger me-auto" onclick="deleteInspectionRecordTemplate(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideInspectionRecordTemplateModal()">@translator.Translate(userLanguage, "Cancel")</button>
     @if (isNew)
@@ -67,6 +67,6 @@
     }
     @foreach (int reminderRecordId in Model.ReminderRecordId)
     {
-            @:recurringReminderRecordId.push(@reminderRecordId);
+                @:recurringReminderRecordId.push(@reminderRecordId);
     }
 </script>

@@ -14,10 +14,9 @@ function showAddInspectionRecordTemplateModal() {
     $.get('/Vehicle/GetAddInspectionRecordTemplatePartialView', function (data) {
         if (data) {
             $("#inspectionRecordTemplateEditModalContent").html(data);
-            //initiate datepicker
-            initDatePicker($('#inspectionRecordDate'));
-            initTagSelector($("#inspectionRecordTag"));
             hideInspectionRecordTemplateSelectorModal();
+            //initiate tag selector
+            initTagSelector($("#inspectionRecordTemplateTag"));
             $('#inspectionRecordTemplateEditModal').modal('show');
         }
     });
@@ -26,9 +25,8 @@ function showEditInspectionRecordTemplateModal(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetEditInspectionRecordTemplatePartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
         if (data) {
             $("#inspectionRecordTemplateEditModalContent").html(data);
-            //initiate datepicker
-            initDatePicker($('#inspectionRecordDate'));
-            initTagSelector($("#inspectionRecordTag"));
+            //initiate tag selector
+            initTagSelector($("#inspectionRecordTemplateTag"));
             hideInspectionRecordTemplateSelectorModal();
             $('#inspectionRecordTemplateEditModal').modal('show');
         }
@@ -90,7 +88,7 @@ function getAndValidateInspectionRecordTemplate() {
     } else {
         $("#inspectionRecordDescription").removeClass("is-invalid");
     }
-    let inspectionTags = $("#inspectionRecordTag").val();
+    let inspectionTags = $("#inspectionRecordTemplateTag").val();
     let inspectionRecordId = getInspectionRecordModelData().id;
     let vehicleId = GetVehicleId().vehicleId;
     let inspectionRecordTemplateData = {
@@ -170,6 +168,48 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
             errorToast(genericErrorMessage());
         }
     })
+}
+function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
+    $("#workAroundInput").show();
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Inspection Templates cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/Vehicle/DeleteInspectionRecordTemplateById?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
+                $("#workAroundInput").hide();
+                if (data) {
+                    successToast("Inspection Template Deleted");
+                    hideInspectionRecordTemplateModal();
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}
+function useInspectionRecordTemplate(inspectionRecordTemplateId) {
+    $.get(`/Vehicle/GetAddInspectionRecordPartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
+        if (data) {
+            $("#inspectionRecordModalContent").html(data);
+            hideInspectionRecordTemplateSelectorModal();
+            //initiate datepicker
+            initDatePicker($('#inspectionRecordDate'));
+            initTagSelector($("#inspectionRecordTag"));
+            $("#inspectionRecordModal").modal('show');
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    });
+}
+function hideAddInspectionRecordModal() {
+    $("#inspectionRecordModal").modal('hide');
+    showInspectionRecordTemplateSelectorModal();
 }
 //function showEditCollisionRecordModal(collisionRecordId, nocache) {
 //    if (!nocache) {

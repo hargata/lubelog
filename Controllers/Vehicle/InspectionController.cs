@@ -70,6 +70,23 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
             return Json(result);
         }
+        private bool DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)
+        {
+            var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _inspectionRecordTemplateDataAccess.DeleteInspectionRecordTemplateById(existingRecord.Id);
+            return result;
+        }
+        [HttpPost]
+        public IActionResult DeleteInspectionRecordTemplateById(int inspectionRecordTemplateId)
+        {
+            var result = DeleteInspectionRecordTemplateWithChecks(inspectionRecordTemplateId);
+            return Json(result);
+        }
         [HttpGet]
         public IActionResult GetAddInspectionRecordPartialView(int inspectionRecordTemplateId)
         {
@@ -126,26 +143,6 @@ namespace CarCareTracker.Controllers
         //    var result = DeleteInspectionRecordWithChecks(noteId);
         //    return Json(result);
         //}
-        //private bool DeleteInspectionRecordTemplateWithChecks(int noteId)
-        //{
-        //    var existingRecord = _noteDataAccess.GetNoteById(noteId);
-        //    //security check.
-        //    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
-        //    {
-        //        return false;
-        //    }
-        //    var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
-        //    if (result)
-        //    {
-        //        StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
-        //    }
-        //    return result;
-        //}
-        //[HttpPost]
-        //public IActionResult DeleteInspectionRecordTemplateById(int noteId)
-        //{
-        //    var result = DeleteInspectionRecordTemplateWithChecks(noteId);
-        //    return Json(result);
-        //}
+        
     }
 }
