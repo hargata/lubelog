@@ -915,6 +915,9 @@ function deleteRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
     }
 
     Swal.fire({
@@ -1791,4 +1794,9 @@ function stretchedLinkClick(e) {
     } else {
         closestCheckElem.prop('checked', true).trigger('change');
     }
+}
+function clearModalContentOnHide(modalElem) {
+    modalElem.off('hidden.bs.modal').on('hidden.bs.modal', () => {
+        modalElem.find('.modal-content').html('');
+    });
 }

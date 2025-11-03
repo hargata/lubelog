@@ -72,6 +72,12 @@
                         </li>
                         <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
                             <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='result' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Result" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Result">@translator.Translate(userLanguage, "Result")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
                                 <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Attachment">
                                 <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
                             </div>
@@ -100,6 +106,7 @@
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
                     <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('inspection-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="result">@translator.Translate(userLanguage, "Result")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
                 </tr>
             </thead>
@@ -111,6 +118,7 @@
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(inspectionRecord.Mileage == default ? "---" : inspectionRecord.Mileage.ToString())</td>
                         <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@inspectionRecord.Description</td>
                         <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(inspectionRecord.Cost, hideZero))</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="result">@(inspectionRecord.Failed ? translator.Translate(userLanguage, "Fail") : translator.Translate(userLanguage, "Pass"))</td>
                         <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", inspectionRecord.Files)</td>
                     </tr>
                 }

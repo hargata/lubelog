@@ -16,6 +16,7 @@
             return Options.Any() ? new InspectionRecordResult
             {
                 Description = Description,
+                FieldType = FieldType,
                 Values = Options.Select(x => new InspectionRecordResultValue{Description = x.Description, IsSelected = x.IsSelected, IsFail = x.IsFail }).ToList(),
                 Failed = (FieldType == InspectionFieldType.Radio && Options.Any(x => x.IsSelected && x.IsFail)) || (FieldType == InspectionFieldType.Check && Options.Any(x=> !x.IsSelected && x.IsFail)),
                 Notes = HasNotes ? Notes : string.Empty
@@ -34,6 +35,7 @@
         public List<InspectionRecordResultValue> Values { get; set; } = new List<InspectionRecordResultValue>();
         public bool Failed { get; set; }
         public string Notes { get; set; }
+        public InspectionFieldType FieldType { get; set; } = InspectionFieldType.Text;
     }
     public class InspectionRecordResultValue
     {

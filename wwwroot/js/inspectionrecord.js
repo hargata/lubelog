@@ -4,6 +4,7 @@
         if (data) {
             $("#inspectionRecordTemplateModalContent").html(data);
             $('#inspectionRecordTemplateModal').modal('show');
+            clearModalContentOnHide($('#inspectionRecordTemplateModal'));
         }
     });
 }
@@ -13,24 +14,24 @@ function hideInspectionRecordTemplateSelectorModal() {
 function showAddInspectionRecordTemplateModal() {
     $.get('/Vehicle/GetAddInspectionRecordTemplatePartialView', function (data) {
         if (data) {
-            $("#inspectionRecordModalContent").html('');
             $("#inspectionRecordTemplateEditModalContent").html(data);
             //initiate tag selector
             initTagSelector($("#inspectionRecordTemplateTag"));
             hideInspectionRecordTemplateSelectorModal();
             $('#inspectionRecordTemplateEditModal').modal('show');
+            clearModalContentOnHide($('#inspectionRecordTemplateEditModal'));
         }
     });
 }
 function showEditInspectionRecordTemplateModal(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetEditInspectionRecordTemplatePartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
         if (data) {
-            $("#inspectionRecordModalContent").html('');
             $("#inspectionRecordTemplateEditModalContent").html(data);
             //initiate tag selector
             initTagSelector($("#inspectionRecordTemplateTag"));
             hideInspectionRecordTemplateSelectorModal();
             $('#inspectionRecordTemplateEditModal').modal('show');
+            clearModalContentOnHide($('#inspectionRecordTemplateEditModal'));
         }
     });
 }
@@ -208,21 +209,24 @@ function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
 function useInspectionRecordTemplate(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetAddInspectionRecordPartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
         if (data) {
-            $("#inspectionRecordTemplateEditModalContent").html('');
             $("#inspectionRecordModalContent").html(data);
             hideInspectionRecordTemplateSelectorModal();
             //initiate datepicker
             initDatePicker($('#inspectionRecordDate'));
             initTagSelector($("#inspectionRecordTag"));
             $("#inspectionRecordModal").modal('show');
+            clearModalContentOnHide($("#inspectionRecordModal"));
         } else {
             errorToast(genericErrorMessage());
         }
     });
 }
-function hideAddInspectionRecordModal() {
+function hideAddInspectionRecordModal(showSelector) {
+    $("#inspectionRecordModalContent").html('');
     $("#inspectionRecordModal").modal('hide');
-    showInspectionRecordTemplateSelectorModal();
+    if (showSelector) {
+        showInspectionRecordTemplateSelectorModal();
+    }
 }
 function getAndValidateInspectionRecord() {
     let hasError = false;
@@ -365,28 +369,39 @@ function saveinspectionRecordToVehicle() {
         }
     })
 }
-//function deleteCollisionRecord(collisionRecordId) {
-//    $("#workAroundInput").show();
-//    Swal.fire({
-//        title: "Confirm Deletion?",
-//        text: "Deleted Repair Records cannot be restored.",
-//        showCancelButton: true,
-//        confirmButtonText: "Delete",
-//        confirmButtonColor: "#dc3545"
-//    }).then((result) => {
-//        if (result.isConfirmed) {
-//            $.post(`/Vehicle/DeleteCollisionRecordById?collisionRecordId=${collisionRecordId}`, function (data) {
-//                if (data) {
-//                    hideAddCollisionRecordModal();
-//                    successToast("Repair Record Deleted");
-//                    var vehicleId = GetVehicleId().vehicleId;
-//                    getVehicleCollisionRecords(vehicleId);
-//                } else {
-//                    errorToast(genericErrorMessage());
-//                }
-//            });
-//        } else {
-//            $("#workAroundInput").hide();
-//        }
-//    });
-//}
+function showEditInspectionRecordModal(inspectionRecordId) {
+    $.get(`/Vehicle/GetViewInspectionRecordPartialView?inspectionRecordId=${inspectionRecordId}`, function (data) {
+        if (data) {
+            $("#inspectionRecordModalContent").html(data);
+            $("#inspectionRecordModal").modal('show');
+            clearModalContentOnHide($("#inspectionRecordModal"));
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    });
+}
+function deleteInspectionRecord(inspectionRecordId) {
+    $("#workAroundInput").show();
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Inspection Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post(`/Vehicle/DeleteInspectionRecordById?inspectionRecordId=${inspectionRecordId}`, function (data) {
+                if (data) {
+                    hideAddInspectionRecordModal();
+                    successToast("Inspection Record Deleted");
+                    var vehicleId = GetVehicleId().vehicleId;
+                    getVehicleInspectionRecords(vehicleId);
+                } else {
+                    errorToast(genericErrorMessage());
+                }
+            });
+        } else {
+            $("#workAroundInput").hide();
+        }
+    });
+}

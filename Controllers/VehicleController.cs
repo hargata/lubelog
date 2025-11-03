@@ -693,6 +693,9 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ReminderRecord:
                         result = DeleteReminderRecordWithChecks(recordId);
                         break;
+                    case ImportMode.InspectionRecord:
+                        result = DeleteInspectionRecordWithChecks(recordId);
+                        break;
                 }
             }
             if (result)

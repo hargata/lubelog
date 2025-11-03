@@ -1,0 +1,96 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model InspectionRecord
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var hideZero = userConfig.HideZero;
+    var resultFields = Model.Results.Where(x => x.FieldType == InspectionFieldType.Check || x.FieldType == InspectionFieldType.Radio);
+    var textFields = Model.Results.Where(x => x.FieldType == InspectionFieldType.Text);
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(translator.Translate(userLanguage, "View Inspection Record"))</h5>
+    <button type="button" class="btn-close" onclick="hideAddInspectionRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Date")}: {Model.Date.ToShortDateString()}")</label></div>
+                    <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Odometer")}: {Model.Mileage.ToString()}")</label></div>
+                    <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Description")}: {Model.Description}")</label></div>
+                    <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Cost")}: {(StaticHelper.HideZeroCost(Model.Cost, hideZero))}")</label></div>
+                    @foreach(InspectionRecordResult textResult in textFields)
+                    {
+                        <div class="d-flex"><label>@($"{textResult.Description}: {textResult.Values?.FirstOrDefault(x => x.IsSelected)?.Description}")</label></div>
+                    }
+                    @if (Model.Tags.Any())
+                    {
+                        <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Tags(optional)")}: {string.Join(" ", Model.Tags)}")</label></div>
+                    }
+                    @if (Model.Results.Any())
+                    {
+                        <hr />
+                        <table class="table table-hover">
+                            <thead class="sticky-top">
+                                <tr class="d-flex">
+                                    <th scope="col" class="col-9 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Description")</th>
+                                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Result")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (InspectionRecordResult fieldResult in resultFields)
+                                {
+                                    <tr class="d-flex user-select-none">
+                                        <td class="col-9 flex-grow-1 flex-shrink-1 text-truncate">
+                                            @fieldResult.Description
+                                            <div class="d-flex flex-wrap">
+                                                @foreach (InspectionRecordResultValue fieldValue in fieldResult.Values)
+                                                {
+                                                    if (fieldResult.FieldType == InspectionFieldType.Radio)
+                                                    {
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail ? "inspection-value-fail text-danger" : "") @(fieldValue.IsSelected ? "inspection-value-selected" : "")">@fieldValue.Description</span>
+                                                    }
+                                                    else if (fieldResult.FieldType == InspectionFieldType.Check)
+                                                    {
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && !fieldValue.IsSelected ? "text-danger" : "")">@fieldValue.Description</span>
+                                                    }
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate">
+                                            @(fieldResult.Failed? translator.Translate(userLanguage, "Fail") : translator.Translate(userLanguage, "Pass"))
+                                        </td>
+                                    </tr>
+                                    @if (!string.IsNullOrWhiteSpace(fieldResult.Notes))
+                                    {
+                                        <tr class="d-flex user-select-none">
+                                        <td class="col-12 flex-grow-1 flex-shrink-1 flex-wrap">
+                                                <div class="stickerNote ms-1 me-1 p-1">
+                                                    @(fieldResult.Notes)
+                                                </div>
+                                            </td>
+                                        </tr>
+                                }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-danger me-auto" onclick="deleteInspectionRecord(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
+    <button type="button" class="btn btn-secondary" onclick="hideAddInspectionRecordModal()">@translator.Translate(userLanguage, "Close")</button>
+</div>
+<script>
+    setMarkDownStickerNotes();
+</script>

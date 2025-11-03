@@ -81,10 +81,31 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordTemplateDataAccess.DeleteInspectionRecordTemplateById(existingRecord.Id);
             return result;
         }
+        private bool DeleteInspectionRecordWithChecks(int inspectionRecordId)
+        {
+            var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return false;
+            }
+            var result = _inspectionRecordDataAccess.DeleteInspectionRecordById(existingRecord.Id);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.delete", User.Identity.Name));
+            }
+            return result;
+        }
         [HttpPost]
         public IActionResult DeleteInspectionRecordTemplateById(int inspectionRecordTemplateId)
         {
             var result = DeleteInspectionRecordTemplateWithChecks(inspectionRecordTemplateId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult DeleteInspectionRecordById(int inspectionRecordId)
+        {
+            var result = DeleteInspectionRecordWithChecks(inspectionRecordId);
             return Json(result);
         }
         [HttpGet]
@@ -98,51 +119,87 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("Inspection/_InspectionRecordModal", result);
         }
-        //[HttpGet]
-        //public IActionResult GetAddInspectionRecordPartialView()
-        //{
-        //    var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields;
-        //    return PartialView("Note/_NoteModal", new Note() { ExtraFields = extraFields });
-        //}
-        //[HttpGet]
-        //public IActionResult GetAddInspectionRecordTemplatePartialView()
-        //{
-        //    var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields;
-        //    return PartialView("Note/_NoteModal", new Note() { ExtraFields = extraFields });
-        //}
-        //[HttpGet]
-        //public IActionResult GetInspectionRecordTemplateForEditById(int noteId)
-        //{
-        //    var result = _noteDataAccess.GetNoteById(noteId);
-        //    result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
-        //    //security check.
-        //    if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
-        //    {
-        //        return Redirect("/Error/Unauthorized");
-        //    }
-        //    return PartialView("Note/_NoteModal", result);
-        //}
-        //private bool DeleteInspectionRecordWithChecks(int noteId)
-        //{
-        //    var existingRecord = _noteDataAccess.GetNoteById(noteId);
-        //    //security check.
-        //    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
-        //    {
-        //        return false;
-        //    }
-        //    var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
-        //    if (result)
-        //    {
-        //        StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
-        //    }
-        //    return result;
-        //}
-        //[HttpPost]
-        //public IActionResult DeleteInspectionRecordById(int noteId)
-        //{
-        //    var result = DeleteInspectionRecordWithChecks(noteId);
-        //    return Json(result);
-        //}
-        
+        [HttpGet]
+        public IActionResult GetViewInspectionRecordPartialView(int inspectionRecordId)
+        {
+            var result = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
+            return PartialView("Inspection/_InspectionRecordViewModal", result);
+        }
+        [HttpPost]
+        public IActionResult SaveInspectionRecordToVehicleId(InspectionRecordInput inspectionRecord)
+        {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecord.VehicleId))
+            {
+                return Json(false);
+            }
+            //auto-insert into odometer if configured
+            if (inspectionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                {
+                    Date = DateTime.Parse(inspectionRecord.Date),
+                    VehicleId = inspectionRecord.VehicleId,
+                    Mileage = inspectionRecord.Mileage,
+                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}"
+                });
+            }
+            //move files from temp.
+            inspectionRecord.Files = inspectionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            //insert into service record
+            if (inspectionRecord.Id == 0)
+            {
+                _serviceRecordDataAccess.SaveServiceRecordToVehicle(new ServiceRecord
+                {
+                    Date = DateTime.Parse(inspectionRecord.Date),
+                    VehicleId = inspectionRecord.VehicleId,
+                    Mileage = inspectionRecord.Mileage,
+                    Description = inspectionRecord.Description,
+                    Cost = inspectionRecord.Cost,
+                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                    Files = inspectionRecord.Files
+                });
+            }
+            //push back any reminders
+            if (inspectionRecord.ReminderRecordId.Any())
+            {
+                foreach (int reminderRecordId in inspectionRecord.ReminderRecordId)
+                {
+                    PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(inspectionRecord.Date), inspectionRecord.Mileage);
+                }
+            }
+            //create action items
+            var inspectionFieldsWithActionItems = inspectionRecord.Fields.Where(x => x.HasActionItem);
+            if (inspectionFieldsWithActionItems.Any())
+            {
+                foreach(InspectionRecordTemplateField inspectionField in inspectionFieldsWithActionItems)
+                {
+                    if (inspectionField.ToInspectionRecordResult().Failed)
+                    {
+                        _planRecordDataAccess.SavePlanRecordToVehicle(new PlanRecord
+                        {
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            VehicleId = inspectionRecord.VehicleId,
+                            Description = inspectionField.ActionItemDescription,
+                            ImportMode = inspectionField.ActionItemType,
+                            Priority = inspectionField.ActionItemPriority,
+                            Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}"
+                        });
+                    }
+                }
+            }
+            var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(inspectionRecord.ToInspectionRecord());
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(inspectionRecord.ToInspectionRecord(), "inspectionrecord.add", User.Identity.Name));
+            }
+            return Json(result);
+        }
     }
 }
