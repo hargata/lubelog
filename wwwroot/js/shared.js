@@ -1784,3 +1784,11 @@ function getTabNameFromURL(defaultValue) {
         return `${currentTab}-tab`;
     }
 }
+function stretchedLinkClick(e) {
+    let closestCheckElem = $(e).closest('.form-check').find('.form-check-input');
+    if (closestCheckElem.prop('checked')) {
+        closestCheckElem.prop('checked', false).trigger('change');
+    } else {
+        closestCheckElem.prop('checked', true).trigger('change');
+    }
+}

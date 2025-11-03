@@ -317,6 +317,21 @@ function moveRecord(recordId, source, dest) {
         }
     });
 }
+function loadSelectedRecurringReminder() {
+    if (recurringReminderRecordId != undefined && recurringReminderRecordId.length > 0) {
+        if (recurringReminderRecordId.length > 1) {
+            //multiple reminders
+            $('#multipleRemindersCheck').prop('checked', true);
+            $('#multipleRemindersCheck').trigger('change');
+            recurringReminderRecordId.map(x => {
+                $(`#recurringReminder_${x}`).prop('checked', true);
+            });
+        }
+        else if (recurringReminderRecordId.length == 1) {
+            $("#recurringReminderInput").val(recurringReminderRecordId[0]);
+        }
+    }
+}
 function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
     $.get(`/Vehicle/GetRecurringReminderRecordsByVehicleId?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
@@ -326,6 +341,9 @@ function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
                 html: data,
                 confirmButtonText: 'Select',
                 focusConfirm: false,
+                didRender: () => {
+                    loadSelectedRecurringReminder();
+                },
                 preConfirm: () => {
                     //validate
                     var selectedRecurringReminderData = getAndValidateSelectedRecurringReminder();

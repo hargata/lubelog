@@ -13,10 +13,11 @@ function hideInspectionRecordTemplateSelectorModal() {
 function showAddInspectionRecordTemplateModal() {
     $.get('/Vehicle/GetAddInspectionRecordTemplatePartialView', function (data) {
         if (data) {
+            $("#inspectionRecordModalContent").html('');
             $("#inspectionRecordTemplateEditModalContent").html(data);
-            hideInspectionRecordTemplateSelectorModal();
             //initiate tag selector
             initTagSelector($("#inspectionRecordTemplateTag"));
+            hideInspectionRecordTemplateSelectorModal();
             $('#inspectionRecordTemplateEditModal').modal('show');
         }
     });
@@ -24,6 +25,7 @@ function showAddInspectionRecordTemplateModal() {
 function showEditInspectionRecordTemplateModal(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetEditInspectionRecordTemplatePartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
         if (data) {
+            $("#inspectionRecordModalContent").html('');
             $("#inspectionRecordTemplateEditModalContent").html(data);
             //initiate tag selector
             initTagSelector($("#inspectionRecordTemplateTag"));
@@ -146,6 +148,16 @@ function getAndValidateInspectionRecordTemplate() {
                 });
             });
             fieldData["options"] = fieldOptions;
+            if (fieldOptions.length == 0) {
+                //user has not supplied any options
+                fieldElem.find('[data-type="fieldType"]').addClass('is-invalid');
+                hasError = true;
+            } else {
+                fieldElem.find('[data-type="fieldType"]').removeClass('is-invalid');
+            }
+        }
+        else {
+            fieldElem.find('[data-type="fieldType"]').removeClass('is-invalid');
         }
         templateFields.push(fieldData);
     });
@@ -196,6 +208,7 @@ function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
 function useInspectionRecordTemplate(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetAddInspectionRecordPartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
         if (data) {
+            $("#inspectionRecordTemplateEditModalContent").html('');
             $("#inspectionRecordModalContent").html(data);
             hideInspectionRecordTemplateSelectorModal();
             //initiate datepicker
@@ -211,38 +224,147 @@ function hideAddInspectionRecordModal() {
     $("#inspectionRecordModal").modal('hide');
     showInspectionRecordTemplateSelectorModal();
 }
-//function showEditCollisionRecordModal(collisionRecordId, nocache) {
-//    if (!nocache) {
-//        var existingContent = $("#collisionRecordModalContent").html();
-//        if (existingContent.trim() != '') {
-//            //check if id is same.
-//            var existingId = getCollisionRecordModelData().id;
-//            if (existingId == collisionRecordId && $('[data-changed=true]').length > 0) {
-//                $('#collisionRecordModal').modal('show');
-//                $('.cached-banner').show();
-//                return;
-//            }
-//        }
-//    }
-//    $.get(`/Vehicle/GetCollisionRecordForEditById?collisionRecordId=${collisionRecordId}`, function (data) {
-//        if (data) {
-//            $("#collisionRecordModalContent").html(data);
-//            //initiate datepicker
-//            initDatePicker($('#collisionRecordDate'));
-//            initTagSelector($("#collisionRecordTag"));
-//            $('#collisionRecordModal').modal('show');
-//            bindModalInputChanges('collisionRecordModal');
-//            $('#collisionRecordModal').off('shown.bs.modal').on('shown.bs.modal', function () {
-//                if (getGlobalConfig().useMarkDown) {
-//                    toggleMarkDownOverlay("collisionRecordNotes");
-//                }
-//            });
-//        }
-//    });
-//}
-//function hideAddCollisionRecordModal() {
-//    $('#collisionRecordModal').modal('hide');
-//}
+function getAndValidateInspectionRecord() {
+    let hasError = false;
+    let inspectionDescription = $("#inspectionRecordDescription").val();
+    let inspectionDate = $("#inspectionRecordDate").val();
+    let inspectionMileage = $("#inspectionRecordMileage").val();
+    let inspectionCost = $("#inspectionRecordCost").val();
+    let inspectionTags = $("#inspectionRecordTag").val();
+    let inspectionRecordId = 0;
+    let vehicleId = GetVehicleId().vehicleId;
+    //Odometer Adjustments
+    if (isNaN(inspectionMileage) && GetVehicleId().odometerOptional) {
+        inspectionMileage = '0';
+    }
+    inspectionMileage = GetAdjustedOdometer(inspectionRecordId, inspectionMileage);
+    //validations
+    if (inspectionDescription.trim() == '') {
+        hasError = true;
+        $("#inspectionRecordDescription").addClass("is-invalid");
+    } else {
+        $("#inspectionRecordDescription").removeClass("is-invalid");
+    }
+    if (inspectionDate.trim() == '') { //eliminates whitespace.
+        hasError = true;
+        $("#inspectionRecordDate").addClass("is-invalid");
+    } else {
+        $("#inspectionRecordDate").removeClass("is-invalid");
+    }
+    if (inspectionMileage.trim() == '' || isNaN(inspectionMileage) || parseInt(inspectionMileage) < 0) {
+        hasError = true;
+        $("#inspectionRecordMileage").addClass("is-invalid");
+    } else {
+        $("#inspectionRecordMileage").removeClass("is-invalid");
+    }
+    if (inspectionCost.trim() == '' || !isValidMoney(inspectionCost)) {
+        hasError = true;
+        $("#inspectionRecordCost").addClass("is-invalid");
+    } else {
+        $("#inspectionRecordCost").removeClass("is-invalid");
+    }
+    let inspectionRecordData = {
+        id: inspectionRecordId,
+        vehicleId: vehicleId,
+        date: inspectionDate,
+        mileage: inspectionMileage,
+        cost: inspectionCost,
+        description: inspectionDescription,
+        tags: inspectionTags,
+        reminderRecordId: recurringReminderRecordId,
+        files: uploadedFiles
+    }
+    let recordFields = [];
+    //process fields
+    $('#inspectionRecordFields > [data-type="field"]').map((index, elem) => {
+        let fieldElem = $(elem);
+        let hasActionItem = fieldElem.find('[data-type="fieldActionItemContainer"]').length > 0;
+        let hasNotes = fieldElem.find('[data-type="fieldNotes"]').length > 0;
+        let fieldType = fieldElem.attr('data-fieldtype');
+        let fieldData = {
+            description: fieldElem.find('[data-type="fieldDescription"]').text(),
+            fieldType: fieldType,
+            hasNotes: hasNotes,
+            hasActionItem: hasActionItem
+        };
+        if (hasActionItem) {
+            fieldData["actionItemDescription"] = fieldElem.find('[data-type="fieldActionItemDescription"]').val();
+            fieldData["actionItemType"] = fieldElem.find('[data-type="fieldActionItemType"]').val();
+            fieldData["actionItemPriority"] = fieldElem.find('[data-type="fieldActionItemPriority"]').val();
+        }
+        if (hasNotes) {
+            let fieldNoteElem = fieldElem.find('[data-type="fieldNotes"]');
+            fieldData["notes"] = fieldNoteElem.val();
+            if (fieldNoteElem.val().trim() == '') {
+                hasError = true;
+                fieldNoteElem.addClass('is-invalid');
+            } else {
+                fieldNoteElem.removeClass('is-invalid');
+            }
+        }
+        if (fieldType != 'Text') {
+            let fieldOptions = [];
+            fieldElem.find('[data-type="fieldOptions"]').find('[data-type="fieldOption"]').map((optionIndex, optionElem) => {
+                let fieldOptionElem = $(optionElem);
+                fieldOptions.push({
+                    description: fieldOptionElem.closest('[data-type="fieldOptionContainer"]').find('[data-type="fieldOptionText"]').text(),
+                    isSelected: fieldOptionElem.is(":checked"),
+                    isFail: fieldOptionElem.attr('data-field') == 'fail'
+                });
+            });
+            fieldData["options"] = fieldOptions;
+            //user must select at least one option for radio fields
+            if (fieldType == 'Radio' && fieldOptions.filter(x=>x.isSelected).length == 0) {
+                fieldElem.find('[data-type="fieldOptions"]').find('[data-type="fieldOption"]').addClass('is-invalid');
+                hasError = true;
+            } else {
+                fieldElem.find('[data-type="fieldOptions"]').find('[data-type="fieldOption"]').removeClass('is-invalid');
+            }
+        } else {
+            //handle text field
+            let fieldOptions = [];
+            let fieldTextOptionElem = fieldElem.find('[data-type="fieldOptions"]').find('[data-type="fieldOption"]');
+            if (fieldTextOptionElem.val().trim() == '') {
+                hasError = true;
+                fieldTextOptionElem.addClass('is-invalid');
+            } else {
+                fieldTextOptionElem.removeClass('is-invalid');
+            }
+            fieldOptions.push({
+                description: fieldTextOptionElem.val(),
+                isSelected: true,
+                isFail: false
+            });
+            fieldData["options"] = fieldOptions;
+        }
+        recordFields.push(fieldData);
+    });
+    inspectionRecordData["fields"] = recordFields;
+    inspectionRecordData["hasError"] = hasError;
+    return inspectionRecordData;
+}
+function saveinspectionRecordToVehicle() {
+    //get values
+    var formValues = getAndValidateInspectionRecord();
+    //validate
+    if (formValues.hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    $.post('/Vehicle/SaveInspectionRecordToVehicleId', { inspectionRecord: formValues }, function (data) {
+        if (data) {
+            successToast("Inspection Record Added.");
+            hideAddInspectionRecordModal();
+            saveScrollPosition();
+            getVehicleInspectionRecords(formValues.vehicleId);
+            if (formValues.addReminderRecord) {
+                setTimeout(function () { showAddReminderModal(formValues); }, 500);
+            }
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
 //function deleteCollisionRecord(collisionRecordId) {
 //    $("#workAroundInput").show();
 //    Swal.fire({
@@ -267,92 +389,4 @@ function hideAddInspectionRecordModal() {
 //            $("#workAroundInput").hide();
 //        }
 //    });
-//}
-//function saveCollisionRecordToVehicle(isEdit) {
-//    //get values
-//    var formValues = getAndValidateCollisionRecordValues();
-//    //validate
-//    if (formValues.hasError) {
-//        errorToast("Please check the form data");
-//        return;
-//    }
-//    //save to db.
-//    $.post('/Vehicle/SaveCollisionRecordToVehicleId', { collisionRecord: formValues }, function (data) {
-//        if (data) {
-//            successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
-//            hideAddCollisionRecordModal();
-//            saveScrollPosition();
-//            getVehicleCollisionRecords(formValues.vehicleId);
-//            if (formValues.addReminderRecord) {
-//                setTimeout(function () { showAddReminderModal(formValues); }, 500);
-//            }
-//        } else {
-//            errorToast(genericErrorMessage());
-//        }
-//    })
-//}
-//function getAndValidateCollisionRecordValues() {
-//    var collisionDate = $("#collisionRecordDate").val();
-//    var collisionMileage = parseInt(globalParseFloat($("#collisionRecordMileage").val())).toString();
-//    var collisionDescription = $("#collisionRecordDescription").val();
-//    var collisionCost = $("#collisionRecordCost").val();
-//    var collisionNotes = $("#collisionRecordNotes").val();
-//    var collisionTags = $("#collisionRecordTag").val();
-//    var vehicleId = GetVehicleId().vehicleId;
-//    var collisionRecordId = getCollisionRecordModelData().id;
-//    var addReminderRecord = $("#addReminderCheck").is(":checked");
-//    //Odometer Adjustments
-//    if (isNaN(collisionMileage) && GetVehicleId().odometerOptional) {
-//        collisionMileage = '0';
-//    }
-//    collisionMileage = GetAdjustedOdometer(collisionRecordId, collisionMileage);
-//    //validation
-//    var hasError = false;
-//    var extraFields = getAndValidateExtraFields();
-//    if (extraFields.hasError) {
-//        hasError = true;
-//    }
-//    if (collisionDate.trim() == '') { //eliminates whitespace.
-//        hasError = true;
-//        $("#collisionRecordDate").addClass("is-invalid");
-//    } else {
-//        $("#collisionRecordDate").removeClass("is-invalid");
-//    }
-//    if (collisionMileage.trim() == '' || isNaN(collisionMileage) || parseInt(collisionMileage) < 0) {
-//        hasError = true;
-//        $("#collisionRecordMileage").addClass("is-invalid");
-//    } else {
-//        $("#collisionRecordMileage").removeClass("is-invalid");
-//    }
-//    if (collisionDescription.trim() == '') {
-//        hasError = true;
-//        $("#collisionRecordDescription").addClass("is-invalid");
-//    } else {
-//        $("#collisionRecordDescription").removeClass("is-invalid");
-//    }
-//    if (collisionCost.trim() == '' || !isValidMoney(collisionCost)) {
-//        hasError = true;
-//        $("#collisionRecordCost").addClass("is-invalid");
-//    } else {
-//        $("#collisionRecordCost").removeClass("is-invalid");
-//    }
-//    return {
-//        id: collisionRecordId,
-//        hasError: hasError,
-//        vehicleId: vehicleId,
-//        date: collisionDate,
-//        mileage: collisionMileage,
-//        description: collisionDescription,
-//        cost: collisionCost,
-//        notes: collisionNotes,
-//        files: uploadedFiles,
-//        supplies: selectedSupplies,
-//        tags: collisionTags,
-//        addReminderRecord: addReminderRecord,
-//        extraFields: extraFields.extraFields,
-//        requisitionHistory: supplyUsageHistory,
-//        deletedRequisitionHistory: deletedSupplyUsageHistory,
-//        reminderRecordId: recurringReminderRecordId,
-//        copySuppliesAttachment: copySuppliesAttachments
-//    }
 //}

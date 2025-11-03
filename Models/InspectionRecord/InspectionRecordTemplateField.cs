@@ -13,13 +13,13 @@
         public string Notes { get; set; }
         public InspectionRecordResult ToInspectionRecordResult()
         {
-            return new InspectionRecordResult
+            return Options.Any() ? new InspectionRecordResult
             {
                 Description = Description,
-                Values = Options.Where(x => x.IsSelected).Select(y => y.Description).ToList(),
+                Values = Options.Select(x => new InspectionRecordResultValue{Description = x.Description, IsSelected = x.IsSelected, IsFail = x.IsFail }).ToList(),
                 Failed = (FieldType == InspectionFieldType.Radio && Options.Any(x => x.IsSelected && x.IsFail)) || (FieldType == InspectionFieldType.Check && Options.Any(x=> !x.IsSelected && x.IsFail)),
                 Notes = HasNotes ? Notes : string.Empty
-            };
+            } : new InspectionRecordResult();
         }
     }
     public class InspectionRecordTemplateFieldOption
@@ -31,8 +31,14 @@
     public class InspectionRecordResult
     {
         public string Description { get; set; }
-        public List<string> Values { get; set; }
+        public List<InspectionRecordResultValue> Values { get; set; } = new List<InspectionRecordResultValue>();
         public bool Failed { get; set; }
         public string Notes { get; set; }
+    }
+    public class InspectionRecordResultValue
+    {
+        public string Description { get; set; }
+        public bool IsSelected { get; set; }
+        public bool IsFail { get; set; }
     }
 }

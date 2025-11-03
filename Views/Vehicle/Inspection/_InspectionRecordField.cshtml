@@ -34,11 +34,11 @@
     <div data-type="fieldActionItem" style="@(Model.FieldType == InspectionFieldType.Text ? "display:none;" : "")">
         <div class="form-check form-check-inline">
             <input class="form-check-input" data-type="fieldHasNotes" type="checkbox" role="switch" @(Model.HasNotes ? "checked" : "")>
-            <label class="form-check-label">@translator.Translate(userLanguage, "Has Notes")</label>
+            <label class="form-check-label" onclick="stretchedLinkClick(this)">@translator.Translate(userLanguage, "Has Notes")</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" data-type="fieldHasActionItem" type="checkbox" role="switch" onchange="handleInspectionRecordFieldHasActionItemChange(this)" @(Model.HasActionItem ? "checked" : "")>
-            <label class="form-check-label">@translator.Translate(userLanguage, "Has Action Item")</label>
+            <label class="form-check-label" onclick="stretchedLinkClick(this)">@translator.Translate(userLanguage, "Has Action Item")</label>
         </div>
         <div class="collapse @(Model.HasActionItem ? "show" : "")" data-type="fieldActionItemContainer">
             <label>@translator.Translate(userLanguage, "Action Item Description")</label>
