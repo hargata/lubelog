@@ -44,13 +44,13 @@
             <label>@translator.Translate(userLanguage, "Action Item Description")</label>
             <input type="text" data-type="fieldActionItemDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Description of Action Item")" value="@Model.ActionItemDescription">
             <label>@translator.Translate(userLanguage, "Action Item Type")</label>
-            <select class="form-select" data-type="fieldActionItemType">
+            <select class="form-select" data-type="fieldActionItemType" onchange="setDropDownOptionSelected(this)">
                 <!option value="ServiceRecord" @(Model.ActionItemType == ImportMode.ServiceRecord ? "selected" : "")>@translator.Translate(userLanguage, "Service")</!option>
                 <!option value="RepairRecord" @(Model.ActionItemType == ImportMode.RepairRecord ? "selected" : "")>@translator.Translate(userLanguage, "Repair")</!option>
                 <!option value="UpgradeRecord" @(Model.ActionItemType == ImportMode.UpgradeRecord ? "selected" : "")>@translator.Translate(userLanguage, "Upgrade")</!option>
             </select>
             <label>@translator.Translate(userLanguage, "Action Item Priority")</label>
-            <select class="form-select" data-type="fieldActionItemPriority">
+            <select class="form-select" data-type="fieldActionItemPriority" onchange="setDropDownOptionSelected(this)">
                 <!option value="Critical" @(Model.ActionItemPriority == PlanPriority.Critical ? "selected" : "")>@translator.Translate(userLanguage, "Critical")</!option>
                 <!option value="Normal" @(Model.ActionItemPriority == PlanPriority.Normal ? "selected" : "")>@translator.Translate(userLanguage, "Normal")</!option>
                 <!option value="Low" @(Model.ActionItemPriority == PlanPriority.Low ? "selected" : "")>@translator.Translate(userLanguage, "Low")</!option>

@@ -22,6 +22,7 @@
                     <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Date")}: {Model.Date.ToShortDateString()}")</label></div>
                     <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Odometer")}: {Model.Mileage.ToString()}")</label></div>
                     <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Description")}: {Model.Description}")</label></div>
+                    <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Result")}: {translator.Translate(userLanguage, Model.Failed ? "Fail" : "Pass")}")</label></div>
                     <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Cost")}: {(StaticHelper.HideZeroCost(Model.Cost, hideZero))}")</label></div>
                     @foreach(InspectionRecordResult textResult in textFields)
                     {
@@ -29,9 +30,9 @@
                     }
                     @if (Model.Tags.Any())
                     {
-                        <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Tags(optional)")}: {string.Join(" ", Model.Tags)}")</label></div>
+                        <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Tags")}: {string.Join(" ", Model.Tags)}")</label></div>
                     }
-                    @if (Model.Results.Any())
+                    @if (resultFields.Any())
                     {
                         <hr />
                         <table class="table table-hover">
@@ -56,7 +57,7 @@
                                                     }
                                                     else if (fieldResult.FieldType == InspectionFieldType.Check)
                                                     {
-                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && !fieldValue.IsSelected ? "text-danger" : "")">@fieldValue.Description</span>
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && !fieldValue.IsSelected ? "text-danger" : "")"><i class="bi @(fieldValue.IsSelected ? "bi-check-lg" : "bi-x-lg") me-2"></i>@fieldValue.Description</span>
                                                     }
                                                 }
                                             </div>

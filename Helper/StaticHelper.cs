@@ -449,6 +449,8 @@ namespace CarCareTracker.Helper
                     return "bi-journal-bookmark";
                 case ImportMode.ReminderRecord:
                     return "bi-bell";
+                case ImportMode.InspectionRecord:
+                    return "bi-clipboard-check";
                 default:
                     return "bi-file-bar-graph";
             }

@@ -746,6 +746,9 @@ function loadGlobalSearchResult(recordId, recordType) {
             $('#plan-tab').tab('show');
             waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
             break;
+        case "InspectionRecord":
+            $('#inspection-tab').tab('show');
+            waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
     }
 }
 function loadDefaultTab() {

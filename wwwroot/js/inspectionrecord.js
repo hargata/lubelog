@@ -51,7 +51,13 @@ function duplicateInspectionRecordField(e) {
     let clonedField = $(e).closest('[data-type="field"]').clone();
     $("#inspectionRecordFields").append(clonedField);
 }
+function setDropDownOptionSelected(dropDownElem) {
+    let selectedVal = $(dropDownElem).val();
+    $(dropDownElem).find('option').removeAttr('selected');
+    $(dropDownElem).find(`option[value="${selectedVal}"]`).attr('selected', '');
+}
 function handleInspectionRecordFieldTypeChange(e) {
+    setDropDownOptionSelected(e);
     let selectedVal = $(e).val();
     switch (selectedVal) {
         case 'Radio':

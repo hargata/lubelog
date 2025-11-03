@@ -465,6 +465,19 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                            if (caseSensitive)
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                            else
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                        }
+                        break;
                 }
             }
             return PartialView("_GlobalSearchResult", searchResults);
@@ -1378,6 +1391,14 @@ namespace CarCareTracker.Controllers
                             });
                             recordsAdded++;
                         }
+                    }
+                    break;
+                case ImportMode InspectionRecord:
+                    foreach (int recordId in recordIds)
+                    {
+                        var record = _inspectionRecordDataAccess.GetInspectionRecordById(recordId);
+                        stickerViewModel.InspectionRecords.Add(record);
+                        recordsAdded++;
                     }
                     break;
             }
