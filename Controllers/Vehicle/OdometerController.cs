@@ -58,7 +58,7 @@ namespace CarCareTracker.Controllers
             {
                 result = _odometerLogic.AutoConvertOdometerRecord(result);
             }
-            return PartialView("_OdometerRecords", result);
+            return PartialView("Odometer/_OdometerRecords", result);
         }
         [HttpPost]
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
