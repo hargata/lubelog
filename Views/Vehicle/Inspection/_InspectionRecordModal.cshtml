@@ -53,7 +53,7 @@
                                     }
                                     else if (templateField.FieldType == InspectionFieldType.Check)
                                     {
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between flex-wrap">
                                             @foreach (InspectionRecordTemplateFieldOption fieldOption in templateField.Options)
                                             {
                                                 <div class="form-check form-check-inline" data-type="fieldOptionContainer">
@@ -65,7 +65,7 @@
                                     }
                                     else if (templateField.FieldType == InspectionFieldType.Radio)
                                     {
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between flex-wrap">
                                             @foreach (InspectionRecordTemplateFieldOption fieldOption in templateField.Options)
                                             {
                                                     <div class="form-check form-check-inline" data-type="fieldOptionContainer">
