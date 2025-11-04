@@ -1070,6 +1070,18 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(recordId);
+                            existingRecord.Id = default;
+                            existingRecord.ReminderRecordId = new List<int>();
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
+                            }
+                        }
+                        break;
                 }
             }
             if (result)

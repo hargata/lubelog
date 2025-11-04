@@ -10,7 +10,7 @@
 <div class="modal-header">
     @if (attachmentIsRecord)
     {
-        <a onclick="loadRecordAttachment(@recordId, '@importMode')">
+        <a href="#" onclick="loadRecordAttachment(@recordId, '@importMode')">
             <span class="link-body-emphasis"><i class="bi @StaticHelper.GetImportModeIcon(importMode)"></i></span>
         </a>
     }

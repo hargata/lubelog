@@ -2,7 +2,6 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -69,21 +68,6 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             var result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
-            return Json(result);
-        }
-        [HttpPost]
-        public IActionResult ExportInspectionRecordTemplate(InspectionRecordInput inspectionRecordTemplate)
-        {
-            //clear out vehicle-specific fields because the output might be uploaded to another vehicle where the reminder doesn't exist.
-            inspectionRecordTemplate.ReminderRecordId = new List<int>();
-            inspectionRecordTemplate.Id = 0;
-            inspectionRecordTemplate.VehicleId = 0;
-            inspectionRecordTemplate.Files = new List<UploadedFiles>();
-            inspectionRecordTemplate.Mileage = 0;
-            inspectionRecordTemplate.Cost = 0.00M;
-            var fileName = $"{Guid.NewGuid()}.json";
-            var fileData = JsonSerializer.Serialize(inspectionRecordTemplate);
-            var result = _fileHelper.WriteFileToTemp(fileName, fileData);
             return Json(result);
         }
         private bool DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)

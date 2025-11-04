@@ -1064,6 +1064,9 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {

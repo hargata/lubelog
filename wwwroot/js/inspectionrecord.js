@@ -190,20 +190,6 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
         }
     })
 }
-function exportInspectionRecordTemplate() {
-    let formValues = getAndValidateInspectionRecordTemplate();
-    if (formValues.hasError) {
-        errorToast("Please check the form data");
-        return;
-    }
-    $.post('/Vehicle/ExportInspectionRecordTemplate', { inspectionRecordTemplate: formValues }, function (data) {
-        if (data) {
-            window.location.href = data;
-        } else {
-            errorToast(genericErrorMessage());
-        }
-    })
-}
 function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
     $("#workAroundInput").show();
     Swal.fire({
@@ -258,6 +244,7 @@ function getAndValidateInspectionRecord() {
     let inspectionCost = $("#inspectionRecordCost").val();
     let inspectionTags = $("#inspectionRecordTag").val();
     let inspectionRecordId = 0;
+    var addReminderRecord = $("#addReminderCheck").is(":checked");
     let vehicleId = GetVehicleId().vehicleId;
     //Odometer Adjustments
     if (isNaN(inspectionMileage) && GetVehicleId().odometerOptional) {
@@ -298,7 +285,8 @@ function getAndValidateInspectionRecord() {
         description: inspectionDescription,
         tags: inspectionTags,
         reminderRecordId: recurringReminderRecordId,
-        files: uploadedFiles
+        files: uploadedFiles,
+        addReminderRecord: addReminderRecord
     }
     let recordFields = [];
     //process fields
@@ -456,4 +444,9 @@ function moveInspectionRecordField(e, isDown) {
             currentField.insertBefore(prevField);
         }
     }
+}
+function duplicateInspectionRecordTemplateToVehicle() {
+    let inspectionRecordsIds = [];
+    inspectionRecordsIds.push(getInspectionRecordModelData().id);
+    duplicateRecordsToOtherVehicles(inspectionRecordsIds, 'InspectionRecord');
 }
