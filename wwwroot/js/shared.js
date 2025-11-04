@@ -915,6 +915,9 @@ function deleteRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
     }
 
     Swal.fire({
@@ -1061,6 +1064,9 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -1783,4 +1789,17 @@ function getTabNameFromURL(defaultValue) {
     } else {
         return `${currentTab}-tab`;
     }
+}
+function stretchedLinkClick(e) {
+    let closestCheckElem = $(e).closest('.form-check').find('.form-check-input');
+    if (closestCheckElem.prop('checked')) {
+        closestCheckElem.prop('checked', false).trigger('change');
+    } else {
+        closestCheckElem.prop('checked', true).trigger('change');
+    }
+}
+function clearModalContentOnHide(modalElem) {
+    modalElem.off('hidden.bs.modal').on('hidden.bs.modal', () => {
+        modalElem.find('.modal-content').html('');
+    });
 }

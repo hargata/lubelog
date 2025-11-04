@@ -1,0 +1,15 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<InspectionRecordTemplateFieldOption>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="d-grid p-2">
+    <button type="button" class="btn btn-outline-warning" onclick="addInspectionRecordFieldOption(this)">@translator.Translate(userLanguage, "Add Option")</button>
+</div>
+@foreach (InspectionRecordTemplateFieldOption fieldOption in Model)
+{
+    @await Html.PartialAsync("Inspection/_InspectionRecordFieldOption", fieldOption)
+}

@@ -40,21 +40,23 @@ namespace CarCareTracker.Controllers
             {
                 return Json(false);
             }
-            if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            var convertedRecord = gasRecord.ToGasRecord();
+            var result = _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(convertedRecord, gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
+            }
+            if (convertedRecord.Id != default && gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(gasRecord.Date),
                     VehicleId = gasRecord.VehicleId,
                     Mileage = gasRecord.Mileage,
-                    Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}"
+                    Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}",
+                    Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, convertedRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                 });
-            }
-            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(gasRecord.ToGasRecord(), gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity.Name));
             }
             return Json(result);
         }

@@ -321,13 +321,13 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult ExportTranslation(IFormFile file)
         {
-            var translationData = new Dictionary<string, string>();
+            var result = string.Empty;
             using (var sReader = new StreamReader(file.OpenReadStream()))
             {
+                var fileName = $"{Guid.NewGuid()}.json";
                 var sData = sReader.ReadToEnd();
-                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData);
+                result = _fileHelper.WriteFileToTemp(fileName, sData);
             }
-            var result = _translationHelper.ExportTranslation(translationData);
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]

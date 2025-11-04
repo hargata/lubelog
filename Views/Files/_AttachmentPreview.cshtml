@@ -5,9 +5,16 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var attachmentIsRecord = StaticHelper.GetAttachmentIsRecord(Model.Location, out ImportMode importMode, out int recordId);
 }
 <div class="modal-header">
-    @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+    @if (attachmentIsRecord)
+    {
+        <a href="#" onclick="loadRecordAttachment(@recordId, '@importMode')">
+            <span class="link-body-emphasis"><i class="bi @StaticHelper.GetImportModeIcon(importMode)"></i></span>
+        </a>
+    }
+    else if (StaticHelper.GetAttachmentIsLink(Model.Location))
     {
         <a href="@Model.Location" target="_blank">
             <span class="link-body-emphasis"><i class="bi bi-box-arrow-up-right"></i></span>
@@ -23,7 +30,13 @@
 </div>
 <div class="modal-body">
     <div class="d-flex justify-content-center" style="height:100%; width:100%;" onclick="closeAttachmentPreview()">
-        @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+        @if (attachmentIsRecord)
+        {
+            <div class="align-self-center">
+                <button onclick="loadRecordAttachment(@recordId, '@importMode')" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Go To Record")</span><span><i class="bi @StaticHelper.GetImportModeIcon(importMode)"></i></span></button>
+            </div>
+        }
+        else if (StaticHelper.GetAttachmentIsLink(Model.Location))
         {
             <div class="align-self-center">
                 <a href="@Model.Location" target="_blank" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Open Link in New Tab")</span><span><i class="bi bi-box-arrow-up-right"></i></span></a>

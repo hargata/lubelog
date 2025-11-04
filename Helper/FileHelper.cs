@@ -24,6 +24,7 @@ namespace CarCareTracker.Helper
         bool WidgetsExist();
         bool SaveWidgets(string widgetsData);
         bool DeleteWidgets();
+        string WriteFileToTemp(string fileName, string data);
     }
     public class FileHelper : IFileHelper
     {
@@ -512,6 +513,26 @@ namespace CarCareTracker.Helper
             {
                 _logger.LogError(ex.Message);
                 return false;
+            }
+        }
+        public string WriteFileToTemp(string fileName, string data)
+        {
+            try
+            {
+                //check if temp folder exists
+                var tempFolder = GetFullFilePath("/temp", false);
+                if (!Directory.Exists(tempFolder))
+                {
+                    Directory.CreateDirectory(tempFolder);
+                }
+                var tempFileName = $"/temp/{fileName}";
+                var fullTempFileName = GetFullFilePath(tempFileName, false);
+                File.WriteAllText(fullTempFileName, data);
+                return tempFileName;
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return string.Empty;
             }
         }
     }

@@ -24,6 +24,8 @@ namespace CarCareTracker.Controllers
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
+        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
@@ -49,6 +51,8 @@ namespace CarCareTracker.Controllers
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
             IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
+            IInspectionRecordDataAccess inspectionRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
             IMailHelper mailHelper,
@@ -71,6 +75,8 @@ namespace CarCareTracker.Controllers
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
+            _inspectionRecordDataAccess = inspectionRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
             _mailHelper = mailHelper;
@@ -533,7 +539,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, serviceRecord.Id, serviceRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -728,7 +735,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, repairRecord.Id, repairRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -925,7 +933,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, upgradeRecord.Id, upgradeRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -1546,7 +1555,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, gasRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -2014,6 +2024,8 @@ namespace CarCareTracker.Controllers
                     vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 }
                 //shop supplies
                 vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));

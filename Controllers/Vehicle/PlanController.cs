@@ -196,17 +196,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
             if (planProgress == PlanProgress.Done)
             {
-                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
-                {
-                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
-                    {
-                        Date = DateTime.Now.Date,
-                        VehicleId = existingRecord.VehicleId,
-                        Mileage = odometer,
-                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
-                        ExtraFields = existingRecord.ExtraFields
-                    });
-                }
+                int newRecordId = 0;
                 //convert plan record to service/upgrade/repair record.
                 if (existingRecord.ImportMode == ImportMode.ServiceRecord)
                 {
@@ -223,6 +213,7 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
                 }
                 else if (existingRecord.ImportMode == ImportMode.RepairRecord)
                 {
@@ -239,6 +230,7 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
                 }
                 else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
                 {
@@ -255,6 +247,19 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
+                }
+                if (newRecordId != default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                    {
+                        Date = DateTime.Now.Date,
+                        VehicleId = existingRecord.VehicleId,
+                        Mileage = odometer,
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        ExtraFields = existingRecord.ExtraFields,
+                        Files = StaticHelper.CreateAttachmentFromRecord(existingRecord.ImportMode, newRecordId, existingRecord.Description)
+                    });
                 }
                 //push back any reminders
                 if (existingRecord.ReminderRecordId != default)
