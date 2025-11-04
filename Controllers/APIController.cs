@@ -24,6 +24,8 @@ namespace CarCareTracker.Controllers
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
+        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
@@ -49,6 +51,8 @@ namespace CarCareTracker.Controllers
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
             IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
+            IInspectionRecordDataAccess inspectionRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
             IMailHelper mailHelper,
@@ -71,6 +75,8 @@ namespace CarCareTracker.Controllers
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
+            _inspectionRecordDataAccess = inspectionRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
             _mailHelper = mailHelper;
@@ -533,7 +539,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, serviceRecord.Id, serviceRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -728,7 +735,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, repairRecord.Id, repairRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -925,7 +933,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, upgradeRecord.Id, upgradeRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -1546,7 +1555,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, gasRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -1652,7 +1662,7 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
-        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies)
+        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies, string tags)
         {
             if (vehicleId == default)
             {
@@ -1668,6 +1678,11 @@ namespace CarCareTracker.Controllers
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var reminderResults = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
             reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                var tagsFilter = tags.Split(' ').Distinct();
+                reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
             var results = reminderResults.Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -1904,7 +1919,7 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
-        public IActionResult SendReminders(List<ReminderUrgency> urgencies)
+        public IActionResult SendReminders(List<ReminderUrgency> urgencies, string tags)
         {
             if (!urgencies.Any())
             {
@@ -1914,6 +1929,7 @@ namespace CarCareTracker.Controllers
             var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
             var defaultEmailAddress = _config.GetDefaultReminderEmail();
+            List<string> tagsFilter = !string.IsNullOrWhiteSpace(tags) ? tags.Split(' ').Distinct().ToList() : new List<string>();
             foreach(Vehicle vehicle in vehicles)
             {
                 var vehicleId = vehicle.Id;
@@ -1922,6 +1938,10 @@ namespace CarCareTracker.Controllers
                 var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
                 var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
                 results.RemoveAll(x => !urgencies.Contains(x.Urgency));
+                if (tagsFilter.Any())
+                {
+                    results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                }
                 if (!results.Any())
                 {
                     continue;
@@ -2004,6 +2024,8 @@ namespace CarCareTracker.Controllers
                     vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 }
                 //shop supplies
                 vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));

@@ -86,7 +86,7 @@
                 </div>
             </div>
         </div>
-        @if(years.Count() > 5)
+        @if(years.Where(x => x != default).Count() > 5)
         {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-costdata-prev"><i class="bi bi-caret-left-fill"></i></button>

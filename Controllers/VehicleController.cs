@@ -27,6 +27,8 @@ namespace CarCareTracker.Controllers
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
         private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
+        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
@@ -60,7 +62,9 @@ namespace CarCareTracker.Controllers
             IOdometerLogic odometerLogic,
             IVehicleLogic vehicleLogic,
             IWebHostEnvironment webEnv,
-            IConfigHelper config)
+            IConfigHelper config,
+            IInspectionRecordDataAccess inspectionRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -78,6 +82,8 @@ namespace CarCareTracker.Controllers
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
+            _inspectionRecordDataAccess = inspectionRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _extraFieldDataAccess = extraFieldDataAccess;
             _userLogic = userLogic;
@@ -159,6 +165,8 @@ namespace CarCareTracker.Controllers
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                 _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
                 _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
+                _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
+                _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
                 _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
@@ -187,6 +195,8 @@ namespace CarCareTracker.Controllers
                         _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
                         _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
                         _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
+                        _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
+                        _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
                         _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                         _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                         _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
@@ -455,6 +465,19 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                            if (caseSensitive)
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                            else
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                        }
+                        break;
                 }
             }
             return PartialView("_GlobalSearchResult", searchResults);
@@ -536,9 +559,84 @@ namespace CarCareTracker.Controllers
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ReminderRecord, Description = $"{x.Description}" }));
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
                 }
             }
             return PartialView("_MapSearchResult", searchResults);
+        }
+        [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult CheckRecordExist(int vehicleId, ImportMode importMode, int recordId)
+        {
+            if (recordId == default)
+            {
+                return Json(OperationResponse.Failed("Invalid Record"));
+            }
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    {
+                        var results = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Service Record Not Found"));
+                    }
+                case ImportMode.RepairRecord:
+                    {
+                        var results = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Repair Record Not Found"));
+                    }
+                case ImportMode.UpgradeRecord:
+                    {
+                        var results = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Upgrade Record Not Found"));
+                    }
+                case ImportMode.TaxRecord:
+                    {
+                        var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Tax Record Not Found"));
+                    }
+                case ImportMode.SupplyRecord:
+                    {
+                        var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Supply Record Not Found"));
+                    }
+                case ImportMode.PlanRecord:
+                    {
+                        var results = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Plan Record Not Found"));
+                    }
+                case ImportMode.OdometerRecord:
+                    {
+                        var results = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Odometer Record Not Found"));
+                    }
+                case ImportMode.GasRecord:
+                    {
+                        var results = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Gas Record Not Found"));
+                    }
+                case ImportMode.NoteRecord:
+                    {
+                        var results = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Note Record Not Found"));
+                    }
+                case ImportMode.ReminderRecord:
+                    {
+                        var results = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Reminder Not Found"));
+                    }
+                case ImportMode.InspectionRecord:
+                    {
+                        var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Inspection Record Not Found"));
+                    }
+            }
+            return Json(OperationResponse.Failed("Record Not Found"));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetMaxMileage(int vehicleId)
@@ -682,6 +780,9 @@ namespace CarCareTracker.Controllers
                         break;
                     case ImportMode.ReminderRecord:
                         result = DeleteReminderRecordWithChecks(recordId);
+                        break;
+                    case ImportMode.InspectionRecord:
+                        result = DeleteInspectionRecordWithChecks(recordId);
                         break;
                 }
             }
@@ -969,6 +1070,18 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(recordId);
+                            existingRecord.Id = default;
+                            existingRecord.ReminderRecordId = new List<int>();
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
+                            }
+                        }
+                        break;
                 }
             }
             if (result)
@@ -993,7 +1106,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1005,7 +1119,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1017,7 +1132,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1029,7 +1145,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}"
+                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, $"Gas Record - {existingRecord.Mileage.ToString()}")
                             });
                         }
                         break;
@@ -1365,6 +1482,14 @@ namespace CarCareTracker.Controllers
                             });
                             recordsAdded++;
                         }
+                    }
+                    break;
+                case ImportMode.InspectionRecord:
+                    foreach (int recordId in recordIds)
+                    {
+                        var record = _inspectionRecordDataAccess.GetInspectionRecordById(recordId);
+                        stickerViewModel.InspectionRecords.Add(record);
+                        recordsAdded++;
                     }
                     break;
             }

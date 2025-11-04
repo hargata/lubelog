@@ -13,6 +13,7 @@
         Dashboard = 8,
         PlanRecord = 9,
         OdometerRecord = 10,
-        VehicleRecord = 11
+        VehicleRecord = 11,
+        InspectionRecord = 12
     }
 }

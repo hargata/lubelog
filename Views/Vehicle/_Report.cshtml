@@ -146,7 +146,7 @@
             @if (Model.CustomWidgetsConfigured)
             {
                 <div class="d-grid">
-                    <button onclick="loadCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                    <button onclick="showCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
                 </div>
             }
         </div>
@@ -167,6 +167,7 @@
             </div>
         </div>
     </div>
+    <script>loadCustomWidgets()</script>
 }
 
 <script>

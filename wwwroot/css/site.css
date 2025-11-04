@@ -648,3 +648,16 @@ html[data-bs-theme="light"] .frosted {
 .garage-item.garage-active .card {
     border-color: #6ea8fe;
 }
+.inspection-value {
+    padding: 0.35em 0.65em;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    border-radius: 0.375rem;
+}
+.inspection-value.inspection-value-selected{
+    border: 1px solid;
+}
+    .inspection-value.inspection-value-selected.inspection-value-fail {
+        border-color: #dc3545;
+    }
