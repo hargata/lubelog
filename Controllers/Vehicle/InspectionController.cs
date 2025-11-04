@@ -138,33 +138,8 @@ namespace CarCareTracker.Controllers
             {
                 return Json(false);
             }
-            //auto-insert into odometer if configured
-            if (inspectionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
-            {
-                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
-                {
-                    Date = DateTime.Parse(inspectionRecord.Date),
-                    VehicleId = inspectionRecord.VehicleId,
-                    Mileage = inspectionRecord.Mileage,
-                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}"
-                });
-            }
             //move files from temp.
             inspectionRecord.Files = inspectionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            //insert into service record
-            if (inspectionRecord.Id == 0)
-            {
-                _serviceRecordDataAccess.SaveServiceRecordToVehicle(new ServiceRecord
-                {
-                    Date = DateTime.Parse(inspectionRecord.Date),
-                    VehicleId = inspectionRecord.VehicleId,
-                    Mileage = inspectionRecord.Mileage,
-                    Description = inspectionRecord.Description,
-                    Cost = inspectionRecord.Cost,
-                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
-                    Files = inspectionRecord.Files
-                });
-            }
             //push back any reminders
             if (inspectionRecord.ReminderRecordId.Any())
             {
@@ -194,10 +169,40 @@ namespace CarCareTracker.Controllers
                     }
                 }
             }
-            var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(inspectionRecord.ToInspectionRecord());
+            var convertedRecord = inspectionRecord.ToInspectionRecord();
+            var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(inspectionRecord.ToInspectionRecord(), "inspectionrecord.add", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(convertedRecord, "inspectionrecord.add", User.Identity.Name));
+            }
+            if (convertedRecord.Id != 0)
+            {
+                //insert into service record
+                List<UploadedFiles> newAttachments = new List<UploadedFiles>();
+                newAttachments.Add(new UploadedFiles { Name = inspectionRecord.Description, Location = StaticHelper.GetRecordAttachment(ImportMode.InspectionRecord, convertedRecord.Id)});
+                newAttachments.AddRange(inspectionRecord.Files);
+                _serviceRecordDataAccess.SaveServiceRecordToVehicle(new ServiceRecord
+                {
+                    Date = DateTime.Parse(inspectionRecord.Date),
+                    VehicleId = inspectionRecord.VehicleId,
+                    Mileage = inspectionRecord.Mileage,
+                    Description = inspectionRecord.Description,
+                    Cost = inspectionRecord.Cost,
+                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                    Files = newAttachments
+                });
+                //auto-insert into odometer if configured
+                if (inspectionRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                    {
+                        Date = DateTime.Parse(inspectionRecord.Date),
+                        VehicleId = inspectionRecord.VehicleId,
+                        Mileage = inspectionRecord.Mileage,
+                        Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
+                    });
+                }
             }
             return Json(result);
         }

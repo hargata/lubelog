@@ -705,51 +705,101 @@ function handleGlobalSearchKeyPress(event) {
 
 function loadGlobalSearchResult(recordId, recordType) {
     hideGlobalSearch();
-    switch (recordType) {
-        case "ServiceRecord":
-            $('#servicerecord-tab').tab('show');
-            waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
-            break;
-        case "RepairRecord":
-            $('#accident-tab').tab('show');
-            waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
-            break;
-        case "UpgradeRecord":
-            $('#upgrade-tab').tab('show');
-            waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
-            break;
-        case "TaxRecord":
-            $('#tax-tab').tab('show');
-            waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
-            break;
-        case "SupplyRecord":
-            $('#supply-tab').tab('show');
-            waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
-            break;
-        case "NoteRecord":
-            $('#notes-tab').tab('show');
-            waitForElement('#noteModalContent', showEditNoteModal, recordId);
-            break;
-        case "OdometerRecord":
-            $('#odometer-tab').tab('show');
-            waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
-            break;
-        case "ReminderRecord":
-            $('#reminder-tab').tab('show');
-            waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
-            break;
-        case "GasRecord":
-            $('#gas-tab').tab('show');
-            waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
-            break;
-        case "PlanRecord":
-            $('#plan-tab').tab('show');
-            waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
-            break;
-        case "InspectionRecord":
-            $('#inspection-tab').tab('show');
-            waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
-    }
+    $.post(`/Vehicle/CheckRecordExist?vehicleId=${GetVehicleId().vehicleId}&importMode=${recordType}&recordId=${recordId}`, function (data) {
+        if (data.success) {
+            switch (recordType) {
+                case "ServiceRecord":
+                    if ($('#servicerecord-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#servicerecord-tab').tab('show');
+                    waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
+                    break;
+                case "RepairRecord":
+                    if ($('#accident-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#accident-tab').tab('show');
+                    waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
+                    break;
+                case "UpgradeRecord":
+                    if ($('#upgrade-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#upgrade-tab').tab('show');
+                    waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
+                    break;
+                case "TaxRecord":
+                    if ($('#tax-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#tax-tab').tab('show');
+                    waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
+                    break;
+                case "SupplyRecord":
+                    if ($('#supply-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#supply-tab').tab('show');
+                    waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
+                    break;
+                case "NoteRecord":
+                    if ($('#notes-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#notes-tab').tab('show');
+                    waitForElement('#noteModalContent', showEditNoteModal, recordId);
+                    break;
+                case "OdometerRecord":
+                    if ($('#odometer-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#odometer-tab').tab('show');
+                    waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
+                    break;
+                case "ReminderRecord":
+                    if ($('#reminder-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#reminder-tab').tab('show');
+                    waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
+                    break;
+                case "GasRecord":
+                    if ($('#gas-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#gas-tab').tab('show');
+                    waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
+                    break;
+                case "PlanRecord":
+                    if ($('#plan-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#plan-tab').tab('show');
+                    waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
+                    break;
+                case "InspectionRecord":
+                    if ($('#inspection-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#inspection-tab').tab('show');
+                    waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
+            }
+        } else {
+            errorToast(data.message);
+        }
+    })
 }
 function loadDefaultTab() {
     //check if tab param exists

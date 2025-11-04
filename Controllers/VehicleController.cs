@@ -559,9 +559,84 @@ namespace CarCareTracker.Controllers
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ReminderRecord, Description = $"{x.Description}" }));
                         }
                         break;
+                    case ImportMode.InspectionRecord:
+                        {
+                            var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
                 }
             }
             return PartialView("_MapSearchResult", searchResults);
+        }
+        [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult CheckRecordExist(int vehicleId, ImportMode importMode, int recordId)
+        {
+            if (recordId == default)
+            {
+                return Json(OperationResponse.Failed("Invalid Record"));
+            }
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    {
+                        var results = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Service Record Not Found"));
+                    }
+                case ImportMode.RepairRecord:
+                    {
+                        var results = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Repair Record Not Found"));
+                    }
+                case ImportMode.UpgradeRecord:
+                    {
+                        var results = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Upgrade Record Not Found"));
+                    }
+                case ImportMode.TaxRecord:
+                    {
+                        var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Tax Record Not Found"));
+                    }
+                case ImportMode.SupplyRecord:
+                    {
+                        var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Supply Record Not Found"));
+                    }
+                case ImportMode.PlanRecord:
+                    {
+                        var results = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Plan Record Not Found"));
+                    }
+                case ImportMode.OdometerRecord:
+                    {
+                        var results = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Odometer Record Not Found"));
+                    }
+                case ImportMode.GasRecord:
+                    {
+                        var results = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Gas Record Not Found"));
+                    }
+                case ImportMode.NoteRecord:
+                    {
+                        var results = _noteDataAccess.GetNotesByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Note Record Not Found"));
+                    }
+                case ImportMode.ReminderRecord:
+                    {
+                        var results = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Reminder Not Found"));
+                    }
+                case ImportMode.InspectionRecord:
+                    {
+                        var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Inspection Record Not Found"));
+                    }
+            }
+            return Json(OperationResponse.Failed("Record Not Found"));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetMaxMileage(int vehicleId)

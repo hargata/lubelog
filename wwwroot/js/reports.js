@@ -412,6 +412,11 @@ function loadMapSearchResult(id, recordType) {
     hideDataTable();
     loadGlobalSearchResult(id, recordType);
 }
+function loadRecordAttachment(id, recordType) {
+    closeAttachmentPreview();
+    $(".modal.show").modal('hide');
+    loadGlobalSearchResult(id, recordType);
+}
 function showCustomWidgets() {
     $("#vehicleCustomWidgetsModal").modal('show');
 }
