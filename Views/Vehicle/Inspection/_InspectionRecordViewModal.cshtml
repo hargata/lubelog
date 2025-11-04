@@ -53,7 +53,7 @@
                                                 {
                                                     if (fieldResult.FieldType == InspectionFieldType.Radio)
                                                     {
-                                                        <span class="inspection-value me-2 @(fieldValue.IsFail ? "inspection-value-fail text-danger" : "") @(fieldValue.IsSelected ? "inspection-value-selected" : "")">@fieldValue.Description</span>
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && fieldValue.IsSelected ? "inspection-value-fail text-danger" : "") @(fieldValue.IsSelected ? "inspection-value-selected" : "")">@fieldValue.Description</span>
                                                     }
                                                     else if (fieldResult.FieldType == InspectionFieldType.Check)
                                                     {

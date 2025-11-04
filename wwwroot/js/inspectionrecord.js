@@ -48,8 +48,10 @@ function deleteInspectionRecordField(e) {
     $(e).closest('[data-type="field"]').remove();
 }
 function duplicateInspectionRecordField(e) {
-    let clonedField = $(e).closest('[data-type="field"]').clone();
-    $("#inspectionRecordFields").append(clonedField);
+    let currentField = $(e).closest('[data-type="field"]');
+    let clonedField = currentField.clone();
+    //$("#inspectionRecordFields").append(clonedField);
+    clonedField.insertAfter(currentField);
 }
 function setDropDownOptionSelected(dropDownElem) {
     let selectedVal = $(dropDownElem).val();
@@ -410,4 +412,18 @@ function deleteInspectionRecord(inspectionRecordId) {
             $("#workAroundInput").hide();
         }
     });
+}
+function moveInspectionRecordField(e, isDown) {
+    let currentField = $(e).closest('[data-type="field"]');
+    if (isDown) {
+        let nextField = currentField.next('[data-type="field"]');
+        if (nextField.length != 0) {
+            currentField.insertAfter(nextField);
+        }
+    } else {
+        let prevField = currentField.prev('[data-type="field"]');
+        if (prevField.length != 0) {
+            currentField.insertBefore(prevField);
+        }
+    }
 }

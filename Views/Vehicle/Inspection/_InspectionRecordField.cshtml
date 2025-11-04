@@ -10,6 +10,8 @@
     <label>@translator.Translate(userLanguage, "Description")</label>
     <div class="d-flex justify-content-between align-items-center">
         <input type="text" data-type="fieldDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Description of Inspected Item")" value="@Model.Description">
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="moveInspectionRecordField(this)"><i class="bi bi-arrow-up"></i></button>
+        <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="moveInspectionRecordField(this, true)"><i class="bi bi-arrow-down"></i></button>
         <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="duplicateInspectionRecordField(this)"><i class="bi bi-copy"></i></button>
         <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="deleteInspectionRecordField(this)"><i class="bi bi-trash"></i></button>
     </div>

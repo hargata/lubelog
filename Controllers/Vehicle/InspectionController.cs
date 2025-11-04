@@ -148,27 +148,6 @@ namespace CarCareTracker.Controllers
                     PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(inspectionRecord.Date), inspectionRecord.Mileage);
                 }
             }
-            //create action items
-            var inspectionFieldsWithActionItems = inspectionRecord.Fields.Where(x => x.HasActionItem);
-            if (inspectionFieldsWithActionItems.Any())
-            {
-                foreach(InspectionRecordTemplateField inspectionField in inspectionFieldsWithActionItems)
-                {
-                    if (inspectionField.ToInspectionRecordResult().Failed)
-                    {
-                        _planRecordDataAccess.SavePlanRecordToVehicle(new PlanRecord
-                        {
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now,
-                            VehicleId = inspectionRecord.VehicleId,
-                            Description = inspectionField.ActionItemDescription,
-                            ImportMode = inspectionField.ActionItemType,
-                            Priority = inspectionField.ActionItemPriority,
-                            Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}"
-                        });
-                    }
-                }
-            }
             var convertedRecord = inspectionRecord.ToInspectionRecord();
             var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(convertedRecord);
             if (result)
@@ -202,6 +181,28 @@ namespace CarCareTracker.Controllers
                         Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
                         Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
                     });
+                }
+                //create action items
+                var inspectionFieldsWithActionItems = inspectionRecord.Fields.Where(x => x.HasActionItem);
+                if (inspectionFieldsWithActionItems.Any())
+                {
+                    foreach (InspectionRecordTemplateField inspectionField in inspectionFieldsWithActionItems)
+                    {
+                        if (inspectionField.ToInspectionRecordResult().Failed)
+                        {
+                            _planRecordDataAccess.SavePlanRecordToVehicle(new PlanRecord
+                            {
+                                DateCreated = DateTime.Now,
+                                DateModified = DateTime.Now,
+                                VehicleId = inspectionRecord.VehicleId,
+                                Description = inspectionField.ActionItemDescription,
+                                ImportMode = inspectionField.ActionItemType,
+                                Priority = inspectionField.ActionItemPriority,
+                                Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
+                            });
+                        }
+                    }
                 }
             }
             return Json(result);
