@@ -46,10 +46,11 @@ namespace CarCareTracker.Controllers
             }
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord.ToOdometerRecord());
+            var convertedRecord = odometerRecord.ToOdometerRecord();
+            var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord.ToOdometerRecord(), odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(convertedRecord, odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
             }
             return Json(result);
         }

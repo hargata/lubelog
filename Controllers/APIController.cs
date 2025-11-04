@@ -533,7 +533,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, serviceRecord.Id, serviceRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -728,7 +729,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, repairRecord.Id, repairRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -925,7 +927,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, upgradeRecord.Id, upgradeRecord.Description)
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
@@ -1546,7 +1549,8 @@ namespace CarCareTracker.Controllers
                         VehicleId = vehicleId,
                         Date = DateTime.Parse(input.Date),
                         Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                        Mileage = int.Parse(input.Odometer)
+                        Mileage = int.Parse(input.Odometer),
+                        Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, gasRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }

@@ -505,7 +505,8 @@ namespace CarCareTracker.Controllers
                                                 Date = convertedRecord.Date,
                                                 VehicleId = convertedRecord.VehicleId,
                                                 Mileage = convertedRecord.Mileage,
-                                                Notes = $"Auto Insert From Gas Record via CSV Import. {convertedRecord.Notes}"
+                                                Notes = $"Auto Insert From Gas Record via CSV Import. {convertedRecord.Notes}",
+                                                Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, convertedRecord.Id, $"Gas Record - {convertedRecord.Mileage.ToString()}")
                                             });
                                         }
                                     }
@@ -531,7 +532,8 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Service Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Service Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
                                 }
@@ -590,7 +592,8 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Repair Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Repair Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
                                 }
@@ -615,7 +618,8 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Upgrade Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Upgrade Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
                                 }

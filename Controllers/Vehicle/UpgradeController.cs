@@ -31,16 +31,6 @@ namespace CarCareTracker.Controllers
             {
                 return Json(false);
             }
-            if (upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
-            {
-                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
-                {
-                    Date = DateTime.Parse(upgradeRecord.Date),
-                    VehicleId = upgradeRecord.VehicleId,
-                    Mileage = upgradeRecord.Mileage,
-                    Notes = $"Auto Insert From Upgrade Record: {upgradeRecord.Description}"
-                });
-            }
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             if (upgradeRecord.Supplies.Any())
@@ -63,10 +53,22 @@ namespace CarCareTracker.Controllers
                     PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(upgradeRecord.Date), upgradeRecord.Mileage);
                 }
             }
-            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(upgradeRecord.ToUpgradeRecord());
+            var convertedRecord = upgradeRecord.ToUpgradeRecord();
+            var result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(upgradeRecord.ToUpgradeRecord(), upgradeRecord.Id == default ? "upgraderecord.add" : "upgraderecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(convertedRecord, upgradeRecord.Id == default ? "upgraderecord.add" : "upgraderecord.update", User.Identity.Name));
+            }
+            if (convertedRecord != default && upgradeRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                {
+                    Date = DateTime.Parse(upgradeRecord.Date),
+                    VehicleId = upgradeRecord.VehicleId,
+                    Mileage = upgradeRecord.Mileage,
+                    Notes = $"Auto Insert From Upgrade Record: {upgradeRecord.Description}",
+                    Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
+                });
             }
             return Json(result);
         }

@@ -1094,7 +1094,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1106,7 +1107,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1118,7 +1120,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}"
+                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
                         break;
@@ -1130,7 +1133,8 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}"
+                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}",
+                                Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, $"Gas Record - {existingRecord.Mileage.ToString()}")
                             });
                         }
                         break;
