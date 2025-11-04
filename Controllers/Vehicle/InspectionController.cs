@@ -2,6 +2,7 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -70,6 +71,21 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
             return Json(result);
         }
+        [HttpPost]
+        public IActionResult ExportInspectionRecordTemplate(InspectionRecordInput inspectionRecordTemplate)
+        {
+            //clear out vehicle-specific fields because the output might be uploaded to another vehicle where the reminder doesn't exist.
+            inspectionRecordTemplate.ReminderRecordId = new List<int>();
+            inspectionRecordTemplate.Id = 0;
+            inspectionRecordTemplate.VehicleId = 0;
+            inspectionRecordTemplate.Files = new List<UploadedFiles>();
+            inspectionRecordTemplate.Mileage = 0;
+            inspectionRecordTemplate.Cost = 0.00M;
+            var fileName = $"{Guid.NewGuid()}.json";
+            var fileData = JsonSerializer.Serialize(inspectionRecordTemplate);
+            var result = _fileHelper.WriteFileToTemp(fileName, fileData);
+            return Json(result);
+        }
         private bool DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)
         {
             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
@@ -117,6 +133,8 @@ namespace CarCareTracker.Controllers
             {
                 return Redirect("/Error/Unauthorized");
             }
+            //populate date
+            result.Date = DateTime.Now.ToShortDateString();
             return PartialView("Inspection/_InspectionRecordModal", result);
         }
         [HttpGet]
@@ -204,6 +222,23 @@ namespace CarCareTracker.Controllers
                         }
                     }
                 }
+            }
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult UpdateInspectionRecordTags(int inspectionRecordId, List<string> tags)
+        {
+            var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            {
+                return Json(false);
+            }
+            existingRecord.Tags = tags;
+            var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(existingRecord);
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.update", User.Identity.Name));
             }
             return Json(result);
         }

@@ -28,10 +28,6 @@
                     {
                         <div class="d-flex"><label>@($"{textResult.Description}: {textResult.Values?.FirstOrDefault(x => x.IsSelected)?.Description}")</label></div>
                     }
-                    @if (Model.Tags.Any())
-                    {
-                        <div class="d-flex"><label>@($"{translator.Translate(userLanguage, "Tags")}: {string.Join(" ", Model.Tags)}")</label></div>
-                    }
                     @if (resultFields.Any())
                     {
                         <hr />
@@ -80,6 +76,13 @@
                             </tbody>
                         </table>
                     }
+                    <label for="inspectionRecordTag">@translator.Translate(userLanguage, "Tags")</label>
+                    <select multiple class="form-select" id="inspectionRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
                     <div>
                         @await Html.PartialAsync("_UploadedFiles", Model.Files)
                     </div>
@@ -91,6 +94,7 @@
 <div class="modal-footer">
     <button type="button" class="btn btn-danger me-auto" onclick="deleteInspectionRecord(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
     <button type="button" class="btn btn-secondary" onclick="hideAddInspectionRecordModal()">@translator.Translate(userLanguage, "Close")</button>
+    <button type="button" class="btn btn-primary" onclick="updateInspectionRecordTag(@Model.Id)">@translator.Translate(userLanguage, "Edit")</button>
 </div>
 <script>
     setMarkDownStickerNotes();

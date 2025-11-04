@@ -48,7 +48,11 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        <button type="button" class="btn btn-warning" onclick="exportInspectionRecordTemplate()">@translator.Translate(userLanguage, "Export")</button>
         <button type="button" class="btn btn-danger me-auto" onclick="deleteInspectionRecordTemplate(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
+    } else
+    {
+        <button type="button" class="btn btn-warning me-auto" onclick="exportInspectionRecordTemplate()">@translator.Translate(userLanguage, "Export")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideInspectionRecordTemplateModal()">@translator.Translate(userLanguage, "Cancel")</button>
     @if (isNew)

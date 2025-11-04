@@ -190,6 +190,20 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
         }
     })
 }
+function exportInspectionRecordTemplate() {
+    let formValues = getAndValidateInspectionRecordTemplate();
+    if (formValues.hasError) {
+        errorToast("Please check the form data");
+        return;
+    }
+    $.post('/Vehicle/ExportInspectionRecordTemplate', { inspectionRecordTemplate: formValues }, function (data) {
+        if (data) {
+            window.location.href = data;
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
 function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
     $("#workAroundInput").show();
     Swal.fire({
@@ -377,10 +391,26 @@ function saveinspectionRecordToVehicle() {
         }
     })
 }
+function updateInspectionRecordTag(recordId) {
+    let inspectionTags = $("#inspectionRecordTag").val();
+    let vehicleId = GetVehicleId().vehicleId;
+    $.post('/Vehicle/UpdateInspectionRecordTags', { inspectionRecordId: recordId, tags: inspectionTags }, function (data) {
+        if (data) {
+            successToast("Inspection Record Updated.");
+            hideAddInspectionRecordModal();
+            saveScrollPosition();
+            getVehicleInspectionRecords(vehicleId);
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
 function showEditInspectionRecordModal(inspectionRecordId) {
     $.get(`/Vehicle/GetViewInspectionRecordPartialView?inspectionRecordId=${inspectionRecordId}`, function (data) {
         if (data) {
             $("#inspectionRecordModalContent").html(data);
+            //initiate tag selector
+            initTagSelector($("#inspectionRecordTag"));
             $("#inspectionRecordModal").modal('show');
             clearModalContentOnHide($("#inspectionRecordModal"));
         } else {
