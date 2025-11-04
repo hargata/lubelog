@@ -82,6 +82,11 @@ namespace CarCareTracker.Controllers
                 var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
                 if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                 {
+                    //security check
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId))
+                    {
+                        return false;
+                    }
                     existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder, currentDate, currentMileage);
                     //save to db.
                     var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
