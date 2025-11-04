@@ -1484,7 +1484,7 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     break;
-                case ImportMode InspectionRecord:
+                case ImportMode.InspectionRecord:
                     foreach (int recordId in recordIds)
                     {
                         var record = _inspectionRecordDataAccess.GetInspectionRecordById(recordId);
