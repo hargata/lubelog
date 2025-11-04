@@ -309,12 +309,6 @@ function getAndValidateInspectionRecord() {
         if (hasNotes) {
             let fieldNoteElem = fieldElem.find('[data-type="fieldNotes"]');
             fieldData["notes"] = fieldNoteElem.val();
-            if (fieldNoteElem.val().trim() == '') {
-                hasError = true;
-                fieldNoteElem.addClass('is-invalid');
-            } else {
-                fieldNoteElem.removeClass('is-invalid');
-            }
         }
         if (fieldType != 'Text') {
             let fieldOptions = [];
