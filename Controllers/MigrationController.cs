@@ -789,7 +789,7 @@ namespace CarCareTracker.Controllers
                     var table = db.GetCollection<InspectionRecord>("inspectionrecords");
                     inspectionrecords = table.FindAll().ToList();
                 };
-                foreach (var record in inspectionrecordtemplates)
+                foreach (var record in inspectionrecords)
                 {
                     string cmd = $"INSERT INTO app.inspectionrecords (id, vehicleId, data) VALUES(@id, @vehicleId, CAST(@data AS jsonb)); SELECT setval('app.inspectionrecords_id_seq', (SELECT MAX(id) from app.inspectionrecords));";
                     using (var ctext = pgDataSource.CreateCommand(cmd))
