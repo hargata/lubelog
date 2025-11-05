@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Helper;
+using System.Text.Json.Serialization;
 
 namespace CarCareTracker.Models
 {
@@ -6,12 +7,18 @@ namespace CarCareTracker.Models
     {
         public bool Success { get; set; }
         public string Message { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public object? AdditionalData { get; set; }
     }
     public class OperationResponse: OperationResponseBase
     {
         public static OperationResponse Succeed(string message = "")
         {
-            return new OperationResponse { Success = true, Message = message };
+            return new OperationResponse { Success = true, Message = message};
+        }
+        public static OperationResponse Succeed(string message, object additionalData)
+        {
+            return new OperationResponse { Success = true, Message = message, AdditionalData = additionalData };
         }
         public static OperationResponse Failed(string message = "")
         {
