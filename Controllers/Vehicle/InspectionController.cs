@@ -38,13 +38,32 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetEditInspectionRecordTemplatePartialView(int inspectionRecordTemplateId)
         {
-            var result = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
+            var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
             {
                 return Redirect("/Error/Unauthorized");
             }
-            return PartialView("Inspection/_InspectionRecordTemplateEditModal", result);
+            if (existingRecord.ReminderRecordId.Any())
+            {
+                bool reminderMissing = false;
+                //check if reminder still exists and is still recurring.
+                foreach (int reminderRecordId in existingRecord.ReminderRecordId)
+                {
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+                    if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                    {
+                        reminderMissing = true;
+                        break;
+                    }
+                }
+                if (reminderMissing)
+                {
+                    //clear out reminders attached to record.
+                    existingRecord.ReminderRecordId = new List<int>();
+                }
+            }
+            return PartialView("Inspection/_InspectionRecordTemplateEditModal", existingRecord);
         }
         [HttpGet]
         public IActionResult GetAddInspectionRecordFieldPartialView()
@@ -111,15 +130,34 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetAddInspectionRecordPartialView(int inspectionRecordTemplateId)
         {
-            var result = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
+            var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
             {
                 return Redirect("/Error/Unauthorized");
             }
             //populate date
-            result.Date = DateTime.Now.ToShortDateString();
-            return PartialView("Inspection/_InspectionRecordModal", result);
+            existingRecord.Date = DateTime.Now.ToShortDateString();
+            if (existingRecord.ReminderRecordId.Any())
+            {
+                bool reminderMissing = false;
+                //check if reminder still exists and is still recurring.
+                foreach (int reminderRecordId in existingRecord.ReminderRecordId)
+                {
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+                    if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                    {
+                        reminderMissing = true;
+                        break;
+                    }
+                }
+                if (reminderMissing)
+                {
+                    //clear out reminders attached to record.
+                    existingRecord.ReminderRecordId = new List<int>();
+                }
+            }
+            return PartialView("Inspection/_InspectionRecordModal", existingRecord);
         }
         [HttpGet]
         public IActionResult GetViewInspectionRecordPartialView(int inspectionRecordId)
@@ -200,6 +238,7 @@ namespace CarCareTracker.Controllers
                                 Description = inspectionField.ActionItemDescription,
                                 ImportMode = inspectionField.ActionItemType,
                                 Priority = inspectionField.ActionItemPriority,
+                                Progress = PlanProgress.Backlog,
                                 Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
                             });

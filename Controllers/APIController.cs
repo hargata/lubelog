@@ -329,7 +329,7 @@ namespace CarCareTracker.Controllers
                 };
                 _planRecordDataAccess.SavePlanRecordToVehicle(planRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(planRecord, "planrecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Plan Record Added"));
+                return Json(OperationResponse.Succeed("Plan Record Added", new { recordId = planRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -545,7 +545,7 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(serviceRecord, "servicerecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Service Record Added"));
+                return Json(OperationResponse.Succeed("Service Record Added", new { recordId = serviceRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -742,7 +742,7 @@ namespace CarCareTracker.Controllers
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(repairRecord, "repairrecord.add.api", User.Identity.Name));
 
-                return Json(OperationResponse.Succeed("Repair Record Added"));
+                return Json(OperationResponse.Succeed("Repair Record Added", new { recordId = repairRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -939,7 +939,7 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(upgradeRecord, "upgraderecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Upgrade Record Added"));
+                return Json(OperationResponse.Succeed("Upgrade Record Added", new { recordId = upgradeRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -1158,7 +1158,7 @@ namespace CarCareTracker.Controllers
                 _taxRecordDataAccess.SaveTaxRecordToVehicle(taxRecord);
                 _vehicleLogic.UpdateRecurringTaxes(vehicleId);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord, "taxrecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Tax Record Added"));
+                return Json(OperationResponse.Succeed("Tax Record Added", new { recordId = taxRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -1352,7 +1352,7 @@ namespace CarCareTracker.Controllers
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Odometer Record Added"));
+                return Json(OperationResponse.Succeed("Odometer Record Added", new { recordId = odometerRecord.Id }));
             } catch (Exception ex)
             {
                 Response.StatusCode = 500;
@@ -1561,7 +1561,7 @@ namespace CarCareTracker.Controllers
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(gasRecord, "gasrecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Gas Record Added"));
+                return Json(OperationResponse.Succeed("Gas Record Added", new { recordId = gasRecord.Id }));
             }
             catch (Exception ex)
             {
@@ -1759,7 +1759,7 @@ namespace CarCareTracker.Controllers
                 };
                 _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord, "reminderrecord.add.api", User.Identity.Name));
-                return Json(OperationResponse.Succeed("Reminder Record Added"));
+                return Json(OperationResponse.Succeed("Reminder Record Added", new { recordId = reminderRecord.Id }));
             }
             catch (Exception ex)
             {
