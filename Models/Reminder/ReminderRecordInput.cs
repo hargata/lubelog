@@ -42,5 +42,6 @@
                 Tags = Tags
             };
         }
+        public bool CreatedFromRecord { get; set; } = false;
     }
 }
