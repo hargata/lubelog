@@ -129,8 +129,12 @@ function saveReminderRecordToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Reminder Updated" : "Reminder Added.");
             hideAddReminderRecordModal();
-            saveScrollPosition();
-            getVehicleReminders(formValues.vehicleId);
+            if (!getReminderRecordModelData().createdFromRecord) {
+                saveScrollPosition();
+                getVehicleReminders(formValues.vehicleId);
+            } else {
+                getVehicleHaveImportantReminders(formValues.vehicleId);
+            }
         } else {
             errorToast(genericErrorMessage());
         }

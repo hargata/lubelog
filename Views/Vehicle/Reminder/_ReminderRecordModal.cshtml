@@ -144,6 +144,11 @@
     var customMonthInterval = @Model.CustomMonthInterval;
     var customMonthIntervalUnit = decodeHTMLEntities('@Model.CustomMonthIntervalUnit');
     function getReminderRecordModelData() {
-        return { id: @Model.Id, mileageInterval: decodeHTMLEntities('@Model.ReminderMileageInterval.ToString()'), monthInterval: decodeHTMLEntities('@Model.ReminderMonthInterval.ToString()')}
+        return { 
+            id: @Model.Id, 
+            createdFromRecord: @Model.CreatedFromRecord.ToString().ToLower(),
+            mileageInterval: decodeHTMLEntities('@Model.ReminderMileageInterval.ToString()'), 
+            monthInterval: decodeHTMLEntities('@Model.ReminderMonthInterval.ToString()')
+        }
     }
 </script>

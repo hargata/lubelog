@@ -228,6 +228,7 @@ function deleteVehicle(vehicleId) {
 }
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
+        reminderModalInput['createdFromRecord'] = true;
         $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
