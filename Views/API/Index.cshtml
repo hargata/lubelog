@@ -764,6 +764,20 @@
 </div>
 <div class="row api-method">
     <div class="col-1">
+        <span class="badge bg-success">GET</span>
+    </div>
+    <div class="col-5 copyable testable">
+        <code>/api/extrafields</code>
+    </div>
+    <div class="col-3">
+        Returns extra fields configured
+    </div>
+    <div class="col-3">
+        No Params
+    </div>
+</div>
+<div class="row api-method">
+    <div class="col-1">
         <span class="badge bg-primary">POST</span>
     </div>
     <div class="col-5 copyable">
@@ -792,7 +806,8 @@
         </div>
         <div class="col-3">
             (must be root user)<br />
-            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)
+            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)<br />
+            tags - tags separated by space(optional)
         </div>
     </div>
     <div class="row api-method">

@@ -28,6 +28,7 @@ namespace CarCareTracker.Controllers
         private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
+        private readonly IExtraFieldDataAccess _extraFieldDataAccess;
         private readonly IReminderHelper _reminderHelper;
         private readonly IGasHelper _gasHelper;
         private readonly IUserLogic _userLogic;
@@ -55,6 +56,7 @@ namespace CarCareTracker.Controllers
             IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
+            IExtraFieldDataAccess extraFieldDataAccess,
             IMailHelper mailHelper,
             IFileHelper fileHelper,
             IConfigHelper config,
@@ -79,6 +81,7 @@ namespace CarCareTracker.Controllers
             _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
+            _extraFieldDataAccess = extraFieldDataAccess;
             _mailHelper = mailHelper;
             _gasHelper = gasHelper;
             _reminderHelper = reminderHelper;
@@ -1978,6 +1981,42 @@ namespace CarCareTracker.Controllers
             } else
             {
                 return Json(OperationResponse.Succeed($"Emails Sent({operationResponses.Count(x => x.Success)}), Emails Failed({operationResponses.Count(x => !x.Success)}), Check Recipient Settings"));
+            }
+        }
+        [HttpGet]
+        [Route("/api/extrafields")]
+        public IActionResult GetExtraFields()
+        {
+            try
+            {
+                List<RecordExtraFieldExportModel> result = new List<RecordExtraFieldExportModel>();
+                var extraFields = _extraFieldDataAccess.GetExtraFields();
+                if (extraFields.Any())
+                {
+                    foreach(RecordExtraField extraField in extraFields)
+                    {
+                        if (extraField.ExtraFields.Any())
+                        {
+                            result.Add(new RecordExtraFieldExportModel
+                            {
+                                RecordType = ((ImportMode)extraField.Id).ToString(),
+                                ExtraFields = extraField.ExtraFields.Select(x => new ExtraFieldExportModel { Name = x.Name, IsRequired = x.IsRequired.ToString(), FieldType = x.FieldType.ToString() }).ToList()
+                            });
+                        }
+                    }
+                }
+                if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+                {
+                    return Json(result, StaticHelper.GetInvariantOption());
+                }
+                else
+                {
+                    return Json(result);
+                }
+            } catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
