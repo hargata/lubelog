@@ -238,6 +238,7 @@ namespace CarCareTracker.Controllers
                                 Description = inspectionField.ActionItemDescription,
                                 ImportMode = inspectionField.ActionItemType,
                                 Priority = inspectionField.ActionItemPriority,
+                                Progress = PlanProgress.Backlog,
                                 Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
                             });
