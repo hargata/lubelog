@@ -210,15 +210,16 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
-        public IActionResult UpdateInspectionRecordTags(int inspectionRecordId, List<string> tags)
+        public IActionResult UpdateInspectionRecord(InspectionRecordInput inspectionRecord)
         {
-            var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
+            var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecord.Id);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
             {
                 return Json(false);
             }
-            existingRecord.Tags = tags;
+            existingRecord.Tags = inspectionRecord.Tags;
+            existingRecord.Files = inspectionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(existingRecord);
             if (result)
             {

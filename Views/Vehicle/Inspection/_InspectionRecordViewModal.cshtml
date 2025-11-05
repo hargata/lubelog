@@ -85,7 +85,9 @@
                     </select>
                     <div>
                         @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
                     </div>
+                    <div id="filesPendingUpload"></div>
                 </div>
             </div>
         </div>
@@ -94,7 +96,7 @@
 <div class="modal-footer">
     <button type="button" class="btn btn-danger me-auto" onclick="deleteInspectionRecord(@Model.Id)">@translator.Translate(userLanguage, "Delete")</button>
     <button type="button" class="btn btn-secondary" onclick="hideAddInspectionRecordModal()">@translator.Translate(userLanguage, "Close")</button>
-    <button type="button" class="btn btn-primary" onclick="updateInspectionRecordTag(@Model.Id)">@translator.Translate(userLanguage, "Edit")</button>
+    <button type="button" class="btn btn-primary" onclick="updateInspectionRecord(@Model.Id)">@translator.Translate(userLanguage, "Edit")</button>
 </div>
 <script>
     setMarkDownStickerNotes();

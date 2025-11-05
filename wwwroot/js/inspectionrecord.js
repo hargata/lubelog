@@ -373,10 +373,15 @@ function saveinspectionRecordToVehicle() {
         }
     })
 }
-function updateInspectionRecordTag(recordId) {
+function updateInspectionRecord(recordId) {
     let inspectionTags = $("#inspectionRecordTag").val();
+    let inspectionRecord = {
+        id: recordId,
+        files: uploadedFiles,
+        tags: inspectionTags
+    }
     let vehicleId = GetVehicleId().vehicleId;
-    $.post('/Vehicle/UpdateInspectionRecordTags', { inspectionRecordId: recordId, tags: inspectionTags }, function (data) {
+    $.post('/Vehicle/UpdateInspectionRecord', { inspectionRecord: inspectionRecord }, function (data) {
         if (data) {
             successToast("Inspection Record Updated.");
             hideAddInspectionRecordModal();
