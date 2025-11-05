@@ -183,4 +183,16 @@ namespace CarCareTracker.Models
         public string Name { get; set; }
         public string Location { get; set; }
     }
+    public class RecordExtraFieldExportModel
+    {
+        public string RecordType { get; set; }
+        public List<ExtraFieldExportModel> ExtraFields { get; set; }
+    }
+    public class ExtraFieldExportModel
+    {
+        public string Name { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsRequired { get; set; }
+        public string FieldType { get; set; }
+    }
 }
