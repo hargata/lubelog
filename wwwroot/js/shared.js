@@ -991,6 +991,9 @@ function duplicateRecords(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Record";
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
     }
 
     Swal.fire({
@@ -1065,8 +1068,8 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             refreshDataCallBack = getVehiclePlanRecords;
             break;
         case "InspectionRecord":
-            friendlySource = "Inspection Records";
-            refreshDataCallBack = getVehicleInspectionRecords;
+            friendlySource = "Inspection Record";
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {

@@ -449,3 +449,8 @@ function duplicateInspectionRecordTemplateToVehicle() {
     inspectionRecordsIds.push(getInspectionRecordModelData().id);
     duplicateRecordsToOtherVehicles(inspectionRecordsIds, 'InspectionRecord');
 }
+function duplicateInspectionRecordTemplate() {
+    let inspectionRecordsIds = [];
+    inspectionRecordsIds.push(getInspectionRecordModelData().id);
+    duplicateRecords(inspectionRecordsIds, 'InspectionRecord');
+}
