@@ -991,6 +991,9 @@ function duplicateRecords(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Record";
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
     }
 
     Swal.fire({
@@ -1065,7 +1068,7 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             refreshDataCallBack = getVehiclePlanRecords;
             break;
         case "InspectionRecord":
-            friendlySource = "Inspection Records";
+            friendlySource = "Inspection Record";
             refreshDataCallBack = getVehicleInspectionRecords;
     }
 
