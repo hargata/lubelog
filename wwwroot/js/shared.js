@@ -1069,7 +1069,7 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             break;
         case "InspectionRecord":
             friendlySource = "Inspection Record";
-            refreshDataCallBack = getVehicleInspectionRecords;
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
