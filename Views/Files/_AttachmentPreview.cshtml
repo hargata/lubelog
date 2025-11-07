@@ -25,7 +25,13 @@
             <span class="link-body-emphasis"><i class="bi bi-download"></i></span>
         </a>
     }
-    <h5 class="modal-title" id="updateAccountModalLabel" @(!StaticHelper.GetAttachmentIsInTemp(Model.Location) ? $"data-link={Model.Location} onclick=handleAttachmentCopyLink(this) style=cursor:pointer;" : "")>@Model.Name</h5>
+    @if (StaticHelper.GetAttachmentIsInTemp(Model.Location))
+    {
+        <h5 class="modal-title" id="updateAccountModalLabel">@Model.Name</h5>
+    } else
+    {
+        <h5 class="modal-title" id="updateAccountModalLabel" data-link="@Model.Location" onclick="handleAttachmentCopyLink(this)" style="cursor:pointer;">@Model.Name</h5>
+    }
     <a style="cursor:pointer;" onclick="closeAttachmentPreview()"><span class="link-body-emphasis"><i class="bi bi-x-lg"></i></span></a>
 </div>
 <div class="modal-body">
