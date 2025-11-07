@@ -1806,3 +1806,10 @@ function clearModalContentOnHide(modalElem) {
         modalElem.find('.modal-content').html('');
     });
 }
+function handleAttachmentCopyLink(e) {
+    event.stopPropagation();
+    event.preventDefault();
+    let textToCopy = $(e).attr('data-link');
+    navigator.clipboard.writeText(textToCopy);
+    successToast("Copied Link to Clipboard");
+}
