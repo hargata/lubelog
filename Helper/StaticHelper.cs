@@ -742,6 +742,10 @@ namespace CarCareTracker.Helper
         {
             return (!fileLocation.StartsWith("/documents") && !fileLocation.StartsWith("documents") && !fileLocation.StartsWith("/temp") && !fileLocation.StartsWith("temp"));
         }
+        public static bool GetAttachmentIsInTemp(string fileLocation)
+        {
+            return (fileLocation.StartsWith("/temp") || fileLocation.StartsWith("temp"));
+        }
         public static string GetAttachmentOriginalName(string fileLocation, string originalName)
         {
             var fileExt = Path.GetExtension(fileLocation);
