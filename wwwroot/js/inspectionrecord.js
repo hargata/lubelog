@@ -184,7 +184,6 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
         if (data) {
             successToast(isEdit ? "Inspection Record Template Updated" : "Inspection Record Template Added.");
             hideInspectionRecordTemplateModal();
-            getVehicleInspectionRecords(formValues.vehicleId);
         } else {
             errorToast(genericErrorMessage());
         }
