@@ -101,12 +101,13 @@ html {
         page-break-after: always;
     }
     .recordSticker {
-        height: 100%;
         page-break-after: always;
     }
-    .stickerNote {
-        height:100%;
-    }
+    
+    .stickerNoteContainer {
+        max-height:100vh;
+        max-width:100vw;
+     }
 
     body {
         background-color: #fff !important;
