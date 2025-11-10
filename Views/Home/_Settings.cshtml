@@ -406,15 +406,20 @@
                 title: 'Setup Credentials',
                 html: `
                                     <input type="text" id="authUsername" class="swal2-input" placeholder="Username">
-                                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password" onkeydown="handleSwalEnter(event)">
+                                    <input type="password" id="authPassword" class="swal2-input" placeholder="Password">
+                                    <input type="password" id="authPasswordVerify" class="swal2-input" placeholder="Confirm Password" onkeydown="handleSwalEnter(event)">
                                     `,
                 confirmButtonText: 'Setup',
                 focusConfirm: false,
                 preConfirm: () => {
                     const username = $("#authUsername").val();
                     const password = $("#authPassword").val();
+                    const passwordConfirm = $("#authPasswordVerify").val();
                     if (!username || !password) {
-                        Swal.showValidationMessage(`Please enter username and password`)
+                        Swal.showValidationMessage(`Please enter username and password`);
+                    }
+                    if (password != passwordConfirm){
+                         Swal.showValidationMessage(`Passwords must match`);
                     }
                     return { username, password }
                 },
