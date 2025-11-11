@@ -367,6 +367,8 @@ function deleteVehicles(vehicleIds) {
             $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
                 if (data) {
                     loadGarage();
+                } else {
+                    errorToast(genericErrorMessage());
                 }
             })
         }

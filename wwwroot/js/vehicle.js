@@ -221,6 +221,8 @@ function deleteVehicle(vehicleId) {
             $.post('/Vehicle/DeleteVehicle', { vehicleId: vehicleId }, function (data) {
                 if (data) {
                     window.location.href = '/Home';
+                } else {
+                    errorToast(genericErrorMessage());
                 }
             })
         }

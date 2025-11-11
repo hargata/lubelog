@@ -155,6 +155,10 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeleteVehicle(int vehicleId)
         {
+            if (!_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
+            {
+                return Json(false);
+            }
             //Delete all service records, gas records, notes, etc.
             var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
@@ -183,7 +187,7 @@ namespace CarCareTracker.Controllers
             List<bool> results = new List<bool>();
             foreach(int vehicleId in vehicleIds)
             { 
-                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
                 {
                     //Delete all service records, gas records, notes, etc.
                     var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
@@ -206,6 +210,9 @@ namespace CarCareTracker.Controllers
                         StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
                     }
                     results.Add(result);
+                } else
+                {
+                    results.Add(false);
                 }
             }
             return Json(results.All(x => x));
