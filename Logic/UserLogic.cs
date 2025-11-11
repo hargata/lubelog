@@ -12,8 +12,10 @@ namespace CarCareTracker.Logic
         OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
         bool UserCanEditVehicle(int userId, int vehicleId);
+        bool UserCanDirectlyEditVehicle(int userId, int vehicleId);
         bool DeleteAllAccessToVehicle(int vehicleId);
         bool DeleteAllAccessToUser(int userId);
+        List<UserHouseholdViewModel> GetHouseholdForParentUserId(int parentUserId);
         OperationResponse AddUserToHousehold(int parentUserId, string childUsername);
         bool DeleteUserFromHousehold(int parentUserId, int childUserId);
         bool DeleteAllHouseholdByParentUserId(int parentUserId);
@@ -162,6 +164,19 @@ namespace CarCareTracker.Logic
             }
             return false;
         }
+        public bool UserCanDirectlyEditVehicle(int userId, int vehicleId)
+        {
+            if (userId == -1)
+            {
+                return true;
+            }
+            var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userId, vehicleId);
+            if (userAccess != null && userAccess.Id.UserId == userId && userAccess.Id.VehicleId == vehicleId)
+            {
+                return true;
+            }
+            return false;
+        }
         public bool DeleteAllAccessToVehicle(int vehicleId)
         {
             var result = _userAccess.DeleteAllAccessRecordsByVehicleId(vehicleId);
@@ -171,6 +186,22 @@ namespace CarCareTracker.Logic
         {
             var result = _userAccess.DeleteAllAccessRecordsByUserId(userId);
             return result;
+        }
+        public List<UserHouseholdViewModel> GetHouseholdForParentUserId(int parentUserId)
+        {
+            var result = _userHouseholdData.GetUserHouseholdByParentUserId(parentUserId);
+            var convertedResult = new List<UserHouseholdViewModel>();
+            //convert useraccess to usercollaborator
+            foreach (UserHousehold userHouseholdAccess in result)
+            {
+                var userCollaborator = new UserHouseholdViewModel
+                {
+                    UserName = _userData.GetUserRecordById(userHouseholdAccess.Id.ChildUserId).UserName,
+                    UserHousehold = userHouseholdAccess.Id
+                };
+                convertedResult.Add(userCollaborator);
+            }
+            return convertedResult;
         }
         public OperationResponse AddUserToHousehold(int parentUserId, string childUsername)
         {
@@ -184,6 +215,11 @@ namespace CarCareTracker.Logic
             if (existingUser.Id != default)
             {
                 //user exists.
+                //check if user is trying to add themselves
+                if (parentUserId == existingUser.Id)
+                {
+                    return OperationResponse.Failed("Cannot add yourself to your household");
+                }
                 //check if user already belongs to the household
                 var householdAccess = _userHouseholdData.GetUserHouseholdByParentAndChildUserId(parentUserId, existingUser.Id);
                 if (householdAccess != null && householdAccess.Id.ChildUserId == existingUser.Id && householdAccess.Id.ParentUserId == parentUserId)
@@ -192,7 +228,7 @@ namespace CarCareTracker.Logic
                 }
                 //check if a circular dependency will exist
                 var circularHouseholdAccess = _userHouseholdData.GetUserHouseholdByParentAndChildUserId(existingUser.Id, parentUserId);
-                if (circularHouseholdAccess != null && circularHouseholdAccess.Id.ChildUserId == existingUser.Id && circularHouseholdAccess.Id.ParentUserId == parentUserId)
+                if (circularHouseholdAccess != null && circularHouseholdAccess.Id.ChildUserId == parentUserId && circularHouseholdAccess.Id.ParentUserId == existingUser.Id)
                 {
                     return OperationResponse.Failed("Circular dependency is not allowed");
                 }

@@ -289,6 +289,24 @@ namespace CarCareTracker.Controllers
             var userName = User.Identity.Name;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
         }
+        [HttpGet]
+        public IActionResult GetHouseholdModal()
+        {
+            var households = _userLogic.GetHouseholdForParentUserId(GetUserID());
+            return PartialView("_UserHouseholdModal", households);
+        }
+        [HttpPost]
+        public IActionResult RemoveUserFromHousehold(int userId)
+        {
+            var result = _userLogic.DeleteUserFromHousehold(GetUserID(), userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult AddUserToHousehold(string username)
+        {
+            var result = _userLogic.AddUserToHousehold(GetUserID(), username);
+            return Json(result);
+        }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public IActionResult GetRootAccountInformationModal()

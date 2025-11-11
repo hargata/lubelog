@@ -68,7 +68,11 @@
                                     <li>
                                         <button class="dropdown-item" onclick="showAccountInformationModal()"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</button>
                                     </li>
+                                    <li>
+                                        <button class="dropdown-item" onclick="showHouseholdModal()"><i class="bi bi-house me-2"></i>@translator.Translate(userLanguage, "Household")</button>
+                                    </li>
                                 }
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage, "Logout")</button>
                                 </li>
@@ -121,6 +125,9 @@
                 <li>
                     <button class="nav-link" onclick="showAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
                 </li>
+                <li>
+                    <button class="nav-link" onclick="showHouseholdModal()"><span class="display-3 ms-2"><i class="bi bi-house me-2"></i>@translator.Translate(userLanguage, "Household")</span></button>
+                </li>
             }
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage,"Logout")</span></button>
@@ -156,6 +163,12 @@
 <div class="modal fade" id="accountInformationModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="accountInformationModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="householdModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="householdModalContent">
         </div>
     </div>
 </div>

@@ -576,6 +576,52 @@ function sortVehicles(desc) {
     sortedRow.push($('.garage-item-add'))
     $('.vehiclesContainer').html(sortedRow);
 }
+function showHouseholdModal() {
+    $.get('/Home/GetHouseholdModal', function (data) {
+        $("#householdModalContent").html(data);
+        $("#householdModal").modal('show');
+    })
+}
+function hideHouseholdModal() {
+    $("#householdModal").modal('hide');
+}
+function removeUserFromHousehold(userId) {
+    $.post('/Home/RemoveUserFromHousehold', { userId: userId }, function (data) {
+        if (data) {
+            showHouseholdModal();
+        } else {
+            errorToast(genericErrorMessage())
+        }
+    })
+}
+function addUserToHousehold() {
+    Swal.fire({
+        title: 'Add User',
+        html: `
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username" onkeydown="handleSwalEnter(event)">
+                            `,
+        confirmButtonText: 'Add',
+        focusConfirm: false,
+        preConfirm: () => {
+            const userName = $("#inputUserName").val();
+            if (!userName) {
+                Swal.showValidationMessage(`Please enter a username`);
+            }
+            return { userName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Home/AddUserToHousehold', { username: result.value.userName }, function (data) {
+                if (data.success) {
+                    showHouseholdModal();
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+    });
+}
+
 function showAccountInformationModal() {
     $.get('/Home/GetUserAccountInformationModal', function (data) {
         $('#accountInformationModalContent').html(data);

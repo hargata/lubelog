@@ -217,10 +217,13 @@ namespace CarCareTracker.Controllers
             if (vehicleIds.Count() == 1)
             {
                 //only one vehicle to manage
-                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First()))
+                if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleIds.First()))
                 {
                     viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x=>x.UserName).ToList();
                     viewModel.VehicleIds.Add(vehicleIds.First());
+                } else
+                {
+                    viewModel.CanModifyCollaborators = false;
                 }
             } 
             else
@@ -228,11 +231,14 @@ namespace CarCareTracker.Controllers
                 List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
                 foreach (int vehicleId in vehicleIds)
                 {
-                    if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                    if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
                     {
                         var vehicleCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
                         allCollaborators.AddRange(vehicleCollaborators);
                         viewModel.VehicleIds.Add(vehicleId);
+                    } else
+                    {
+                        viewModel.CanModifyCollaborators = false;
                     }
                 }
                 var groupedCollaborations = allCollaborators.GroupBy(x => x.UserName);

@@ -5,14 +5,17 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
-@model List<UserCollaborator>
+@model VehicleCollaboratorViewModel
 <div class="row">
-    <div class="col-8">
+    <div class="@(Model.CanModifyCollaborators ? "col-8" : "col-12")">
         <span class="lead">@translator.Translate(userLanguage, "Collaborators")</span>
     </div>
-    <div class="col-4">
-        <button onclick="addCollaborator()" class="btn btn-link btn-sm"><i class="bi bi-person-add"></i></button>
-    </div>
+    @if (Model.CanModifyCollaborators)
+    {
+        <div class="col-4">
+            <button onclick="addCollaborator()" class="btn btn-link btn-sm"><i class="bi bi-person-add"></i></button>
+        </div>
+    }
 </div>
 <div class="row">
     <table class="table table-hover">
@@ -23,12 +26,12 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (UserCollaborator user in Model)
+            @foreach (UserCollaborator user in Model.Collaborators)
             {
                 <tr class="d-flex">
                     <td class="col-8">@user.UserName</td>
                     <td class="col-4">
-                        @if(User.Identity.Name != user.UserName)
+                        @if(User.Identity.Name != user.UserName && Model.CanModifyCollaborators)
                         {
                             <button onclick="deleteCollaborator(@user.UserVehicle.UserId, @user.UserVehicle.VehicleId)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
                         }
