@@ -60,6 +60,7 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IExtraFieldDataAccess, PGExtraFieldDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordDataAccess, PGInspectionRecordDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, PGInspectionRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IUserHouseholdDataAccess, PGUserHouseholdDataAccess>();
 }
 else
 {
@@ -82,6 +83,7 @@ else
     builder.Services.AddSingleton<IExtraFieldDataAccess, ExtraFieldDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordDataAccess, InspectionRecordDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, InspectionRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IUserHouseholdDataAccess, UserHouseholdDataAccess>();
 }
 
 //configure helpers

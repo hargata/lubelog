@@ -72,7 +72,11 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeleteUser(int userId)
         {
-            var result =_userLogic.DeleteAllAccessToUser(userId) && _configHelper.DeleteUserConfig(userId) && _loginLogic.DeleteUser(userId);
+            var result =_userLogic.DeleteAllAccessToUser(userId) 
+                && _configHelper.DeleteUserConfig(userId) 
+                && _loginLogic.DeleteUser(userId)
+                && _userLogic.DeleteAllHouseholdByChildUserId(userId)
+                && _userLogic.DeleteAllHouseholdByParentUserId(userId);
             return Json(result);
         }
         [HttpPost]
