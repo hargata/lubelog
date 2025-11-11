@@ -183,7 +183,7 @@ namespace CarCareTracker.Controllers
                 Collaborators = result,
                 CanModifyCollaborators = userCanModify
             };
-            return PartialView("_Collaborators", result);
+            return PartialView("_Collaborators", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]

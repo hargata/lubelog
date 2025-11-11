@@ -588,6 +588,7 @@ function hideHouseholdModal() {
 function removeUserFromHousehold(userId) {
     $.post('/Home/RemoveUserFromHousehold', { userId: userId }, function (data) {
         if (data) {
+            successToast('User Removed');
             showHouseholdModal();
         } else {
             errorToast(genericErrorMessage())
@@ -614,6 +615,7 @@ function addUserToHousehold() {
             $.post('/Home/AddUserToHousehold', { username: result.value.userName }, function (data) {
                 if (data.success) {
                     showHouseholdModal();
+                    successToast('User Added');
                 } else {
                     errorToast(data.message);
                 }
