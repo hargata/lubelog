@@ -72,13 +72,36 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult DeleteUser(int userId)
         {
-            var result =_userLogic.DeleteAllAccessToUser(userId) && _configHelper.DeleteUserConfig(userId) && _loginLogic.DeleteUser(userId);
+            var result =_userLogic.DeleteAllAccessToUser(userId) 
+                && _configHelper.DeleteUserConfig(userId) 
+                && _loginLogic.DeleteUser(userId)
+                && _userLogic.DeleteAllHouseholdByChildUserId(userId)
+                && _userLogic.DeleteAllHouseholdByParentUserId(userId);
             return Json(result);
         }
         [HttpPost]
         public IActionResult UpdateUserAdminStatus(int userId, bool isAdmin)
         {
             var result = _loginLogic.MakeUserAdmin(userId, isAdmin);
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetUserHouseholdModal(int userId)
+        {
+            var households = _userLogic.GetHouseholdForParentUserId(userId);
+            var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId };
+            return PartialView("_AdminUserHouseholdModal", viewModel);
+        }
+        [HttpPost]
+        public IActionResult RemoveUserFromHousehold(int parentUserId, int childUserId)
+        {
+            var result = _userLogic.DeleteUserFromHousehold(parentUserId, childUserId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult AddUserToHousehold(int parentUserId, string username)
+        {
+            var result = _userLogic.AddUserToHousehold(parentUserId, username);
             return Json(result);
         }
     }
