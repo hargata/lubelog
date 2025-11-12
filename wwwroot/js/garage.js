@@ -365,11 +365,10 @@ function deleteVehicles(vehicleIds) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
-                if (data) {
-                    loadGarage();
-                } else {
+                if (!data) {
                     errorToast(genericErrorMessage());
                 }
+                loadGarage();
             })
         }
     });
