@@ -146,6 +146,7 @@ namespace CarCareTracker.Controllers
                     var userAccessToken = decodedToken?.access_token ?? string.Empty;
                     var tokenParser = new JsonWebTokenHandler();
                     bool passedSignatureCheck = true;
+                    string signatureValidationError = "check jwks endpoint";
                     if (!string.IsNullOrWhiteSpace(openIdConfig.JwksURL))
                     {
                         //validate token signature if jwks endpoint is provided
@@ -165,6 +166,10 @@ namespace CarCareTracker.Controllers
                             if (!validatedIdToken.IsValid)
                             {
                                 passedSignatureCheck = false;
+                                if (validatedIdToken.Exception != null && !string.IsNullOrWhiteSpace(validatedIdToken.Exception.Message))
+                                {
+                                    signatureValidationError = validatedIdToken.Exception.Message;
+                                }
                             }
                         }
                     }
@@ -238,7 +243,7 @@ namespace CarCareTracker.Controllers
                     } 
                     else
                     {
-                        _logger.LogError($"OpenID Provider did not provide a valid id_token: check jwks endpoint");
+                        _logger.LogError($"OpenID Provider did not provide a valid id_token: {signatureValidationError}");
                     }
                 }
                 else
@@ -329,6 +334,10 @@ namespace CarCareTracker.Controllers
                             if (!validatedIdToken.IsValid)
                             {
                                 passedSignatureCheck = false;
+                                if (validatedIdToken.Exception != null && !string.IsNullOrWhiteSpace(validatedIdToken.Exception.Message))
+                                {
+                                    results.Add(OperationResponse.Failed($"Failed JWT Validation: {validatedIdToken.Exception.Message}"));
+                                }
                             } else
                             {
                                 results.Add(OperationResponse.Succeed($"Passed JWT Validation - Valid To: {validatedIdToken.SecurityToken.ValidTo}"));

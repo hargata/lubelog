@@ -118,7 +118,8 @@ namespace CarCareTracker.Controllers
             }
             //get collaborators
             var collaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
-            viewModel.Collaborators = collaborators;
+            var userCanModify = _userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId);
+            viewModel.Collaborators = new VehicleCollaboratorViewModel { CanModifyCollaborators = userCanModify, Collaborators = collaborators};
             //get MPG per month.
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, !vehicleData.IsElectric && userConfig.UseUKMPG);
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
@@ -176,16 +177,22 @@ namespace CarCareTracker.Controllers
         public IActionResult GetCollaboratorsForVehicle(int vehicleId)
         {
             var result = _userLogic.GetCollaboratorsForVehicle(vehicleId);
-            return PartialView("_Collaborators", result);
+            var userCanModify = _userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId);
+            var viewModel = new VehicleCollaboratorViewModel
+            {
+                Collaborators = result,
+                CanModifyCollaborators = userCanModify
+            };
+            return PartialView("_Collaborators", viewModel);
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] {false, true})]
         [HttpPost]
         public IActionResult AddCollaboratorsToVehicle(int vehicleId, string username)
         {
             var result = _userLogic.AddCollaboratorToVehicle(vehicleId, username);
             return Json(result);
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { false, true })]
         [HttpPost]
         public IActionResult DeleteCollaboratorFromVehicle(int userId, int vehicleId)
         {
