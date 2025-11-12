@@ -208,7 +208,7 @@ namespace CarCareTracker.Logic
             //attempting to add to root user
             if (parentUserId == -1)
             {
-                return OperationResponse.Failed("Root user household not allwoed");
+                return OperationResponse.Failed("Root user household not allowed");
             }
             //try to find existing user.
             var existingUser = _userData.GetUserRecordByUserName(childUsername);
@@ -218,7 +218,7 @@ namespace CarCareTracker.Logic
                 //check if user is trying to add themselves
                 if (parentUserId == existingUser.Id)
                 {
-                    return OperationResponse.Failed("Cannot add yourself to your household");
+                    return OperationResponse.Failed("Cannot add user to their own household");
                 }
                 //check if user already belongs to the household
                 var householdAccess = _userHouseholdData.GetUserHouseholdByParentAndChildUserId(parentUserId, existingUser.Id);
