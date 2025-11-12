@@ -185,14 +185,14 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("_Collaborators", viewModel);
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] {false, true})]
         [HttpPost]
         public IActionResult AddCollaboratorsToVehicle(int vehicleId, string username)
         {
             var result = _userLogic.AddCollaboratorToVehicle(vehicleId, username);
             return Json(result);
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { false, true })]
         [HttpPost]
         public IActionResult DeleteCollaboratorFromVehicle(int userId, int vehicleId)
         {

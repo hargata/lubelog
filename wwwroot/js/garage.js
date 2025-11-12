@@ -365,10 +365,12 @@ function deleteVehicles(vehicleIds) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
-                if (!data) {
-                    errorToast(genericErrorMessage());
+                if (data.success) {
+                    loadGarage();
                 }
-                loadGarage();
+                else {
+                    errorToast(data.message);
+                }
             })
         }
     });
@@ -378,7 +380,9 @@ function manageCollaborators(vehicleIds) {
         return;
     }
     $.post('/Vehicle/GetVehiclesCollaborators', { vehicleIds: vehicleIds }, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        } else if (data) {
             $("#userCollaboratorsModalContent").html(data);
             $("#userCollaboratorsModal").modal('show');
         }

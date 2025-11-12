@@ -11,8 +11,6 @@
     <h5 class="modal-title" id="userCollaboratorsModalLabel">@translator.Translate(userLanguage, "Manage Collaborators")</h5>
     <button type="button" class="btn-close" onclick="hideCollaboratorsModal()" aria-label="Close"></button>
 </div>
-@if (Model.CanModifyCollaborators)
-{
 <div class="modal-body">
     @if (showTwoColumns)
     {
@@ -108,16 +106,3 @@
     }
     adjustCollaboratorsModalSize(@showTwoColumns.ToString().ToLower());
     </script>
-} 
-else
-{
-    <div class="modal-body">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-center">
-                    <span class="lead text-center">@translator.Translate(userLanguage, "You don't have access to manage collaborators for these vehicles")</span>
-                </div>
-            </div>
-        </div>
-    </div>
-}

@@ -151,14 +151,10 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { false, true })]
         public IActionResult DeleteVehicle(int vehicleId)
         {
-            if (!_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
-            {
-                return Json(false);
-            }
             //Delete all service records, gas records, notes, etc.
             var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
@@ -179,88 +175,79 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
-            return Json(result);
+            return Json(OperationResponse.Succeed());
         }
         [HttpPost]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { true, true })]
         public IActionResult DeleteVehicles(List<int> vehicleIds)
         {
             List<bool> results = new List<bool>();
-            foreach(int vehicleId in vehicleIds)
-            { 
-                if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
+            foreach (int vehicleId in vehicleIds)
+            {
+                //Delete all service records, gas records, notes, etc.
+                var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
+                    _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
+                    _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
+                    _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
+                    _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
+                    _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
+                    _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                    _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
+                    _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
+                    _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
+                    _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
+                    _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
+                    _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
+                    _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
+                    _dataAccess.DeleteVehicle(vehicleId);
+                if (result)
                 {
-                    //Delete all service records, gas records, notes, etc.
-                    var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
-                        _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
-                        _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
-                        _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
-                        _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
-                        _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
-                        _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
-                        _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
-                        _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
-                        _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
-                        _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
-                        _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
-                        _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
-                        _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
-                        _dataAccess.DeleteVehicle(vehicleId);
-                    if (result)
-                    {
-                        StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
-                    }
-                    results.Add(result);
-                } else
-                {
-                    results.Add(false);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
                 }
+                results.Add(result);
             }
-            return Json(results.All(x => x));
+            return Json(OperationResponse.Conditional(results.Any() && results.All(x => x), "", StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { true, true })]
         public IActionResult GetVehiclesCollaborators(List<int> vehicleIds)
         {
             var viewModel = new UserCollaboratorViewModel();
             if (vehicleIds.Count() == 1)
             {
                 //only one vehicle to manage
-                if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleIds.First()))
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First()))
                 {
-                    viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x=>x.UserName).ToList();
+                    viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x => x.UserName).ToList();
                     viewModel.VehicleIds.Add(vehicleIds.First());
-                } else
-                {
-                    viewModel.CanModifyCollaborators = false;
                 }
-            } 
+            }
             else
             {
                 List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
                 foreach (int vehicleId in vehicleIds)
                 {
-                    if (_userLogic.UserCanDirectlyEditVehicle(GetUserID(), vehicleId))
+                    if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
                     {
                         var vehicleCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
                         allCollaborators.AddRange(vehicleCollaborators);
                         viewModel.VehicleIds.Add(vehicleId);
-                    } else
-                    {
-                        viewModel.CanModifyCollaborators = false;
                     }
                 }
                 var groupedCollaborations = allCollaborators.GroupBy(x => x.UserName);
                 viewModel.CommonCollaborators = groupedCollaborations.Where(x => x.Count() == vehicleIds.Count()).Select(y => y.Key).ToList();
                 viewModel.PartialCollaborators = groupedCollaborations.Where(x => x.Count() != vehicleIds.Count()).Select(y => y.Key).ToList();
             }
-            return PartialView("_UserCollaborators",viewModel);
+            return PartialView("_UserCollaborators", viewModel);
         }
         [HttpPost]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { true, true })]
         public IActionResult AddCollaboratorsToVehicles(List<string> usernames, List<int> vehicleIds)
         {
             List<OperationResponse> results = new List<OperationResponse>();
-            foreach(string username in usernames)
+            foreach (string username in usernames)
             {
-                foreach(int vehicleId in vehicleIds)
+                foreach (int vehicleId in vehicleIds)
                 {
                     var result = _userLogic.AddCollaboratorToVehicle(vehicleId, username);
                     results.Add(result);
@@ -274,6 +261,7 @@ namespace CarCareTracker.Controllers
             return Json(OperationResponse.Succeed());
         }
         [HttpPost]
+        [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { true, true })]
         public IActionResult RemoveCollaboratorsFromVehicles(List<string> usernames, List<int> vehicleIds)
         {
             List<OperationResponse> results = new List<OperationResponse>();
@@ -291,37 +279,6 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success).Message));
             }
             return Json(OperationResponse.Succeed());
-        }
-        [HttpPost]
-        public IActionResult DuplicateVehicleCollaborators(int sourceVehicleId, int destVehicleId)
-        {
-            try
-            {
-                //retrieve collaborators for both source and destination vehicle id.
-                if (_userLogic.UserCanEditVehicle(GetUserID(), sourceVehicleId) && _userLogic.UserCanEditVehicle(GetUserID(), destVehicleId))
-                {
-                    var sourceCollaborators = _userLogic.GetCollaboratorsForVehicle(sourceVehicleId).Select(x => x.UserVehicle.UserId).ToList();
-                    var destCollaborators = _userLogic.GetCollaboratorsForVehicle(destVehicleId).Select(x => x.UserVehicle.UserId).ToList();
-                    sourceCollaborators.RemoveAll(x => destCollaborators.Contains(x));
-                    if (sourceCollaborators.Any())
-                    {
-                        foreach (int collaboratorId in sourceCollaborators)
-                        {
-                            _userLogic.AddUserAccessToVehicle(collaboratorId, destVehicleId);
-                        }
-                    }
-                    else
-                    {
-                        return Json(OperationResponse.Failed("Both vehicles already have identical collaborators"));
-                    }
-                }
-                return Json(OperationResponse.Succeed("Collaborators Copied"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return Json(OperationResponse.Failed());
-            }
         }
 
         #region "Shared Methods"
@@ -354,7 +311,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ServiceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ServiceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
@@ -367,7 +324,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.RepairRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.RepairRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
@@ -380,7 +337,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.UpgradeRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.UpgradeRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
@@ -406,7 +363,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.SupplyRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.SupplyRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
@@ -419,7 +376,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.PlanRecord, Description = $"{x.DateCreated.ToShortDateString()} - {x.Description}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.PlanRecord, Description = $"{x.DateCreated.ToShortDateString()} - {x.Description}" }));
@@ -432,7 +389,7 @@ namespace CarCareTracker.Controllers
                             if (caseSensitive)
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.OdometerRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
-                            } 
+                            }
                             else
                             {
                                 searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.OdometerRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));

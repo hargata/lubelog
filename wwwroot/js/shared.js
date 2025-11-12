@@ -1813,3 +1813,12 @@ function handleAttachmentCopyLink(e) {
     navigator.clipboard.writeText(textToCopy);
     successToast("Copied Link to Clipboard");
 }
+function isOperationResponse(result) {
+    //checks if response from controller is operationresponse
+    if (result.success != undefined && result.message != undefined) {
+        if (!result.success) {
+            errorToast(result.message);
+        }
+        return true;
+    }
+}

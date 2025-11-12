@@ -5,6 +5,5 @@
         public List<int> VehicleIds { get; set; } = new List<int>();
         public List<string> CommonCollaborators { get; set; } = new List<string>();
         public List<string> PartialCollaborators { get; set; } = new List<string>();
-        public bool CanModifyCollaborators { get; set; } = true;
     }
 }

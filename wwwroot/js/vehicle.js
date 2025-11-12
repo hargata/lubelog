@@ -219,10 +219,10 @@ function deleteVehicle(vehicleId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicle', { vehicleId: vehicleId }, function (data) {
-                if (data) {
+                if (data.success) {
                     window.location.href = '/Home';
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             })
         }
