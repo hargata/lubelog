@@ -159,12 +159,9 @@ namespace CarCareTracker.Logic
                 if (userAccess != null && userAccess.Id.UserId == userHousehold.Id.ParentUserId && userAccess.Id.VehicleId == vehicleId)
                 {
                     //every member in a household has permission to view vehicles
-                    if (permission == HouseholdPermission.View)
+                    if (permission == HouseholdPermission.View || userHousehold.Permissions.Contains(permission))
                     {
                         return true;
-                    } else
-                    {
-                        return userHousehold.Permissions.Contains(permission);
                     }
                 }
             }
