@@ -83,7 +83,7 @@ namespace CarCareTracker.Controllers
                 if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                 {
                     //security check
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId, HouseholdPermission.View))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId, HouseholdPermission.Edit))
                     {
                         return false;
                     }
