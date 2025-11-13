@@ -302,6 +302,12 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
+        public IActionResult ModifyUserHouseholdPermissions(int userId, List<HouseholdPermission> permissions)
+        {
+            var result = _userLogic.UpdateUserHousehold(GetUserID(), userId, permissions);
+            return Json(result);
+        }
+        [HttpPost]
         public IActionResult AddUserToHousehold(string username)
         {
             var result = _userLogic.AddUserToHousehold(GetUserID(), username);

@@ -7,13 +7,17 @@ namespace CarCareTracker.Controllers
 {
     public partial class VehicleController
     {
-        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
         public IActionResult ForceRecalculateDistanceByVehicleId(int vehicleId)
         {
+            //security check
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleId, HouseholdPermission.Edit))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
             result = _odometerLogic.AutoConvertOdometerRecord(result);
-            return Json(result.Any());
+            return Json(OperationResponse.Conditional(result.Any(), string.Empty, StaticHelper.GenericErrorMessage));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -40,9 +44,9 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveOdometerRecordToVehicleId(OdometerRecordInput odometerRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), odometerRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), odometerRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //move files from temp.
             odometerRecord.Files = odometerRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -52,7 +56,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(convertedRecord, odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity.Name));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -88,6 +92,11 @@ namespace CarCareTracker.Controllers
             foreach (int recordId in editModel.RecordIds)
             {
                 var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                //security check
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 if (dateIsEdited)
                 {
                     existingRecord.Date = editModel.EditRecord.Date;
@@ -126,14 +135,14 @@ namespace CarCareTracker.Controllers
                 }
                 result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetOdometerRecordForEditById(int odometerRecordId)
         {
             var result = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -152,20 +161,20 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Odometer/_OdometerRecordModal", convertedResult);
         }
-        private bool DeleteOdometerRecordWithChecks(int odometerRecordId)
+        private OperationResponse DeleteOdometerRecordWithChecks(int odometerRecordId)
         {
             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(odometerRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteOdometerRecordById(int odometerRecordId)

@@ -52,13 +52,14 @@ function deleteSupplyRecord(supplyRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteSupplyRecordById?supplyRecordId=${supplyRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddSupplyRecordModal();
                     successToast("Supply Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleSupplyRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +77,7 @@ function saveSupplyRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveSupplyRecordToVehicleId', { supplyRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Supply Record Updated" : "Supply Record Added.");
             hideAddSupplyRecordModal();
             saveScrollPosition();
@@ -85,7 +86,7 @@ function saveSupplyRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

@@ -1,6 +1,7 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Models;
 using Npgsql;
+using System.Text.Json;
 
 namespace CarCareTracker.External.Implementations
 {
@@ -16,7 +17,7 @@ namespace CarCareTracker.External.Implementations
             try
             {
                 //create table if not exist.
-                string initCMD = $"CREATE SCHEMA IF NOT EXISTS app; CREATE TABLE IF NOT EXISTS app.{tableName} (parentUserId INT, childUserId INT, PRIMARY KEY(parentUserId, childUserId))";
+                string initCMD = $"CREATE SCHEMA IF NOT EXISTS app; CREATE TABLE IF NOT EXISTS app.{tableName} (parentUserId INT, childUserId INT, data jsonb not null, PRIMARY KEY(parentUserId, childUserId))";
                 using (var ctext = pgDataSource.CreateCommand(initCMD))
                 {
                     ctext.ExecuteNonQuery();
@@ -31,7 +32,7 @@ namespace CarCareTracker.External.Implementations
         {
             try
             {
-                string cmd = $"SELECT parentUserId, childUserId FROM app.{tableName} WHERE parentUserId = @parentUserId";
+                string cmd = $"SELECT data FROM app.{tableName} WHERE parentUserId = @parentUserId";
                 var results = new List<UserHousehold>();
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
@@ -39,14 +40,7 @@ namespace CarCareTracker.External.Implementations
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            UserHousehold result = new UserHousehold()
-                            {
-                                Id = new HouseholdAccess
-                                {
-                                    ParentUserId = int.Parse(reader["parentUserId"].ToString()),
-                                    ChildUserId = int.Parse(reader["childUserId"].ToString())
-                                }
-                            };
+                            UserHousehold result = JsonSerializer.Deserialize<UserHousehold>(reader["data"] as string);
                             results.Add(result);
                         }
                 }
@@ -62,7 +56,7 @@ namespace CarCareTracker.External.Implementations
         {
             try
             {
-                string cmd = $"SELECT parentUserId, childUserId FROM app.{tableName} WHERE childUserId = @childUserId";
+                string cmd = $"SELECT data FROM app.{tableName} WHERE childUserId = @childUserId";
                 var results = new List<UserHousehold>();
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
@@ -70,14 +64,7 @@ namespace CarCareTracker.External.Implementations
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            UserHousehold result = new UserHousehold()
-                            {
-                                Id = new HouseholdAccess
-                                {
-                                    ParentUserId = int.Parse(reader["parentUserId"].ToString()),
-                                    ChildUserId = int.Parse(reader["childUserId"].ToString())
-                                }
-                            };
+                            UserHousehold result = JsonSerializer.Deserialize<UserHousehold>(reader["data"] as string);
                             results.Add(result);
                         }
                 }
@@ -93,7 +80,7 @@ namespace CarCareTracker.External.Implementations
         {
             try
             {
-                string cmd = $"SELECT parentUserId, childUserId FROM app.{tableName} WHERE parentUserId = @parentUserId AND childUserId = @childUserId";
+                string cmd = $"SELECT data FROM app.{tableName} WHERE parentUserId = @parentUserId AND childUserId = @childUserId";
                 UserHousehold result = null;
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
@@ -102,14 +89,7 @@ namespace CarCareTracker.External.Implementations
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            result = new UserHousehold()
-                            {
-                                Id = new HouseholdAccess
-                                {
-                                    ParentUserId = int.Parse(reader["parentUserId"].ToString()),
-                                    ChildUserId = int.Parse(reader["childUserId"].ToString())
-                                }
-                            };
+                            result = JsonSerializer.Deserialize<UserHousehold>(reader["data"] as string);
                             return result;
                         }
                 }
@@ -125,11 +105,13 @@ namespace CarCareTracker.External.Implementations
         {
             try
             {
-                string cmd = $"INSERT INTO app.{tableName} (parentUserId, childUserId) VALUES(@parentUserId, @childUserId)";
+                string cmd = $"INSERT INTO app.{tableName} (parentUserId, childUserId, data) VALUES(@parentUserId, @childUserId, CAST(@data AS jsonb)) ON CONFLICT(parentUserId, childUserId) DO UPDATE SET data = CAST(@data AS jsonb)";
                 using (var ctext = pgDataSource.CreateCommand(cmd))
                 {
+                    var serializedData = JsonSerializer.Serialize(userHousehold);
                     ctext.Parameters.AddWithValue("parentUserId", userHousehold.Id.ParentUserId);
                     ctext.Parameters.AddWithValue("childUserId", userHousehold.Id.ChildUserId);
+                    ctext.Parameters.AddWithValue("data", serializedData);
                     return ctext.ExecuteNonQuery() > 0;
                 }
             }

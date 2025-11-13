@@ -175,7 +175,7 @@ namespace CarCareTracker.Controllers
             List<Vehicle> vehicles = new List<Vehicle>();
             if (vehicleId != default)
             {
-                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId, HouseholdPermission.View))
                 {
                     vehicles.Add(_dataAccess.GetVehicleById(vehicleId));
                 } else
@@ -351,7 +351,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -419,7 +419,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -567,7 +567,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -616,7 +616,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -764,7 +764,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -813,7 +813,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -961,7 +961,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1010,7 +1010,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1180,7 +1180,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1223,7 +1223,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1373,7 +1373,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1416,7 +1416,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1583,7 +1583,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1629,7 +1629,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1823,7 +1823,7 @@ namespace CarCareTracker.Controllers
                 if (existingRecord != null && existingRecord.Id == int.Parse(input.Id))
                 {
                     //check if user has access to the vehicleId
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
                     {
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
@@ -1861,7 +1861,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Invalid Record Id"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 Response.StatusCode = 401;
                 return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));

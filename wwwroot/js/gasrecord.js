@@ -52,13 +52,14 @@ function deleteGasRecord(gasRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteGasRecordById?gasRecordId=${gasRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddGasRecordModal();
                     successToast("Gas Record deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleGasRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,13 +77,13 @@ function saveGasRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveGasRecordToVehicleId', { gasRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Gas Record Updated" : "Gas Record Added.");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -486,13 +487,13 @@ function saveMultipleGasRecordsToVehicle() {
         }
     }
     $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Gas Records Updated");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(GetVehicleId().vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

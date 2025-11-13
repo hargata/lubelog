@@ -21,17 +21,21 @@
     <table class="table table-hover">
         <thead class="sticky-top">
             <tr class="d-flex">
-                <th scope="col" class="col-10">@translator.Translate(userLanguage, "Username")</th>
+                <th scope="col" class="col-6">@translator.Translate(userLanguage, "Username")</th>
+                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Edit")</th>
                 <th scope="col" class="col-2">@translator.Translate(userLanguage, "Delete")</th>
+                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Remove")</th>
             </tr>
         </thead>
         <tbody id="tokenTable">
             @foreach(UserHouseholdViewModel viewModel in Model)
             {
                 <tr class="d-flex">
-                    <td class="col-10">@viewModel.UserName</td>
+                    <td class="col-6">@viewModel.UserName</td>
+                    <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="Edit" onchange="modifyUserHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)" @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) ? "checked" : "") /></td>
+                    <td class="col-2 d-flex align-items-center"><input class="form-check-input" type="checkbox" value="Delete" onchange="modifyUserHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)" @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "checked" : "") /></td>
                     <td class="col-2">
-                        <button type="button" class="btn btn-danger" onclick="removeUserFromHousehold(@viewModel.UserHousehold.ChildUserId, this)"><i class="bi bi-trash"></i></button>
+                        <button type="button" class="btn btn-danger" onclick="removeUserFromHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
             }

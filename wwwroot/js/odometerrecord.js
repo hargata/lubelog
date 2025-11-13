@@ -52,13 +52,14 @@ function deleteOdometerRecord(odometerRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteOdometerRecordById?odometerRecordId=${odometerRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddOdometerRecordModal();
                     successToast("Odometer Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleOdometerRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +77,7 @@ function saveOdometerRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveOdometerRecordToVehicleId', { odometerRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Odometer Record Updated" : "Odometer Record Added.");
             hideAddOdometerRecordModal();
             saveScrollPosition();
@@ -85,7 +86,7 @@ function saveOdometerRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -142,11 +143,11 @@ function recalculateDistance() {
     //reserved for when data is incoherent with negative distances due to non-chronological order of odometer records.
     var vehicleId = GetVehicleId().vehicleId
     $.post(`/Vehicle/ForceRecalculateDistanceByVehicleId?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Odometer Records Updated")
             getVehicleOdometerRecords(vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -204,13 +205,13 @@ function saveMultipleOdometerRecordsToVehicle() {
         }
     }
     $.post('/Vehicle/SaveMultipleOdometerRecords', { editModel: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Odometer Records Updated");
             hideAddOdometerRecordModal();
             saveScrollPosition();
             getVehicleOdometerRecords(GetVehicleId().vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

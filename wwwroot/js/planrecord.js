@@ -88,7 +88,7 @@ function deletePlanRecord(planRecordId, noModal) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordById?planRecordId=${planRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     if (!noModal) {
                         hideAddPlanRecordModal();
                     }
@@ -96,7 +96,8 @@ function deletePlanRecord(planRecordId, noModal) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -114,7 +115,7 @@ function savePlanRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SavePlanRecordToVehicleId', { planRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Plan Record Updated" : "Plan Record Added.");
             hideAddPlanRecordModal();
             if (!getPlanRecordModelData().createdFromReminder) {
@@ -125,7 +126,7 @@ function savePlanRecordToVehicle(isEdit) {
                 }
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -170,11 +171,12 @@ function deletePlannerRecordTemplate(planRecordTemplateId) {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordTemplateById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();
-                if (data) {
+                if (data.success) {
                     successToast("Plan Template Deleted");
                     hideAddPlanRecordModal();
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -309,12 +311,12 @@ function updatePlanRecordProgress(newProgress) {
                     //Odometer Adjustments
                     var adjustedOdometer = GetAdjustedOdometer(0, result.value.odometer);
                     $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress, odometer: adjustedOdometer }, function (data) {
-                        if (data) {
+                        if (data.success) {
                             successToast("Plan Progress Updated");
                             var vehicleId = GetVehicleId().vehicleId;
                             getVehiclePlanRecords(vehicleId);
                         } else {
-                            errorToast(genericErrorMessage());
+                            errorToast(data.message);
                         }
                     });
                 }
@@ -322,12 +324,12 @@ function updatePlanRecordProgress(newProgress) {
             });
         } else {
             $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast("Plan Progress Updated");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
             draggedId = 0;

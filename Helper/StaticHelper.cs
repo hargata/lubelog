@@ -935,5 +935,10 @@ namespace CarCareTracker.Helper
 
             return Convert.ToDecimal(goodNormalizedStep * stepPower);
         }
+        public static bool IsShopSupplyEndpoint(string endpoint)
+        {
+            var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv", "DuplicateRecordsToOtherVehicles", "PrintRecordStickers" };
+            return shopSupplyEndpoints.Contains(endpoint);
+        }
     }
 }

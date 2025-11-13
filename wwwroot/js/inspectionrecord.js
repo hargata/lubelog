@@ -201,11 +201,12 @@ function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteInspectionRecordTemplateById?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();
-                if (data) {
+                if (data.success) {
                     successToast("Inspection Template Deleted");
                     hideInspectionRecordTemplateModal();
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -215,7 +216,10 @@ function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
 }
 function useInspectionRecordTemplate(inspectionRecordTemplateId) {
     $.get(`/Vehicle/GetAddInspectionRecordPartialView?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        }
+        else if (data) {
             $("#inspectionRecordModalContent").html(data);
             hideInspectionRecordTemplateSelectorModal();
             //initiate datepicker
@@ -359,7 +363,7 @@ function saveinspectionRecordToVehicle() {
         return;
     }
     $.post('/Vehicle/SaveInspectionRecordToVehicleId', { inspectionRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Inspection Record Added.");
             hideAddInspectionRecordModal();
             saveScrollPosition();
@@ -368,7 +372,7 @@ function saveinspectionRecordToVehicle() {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -381,19 +385,22 @@ function updateInspectionRecord(recordId) {
     }
     let vehicleId = GetVehicleId().vehicleId;
     $.post('/Vehicle/UpdateInspectionRecord', { inspectionRecord: inspectionRecord }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Inspection Record Updated.");
             hideAddInspectionRecordModal();
             saveScrollPosition();
             getVehicleInspectionRecords(vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
 function showEditInspectionRecordModal(inspectionRecordId) {
     $.get(`/Vehicle/GetViewInspectionRecordPartialView?inspectionRecordId=${inspectionRecordId}`, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        }
+        else if (data) {
             $("#inspectionRecordModalContent").html(data);
             //initiate tag selector
             initTagSelector($("#inspectionRecordTag"));
@@ -415,13 +422,14 @@ function deleteInspectionRecord(inspectionRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteInspectionRecordById?inspectionRecordId=${inspectionRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddInspectionRecordModal();
                     successToast("Inspection Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleInspectionRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

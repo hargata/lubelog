@@ -116,12 +116,12 @@ function generateReminderItem(id, urgency, description) {
 function markDoneCalendarReminderRecord(reminderRecordId, e) {
     event.stopPropagation();
     $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
-        if (data) {
+        if (data.success) {
             hideCalendarReminderModal();
             successToast("Reminder Updated");
             getVehicleCalendarEvents();
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -139,12 +139,13 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideCalendarReminderModal();
                     successToast("Reminder Deleted");
                     getVehicleCalendarEvents();
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -594,6 +595,20 @@ function removeUserFromHousehold(userId) {
     $.post('/Home/RemoveUserFromHousehold', { userId: userId }, function (data) {
         if (data) {
             successToast('User Removed');
+            showHouseholdModal();
+        } else {
+            errorToast(genericErrorMessage())
+        }
+    })
+}
+function modifyUserHousehold(userId, e) {
+    let selectedChecks = $(e).closest('tr').find(':checked');
+    let permissions = selectedChecks.map((y, x) => {
+        return x.value;
+    });
+    $.post('/Home/ModifyUserHouseholdPermissions', { userId: userId, permissions: permissions.toArray() }, function (data) {
+        if (data) {
+            successToast('Household Updated');
             showHouseholdModal();
         } else {
             errorToast(genericErrorMessage())

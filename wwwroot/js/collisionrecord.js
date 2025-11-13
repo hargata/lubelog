@@ -52,13 +52,14 @@ function deleteCollisionRecord(collisionRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteCollisionRecordById?collisionRecordId=${collisionRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddCollisionRecordModal();
                     successToast("Repair Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleCollisionRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +77,7 @@ function saveCollisionRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveCollisionRecordToVehicleId', { collisionRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
             hideAddCollisionRecordModal();
             saveScrollPosition();
@@ -85,7 +86,7 @@ function saveCollisionRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

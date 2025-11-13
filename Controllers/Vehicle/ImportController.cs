@@ -186,7 +186,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed($"An error has occurred while generating CSV sample: {ex.Message}"));
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.View })]
         [HttpGet]
         public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
         {
@@ -408,9 +408,9 @@ namespace CarCareTracker.Controllers
                 }
                 return Json($"/{fileNameToExport}");
             }
-            return Json(false);
+            return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {

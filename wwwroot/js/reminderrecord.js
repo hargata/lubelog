@@ -94,13 +94,14 @@ function deleteReminderRecord(reminderRecordId, e) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddReminderRecordModal();
                     successToast("Reminder Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleReminders(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -126,7 +127,7 @@ function saveReminderRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveReminderRecordToVehicleId', { reminderRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Reminder Updated" : "Reminder Added.");
             hideAddReminderRecordModal();
             if (!getReminderRecordModelData().createdFromRecord) {
@@ -136,7 +137,7 @@ function saveReminderRecordToVehicle(isEdit) {
                 getVehicleHaveImportantReminders(formValues.vehicleId);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -181,11 +182,11 @@ function markDoneReminderRecord(reminderRecordId, e) {
     event.stopPropagation();
     var vehicleId = GetVehicleId().vehicleId;
     $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Reminder Updated");
             getVehicleReminders(vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }

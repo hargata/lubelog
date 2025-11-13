@@ -52,13 +52,14 @@ function deleteUpgradeRecord(upgradeRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteUpgradeRecordById?upgradeRecordId=${upgradeRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddUpgradeRecordModal();
                     successToast("Upgrade Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleUpgradeRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +77,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveUpgradeRecordToVehicleId', { upgradeRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Upgrade Record Updated" : "Upgrade Record Added.");
             hideAddUpgradeRecordModal();
             saveScrollPosition();
@@ -85,7 +86,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
