@@ -89,6 +89,10 @@ namespace CarCareTracker.Controllers
         public IActionResult GetUserHouseholdModal(int userId)
         {
             var households = _userLogic.GetHouseholdForParentUserId(userId);
+            if (households.Any())
+            {
+                households = households.OrderBy(x => x.UserName).ToList();
+            }
             var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId };
             return PartialView("_AdminUserHouseholdModal", viewModel);
         }
