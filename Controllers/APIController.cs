@@ -263,12 +263,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/planrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddPlanRecordJson(int vehicleId, [FromBody] PlanRecordExportModel input) => AddPlanRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/planrecords/add")]
         public IActionResult AddPlanRecord(int vehicleId, PlanRecordExportModel input)
@@ -489,12 +489,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/servicerecords/add")]
         [Consumes("application/json")]
         public IActionResult AddServiceRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddServiceRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/servicerecords/add")]
         public IActionResult AddServiceRecord(int vehicleId, GenericRecordExportModel input)
@@ -685,12 +685,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/repairrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddRepairRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddRepairRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/repairrecords/add")]
         public IActionResult AddRepairRecord(int vehicleId, GenericRecordExportModel input)
@@ -883,12 +883,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
         [Consumes("application/json")]
         public IActionResult AddUpgradeRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddUpgradeRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
         public IActionResult AddUpgradeRecord(int vehicleId, GenericRecordExportModel input)
@@ -1115,12 +1115,12 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed($"No Recurring Taxes Updated Due To Error: {ex.Message}"));
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddTaxRecordJson(int vehicleId, [FromBody] TaxRecordExportModel input) => AddTaxRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
         public IActionResult AddTaxRecord(int vehicleId, TaxRecordExportModel input)
@@ -1311,12 +1311,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input) => AddOdometerRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
         public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
@@ -1500,12 +1500,12 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/gasrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddGasRecordJson(int vehicleId, [FromBody] GasRecordExportModel input) => AddGasRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/gasrecords/add")]
         public IActionResult AddGasRecord(int vehicleId, GasRecordExportModel input)
@@ -1696,12 +1696,12 @@ namespace CarCareTracker.Controllers
                 return Json(results);
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/reminders/add")]
         [Consumes("application/json")]
         public IActionResult AddReminderRecordJson(int vehicleId, [FromBody] ReminderExportModel input) => AddReminderRecord(vehicleId, input);
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/reminders/add")]
         public IActionResult AddReminderRecord(int vehicleId, ReminderExportModel input)
