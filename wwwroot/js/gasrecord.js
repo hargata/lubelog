@@ -52,13 +52,13 @@ function deleteGasRecord(gasRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteGasRecordById?gasRecordId=${gasRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddGasRecordModal();
                     successToast("Gas Record deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleGasRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
@@ -76,13 +76,13 @@ function saveGasRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveGasRecordToVehicleId', { gasRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Gas Record Updated" : "Gas Record Added.");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

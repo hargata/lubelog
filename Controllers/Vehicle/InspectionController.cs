@@ -89,31 +89,31 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
             return Json(result);
         }
-        private bool DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)
+        private OperationResponse DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)
         {
             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _inspectionRecordTemplateDataAccess.DeleteInspectionRecordTemplateById(existingRecord.Id);
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
-        private bool DeleteInspectionRecordWithChecks(int inspectionRecordId)
+        private OperationResponse DeleteInspectionRecordWithChecks(int inspectionRecordId)
         {
             var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _inspectionRecordDataAccess.DeleteInspectionRecordById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteInspectionRecordTemplateById(int inspectionRecordTemplateId)
@@ -134,7 +134,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Redirect("/Error/Unauthorized");
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //populate date
             existingRecord.Date = DateTime.Now.ToShortDateString();
@@ -166,7 +166,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
-                return Redirect("/Error/Unauthorized");
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             return PartialView("Inspection/_InspectionRecordViewModal", result);
         }
@@ -176,7 +176,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //move files from temp.
             inspectionRecord.Files = inspectionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -246,7 +246,7 @@ namespace CarCareTracker.Controllers
                     }
                 }
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult UpdateInspectionRecord(InspectionRecordInput inspectionRecord)
@@ -255,7 +255,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             existingRecord.Tags = inspectionRecord.Tags;
             existingRecord.Files = inspectionRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -264,7 +264,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.update", User.Identity.Name));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

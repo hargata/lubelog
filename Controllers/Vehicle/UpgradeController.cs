@@ -29,7 +29,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), upgradeRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //move files from temp.
             upgradeRecord.Files = upgradeRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -70,7 +70,7 @@ namespace CarCareTracker.Controllers
                     Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
                 });
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddUpgradeRecordPartialView()
@@ -103,13 +103,13 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Upgrade/_UpgradeRecordModal", convertedResult);
         }
-        private bool DeleteUpgradeRecordWithChecks(int upgradeRecordId)
+        private OperationResponse DeleteUpgradeRecordWithChecks(int upgradeRecordId)
         {
             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(upgradeRecordId);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             //restore any requisitioned supplies.
             if (existingRecord.RequisitionHistory.Any())
@@ -121,7 +121,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "upgraderecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteUpgradeRecordById(int upgradeRecordId)

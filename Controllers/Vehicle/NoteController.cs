@@ -29,7 +29,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
@@ -38,7 +38,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddNotePartialView()
@@ -58,20 +58,20 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("Note/_NoteModal", result);
         }
-        private bool DeleteNoteWithChecks(int noteId)
+        private OperationResponse DeleteNoteWithChecks(int noteId)
         {
             var existingRecord = _noteDataAccess.GetNoteById(noteId);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteNoteById(int noteId)
@@ -86,6 +86,10 @@ namespace CarCareTracker.Controllers
             foreach (int noteId in noteIds)
             {
                 var existingNote = _noteDataAccess.GetNoteById(noteId);
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingNote.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 if (isToggle)
                 {
                     existingNote.Pinned = !existingNote.Pinned;
@@ -96,7 +100,7 @@ namespace CarCareTracker.Controllers
                 }
                 result = _noteDataAccess.SaveNoteToVehicle(existingNote);
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

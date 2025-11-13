@@ -38,7 +38,7 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), gasRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var convertedRecord = gasRecord.ToGasRecord();
@@ -58,7 +58,7 @@ namespace CarCareTracker.Controllers
                     Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, convertedRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                 });
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -104,20 +104,20 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Gas/_GasModal", viewModel);
         }
-        private bool DeleteGasRecordWithChecks(int gasRecordId)
+        private OperationResponse DeleteGasRecordWithChecks(int gasRecordId)
         {
             var existingRecord = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteGasRecordById(int gasRecordId)

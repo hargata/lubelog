@@ -729,7 +729,7 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
         {
-            bool result = false;
+            OperationResponse result = OperationResponse.Failed(StaticHelper.GenericErrorMessage);
             foreach (int recordId in recordIds)
             {
                 switch (importMode)
@@ -766,7 +766,7 @@ namespace CarCareTracker.Controllers
                         break;
                 }
             }
-            if (result)
+            if (result.Success)
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity.Name, string.Empty));
             }

@@ -60,13 +60,13 @@ function deleteTaxRecord(taxRecordId) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteTaxRecordById?taxRecordId=${taxRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddTaxRecordModal();
                     successToast("Tax Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleTaxRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
@@ -84,7 +84,7 @@ function saveTaxRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
             saveScrollPosition();
@@ -93,7 +93,7 @@ function saveTaxRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

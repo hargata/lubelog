@@ -116,12 +116,12 @@ function generateReminderItem(id, urgency, description) {
 function markDoneCalendarReminderRecord(reminderRecordId, e) {
     event.stopPropagation();
     $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
-        if (data) {
+        if (data.success) {
             hideCalendarReminderModal();
             successToast("Reminder Updated");
             getVehicleCalendarEvents();
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -139,12 +139,12 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideCalendarReminderModal();
                     successToast("Reminder Deleted");
                     getVehicleCalendarEvents();
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {

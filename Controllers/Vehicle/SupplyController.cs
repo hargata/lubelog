@@ -150,7 +150,7 @@ namespace CarCareTracker.Controllers
                 //security check only if not editing shop supply.
                 if (!_userLogic.UserCanEditVehicle(GetUserID(), supplyRecord.VehicleId, HouseholdPermission.Edit))
                 {
-                    return Json(false);
+                    return Json(OperationResponse.Failed("Access Denied"));
                 }
             }
             //move files from temp.
@@ -160,7 +160,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddSupplyRecordPartialView()
@@ -203,7 +203,7 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Supply/_SupplyRecordModal", convertedResult);
         }
-        private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
+        private OperationResponse DeleteSupplyRecordWithChecks(int supplyRecordId)
         {
             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
             if (existingRecord.VehicleId != default)
@@ -211,7 +211,7 @@ namespace CarCareTracker.Controllers
                 //security check only if not editing shop supply.
                 if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
                 {
-                    return false;
+                    return OperationResponse.Failed("Access Denied");
                 }
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
@@ -219,7 +219,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)
