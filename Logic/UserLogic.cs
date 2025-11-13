@@ -144,26 +144,19 @@ namespace CarCareTracker.Logic
         }
         public bool UserCanEditVehicle(int userId, int vehicleId, HouseholdPermission permission)
         {
-            if (userId == -1)
+            //check if user is full collaborator or root user
+            if (UserCanDirectlyEditVehicle(userId, vehicleId))
             {
                 return true;
             }
-            List<int> userIds = new List<int> { userId };
+            //user is not a full collaborator, check households
+            List<int> userIds = new List<int>();
             var userHouseholds = _userHouseholdData.GetUserHouseholdByChildUserId(userId);
-            if (userHouseholds.Any())
+            foreach (UserHousehold userHousehold in userHouseholds)
             {
-                //add parent's user ids
-                userIds.AddRange(userHouseholds.Select(x => x.Id.ParentUserId));
-            }
-            foreach (int userIdToCheck in userIds)
-            {
-                var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userIdToCheck, vehicleId);
-                if (userAccess != null && userAccess.Id.UserId == userId && userAccess.Id.VehicleId == vehicleId)
-                {
-                    //full collaborator, not through household
-                    return true;
-                }
-                else if (userAccess != null && userAccess.Id.UserId == userIdToCheck && userAccess.Id.VehicleId == vehicleId)
+                //check if the direct parents have access to the vehicle
+                var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userHousehold.Id.ParentUserId, vehicleId);
+                if (userAccess != null && userAccess.Id.UserId == userHousehold.Id.ParentUserId && userAccess.Id.VehicleId == vehicleId)
                 {
                     //every member in a household has permission to view vehicles
                     if (permission == HouseholdPermission.View)
@@ -171,7 +164,7 @@ namespace CarCareTracker.Logic
                         return true;
                     } else
                     {
-                        return userHouseholds.First(x => x.Id.ParentUserId == userIdToCheck && x.Id.ChildUserId == userId).Permissions.Contains(permission);
+                        return userHousehold.Permissions.Contains(permission);
                     }
                 }
             }

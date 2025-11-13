@@ -47,13 +47,12 @@ namespace CarCareTracker.Filter
                         }
                         else
                         {
-                            var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
-                            if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                            if (StaticHelper.IsShopSupplyEndpoint(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
                             {
                                 //user trying to access shop supplies but shop supplies is not enabled by root user.
                                 filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");
                             }
-                            else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
+                            else if (!StaticHelper.IsShopSupplyEndpoint(filterContext.RouteData.Values["action"].ToString()))
                             {
                                 //user trying to access any other endpoints using 0 as vehicle id.
                                 filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");

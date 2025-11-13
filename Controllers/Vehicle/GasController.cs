@@ -163,6 +163,11 @@ namespace CarCareTracker.Controllers
             foreach (int recordId in editModel.RecordIds)
             {
                 var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                //security check
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 if (dateIsEdited)
                 {
                     existingRecord.Date = editModel.EditRecord.Date;
@@ -205,7 +210,7 @@ namespace CarCareTracker.Controllers
                 }
                 result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

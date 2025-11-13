@@ -11,42 +11,58 @@ namespace CarCareTracker.Filter
     {
         private readonly IUserLogic _userLogic;
         private readonly IConfigHelper _config;
-        public CollaboratorFilter(IUserLogic userLogic, IConfigHelper config) {
+        private readonly bool _multiple;
+        private readonly bool _jsonResponse;
+        private readonly HouseholdPermission _permission;
+        public CollaboratorFilter(IUserLogic userLogic, IConfigHelper config, bool? multiple = false, bool? jsonResponse = false, HouseholdPermission? permission = HouseholdPermission.View) {
             _userLogic = userLogic;
             _config = config;
+            _multiple = multiple ?? false; ;
+            _jsonResponse = jsonResponse ?? false;
+            _permission = permission ?? HouseholdPermission.View;
         }
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (!filterContext.HttpContext.User.IsInRole(nameof(UserData.IsRootUser)))
             {
-                if (filterContext.ActionArguments.ContainsKey("vehicleId"))
+                List<int> vehicleIds = new List<int>();
+                if (!_multiple && filterContext.ActionArguments.ContainsKey("vehicleId"))
                 {
-                    var vehicleId = int.Parse(filterContext.ActionArguments["vehicleId"].ToString());
-                    if (vehicleId != default)
+                    vehicleIds.Add(int.Parse(filterContext.ActionArguments["vehicleId"].ToString()));
+                }
+                else if (_multiple && filterContext.ActionArguments.ContainsKey("vehicleIds"))
+                {
+                    vehicleIds.AddRange(filterContext.ActionArguments["vehicleIds"] as List<int>);
+                }
+                if (vehicleIds.Any())
+                {
+                    foreach(int vehicleId in vehicleIds)
                     {
-                        var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-                        if (!_userLogic.UserCanEditVehicle(userId, vehicleId, HouseholdPermission.View))
+                        if (vehicleId != default)
                         {
-                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                            var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+                            if (!_userLogic.UserCanEditVehicle(userId, vehicleId, _permission))
+                            {
+                                filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");
+                            }
                         }
-                    }
-                    else
-                    {
-                        var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv" };
-                        if (shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                        else
                         {
-                            //user trying to access shop supplies but shop supplies is not enabled by root user.
-                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
-                        }
-                        else if (!shopSupplyEndpoints.Contains(filterContext.RouteData.Values["action"].ToString()))
-                        {
-                            //user trying to access any other endpoints using 0 as vehicle id.
-                            filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                            if (StaticHelper.IsShopSupplyEndpoint(filterContext.RouteData.Values["action"].ToString()) && !_config.GetServerEnableShopSupplies())
+                            {
+                                //user trying to access shop supplies but shop supplies is not enabled by root user.
+                                filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");
+                            }
+                            else if (!StaticHelper.IsShopSupplyEndpoint(filterContext.RouteData.Values["action"].ToString()))
+                            {
+                                //user trying to access any other endpoints using 0 as vehicle id.
+                                filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");
+                            }
                         }
                     }
                 } else
                 {
-                    filterContext.Result = new RedirectResult("/Error/Unauthorized");
+                    filterContext.Result = _jsonResponse ? new JsonResult(OperationResponse.Failed("Access Denied")) : new RedirectResult("/Error/Unauthorized");
                 }
             }
         }

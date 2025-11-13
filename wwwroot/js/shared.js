@@ -178,7 +178,7 @@ function saveVehicle(isEdit) {
         dashboardMetrics: vehicleDashboardMetrics,
         vehicleIdentifier: vehicleIdentifier
     }, function (data) {
-        if (data) {
+        if (data.success) {
             if (!isEdit) {
                 successToast("Vehicle Added");
                 hideAddVehicleModal();
@@ -190,7 +190,7 @@ function saveVehicle(isEdit) {
                 viewVehicle(vehicleId);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -756,7 +756,10 @@ function printTabStickers(ids, source) {
         recordIds: ids,
         importMode: source
     }, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        }
+        else if (data) {
             printContainer(data);
         }
     })
@@ -764,9 +767,10 @@ function printTabStickers(ids, source) {
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
     $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
-        if (!data) {
-            errorToast(genericErrorMessage());
-        } else {
+        if (isOperationResponse(data)) {
+            return;
+        }
+        else if (data) {
             window.location.href = data;
         }
     });
@@ -857,12 +861,12 @@ function moveRecords(ids, source, dest) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Moved`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
@@ -1005,12 +1009,12 @@ function duplicateRecords(ids, source) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DuplicateRecords', { recordIds: ids, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Duplicated`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
@@ -1091,10 +1095,10 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             }).then(function (result) {
                 if (result.isConfirmed) {
                     $.post('/Vehicle/DuplicateRecordsToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, importMode: source}, function (data) {
-                        if (data) {
+                        if (data.success) {
                             successToast(`${ids.length} Record(s) Duplicated`);
                         } else {
-                            errorToast(genericErrorMessage());
+                            errorToast(data.message);
                         }
                     });
                 }
@@ -1140,12 +1144,12 @@ function insertOdometer(ids, source) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/BulkCreateOdometerRecords', { recordIds: ids, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Odometer Record(s) Created`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {

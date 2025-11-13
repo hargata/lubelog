@@ -486,13 +486,13 @@ function saveMultipleGasRecordsToVehicle() {
         }
     }
     $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Gas Records Updated");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(GetVehicleId().vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

@@ -126,7 +126,7 @@ namespace CarCareTracker.Controllers
                 {
                     if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleInput.Id, HouseholdPermission.Edit))
                     {
-                        return View("401");
+                        return Json(OperationResponse.Failed("Access Denied"));
                     }
                 }
                 //move image from temp folder to images folder.
@@ -143,12 +143,12 @@ namespace CarCareTracker.Controllers
                 {
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity.Name, vehicleInput.Id.ToString()));
                 }
-                return Json(result);
+                return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Saving Vehicle");
-                return Json(false);
+                return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
             }
         }
         [HttpPost]
@@ -206,7 +206,7 @@ namespace CarCareTracker.Controllers
                 }
                 results.Add(result);
             }
-            return Json(OperationResponse.Conditional(results.Any() && results.All(x => x), "", StaticHelper.GenericErrorMessage));
+            return Json(OperationResponse.Conditional(results.Any() && results.All(x => x), string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] { true, true })]
@@ -631,6 +631,11 @@ namespace CarCareTracker.Controllers
                     genericRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
                     break;
             }
+            //security check
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), genericRecord.VehicleId, HouseholdPermission.Edit))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             //save
             switch (destination)
             {
@@ -681,6 +686,11 @@ namespace CarCareTracker.Controllers
                         genericRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
                         break;
                 }
+                //security check
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), genericRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 //save
                 switch (destination)
                 {
@@ -715,7 +725,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity.Name, string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         public IActionResult DeleteRecords(List<int> recordIds, ImportMode importMode)
         {
@@ -762,8 +772,8 @@ namespace CarCareTracker.Controllers
             }
             return Json(result);
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] {false, true, HouseholdPermission.Edit})]
         public IActionResult AdjustRecordsOdometer(List<int> recordIds, int vehicleId, ImportMode importMode)
         {
             bool result = false;
@@ -819,7 +829,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity.Name, string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult DuplicateRecords(List<int> recordIds, ImportMode importMode)
@@ -832,6 +842,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ServiceRecord:
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(existingRecord);
@@ -840,6 +855,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.RepairRecord:
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
@@ -848,6 +868,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.UpgradeRecord:
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(existingRecord);
@@ -856,6 +881,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.GasRecord:
                         {
                             var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
                         }
@@ -863,6 +893,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.TaxRecord:
                         {
                             var existingRecord = _taxRecordDataAccess.GetTaxRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
                         }
@@ -870,6 +905,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.SupplyRecord:
                         {
                             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(recordId);
+                            //security check if not shop supply
+                            if (existingRecord.VehicleId != default && !_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
@@ -878,6 +918,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.NoteRecord:
                         {
                             var existingRecord = _noteDataAccess.GetNoteById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             result = _noteDataAccess.SaveNoteToVehicle(existingRecord);
                         }
@@ -885,6 +930,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.OdometerRecord:
                         {
                             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
                         }
@@ -892,6 +942,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ReminderRecord:
                         {
                             var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
                         }
@@ -899,6 +954,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.PlanRecord:
                         {
                             var existingRecord = _planRecordDataAccess.GetPlanRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.ReminderRecordId = default;
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
@@ -908,6 +968,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.InspectionRecord:
                         {
                             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             existingRecord.Id = default;
                             existingRecord.ReminderRecordId = new List<int>();
                             result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
@@ -919,9 +984,10 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity.Name, string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { true, true, HouseholdPermission.Edit })]
         public IActionResult DuplicateRecordsToOtherVehicles(List<int> recordIds, List<int> vehicleIds, ImportMode importMode)
         {
             bool result = false;
@@ -1066,7 +1132,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult BulkCreateOdometerRecords(List<int> recordIds, ImportMode importMode)
@@ -1079,6 +1145,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ServiceRecord:
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                             {
                                 Date = existingRecord.Date,
@@ -1092,6 +1163,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.RepairRecord:
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                             {
                                 Date = existingRecord.Date,
@@ -1105,6 +1181,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.UpgradeRecord:
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                             {
                                 Date = existingRecord.Date,
@@ -1118,6 +1199,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.GasRecord:
                         {
                             var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                             {
                                 Date = existingRecord.Date,
@@ -1134,7 +1220,7 @@ namespace CarCareTracker.Controllers
             {
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity.Name, string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult GetGenericRecordModal(List<int> recordIds, ImportMode dataType)
@@ -1169,6 +1255,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ServiceRecord:
                         {
                             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             if (dateIsEdited)
                             {
                                 existingRecord.Date = genericRecordEditModel.EditRecord.Date;
@@ -1215,6 +1306,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.RepairRecord:
                         {
                             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             if (dateIsEdited)
                             {
                                 existingRecord.Date = genericRecordEditModel.EditRecord.Date;
@@ -1261,6 +1357,11 @@ namespace CarCareTracker.Controllers
                     case ImportMode.UpgradeRecord:
                         {
                             var existingRecord = _upgradeRecordDataAccess.GetUpgradeRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
                             if (dateIsEdited)
                             {
                                 existingRecord.Date = genericRecordEditModel.EditRecord.Date;
@@ -1306,9 +1407,10 @@ namespace CarCareTracker.Controllers
                         break;
                 }
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.View })]
         public IActionResult PrintRecordStickers(int vehicleId, List<int> recordIds, ImportMode importMode)
         {
             bool result = false;
@@ -1475,7 +1577,7 @@ namespace CarCareTracker.Controllers
             {
                 return PartialView("_Stickers", stickerViewModel);
             }
-            return Json(result);
+            return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult SaveUserColumnPreferences(UserColumnPreference columnPreference)

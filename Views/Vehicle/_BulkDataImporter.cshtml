@@ -45,7 +45,10 @@
         sloader.show();
         $.post('/Vehicle/ImportToVehicleIdFromCsv', { vehicleId: vehicleId, mode: mode, fileName: uploadedFile }, function (data) {
             sloader.hide();
-            if (data) {
+            if (isOperationResponse(data)) {
+                return;
+            }
+            else if (data) {
                 successToast("Data Imported Successfully");
                 hideBulkImportModal();
                 if (mode == "GasRecord") {

@@ -306,13 +306,13 @@ function moveRecord(recordId, source, dest) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecord', { recordId: recordId, source: source, destination: dest }, function (data) {
-                if (data) {
+                if (data.success) {
                     hideModalCallBack();
                     successToast("Record Moved");
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
@@ -414,12 +414,12 @@ function saveGenericRecord() {
     }
     //save to db.
     $.post('/Vehicle/EditMultipleRecords', { genericRecordEditModel: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(formValues.recordIds.length > 1 ? "Records Updated" : "Record Updated.");
             hideGenericRecordModal();
             refreshDataCallBack(GetVehicleId().vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -563,12 +563,12 @@ function adjustRecordsOdometer(ids, source) {
         if (result.isConfirmed) {
             saveScrollPosition();
             $.post('/Vehicle/AdjustRecordsOdometer', { recordIds: ids, vehicleId: GetVehicleId().vehicleId, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Updated`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
         } else {
