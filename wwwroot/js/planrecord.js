@@ -97,6 +97,7 @@ function deletePlanRecord(planRecordId, noModal) {
                     getVehiclePlanRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -175,6 +176,7 @@ function deletePlannerRecordTemplate(planRecordTemplateId) {
                     hideAddPlanRecordModal();
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

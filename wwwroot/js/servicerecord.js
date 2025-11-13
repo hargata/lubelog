@@ -59,6 +59,7 @@ function deleteServiceRecord(serviceRecordId) {
                     getVehicleServiceRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

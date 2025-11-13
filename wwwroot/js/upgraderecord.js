@@ -59,6 +59,7 @@ function deleteUpgradeRecord(upgradeRecordId) {
                     getVehicleUpgradeRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

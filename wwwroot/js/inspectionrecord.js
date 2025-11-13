@@ -206,6 +206,7 @@ function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
                     hideInspectionRecordTemplateModal();
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -428,6 +429,7 @@ function deleteInspectionRecord(inspectionRecordId) {
                     getVehicleInspectionRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

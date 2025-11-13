@@ -59,6 +59,7 @@ function deleteGasRecord(gasRecordId) {
                     getVehicleGasRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

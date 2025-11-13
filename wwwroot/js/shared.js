@@ -867,6 +867,7 @@ function moveRecords(ids, source, dest) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -939,6 +940,7 @@ function deleteRecords(ids, source) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -1015,6 +1017,7 @@ function duplicateRecords(ids, source) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -1150,6 +1153,7 @@ function insertOdometer(ids, source) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

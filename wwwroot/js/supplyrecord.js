@@ -59,6 +59,7 @@ function deleteSupplyRecord(supplyRecordId) {
                     getVehicleSupplyRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

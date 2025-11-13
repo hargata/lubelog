@@ -67,6 +67,7 @@ function deleteTaxRecord(taxRecordId) {
                     getVehicleTaxRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

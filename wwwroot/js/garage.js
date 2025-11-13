@@ -145,6 +145,7 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
                     getVehicleCalendarEvents();
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

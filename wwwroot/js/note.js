@@ -55,6 +55,7 @@ function deleteNote(noteId) {
                     getVehicleNotes(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -78,7 +79,7 @@ function saveNoteToVehicle(isEdit) {
             saveScrollPosition();
             getVehicleNotes(formValues.vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

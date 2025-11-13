@@ -59,6 +59,7 @@ function deleteCollisionRecord(collisionRecordId) {
                     getVehicleCollisionRecords(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

@@ -101,6 +101,7 @@ function deleteReminderRecord(reminderRecordId, e) {
                     getVehicleReminders(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {

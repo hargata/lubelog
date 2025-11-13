@@ -313,6 +313,7 @@ function moveRecord(recordId, source, dest) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -569,6 +570,7 @@ function adjustRecordsOdometer(ids, source) {
                     refreshDataCallBack(vehicleId);
                 } else {
                     errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
