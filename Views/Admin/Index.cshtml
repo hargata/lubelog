@@ -199,6 +199,9 @@
             $('#householdModal').modal('show');
         })
     }
+    function hideHouseholdModal(){
+        $('#householdModal').modal('hide');
+    }
     function adminRemoveUserFromHousehold(parentUserId, childUserId){
         $.post('/Admin/RemoveUserFromHousehold', {parentUserId: parentUserId, childUserId: childUserId}, function(data){
             if (data) {
@@ -210,11 +213,18 @@
         });
     }
     function adminUpdateUserHousehold(parentUserId, childUserId, e){
-        let selectedChecks = $(e).closest('tr').find(':checked');
-        let permissions = selectedChecks.map((y, x) => {
-            return x.value;
-        });
-        $.post('/Admin/ModifyUserHouseholdPermissions', {parentUserId: parentUserId, childUserId: childUserId, permissions: permissions.toArray()}, function(data){
+        let selectedRole = $(e).val();
+        let permissions = [];
+        switch (selectedRole){
+            case 'editor':
+            permissions.push('Edit');
+            break;
+            case 'manager':
+            permissions.push('Edit');
+            permissions.push('Delete');
+            break;
+        }
+        $.post('/Admin/ModifyUserHouseholdPermissions', {parentUserId: parentUserId, childUserId: childUserId, permissions: permissions}, function(data){
             if (data) {
             successToast('Household Updated');
             loadUserHousehold(parentUserId);

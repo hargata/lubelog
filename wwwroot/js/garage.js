@@ -602,11 +602,18 @@ function removeUserFromHousehold(userId) {
     })
 }
 function modifyUserHousehold(userId, e) {
-    let selectedChecks = $(e).closest('tr').find(':checked');
-    let permissions = selectedChecks.map((y, x) => {
-        return x.value;
-    });
-    $.post('/Home/ModifyUserHouseholdPermissions', { userId: userId, permissions: permissions.toArray() }, function (data) {
+    let selectedRole = $(e).val();
+    let permissions = [];
+    switch (selectedRole) {
+        case 'editor':
+            permissions.push('Edit');
+            break;
+        case 'manager':
+            permissions.push('Edit');
+            permissions.push('Delete');
+            break;
+    }
+    $.post('/Home/ModifyUserHouseholdPermissions', { userId: userId, permissions: permissions }, function (data) {
         if (data) {
             successToast('Household Updated');
             showHouseholdModal();
