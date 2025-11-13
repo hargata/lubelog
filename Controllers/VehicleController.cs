@@ -124,7 +124,7 @@ namespace CarCareTracker.Controllers
                 bool isNewAddition = vehicleInput.Id == default;
                 if (!isNewAddition)
                 {
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleInput.Id))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleInput.Id, HouseholdPermission.Edit))
                     {
                         return View("401");
                     }
@@ -216,7 +216,7 @@ namespace CarCareTracker.Controllers
             if (vehicleIds.Count() == 1)
             {
                 //only one vehicle to manage
-                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First()))
+                if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleIds.First(), HouseholdPermission.View))
                 {
                     viewModel.CommonCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleIds.First()).Select(x => x.UserName).ToList();
                     viewModel.VehicleIds.Add(vehicleIds.First());
@@ -227,7 +227,7 @@ namespace CarCareTracker.Controllers
                 List<UserCollaborator> allCollaborators = new List<UserCollaborator>();
                 foreach (int vehicleId in vehicleIds)
                 {
-                    if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId))
+                    if (_userLogic.UserCanEditVehicle(GetUserID(), vehicleId, HouseholdPermission.View))
                     {
                         var vehicleCollaborators = _userLogic.GetCollaboratorsForVehicle(vehicleId);
                         allCollaborators.AddRange(vehicleCollaborators);

@@ -83,7 +83,7 @@ namespace CarCareTracker.Controllers
                 if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                 {
                     //security check
-                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId))
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId, HouseholdPermission.View))
                     {
                         return false;
                     }
@@ -113,7 +113,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -141,7 +141,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -172,7 +172,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }

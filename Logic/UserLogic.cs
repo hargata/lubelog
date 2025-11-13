@@ -11,12 +11,13 @@ namespace CarCareTracker.Logic
         OperationResponse DeleteCollaboratorFromVehicle(int vehicleId, string username);
         OperationResponse AddCollaboratorToVehicle(int vehicleId, string username);
         List<Vehicle> FilterUserVehicles(List<Vehicle> results, int userId);
-        bool UserCanEditVehicle(int userId, int vehicleId);
+        bool UserCanEditVehicle(int userId, int vehicleId, HouseholdPermission permission);
         bool UserCanDirectlyEditVehicle(int userId, int vehicleId);
         bool DeleteAllAccessToVehicle(int vehicleId);
         bool DeleteAllAccessToUser(int userId);
         List<UserHouseholdViewModel> GetHouseholdForParentUserId(int parentUserId);
         OperationResponse AddUserToHousehold(int parentUserId, string childUsername);
+        bool UpdateUserHousehold(int parentUserId, int childUserId, List<HouseholdPermission> permissions);
         bool DeleteUserFromHousehold(int parentUserId, int childUserId);
         bool DeleteAllHouseholdByParentUserId(int parentUserId);
         bool DeleteAllHouseholdByChildUserId(int childUserId);
@@ -141,7 +142,7 @@ namespace CarCareTracker.Logic
                 return new List<Vehicle>();
             }
         }
-        public bool UserCanEditVehicle(int userId, int vehicleId)
+        public bool UserCanEditVehicle(int userId, int vehicleId, HouseholdPermission permission)
         {
             if (userId == -1)
             {
@@ -157,9 +158,21 @@ namespace CarCareTracker.Logic
             foreach (int userIdToCheck in userIds)
             {
                 var userAccess = _userAccess.GetUserAccessByVehicleAndUserId(userIdToCheck, vehicleId);
-                if (userAccess != null && userAccess.Id.UserId == userIdToCheck && userAccess.Id.VehicleId == vehicleId)
+                if (userAccess != null && userAccess.Id.UserId == userId && userAccess.Id.VehicleId == vehicleId)
                 {
+                    //full collaborator, not through household
                     return true;
+                }
+                else if (userAccess != null && userAccess.Id.UserId == userIdToCheck && userAccess.Id.VehicleId == vehicleId)
+                {
+                    //every member in a household has permission to view vehicles
+                    if (permission == HouseholdPermission.View)
+                    {
+                        return true;
+                    } else
+                    {
+                        return userHouseholds.First(x => x.Id.ParentUserId == userIdToCheck && x.Id.ChildUserId == userId).Permissions.Contains(permission);
+                    }
                 }
             }
             return false;
@@ -197,7 +210,7 @@ namespace CarCareTracker.Logic
                 var userCollaborator = new UserHouseholdViewModel
                 {
                     UserName = _userData.GetUserRecordById(userHouseholdAccess.Id.ChildUserId).UserName,
-                    UserHousehold = userHouseholdAccess.Id
+                    UserHousehold = userHouseholdAccess
                 };
                 convertedResult.Add(userCollaborator);
             }
@@ -240,6 +253,17 @@ namespace CarCareTracker.Logic
                 return OperationResponse.Failed();
             }
             return OperationResponse.Failed($"Unable to find user {childUsername} in the system");
+        }
+        public bool UpdateUserHousehold(int parentUserId, int childUserId, List<HouseholdPermission> permissions)
+        {
+            var existingHousehold = _userHouseholdData.GetUserHouseholdByParentAndChildUserId(parentUserId, childUserId);
+            if (existingHousehold != null && existingHousehold.Id.ChildUserId == childUserId && existingHousehold.Id.ParentUserId == parentUserId)
+            {
+                existingHousehold.Permissions = permissions;
+                var result = _userHouseholdData.SaveUserHousehold(existingHousehold);
+                return result;
+            }
+            return false;
         }
         public bool DeleteUserFromHousehold(int parentUserId, int childUserId)
         {

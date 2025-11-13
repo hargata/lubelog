@@ -27,7 +27,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveCollisionRecordToVehicleId(CollisionRecordInput collisionRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), collisionRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), collisionRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -82,7 +82,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -107,7 +107,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _collisionRecordDataAccess.GetCollisionRecordById(collisionRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }

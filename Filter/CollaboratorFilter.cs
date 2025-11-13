@@ -25,7 +25,7 @@ namespace CarCareTracker.Filter
                     if (vehicleId != default)
                     {
                         var userId = int.Parse(filterContext.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-                        if (!_userLogic.UserCanEditVehicle(userId, vehicleId))
+                        if (!_userLogic.UserCanEditVehicle(userId, vehicleId, HouseholdPermission.View))
                         {
                             filterContext.Result = new RedirectResult("/Error/Unauthorized");
                         }

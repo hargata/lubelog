@@ -42,7 +42,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -74,7 +74,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -101,7 +101,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }

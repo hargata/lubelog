@@ -8,5 +8,6 @@
     public class UserHousehold
     {
         public HouseholdAccess Id { get; set; }
+        public List<HouseholdPermission> Permissions { get; set; } = new List<HouseholdPermission>();
     }
 }

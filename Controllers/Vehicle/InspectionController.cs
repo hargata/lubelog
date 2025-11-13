@@ -40,7 +40,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -82,7 +82,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveInspectionRecordTemplateToVehicleId(InspectionRecordInput inspectionRecordTemplate)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecordTemplate.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecordTemplate.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -93,7 +93,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }
@@ -104,7 +104,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }
@@ -132,7 +132,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _inspectionRecordTemplateDataAccess.GetInspectionRecordTemplateById(inspectionRecordTemplateId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -164,7 +164,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -174,7 +174,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveInspectionRecordToVehicleId(InspectionRecordInput inspectionRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -253,7 +253,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _inspectionRecordDataAccess.GetInspectionRecordById(inspectionRecord.Id);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }

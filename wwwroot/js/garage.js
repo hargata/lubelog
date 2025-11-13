@@ -600,6 +600,20 @@ function removeUserFromHousehold(userId) {
         }
     })
 }
+function modifyUserHousehold(userId, e) {
+    let selectedChecks = $(e).closest('tr').find(':checked');
+    let permissions = selectedChecks.map((y, x) => {
+        return x.value;
+    });
+    $.post('/Home/ModifyUserHouseholdPermissions', { userId: userId, permissions: permissions.toArray() }, function (data) {
+        if (data) {
+            successToast('Household Updated');
+            showHouseholdModal();
+        } else {
+            errorToast(genericErrorMessage())
+        }
+    })
+}
 function addUserToHousehold() {
     Swal.fire({
         title: 'Add User',

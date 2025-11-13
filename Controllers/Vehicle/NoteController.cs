@@ -27,7 +27,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveNoteToVehicleId(Note note)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -52,7 +52,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.GetNoteById(noteId);
             result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -62,7 +62,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _noteDataAccess.GetNoteById(noteId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return false;
             }

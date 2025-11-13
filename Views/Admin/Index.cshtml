@@ -209,6 +209,20 @@
         }
         });
     }
+    function adminUpdateUserHousehold(parentUserId, childUserId, e){
+        let selectedChecks = $(e).closest('tr').find(':checked');
+        let permissions = selectedChecks.map((y, x) => {
+            return x.value;
+        });
+        $.post('/Admin/ModifyUserHouseholdPermissions', {parentUserId: parentUserId, childUserId: childUserId, permissions: permissions.toArray()}, function(data){
+            if (data) {
+            successToast('Household Updated');
+            loadUserHousehold(parentUserId);
+        } else {
+            errorToast(genericErrorMessage())
+        }
+        })
+    }
     function adminAddUserToHousehold(parentUserId){
          Swal.fire({
         title: 'Add User',

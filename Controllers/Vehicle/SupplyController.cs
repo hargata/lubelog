@@ -145,6 +145,14 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
+            if (supplyRecord.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), supplyRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(false);
+                }
+            }
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
@@ -163,6 +171,14 @@ namespace CarCareTracker.Controllers
         public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
+            if (result.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+                {
+                    return Redirect("/Error/Unauthorized");
+                }
+            }
             if (result.RequisitionHistory.Any())
             {
                 //requisition history when viewed through the supply is always immutable.
@@ -193,7 +209,7 @@ namespace CarCareTracker.Controllers
             if (existingRecord.VehicleId != default)
             {
                 //security check only if not editing shop supply.
-                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
                 {
                     return false;
                 }

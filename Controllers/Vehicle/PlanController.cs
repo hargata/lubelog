@@ -18,7 +18,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -53,7 +53,7 @@ namespace CarCareTracker.Controllers
         public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -83,7 +83,7 @@ namespace CarCareTracker.Controllers
                 return Json(false);
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return Json(false);
             }
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Unable to find template"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.View))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -122,7 +122,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Unable to find template"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -187,7 +187,7 @@ namespace CarCareTracker.Controllers
             }
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(false);
             }
@@ -273,6 +273,11 @@ namespace CarCareTracker.Controllers
         public IActionResult GetPlanRecordTemplateForEditById(int planRecordTemplateId)
         {
             var result = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             return PartialView("Plan/_PlanRecordTemplateEditModal", result);
         }
         [HttpGet]
@@ -280,7 +285,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -309,7 +314,7 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return Json(false);
             }
