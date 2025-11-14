@@ -297,12 +297,28 @@ namespace CarCareTracker.Controllers
             {
                 households = households.OrderBy(x => x.UserName).ToList();
             }
-            return PartialView("_UserHouseholdModal", households);
+            var userhouseholds = _userLogic.GetHouseholdForChildUserId(GetUserID());
+            if (userhouseholds.Any())
+            {
+                userhouseholds = userhouseholds.OrderBy(x => x.UserName).ToList();
+            }
+            var viewModel = new UserHouseholdUserViewModel()
+            {
+                Households = households,
+                UserHouseholds = userhouseholds
+            };
+            return PartialView("_UserHouseholdModal", viewModel);
         }
         [HttpPost]
         public IActionResult RemoveUserFromHousehold(int userId)
         {
             var result = _userLogic.DeleteUserFromHousehold(GetUserID(), userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult LeaveHousehold(int userId)
+        {
+            var result = _userLogic.DeleteUserFromHousehold(userId, GetUserID());
             return Json(result);
         }
         [HttpPost]
