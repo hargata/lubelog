@@ -1,7 +1,7 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
-@model List<UserHouseholdViewModel>
+@model UserHouseholdUserViewModel
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
@@ -18,31 +18,62 @@
     </div>
 </div>
 <div class="modal-body">
-    <table class="table table-hover">
-        <thead class="sticky-top">
-            <tr class="d-flex">
-                <th scope="col" class="col-6">@translator.Translate(userLanguage, "Username")</th>
-                <th scope="col" class="col-4">@translator.Translate(userLanguage, "Role")</th>
-                <th scope="col" class="col-2">@translator.Translate(userLanguage, "Remove")</th>
-            </tr>
-        </thead>
-        <tbody id="tokenTable">
-            @foreach(UserHouseholdViewModel viewModel in Model)
-            {
-                <tr class="d-flex">
-                    <td class="col-6">@viewModel.UserName</td>
-                    <td class="col-4">
-                        <select class="form-select" onchange="modifyUserHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)">
-                            <!option @(!viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="viewer">@translator.Translate(userLanguage, "Viewer")</!option>
-                            <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="editor">@translator.Translate(userLanguage, "Editor")</!option>
-                            <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="manager">@translator.Translate(userLanguage, "Manager")</!option>
-                        </select>
-                    </td>
-                    <td class="col-2">
-                        <button type="button" class="btn btn-danger" onclick="removeUserFromHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @if (Model.Households.Any())
+    {
+        <div style="max-height:30vh; overflow-y:auto;">
+            <span class="lead">@translator.Translate(userLanguage, "These users are in your household")</span>
+            <table class="table table-hover">
+                <thead class="sticky-top">
+                    <tr class="d-flex">
+                        <th scope="col" class="col-6">@translator.Translate(userLanguage, "Username")</th>
+                        <th scope="col" class="col-4">@translator.Translate(userLanguage, "Role")</th>
+                        <th scope="col" class="col-2">@translator.Translate(userLanguage, "Remove")</th>
+                    </tr>
+                </thead>
+                <tbody id="tokenTable">
+                    @foreach (UserHouseholdViewModel viewModel in Model.Households)
+                    {
+                        <tr class="d-flex">
+                            <td class="col-6">@viewModel.UserName</td>
+                            <td class="col-4">
+                                <select class="form-select" onchange="modifyUserHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)">
+                                    <!option @(!viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="viewer">@translator.Translate(userLanguage, "Viewer")</!option>
+                                    <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="editor">@translator.Translate(userLanguage, "Editor")</!option>
+                                    <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="manager">@translator.Translate(userLanguage, "Manager")</!option>
+                                </select>
+                            </td>
+                            <td class="col-2">
+                                <button type="button" class="btn btn-danger" onclick="removeUserFromHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.UserHouseholds.Any())
+    {
+        <div style="max-height:30vh; overflow-y:auto;">
+            <span class="lead">@translator.Translate(userLanguage, "You are a member of these households")</span>
+            <table class="table table-hover">
+                <thead class="sticky-top">
+                    <tr class="d-flex">
+                        <th scope="col" class="col-10">@translator.Translate(userLanguage, "Username")</th>
+                        <th scope="col" class="col-2">@translator.Translate(userLanguage, "Leave")</th>
+                    </tr>
+                </thead>
+                <tbody id="tokenTable">
+                    @foreach (UserHouseholdViewModel viewModel in Model.UserHouseholds)
+                    {
+                        <tr class="d-flex">
+                            <td class="col-10">@viewModel.UserName</td>
+                            <td class="col-2">
+                                <button type="button" class="btn btn-outline-danger" onclick="leaveHousehold(@viewModel.UserHousehold.Id.ParentUserId, this)"><i class="bi bi-person-walking"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

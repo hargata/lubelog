@@ -16,6 +16,7 @@ namespace CarCareTracker.Logic
         bool DeleteAllAccessToVehicle(int vehicleId);
         bool DeleteAllAccessToUser(int userId);
         List<UserHouseholdViewModel> GetHouseholdForParentUserId(int parentUserId);
+        List<UserHouseholdViewModel> GetHouseholdForChildUserId(int childUserId);
         OperationResponse AddUserToHousehold(int parentUserId, string childUsername);
         bool UpdateUserHousehold(int parentUserId, int childUserId, List<HouseholdPermission> permissions);
         bool DeleteUserFromHousehold(int parentUserId, int childUserId);
@@ -194,12 +195,28 @@ namespace CarCareTracker.Logic
         {
             var result = _userHouseholdData.GetUserHouseholdByParentUserId(parentUserId);
             var convertedResult = new List<UserHouseholdViewModel>();
-            //convert useraccess to usercollaborator
+            //convert userhousehold to viewmodel
             foreach (UserHousehold userHouseholdAccess in result)
             {
                 var userCollaborator = new UserHouseholdViewModel
                 {
                     UserName = _userData.GetUserRecordById(userHouseholdAccess.Id.ChildUserId).UserName,
+                    UserHousehold = userHouseholdAccess
+                };
+                convertedResult.Add(userCollaborator);
+            }
+            return convertedResult;
+        }
+        public List<UserHouseholdViewModel> GetHouseholdForChildUserId(int childUserId)
+        {
+            var result = _userHouseholdData.GetUserHouseholdByChildUserId(childUserId);
+            var convertedResult = new List<UserHouseholdViewModel>();
+            //convert userhousehold to viewmodel
+            foreach (UserHousehold userHouseholdAccess in result)
+            {
+                var userCollaborator = new UserHouseholdViewModel
+                {
+                    UserName = _userData.GetUserRecordById(userHouseholdAccess.Id.ParentUserId).UserName,
                     UserHousehold = userHouseholdAccess
                 };
                 convertedResult.Add(userCollaborator);

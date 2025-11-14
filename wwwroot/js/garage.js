@@ -601,6 +601,16 @@ function removeUserFromHousehold(userId) {
         }
     })
 }
+function leaveHousehold(userId) {
+    $.post('/Home/LeaveHousehold', { userId: userId }, function (data) {
+        if (data) {
+            successToast('Household Exited');
+            showHouseholdModal();
+        } else {
+            errorToast(genericErrorMessage())
+        }
+    });
+}
 function modifyUserHousehold(userId, e) {
     let selectedRole = $(e).val();
     let permissions = [];
