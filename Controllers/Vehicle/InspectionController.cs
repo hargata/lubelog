@@ -84,10 +84,10 @@ namespace CarCareTracker.Controllers
             //security check.
             if (!_userLogic.UserCanEditVehicle(GetUserID(), inspectionRecordTemplate.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             var result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         private OperationResponse DeleteInspectionRecordTemplateWithChecks(int inspectionRecordTemplateId)
         {
