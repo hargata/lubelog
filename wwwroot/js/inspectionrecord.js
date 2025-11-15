@@ -181,11 +181,11 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
         return;
     }
     $.post('/Vehicle/SaveInspectionRecordTemplateToVehicleId', { inspectionRecordTemplate: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Inspection Record Template Updated" : "Inspection Record Template Added.");
             hideInspectionRecordTemplateModal();
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
