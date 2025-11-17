@@ -113,18 +113,47 @@
     <li><a class="dropdown-item" href="#" onclick="manageCollaborators(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
     <li><hr class="context-menu-active-single dropdown-divider"></li>
     <li><h6 class="context-menu-active-single dropdown-header">@translator.Translate(userLanguage, "Navigate To")</h6></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'report')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Dashboard")</span><i class="bi bi-file-bar-graph"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'plan')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Planner")</span><i class="bi bi-bar-chart-steps"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'odometer')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'servicerecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Service Records")</span><i class="bi bi-card-checklist"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'accident')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Repairs")</span><i class="bi bi-exclamation-octagon"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'upgrade')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Upgrades")</span><i class="bi bi-wrench-adjustable"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'gas')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Fuel")</span><i class="bi bi-fuel-pump"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'supply')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Supplies")</span><i class="bi bi-shop"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'tax')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Taxes")</span><i class="bi bi-currency-dollar"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'notes')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Notes")</span><i class="bi bi-journal-bookmark"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'inspection')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Inspections")</span><i class="bi bi-clipboard-check"></i></div></a></li>
-    <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'reminder')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Reminders")</span><i class="bi bi-bell"></i></div></a></li>
+    @foreach(ImportMode importMode in userConfig.TabOrder)
+    {
+        switch (importMode){
+            case ImportMode.Dashboard:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'report')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Dashboard")</span><i class="bi bi-file-bar-graph"></i></div></a></li>
+                break;
+            case ImportMode.PlanRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'plan')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Planner")</span><i class="bi bi-bar-chart-steps"></i></div></a></li>
+                break;
+            case ImportMode.OdometerRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'odometer')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+                break;
+            case ImportMode.ServiceRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'servicerecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Service Records")</span><i class="bi bi-card-checklist"></i></div></a></li>
+                break;
+            case ImportMode.RepairRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'accident')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Repairs")</span><i class="bi bi-exclamation-octagon"></i></div></a></li>
+                break;
+            case ImportMode.UpgradeRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'upgrade')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Upgrades")</span><i class="bi bi-wrench-adjustable"></i></div></a></li>
+                break;
+            case ImportMode.GasRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'gas')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Fuel")</span><i class="bi bi-fuel-pump"></i></div></a></li>
+                break;
+            case ImportMode.SupplyRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'supply')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Supplies")</span><i class="bi bi-shop"></i></div></a></li>
+                break;
+            case ImportMode.TaxRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'tax')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Taxes")</span><i class="bi bi-currency-dollar"></i></div></a></li>
+                break;
+            case ImportMode.NoteRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'notes')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Notes")</span><i class="bi bi-journal-bookmark"></i></div></a></li>
+                break;
+            case ImportMode.InspectionRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'inspection')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Inspections")</span><i class="bi bi-clipboard-check"></i></div></a></li>
+                break;
+            case ImportMode.ReminderRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'reminder')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Reminders")</span><i class="bi bi-bell"></i></div></a></li>
+                break;
+        }
+    }
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item text-danger" href="#" onclick="deleteVehicles(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
