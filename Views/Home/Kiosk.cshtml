@@ -40,7 +40,7 @@
                 kioskWakeLock = wl;
             });
         } catch (err) {
-            errorToast('Location Services not Enabled');
+            warnToast('Wake Lock Not Acquired');
         }
     }
     function setAccessToken(accessToken){

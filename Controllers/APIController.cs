@@ -218,6 +218,57 @@ namespace CarCareTracker.Controllers
             }
         }
         #region PlanRecord
+        [HttpGet]
+        [Route("/api/vehicle/planrecords/all")]
+        public IActionResult AllPlanRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x=>x.Id));
+            List<PlanRecord> vehicleRecords = new List<PlanRecord>();
+            foreach(int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.DateCreated > endDate);
+            }
+            var result = vehicleRecords.Select(x => new PlanRecordExportModel
+            {
+                Id = x.Id.ToString(),
+                DateCreated = x.DateCreated.ToShortDateString(),
+                DateModified = x.DateModified.ToShortDateString(),
+                Description = x.Description,
+                Cost = x.Cost.ToString(),
+                Notes = x.Notes,
+                Type = x.ImportMode.ToString(),
+                Priority = x.Priority.ToString(),
+                Progress = x.Progress.ToString(),
+                ExtraFields = x.ExtraFields,
+                Files = x.Files
+            });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/planrecords")]
@@ -451,6 +502,49 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region ServiceRecord
+        [HttpGet]
+        [Route("/api/vehicle/servicerecords/all")]
+        public IActionResult AllServiceRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<ServiceRecord> vehicleRecords = new List<ServiceRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/servicerecords")]
@@ -646,6 +740,49 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region RepairRecord
+        [HttpGet]
+        [Route("/api/vehicle/repairrecords/all")]
+        public IActionResult AllRepairRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<CollisionRecord> vehicleRecords = new List<CollisionRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/repairrecords")]
@@ -844,6 +981,49 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region UpgradeRecord
+        [HttpGet]
+        [Route("/api/vehicle/upgraderecords/all")]
+        public IActionResult AllUpgradeRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<UpgradeRecord> vehicleRecords = new List<UpgradeRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/upgraderecords")]
@@ -1041,6 +1221,49 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region TaxRecord
+        [HttpGet]
+        [Route("/api/vehicle/taxrecords/all")]
+        public IActionResult AllTaxRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<TaxRecord> vehicleRecords = new List<TaxRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new TaxRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/taxrecords")]
@@ -1267,6 +1490,49 @@ namespace CarCareTracker.Controllers
             var result = _vehicleLogic.GetMaxMileage(vehicleId);
             return Json(result);
         }
+        [HttpGet]
+        [Route("/api/vehicle/odometerrecords/all")]
+        public IActionResult AllOdometerRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<OdometerRecord> vehicleRecords = new List<OdometerRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/odometerrecords")]
@@ -1446,6 +1712,65 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region GasRecord
+        [HttpGet]
+        [Route("/api/vehicle/gasrecords/all")]
+        public IActionResult AllGasRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<GasRecordViewModel> vehicleRecords = new List<GasRecordViewModel>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                var rawVehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
+                vehicleRecords.AddRange(_gasHelper.GetGasRecordViewModels(rawVehicleRecords, parameters.UseMPG, parameters.UseUKMPG));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => DateTime.Parse(x.Date) > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords
+                .Select(x => new GasRecordExportModel
+                {
+                    Id = x.Id.ToString(),
+                    Date = x.Date,
+                    Odometer = x.Mileage.ToString(),
+                    Cost = x.Cost.ToString(),
+                    FuelConsumed = x.Gallons.ToString(),
+                    FuelEconomy = x.MilesPerGallon.ToString(),
+                    IsFillToFull = x.IsFillToFull.ToString(),
+                    MissedFuelUp = x.MissedFuelUp.ToString(),
+                    Notes = x.Notes,
+                    ExtraFields = x.ExtraFields,
+                    Files = x.Files,
+                    Tags = string.Join(' ', x.Tags)
+                });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/gasrecords")]
@@ -1662,6 +1987,67 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region SupplyRecord
+        [HttpGet]
+        [Route("/api/vehicle/supplyrecords/all")]
+        public IActionResult AllSupplyRecords(MethodParameter parameters)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            if (_config.GetServerEnableShopSupplies())
+            {
+                vehicleIds.Add(0);
+            }
+            List<SupplyRecord> vehicleRecords = new List<SupplyRecord>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                vehicleRecords.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId));
+            }
+            if (parameters.Id != default)
+            {
+                vehicleRecords.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.StartDate) && DateTime.TryParse(parameters.StartDate, out DateTime startDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date < startDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.EndDate) && DateTime.TryParse(parameters.EndDate, out DateTime endDate))
+            {
+                vehicleRecords.RemoveAll(x => x.Date > endDate);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
+                vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var result = vehicleRecords
+                .Select(x => new SupplyRecordExportModel
+                {
+                    Id = x.Id.ToString(),
+                    Date = x.Date.ToString(),
+                    PartNumber = x.PartNumber,
+                    PartSupplier = x.PartSupplier,
+                    PartQuantity = x.Quantity.ToString(),
+                    Description = x.Description,
+                    Cost = x.Cost.ToString(),
+                    Notes = x.Notes,
+                    ExtraFields = x.ExtraFields,
+                    Files = x.Files,
+                    Tags = string.Join(' ', x.Tags)
+                });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(result, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(result);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/supplyrecords")]
@@ -1879,6 +2265,45 @@ namespace CarCareTracker.Controllers
         }
         #endregion
         #region ReminderRecord
+        [HttpGet]
+        [Route("/api/vehicle/reminders/all")]
+        public IActionResult AllReminders(List<ReminderUrgency> urgencies, string tags)
+        {
+            List<int> vehicleIds = new List<int>();
+            var vehicles = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehicles = _userLogic.FilterUserVehicles(vehicles, GetUserID());
+            }
+            vehicleIds.AddRange(vehicles.Select(x => x.Id));
+            List<ReminderRecordViewModel> reminderResults = new List<ReminderRecordViewModel>();
+            foreach (int vehicleId in vehicleIds)
+            {
+                var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
+                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                reminderResults.AddRange(_reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now));
+            }
+            if (!urgencies.Any())
+            {
+                //if no urgencies parameter, we will default to all urgencies.
+                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+            }
+            reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                var tagsFilter = tags.Split(' ').Distinct();
+                reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+            }
+            var results = reminderResults.Select(x => new ReminderAPIExportModel { Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
+            if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
+            {
+                return Json(results, StaticHelper.GetInvariantOption());
+            }
+            else
+            {
+                return Json(results);
+            }
+        }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
