@@ -1736,7 +1736,7 @@ namespace CarCareTracker.Controllers
                 string.IsNullOrWhiteSpace(input.Cost))
             {
                 Response.StatusCode = 400;
-                return Json(OperationResponse.Failed("Input object invalid, Id, Date, Description, Quantity and Cost cannot be empty."));
+                return Json(OperationResponse.Failed("Input object invalid, Date, Description, Quantity and Cost cannot be empty."));
             }
             if (input.Files == null)
             {
