@@ -51,6 +51,21 @@ function infoToast(message) {
         }
     })
 }
+function warnToast(message) {
+    Swal.fire({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        title: message,
+        timerProgressBar: true,
+        icon: "warning",
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    })
+}
 function viewVehicle(vehicleId) {
     window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
 }
