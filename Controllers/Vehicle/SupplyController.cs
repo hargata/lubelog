@@ -179,6 +179,10 @@ namespace CarCareTracker.Controllers
                     return Redirect("/Error/Unauthorized");
                 }
             }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             if (result.RequisitionHistory.Any())
             {
                 //requisition history when viewed through the supply is always immutable.
@@ -213,6 +217,10 @@ namespace CarCareTracker.Controllers
                 {
                     return OperationResponse.Failed("Access Denied");
                 }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)

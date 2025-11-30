@@ -35,15 +35,21 @@ namespace CarCareTracker.Models
 
     public class SupplyRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
         public string PartNumber { get; set; }
         public string PartSupplier { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string PartQuantity { get; set; }
         public string Description { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
     public class GenericRecordExportModel
     {
