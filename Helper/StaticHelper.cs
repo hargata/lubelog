@@ -937,7 +937,7 @@ namespace CarCareTracker.Helper
         }
         public static bool IsShopSupplyEndpoint(string endpoint)
         {
-            var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv", "DuplicateRecordsToOtherVehicles", "PrintRecordStickers" };
+            var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv", "DuplicateRecordsToOtherVehicles", "PrintRecordStickers", "SupplyRecords", "AddSupplyRecord", "AddSupplyRecordJson" };
             return shopSupplyEndpoints.Contains(endpoint);
         }
     }

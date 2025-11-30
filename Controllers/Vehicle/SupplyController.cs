@@ -153,6 +153,10 @@ namespace CarCareTracker.Controllers
                     return Json(OperationResponse.Failed("Access Denied"));
                 }
             }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
@@ -178,6 +182,10 @@ namespace CarCareTracker.Controllers
                 {
                     return Redirect("/Error/Unauthorized");
                 }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Redirect("/Error/Unauthorized");
             }
             if (result.RequisitionHistory.Any())
             {
@@ -213,6 +221,10 @@ namespace CarCareTracker.Controllers
                 {
                     return OperationResponse.Failed("Access Denied");
                 }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)
