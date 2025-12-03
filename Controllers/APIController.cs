@@ -2598,7 +2598,7 @@ namespace CarCareTracker.Controllers
                 }
                 if (!results.Any())
                 {
-                    operationResponses.Add(OperationResponse.Failed());
+                    return Json(OperationResponse.Failed("No Emails Sent, No Reminders Matching Parameters"));
                 }
                 //get list of recipients.
                 var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
@@ -2614,7 +2614,7 @@ namespace CarCareTracker.Controllers
                 }
                 if (!emailRecipients.Any())
                 {
-                    operationResponses.Add(OperationResponse.Failed());
+                    return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
                 }
                 var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
@@ -2636,7 +2636,7 @@ namespace CarCareTracker.Controllers
                     }
                     if (!results.Any())
                     {
-                        return Json(OperationResponse.Failed("No Emails Sent, No Reminders Matching Parameters"));
+                        continue;
                     }
                     //get list of recipients.
                     var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
@@ -2652,7 +2652,7 @@ namespace CarCareTracker.Controllers
                     }
                     if (!emailRecipients.Any())
                     {
-                        return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
+                        continue;
                     }
                     var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                     operationResponses.Add(result);
