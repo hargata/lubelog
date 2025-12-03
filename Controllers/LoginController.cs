@@ -441,10 +441,29 @@ namespace CarCareTracker.Controllers
                     Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                     return Json(true);
                 }
+                else
+                {
+                    //log failed login attempts
+                    string ipAddressToLog = Request.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+                    //check for forwarded headers from reverse proxies
+                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                    {
+                        string forwardedIp = Request.Headers["X-Forwarded-For"].ToString();
+                        if (!string.IsNullOrWhiteSpace(forwardedIp))
+                        {
+                            //append forwarded ip
+                            ipAddressToLog += $", {forwardedIp}";
+                        }
+                    }
+                    if (!string.IsNullOrWhiteSpace(ipAddressToLog))
+                    {
+                        _logger.LogWarning($"Failed Login for {credentials.UserName} from {ipAddressToLog}");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error on saving config file.");
+                _logger.LogError(ex, "Login Error.");
             }
             return Json(false);
         }
