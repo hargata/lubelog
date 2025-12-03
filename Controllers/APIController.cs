@@ -2287,7 +2287,7 @@ namespace CarCareTracker.Controllers
             {
                 reminderResults.RemoveAll(x => x.Id != parameters.Id);
             }
-            if (parameters.Urgencies == null)
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
                 parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
@@ -2318,7 +2318,7 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
-            if (parameters.Urgencies == null)
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
                 parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
@@ -2574,7 +2574,7 @@ namespace CarCareTracker.Controllers
         [Route("/api/vehicle/reminders/send")]
         public IActionResult SendReminders(ReminderMethodParameter parameters)
         {
-            if (parameters.Urgencies == null)
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
                 parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
