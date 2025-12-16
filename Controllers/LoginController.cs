@@ -15,18 +15,21 @@ namespace CarCareTracker.Controllers
         private IDataProtector _dataProtector;
         private ILoginLogic _loginLogic;
         private IConfigHelper _config;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,
             IDataProtectionProvider securityProvider,
             ILoginLogic loginLogic,
-            IConfigHelper config
+            IConfigHelper config,
+            IHttpClientFactory httpClientFactory
             )
         {
             _dataProtector = securityProvider.CreateProtector("login");
             _logger = logger;
             _loginLogic = loginLogic;
             _config = config;
+            _httpClientFactory = httpClientFactory;
         }
         public IActionResult Index(string redirectURL = "")
         {
@@ -102,7 +105,7 @@ namespace CarCareTracker.Controllers
                 {
                     //received code from OIDC provider
                     //create http client to retrieve user token from OIDC
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     var openIdConfig = _config.GetOpenIDConfig();
                     //check if validate state is enabled.
                     if (openIdConfig.ValidateState)
@@ -268,7 +271,7 @@ namespace CarCareTracker.Controllers
                     results.Add(OperationResponse.Succeed($"Received code from OpenID Provider: {code}"));
                     //received code from OIDC provider
                     //create http client to retrieve user token from OIDC
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     var openIdConfig = _config.GetOpenIDConfig();
                     //check if validate state is enabled.
                     if (openIdConfig.ValidateState)

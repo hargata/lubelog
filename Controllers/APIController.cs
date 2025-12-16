@@ -38,6 +38,7 @@ namespace CarCareTracker.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _config;
         private readonly IWebHostEnvironment _webEnv;
+        private readonly IHttpClientFactory _httpClientFactory;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -63,7 +64,8 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             IVehicleLogic vehicleLogic,
             IOdometerLogic odometerLogic,
-            IWebHostEnvironment webEnv)
+            IWebHostEnvironment webEnv,
+            IHttpClientFactory httpClientFactory)
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -91,6 +93,7 @@ namespace CarCareTracker.Controllers
             _fileHelper = fileHelper;
             _config = config;
             _webEnv = webEnv;
+            _httpClientFactory = httpClientFactory;
         }
         public IActionResult Index()
         {
@@ -133,7 +136,7 @@ namespace CarCareTracker.Controllers
             {
                 try
                 {
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
                     var releaseResponse = await httpClient.GetFromJsonAsync<ReleaseResponse>(StaticHelper.ReleasePath) ?? new ReleaseResponse();
                     if (!string.IsNullOrWhiteSpace(releaseResponse.tag_name))

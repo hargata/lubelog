@@ -26,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly ITranslationHelper _translationHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IHttpClientFactory _httpClientFactory;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
@@ -37,7 +38,8 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IReminderHelper reminderHelper,
             ITranslationHelper translationHelper,
-            IMailHelper mailHelper)
+            IMailHelper mailHelper,
+            IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -51,6 +53,7 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _translationHelper = translationHelper;
             _mailHelper = mailHelper;
+            _httpClientFactory = httpClientFactory;
         }
         private int GetUserID()
         {
@@ -199,7 +202,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var sponsorsData = await httpClient.GetFromJsonAsync<Sponsors>(StaticHelper.SponsorsPath) ?? new Sponsors();
                 return PartialView("_Sponsors", sponsorsData);
             }
@@ -380,7 +383,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
                 return PartialView("_Translations", translations);
             }
@@ -396,7 +399,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
                 if (translationData.Any())
                 {
@@ -425,7 +428,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
                 int translationsDownloaded = 0;
                 foreach (string translation in translations.Asia)
@@ -633,7 +636,7 @@ namespace CarCareTracker.Controllers
             {
                 try
                 {
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     var openIdConfig = await httpClient.GetFromJsonAsync<OpenIDProviderConfig>(configUrl);
                     return Json(openIdConfig);
                 }

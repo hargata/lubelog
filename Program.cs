@@ -102,6 +102,7 @@ builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 
 //Configure Auth
+builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
