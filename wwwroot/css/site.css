@@ -663,7 +663,7 @@ html[data-bs-theme="light"] .frosted {
         border-color: #dc3545;
     }
 
-.swal2-popup.swal2-modal.swal2-show {
+.swal2-popup.swal2-modal {
     background-color: var(--bs-body-bg) !important;
     color: var(--bs-modal-color) !important;
 }
