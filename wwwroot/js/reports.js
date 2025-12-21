@@ -2,14 +2,14 @@
     return $("#yearOption").val() ?? '0';
 }
 function getAndValidateSelectedColumns() {
-    var reportVisibleColumns = [];
-    var reportExtraFields = [];
-    var tagFilterMode = $("#tagSelector").val();
-    var tagsToFilter = $("#tagSelectorInput").val();
-    var filterByDateRange = $("#dateRangeSelector").is(":checked");
-    var printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
-    var startDate = $("#dateRangeStartDate").val();
-    var endDate = $("#dateRangeEndDate").val();
+    let reportVisibleColumns = [];
+    let reportExtraFields = [];
+    let tagFilterMode = $("#tagSelector").val();
+    let tagsToFilter = $("#tagSelectorInput").val();
+    let filterByDateRange = $("#dateRangeSelector").is(":checked");
+    let printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
+    let startDate = $("#dateRangeStartDate").val();
+    let endDate = $("#dateRangeEndDate").val();
     $("#columnSelector :checked").map(function () {
         if ($(this).hasClass('column-default')) {
             reportVisibleColumns.push(this.value);
@@ -17,8 +17,8 @@ function getAndValidateSelectedColumns() {
             reportExtraFields.push(this.value);
         }
     });
-    var hasValidationError = false;
-    var validationErrorMessage = "";
+    let hasValidationError = false;
+    let validationErrorMessage = "";
     if (reportVisibleColumns.length + reportExtraFields.length == 0) {
         hasValidationError = true;
         validationErrorMessage = "You must select at least one column";
@@ -84,6 +84,9 @@ function getSavedReportParameters() {
         $("#dateRangeStartDate").val(selectedReportColumns.startDate);
         $("#dateRangeEndDate").val(selectedReportColumns.endDate);
         $("#printIndividualRecordsCheck").prop('checked', selectedReportColumns.printIndividualRecords);
+        if (selectedReportColumns.tags.length > 0 || selectedReportColumns.filterByDateRange) {
+            $("#reportAdvancedParameterToggle").trigger('click');
+        }
     }
 }
 function generateVehicleHistoryReport() {
