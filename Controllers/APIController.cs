@@ -2589,6 +2589,10 @@ namespace CarCareTracker.Controllers
             {
                 //if reminderId is provided, then we only send email out for that specific reminder
                 var reminder = _reminderRecordDataAccess.GetReminderRecordById(parameters.Id);
+                if (reminder == null || reminder.Id != parameters.Id)
+                {
+                    return Json(OperationResponse.Failed("No Emails Sent, No Reminders Matching Parameters"));
+                }
                 var vehicleId = reminder.VehicleId;
                 var vehicle = _dataAccess.GetVehicleById(vehicleId);
                 var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
