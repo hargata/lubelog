@@ -662,3 +662,16 @@ html[data-bs-theme="light"] .frosted {
     .inspection-value.inspection-value-selected.inspection-value-fail {
         border-color: #dc3545;
     }
+
+.swal2-popup.swal2-modal {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-modal-color) !important;
+}
+
+.swal2-validation-message {
+    color: var(--bs-modal-color) !important;
+}
+
+html[data-bs-theme="dark"] .swal2-validation-message {
+    background-color: #2d2d2e !important;
+}

@@ -779,16 +779,118 @@ function printTabStickers(ids, source) {
         }
     })
 }
+function getAndValidateCSVExportParameter() {
+    let tagFilterMode = $("#tagSelector").val();
+    let tagsToFilter = $("#tagSelectorInput").val();
+    let filterByDateRange = $("#dateRangeSelector").is(":checked");
+    let startDate = $("#dateRangeStartDate").val();
+    let endDate = $("#dateRangeEndDate").val();
+    let hasValidationError = false;
+    let validationErrorMessage = "";
+    if (filterByDateRange) {
+        //validate date range
+        let startDateTicks = $("#dateRangeStartDate").datepicker('getDate')?.getTime();
+        let endDateTicks = $("#dateRangeEndDate").datepicker('getDate')?.getTime();
+        if (!startDateTicks || !endDateTicks || startDateTicks > endDateTicks) {
+            hasValidationError = true;
+            validationErrorMessage = "Invalid date range";
+        }
+    }
+    if (hasValidationError) {
+        return {
+            hasError: true,
+            errorMessage: validationErrorMessage,
+            tagFilter: tagFilterMode,
+            tags: [],
+            filterByDateRange: filterByDateRange,
+            starDate: '',
+            endDate: ''
+        }
+    } else {
+        return {
+            hasError: false,
+            errorMessage: '',
+            tagFilter: tagFilterMode,
+            tags: tagsToFilter,
+            filterByDateRange: filterByDateRange,
+            startDate: startDate,
+            endDate: endDate
+        }
+    }
+}
+function toggleCSVExportParameters() {
+    if ($(".csv-export-parameters").hasClass("d-none")) {
+        $(".csv-export-parameters").removeClass("d-none");
+    } else {
+        $(".csv-export-parameters").addClass("d-none");
+    }
+}
+function getSavedCSVExportParameters(mode) {
+    var vehicleId = GetVehicleId().vehicleId;
+    let savedCsvExportParameters = sessionStorage.getItem(`${vehicleId}_csvExportParameters_${mode}`);
+    if (savedCsvExportParameters != null) {
+        savedCsvExportParameters = JSON.parse(savedCsvExportParameters);
+        $("#tagSelector").val(savedCsvExportParameters.tagFilter);
+        savedCsvExportParameters.tags.map(x => {
+            $("#tagSelectorInput").append(`<option value='${x}'>${x}</option>`)
+        });
+        $("#dateRangeSelector").prop('checked', savedCsvExportParameters.filterByDateRange);
+        $("#dateRangeStartDate").val(savedCsvExportParameters.startDate);
+        $("#dateRangeEndDate").val(savedCsvExportParameters.endDate);
+        if (savedCsvExportParameters.tags.length > 0 || savedCsvExportParameters.filterByDateRange) {
+            $("#csvExportParameterToggle").trigger('click');
+        }
+    }
+}
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
-    $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
-        if (isOperationResponse(data)) {
-            return;
-        }
-        else if (data) {
-            window.location.href = data;
-        }
-    });
+    if (mode != 'PlanRecord') {
+        $.get('/Vehicle/GetCSVExportParameters', function (paramData) {
+            if (paramData) {
+                Swal.fire({
+                    html: paramData,
+                    confirmButtonText: 'Generate CSV Export',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        //validate
+                        var exportParamsData = getAndValidateCSVExportParameter();
+                        if (exportParamsData.hasError) {
+                            Swal.showValidationMessage(exportParamsData.errorMessage);
+                        }
+                        return { exportParamsData };
+                    },
+                    didOpen: () => {
+                        getSavedCSVExportParameters(mode);
+                        initTagSelector($("#tagSelectorInput"));
+                        initDatePicker($('#dateRangeStartDate'));
+                        initDatePicker($('#dateRangeEndDate'));
+                    }
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        sessionStorage.setItem(`${vehicleId}_csvExportParameters_${mode}`, JSON.stringify(result.value.exportParamsData));
+                        $.post('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode, exportParameters: result.value.exportParamsData }, function (data) {
+                            if (isOperationResponse(data)) {
+                                return;
+                            }
+                            else if (data) {
+                                window.location.href = data;
+                            }
+                        });
+                    }
+                })
+            }
+        })
+    }
+    else {
+        $.post('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
+            if (isOperationResponse(data)) {
+                return;
+            }
+            else if (data) {
+                window.location.href = data;
+            }
+        });
+    }
 }
 function showBulkImportModal(mode) {
     $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {

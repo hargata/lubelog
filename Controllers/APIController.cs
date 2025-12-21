@@ -38,6 +38,7 @@ namespace CarCareTracker.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _config;
         private readonly IWebHostEnvironment _webEnv;
+        private readonly IHttpClientFactory _httpClientFactory;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IReminderHelper reminderHelper,
@@ -63,7 +64,8 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             IVehicleLogic vehicleLogic,
             IOdometerLogic odometerLogic,
-            IWebHostEnvironment webEnv)
+            IWebHostEnvironment webEnv,
+            IHttpClientFactory httpClientFactory)
         {
             _dataAccess = dataAccess;
             _noteDataAccess = noteDataAccess;
@@ -91,6 +93,7 @@ namespace CarCareTracker.Controllers
             _fileHelper = fileHelper;
             _config = config;
             _webEnv = webEnv;
+            _httpClientFactory = httpClientFactory;
         }
         public IActionResult Index()
         {
@@ -133,7 +136,7 @@ namespace CarCareTracker.Controllers
             {
                 try
                 {
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
                     var releaseResponse = await httpClient.GetFromJsonAsync<ReleaseResponse>(StaticHelper.ReleasePath) ?? new ReleaseResponse();
                     if (!string.IsNullOrWhiteSpace(releaseResponse.tag_name))
@@ -2267,7 +2270,7 @@ namespace CarCareTracker.Controllers
         #region ReminderRecord
         [HttpGet]
         [Route("/api/vehicle/reminders/all")]
-        public IActionResult AllReminders(List<ReminderUrgency> urgencies, string tags)
+        public IActionResult AllReminders(ReminderMethodParameter parameters)
         {
             List<int> vehicleIds = new List<int>();
             var vehicles = _dataAccess.GetVehicles();
@@ -2283,15 +2286,19 @@ namespace CarCareTracker.Controllers
                 var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
                 reminderResults.AddRange(_reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now));
             }
-            if (!urgencies.Any())
+            if (parameters.Id != default)
+            {
+                reminderResults.RemoveAll(x => x.Id != parameters.Id);
+            }
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
-                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+                parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
             }
-            reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
-            if (!string.IsNullOrWhiteSpace(tags))
+            reminderResults.RemoveAll(x => !parameters.Urgencies.Contains(x.Urgency));
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
             {
-                var tagsFilter = tags.Split(' ').Distinct();
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
             var results = reminderResults.Select(x => new ReminderAPIExportModel { Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
@@ -2307,25 +2314,29 @@ namespace CarCareTracker.Controllers
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         [Route("/api/vehicle/reminders")]
-        public IActionResult Reminders(int vehicleId, List<ReminderUrgency> urgencies, string tags)
+        public IActionResult Reminders(int vehicleId, ReminderMethodParameter parameters)
         {
             if (vehicleId == default)
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Must provide a valid vehicle id"));
             }
-            if (!urgencies.Any())
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
-                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+                parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
             }
             var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
             var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
             var reminderResults = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now);
-            reminderResults.RemoveAll(x => !urgencies.Contains(x.Urgency));
-            if (!string.IsNullOrWhiteSpace(tags))
+            if (parameters.Id != default)
             {
-                var tagsFilter = tags.Split(' ').Distinct();
+                reminderResults.RemoveAll(x => x.Id != parameters.Id);
+            }
+            reminderResults.RemoveAll(x => !parameters.Urgencies.Contains(x.Urgency));
+            if (!string.IsNullOrWhiteSpace(parameters.Tags))
+            {
+                var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
             var results = reminderResults.Select(x=> new ReminderAPIExportModel {  Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
@@ -2564,32 +2575,37 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
-        public IActionResult SendReminders(List<ReminderUrgency> urgencies, string tags)
+        public IActionResult SendReminders(ReminderMethodParameter parameters)
         {
-            if (!urgencies.Any())
+            if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
                 //if no urgencies parameter, we will default to all urgencies.
-                urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+                parameters.Urgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
             }
-            var vehicles = _dataAccess.GetVehicles();
             List<OperationResponse> operationResponses = new List<OperationResponse>();
             var defaultEmailAddress = _config.GetDefaultReminderEmail();
-            List<string> tagsFilter = !string.IsNullOrWhiteSpace(tags) ? tags.Split(' ').Distinct().ToList() : new List<string>();
-            foreach(Vehicle vehicle in vehicles)
+            List<string> tagsFilter = !string.IsNullOrWhiteSpace(parameters.Tags) ? parameters.Tags.Split(' ').Distinct().ToList() : new List<string>();
+            if (parameters.Id != default)
             {
-                var vehicleId = vehicle.Id;
-                //get reminders
+                //if reminderId is provided, then we only send email out for that specific reminder
+                var reminder = _reminderRecordDataAccess.GetReminderRecordById(parameters.Id);
+                if (reminder == null || reminder.Id != parameters.Id)
+                {
+                    return Json(OperationResponse.Failed("No Emails Sent, No Reminders Matching Parameters"));
+                }
+                var vehicleId = reminder.VehicleId;
+                var vehicle = _dataAccess.GetVehicleById(vehicleId);
                 var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
-                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                var reminders = new List<ReminderRecord> { reminder }; //convert  to list
                 var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
-                results.RemoveAll(x => !urgencies.Contains(x.Urgency));
+                results.RemoveAll(x => !parameters.Urgencies.Contains(x.Urgency));
                 if (tagsFilter.Any())
                 {
                     results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
                 }
                 if (!results.Any())
                 {
-                    continue;
+                    return Json(OperationResponse.Failed("No Emails Sent, No Reminders Matching Parameters"));
                 }
                 //get list of recipients.
                 var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
@@ -2602,13 +2618,52 @@ namespace CarCareTracker.Controllers
                 {
                     var userData = _userRecordDataAccess.GetUserRecordById(userId);
                     emailRecipients.Add(userData.EmailAddress);
-                };
+                }
                 if (!emailRecipients.Any())
                 {
-                    continue;
+                    return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
                 }
                 var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
+            } 
+            else
+            {
+                var vehicles = _dataAccess.GetVehicles();
+                foreach (Vehicle vehicle in vehicles)
+                {
+                    var vehicleId = vehicle.Id;
+                    //get reminders
+                    var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
+                    var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                    var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
+                    results.RemoveAll(x => !parameters.Urgencies.Contains(x.Urgency));
+                    if (tagsFilter.Any())
+                    {
+                        results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                    }
+                    if (!results.Any())
+                    {
+                        continue;
+                    }
+                    //get list of recipients.
+                    var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
+                    List<string> emailRecipients = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                    {
+                        emailRecipients.Add(defaultEmailAddress);
+                    }
+                    foreach (int userId in userIds)
+                    {
+                        var userData = _userRecordDataAccess.GetUserRecordById(userId);
+                        emailRecipients.Add(userData.EmailAddress);
+                    }
+                    if (!emailRecipients.Any())
+                    {
+                        continue;
+                    }
+                    var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                    operationResponses.Add(result);
+                }
             }
             if (!operationResponses.Any())
             {
