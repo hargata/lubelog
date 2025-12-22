@@ -166,6 +166,22 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputSoldPrice").removeClass("is-invalid");
     }
+    if (vehiclePurchaseDate.trim() != '' && vehicleSoldDate.trim() != '') {
+        let purchaseTicks = $("#inputPurchaseDate").datepicker('getDate')?.getTime();
+        let soldTicks = $("#inputSoldDate").datepicker('getDate')?.getTime();
+        if (!purchaseTicks || !soldTicks || purchaseTicks > soldTicks) {
+            hasError = true;
+            $("#inputPurchaseDate").addClass("is-invalid");
+            $("#inputSoldDate").addClass("is-invalid");
+            $("#collapsePurchaseInfo").collapse('show');
+        } else {
+            $("#inputPurchaseDate").removeClass("is-invalid");
+            $("#inputSoldDate").removeClass("is-invalid");
+        }
+    } else {
+        $("#inputPurchaseDate").removeClass("is-invalid");
+        $("#inputSoldDate").removeClass("is-invalid");
+    }
     if (hasError) {
         return;
     }
