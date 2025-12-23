@@ -238,6 +238,15 @@ html {
     }
 }
 
+@keyframes slidefromright {
+    0% {
+        transform: translate3d(100%, 0, 0);
+    }
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
 .btn-check:checked + .dropdown-item, :not(.btn-check) + .dropdown-item:active {
     color: #fff;
     background-color: #0d6efd;
@@ -298,11 +307,15 @@ html {
         margin: 0;
         display: none;
         z-index: 2000;
-        overflow-y:auto;
+        overflow-y: auto;
     }
 
     .lubelogger-mobile-nav-show {
         display: block;
+    }
+
+    .lubelogger-mobile-nav.lubelogger-mobile-nav-show {
+        animation: slidefromright .25s;
     }
 
     .lubelogger-mobile-nav > ul > li > .nav-link.active {

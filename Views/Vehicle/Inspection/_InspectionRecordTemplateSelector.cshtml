@@ -26,7 +26,7 @@
                     <tbody>
                         @foreach (InspectionRecordInput inspectionRecordTemplate in Model)
                         {
-                            <tr class="d-flex" id="supplyRows">
+                            <tr class="d-flex">
                                 <td class="col-8 text-truncate">
                                     @StaticHelper.TruncateStrings(inspectionRecordTemplate.Description)
                                     @if (inspectionRecordTemplate.ReminderRecordId.Any())
