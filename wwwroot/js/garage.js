@@ -769,3 +769,6 @@ $(function () {
     bindTabEvent();
     loadTabFromURL();
 })
+function goToAdminPanel() {
+    window.location.href = '/Admin';
+}
