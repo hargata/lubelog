@@ -271,6 +271,10 @@ html {
         border: none;
     }
 
+    .lubelogger-tab .nav-link.active {
+        background-color: transparent;
+    }
+
 /*Media Queries*/
 @media (max-width: 576px) {
     .lubelogger-tab {
