@@ -18,6 +18,7 @@ namespace CarCareTracker.Helper
         string MakeAttachmentsExport(List<GenericReportModel> exportData);
         List<string> GetLanguages();
         int ClearTempFolder();
+        List<string> GetTempFiles();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
         string GetWidgets();
@@ -426,6 +427,20 @@ namespace CarCareTracker.Helper
                 }
             }
             return filesDeleted;
+        }
+        public List<string> GetTempFiles()
+        {
+            var tempFiles = new List<string>();
+            var tempPath = GetFullFilePath("temp", false);
+            if (Directory.Exists(tempPath))
+            {
+                var filesInTemp = Directory.GetFiles(tempPath, "*.*", SearchOption.AllDirectories);
+                foreach (var file in filesInTemp)
+                {
+                    tempFiles.Add(file.Replace(tempPath, string.Empty));
+                }
+            }
+            return tempFiles;
         }
         public int ClearUnlinkedThumbnails(List<string> linkedImages)
         {
