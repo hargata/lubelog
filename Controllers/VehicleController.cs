@@ -173,7 +173,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
             }
             return Json(OperationResponse.Succeed());
         }
@@ -202,7 +202,7 @@ namespace CarCareTracker.Controllers
                     _dataAccess.DeleteVehicle(vehicleId);
                 if (result)
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic(string.Empty, "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity.Name, vehicleId.ToString()));
                 }
                 results.Add(result);
             }
