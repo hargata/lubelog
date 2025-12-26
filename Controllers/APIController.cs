@@ -2726,6 +2726,14 @@ namespace CarCareTracker.Controllers
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
+        [Route("/api/tempfiles")]
+        public IActionResult GetTempFiles()
+        {
+            var tempFiles = _fileHelper.GetTempFiles();
+            return Json(tempFiles);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [HttpGet]
         [Route("/api/cleanup")]
         public IActionResult CleanUp(bool deepClean = false)
         {
