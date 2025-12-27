@@ -286,9 +286,92 @@ namespace CarCareTracker.Controllers
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicle.Id);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)})", "vehicle.add.api", User.Identity.Name, vehicle.Id.ToString()));
-                return Json(OperationResponse.Succeed("Vehicle Added", new { recordId = vehicle.Id }));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)}) via API", "vehicle.add.api", User.Identity.Name, vehicle.Id.ToString()));
+                return Json(OperationResponse.Succeed("Vehicle Added", new { vehicleId = vehicle.Id }));
             } catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
+        [HttpPut]
+        [Route("/api/vehicles/update")]
+        [Consumes("application/json")]
+        public IActionResult UpdateVehicleJson([FromBody] VehicleImportModel input) => UpdateVehicle(input);
+        [HttpPut]
+        [Route("/api/vehicles/update")]
+        public IActionResult UpdateVehicle(VehicleImportModel input)
+        {
+            //validation
+            if (string.IsNullOrWhiteSpace(input.Id) ||
+                string.IsNullOrWhiteSpace(input.Year) ||
+                string.IsNullOrWhiteSpace(input.Make) ||
+                string.IsNullOrWhiteSpace(input.Model) ||
+                string.IsNullOrWhiteSpace(input.Identifier) ||
+                string.IsNullOrWhiteSpace(input.FuelType))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Id, Year, Make, Model, Identifier, and FuelType cannot be empty."));
+            }
+            if (input.Identifier == "LicensePlate" && string.IsNullOrWhiteSpace(input.LicensePlate))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, LicensePlate cannot be empty."));
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
+            if (input.Identifier != "LicensePlate" && string.IsNullOrWhiteSpace(input.ExtraFields.FirstOrDefault(x => x.Name == input.Identifier)?.Value))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed($"Input object invalid, Identifier {input.Identifier} is specified but the value is not found in extra fields."));
+            }
+            var validFuelTypes = new List<string> { "Gasoline", "Diesel", "Electric" };
+            if (!validFuelTypes.Contains(input.FuelType))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Fuel Type must be either Gasoline, Diesel, or Eletric"));
+            }
+            try
+            {
+                var existingVehicle = _dataAccess.GetVehicleById(int.Parse(input.Id));
+                if (existingVehicle != null && existingVehicle.Id == int.Parse(input.Id))
+                {
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingVehicle.Id, HouseholdPermission.Edit))
+                    {
+                        Response.StatusCode = 401;
+                        return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+                    }
+                    existingVehicle.Year = int.Parse(input.Year);
+                    existingVehicle.Make = input.Make;
+                    existingVehicle.Model = input.Model;
+                    existingVehicle.LicensePlate = input.LicensePlate;
+                    existingVehicle.VehicleIdentifier = input.Identifier;
+                    existingVehicle.UseHours = string.IsNullOrWhiteSpace(input.UseEngineHours) ? false : bool.Parse(input.UseEngineHours);
+                    existingVehicle.OdometerOptional = string.IsNullOrWhiteSpace(input.OdometerOptional) ? false : bool.Parse(input.OdometerOptional);
+                    existingVehicle.ExtraFields = input.ExtraFields;
+                    existingVehicle.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    switch (input.FuelType)
+                    {
+                        case "Diesel":
+                            existingVehicle.IsDiesel = true;
+                            break;
+                        case "Electric":
+                            existingVehicle.IsElectric = true;
+                            break;
+                    }
+                    _dataAccess.SaveVehicle(existingVehicle);
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity.Name, existingVehicle.Id.ToString()));
+                    return Json(OperationResponse.Succeed("Vehicle Updated"));
+                }
+                else
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed("Invalid Vehicle Id"));
+                }
+            }
+            catch (Exception ex)
             {
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
