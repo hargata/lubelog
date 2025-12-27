@@ -76,6 +76,53 @@
     </div>
     <div class="row api-method">
         <div class="col-1">
+            <span class="badge bg-primary">POST</span>
+        </div>
+        <div class="col-5 copyable">
+            <code>/api/vehicles/add</code>
+        </div>
+        <div class="col-3">
+            Adds a vehicle
+        </div>
+        <div class="col-3">
+            Body(form-data): {<br />
+            year - Year of the vehicle<br />
+            make - Make of the vehicle<br />
+            model - Model of the vehicle<br />
+            identifier - vehicle identifier(default: LicensePlate)<br />
+            licensePlate - required if identifier is LicensePlate<br />
+            fuelType - Gasoline/Diesel/Eletric<br />
+            tags - tags separated by space(optional)<br />
+            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br/>
+            }
+        </div>
+    </div>
+    <div class="row api-method">
+        <div class="col-1">
+            <span class="badge text-bg-warning">PUT</span>
+        </div>
+        <div class="col-5 copyable">
+            <code>/api/vehicles/update</code>
+        </div>
+        <div class="col-3">
+            Updates a vehicle
+        </div>
+        <div class="col-3">
+            Body(form-data): {<br />
+            id - Id of Vehicle<br/>
+            year - Year of the vehicle<br />
+            make - Make of the vehicle<br />
+            model - Model of the vehicle<br />
+            identifier - vehicle identifier(default: LicensePlate)<br />
+            licensePlate - required if identifier is LicensePlate<br />
+            fuelType - Gasoline/Diesel/Eletric<br />
+            tags - tags separated by space(optional)<br />
+            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
+            }
+        </div>
+    </div>
+    <div class="row api-method">
+        <div class="col-1">
             <span class="badge bg-success">GET</span>
         </div>
         <div class="col-5 copyable testable">
