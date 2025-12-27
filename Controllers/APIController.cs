@@ -220,6 +220,80 @@ namespace CarCareTracker.Controllers
                 return Json(convertedOdometer);
             }
         }
+        [HttpPost]
+        [Route("/api/vehicles/add")]
+        [Consumes("application/json")]
+        public IActionResult AddVehicleJson([FromBody] VehicleImportModel input) => AddVehicle(input);
+        [HttpPost]
+        [Route("/api/vehicles/add")]
+        public IActionResult AddVehicle(VehicleImportModel input)
+        {
+            //validation
+            if (string.IsNullOrWhiteSpace(input.Year) ||
+                string.IsNullOrWhiteSpace(input.Make) ||
+                string.IsNullOrWhiteSpace(input.Model) ||
+                string.IsNullOrWhiteSpace(input.Identifier) ||
+                string.IsNullOrWhiteSpace(input.FuelType))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Year, Make, Model, Identifier, and FuelType cannot be empty."));
+            }
+            if (input.Identifier == "LicensePlate" && string.IsNullOrWhiteSpace(input.LicensePlate))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, LicensePlate cannot be empty."));
+            }
+            if (input.ExtraFields == null)
+            {
+                input.ExtraFields = new List<ExtraField>();
+            }
+            if (input.Identifier != "LicensePlate" && string.IsNullOrWhiteSpace(input.ExtraFields.FirstOrDefault(x=>x.Name == input.Identifier)?.Value))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed($"Input object invalid, Identifier {input.Identifier} is specified but the value is not found in extra fields."));
+            }
+            var validFuelTypes = new List<string> { "Gasoline", "Diesel", "Electric" };
+            if (!validFuelTypes.Contains(input.FuelType))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, Fuel Type must be either Gasoline, Diesel, or Eletric"));
+            }
+            try
+            {
+                var vehicle = new Vehicle()
+                {
+                    Year = int.Parse(input.Year),
+                    Make = input.Make,
+                    Model = input.Model,
+                    LicensePlate = input.LicensePlate,
+                    VehicleIdentifier = input.Identifier,
+                    UseHours = string.IsNullOrWhiteSpace(input.UseEngineHours) ? false : bool.Parse(input.UseEngineHours),
+                    OdometerOptional = string.IsNullOrWhiteSpace(input.OdometerOptional) ? false : bool.Parse(input.OdometerOptional),
+                    ExtraFields = input.ExtraFields,
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                };
+                switch (input.FuelType)
+                {
+                    case "Diesel":
+                        vehicle.IsDiesel = true;
+                        break;
+                    case "Electric":
+                        vehicle.IsElectric = true;
+                        break;
+                }
+                _dataAccess.SaveVehicle(vehicle);
+                if (vehicle.Id != default)
+                {
+                    _userLogic.AddUserAccessToVehicle(GetUserID(), vehicle.Id);
+                }
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)})", "vehicle.add.api", User.Identity.Name, vehicle.Id.ToString()));
+                return Json(OperationResponse.Succeed("Vehicle Added", new { recordId = vehicle.Id }));
+            } catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
         #region PlanRecord
         [HttpGet]
         [Route("/api/vehicle/planrecords/all")]

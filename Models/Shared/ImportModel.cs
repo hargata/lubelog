@@ -201,4 +201,22 @@ namespace CarCareTracker.Models
         public string IsRequired { get; set; }
         public string FieldType { get; set; }
     }
+    public class VehicleImportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Year { get; set; }
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public string LicensePlate { get; set; }
+        public string Identifier { get; set; } = "LicensePlate";
+        public string FuelType { get; set; } = "Gasoline";
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string UseEngineHours { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string OdometerOptional { get; set; }
+        public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+    }
 }
