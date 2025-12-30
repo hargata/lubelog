@@ -3,7 +3,9 @@ using CsvHelper;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
 namespace CarCareTracker.Helper
 {
@@ -12,7 +14,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.6";
+        public const string VersionNumber = "1.5.7";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -939,6 +941,11 @@ namespace CarCareTracker.Helper
         {
             var shopSupplyEndpoints = new List<string> { "ImportToVehicleIdFromCsv", "GetSupplyRecordsByVehicleId", "ExportFromVehicleToCsv", "DuplicateRecordsToOtherVehicles", "PrintRecordStickers", "SupplyRecords", "AddSupplyRecord", "AddSupplyRecordJson" };
             return shopSupplyEndpoints.Contains(endpoint);
+        }
+        public static JsonSerializerOptions GetNoEncodingOption()
+        {
+            JsonSerializerOptions serializerOption = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) };
+            return serializerOption;
         }
     }
 }
