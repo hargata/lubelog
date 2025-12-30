@@ -169,7 +169,7 @@ namespace CarCareTracker.Controllers
             viewModel.ReportHeaderForVehicle.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
             viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
             viewModel.ReportHeaderForVehicle.MaxOdometer = maxMileage;
-            viewModel.ReportHeaderForVehicle.DistanceTraveled = maxMileage - minMileage;
+            viewModel.ReportHeaderForVehicle.DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled);
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -251,7 +251,7 @@ namespace CarCareTracker.Controllers
                 TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords),
                 AverageMPG = $"{averageMPG} {mpgUnit}",
                 MaxOdometer = maxMileage,
-                DistanceTraveled = maxMileage - minMileage
+                DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled)
             };
 
             return PartialView("_ReportHeader", viewModel);
