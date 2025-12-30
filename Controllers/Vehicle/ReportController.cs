@@ -164,7 +164,6 @@ namespace CarCareTracker.Controllers
             //report header
 
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
 
             viewModel.ReportHeaderForVehicle.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
             viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
@@ -244,7 +243,6 @@ namespace CarCareTracker.Controllers
             var mpgUnit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit;
 
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
 
             var viewModel = new ReportHeader()
             {
