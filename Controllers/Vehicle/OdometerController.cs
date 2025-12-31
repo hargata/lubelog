@@ -191,19 +191,20 @@ namespace CarCareTracker.Controllers
             {
                 return Json(result);
             }
-            int totalDistance = 0;
+            List<OdometerRecord> odometerRecords = new List<OdometerRecord>();
             foreach (int recordId in recordIds)
             {
-                var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
-                totalDistance += existingRecord.DistanceTraveled;
+                odometerRecords.Add(_odometerRecordDataAccess.GetOdometerRecordById(recordId));
             }
+            int totalDistance = odometerRecords.Sum(x => x.DistanceTraveled);
+            DateTime lastDate = odometerRecords.Max(x => x.Date);
             foreach (int vehicleId in vehicleIds)
             {
                 var currentOdometer = _vehicleLogic.GetMaxMileage(vehicleId);
                 var newOdometer = currentOdometer += totalDistance;
                 result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
-                    Date = DateTime.Now,
+                    Date = lastDate,
                     VehicleId = vehicleId,
                     Mileage = newOdometer,
                     Notes = "Auto Insert From Distance Export."
