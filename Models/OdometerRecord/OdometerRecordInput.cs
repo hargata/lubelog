@@ -11,7 +11,7 @@
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
-        public List<int> EquipmentId { get; set; } = new List<int>();
+        public List<int> EquipmentRecordId { get; set; } = new List<int>();
         public OdometerRecord ToOdometerRecord() { return new OdometerRecord { 
             Id = Id, 
             VehicleId = VehicleId, 
@@ -22,7 +22,7 @@
             Tags = Tags,
             ExtraFields = ExtraFields, 
             InitialMileage = InitialMileage,
-            EquipmentId = EquipmentId
+            EquipmentRecordId = EquipmentRecordId
         }; }
     }
 }

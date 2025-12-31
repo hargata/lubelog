@@ -29,6 +29,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
         private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
+        private readonly IEquipmentRecordDataAccess _equipmentRecordTemplateDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
@@ -64,7 +65,8 @@ namespace CarCareTracker.Controllers
             IWebHostEnvironment webEnv,
             IConfigHelper config,
             IInspectionRecordDataAccess inspectionRecordDataAccess,
-            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess)
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
+            IEquipmentRecordDataAccess equipmentRecordTemplateDataAccess)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -84,13 +86,14 @@ namespace CarCareTracker.Controllers
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _inspectionRecordDataAccess = inspectionRecordDataAccess;
             _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
+            _equipmentRecordTemplateDataAccess = equipmentRecordTemplateDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _extraFieldDataAccess = extraFieldDataAccess;
             _userLogic = userLogic;
             _odometerLogic = odometerLogic;
             _vehicleLogic = vehicleLogic;
             _webEnv = webEnv;
-            _config = config;
+            _config = config; 
         }
         private int GetUserID()
         {
@@ -167,6 +170,7 @@ namespace CarCareTracker.Controllers
                 _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
                 _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
                 _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
+                _equipmentRecordTemplateDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
                 _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
@@ -196,6 +200,7 @@ namespace CarCareTracker.Controllers
                     _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
                     _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
                     _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
+                    _equipmentRecordTemplateDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
                     _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                     _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                     _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
@@ -1084,7 +1089,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
                             existingRecord.Id = default;
-                            existingRecord.EquipmentId = new List<int>();
+                            existingRecord.EquipmentRecordId = new List<int>();
                             foreach (int vehicleId in vehicleIds)
                             {
                                 existingRecord.VehicleId = vehicleId;
