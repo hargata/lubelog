@@ -399,10 +399,15 @@ function duplicateDistanceToOtherVehicles(ids) {
     }
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
+            let appendHtml = data + `<div class='mt-2'>
+<div class='form-check form-check-inline'>
+<input type="checkbox" id="checkShiftOdometer" class="form-check-input me-1">
+<label for="checkShiftOdometer" class='form-check-label'>Shift Odometer</label>
+</div>`
             //prompt user to select a vehicle
             Swal.fire({
                 title: 'Duplicate Distance to Vehicle(s)',
-                html: data,
+                html: appendHtml,
                 confirmButtonText: 'Duplicate',
                 focusConfirm: false,
                 preConfirm: () => {
@@ -411,11 +416,12 @@ function duplicateDistanceToOtherVehicles(ids) {
                     if (selectedVehicleData.hasError) {
                         Swal.showValidationMessage(`You must select a vehicle`);
                     }
-                    return { selectedVehicleData }
+                    var shiftOdometer = $("#checkShiftOdometer").is(":checked");
+                    return { selectedVehicleData, shiftOdometer }
                 },
             }).then(function (result) {
                 if (result.isConfirmed) {
-                    $.post('/Vehicle/DuplicateDistanceToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids }, function (data) {
+                    $.post('/Vehicle/DuplicateDistanceToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, shiftOdometer: result.value.shiftOdometer }, function (data) {
                         if (data.success) {
                             successToast(`${ids.length} Record(s) Duplicated`);
                         } else {

@@ -184,7 +184,7 @@ namespace CarCareTracker.Controllers
         }
         [HttpPost]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { true, true, HouseholdPermission.Edit })]
-        public IActionResult DuplicateDistanceToOtherVehicles(List<int> recordIds, List<int> vehicleIds)
+        public IActionResult DuplicateDistanceToOtherVehicles(List<int> recordIds, List<int> vehicleIds, bool shiftOdometer)
         {
             bool result = false;
             if (!recordIds.Any() || !vehicleIds.Any())
@@ -202,12 +202,27 @@ namespace CarCareTracker.Controllers
             {
                 var currentOdometer = 0;
                 //get closest odometer record to the last date
-                var targetVehicleOdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x=>x.Date <= lastDate);
-                if (targetVehicleOdometerRecords.Any())
+                var targetVehicleOdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                var odometerRecordsBefore = targetVehicleOdometerRecords.Where(x=>x.Date <= lastDate);
+                if (odometerRecordsBefore.Any())
                 {
-                    currentOdometer = targetVehicleOdometerRecords.Max(x => x.Mileage);
+                    currentOdometer = odometerRecordsBefore.Max(x => x.Mileage);
                 }
                 var newOdometer = currentOdometer += totalDistance;
+                if (shiftOdometer)
+                {
+                    var odometerRecordsAfter = targetVehicleOdometerRecords.Where(x => x.Date > lastDate);
+                    //get any odometer records to shift
+                    if (odometerRecordsAfter.Any())
+                    {
+                        //shift these odometer records
+                        foreach (OdometerRecord odometerRecordToShift in odometerRecordsAfter)
+                        {
+                            odometerRecordToShift.Mileage += totalDistance;
+                            _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecordToShift);
+                        }
+                    }
+                }
                 result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = lastDate,
