@@ -208,7 +208,7 @@ namespace CarCareTracker.Controllers
                 {
                     currentOdometer = odometerRecordsBefore.Max(x => x.Mileage);
                 }
-                var newOdometer = currentOdometer += totalDistance;
+                var newOdometer = currentOdometer + totalDistance;
                 if (shiftOdometer)
                 {
                     var odometerRecordsAfter = targetVehicleOdometerRecords.Where(x => x.Date > lastDate);
@@ -223,10 +223,11 @@ namespace CarCareTracker.Controllers
                         }
                     }
                 }
-                result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(new OdometerRecord
                 {
-                    Date = lastDate,
                     VehicleId = vehicleId,
+                    Date = lastDate,
+                    InitialMileage = currentOdometer,
                     Mileage = newOdometer,
                     Notes = "Auto Insert From Distance Export."
                 });
