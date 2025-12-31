@@ -200,7 +200,13 @@ namespace CarCareTracker.Controllers
             DateTime lastDate = odometerRecords.Max(x => x.Date);
             foreach (int vehicleId in vehicleIds)
             {
-                var currentOdometer = _vehicleLogic.GetMaxMileage(vehicleId);
+                var currentOdometer = 0;
+                //get closest odometer record to the last date
+                var targetVehicleOdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId).Where(x=>x.Date <= lastDate);
+                if (targetVehicleOdometerRecords.Any())
+                {
+                    currentOdometer = targetVehicleOdometerRecords.Max(x => x.Mileage);
+                }
                 var newOdometer = currentOdometer += totalDistance;
                 result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
