@@ -29,7 +29,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
         private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
-        private readonly IEquipmentRecordDataAccess _equipmentRecordTemplateDataAccess;
+        private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
             IConfigHelper config,
             IInspectionRecordDataAccess inspectionRecordDataAccess,
             IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
-            IEquipmentRecordDataAccess equipmentRecordTemplateDataAccess)
+            IEquipmentRecordDataAccess equipmentRecordDataAccess)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -86,7 +86,7 @@ namespace CarCareTracker.Controllers
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _inspectionRecordDataAccess = inspectionRecordDataAccess;
             _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
-            _equipmentRecordTemplateDataAccess = equipmentRecordTemplateDataAccess;
+            _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _extraFieldDataAccess = extraFieldDataAccess;
             _userLogic = userLogic;
@@ -170,7 +170,7 @@ namespace CarCareTracker.Controllers
                 _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
                 _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
                 _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
-                _equipmentRecordTemplateDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
+                _equipmentRecordDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
                 _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                 _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                 _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
@@ -200,7 +200,7 @@ namespace CarCareTracker.Controllers
                     _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
                     _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
                     _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
-                    _equipmentRecordTemplateDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
+                    _equipmentRecordDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
                     _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
                     _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
                     _userLogic.DeleteAllAccessToVehicle(vehicleId) &&

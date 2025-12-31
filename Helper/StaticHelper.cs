@@ -453,6 +453,8 @@ namespace CarCareTracker.Helper
                     return "bi-bell";
                 case ImportMode.InspectionRecord:
                     return "bi-clipboard-check";
+                case ImportMode.EquipmentRecord:
+                    return "bi-disc";
                 default:
                     return "bi-file-bar-graph";
             }
