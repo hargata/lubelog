@@ -1084,6 +1084,7 @@ namespace CarCareTracker.Controllers
                         {
                             var existingRecord = _odometerRecordDataAccess.GetOdometerRecordById(recordId);
                             existingRecord.Id = default;
+                            existingRecord.EquipmentId = new List<int>();
                             foreach (int vehicleId in vehicleIds)
                             {
                                 existingRecord.VehicleId = vehicleId;

@@ -11,6 +11,18 @@
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
-        public OdometerRecord ToOdometerRecord() { return new OdometerRecord { Id = Id, VehicleId = VehicleId, Date = DateTime.Parse(Date), Mileage = Mileage, Notes = Notes, Files = Files, Tags = Tags, ExtraFields = ExtraFields, InitialMileage = InitialMileage }; }
+        public List<int> EquipmentId { get; set; } = new List<int>();
+        public OdometerRecord ToOdometerRecord() { return new OdometerRecord { 
+            Id = Id, 
+            VehicleId = VehicleId, 
+            Date = DateTime.Parse(Date), 
+            Mileage = Mileage, 
+            Notes = Notes, 
+            Files = Files, 
+            Tags = Tags,
+            ExtraFields = ExtraFields, 
+            InitialMileage = InitialMileage,
+            EquipmentId = EquipmentId
+        }; }
     }
 }

@@ -157,7 +157,8 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
-                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields)
+                ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.OdometerRecord).ExtraFields),
+                EquipmentId = result.EquipmentId
             };
             return PartialView("Odometer/_OdometerRecordModal", convertedResult);
         }

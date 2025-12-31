@@ -12,5 +12,6 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<int> EquipmentId { get; set; } = new List<int>();
     }
 }
