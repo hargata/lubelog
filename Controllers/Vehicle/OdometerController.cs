@@ -182,5 +182,39 @@ namespace CarCareTracker.Controllers
             var result = DeleteOdometerRecordWithChecks(odometerRecordId);
             return Json(result);
         }
+        [HttpPost]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { true, true, HouseholdPermission.Edit })]
+        public IActionResult DuplicateDistanceToOtherVehicles(List<int> recordIds, List<int> vehicleIds)
+        {
+            bool result = false;
+            if (!recordIds.Any() || !vehicleIds.Any())
+            {
+                return Json(result);
+            }
+            List<OdometerRecord> odometerRecords = new List<OdometerRecord>();
+            foreach (int recordId in recordIds)
+            {
+                odometerRecords.Add(_odometerRecordDataAccess.GetOdometerRecordById(recordId));
+            }
+            int totalDistance = odometerRecords.Sum(x => x.DistanceTraveled);
+            DateTime lastDate = odometerRecords.Max(x => x.Date);
+            foreach (int vehicleId in vehicleIds)
+            {
+                var currentOdometer = _vehicleLogic.GetMaxMileage(vehicleId);
+                var newOdometer = currentOdometer += totalDistance;
+                result = _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                {
+                    Date = lastDate,
+                    VehicleId = vehicleId,
+                    Mileage = newOdometer,
+                    Notes = "Auto Insert From Distance Export."
+                });
+            }
+            if (result)
+            {
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated distance from OdometerRecord - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.distance.to.vehicles", User.Identity.Name, string.Join(",", vehicleIds)));
+            }
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
+        }
     }
 }

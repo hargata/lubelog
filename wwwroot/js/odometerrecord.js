@@ -393,3 +393,39 @@ function checkTripRecorder() {
         $(".trip-show").removeClass('d-none');
     }
 }
+function duplicateDistanceToOtherVehicles(ids) {
+    if (ids.length == 0) {
+        return;
+    }
+    $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (data) {
+            //prompt user to select a vehicle
+            Swal.fire({
+                title: 'Duplicate Distance to Vehicle(s)',
+                html: data,
+                confirmButtonText: 'Duplicate',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedVehicleData = getAndValidateSelectedVehicle();
+                    if (selectedVehicleData.hasError) {
+                        Swal.showValidationMessage(`You must select a vehicle`);
+                    }
+                    return { selectedVehicleData }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Vehicle/DuplicateDistanceToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids }, function (data) {
+                        if (data.success) {
+                            successToast(`${ids.length} Record(s) Duplicated`);
+                        } else {
+                            errorToast(data.message);
+                        }
+                    });
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
