@@ -10,6 +10,7 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<OdometerRecord> OdometerRecords { get; set; } = new List<OdometerRecord>();
         public EquipmentRecord ToEquipmentRecord() {
             return new EquipmentRecord
             {

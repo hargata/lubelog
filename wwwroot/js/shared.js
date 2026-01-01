@@ -860,7 +860,8 @@ function getSavedCSVExportParameters(mode) {
 }
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
-    if (mode != 'PlanRecord') {
+    let bypassRecordTypes = ['PlanRecord', 'EquipmentRecord'];
+    if (!bypassRecordTypes.includes(mode)) {
         $.get('/Vehicle/GetCSVExportParameters', function (paramData) {
             if (paramData) {
                 Swal.fire({

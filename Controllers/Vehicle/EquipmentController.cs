@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
                 }
                 result.Add(viewModel);
             }
-            result = result.OrderByDescending(x => x.IsEquipped).ToList();
+            result = result.OrderByDescending(x => x.IsEquipped).ThenBy(x=>x.Description).ToList();
             return PartialView("Equipment/_EquipmentRecords", result);
         }
         [HttpPost]
@@ -71,6 +71,17 @@ namespace CarCareTracker.Controllers
             {
                 return Redirect("/Error/Unauthorized");
             }
+            var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(result.VehicleId);
+            var linkedOdometerRecords = odometerRecords.Where(x => x.EquipmentRecordId.Contains(equipmentRecordId));
+            bool _useDescending = _config.GetUserConfig(User).UseDescending;
+            if (_useDescending)
+            {
+                linkedOdometerRecords = linkedOdometerRecords.OrderByDescending(x => x.Date).ThenByDescending(x => x.Mileage).ToList();
+            }
+            else
+            {
+                linkedOdometerRecords = linkedOdometerRecords.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
+            }
             //convert to Input object.
             var convertedResult = new EquipmentRecordInput
             {
@@ -81,6 +92,7 @@ namespace CarCareTracker.Controllers
                 VehicleId = result.VehicleId,
                 Files = result.Files,
                 Tags = result.Tags,
+                OdometerRecords = linkedOdometerRecords.ToList(),
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.EquipmentRecord).ExtraFields)
             };
             return PartialView("Equipment/_EquipmentRecordModal", convertedResult);
@@ -100,7 +112,7 @@ namespace CarCareTracker.Controllers
             {
                 foreach(OdometerRecord linkedOdometerRecord in linkedOdometerRecords)
                 {
-                    linkedOdometerRecord.EquipmentRecordId.RemoveAll(x=>x ==  equipmentRecordId);
+                    linkedOdometerRecord.EquipmentRecordId.RemoveAll(x => x == equipmentRecordId);
                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(linkedOdometerRecord);
                 }
             }
@@ -112,9 +124,9 @@ namespace CarCareTracker.Controllers
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
-        public IActionResult DeleteEquipmentRecordById(int collisionRecordId)
+        public IActionResult DeleteEquipmentRecordById(int equipmentRecordId)
         {
-            var result = DeleteEquipmentRecordWithChecks(collisionRecordId);
+            var result = DeleteEquipmentRecordWithChecks(equipmentRecordId);
             return Json(result);
         }
     }

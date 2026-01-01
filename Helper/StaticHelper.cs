@@ -703,6 +703,33 @@ namespace CarCareTracker.Helper
                 _csv.NextRecord();
             }
         }
+        public static void WriteEquipmentRecordExportModel(CsvWriter _csv, IEnumerable<EquipmentRecordExportModel> genericRecords)
+        {
+            var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
+            //write headers
+            _csv.WriteField(nameof(EquipmentRecordExportModel.Description));
+            _csv.WriteField(nameof(EquipmentRecordExportModel.Notes));
+            _csv.WriteField(nameof(EquipmentRecordExportModel.Tags));
+            _csv.WriteField(nameof(EquipmentRecordExportModel.IsEquipped));
+            foreach (string extraHeader in extraHeaders)
+            {
+                _csv.WriteField($"extrafield_{extraHeader}");
+            }
+            _csv.NextRecord();
+            foreach (EquipmentRecordExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Tags);
+                _csv.WriteField(genericRecord.IsEquipped);
+                foreach (string extraHeader in extraHeaders)
+                {
+                    var extraField = genericRecord.ExtraFields.Where(x => x.Name == extraHeader).FirstOrDefault();
+                    _csv.WriteField(extraField != null ? extraField.Value : string.Empty);
+                }
+                _csv.NextRecord();
+            }
+        }
         public static void WriteAttachmentExportModel(CsvWriter _csv, IEnumerable<AttachmentExportModel> genericRecords)
         {
             //write headers

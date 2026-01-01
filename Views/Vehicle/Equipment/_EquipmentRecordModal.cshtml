@@ -50,6 +50,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.OdometerRecords.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleOdometerHistory()"><i class="bi bi-speedometer"></i></button>
+        }
         <button type="button" class="btn btn-danger" onclick="deleteEquipmentRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddEquipmentRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
@@ -62,6 +66,7 @@
         <button type="button" class="btn btn-primary" onclick="saveEquipmentRecordToVehicle(true)">@translator.Translate(userLanguage, "Edit Equipment Record")</button>
     }
 </div>
+@await Html.PartialAsync("Odometer/_OdometerHistory", Model.OdometerRecords)
 <script>
     function getEquipmentRecordModelData() {
         return { id: @Model.Id}

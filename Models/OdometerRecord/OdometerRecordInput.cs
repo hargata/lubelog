@@ -12,6 +12,7 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<int> EquipmentRecordId { get; set; } = new List<int>();
+        public List<EquipmentRecord> EquipmentRecords { get; set; } = new List<EquipmentRecord>();
         public OdometerRecord ToOdometerRecord() { return new OdometerRecord { 
             Id = Id, 
             VehicleId = VehicleId, 

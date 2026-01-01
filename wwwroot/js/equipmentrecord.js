@@ -114,3 +114,11 @@ function getAndValidateEquipmentRecordValues() {
         extraFields: extraFields.extraFields
     }
 }
+function toggleOdometerHistory() {
+    let odometerHistoryContainer = $("#odometerHistoryModalContainer");
+    if (odometerHistoryContainer.hasClass('d-none')) {
+        odometerHistoryContainer.removeClass('d-none');
+    } else {
+        odometerHistoryContainer.addClass('d-none');
+    }
+}

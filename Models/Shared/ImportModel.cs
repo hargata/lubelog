@@ -30,6 +30,7 @@ namespace CarCareTracker.Models
         public string PartSupplier { get; set; }
         public string PartQuantity { get; set; }
         public string Tags { get; set; }
+        public string IsEquipped { get; set; }
         public Dictionary<string,string> ExtraFields {get;set;}
     }
 
@@ -114,6 +115,18 @@ namespace CarCareTracker.Models
         public string IsFillToFull { get; set; }
         [JsonConverter(typeof(FromBoolOptional))]
         public string MissedFuelUp { get; set; }
+        public string Notes { get; set; }
+        public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+    }
+    public class EquipmentRecordExportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        public string Description { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsEquipped { get; set; }
         public string Notes { get; set; }
         public string Tags { get; set; }
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
