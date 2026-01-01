@@ -815,6 +815,15 @@ function loadGlobalSearchResult(recordId, recordType) {
                     }
                     $('#inspection-tab').tab('show');
                     waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
+                    break;
+                case "EquipmentRecord":
+                    if ($('#equipment-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#equipment-tab').tab('show');
+                    waitForElement("#equipmentRecordModalContent", showEditEquipmentRecordModal, recordId);
+                    break;
             }
         } else {
             errorToast(data.message);
