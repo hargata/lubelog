@@ -454,6 +454,19 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.EquipmentRecord:
+                        {
+                            var results = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                            if (caseSensitive)
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x, serializerOption).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.EquipmentRecord, Description = $"{x.Description}" }));
+                            }
+                            else
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x, serializerOption).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.EquipmentRecord, Description = $"{x.Description}" }));
+                            }
+                        }
+                        break;
                 }
             }
             return PartialView("_GlobalSearchResult", searchResults);
@@ -542,6 +555,13 @@ namespace CarCareTracker.Controllers
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
+                    case ImportMode.EquipmentRecord:
+                        {
+                            var results = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.EquipmentRecord, Description = $"{x.Description}" }));
+                        }
+                        break;
                 }
             }
             return PartialView("_MapSearchResult", searchResults);
@@ -610,6 +630,11 @@ namespace CarCareTracker.Controllers
                     {
                         var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
                         return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Inspection Record Not Found"));
+                    }
+                case ImportMode.EquipmentRecord:
+                    {
+                        var results = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Equipment Record Not Found"));
                     }
             }
             return Json(OperationResponse.Failed("Record Not Found"));
@@ -769,6 +794,9 @@ namespace CarCareTracker.Controllers
                         break;
                     case ImportMode.InspectionRecord:
                         result = DeleteInspectionRecordWithChecks(recordId);
+                        break;
+                    case ImportMode.EquipmentRecord:
+                        result = DeleteEquipmentRecordWithChecks(recordId);
                         break;
                 }
             }
@@ -984,6 +1012,18 @@ namespace CarCareTracker.Controllers
                             result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
                         }
                         break;
+                    case ImportMode.EquipmentRecord:
+                        {
+                            var existingRecord = _equipmentRecordDataAccess.GetEquipmentRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
+                            existingRecord.Id = default;
+                            result = _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(existingRecord);
+                        }
+                        break;
                 }
             }
             if (result)
@@ -1130,6 +1170,17 @@ namespace CarCareTracker.Controllers
                             {
                                 existingRecord.VehicleId = vehicleId;
                                 result = _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.EquipmentRecord:
+                        {
+                            var existingRecord = _equipmentRecordDataAccess.GetEquipmentRecordById(recordId);
+                            existingRecord.Id = default;
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(existingRecord);
                             }
                         }
                         break;

@@ -87,6 +87,7 @@ function getAndValidateEquipmentRecordValues() {
     var equipmentDescription = $("#equipmentRecordDescription").val();
     var equipmentNotes = $("#equipmentRecordNotes").val();
     var equipmentTags = $("#equipmentRecordTag").val();
+    var equipmentIsEquipped = $("#equipmentEquippedCheck").is(":checked");
     var vehicleId = GetVehicleId().vehicleId;
     var equipmentRecordId = getEquipmentRecordModelData().id;
     //validation
@@ -106,6 +107,7 @@ function getAndValidateEquipmentRecordValues() {
         hasError: hasError,
         vehicleId: vehicleId,
         description: equipmentDescription,
+        isEquipped: equipmentIsEquipped,
         notes: equipmentNotes,
         files: uploadedFiles,
         tags: equipmentTags,
