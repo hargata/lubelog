@@ -26,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
         private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
         private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
+        private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
@@ -55,6 +56,7 @@ namespace CarCareTracker.Controllers
             IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
             IInspectionRecordDataAccess inspectionRecordDataAccess,
             IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
+            IEquipmentRecordDataAccess equipmentRecordDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
             IExtraFieldDataAccess extraFieldDataAccess,
@@ -81,6 +83,7 @@ namespace CarCareTracker.Controllers
             _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
             _inspectionRecordDataAccess = inspectionRecordDataAccess;
             _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
+            _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
             _extraFieldDataAccess = extraFieldDataAccess;
@@ -1683,7 +1686,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags), EquipmentRecordId = string.Join(' ', x.EquipmentRecordId) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -1727,7 +1730,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new OdometerRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), InitialOdometer = x.InitialMileage.ToString(), Odometer = x.Mileage.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags), EquipmentRecordId = string.Join(' ', x.EquipmentRecordId) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -1766,6 +1769,36 @@ namespace CarCareTracker.Controllers
             {
                 input.ExtraFields = new List<ExtraField>();
             }
+            var equipmentRecordId = new List<int>();
+            //validate equipment record ids
+            if (!string.IsNullOrWhiteSpace(input.EquipmentRecordId))
+            {
+                var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                if (!equipmentRecords.Any())
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {input.EquipmentRecordId} does not exist."));
+                }
+                var equipmentRecordIds = input.EquipmentRecordId.Split(' ').Distinct().ToList();
+                foreach(string equipmentRecordIdToAdd in equipmentRecordIds)
+                {
+                    if (int.TryParse(equipmentRecordIdToAdd, out int cleanEquipmentRecordId))
+                    {
+                        equipmentRecordId.Add(cleanEquipmentRecordId);
+                    } else
+                    {
+                        Response.StatusCode = 400;
+                        return Json(OperationResponse.Failed($"Input object invalid, equipment id {cleanEquipmentRecordId} is not valid."));
+                    }
+                }
+                var equipmentRecordIdsToCompare = equipmentRecords.Select(x => x.Id);
+                var invalidEquipmentRecordIds = equipmentRecordId.Where(x => !equipmentRecordIdsToCompare.Contains(x));
+                if (invalidEquipmentRecordIds.Any())
+                {
+                    Response.StatusCode = 400;
+                    return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {string.Join(' ', invalidEquipmentRecordIds)} does not exist."));
+                }
+            }
             try
             {
                 var odometerRecord = new OdometerRecord()
@@ -1777,7 +1810,8 @@ namespace CarCareTracker.Controllers
                     Mileage = int.Parse(input.Odometer),
                     ExtraFields = input.ExtraFields,
                     Files = input.Files,
-                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList(),
+                    EquipmentRecordId = equipmentRecordId
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
                 StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity.Name));
@@ -1847,6 +1881,37 @@ namespace CarCareTracker.Controllers
                         Response.StatusCode = 401;
                         return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
                     }
+                    var equipmentRecordId = new List<int>();
+                    //validate equipment record ids
+                    if (!string.IsNullOrWhiteSpace(input.EquipmentRecordId))
+                    {
+                        var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(existingRecord.VehicleId);
+                        if (!equipmentRecords.Any())
+                        {
+                            Response.StatusCode = 400;
+                            return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {input.EquipmentRecordId} does not exist."));
+                        }
+                        var equipmentRecordIds = input.EquipmentRecordId.Split(' ').Distinct().ToList();
+                        foreach (string equipmentRecordIdToAdd in equipmentRecordIds)
+                        {
+                            if (int.TryParse(equipmentRecordIdToAdd, out int cleanEquipmentRecordId))
+                            {
+                                equipmentRecordId.Add(cleanEquipmentRecordId);
+                            }
+                            else
+                            {
+                                Response.StatusCode = 400;
+                                return Json(OperationResponse.Failed($"Input object invalid, equipment id {cleanEquipmentRecordId} is not valid."));
+                            }
+                        }
+                        var equipmentRecordIdsToCompare = equipmentRecords.Select(x => x.Id);
+                        var invalidEquipmentRecordIds = equipmentRecordId.Where(x => !equipmentRecordIdsToCompare.Contains(x));
+                        if (invalidEquipmentRecordIds.Any())
+                        {
+                            Response.StatusCode = 400;
+                            return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {string.Join(' ', invalidEquipmentRecordIds)} does not exist."));
+                        }
+                    }
                     existingRecord.Date = DateTime.Parse(input.Date);
                     existingRecord.Mileage = int.Parse(input.Odometer);
                     existingRecord.InitialMileage = int.Parse(input.InitialOdometer);
@@ -1854,6 +1919,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    existingRecord.EquipmentRecordId = equipmentRecordId;
                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
                     StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity.Name));
                 }
@@ -2927,6 +2993,7 @@ namespace CarCareTracker.Controllers
                     vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                     vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                    vehicleDocuments.AddRange(_equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 }
                 //shop supplies
                 vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
