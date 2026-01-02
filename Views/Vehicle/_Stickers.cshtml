@@ -178,6 +178,101 @@
         </div>
     }
     <script>setMarkDownStickerNotes()</script>
+} else if (Model.EquipmentRecords.Any())
+{
+    @foreach (EquipmentRecordStickerViewModel equipmentRecord in Model.EquipmentRecords)
+    {
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        @if (!string.IsNullOrWhiteSpace(equipmentRecord.Description))
+                        {
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {equipmentRecord.Description}")
+                            </li>
+                        }
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Distance")}: {equipmentRecord.Distance}")
+                        </li>
+                        @if (equipmentRecord.IsEquipped)
+                        {
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Equipped")}:")<i class="bi ms-2 bi-check-lg"></i>
+                            </li>
+                        }
+                        @foreach (ExtraField extraField in equipmentRecord.ExtraFields)
+                        {
+                            <li class="list-group-item">
+                                @($"{extraField.Name}: {extraField.Value}")
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            @if (equipmentRecord.OdometerRecords.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-hover">
+                            <thead class="sticky-top">
+                                <tr class="d-flex">
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Date")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Initial Odometer")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Odometer")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Distance")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (OdometerRecord odometerHistory in equipmentRecord.OdometerRecords)
+                                {
+                                    <tr class="d-flex">
+                                        <td class="col-3">@StaticHelper.TruncateStrings(odometerHistory.Date.ToShortDateString())</td>
+                                        <td class="col-3">@odometerHistory.InitialMileage</td>
+                                        <td class="col-3">@odometerHistory.Mileage</td>
+                                        <td class="col-3">@(odometerHistory.DistanceTraveled == default ? "---" : odometerHistory.DistanceTraveled)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+            }
+            <div class="row stickerNoteContainer">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(equipmentRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
 } else if (Model.SupplyRecords.Any()){
     @foreach (SupplyRecord supplyRecord in Model.SupplyRecords)
     {

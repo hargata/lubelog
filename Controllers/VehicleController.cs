@@ -1499,7 +1499,6 @@ namespace CarCareTracker.Controllers
                             stickerViewModel.GenericRecords.Add(_serviceRecordDataAccess.GetServiceRecordById(recordId));
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.RepairRecord:
@@ -1535,7 +1534,6 @@ namespace CarCareTracker.Controllers
                             });
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.TaxRecord:
@@ -1577,7 +1575,6 @@ namespace CarCareTracker.Controllers
                             });
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.OdometerRecord:
@@ -1594,7 +1591,6 @@ namespace CarCareTracker.Controllers
                             });
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.ReminderRecord:
@@ -1604,7 +1600,6 @@ namespace CarCareTracker.Controllers
                             stickerViewModel.ReminderRecords.Add(_reminderRecordDataAccess.GetReminderRecordById(recordId));
                             recordsAdded++;
                         }
-
                     }
                     break;
                 case ImportMode.PlanRecord:
@@ -1630,6 +1625,15 @@ namespace CarCareTracker.Controllers
                     {
                         var record = _inspectionRecordDataAccess.GetInspectionRecordById(recordId);
                         stickerViewModel.InspectionRecords.Add(record);
+                        recordsAdded++;
+                    }
+                    break;
+                case ImportMode.EquipmentRecord:
+                    var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                    foreach (int recordId in recordIds)
+                    {
+                        var record = _equipmentRecordDataAccess.GetEquipmentRecordById(recordId);
+                        stickerViewModel.EquipmentRecords.Add(_equipmentHelper.GetEquipmentRecordStickerViewModel(record, odometerRecords));
                         recordsAdded++;
                     }
                     break;
