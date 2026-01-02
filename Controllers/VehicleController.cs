@@ -34,6 +34,7 @@ namespace CarCareTracker.Controllers
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
         private readonly IGasHelper _gasHelper;
+        private readonly IEquipmentHelper _equipmentHelper;
         private readonly IReminderHelper _reminderHelper;
         private readonly IReportHelper _reportHelper;
         private readonly IUserLogic _userLogic;
@@ -44,6 +45,7 @@ namespace CarCareTracker.Controllers
         public VehicleController(ILogger<VehicleController> logger,
             IFileHelper fileHelper,
             IGasHelper gasHelper,
+            IEquipmentHelper equipmentHelper,
             IReminderHelper reminderHelper,
             IReportHelper reportHelper,
             IVehicleDataAccess dataAccess,
@@ -73,6 +75,7 @@ namespace CarCareTracker.Controllers
             _noteDataAccess = noteDataAccess;
             _fileHelper = fileHelper;
             _gasHelper = gasHelper;
+            _equipmentHelper = equipmentHelper;
             _reminderHelper = reminderHelper;
             _reportHelper = reportHelper;
             _serviceRecordDataAccess = serviceRecordDataAccess;

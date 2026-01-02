@@ -91,6 +91,7 @@ else
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
+builder.Services.AddSingleton<IEquipmentHelper, EquipmentHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();

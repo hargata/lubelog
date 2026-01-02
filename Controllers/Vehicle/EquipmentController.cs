@@ -15,27 +15,7 @@ namespace CarCareTracker.Controllers
             var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
             //convert to viewmodel and calculate sum of distance traveled
             var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
-            foreach(EquipmentRecord equipmentRecord in equipmentRecords)
-            {
-                var viewModel = new EquipmentRecordViewModel
-                {
-                    Id = equipmentRecord.Id,
-                    VehicleId = equipmentRecord.VehicleId,
-                    Description = equipmentRecord.Description,
-                    IsEquipped = equipmentRecord.IsEquipped,
-                    Notes = equipmentRecord.Notes,
-                    Tags = equipmentRecord.Tags,
-                    Files = equipmentRecord.Files,
-                    ExtraFields = equipmentRecord.ExtraFields,
-                    DistanceTraveled = 0
-                };
-                var linkedOdometerRecords = odometerRecords.Where(x => x.EquipmentRecordId.Contains(equipmentRecord.Id));
-                if (linkedOdometerRecords.Any())
-                {
-                    viewModel.DistanceTraveled = linkedOdometerRecords.Sum(x => x.DistanceTraveled);
-                }
-                result.Add(viewModel);
-            }
+            result = _equipmentHelper.GetEquipmentRecordViewModels(equipmentRecords, odometerRecords);
             result = result.OrderByDescending(x => x.IsEquipped).ThenBy(x=>x.Description).ToList();
             return PartialView("Equipment/_EquipmentRecords", result);
         }
