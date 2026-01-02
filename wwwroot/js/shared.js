@@ -860,7 +860,8 @@ function getSavedCSVExportParameters(mode) {
 }
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
-    if (mode != 'PlanRecord') {
+    let bypassRecordTypes = ['PlanRecord', 'EquipmentRecord'];
+    if (!bypassRecordTypes.includes(mode)) {
         $.get('/Vehicle/GetCSVExportParameters', function (paramData) {
             if (paramData) {
                 Swal.fire({
@@ -1056,6 +1057,11 @@ function deleteRecords(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Records";
             refreshDataCallBack = getVehicleInspectionRecords;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     Swal.fire({
@@ -1133,6 +1139,11 @@ function duplicateRecords(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Record";
             refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     Swal.fire({
@@ -1210,6 +1221,11 @@ function duplicateRecordsToOtherVehicles(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Record";
             refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {

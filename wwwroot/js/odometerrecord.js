@@ -98,6 +98,7 @@ function getAndValidateOdometerRecordValues() {
     var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var odometerRecordId = getOdometerRecordModelData().id;
+    var odometerEquipment = getSelectedEquipment();
     //Odometer Adjustments
     serviceMileage = GetAdjustedOdometer(odometerRecordId, serviceMileage);
     //validation
@@ -134,7 +135,8 @@ function getAndValidateOdometerRecordValues() {
         notes: serviceNotes,
         tags: serviceTags,
         files: uploadedFiles,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        equipmentRecordId: odometerEquipment
     }
 }
 
@@ -156,7 +158,8 @@ function editMultipleOdometerRecords(ids) {
     if (ids.length < 2) {
         return;
     }
-    $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids }, function (data) {
+    let vehicleId = GetVehicleId().vehicleId;
+    $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids, vehicleId: vehicleId }, function (data) {
         if (data) {
             $("#odometerRecordModalContent").html(data);
             //initiate datepicker
@@ -175,6 +178,8 @@ function saveMultipleOdometerRecordsToVehicle() {
     var odometerNotes = $("#odometerRecordNotes").val();
     var odometerTags = $("#odometerRecordTag").val();
     var odometerExtraFields = getAndValidateExtraFields();
+    let odometerEditEquipment = $('#equipmentEditCheck').is(':checked');
+    let odometerEquipment = getSelectedEquipment();
     //validation
     var hasError = false;
     if (odometerMileage.trim() != '' && (isNaN(odometerMileageToParse) || parseInt(odometerMileageToParse) < 0)) {
@@ -195,13 +200,15 @@ function saveMultipleOdometerRecordsToVehicle() {
     }
     var formValues = {
         recordIds: recordsToEdit,
+        editEquipment: odometerEditEquipment,
         editRecord: {
             date: odometerDate,
             initialMileage: initialOdometerMileageToParse,
             mileage: odometerMileageToParse,
             notes: odometerNotes,
             tags: odometerTags,
-            extraFields: odometerExtraFields.extraFields
+            extraFields: odometerExtraFields.extraFields,
+            equipmentRecordId: odometerEquipment
         }
     }
     $.post('/Vehicle/SaveMultipleOdometerRecords', { editModel: formValues }, function (data) {
@@ -434,4 +441,18 @@ function duplicateDistanceToOtherVehicles(ids) {
             errorToast(genericErrorMessage());
         }
     })
+}
+function getSelectedEquipment() {
+    var selectedEquipmentArray = [];
+    $("#equipmentSelector :checked").map(function () {
+        selectedEquipmentArray.push(this.value);
+    });
+    return selectedEquipmentArray;
+}
+function toggleEquipmentEdit() {
+    if ($('#equipmentEditCheck').is(":checked")) {
+        $('#equipmentEditContainer').removeClass('d-none');
+    } else {
+        $('#equipmentEditContainer').addClass('d-none');
+    }
 }
