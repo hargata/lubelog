@@ -404,17 +404,12 @@ function duplicateDistanceToOtherVehicles(ids) {
     if (ids.length == 0) {
         return;
     }
-    $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+    $.get(`/Home/GetVehicleSelectorOdometer?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
-            let appendHtml = data + `<div class='mt-2'>
-<div class='form-check form-check-inline'>
-<input type="checkbox" id="checkShiftOdometer" class="form-check-input me-1">
-<label for="checkShiftOdometer" class='form-check-label'>Shift Odometer</label>
-</div>`
             //prompt user to select a vehicle
             Swal.fire({
                 title: 'Duplicate Distance to Vehicle(s)',
-                html: appendHtml,
+                html: data,
                 confirmButtonText: 'Duplicate',
                 focusConfirm: false,
                 preConfirm: () => {

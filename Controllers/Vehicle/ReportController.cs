@@ -431,6 +431,50 @@ namespace CarCareTracker.Controllers
                     Files = x.Files
                 }));
             }
+            if (exportTabs.Contains(ImportMode.PlanRecord))
+            {
+                var records = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.PlanRecord,
+                    Date = x.DateCreated,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.SupplyRecord))
+            {
+                var records = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.SupplyRecord,
+                    Date = x.Date,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.InspectionRecord))
+            {
+                var records = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.InspectionRecord,
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.EquipmentRecord))
+            {
+                var records = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.EquipmentRecord,
+                    Date = DateTime.Now,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
             if (attachmentData.Any())
             {
                 attachmentData = attachmentData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
@@ -781,6 +825,11 @@ namespace CarCareTracker.Controllers
         {
             var widgets = _fileHelper.GetWidgets();
             return PartialView("_ReportWidgets", widgets);
+        }
+        [HttpGet]
+        public IActionResult GetImportModeSelector()
+        {
+            return PartialView("_ImportModeSelector");
         }
     }
 }

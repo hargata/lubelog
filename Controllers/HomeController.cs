@@ -577,6 +577,24 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_VehicleSelector", vehiclesStored);
         }
+        public ActionResult GetVehicleSelectorOdometer(int vehicleId)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            if (vehicleId != default)
+            {
+                vehiclesStored.RemoveAll(x => x.Id == vehicleId);
+            }
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            return PartialView("_VehicleSelectorOdometer", vehiclesStored);
+        }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public IActionResult GetCustomWidgetEditor()
