@@ -3,6 +3,12 @@
     ViewData["Title"] = "API";
 }
 @inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<APIDocumentation>
 @section Nav {
     <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
         <div class="row mt-2">
@@ -17,1106 +23,138 @@
         <hr />
     </div>
 }
-<div style="overflow-x:hidden;">
-    <div class="row">
-        <div class="col-1">
-            <h6>Method</h6>
-        </div>
-        <div class="col-5 copyable">
-            <h6>Endpoint</h6>
-        </div>
-        <div class="col-3">
-            <h6>Description</h6>
-        </div>
-        <div class="col-3">
-            <h6>Parameters</h6>
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/whoami</code>
-        </div>
-        <div class="col-3">
-            Returns information for current user
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/version</code>
-        </div>
-        <div class="col-3">
-            Returns current version of LubeLogger and checks for updates
-        </div>
-        <div class="col-3">
-            CheckForUpdate(bool) - checks for update(optional)
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/vehicles</code>
-        </div>
-        <div class="col-3">
-            Returns a list of vehicles
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicles/add</code>
-        </div>
-        <div class="col-3">
-            Adds a vehicle
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            year - Year of the vehicle<br />
-            make - Make of the vehicle<br />
-            model - Model of the vehicle<br />
-            identifier - vehicle identifier(default: LicensePlate)<br />
-            licensePlate - required if identifier is LicensePlate<br />
-            fuelType - Gasoline/Diesel/Eletric<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br/>
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicles/update</code>
-        </div>
-        <div class="col-3">
-            Updates a vehicle
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            id - Id of Vehicle<br/>
-            year - Year of the vehicle<br />
-            make - Make of the vehicle<br />
-            model - Model of the vehicle<br />
-            identifier - vehicle identifier(default: LicensePlate)<br />
-            licensePlate - required if identifier is LicensePlate<br />
-            fuelType - Gasoline/Diesel/Eletric<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/vehicle/info</code>
-        </div>
-        <div class="col-3">
-            Returns details for list of vehicles or specific vehicle
-        </div>
-        <div class="col-3">
-            VehicleId - Id of Vehicle(optional)
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/adjustedodometer</code>
-        </div>
-        <div class="col-3">
-            Returns odometer reading with adjustments applied
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            odometer - Unadjusted odometer
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of odometer records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of odometer records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords/latest</code>
-        </div>
-        <div class="col-3">
-            Returns last reported odometer for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Odometer Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            initialOdometer - Initial Odometer reading(optional)<br />
-            odometer - Odometer reading<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            equipmentRecordId - equipment ids separated by space(optional) <br/>    
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Odometer Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Odometer Record<br />
-            date - Date to be entered<br />
-            initialOdometer - Initial Odometer reading<br />
-            odometer - Odometer reading<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            equipmentRecordId - equipment ids separated by space(optional) <br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/odometerrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Odometer Record
-        </div>
-        <div class="col-3">
-            Id - Id of Odometer Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/planrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of plan records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/planrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of plan records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/planrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Plan Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            description - Description<br />
-            cost - Cost<br />
-            type - ServiceRecord/RepairRecord/UpgradeRecord<br />
-            priority - Low/Normal/Critical<br />
-            progress - Backlog/InProgress/Testing<br />
-            notes - notes(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/planrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Plan Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Plan Record<br />
-            description - Description<br />
-            cost - Cost<br />
-            type - ServiceRecord/RepairRecord/UpgradeRecord<br />
-            priority - Low/Normal/Critical<br />
-            progress - Backlog/InProgress/Testing<br />
-            notes - notes(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/planrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Plan Record
-        </div>
-        <div class="col-3">
-            Id - Id of Plan Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/servicerecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of service records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/servicerecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of service records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/servicerecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Service Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/servicerecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Service Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Service Record<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/servicerecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Service Record
-        </div>
-        <div class="col-3">
-            Id - Id of Service Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/repairrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of repair records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/repairrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of repair records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/repairrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Repair Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/repairrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Repair Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Repair Record <br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/repairrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Repair Record
-        </div>
-        <div class="col-3">
-            Id - Id of Repair Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/upgraderecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of upgrade records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/upgraderecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of upgrade records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/upgraderecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Upgrade Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/upgraderecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Upgrade Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Upgrade Record<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/upgraderecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Upgrade Record
-        </div>
-        <div class="col-3">
-            Id - Id of Upgrade Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/supplyrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of supply records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/supplyrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of supply records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/supplyrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Supply Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            partNumber - Part number(optional)<br />
-            partSupplier - Part supplier(optional)<br />
-            partQuantity - Part quantity<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/supplyrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Supply Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Supply Record<br />
-            date - Date to be entered<br />
-            partNumber - Part number(optional)<br />
-            partSupplier - Part supplier(optional)<br />
-            partQuantity - Part quantity<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/supplyrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Supply Record
-        </div>
-        <div class="col-3">
-            Id - Id of Supply Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/taxrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of tax records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/taxrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of tax records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/vehicle/taxrecords/check</code>
-        </div>
-        <div class="col-3">
-            Updates Outdated Recurring Tax Records
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/taxrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Tax Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/taxrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Tax Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Tax Record<br />
-            date - Date to be entered<br />
-            description - Description<br />
-            cost - Cost<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/taxrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Tax Record
-        </div>
-        <div class="col-3">
-            Id - Id of Tax Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/gasrecords/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of gas records for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            useMPG(bool) - Use Imperial Units and Calculation
-            <br />
-            useUKMPG(bool) - Use UK Imperial Calculation
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/gasrecords</code>
-        </div>
-        <div class="col-3">
-            Returns a list of gas records for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            useMPG(bool) - Use Imperial Units and Calculation
-            <br />
-            useUKMPG(bool) - Use UK Imperial Calculation
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/gasrecords/add</code>
-        </div>
-        <div class="col-3">
-            Adds Gas Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            fuelConsumed - Fuel Consumed<br />
-            cost - Cost<br />
-            isFillToFull(bool) - Filled To Full<br />
-            missedFuelUp(bool) - Missed Fuel Up<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/gasrecords/update</code>
-        </div>
-        <div class="col-3">
-            Updates Gas Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Gas Record<br />
-            date - Date to be entered<br />
-            odometer - Odometer reading<br />
-            fuelConsumed - Fuel Consumed<br />
-            cost - Cost<br />
-            isFillToFull(bool) - Filled To Full<br />
-            missedFuelUp(bool) - Missed Fuel Up<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            extrafields - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showExtraFieldsInfo()">extrafields(optional)</a><br />
-            files - <a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover reminder-calendar-item" onclick="showAttachmentsInfo()">attachments(optional)</a><br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/gasrecords/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Gas Record
-        </div>
-        <div class="col-3">
-            Id - Id of Gas Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/reminders/all</code>
-        </div>
-        <div class="col-3">
-            Returns a list of reminders for all vehicles in the garage
-        </div>
-        <div class="col-3">
-            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)<br />
-            tags - tags separated by space(optional)
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/reminders</code>
-        </div>
-        <div class="col-3">
-            Returns a list of reminders for the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle<br />
-            urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)<br />
-            tags - tags separated by space(optional)
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/reminders/add</code>
-        </div>
-        <div class="col-3">
-            Adds Reminder Record to the vehicle
-        </div>
-        <div class="col-3">
-            vehicleId - Id of Vehicle
-            <br />
-            Body(form-data): {<br />
-            description - Description<br />
-            dueDate - Due Date<br />
-            dueOdometer - Due Odometer reading<br />
-            metric - Date/Odometer/Both<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-warning">PUT</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/reminders/update</code>
-        </div>
-        <div class="col-3">
-            Updates Reminder Record
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            Id - Id of Reminder Record<br />
-            description - Description<br />
-            dueDate - Due Date<br />
-            dueOdometer - Due Odometer reading<br />
-            metric - Date/Odometer/Both<br />
-            notes - notes(optional)<br />
-            tags - tags separated by space(optional)<br />
-            }
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge text-bg-danger">DELETE</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/vehicle/reminders/delete</code>
-        </div>
-        <div class="col-3">
-            Deletes Reminder Record
-        </div>
-        <div class="col-3">
-            Id - Id of Reminder Record
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/calendar</code>
-        </div>
-        <div class="col-3">
-            Returns reminder calendar in ICS format
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-success">GET</span>
-        </div>
-        <div class="col-5 copyable testable">
-            <code>/api/extrafields</code>
-        </div>
-        <div class="col-3">
-            Returns extra fields configured
-        </div>
-        <div class="col-3">
-            No Params
-        </div>
-    </div>
-    <div class="row api-method">
-        <div class="col-1">
-            <span class="badge bg-primary">POST</span>
-        </div>
-        <div class="col-5 copyable">
-            <code>/api/documents/upload</code>
-        </div>
-        <div class="col-3">
-            Upload Documents
-        </div>
-        <div class="col-3">
-            Body(form-data): {<br />
-            documents[] - Files to Upload<br />
-            }
-        </div>
-    </div>
-    @if (User.IsInRole(nameof(UserData.IsRootUser)))
-    {
-        <div class="row api-method">
-            <div class="col-1">
-                <span class="badge bg-success">GET</span>
-            </div>
-            <div class="col-5 copyable testable">
-                <code>/api/vehicle/reminders/send</code>
-            </div>
-            <div class="col-3">
-                Send reminder emails out to collaborators based on specified urgency.
-            </div>
-            <div class="col-3">
-                (must be root user)<br />
-                urgencies[]=[NotUrgent,Urgent,VeryUrgent,PastDue](optional)<br />
-                tags - tags separated by space(optional)
+@foreach(APIDocumentation apiDoc in Model)
+{
+    <div class="apiContainer">
+        <div style="cursor:pointer" class="collapsed" onclick="toggleAPICollapse(this)">
+            <div class="d-flex justify-content-between">
+                <span class="display-6">@apiDoc.CategoryName</span>
+                <span class="display-6 api-chevron"><i class="bi bi-chevron-up"></i></span>
             </div>
         </div>
-        <div class="row api-method">
-            <div class="col-1">
-                <span class="badge bg-success">GET</span>
-            </div>
-            <div class="col-5 copyable testable">
-                <code>/api/makebackup</code>
-            </div>
-            <div class="col-3">
-                Creates a snapshot/backup of the DB at the time and returns a URL to download it.
-            </div>
-            <div class="col-3">
-                No Params(must be root user)
-            </div>
+        <hr />
+        <div class="collapse">
+            @foreach(APIMethod apiMethod in apiDoc.Methods)
+            {
+                <div class="apiContainer">
+                    <div class="alert @($"alert-{StaticHelper.GetAPIMethodColor(apiMethod.MethodType)}") collapsed" onclick="toggleAPICollapse(this)">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <small class="fw-semibold text-dark me-2 px-2 py-1 @($"bg-{StaticHelper.GetAPIMethodColor(apiMethod.MethodType)}") @($"border-{StaticHelper.GetAPIMethodColor(apiMethod.MethodType)}-subtle") rounded-2">@apiMethod.MethodType.ToString().ToUpper()</small>
+                                <span>@apiMethod.Path</span>
+                            </div>
+                            <span class="lead api-chevron"><i class="bi bi-chevron-up"></i></span>
+                        </div>
+                    </div>
+                    <div class="collapse border px-2 py-1 rounded-2 @($"border-{StaticHelper.GetAPIMethodColor(apiMethod.MethodType)}") mb-3">
+                        <div class="d-flex align-items-center">
+                            <span>@apiMethod.Description</span>
+                            <button class="ms-auto me-2 btn btn-primary" role="button" onclick="testAPIEndpoint(this)"><i class="bi bi-play-fill"></i></button>
+                            <button class="btn btn-secondary" role="button" data-method="get" data-endpoint="@apiMethod.Path"><i class="bi bi-copy"></i></button>
+                        </div>
+                        <div class="api-tester d-none">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        @foreach (APIQueryParam queryParam in apiMethod.QueryParams)
+                                        {
+                                            <label>@queryParam.Name<span class="@(queryParam.Required ? "text-danger" : "d-none")">*</span></label>
+                                            <input type="text" data-required="@queryParam.Required.ToString().ToLower()" data-param="@queryParam.Name" class="form-control api-tester-param" placeholder="@queryParam.Description">
+                                        }
+                                        @if (apiMethod.HasBody)
+                                        {
+                                            <label>@translator.Translate(userLanguage, "Body Sample")</label>
+                                            <textarea class="form-control api-tester-body" data-param="@apiMethod.BodyParamName" rows="5">@apiMethod.BodySampleString</textarea>
+                                        }
+                                        <div class="d-grid mt-2">
+                                            <button class="btn btn-primary" role="button" data-method="@apiMethod.MethodType.ToString().ToUpper()" data-endpoint="@apiMethod.Path" onclick="executeAPIEndpoint(this)">@translator.Translate(userLanguage, "Execute")</button>
+                                        </div>
+                                        <div class="api-tester-result d-none">
+                                            <label>@translator.Translate(userLanguage, "Response")</label>
+                                            <textarea readonly class="form-control api-tester-result-text" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="row api-method">
-            <div class="col-1">
-                <span class="badge bg-success">GET</span>
-            </div>
-            <div class="col-5 copyable testable">
-                <code>/api/tempfiles</code>
-            </div>
-            <div class="col-3">
-               List files in temp directory
-            </div>
-            <div class="col-3">
-                No Params(must be root user)
-            </div>
-        </div>
-        <div class="row api-method">
-            <div class="col-1">
-                <span class="badge bg-success">GET</span>
-            </div>
-            <div class="col-5 copyable testable">
-                <code>/api/cleanup</code>
-            </div>
-            <div class="col-3">
-                Clears out temp files. Deep clean will also delete unlinked thumbnails and documents. Returns number of deleted files.
-            </div>
-            <div class="col-3">
-                (must be root user)<br />
-                deepClean(bool) - Perform deep clean(optional)
-            </div>
-        </div>
-    }
-</div>
+    </div>
+}
+@if (User.IsInRole(nameof(UserData.IsRootUser)))
+{
+    
+}
 <script>
+    function toggleAPICollapse(sender){
+        let headerElem = $(sender);
+        let collapseElem = headerElem.closest('.apiContainer').children('.collapse');
+        if ($(sender).hasClass('collapsed')){
+            collapseElem.collapse('show');
+            $(sender).removeClass('collapsed');
+        } else {
+            collapseElem.collapse('hide');
+            $(sender).addClass('collapsed');
+        }
+    }
+    function testAPIEndpoint(sender){
+        let apiTester = $(sender).closest('.collapse').children('.api-tester');
+        apiTester.toggleClass('d-none');
+    }
+    function executeAPIEndpoint(sender){
+        let apiPath = $(sender).attr('data-endpoint');
+        let apiMethodType = $(sender).attr('data-method');
+        let apiData = {};
+        let hasError = false;
+        //find result box
+        let apiResult = $(sender).closest('.form-group').children('.api-tester-result');
+        apiResult.children('.api-tester-result-text').val('');
+        //find body
+        let apiBodyElem = $(sender).closest('.form-group').children('.api-tester-body');
+        if (apiBodyElem.length > 0){
+            if (apiBodyElem.val().trim() == ''){
+                hasError = true;
+                apiBodyElem.addClass('is-invalid');
+            } else {
+                apiBodyElem.removeClass('is-invalid');
+                apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
+            }
+        }
+        //find query params
+        let apiQueryElems = $(sender).closest('.form-group').find('.api-tester-param');
+        if (apiQueryElems.length > 0){
+            apiQueryElems.map((index, elem) => {
+                console.log($(elem).attr('data-required'));
+                if ($(elem).attr('data-required') == 'true' && $(elem).val().trim() == ''){
+                    $(elem).addClass('is-invalid');
+                    hasError = true;
+                } else {
+                    $(elem).removeClass('is-invalid');
+                    apiData[$(elem).attr('data-param')] = $(elem).val();
+                }
+            })
+        }
+        console.log(apiData);
+        if (hasError){
+            return;
+        }
+        //execute AJAX
+        $.ajax({
+            url: apiPath,
+            type: apiMethodType,
+            data: apiData,
+            success: function(response){
+                apiResult.removeClass('d-none');
+                apiResult.children('.api-tester-result-text').val(JSON.stringify(response, null, 2));
+            },
+            error: function(xhr, status, error){
+                apiResult.removeClass('d-none');
+                apiResult.children('.api-tester-result-text').val(JSON.stringify(xhr.responseJSON, null, 2));
+            }
+        })
+    }
     $('.copyable').on('click', function (e) {
         if (e.ctrlKey || e.metaKey){
             let targetElement = $(e.currentTarget);

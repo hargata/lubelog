@@ -1,0 +1,252 @@
+[
+{
+  "categoryName": "Vehicles",
+  "methods": [
+    {
+      "path": "/api/vehicles",
+      "description": "Gets list of vehicles user has access to",
+      "methodType": 0,
+      "queryParams": [],
+      "hasBody": false,
+      "bodySample": null
+    },
+    {
+      "path": "/api/vehicle/info",
+      "description": "Gets details for list of vehicles or a specific vehicle",
+      "methodType": 0,
+      "queryParams": [
+         {
+            "name": "vehicleId",
+			"description": "Id of the vehicle",
+			"required": false
+         }
+      ],
+      "hasBody": false,
+      "bodySample": null
+    },
+	{
+      "path": "/api/vehicle/adjustedodometer",
+      "description": "Gets odometer reading with adjustments applied",
+      "methodType": 0,
+      "queryParams": [
+         {
+            "name": "vehicleId",
+			"description": "Id of the vehicle",
+			"required": true
+         },
+		 {
+            "name": "odometer",
+			"description": "Unadjusted odometer",
+			"required": true
+         }
+      ],
+      "hasBody": false,
+      "bodySample": null
+    },
+    {
+      "path": "/api/vehicles/add",
+      "description": "Adds a vehicle",
+      "methodType": 1,
+      "queryParams": [],
+      "hasBody": true,
+      "bodyParamName": "input",
+      "bodySample": {
+        "year": 2019,
+        "make": "Nissan",
+        "model": "Altima",
+        "identifier": "LicensePlate",
+        "licensePlate": "HITNCURBS",
+        "fuelType": "Gasoline",
+        "tags": "sedan nissan",
+        "extraFields": [
+          {
+            "name": "VIN",
+            "value": "0000"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/api/vehicles/update",
+      "description": "Updates a vehicle",
+      "methodType": 2,
+      "queryParams": [],
+      "hasBody": true,
+      "bodyParamName": "input",
+      "bodySample": {
+        "id": 1,
+        "year": 2019,
+        "make": "Nissan",
+        "model": "Altima",
+        "identifier": "LicensePlate",
+        "licensePlate": "HITNCURBS",
+        "fuelType": "Diesel",
+        "tags": "sedan nissan",
+        "extraFields": [
+          {
+            "name": "VIN",
+            "value": "0000"
+          }
+        ]
+      }
+    }
+  ]
+},
+{
+	"categoryName": "Odometer Records",
+	"methods": [
+	   {
+		"path": "/api/vehicle/odometerrecords/all",
+		"description": "Gets Odometer Records for all vehicles in user's garage",
+		"methodType": 0,
+		"queryParams": [
+		   {
+			   "name": "id",
+			   "description": "Id of the specific record",
+			   "required": false
+		   },
+		   {
+			   "name": "startDate",
+			   "description": "Minimum date for records",
+			   "required": false
+		   },
+		   {
+			   "name": "endDate",
+			   "description": "Maximum date for records",
+			   "required": false
+		   },
+		   {
+			   "name": "tags",
+			   "description": "Tags separated by space",
+			   "required": false
+		   }
+		],
+		"hasBody": false,
+		"bodySample": null
+	   },
+	   {
+		"path": "/api/vehicle/odometerrecords",
+		"description": "Gets Odometer Records for a vehicle in user's garage",
+		"methodType": 0,
+		"queryParams": [
+		   {
+			   "name": "vehicleId",
+			   "description": "Id of the vehicle",
+			   "required": true
+		   },
+		   {
+			   "name": "id",
+			   "description": "Id of the specific record",
+			   "required": false
+		   },
+		   {
+			   "name": "startDate",
+			   "description": "Minimum date for records",
+			   "required": false
+		   },
+		   {
+			   "name": "endDate",
+			   "description": "Maximum date for records",
+			   "required": false
+		   },
+		   {
+			   "name": "tags",
+			   "description": "Tags separated by space",
+			   "required": false
+		   }
+		],
+		"hasBody": false,
+		"bodySample": null
+	   },
+	   {
+      "path": "/api/vehicle/odometerrecords/latest",
+      "description": "Gets latest odometer reading for a vehicle",
+      "methodType": 0,
+      "queryParams": [
+         {
+            "name": "vehicleId",
+			"description": "Id of the vehicle",
+			"required": true
+         }
+      ],
+      "hasBody": false,
+      "bodySample": null
+    },
+	{
+		"path":"/api/vehicle/odometerrecords/add",
+		"description": "Adds an odometer record for a vehicle",
+		"methodType": 1,
+		"queryParams": [
+		{
+            "name": "vehicleId",
+			"description": "Id of the vehicle",
+			"required": true
+         }
+		],
+        "hasBody": true,
+        "bodyParamName": "input",
+		"bodySample": {
+			"date": "2026-01-03",
+			"initialOdometer": 15000,
+			"odometer": 16500,
+			"notes": "test",
+			"tags": "testing",
+			"extraFields": [
+				{
+					"name": "location",
+					"value": "Price Utah"
+				}
+			],
+			"files": [
+			{
+				"name": "Attachment Example",
+				"location": "https://lubelogger.com"
+			}
+			]
+		}
+	},
+	{
+		"path":"/api/vehicle/odometerrecords/update",
+		"description": "Updates an odometer record for a vehicle",
+		"methodType": 2,
+		"queryParams": [],
+        "hasBody": true,
+        "bodyParamName": "input",
+		"bodySample": {
+			"id": 1,
+			"date": "2026-01-03",
+			"initialOdometer": 15000,
+			"odometer": 16500,
+			"notes": "test",
+			"tags": "testing",
+			"extraFields": [
+				{
+					"name": "location",
+					"value": "Price Utah"
+				}
+			],
+			"files": [
+			{
+				"name": "Attachment Example",
+				"location": "https://lubelogger.com"
+			}
+			]
+		}
+	},
+	{
+      "path": "/api/vehicle/odometerrecords/delete",
+      "description": "Deletes an odometer record",
+      "methodType": 3,
+      "queryParams": [
+         {
+            "name": "id",
+			"description": "Id of the odometer record",
+			"required": true
+         }
+      ],
+      "hasBody": false,
+      "bodySample": null
+    }
+	]
+}
+]
