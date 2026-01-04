@@ -26,6 +26,8 @@ namespace CarCareTracker.Models
         public string BodySampleString { get; set; }
         [JsonPropertyName("bodyParamName")]
         public string BodyParamName { get; set; }
+        [JsonPropertyName("bodyIsFileUpload")]
+        public bool BodyIsFileUpload { get; set; } = false;
     }
     public class APIQueryParam
     {

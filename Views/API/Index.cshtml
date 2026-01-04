@@ -25,6 +25,9 @@
 }
 @foreach(APIDocumentation apiDoc in Model)
 {
+    if (apiDoc.CategoryName.ToLower() == "admin" && !User.IsInRole(nameof(UserData.IsRootUser))){
+        continue;
+    }
     <div class="apiContainer">
         <div style="cursor:pointer" class="collapsed" onclick="toggleAPICollapse(this)">
             <div class="d-flex justify-content-between">
@@ -61,10 +64,15 @@
                                             <label>@queryParam.Name<span class="@(queryParam.Required ? "text-danger" : "d-none")">*</span></label>
                                             <input type="text" data-required="@queryParam.Required.ToString().ToLower()" data-param="@queryParam.Name" class="form-control api-tester-param" placeholder="@queryParam.Description">
                                         }
-                                        @if (apiMethod.HasBody)
+                                        @if (apiMethod.HasBody && !apiMethod.BodyIsFileUpload)
                                         {
                                             <label>@translator.Translate(userLanguage, "Body Sample")</label>
-                                            <textarea class="form-control api-tester-body" data-param="@apiMethod.BodyParamName" rows="5">@apiMethod.BodySampleString</textarea>
+                                            <textarea class="form-control api-tester-body" data-file="false" data-param="@apiMethod.BodyParamName" rows="5">@apiMethod.BodySampleString</textarea>
+                                        } 
+                                        else if (apiMethod.BodyIsFileUpload)
+                                        {
+                                            <label>@apiMethod.BodyParamName</label>
+                                            <input class="form-control api-tester-body" type="file" data-file="true" data-param="@apiMethod.BodyParamName" multiple accept="@config.GetAllowedFileUploadExtensions()">
                                         }
                                         <div class="d-grid mt-2">
                                             <button class="btn btn-primary" role="button" data-method="@apiMethod.MethodType.ToString().ToUpper()" data-endpoint="@apiMethod.Path" onclick="executeAPIEndpoint(this)">@translator.Translate(userLanguage, "Execute")</button>
@@ -108,18 +116,31 @@
         let apiMethodType = $(sender).attr('data-method');
         let apiData = {};
         let hasError = false;
+        let isFileUpload = false;
         //find result box
         let apiResult = $(sender).closest('.form-group').children('.api-tester-result');
         apiResult.children('.api-tester-result-text').val('');
         //find body
         let apiBodyElem = $(sender).closest('.form-group').children('.api-tester-body');
         if (apiBodyElem.length > 0){
-            if (apiBodyElem.val().trim() == ''){
-                hasError = true;
-                apiBodyElem.addClass('is-invalid');
-            } else {
-                apiBodyElem.removeClass('is-invalid');
-                apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
+            if (apiBodyElem.attr('data-file') == "false"){
+                if (apiBodyElem.val().trim() == ''){
+                    hasError = true;
+                    apiBodyElem.addClass('is-invalid');
+                } 
+                else {
+                    apiBodyElem.removeClass('is-invalid');
+                    apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
+                }
+            } 
+            else {
+                isFileUpload = true;
+                let formData = new FormData();
+                let files = apiBodyElem[0].files;
+                for (var x = 0; x < files.length; x++) {
+                    formData.append(apiBodyElem.attr('data-param'), files[x]);
+                }
+                apiData = formData;
             }
         }
         //find query params
@@ -136,12 +157,10 @@
                 }
             })
         }
-        console.log(apiData);
         if (hasError){
             return;
         }
-        //execute AJAX
-        $.ajax({
+        let ajaxConfig = {
             url: apiPath,
             type: apiMethodType,
             data: apiData,
@@ -153,7 +172,14 @@
                 apiResult.removeClass('d-none');
                 apiResult.children('.api-tester-result-text').val(JSON.stringify(xhr.responseJSON, null, 2));
             }
-        })
+        };
+        if (isFileUpload){
+            ajaxConfig['processData'] = false;
+            ajaxConfig['cache'] = false;
+            ajaxConfig['contentType'] = false;
+        }
+        //execute AJAX
+        $.ajax(ajaxConfig);
     }
     $('.copyable').on('click', function (e) {
         if (e.ctrlKey || e.metaKey){
