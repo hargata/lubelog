@@ -9,6 +9,9 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model List<APIDocumentation>
+@section Scripts {
+    <script src="~/js/swigarette.js?v=@StaticHelper.VersionNumber"></script>
+}
 @section Nav {
     <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
         <div class="row mt-2">
@@ -53,7 +56,7 @@
                         <div class="d-flex align-items-center">
                             <span>@apiMethod.Description</span>
                             <button class="ms-auto me-2 btn btn-primary" role="button" onclick="testAPIEndpoint(this)"><i class="bi bi-play-fill"></i></button>
-                            <button class="btn btn-secondary" role="button" data-method="get" data-endpoint="@apiMethod.Path"><i class="bi bi-copy"></i></button>
+                            <button class="btn btn-secondary" role="button" onclick="copyAPIPath(this)" data-endpoint="@apiMethod.Path"><i class="bi bi-copy"></i></button>
                         </div>
                         <div class="api-tester d-none">
                             <div class="row">
@@ -91,118 +94,3 @@
         </div>
     </div>
 }
-@if (User.IsInRole(nameof(UserData.IsRootUser)))
-{
-    
-}
-<script>
-    function toggleAPICollapse(sender){
-        let headerElem = $(sender);
-        let collapseElem = headerElem.closest('.apiContainer').children('.collapse');
-        if ($(sender).hasClass('collapsed')){
-            collapseElem.collapse('show');
-            $(sender).removeClass('collapsed');
-        } else {
-            collapseElem.collapse('hide');
-            $(sender).addClass('collapsed');
-        }
-    }
-    function testAPIEndpoint(sender){
-        let apiTester = $(sender).closest('.collapse').children('.api-tester');
-        apiTester.toggleClass('d-none');
-    }
-    function executeAPIEndpoint(sender){
-        let apiPath = $(sender).attr('data-endpoint');
-        let apiMethodType = $(sender).attr('data-method');
-        let apiData = {};
-        let hasError = false;
-        let isFileUpload = false;
-        //find result box
-        let apiResult = $(sender).closest('.form-group').children('.api-tester-result');
-        apiResult.children('.api-tester-result-text').val('');
-        //find body
-        let apiBodyElem = $(sender).closest('.form-group').children('.api-tester-body');
-        if (apiBodyElem.length > 0){
-            if (apiBodyElem.attr('data-file') == "false"){
-                if (apiBodyElem.val().trim() == ''){
-                    hasError = true;
-                    apiBodyElem.addClass('is-invalid');
-                } 
-                else {
-                    apiBodyElem.removeClass('is-invalid');
-                    apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
-                }
-            } 
-            else {
-                isFileUpload = true;
-                let formData = new FormData();
-                let files = apiBodyElem[0].files;
-                for (var x = 0; x < files.length; x++) {
-                    formData.append(apiBodyElem.attr('data-param'), files[x]);
-                }
-                apiData = formData;
-            }
-        }
-        //find query params
-        let apiQueryElems = $(sender).closest('.form-group').find('.api-tester-param');
-        if (apiQueryElems.length > 0){
-            apiQueryElems.map((index, elem) => {
-                console.log($(elem).attr('data-required'));
-                if ($(elem).attr('data-required') == 'true' && $(elem).val().trim() == ''){
-                    $(elem).addClass('is-invalid');
-                    hasError = true;
-                } else {
-                    $(elem).removeClass('is-invalid');
-                    apiData[$(elem).attr('data-param')] = $(elem).val();
-                }
-            })
-        }
-        if (hasError){
-            return;
-        }
-        let ajaxConfig = {
-            url: apiPath,
-            type: apiMethodType,
-            data: apiData,
-            success: function(response){
-                apiResult.removeClass('d-none');
-                apiResult.children('.api-tester-result-text').val(JSON.stringify(response, null, 2));
-            },
-            error: function(xhr, status, error){
-                apiResult.removeClass('d-none');
-                apiResult.children('.api-tester-result-text').val(JSON.stringify(xhr.responseJSON, null, 2));
-            }
-        };
-        if (isFileUpload){
-            ajaxConfig['processData'] = false;
-            ajaxConfig['cache'] = false;
-            ajaxConfig['contentType'] = false;
-        }
-        //execute AJAX
-        $.ajax(ajaxConfig);
-    }
-    $('.copyable').on('click', function (e) {
-        if (e.ctrlKey || e.metaKey){
-            let targetElement = $(e.currentTarget);
-            if (targetElement.hasClass("testable")){
-                window.location = targetElement.text().trim();
-            }
-        } else {
-            copyToClipboard(e.currentTarget);
-        }
-    })
-    function showExtraFieldsInfo(){
-        Swal.fire({
-            title: "Format for Extra Fields",
-            html: "extrafields[i][name] - Name of Extra Field<br/>extrafields[i][value] - Value of Extra Field<br/>i is an integer that starts at 0 and increments with each extrafield",
-            icon: "info"
-        });
-    }
-    function showAttachmentsInfo(){
-        Swal.fire({
-            title: "Attaching Files",
-            html: "The Document Upload Endpoint will upload the files and provide a formatted output which you can pass into this method",
-            icon: "info"
-        });
-    }
-</script>
