@@ -468,7 +468,6 @@ function bindWindowResize() {
     $(window).on('resize', function () {
         if (window.innerWidth != windowWidthForCompare) {
             hideMobileNav();
-            checkNavBarOverflow();
             windowWidthForCompare = window.innerWidth;
         }
     });
@@ -1883,6 +1882,13 @@ function handleEndFileDrop(event) {
         $(`#${recordType}`)[0].files = acceptableFiles.files;
         $(`#${recordType}`).trigger('change');
     }
+}
+function bindNavBarResize() {
+    let resizeObserver = new ResizeObserver((elems) => {
+        let targetElem = $(elems[0].target);
+        checkNavBarOverflow();
+    });
+    resizeObserver.observe(document.querySelector('.lubelogger-navbar'));
 }
 function checkNavBarOverflow() {
     //check height
