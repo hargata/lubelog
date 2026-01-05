@@ -1887,7 +1887,7 @@ function handleEndFileDrop(event) {
 function checkNavBarOverflow() {
     //check height
     $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
-    $('.nav-item-more > ul > li').remove(); //clear out cloned items.
+    $('.nav-item-more > ul > li').hide(); //hide collapsed items
     //check if icons loaded
     let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
     let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
@@ -1904,11 +1904,9 @@ function checkNavBarOverflow() {
                 navbarHeight = $('.lubelogger-navbar').height();
                 if (navbarHeight > 48) {
                     $(sortedElems[i]).hide(); //hide elem.
-                    //clone item into additional nav dropdown
-                    let buttonToClone = $(sortedElems[i]).find('button').clone();
-                    let clonedItem = $(`<li class='text-truncate'></li>`)
-                    clonedItem.prepend(buttonToClone);
-                    $('.nav-item-more > ul').prepend(clonedItem);
+                    let hiddenButtonId = $(sortedElems[i]).find('button').attr('id');
+                    let buttonToShow = $(`.nav-item-more > ul > li > #${hiddenButtonId}`).closest('li');
+                    buttonToShow.show();
                 } else {
                     break;
                 }
@@ -1918,7 +1916,7 @@ function checkNavBarOverflow() {
         }
     }
     if (iconWidth != iconFontSize) {
-        setTimeout(() => { removeNavbarItems() }, 500);
+        setTimeout(() => { checkNavBarOverflow(); }, 500);
     } else {
         removeNavbarItems()
     }

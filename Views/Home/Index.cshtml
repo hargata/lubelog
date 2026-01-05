@@ -41,6 +41,24 @@
                     <li class="nav-item dropdown nav-item-persist nav-item-more me-5" role="presentation" style="display:none;">
                         <a class="nav-link resizable-nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-three-dots"></i></a>
                         <ul class="dropdown-menu">
+                            <li class="nav-item text-truncate" role="presentation">
+                                <button class="nav-link resizable-nav-link" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2">@translator.Translate(userLanguage, "Garage")</span></button>
+                            </li>
+                            @if (config.GetServerEnableShopSupplies())
+                            {
+                                <li class="nav-item text-truncate" role="presentation">
+                                    <button class="nav-link resizable-nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2">@translator.Translate(userLanguage, "Supplies")</span></button>
+                                </li>
+                            }
+                            @if (userConfig.ShowCalendar)
+                            {
+                                <li class="nav-item text-truncate" role="presentation">
+                                    <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2">@translator.Translate(userLanguage, "Calendar")</span></button>
+                                </li>
+                            }
+                            <li class="nav-item text-truncate" role="presentation">
+                                <button class="nav-link resizable-nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item ms-auto" role="presentation">

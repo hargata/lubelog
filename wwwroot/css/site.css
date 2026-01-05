@@ -699,3 +699,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     transform: rotate(180deg);
     transition: all 0.35s;
 }
+.nav-item-more .dropdown-menu.show{
+    display:flex;
+    flex-direction:column;
+}
