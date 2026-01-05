@@ -6,6 +6,7 @@ using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -103,7 +104,23 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            //load up documentation
+            var apiDocFilePath = _fileHelper.GetFullFilePath("/defaults/api.json");
+            var apiDocText = _fileHelper.GetFileText(apiDocFilePath);
+            var apiDocData = JsonSerializer.Deserialize<List<APIDocumentation>>(apiDocText);
+            var apiSerializeOptions = StaticHelper.GetNoEncodingOption();
+            apiSerializeOptions.WriteIndented = true;
+            foreach(APIDocumentation apiDocumentation in apiDocData)
+            {
+                foreach(APIMethod apiMethod in apiDocumentation.Methods)
+                {
+                    if (apiMethod.HasBody)
+                    {
+                        apiMethod.BodySampleString = JsonSerializer.Serialize(apiMethod.BodySample, apiSerializeOptions);
+                    }
+                }
+            }
+            return View(apiDocData);
         }
         private int GetUserID()
         {

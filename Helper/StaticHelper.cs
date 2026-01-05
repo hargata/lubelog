@@ -976,5 +976,21 @@ namespace CarCareTracker.Helper
             JsonSerializerOptions serializerOption = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) };
             return serializerOption;
         }
+        public static string GetAPIMethodColor(APIMethodType method)
+        {
+            switch (method)
+            {
+                case APIMethodType.GET:
+                    return "primary";
+                case APIMethodType.POST:
+                    return "success";
+                case APIMethodType.PUT:
+                    return "warning";
+                case APIMethodType.DELETE:
+                    return "danger";
+                default:
+                    return "primary";
+            }
+        }
     }
 }

@@ -1,0 +1,1649 @@
+[
+   {
+      "categoryName":"Vehicles",
+      "methods":[
+         {
+            "path":"/api/vehicles",
+            "description":"Gets list of vehicles user has access to",
+            "methodType":0,
+            "queryParams":[
+               
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/info",
+            "description":"Gets details for list of vehicles or a specific vehicle",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/adjustedodometer",
+            "description":"Gets odometer reading with adjustments applied",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"odometer",
+                  "description":"Unadjusted odometer",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicles/add",
+            "description":"Adds a vehicle",
+            "methodType":1,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodyParamName":"input",
+            "bodySample":{
+               "year":2019,
+               "make":"Nissan",
+               "model":"Altima",
+               "identifier":"LicensePlate",
+               "licensePlate":"HITNCURBS",
+               "fuelType":"Gasoline",
+               "tags":"sedan nissan",
+               "extraFields":[
+                  {
+                     "name":"VIN",
+                     "value":"0000"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicles/update",
+            "description":"Updates a vehicle",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodyParamName":"input",
+            "bodySample":{
+               "id":1,
+               "year":2019,
+               "make":"Nissan",
+               "model":"Altima",
+               "identifier":"LicensePlate",
+               "licensePlate":"HITNCURBS",
+               "fuelType":"Diesel",
+               "tags":"sedan nissan",
+               "extraFields":[
+                  {
+                     "name":"VIN",
+                     "value":"0000"
+                  }
+               ]
+            }
+         }
+      ]
+   },
+   {
+      "categoryName":"Odometer Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/odometerrecords/all",
+            "description":"Gets Odometer Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/odometerrecords",
+            "description":"Gets Odometer Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/odometerrecords/latest",
+            "description":"Gets latest Odometer Reading for a vehicle",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/odometerrecords/add",
+            "description":"Adds an Odometer Record for a vehicle",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodyParamName":"input",
+            "bodySample":{
+               "date":"2026-01-03",
+               "initialOdometer":15000,
+               "odometer":16500,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ],
+               "equipmentRecordId":""
+            }
+         },
+         {
+            "path":"/api/vehicle/odometerrecords/update",
+            "description":"Updates an Odometer Record for a vehicle",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodyParamName":"input",
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "initialOdometer":15000,
+               "odometer":16500,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ],
+               "equipmentRecordId":""
+            }
+         },
+         {
+            "path":"/api/vehicle/odometerrecords/delete",
+            "description":"Deletes an Odometer Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Odometer Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Plan Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/planrecords/all",
+            "description":"Gets Plan Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/planrecords",
+            "description":"Gets Plan Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/planrecords/add",
+            "description":"Adds a Plan Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "description":"Test Plan",
+               "cost":420.69,
+               "type":"ServiceRecord",
+               "priority":"Normal",
+               "progress":"Backlog",
+               "notes":"test",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/planrecords/update",
+            "description":"Updates a Plan Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "description":"Test Plan",
+               "cost":420.69,
+               "type":"ServiceRecord",
+               "priority":"Normal",
+               "progress":"InProgress",
+               "notes":"test",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/planrecords/delete",
+            "description":"Deletes a Plan Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Plan Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Service Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/servicerecords/all",
+            "description":"Gets Service Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/servicerecords",
+            "description":"Gets Service Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/servicerecords/add",
+            "description":"Adds a Service Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/servicerecords/update",
+            "description":"Updates a Service Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/servicerecords/delete",
+            "description":"Deletes a Service Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Service Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Repair Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/repairrecords/all",
+            "description":"Gets Repair Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/repairrecords",
+            "description":"Gets Repair Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/repairrecords/add",
+            "description":"Adds a Repair Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/repairrecords/update",
+            "description":"Updates a Repair Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/repairrecords/delete",
+            "description":"Deletes a Repair Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Repair Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Upgrade Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/upgraderecords/all",
+            "description":"Gets Upgrade Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/upgraderecords",
+            "description":"Gets Upgrade Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/upgraderecords/add",
+            "description":"Adds an Upgrade Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/upgraderecords/update",
+            "description":"Updates an Upgrade Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "odometer":15000,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/upgraderecords/delete",
+            "description":"Deletes an Upgrade Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Upgrade Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Supply Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/supplyrecords/all",
+            "description":"Gets Supply Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/supplyrecords",
+            "description":"Gets Supply Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/supplyrecords/add",
+            "description":"Adds a Supply Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "partNumber":"LL-12345",
+               "partSupplier":"Hargata Softworks",
+               "partQuantity":5,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/supplyrecords/update",
+            "description":"Updates a Supply Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "partNumber":"LL-12345",
+               "partSupplier":"Hargata Softworks",
+               "partQuantity":5,
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/supplyrecords/delete",
+            "description":"Deletes a Supply Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Supply Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Tax Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/taxrecords/all",
+            "description":"Gets Tax Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/taxrecords",
+            "description":"Gets Tax Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/taxrecords/add",
+            "description":"Adds a Tax Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/taxrecords/update",
+            "description":"Updates a Tax Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "description":"Test",
+               "cost":123.45,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/taxrecords/delete",
+            "description":"Deletes a Tax Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Tax Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Gas Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/gasrecords/all",
+            "description":"Gets Gas Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               },
+               {
+                  "name":"useMPG",
+                  "description":"Use MPG Calculations",
+                  "required":false
+               },
+               {
+                  "name":"useUKMPG",
+                  "description":"Use UK MPG Calculations",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/gasrecords",
+            "description":"Gets Gas Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"startDate",
+                  "description":"Minimum date for records",
+                  "required":false
+               },
+               {
+                  "name":"endDate",
+                  "description":"Maximum date for records",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               },
+               {
+                  "name":"useMPG",
+                  "description":"Use MPG Calculations",
+                  "required":false
+               },
+               {
+                  "name":"useUKMPG",
+                  "description":"Use UK MPG Calculations",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/gasrecords/add",
+            "description":"Adds a Gas Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "date":"2026-01-03",
+               "odometer":15000,
+               "fuelConsumed":12.34,
+               "cost":123.45,
+               "isFillToFull":true,
+               "missedFuelUp":false,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/gasrecords/update",
+            "description":"Updates a Gas Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "date":"2026-01-03",
+               "odometer":15000,
+               "fuelConsumed":12.34,
+               "cost":123.45,
+               "isFillToFull":true,
+               "missedFuelUp":false,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/gasrecords/delete",
+            "description":"Deletes a Gas Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Gas Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Reminder Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/reminders/all",
+            "description":"Gets Reminder Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               },
+               {
+                  "name":"urgencies",
+                  "description":"List of urgencies",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/reminders",
+            "description":"Gets Reminder Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               },
+               {
+                  "name":"urgencies",
+                  "description":"List of urgencies",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/reminders/add",
+            "description":"Adds a Reminder Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "description":"Test Reminder",
+               "dueDate":"2024-01-04",
+               "dueOdometer":15000,
+               "metric":"Both",
+               "notes":"test",
+               "tags":"testing"
+            }
+         },
+         {
+            "path":"/api/vehicle/reminders/update",
+            "description":"Updates a Reminder Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "description":"Test Reminder",
+               "dueDate":"2024-01-04",
+               "dueOdometer":15000,
+               "metric":"Odometer",
+               "notes":"test",
+               "tags":"testing"
+            }
+         },
+         {
+            "path":"/api/vehicle/reminders/delete",
+            "description":"Deletes a Reminder Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Reminder Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Equipment Records",
+      "methods":[
+         {
+            "path":"/api/vehicle/equipmentrecords/all",
+            "description":"Gets Equipment Records for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/equipmentrecords",
+            "description":"Gets Equipment Records for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/equipmentrecords/add",
+            "description":"Adds an Equipment Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "description":"Test Equipment",
+               "isEquipped":true,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/equipmentrecords/update",
+            "description":"Updates an Equipment Record for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodySample":{
+               "id":1,
+               "description":"Test Equipment",
+               "isEquipped":true,
+               "notes":"test",
+               "tags":"testing",
+               "extraFields":[
+                  {
+                     "name":"location",
+                     "value":"Price Utah"
+                  }
+               ],
+               "files":[
+                  {
+                     "name":"Attachment Example",
+                     "location":"https://lubelogger.com"
+                  }
+               ]
+            }
+         },
+         {
+            "path":"/api/vehicle/equipmentrecords/delete",
+            "description":"Deletes an Equipment Record",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Equipment Record",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
+      "categoryName":"Miscellaneous",
+      "methods":[
+         {
+            "path":"/api/calendar",
+            "description":"Gets reminders calendar in ICS format",
+            "methodType":0,
+            "queryParams":[
+               
+            ]
+         },
+         {
+            "path":"/api/extrafields",
+            "description":"Gets configured extra fields",
+            "methodType":0,
+            "queryParams":[
+               
+            ]
+         },
+         {
+            "path":"/api/documents/upload",
+            "description":"Upload Documents",
+            "bodyParamName":"documents",
+            "methodType":1,
+            "queryParams":[
+               
+            ],
+            "hasBody":true,
+            "bodyIsFileUpload":true
+         },
+         {
+            "path":"/api/whoami",
+            "description":"Gets information for current user",
+            "methodType":0,
+            "queryParams":[
+               
+            ]
+         },
+         {
+            "path":"/api/version",
+            "description":"Gets current version for LubeLogger instance",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"checkForUpdate",
+                  "description":"Check for updates",
+                  "required":false
+               }
+            ]
+         }
+      ]
+   },
+   {
+      "categoryName":"Admin",
+      "methods":[
+         {
+            "path":"/api/vehicle/taxrecords/check",
+            "description":"Updates outdated recurring Tax Records",
+            "methodType":0
+         },
+         {
+            "path":"/api/vehicle/reminders/send",
+            "description":"Send Reminders out to collaborators",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               },
+               {
+                  "name":"urgencies",
+                  "description":"List of urgencies",
+                  "required":false
+               }
+            ]
+         },
+         {
+            "path":"/api/makebackup",
+            "description":"Creates a backup and returns download link",
+            "methodType":0
+         },
+         {
+            "path":"/api/tempfiles",
+            "description":"Gets files in temp directory",
+            "methodType":0
+         },
+         {
+            "path":"/api/cleanup",
+            "description":"Cleans out temp files and unlinked attachments",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"deepClean",
+                  "description":"Deletes unlinked attachments",
+                  "required":false
+               }
+            ]
+         }
+      ]
+   }
+]
