@@ -22,48 +22,55 @@ function executeAPIEndpoint(sender) {
     //find result box
     let apiResult = $(sender).closest('.form-group').children('.api-tester-result');
     apiResult.children('.api-tester-result-text').val('');
-    //find body
-    let apiBodyElem = $(sender).closest('.form-group').children('.api-tester-body');
-    if (apiBodyElem.length > 0) {
-        if (apiBodyElem.attr('data-file') == "false") {
-            if (apiBodyElem.val().trim() == '') {
-                hasError = true;
-                apiBodyElem.addClass('is-invalid');
+    try {
+        //find body
+        let apiBodyElem = $(sender).closest('.form-group').children('.api-tester-body');
+        if (apiBodyElem.length > 0) {
+            if (apiBodyElem.attr('data-file') == "false") {
+                if (apiBodyElem.val().trim() == '') {
+                    hasError = true;
+                    apiBodyElem.addClass('is-invalid');
+                }
+                else {
+                    apiBodyElem.removeClass('is-invalid');
+                    apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
+                }
             }
             else {
-                apiBodyElem.removeClass('is-invalid');
-                apiData[apiBodyElem.attr('data-param')] = JSON.parse(apiBodyElem.val());
-            }
-        }
-        else {
-            isFileUpload = true;
-            let formData = new FormData();
-            let files = apiBodyElem[0].files;
-            if (files.length == 0) {
-                hasError = true;
-                apiBodyElem.addClass('is-invalid');
-            } else {
-                apiBodyElem.removeClass('is-invalid');
-                for (var x = 0; x < files.length; x++) {
-                    formData.append(apiBodyElem.attr('data-param'), files[x]);
+                isFileUpload = true;
+                let formData = new FormData();
+                let files = apiBodyElem[0].files;
+                if (files.length == 0) {
+                    hasError = true;
+                    apiBodyElem.addClass('is-invalid');
+                } else {
+                    apiBodyElem.removeClass('is-invalid');
+                    for (var x = 0; x < files.length; x++) {
+                        formData.append(apiBodyElem.attr('data-param'), files[x]);
+                    }
+                    apiData = formData;
                 }
-                apiData = formData;
             }
         }
+        //find query params
+        let apiQueryElems = $(sender).closest('.form-group').find('.api-tester-param');
+        if (apiQueryElems.length > 0) {
+            apiQueryElems.map((index, elem) => {
+                if ($(elem).attr('data-required') == 'true' && $(elem).val().trim() == '') {
+                    $(elem).addClass('is-invalid');
+                    hasError = true;
+                } else {
+                    $(elem).removeClass('is-invalid');
+                    apiData[$(elem).attr('data-param')] = $(elem).val();
+                }
+            })
+        }
+    } catch (error) {
+        apiResult.removeClass('d-none');
+        apiResult.children('.api-tester-result-text').val(error.message);
+        hasError = true;
     }
-    //find query params
-    let apiQueryElems = $(sender).closest('.form-group').find('.api-tester-param');
-    if (apiQueryElems.length > 0) {
-        apiQueryElems.map((index, elem) => {
-            if ($(elem).attr('data-required') == 'true' && $(elem).val().trim() == '') {
-                $(elem).addClass('is-invalid');
-                hasError = true;
-            } else {
-                $(elem).removeClass('is-invalid');
-                apiData[$(elem).attr('data-param')] = $(elem).val();
-            }
-        })
-    }
+    
     if (hasError) {
         return;
     }
