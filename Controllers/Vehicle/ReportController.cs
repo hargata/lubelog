@@ -164,12 +164,11 @@ namespace CarCareTracker.Controllers
             //report header
 
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
 
             viewModel.ReportHeaderForVehicle.TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords);
             viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
             viewModel.ReportHeaderForVehicle.MaxOdometer = maxMileage;
-            viewModel.ReportHeaderForVehicle.DistanceTraveled = maxMileage - minMileage;
+            viewModel.ReportHeaderForVehicle.DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled);
             return PartialView("_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
@@ -244,14 +243,13 @@ namespace CarCareTracker.Controllers
             var mpgUnit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit;
 
             var maxMileage = _vehicleLogic.GetMaxMileage(vehicleRecords);
-            var minMileage = _vehicleLogic.GetMinMileage(vehicleRecords);
 
             var viewModel = new ReportHeader()
             {
                 TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords),
                 AverageMPG = $"{averageMPG} {mpgUnit}",
                 MaxOdometer = maxMileage,
-                DistanceTraveled = maxMileage - minMileage
+                DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled)
             };
 
             return PartialView("_ReportHeader", viewModel);
@@ -428,6 +426,50 @@ namespace CarCareTracker.Controllers
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.NoteRecord,
+                    Date = DateTime.Now,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.PlanRecord))
+            {
+                var records = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.PlanRecord,
+                    Date = x.DateCreated,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.SupplyRecord))
+            {
+                var records = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.SupplyRecord,
+                    Date = x.Date,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.InspectionRecord))
+            {
+                var records = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.InspectionRecord,
+                    Date = x.Date,
+                    Odometer = x.Mileage,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.EquipmentRecord))
+            {
+                var records = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.EquipmentRecord,
                     Date = DateTime.Now,
                     Odometer = 0,
                     Files = x.Files
@@ -783,6 +825,11 @@ namespace CarCareTracker.Controllers
         {
             var widgets = _fileHelper.GetWidgets();
             return PartialView("_ReportWidgets", widgets);
+        }
+        [HttpGet]
+        public IActionResult GetImportModeSelector()
+        {
+            return PartialView("_ImportModeSelector");
         }
     }
 }

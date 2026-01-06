@@ -165,6 +165,26 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     break;
+                case ImportMode.EquipmentRecord:
+                    {
+                        var exportData = new List<EquipmentRecordExportModel> { new EquipmentRecordExportModel
+                        {
+                            Description = "Test",
+                            Notes = "Test Note",
+                            Tags = "test1 test2",
+                            IsEquipped = true.ToString()
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteEquipmentRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
                 default:
                     return Json(OperationResponse.Failed("No parameters"));
             }
@@ -253,7 +273,7 @@ namespace CarCareTracker.Controllers
                         writer.Dispose();
                     }
                     return Json($"/{fileNameToExport}");
-                } 
+                }
                 else
                 {
                     return Json(OperationResponse.Failed("No Records"));
@@ -555,6 +575,33 @@ namespace CarCareTracker.Controllers
                     return Json(OperationResponse.Failed("No Records"));
                 }
             }
+            else if (mode == ImportMode.EquipmentRecord)
+            {
+                var vehicleRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new EquipmentRecordExportModel
+                    {
+                        Description = x.Description,
+                        Tags = string.Join(" ", x.Tags),
+                        Notes = x.Notes,
+                        IsEquipped = x.IsEquipped.ToString(),
+                        ExtraFields = x.ExtraFields
+                    });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            StaticHelper.WriteEquipmentRecordExportModel(csv, exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
+            }
             else if (mode == ImportMode.GasRecord)
             {
                 var vehicleRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
@@ -829,6 +876,19 @@ namespace CarCareTracker.Controllers
                                             Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
+                                }
+                                else if (mode == ImportMode.EquipmentRecord)
+                                {
+                                    var convertedRecord = new EquipmentRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Description = importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        IsEquipped = bool.Parse(importModel.IsEquipped),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value, IsRequired = requiredExtraFields.Contains(x.Key) }).ToList() : new List<ExtraField>()
+                                    };
+                                    _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(convertedRecord);
                                 }
                                 else if (mode == ImportMode.SupplyRecord)
                                 {

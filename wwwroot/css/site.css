@@ -692,3 +692,14 @@ html[data-bs-theme="light"] .frosted {
 html[data-bs-theme="dark"] .swal2-validation-message {
     background-color: #2d2d2e !important;
 }
+.api-chevron{
+    transition: all 0.35s;
+}
+.collapsed .api-chevron {
+    transform: rotate(180deg);
+    transition: all 0.35s;
+}
+.nav-item-more .dropdown-menu.show{
+    display:flex;
+    flex-direction:column;
+}

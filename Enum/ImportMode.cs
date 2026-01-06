@@ -14,6 +14,7 @@
         PlanRecord = 9,
         OdometerRecord = 10,
         VehicleRecord = 11,
-        InspectionRecord = 12
+        InspectionRecord = 12,
+        EquipmentRecord = 13
     }
 }

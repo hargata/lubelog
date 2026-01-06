@@ -1,0 +1,56 @@
+﻿@inject IConfigHelper config
+@inject ITranslationHelper translator
+@using CarCareTracker.Helper
+
+@{
+    var userLanguage = config.GetUserConfig(User).UserLanguage;
+}
+
+<div id="attachmentTabs">
+    <ul class="list-group">
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="PlanRecord" id="exportPlanRecord">
+            <label class="form-check-label stretched-link" for="exportPlanRecord">@translator.Translate(userLanguage, "Planner")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="OdometerRecord" id="exportOdometerRecord">
+            <label class="form-check-label stretched-link" for="exportOdometerRecord">@translator.Translate(userLanguage, "Odometer")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="ServiceRecord" id="exportServiceRecord">
+            <label class="form-check-label stretched-link" for="exportServiceRecord">@translator.Translate(userLanguage, "Service Records")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="RepairRecord" id="exportRepairRecord">
+            <label class="form-check-label stretched-link" for="exportRepairRecord">@translator.Translate(userLanguage, "Repairs")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="UpgradeRecord" id="exportUpgradeRecord">
+            <label class="form-check-label stretched-link" for="exportUpgradeRecord">@translator.Translate(userLanguage, "Upgrades")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="GasRecord" id="exportGasRecord">
+            <label class="form-check-label stretched-link" for="exportGasRecord">@translator.Translate(userLanguage, "Fuel")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="SupplyRecord" id="exportSupplyRecord">
+            <label class="form-check-label stretched-link" for="exportSupplyRecord">@translator.Translate(userLanguage, "Supplies")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="TaxRecord" id="exportTaxRecord">
+            <label class="form-check-label stretched-link" for="exportTaxRecord">@translator.Translate(userLanguage, "Taxes")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="NoteRecord" id="exportNoteRecord">
+            <label class="form-check-label stretched-link" for="exportNoteRecord">@translator.Translate(userLanguage, "Notes")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="InspectionRecord" id="exportInspectionRecord">
+            <label class="form-check-label stretched-link" for="exportInspectionRecord">@translator.Translate(userLanguage, "Inspections")</label>
+        </li>
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" value="EquipmentRecord" id="exportEquipmentRecord">
+            <label class="form-check-label stretched-link" for="exportEquipmentRecord">@translator.Translate(userLanguage, "Equipment")</label>
+        </li>
+    </ul>
+</div>

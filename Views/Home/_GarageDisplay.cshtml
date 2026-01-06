@@ -149,6 +149,9 @@
             case ImportMode.InspectionRecord:
                 <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'inspection')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Inspections")</span><i class="bi bi-clipboard-check"></i></div></a></li>
                 break;
+            case ImportMode.EquipmentRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.EquipmentRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'equipment')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Equipment")</span><i class="bi bi-disc"></i></div></a></li>
+                break;
             case ImportMode.ReminderRecord:
                 <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'reminder')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Reminders")</span><i class="bi bi-bell"></i></div></a></li>
                 break;

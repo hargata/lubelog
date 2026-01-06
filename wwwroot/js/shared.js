@@ -468,7 +468,6 @@ function bindWindowResize() {
     $(window).on('resize', function () {
         if (window.innerWidth != windowWidthForCompare) {
             hideMobileNav();
-            checkNavBarOverflow();
             windowWidthForCompare = window.innerWidth;
         }
     });
@@ -860,7 +859,8 @@ function getSavedCSVExportParameters(mode) {
 }
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
-    if (mode != 'PlanRecord') {
+    let bypassRecordTypes = ['PlanRecord', 'EquipmentRecord'];
+    if (!bypassRecordTypes.includes(mode)) {
         $.get('/Vehicle/GetCSVExportParameters', function (paramData) {
             if (paramData) {
                 Swal.fire({
@@ -1056,6 +1056,11 @@ function deleteRecords(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Records";
             refreshDataCallBack = getVehicleInspectionRecords;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     Swal.fire({
@@ -1133,6 +1138,11 @@ function duplicateRecords(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Record";
             refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     Swal.fire({
@@ -1210,6 +1220,11 @@ function duplicateRecordsToOtherVehicles(ids, source) {
         case "InspectionRecord":
             friendlySource = "Inspection Record";
             refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -1868,10 +1883,17 @@ function handleEndFileDrop(event) {
         $(`#${recordType}`).trigger('change');
     }
 }
+function bindNavBarResize() {
+    let resizeObserver = new ResizeObserver((elems) => {
+        let targetElem = $(elems[0].target);
+        checkNavBarOverflow();
+    });
+    resizeObserver.observe(document.querySelector('.lubelogger-navbar'));
+}
 function checkNavBarOverflow() {
     //check height
     $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
-    $('.nav-item-more > ul > li').remove(); //clear out cloned items.
+    $('.nav-item-more > ul > li').hide(); //hide collapsed items
     //check if icons loaded
     let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
     let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
@@ -1888,11 +1910,9 @@ function checkNavBarOverflow() {
                 navbarHeight = $('.lubelogger-navbar').height();
                 if (navbarHeight > 48) {
                     $(sortedElems[i]).hide(); //hide elem.
-                    //clone item into additional nav dropdown
-                    let buttonToClone = $(sortedElems[i]).find('button').clone();
-                    let clonedItem = $(`<li class='text-truncate'></li>`)
-                    clonedItem.prepend(buttonToClone);
-                    $('.nav-item-more > ul').prepend(clonedItem);
+                    let hiddenButtonId = $(sortedElems[i]).find('button').attr('id');
+                    let buttonToShow = $(`.nav-item-more > ul > li > #${hiddenButtonId}`).closest('li');
+                    buttonToShow.show();
                 } else {
                     break;
                 }
@@ -1902,7 +1922,7 @@ function checkNavBarOverflow() {
         }
     }
     if (iconWidth != iconFontSize) {
-        setTimeout(() => { removeNavbarItems() }, 500);
+        setTimeout(() => { checkNavBarOverflow(); }, 500);
     } else {
         removeNavbarItems()
     }

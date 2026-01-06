@@ -12,10 +12,12 @@ namespace CarCareTracker.Logic
     public class OdometerLogic: IOdometerLogic
     {
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
+        private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly ILogger<IOdometerLogic> _logger;
-        public OdometerLogic(IOdometerRecordDataAccess odometerRecordDataAccess, ILogger<IOdometerLogic> logger)
+        public OdometerLogic(IOdometerRecordDataAccess odometerRecordDataAccess, IEquipmentRecordDataAccess equipmentRecordDataAccess, ILogger<IOdometerLogic> logger)
         {
             _odometerRecordDataAccess = odometerRecordDataAccess;
+            _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _logger = logger;
         }
         public int GetLastOdometerRecordMileage(int vehicleId, List<OdometerRecord> odometerRecords)
@@ -39,7 +41,13 @@ namespace CarCareTracker.Logic
             }
             var lastReportedMileage = GetLastOdometerRecordMileage(odometer.VehicleId, new List<OdometerRecord>());
             odometer.InitialMileage = lastReportedMileage != default ? lastReportedMileage : odometer.Mileage;
-
+            //add equipment
+            var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(odometer.VehicleId);
+            var equippedEquipment = equipmentRecords.Where(x => x.IsEquipped);
+            if (equippedEquipment.Any())
+            {
+                odometer.EquipmentRecordId = equippedEquipment.Select(x => x.Id).ToList();
+            }
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometer);
             return result;
         }

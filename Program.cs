@@ -60,6 +60,7 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IExtraFieldDataAccess, PGExtraFieldDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordDataAccess, PGInspectionRecordDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, PGInspectionRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IEquipmentRecordDataAccess, PGEquipmentRecordDataAccess>();
     builder.Services.AddSingleton<IUserHouseholdDataAccess, PGUserHouseholdDataAccess>();
 }
 else
@@ -83,12 +84,14 @@ else
     builder.Services.AddSingleton<IExtraFieldDataAccess, ExtraFieldDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordDataAccess, InspectionRecordDataAccess>();
     builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, InspectionRecordTemplateDataAccess>();
+    builder.Services.AddSingleton<IEquipmentRecordDataAccess, EquipmentRecordDataAccess>();
     builder.Services.AddSingleton<IUserHouseholdDataAccess, UserHouseholdDataAccess>();
 }
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
+builder.Services.AddSingleton<IEquipmentHelper, EquipmentHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();
