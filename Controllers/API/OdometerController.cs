@@ -21,6 +21,21 @@ namespace CarCareTracker.Controllers
             var result = _vehicleLogic.GetMaxMileage(vehicleId);
             return Json(result);
         }
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
+        [HttpPut]
+        [Route("/api/vehicle/odometerrecords/recalculate")]
+        public IActionResult RecalculateDistance(int vehicleId)
+        {
+            var result = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+            result = _odometerLogic.AutoConvertOdometerRecord(result);
+            if (result.Any())
+            {
+                return Json(OperationResponse.Succeed($"Odometer Records Adjusted({result.Count()})"));
+            } else
+            {
+                return Json(OperationResponse.Failed());
+            }
+        }
         [HttpGet]
         [Route("/api/vehicle/odometerrecords/all")]
         public IActionResult AllOdometerRecords(MethodParameter parameters)
