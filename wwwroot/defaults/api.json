@@ -243,6 +243,20 @@
                "equipmentRecordId":""
             }
          },
+		 {
+            "path":"/api/vehicle/odometerrecords/recalculate",
+            "description":"Recalculate Odometer Record distance for a vehicle in user's garage",
+            "methodType":2,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
          {
             "path":"/api/vehicle/odometerrecords/delete",
             "description":"Deletes an Odometer Record",
