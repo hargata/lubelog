@@ -30,6 +30,6 @@
     var uploadedFiles = [];
      @foreach (UploadedFiles filesUploaded in Model)
      {
-        @:uploadedFiles.push({ name: "@filesUploaded.Name", location: "@filesUploaded.Location" });
+        @:uploadedFiles.push({ name: decodeHTMLEntities("@filesUploaded.Name"), location: "@filesUploaded.Location" });
      }
 </script>
