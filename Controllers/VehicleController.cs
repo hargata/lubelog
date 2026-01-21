@@ -699,7 +699,7 @@ namespace CarCareTracker.Controllers
                         break;
                 }
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         public IActionResult MoveRecords(List<int> recordIds, ImportMode source, ImportMode destination)
         {
