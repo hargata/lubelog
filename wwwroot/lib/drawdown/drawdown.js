@@ -85,9 +85,6 @@
     // horizontal rule
     replace(rx_hr, '<hr/>');
 
-    // line breaks
-    replace(rx_lb, '<br />');
-
     // list
     src = list(src);
     replace(rx_listjoin, '');
@@ -125,6 +122,9 @@
 
     // paragraph
     replace(rx_para, function(all, content) { return element('p', unesc(highlight(content))) });
+
+    // line breaks
+    replace(rx_lb, '<br />');
 
     // stash
     replace(rx_stash, function(all) { return stash[parseInt(all)] });
