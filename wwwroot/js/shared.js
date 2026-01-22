@@ -955,36 +955,10 @@ function moveRecords(ids, source, dest) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var friendlyDest = "";
-    var refreshDataCallBack;
+    var friendlySource = getImportModeData(source).friendlyName;
+    var friendlyDest = getImportModeData(dest).friendlyName;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-    }
-    switch (dest) {
-        case "ServiceRecord":
-            friendlyDest = "Service Records";
-            break;
-        case "RepairRecord":
-            friendlyDest = "Repairs";
-            break;
-        case "UpgradeRecord":
-            friendlyDest = "Upgrades";
-            break;
-    }
-
     Swal.fire({
         title: "Confirm Move?",
         text: `Move ${recordVerbiage} from ${friendlySource} to ${friendlyDest}?`,
@@ -1013,55 +987,9 @@ function deleteRecords(ids, source) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var refreshDataCallBack;
+    var friendlySource = getImportModeData(source).friendlyName;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-        case "TaxRecord":
-            friendlySource = "Taxes";
-            refreshDataCallBack = getVehicleTaxRecords;
-            break;
-        case "SupplyRecord":
-            friendlySource = "Supplies";
-            refreshDataCallBack = getVehicleSupplyRecords;
-            break;
-        case "NoteRecord":
-            friendlySource = "Notes";
-            refreshDataCallBack = getVehicleNotes;
-            break;
-        case "OdometerRecord":
-            friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
-            break;
-        case "ReminderRecord":
-            friendlySource = "Reminders";
-            refreshDataCallBack = getVehicleReminders;
-            break;
-        case "GasRecord":
-            friendlySource = "Fuel Records";
-            refreshDataCallBack = getVehicleGasRecords;
-            break;
-        case "InspectionRecord":
-            friendlySource = "Inspection Records";
-            refreshDataCallBack = getVehicleInspectionRecords;
-            break;
-        case "EquipmentRecord":
-            friendlySource = "Equipment Records";
-            refreshDataCallBack = getVehicleEquipmentRecords;
-            break;
-    }
 
     Swal.fire({
         title: "Confirm Delete?",
@@ -1091,59 +1019,8 @@ function duplicateRecords(ids, source) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var refreshDataCallBack;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-        case "TaxRecord":
-            friendlySource = "Taxes";
-            refreshDataCallBack = getVehicleTaxRecords;
-            break;
-        case "SupplyRecord":
-            friendlySource = "Supplies";
-            refreshDataCallBack = getVehicleSupplyRecords;
-            break;
-        case "NoteRecord":
-            friendlySource = "Notes";
-            refreshDataCallBack = getVehicleNotes;
-            break;
-        case "OdometerRecord":
-            friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
-            break;
-        case "ReminderRecord":
-            friendlySource = "Reminders";
-            refreshDataCallBack = getVehicleReminders;
-            break;
-        case "GasRecord":
-            friendlySource = "Fuel Records";
-            refreshDataCallBack = getVehicleGasRecords;
-            break;
-        case "PlanRecord":
-            friendlySource = "Plan";
-            refreshDataCallBack = getVehiclePlanRecords;
-            break;
-        case "InspectionRecord":
-            friendlySource = "Inspection Record";
-            refreshDataCallBack = hideInspectionRecordTemplateModal;
-            break;
-        case "EquipmentRecord":
-            friendlySource = "Equipment Records";
-            refreshDataCallBack = getVehicleEquipmentRecords;
-            break;
-    }
 
     Swal.fire({
         title: "Confirm Duplicate?",
@@ -1173,60 +1050,6 @@ function duplicateRecordsToOtherVehicles(ids, source) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var refreshDataCallBack;
-    var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-        case "TaxRecord":
-            friendlySource = "Taxes";
-            refreshDataCallBack = getVehicleTaxRecords;
-            break;
-        case "SupplyRecord":
-            friendlySource = "Supplies";
-            refreshDataCallBack = getVehicleSupplyRecords;
-            break;
-        case "NoteRecord":
-            friendlySource = "Notes";
-            refreshDataCallBack = getVehicleNotes;
-            break;
-        case "OdometerRecord":
-            friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
-            break;
-        case "ReminderRecord":
-            friendlySource = "Reminders";
-            refreshDataCallBack = getVehicleReminders;
-            break;
-        case "GasRecord":
-            friendlySource = "Fuel Records";
-            refreshDataCallBack = getVehicleGasRecords;
-            break;
-        case "PlanRecord":
-            friendlySource = "Plan";
-            refreshDataCallBack = getVehiclePlanRecords;
-            break;
-        case "InspectionRecord":
-            friendlySource = "Inspection Record";
-            refreshDataCallBack = hideInspectionRecordTemplateModal;
-            break;
-        case "EquipmentRecord":
-            friendlySource = "Equipment Records";
-            refreshDataCallBack = getVehicleEquipmentRecords;
-            break;
-    }
-
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
             //prompt user to select a vehicle
@@ -1264,27 +1087,8 @@ function insertOdometer(ids, source) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var refreshDataCallBack;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-        case "GasRecord":
-            friendlySource = "Fuel Records";
-            refreshDataCallBack = getVehicleGasRecords;
-            break;
-    }
 
     Swal.fire({
         title: "Create Odometer Records?",
@@ -1938,7 +1742,11 @@ function closeAttachmentPreview() {
 }
 function setBrowserHistory(param, val) {
     let currentParams = new URLSearchParams(window.location.search);
-    currentParams.set(param, val);
+    if (val.trim() == '') {
+        currentParams.delete(param);
+    } else {
+        currentParams.set(param, val);
+    }
     let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
     window.history.pushState({}, '', updatedURL);
 }
@@ -1981,5 +1789,152 @@ function isOperationResponse(result) {
             errorToast(result.message);
         }
         return true;
+    }
+}
+function getImportModeData(importMode) {
+    let friendlySource = "";
+    let tabName = "";
+    let tabPaneName = "";
+    let tabContainerName = "";
+    let modalContentName = "";
+    let refreshDataCallBack = undefined;
+    let showModalCallBack = undefined;
+    switch (importMode) {
+        case "ServiceRecord":
+        case "servicerecord-tab":
+            friendlySource = "Service Records";
+            refreshDataCallBack = getVehicleServiceRecords;
+            tabName = "servicerecord";
+            tabPaneName = "servicerecord-tab-pane";
+            tabContainerName = "servicerecord-tab";
+            modalContentName = "serviceRecordModalContent";
+            showModalCallBack = showEditServiceRecordModal;
+            break;
+        case "RepairRecord":
+        case "accident-tab":
+            friendlySource = "Repairs";
+            refreshDataCallBack = getVehicleCollisionRecords;
+            tabName = "accident";
+            tabPaneName = "accident-tab-pane";
+            tabContainerName = "accident-tab";
+            modalContentName = "collisionRecordModalContent";
+            showModalCallBack = showEditCollisionRecordModal;
+            break;
+        case "UpgradeRecord":
+        case "upgrade-tab":
+            friendlySource = "Upgrades";
+            refreshDataCallBack = getVehicleUpgradeRecords;
+            tabName = "upgrade";
+            tabPaneName = "upgrade-tab-pane";
+            tabContainerName = "upgrade-tab";
+            modalContentName = "upgradeRecordModalContent";
+            showModalCallBack = showEditUpgradeRecordModal;
+            break;
+        case "TaxRecord":
+        case "tax-tab":
+            friendlySource = "Taxes";
+            refreshDataCallBack = getVehicleTaxRecords;
+            tabName = "tax";
+            tabPaneName = "tax-tab-pane";
+            tabContainerName = "tax-tab";
+            modalContentName = "taxRecordModalContent";
+            showModalCallBack = showEditTaxRecordModal;
+            break;
+        case "SupplyRecord":
+        case "supply-tab":
+            friendlySource = "Supplies";
+            refreshDataCallBack = getVehicleSupplyRecords;
+            tabName = "supply";
+            tabPaneName = "supply-tab-pane";
+            tabContainerName = "supply-tab";
+            modalContentName = "supplyRecordModalContent";
+            showModalCallBack = showEditSupplyRecordModal;
+            break;
+        case "NoteRecord":
+        case "notes-tab":
+            friendlySource = "Notes";
+            refreshDataCallBack = getVehicleNotes;
+            tabName = "notes";
+            tabPaneName = "notes-tab-pane";
+            tabContainerName = "notes-tab";
+            modalContentName = "noteModalContent";
+            showModalCallBack = showEditNoteModal;
+            break;
+        case "OdometerRecord":
+        case "odometer-tab":
+            friendlySource = "Odometer Records";
+            refreshDataCallBack = getVehicleOdometerRecords;
+            tabName = "odometer";
+            tabPaneName = "odometer-tab-pane";
+            tabContainerName = "odometer-tab";
+            modalContentName = "odometerRecordModalContent";
+            showModalCallBack = showEditOdometerRecordModal;
+            break;
+        case "ReminderRecord":
+        case "reminder-tab":
+            friendlySource = "Reminders";
+            refreshDataCallBack = getVehicleReminders;
+            tabName = "reminder";
+            tabPaneName = "reminder-tab-pane";
+            tabContainerName = "reminder-tab";
+            modalContentName = "reminderRecordModalContent";
+            showModalCallBack = showEditReminderRecordModal;
+            break;
+        case "GasRecord":
+        case "gas-tab":
+            friendlySource = "Fuel Records";
+            refreshDataCallBack = getVehicleGasRecords;
+            tabName = "gas";
+            tabPaneName = "gas-tab-pane";
+            tabContainerName = "gas-tab";
+            modalContentName = "gasRecordModalContent";
+            showModalCallBack = showEditGasRecordModal;
+            break;
+        case "InspectionRecord":
+        case "inspection-tab":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
+            tabName = "inspection";
+            tabPaneName = "inspection-tab-pane";
+            tabContainerName = "inspection-tab";
+            modalContentName = "inspectionRecordModalContent";
+            showModalCallBack = showEditInspectionRecordModal;
+            break;
+        case "EquipmentRecord":
+        case "equipment-tab":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            tabName = "equipment";
+            tabPaneName = "equipment-tab-pane";
+            tabContainerName = "equipment-tab";
+            modalContentName = "equipmentRecordModalContent";
+            showModalCallBack = showEditEquipmentRecordModal;
+            break;
+        case "PlanRecord":
+        case "plan-tab":
+            friendlySource = "Plan";
+            refreshDataCallBack = getVehiclePlanRecords;
+            tabName = "plan";
+            tabPaneName = "plan-tab-pane";
+            tabContainerName = "plan-tab";
+            modalContentName = "planRecordModalContent";
+            showModalCallBack = showEditPlanRecordModal;
+            break;
+        case "Dashboard":
+        case "report-tab":
+            refreshDataCallBack = getVehicleReport;
+            tabName = "report";
+            tabPaneName = "report-tab-pane";
+            tabContainerName = "report-tab";
+            break;
+    }
+    return {
+        friendlyName: friendlySource,
+        dataCallBack: refreshDataCallBack,
+        tabName: tabName,
+        tabPaneName: tabPaneName,
+        tabContainerName: tabContainerName,
+        modalContentName: modalContentName,
+        showModalCallBack: showModalCallBack
     }
 }

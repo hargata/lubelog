@@ -2,91 +2,13 @@
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
-        switch (e.target.id) {
-            case "servicerecord-tab":
-                getVehicleServiceRecords(vehicleId);
-                break;
-            case "notes-tab":
-                getVehicleNotes(vehicleId);
-                break;
-            case "gas-tab":
-                getVehicleGasRecords(vehicleId);
-                break;
-            case "accident-tab":
-                getVehicleCollisionRecords(vehicleId);
-                break;
-            case "tax-tab":
-                getVehicleTaxRecords(vehicleId);
-                break;
-            case "report-tab":
-                getVehicleReport(vehicleId);
-                break;
-            case "reminder-tab":
-                getVehicleReminders(vehicleId);
-                break;
-            case "upgrade-tab":
-                getVehicleUpgradeRecords(vehicleId);
-                break;
-            case "supply-tab":
-                getVehicleSupplyRecords(vehicleId);
-                break;
-            case "plan-tab":
-                getVehiclePlanRecords(vehicleId);
-                break;
-            case "odometer-tab":
-                getVehicleOdometerRecords(vehicleId);
-                break;
-            case "inspection-tab":
-                getVehicleInspectionRecords(vehicleId);
-                break;
-            case "equipment-tab":
-                getVehicleEquipmentRecords(vehicleId);
-                break;
-        }
+        let dataCallBack = getImportModeData(e.target.id).dataCallBack;
+        dataCallBack(vehicleId);
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
         $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
         if (e.relatedTarget != null) {
-            switch (e.relatedTarget.id) { //clear out previous tabs with grids in them to help with performance
-                case "servicerecord-tab":
-                    $("#servicerecord-tab-pane").html("");
-                    break;
-                case "gas-tab":
-                    $("#gas-tab-pane").html("");
-                    break;
-                case "accident-tab":
-                    $("#accident-tab-pane").html("");
-                    break;
-                case "tax-tab":
-                    $("#tax-tab-pane").html("");
-                    break;
-                case "report-tab":
-                    $("#report-tab-pane").html("");
-                    break;
-                case "reminder-tab":
-                    $("#reminder-tab-pane").html("");
-                    break;
-                case "upgrade-tab":
-                    $("#upgrade-tab-pane").html("");
-                    break;
-                case "notes-tab":
-                    $("#notes-tab-pane").html("");
-                    break;
-                case "supply-tab":
-                    $("#supply-tab-pane").html("");
-                    break;
-                case "plan-tab":
-                    $("#plan-tab-pane").html("");
-                    break;
-                case "odometer-tab":
-                    $("#odometer-tab-pane").html("");
-                    break;
-                case "inspection-tab":
-                    $("#inspection-tab-pane").html("");
-                    break;
-                case "equipment-tab":
-                    $("#equipment-tab-pane").html("");
-                    break;
-            }
+            let prevTabPaneName = getImportModeData(e.relatedTarget.id).tabPaneName;
+            $(`#${prevTabPaneName}`).html(""); //clear out previous tabs with grids in them to help with performance
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
@@ -280,36 +202,19 @@ function getVehicleHaveImportantReminders(vehicleId) {
 }
 function moveRecord(recordId, source, dest) {
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var friendlyDest = "";
+    var friendlySource = getImportModeData(source).friendlyName;
+    var friendlyDest = getImportModeData(dest).friendlyName;
     var hideModalCallBack;
-    var refreshDataCallBack;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     switch (source) {
         case "ServiceRecord":
-            friendlySource = "Service Records";
             hideModalCallBack = hideAddServiceRecordModal;
-            refreshDataCallBack = getVehicleServiceRecords;
             break;
         case "RepairRecord":
-            friendlySource = "Repairs";
             hideModalCallBack = hideAddCollisionRecordModal;
-            refreshDataCallBack = getVehicleCollisionRecords;
             break;
         case "UpgradeRecord":
-            friendlySource = "Upgrades";
             hideModalCallBack = hideAddUpgradeRecordModal;
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-    }
-    switch (dest) {
-        case "ServiceRecord":
-            friendlyDest = "Service Records";
-            break;
-        case "RepairRecord":
-            friendlyDest = "Repairs";
-            break;
-        case "UpgradeRecord":
-            friendlyDest = "Upgrades";
             break;
     }
     Swal.fire({
@@ -416,18 +321,7 @@ function saveGenericRecord() {
         errorToast("Please check the form data");
         return;
     }
-    var refreshDataCallBack;
-    switch (formValues.dataType) {
-        case "ServiceRecord":
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-    }
+    var refreshDataCallBack = getImportModeData(formValues.dataType).dataCallBack;
     //save to db.
     $.post('/Vehicle/EditMultipleRecords', { genericRecordEditModel: formValues }, function (data) {
         if (data.success) {
@@ -543,31 +437,8 @@ function adjustRecordsOdometer(ids, source) {
         return;
     }
     $("#workAroundInput").show();
-    var friendlySource = "";
-    var refreshDataCallBack;
+    var refreshDataCallBack = getImportModeData(source).dataCallBack;
     var recordVerbiage = ids.length > 1 ? `these ${ids.length} records` : "this record";
-    switch (source) {
-        case "ServiceRecord":
-            friendlySource = "Service Records";
-            refreshDataCallBack = getVehicleServiceRecords;
-            break;
-        case "RepairRecord":
-            friendlySource = "Repairs";
-            refreshDataCallBack = getVehicleCollisionRecords;
-            break;
-        case "UpgradeRecord":
-            friendlySource = "Upgrades";
-            refreshDataCallBack = getVehicleUpgradeRecords;
-            break;
-        case "OdometerRecord":
-            friendlySource = "Odometer Records";
-            refreshDataCallBack = getVehicleOdometerRecords;
-            break;
-        case "GasRecord":
-            friendlySource = "Fuel Records";
-            refreshDataCallBack = getVehicleGasRecords;
-            break;
-    }
 
     Swal.fire({
         title: "Adjust Odometer?",
@@ -727,104 +598,13 @@ function loadGlobalSearchResult(recordId, recordType) {
     hideGlobalSearch();
     $.post(`/Vehicle/CheckRecordExist?vehicleId=${GetVehicleId().vehicleId}&importMode=${recordType}&recordId=${recordId}`, function (data) {
         if (data.success) {
-            switch (recordType) {
-                case "ServiceRecord":
-                    if ($('#servicerecord-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#servicerecord-tab').tab('show');
-                    waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
-                    break;
-                case "RepairRecord":
-                    if ($('#accident-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#accident-tab').tab('show');
-                    waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
-                    break;
-                case "UpgradeRecord":
-                    if ($('#upgrade-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#upgrade-tab').tab('show');
-                    waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
-                    break;
-                case "TaxRecord":
-                    if ($('#tax-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#tax-tab').tab('show');
-                    waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
-                    break;
-                case "SupplyRecord":
-                    if ($('#supply-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#supply-tab').tab('show');
-                    waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
-                    break;
-                case "NoteRecord":
-                    if ($('#notes-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#notes-tab').tab('show');
-                    waitForElement('#noteModalContent', showEditNoteModal, recordId);
-                    break;
-                case "OdometerRecord":
-                    if ($('#odometer-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#odometer-tab').tab('show');
-                    waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
-                    break;
-                case "ReminderRecord":
-                    if ($('#reminder-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#reminder-tab').tab('show');
-                    waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
-                    break;
-                case "GasRecord":
-                    if ($('#gas-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#gas-tab').tab('show');
-                    waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
-                    break;
-                case "PlanRecord":
-                    if ($('#plan-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#plan-tab').tab('show');
-                    waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
-                    break;
-                case "InspectionRecord":
-                    if ($('#inspection-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#inspection-tab').tab('show');
-                    waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
-                    break;
-                case "EquipmentRecord":
-                    if ($('#equipment-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#equipment-tab').tab('show');
-                    waitForElement("#equipmentRecordModalContent", showEditEquipmentRecordModal, recordId);
-                    break;
+            let recordTypeData = getImportModeData(recordType);
+            if ($(`#${recordTypeData.tabContainerName}`).hasClass('d-none')) {
+                errorToast(`${recordType} Tab Not Enabled`);
+                return;
             }
+            $(`#${recordTypeData.tabContainerName}`).tab('show');
+            waitForElement(`#${recordTypeData.modalContentName}`, recordTypeData.showModalCallBack, recordId);
         } else {
             errorToast(data.message);
         }
@@ -832,51 +612,7 @@ function loadGlobalSearchResult(recordId, recordType) {
 }
 function loadDefaultTab() {
     //check if tab param exists
-    let userDefaultTab = getDefaultTabName();
+    let userDefaultTab = getImportModeData(GetDefaultTab().tab).tabName;
     let tabFromURL = getTabNameFromURL(userDefaultTab);
     waitForElement(`#${tabFromURL}`, () => { $(`#${tabFromURL}`).tab('show'); }, '');
-}
-function getDefaultTabName() {
-    var defaultTab = GetDefaultTab().tab;
-    switch (defaultTab) {
-        case "ServiceRecord":
-            return 'servicerecord';
-            break;
-        case "NoteRecord":
-            return 'notes';
-            break;
-        case "GasRecord":
-            return 'gas';
-            break;
-        case "RepairRecord":
-            return 'accident';
-            break;
-        case "TaxRecord":
-            return 'tax';
-            break;
-        case "Dashboard":
-            return 'report';
-            break;
-        case "ReminderRecord":
-            return 'reminder';
-            break;
-        case "UpgradeRecord":
-            return 'upgrade';
-            break;
-        case "SupplyRecord":
-            return 'supply';
-            break;
-        case "PlanRecord":
-            return 'plan';
-            break;
-        case "OdometerRecord":
-            return 'odometer';
-            break;
-        case "InspectionRecord":
-            return 'inspection';
-            break;
-        case "EquipmentRecord":
-            return 'equipment';
-            break;
-    }
 }
