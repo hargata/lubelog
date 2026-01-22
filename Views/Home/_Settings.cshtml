@@ -93,6 +93,10 @@
             <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoOdometerInsert" checked="@Model.UserConfig.EnableAutoOdometerInsert">
             <label class="form-check-label" for="enableAutoOdometerInsert">@translator.Translate(userLanguage, "Auto Insert Odometer Records")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableAutoFillOdometer" checked="@Model.UserConfig.EnableAutoFillOdometer">
+            <label class="form-check-label" for="enableAutoFillOdometer">@translator.Translate(userLanguage, "Auto Fill Odometer Input")<br /><small class="text-body-secondary">@translator.Translate(userLanguage, "Only when Adding Service/Repair/Upgrade/Fuel Record or Completing a Plan")</small></label>
+        </div>
         <hr />
         <div>
             <div class="form-check form-switch form-check-inline">

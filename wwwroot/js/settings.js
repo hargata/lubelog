@@ -57,6 +57,7 @@ function updateSettings() {
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+        enableAutoFillOdometer: $("#enableAutoFillOdometer").is(":checked"),
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
         showCalendar: $("#showCalendar").is(":checked"),
         showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
