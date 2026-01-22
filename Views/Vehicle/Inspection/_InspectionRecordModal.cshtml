@@ -133,3 +133,9 @@
         @:recurringReminderRecordId.push(@reminderRecordId);
     }
 </script>
+@if (userConfig.EnableAutoFillOdometer)
+{
+    <script>
+        setLastOdometer('inspectionRecordMileage');
+    </script>
+}

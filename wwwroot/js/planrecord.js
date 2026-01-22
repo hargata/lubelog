@@ -306,6 +306,11 @@ function updatePlanRecordProgress(newProgress) {
                     }
                     return { odometer }
                 },
+                didOpen: () => {
+                    if (getPlanUserConfig().autoFillOdometer) {
+                        setLastOdometer('inputOdometer');
+                    }
+                }
             }).then(function (result) {
                 if (result.isConfirmed) {
                     //Odometer Adjustments

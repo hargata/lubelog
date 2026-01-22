@@ -424,6 +424,7 @@ namespace CarCareTracker.Helper
                 UseThreeDecimalGasConsumption = CheckBool(CheckString(nameof(UserConfig.UseThreeDecimalGasConsumption)), true),
                 EnableAutoReminderRefresh = CheckBool(CheckString(nameof(UserConfig.EnableAutoReminderRefresh))),
                 EnableAutoOdometerInsert = CheckBool(CheckString(nameof(UserConfig.EnableAutoOdometerInsert))),
+                EnableAutoFillOdometer = CheckBool(CheckString(nameof(UserConfig.EnableAutoFillOdometer))),
                 PreferredGasMileageUnit = CheckString(nameof(UserConfig.PreferredGasMileageUnit)),
                 PreferredGasUnit = CheckString(nameof(UserConfig.PreferredGasUnit)),
                 UseUnitForFuelCost = CheckBool(CheckString(nameof(UserConfig.UseUnitForFuelCost))),
