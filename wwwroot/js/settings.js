@@ -475,3 +475,12 @@ function showCustomWidgets() {
         }
     });
 }
+function loadTooltips() {
+    $('.settingsToolTip').map((index, elem) => {
+        new bootstrap.Tooltip(elem);
+    })
+    $('.settingsToolTip').on('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+    })
+}
