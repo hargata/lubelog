@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
 using CarCareTracker.Models;
 
 namespace CarCareTracker.Logic
@@ -22,18 +23,24 @@ namespace CarCareTracker.Logic
         bool DeleteUserFromHousehold(int parentUserId, int childUserId);
         bool DeleteAllHouseholdByParentUserId(int parentUserId);
         bool DeleteAllHouseholdByChildUserId(int childUserId);
+        OperationResponse CreateAPIKey(int userId, string keyName, List<HouseholdPermission> permisions);
+        bool DeleteAPIKeyByKeyId(int keyId);
+        bool DeleteAllAPIKeysByUserId(int userId);
     }
     public class UserLogic: IUserLogic
     {
         private readonly IUserAccessDataAccess _userAccess;
         private readonly IUserRecordDataAccess _userData;
         private readonly IUserHouseholdDataAccess _userHouseholdData;
+        private readonly IApiKeyRecordDataAccess _apiKeyData;
         public UserLogic(IUserAccessDataAccess userAccess,
             IUserRecordDataAccess userData,
-            IUserHouseholdDataAccess userHouseholdData) { 
+            IUserHouseholdDataAccess userHouseholdData,
+            IApiKeyRecordDataAccess apiKeyData) { 
             _userAccess = userAccess;
             _userData = userData;
             _userHouseholdData = userHouseholdData;
+            _apiKeyData = apiKeyData;
         }
         public List<UserCollaborator> GetCollaboratorsForVehicle(int vehicleId)
         {
@@ -285,6 +292,34 @@ namespace CarCareTracker.Logic
         public bool DeleteAllHouseholdByChildUserId(int childUserId)
         {
             var result = _userHouseholdData.DeleteAllHouseholdRecordsByChildUserId(childUserId);
+            return result;
+        }
+        public OperationResponse CreateAPIKey(int userId, string keyName, List<HouseholdPermission> permisions)
+        {
+            //generate key pair
+            var unhashedKey = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            var hashedKey = StaticHelper.GetHash(unhashedKey);
+            var keyToSave = new APIKey
+            {
+                UserId = userId,
+                Name = keyName,
+                Permissions = permisions
+            };
+            var result = _apiKeyData.SaveAPIKey(keyToSave);
+            if (result && keyToSave.Id != default)
+            {
+                return OperationResponse.Succeed("API Key Created", new {apiKey = unhashedKey});
+            }
+            return OperationResponse.Failed("Unable to create API Key");
+        }
+        public bool DeleteAPIKeyByKeyId(int keyId)
+        {
+            var result = _apiKeyData.DeleteAPIKeyById(keyId);
+            return result;
+        }
+        public bool DeleteAllAPIKeysByUserId(int userId)
+        {
+            var result = _apiKeyData.DeleteAllAPIKeysByUserId(userId);
             return result;
         }
     }

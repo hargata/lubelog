@@ -7,7 +7,8 @@ namespace CarCareTracker.External.Interfaces
         public List<APIKey> GetAPIKeyRecordsByUserId(int userId);
         public APIKey GetAPIKeyById(int apiKeyId);
         public APIKey GetAPIKeyByKey(string hashedKey);
-        public bool CreateNewAPIKey(APIKey apiKey);
-        public bool DeleteAPIKey(int apiKeyId);
+        public bool SaveAPIKey(APIKey apiKey);
+        public bool DeleteAPIKeyById(int apiKeyId);
+        public bool DeleteAllAPIKeysByUserId(int userId);
     }
 }
