@@ -132,3 +132,9 @@
         return { id: @Model.GasRecord.Id}
     }
 </script>
+@if (isNew && userConfig.EnableAutoFillOdometer)
+{
+    <script>
+        setLastOdometer('gasRecordMileage');
+    </script>
+}

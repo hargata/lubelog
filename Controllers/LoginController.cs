@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -31,11 +32,12 @@ namespace CarCareTracker.Controllers
             _config = config;
             _httpClientFactory = httpClientFactory;
         }
-        public IActionResult Index(string redirectURL = "")
+        public IActionResult Index(string redirectURL = "", string redirectURLBase64 = "")
         {
             var remoteAuthConfig = _config.GetOpenIDConfig();
             if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
             {
+                //OIDC login flow
                 var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
                 remoteAuthConfig.State = generatedState;
                 var pkceKeyPair = _loginLogic.GetPKCEChallengeCode();
@@ -48,8 +50,24 @@ namespace CarCareTracker.Controllers
                 {
                     Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
                 }
+                if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+                {
+                    Response.Cookies.Append("OIDC_REDIRECTURL", redirectURLBase64, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+                }
                 var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
                 return Redirect(remoteAuthURL);
+            }
+            //regular login flow
+            if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+            {
+                try
+                {
+                    redirectURL = Encoding.UTF8.GetString(Convert.FromBase64String(redirectURLBase64));
+                }
+                catch
+                {
+                    redirectURL = string.Empty;
+                }
             }
             return View(model: redirectURL);
         }
@@ -79,7 +97,7 @@ namespace CarCareTracker.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult GetRemoteLoginLink()
+        public IActionResult GetRemoteLoginLink(string redirectURLBase64)
         {
             var remoteAuthConfig = _config.GetOpenIDConfig();
             var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
@@ -94,11 +112,20 @@ namespace CarCareTracker.Controllers
             {
                 Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
             }
+            if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+            {
+                Response.Cookies.Append("OIDC_REDIRECTURL", redirectURLBase64, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+            }
             var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
         }
         public async Task<IActionResult> RemoteAuth(string code, string state = "")
         {
+            var storedRedirectURL = Request.Cookies["OIDC_REDIRECTURL"];
+            if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+            {
+                Response.Cookies.Delete("OIDC_REDIRECTURL");
+            }
             try
             {
                 if (!string.IsNullOrWhiteSpace(code))
@@ -221,6 +248,17 @@ namespace CarCareTracker.Controllers
                                     var serializedCookie = JsonSerializer.Serialize(authCookie);
                                     var encryptedCookie = _dataProtector.Protect(serializedCookie);
                                     Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                                    if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+                                    {
+                                        try
+                                        {
+                                            var decodedRedirectURL = Encoding.UTF8.GetString(Convert.FromBase64String(storedRedirectURL));
+                                            return new RedirectResult(decodedRedirectURL);
+                                        } catch
+                                        {
+                                            return new RedirectResult("/Home");
+                                        }
+                                    }
                                     return new RedirectResult("/Home");
                                 }
                                 else
@@ -264,6 +302,12 @@ namespace CarCareTracker.Controllers
         public async Task<IActionResult> RemoteAuthDebug(string code, string state = "")
         {
             List<OperationResponse> results = new List<OperationResponse>();
+            var storedRedirectURL = Request.Cookies["OIDC_REDIRECTURL"];
+            if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+            {
+                Response.Cookies.Delete("OIDC_REDIRECTURL");
+                results.Add(OperationResponse.Succeed($"Redirect URL Configured: {storedRedirectURL}"));
+            }
             try
             {
                 if (!string.IsNullOrWhiteSpace(code))

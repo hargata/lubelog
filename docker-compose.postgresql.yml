@@ -1,9 +1,22 @@
 ---
 
 services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "lubelogger"
+      POSTGRES_PASSWORD: "lubepass"
+      POSTGRES_DB: "lubelogger"
+    volumes:
+      - postgres:/var/lib/postgresql/
+      - /etc/localtime:/etc/localtime:ro
+
   app:
     image: ghcr.io/hargata/lubelogger:latest
     restart: unless-stopped
+    environment:
+      POSTGRES_CONNECTION: "Host=postgres:5432;Username=lubelogger;Password=lubepass;Database=lubelogger;"
     # volumes used to keep data persistent
     volumes:
       - data:/App/data
@@ -11,18 +24,6 @@ services:
     # expose port and/or use serving via traefik
     ports:
       - 8080:8080
-
-  postgres:
-    image: postgres:14
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: "lubelogger"
-      POSTGRES_PASSWORD: "lubepass"
-      POSTGRES_DB: "lubelogger"
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres:/var/lib/postgresql/data
-      - /etc/localtime:/etc/localtime:ro
 
 volumes:
   data:

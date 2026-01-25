@@ -57,6 +57,7 @@ function updateSettings() {
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+        enableAutoFillOdometer: $("#enableAutoFillOdometer").is(":checked"),
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
         showCalendar: $("#showCalendar").is(":checked"),
         showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
@@ -473,4 +474,13 @@ function showCustomWidgets() {
             });
         }
     });
+}
+function loadTooltips() {
+    $('.settingsToolTip').map((index, elem) => {
+        new bootstrap.Tooltip(elem);
+    })
+    $('.settingsToolTip').on('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+    })
 }

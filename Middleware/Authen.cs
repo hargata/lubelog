@@ -163,7 +163,8 @@ namespace CarCareTracker.Middleware
             }
             if (Request.Path.Value == "/Vehicle/Index" && Request.QueryString.HasValue)
             {
-                Response.Redirect($"/Login/Index?redirectURL={Request.Path.Value}{Request.QueryString.Value}");
+                var encodedRedirectUrl = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Request.Path.Value}{Request.QueryString.Value}"));
+                Response.Redirect($"/Login/Index?redirectURLBase64={encodedRedirectUrl}");
             } else
             {
                 Response.Redirect("/Login/Index");

@@ -15,6 +15,7 @@
         public bool UseMarkDownOnSavedNotes { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
+        public bool EnableAutoFillOdometer { get; set; }
         public bool EnableShopSupplies { get; set; }
         public bool EnableExtraFieldColumns { get; set; }
         public bool HideSoldVehicles { get; set; }

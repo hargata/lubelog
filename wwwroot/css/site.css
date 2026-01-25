@@ -703,3 +703,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     display:flex;
     flex-direction:column;
 }
+
+.settingsToolTip {
+    color: var(--bs-link-color);
+}

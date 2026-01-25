@@ -880,3 +880,11 @@ function getDefaultTabName() {
             break;
     }
 }
+function setLastOdometer(mileageInputId) {
+    $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (isNaN(data)) {
+            return;
+        }
+        $(`#${mileageInputId}`).val(data);
+    });
+}
