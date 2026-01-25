@@ -125,11 +125,13 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed($"No Recurring Taxes Updated Due To Error: {ex.Message}"));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddTaxRecordJson(int vehicleId, [FromBody] TaxRecordExportModel input) => AddTaxRecord(vehicleId, input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/taxrecords/add")]
@@ -179,6 +181,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Delete })]
         [HttpDelete]
         [Route("/api/vehicle/taxrecords/delete")]
         public IActionResult DeleteTaxRecord(int id)
@@ -202,10 +205,12 @@ namespace CarCareTracker.Controllers
             }
             return Json(OperationResponse.Conditional(result, "Tax Record Deleted"));
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/taxrecords/update")]
         [Consumes("application/json")]
         public IActionResult UpdateTaxRecordJson([FromBody] TaxRecordExportModel input) => UpdateTaxRecord(input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/taxrecords/update")]
         public IActionResult UpdateTaxRecord(TaxRecordExportModel input)

@@ -121,11 +121,13 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/supplyrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddSupplyRecordJson(int vehicleId, [FromBody] SupplyRecordExportModel input) => AddSupplyRecord(vehicleId, input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/supplyrecords/add")]
@@ -178,6 +180,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Delete })]
         [HttpDelete]
         [Route("/api/vehicle/supplyrecords/delete")]
         public IActionResult DeleteSupplyRecord(int id)
@@ -211,10 +214,12 @@ namespace CarCareTracker.Controllers
             }
             return Json(OperationResponse.Conditional(result, "Supply Record Deleted"));
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/supplyrecords/update")]
         [Consumes("application/json")]
         public IActionResult UpdateSupplyRecordJson([FromBody] SupplyRecordExportModel input) => UpdateSupplyRecord(input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/supplyrecords/update")]
         public IActionResult UpdateSupplyRecord(SupplyRecordExportModel input)

@@ -25,6 +25,7 @@ namespace CarCareTracker.Logic
         bool DeleteAllHouseholdByChildUserId(int childUserId);
         OperationResponse CreateAPIKey(int userId, string keyName, List<HouseholdPermission> permisions);
         List<APIKey> GetAPIKeysByUserId(int userId);
+        List<HouseholdPermission> GetAPIKeyPermissions(string apiKey);
         bool DeleteAPIKeyByKeyIdAndUserId(int keyId, int userId);
         bool DeleteAllAPIKeysByUserId(int userId);
     }
@@ -324,6 +325,16 @@ namespace CarCareTracker.Logic
         {
             var result = _apiKeyData.GetAPIKeyRecordsByUserId(userId);
             return result;
+        }
+        public List<HouseholdPermission> GetAPIKeyPermissions(string apiKey)
+        {
+            var hashedKey = StaticHelper.GetHash(apiKey);
+            var existingKey = _apiKeyData.GetAPIKeyByKey(hashedKey);
+            if (existingKey.Id != default)
+            {
+                return existingKey.Permissions;
+            }
+            return new List<HouseholdPermission>();
         }
         public bool DeleteAPIKeyByKeyIdAndUserId(int keyId, int userId)
         {
