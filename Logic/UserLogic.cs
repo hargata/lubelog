@@ -24,7 +24,8 @@ namespace CarCareTracker.Logic
         bool DeleteAllHouseholdByParentUserId(int parentUserId);
         bool DeleteAllHouseholdByChildUserId(int childUserId);
         OperationResponse CreateAPIKey(int userId, string keyName, List<HouseholdPermission> permisions);
-        bool DeleteAPIKeyByKeyId(int keyId);
+        List<APIKey> GetAPIKeysByUserId(int userId);
+        bool DeleteAPIKeyByKeyIdAndUserId(int keyId, int userId);
         bool DeleteAllAPIKeysByUserId(int userId);
     }
     public class UserLogic: IUserLogic
@@ -296,6 +297,12 @@ namespace CarCareTracker.Logic
         }
         public OperationResponse CreateAPIKey(int userId, string keyName, List<HouseholdPermission> permisions)
         {
+            //check if user already has an API key by that name.
+            var existingApiKeys = _apiKeyData.GetAPIKeyRecordsByUserId(userId);
+            if (existingApiKeys.Any(x=>x.Name.ToLower() == keyName.ToLower()))
+            {
+                return OperationResponse.Failed("An API Key with that name already exists");
+            }
             //generate key pair
             var unhashedKey = Guid.NewGuid().ToString().Replace("-", string.Empty);
             var hashedKey = StaticHelper.GetHash(unhashedKey);
@@ -303,7 +310,8 @@ namespace CarCareTracker.Logic
             {
                 UserId = userId,
                 Name = keyName,
-                Permissions = permisions
+                Permissions = permisions,
+                Key = hashedKey
             };
             var result = _apiKeyData.SaveAPIKey(keyToSave);
             if (result && keyToSave.Id != default)
@@ -312,10 +320,20 @@ namespace CarCareTracker.Logic
             }
             return OperationResponse.Failed("Unable to create API Key");
         }
-        public bool DeleteAPIKeyByKeyId(int keyId)
+        public List<APIKey> GetAPIKeysByUserId(int userId)
         {
-            var result = _apiKeyData.DeleteAPIKeyById(keyId);
+            var result = _apiKeyData.GetAPIKeyRecordsByUserId(userId);
             return result;
+        }
+        public bool DeleteAPIKeyByKeyIdAndUserId(int keyId, int userId)
+        {
+            var existingKey = _apiKeyData.GetAPIKeyById(keyId);
+            if (existingKey.Id != default && existingKey.UserId == userId)
+            {
+                var result = _apiKeyData.DeleteAPIKeyById(keyId);
+                return result;
+            }
+            return false;
         }
         public bool DeleteAllAPIKeysByUserId(int userId)
         {

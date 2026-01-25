@@ -24,8 +24,7 @@ namespace CarCareTracker.External.Implementations
         {
             var db = _liteDB.GetLiteDB();
             var table = db.GetCollection<APIKey>(tableName);
-            var apiKeyRecord = table.FindOne(Query.EQ(nameof(APIKey.Id), apiKeyId));
-            return apiKeyRecord ?? new APIKey();
+            return table.FindById(apiKeyId);
         }
         public APIKey GetAPIKeyByKey(string hashedKey)
         {

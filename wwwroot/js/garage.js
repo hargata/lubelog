@@ -661,6 +661,59 @@ function addUserToHousehold() {
     });
 }
 
+function createApiKey() {
+    Swal.fire({
+        title: 'Create API Key',
+        html: `
+                            <input type="text" id="inputApiKeyName" class="swal2-input" placeholder="Key Name" onkeydown="handleSwalEnter(event)">
+                            `,
+        confirmButtonText: 'Create',
+        focusConfirm: false,
+        preConfirm: () => {
+            const keyName = $("#inputApiKeyName").val();
+            if (!keyName) {
+                Swal.showValidationMessage(`Please enter a name`);
+            }
+            return { keyName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Home/CreateAPIKeyForUser', { keyName: result.value.keyName, permissions: [] }, function (data) {
+                if (data.success) {
+                    Swal.fire({
+                        title: data.message,
+                        icon: 'success',
+                        html: `<div class="input-group"><input type="text" class="form-control" readonly value="${data.additionalData.apiKey}"><div class="input-group-text"><button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="copyApiKey(this)"><i class="bi bi-copy"></i></button></div></div>`
+                    })
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+    });
+}
+function copyApiKey(elem) {
+    let textToCopy = $(elem).parent().siblings("input").val();
+    navigator.clipboard.writeText(textToCopy);
+    Swal.showValidationMessage(`API Key Copied to Clipboard`);
+}
+
+function getUserApiKeys() {
+    $.get('/Home/GetUserAPIKeys', function (data) {
+        console.log(data);
+    })
+}
+
+function deleteApiKey(keyId) {
+    $.post('/Home/DeleteAPIKeyForUser', { keyId: keyId }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
 function showAccountInformationModal() {
     $.get('/Home/GetUserAccountInformationModal', function (data) {
         $('#accountInformationModalContent').html(data);
