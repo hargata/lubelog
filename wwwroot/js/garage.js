@@ -661,6 +661,87 @@ function addUserToHousehold() {
     });
 }
 
+function showUserApiKeyModalFromUserModal() {
+    $('#accountInformationModal').modal('hide');
+    showUserApiKeyModal();
+}
+
+function showUserApiKeyModal() {
+    $.get('/Home/GetUserAPIKeys', function (data) {
+        $('#userApiKeyModalContent').html(data);
+        $("#userApiKeyModal").modal('show');
+    });
+}
+
+function hideUserApiKeyModal() {
+    $('#userApiKeyModal').modal('hide');
+}
+
+function showCreateApiKeyModal() {
+    $.get('/Home/GetCreateApiKeyModal', function (data) {
+        $('#createApiKeyModalContent').html(data);
+        hideUserApiKeyModal();
+        $("#createApiKeyModal").modal('show');
+    });
+}
+
+function hideCreateApiKeyModal() {
+    $("#createApiKeyModal").modal('hide');
+    showUserApiKeyModal();
+}
+
+function createApiKey() {
+    let apiKeyName = $("#inputApiKeyName").val();
+    let apiKeyRole = $("#inputApiKeyRole").val();
+    //validate
+    if (apiKeyName.trim() == '') {
+        $("#inputApiKeyName").addClass('is-invalid');
+        return;
+    }
+    else {
+        $("#inputApiKeyName").removeClass('is-invalid');
+    }
+    let permissions = [];
+    switch (apiKeyRole) {
+        case 'editor':
+            permissions.push('Edit');
+            break;
+        case 'manager':
+            permissions.push('Edit');
+            permissions.push('Delete');
+            break;
+    }
+    $.post('/Home/CreateAPIKeyForUser', { keyName: apiKeyName, permissions: permissions }, function (data) {
+        if (data.success) {
+            $("#createApiKeyModal").modal('hide');
+            showUserApiKeyModal();
+            Swal.fire({
+                title: data.message,
+                icon: 'success',
+                html: `<div class="input-group"><input type="text" class="form-control" readonly value="${data.additionalData.apiKey}"><div class="input-group-text"><button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="copyApiKey(this)"><i class="bi bi-copy"></i></button></div></div>`
+            })
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+function copyApiKey(elem) {
+    let textToCopy = $(elem).parent().siblings("input").val();
+    navigator.clipboard.writeText(textToCopy);
+    Swal.showValidationMessage(`API Key Copied to Clipboard`);
+}
+
+function deleteApiKey(keyId) {
+    $.post('/Home/DeleteAPIKeyForUser', { keyId: keyId }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+            showUserApiKeyModal();
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
+
 function showAccountInformationModal() {
     $.get('/Home/GetUserAccountInformationModal', function (data) {
         $('#accountInformationModalContent').html(data);

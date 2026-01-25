@@ -317,10 +317,12 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicles/update")]
         [Consumes("application/json")]
         public IActionResult UpdateVehicleJson([FromBody] VehicleImportModel input) => UpdateVehicle(input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicles/update")]
         public IActionResult UpdateVehicle(VehicleImportModel input)

@@ -89,11 +89,13 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
         [Consumes("application/json")]
         public IActionResult AddUpgradeRecordJson(int vehicleId, [FromBody] GenericRecordExportModel input) => AddUpgradeRecord(vehicleId, input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/upgraderecords/add")]
@@ -156,6 +158,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Delete })]
         [HttpDelete]
         [Route("/api/vehicle/upgraderecords/delete")]
         public IActionResult DeleteUpgradeRecord(int id)
@@ -184,10 +187,12 @@ namespace CarCareTracker.Controllers
             }
             return Json(OperationResponse.Conditional(result, "Upgrade Record Deleted"));
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/upgraderecords/update")]
         [Consumes("application/json")]
         public IActionResult UpdateUpgradeRecordJson([FromBody] GenericRecordExportModel input) => UpdateUpgradeRecord(input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/upgraderecords/update")]
         public IActionResult UpdateUpgradeRecord(GenericRecordExportModel input)

@@ -76,7 +76,8 @@ namespace CarCareTracker.Controllers
                 && _configHelper.DeleteUserConfig(userId) 
                 && _loginLogic.DeleteUser(userId)
                 && _userLogic.DeleteAllHouseholdByChildUserId(userId)
-                && _userLogic.DeleteAllHouseholdByParentUserId(userId);
+                && _userLogic.DeleteAllHouseholdByParentUserId(userId)
+                && _userLogic.DeleteAllAPIKeysByUserId(userId);
             return Json(result);
         }
         [HttpPost]

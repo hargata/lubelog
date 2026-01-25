@@ -336,6 +336,29 @@ namespace CarCareTracker.Controllers
             var result = _userLogic.AddUserToHousehold(GetUserID(), username);
             return Json(result);
         }
+        [HttpGet]
+        public IActionResult GetUserAPIKeys()
+        {
+            var result = _userLogic.GetAPIKeysByUserId(GetUserID());
+            return PartialView("_UserApiKeysModal", result);
+        }
+        [HttpGet]
+        public IActionResult GetCreateApiKeyModal()
+        {
+            return PartialView("_CreateApiKeyModal");
+        }
+        [HttpPost]
+        public IActionResult CreateAPIKeyForUser(string keyName, List<HouseholdPermission> permissions)
+        {
+            var result = _userLogic.CreateAPIKey(GetUserID(), keyName, permissions);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult DeleteAPIKeyForUser(int keyId)
+        {
+            var result = _userLogic.DeleteAPIKeyByKeyIdAndUserId(keyId, GetUserID());
+            return Json(OperationResponse.Conditional(result, "API Key Deleted", StaticHelper.GenericErrorMessage));
+        }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public IActionResult GetRootAccountInformationModal()

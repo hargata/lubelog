@@ -78,11 +78,13 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/equipmentrecords/add")]
         [Consumes("application/json")]
         public IActionResult AddEquipmentRecordJson(int vehicleId, [FromBody] EquipmentRecordExportModel input) => AddEquipmentRecord(vehicleId, input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/equipmentrecords/add")]
@@ -129,6 +131,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Delete })]
         [HttpDelete]
         [Route("/api/vehicle/equipmentrecords/delete")]
         public IActionResult DeleteEquipmentRecord(int id)
@@ -163,10 +166,12 @@ namespace CarCareTracker.Controllers
             }
             return Json(OperationResponse.Conditional(result, "Equipment Record Deleted"));
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/equipmentrecords/update")]
         [Consumes("application/json")]
         public IActionResult UpdateEquipmentRecordJson([FromBody] EquipmentRecordExportModel input) => UpdateEquipmentRecord(input);
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPut]
         [Route("/api/vehicle/equipmentrecords/update")]
         public IActionResult UpdateEquipmentRecord(EquipmentRecordExportModel input)

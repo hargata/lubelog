@@ -74,6 +74,11 @@ function executeAPIEndpoint(sender) {
     if (hasError) {
         return;
     }
+    let currentParams = new URLSearchParams(window.location.search);
+    let apiKey = currentParams.get('apiKey');
+    if (apiKey != null) {
+        apiPath = `${apiPath}?apiKey=${apiKey}`;
+    }
     let ajaxConfig = {
         url: apiPath,
         type: apiMethodType,
