@@ -340,7 +340,12 @@ namespace CarCareTracker.Controllers
         public IActionResult GetUserAPIKeys()
         {
             var result = _userLogic.GetAPIKeysByUserId(GetUserID());
-            return Json(result);
+            return PartialView("_UserApiKeysModal", result);
+        }
+        [HttpGet]
+        public IActionResult GetCreateApiKeyModal()
+        {
+            return PartialView("_CreateApiKeyModal");
         }
         [HttpPost]
         public IActionResult CreateAPIKeyForUser(string keyName, List<HouseholdPermission> permissions)
