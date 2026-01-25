@@ -24,6 +24,7 @@ namespace CarCareTracker.Logic
         OperationResponse SendRegistrationToken(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         UserData ValidateOpenIDUser(LoginModel credentials);
+        UserData ValidateAPIKey(string apiKey);
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
@@ -36,17 +37,20 @@ namespace CarCareTracker.Logic
     {
         private readonly IUserRecordDataAccess _userData;
         private readonly ITokenRecordDataAccess _tokenData;
+        private readonly IApiKeyRecordDataAccess _apiKeyData;
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _configHelper;
         private IMemoryCache _cache;
         public LoginLogic(IUserRecordDataAccess userData, 
             ITokenRecordDataAccess tokenData, 
+            IApiKeyRecordDataAccess apiKeyData,
             IMailHelper mailHelper,
             IConfigHelper configHelper,
             IMemoryCache memoryCache)
         {
             _userData = userData;
             _tokenData = tokenData;
+            _apiKeyData = apiKeyData;
             _mailHelper = mailHelper;
             _configHelper = configHelper;
             _cache = memoryCache;
@@ -292,6 +296,26 @@ namespace CarCareTracker.Logic
             {
                 return new UserData();
             }
+        }
+        public UserData ValidateAPIKey(string apiKey)
+        {
+            var hashedAPIKey = StaticHelper.GetHash(apiKey);
+            var apiKeyUser = _apiKeyData.GetAPIKeyByKey(hashedAPIKey);
+            if (apiKeyUser.UserId != default)
+            {
+                if (apiKeyUser.UserId == -1)
+                {
+                    var rootUserData = GetRootUserData(apiKeyUser.Name);
+                    return rootUserData;
+                }
+                var result = _userData.GetUserRecordById(apiKeyUser.UserId);
+                if (result.Id != default)
+                {
+                    result.Password = string.Empty;
+                    return result;
+                }
+            }
+            return new UserData();
         }
         #region "Admin Functions"
         public bool MakeUserAdmin(int userId, bool isAdmin)
