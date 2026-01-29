@@ -186,6 +186,16 @@ namespace CarCareTracker.Controllers
                     return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {string.Join(' ', invalidEquipmentRecordIds)} does not exist."));
                 }
             }
+            else if (!string.IsNullOrWhiteSpace(input.AutoIncludeEquipment) && bool.Parse(input.AutoIncludeEquipment))
+            {
+                // Auto include equipment marked as currently equipped for vehicle
+                var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                var equippedEquipment = equipmentRecords.Where(x => x.IsEquipped);
+                if (equippedEquipment.Any())
+                {
+                    equipmentRecordId = equippedEquipment.Select(x => x.Id).ToList();
+                }
+            }
             try
             {
                 var odometerRecord = new OdometerRecord()
