@@ -129,12 +129,12 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
         [Consumes("application/json")]
-        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input) => AddOdometerRecord(vehicleId, input);
+        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input, bool autoIncludeEquipment = false) => AddOdometerRecord(vehicleId, input, autoIncludeEquipment);
         [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
-        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
+        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input, bool autoIncludeEquipment = false)
         {
             if (vehicleId == default)
             {
@@ -187,7 +187,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             // Auto include equipment marked as currently equipped for vehicle (merges with any explicit IDs)
-            if (!string.IsNullOrWhiteSpace(input.AutoIncludeEquipment) && bool.Parse(input.AutoIncludeEquipment))
+            if (autoIncludeEquipment)
             {
                 var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
                 var equippedEquipment = equipmentRecords.Where(x => x.IsEquipped);

@@ -83,8 +83,6 @@ namespace CarCareTracker.Models
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public string EquipmentRecordId { get; set; }
-        [JsonConverter(typeof(FromBoolOptional))]
-        public string AutoIncludeEquipment { get; set; }
     }
     public class TaxRecordExportModel
     {
