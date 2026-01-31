@@ -187,6 +187,11 @@
                   "name":"vehicleId",
                   "description":"Id of the vehicle",
                   "required":true
+               },
+               {
+                  "name":"autoIncludeEquipment",
+                  "description":"Automatically include all currently equipped equipment for the vehicle. Accepts true/false",
+                  "required":false
                }
             ],
             "hasBody":true,
