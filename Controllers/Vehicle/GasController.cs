@@ -41,6 +41,18 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Access Denied"));
             }
             gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            if (gasRecord.Supplies.Any())
+            {
+                gasRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(gasRecord.Supplies, DateTime.Parse(gasRecord.Date), $"Fuel Record {gasRecord.Date}"));
+                if (gasRecord.CopySuppliesAttachment)
+                {
+                    gasRecord.Files.AddRange(GetSuppliesAttachments(gasRecord.Supplies));
+                }
+            }
+            if (gasRecord.DeletedRequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(gasRecord.DeletedRequisitionHistory, $"Fuel Record {gasRecord.Date}");
+            }
             var convertedRecord = gasRecord.ToGasRecord();
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
             if (result)
@@ -91,6 +103,7 @@ namespace CarCareTracker.Controllers
                 MissedFuelUp = result.MissedFuelUp,
                 Notes = result.Notes,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields)
             };
             var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
@@ -111,6 +124,11 @@ namespace CarCareTracker.Controllers
             if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
                 return OperationResponse.Failed("Access Denied");
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, $"Fuel Record {existingRecord.Date.ToShortDateString()}");
             }
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)

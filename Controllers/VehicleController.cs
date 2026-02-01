@@ -1530,7 +1530,8 @@ namespace CarCareTracker.Controllers
                                 Date = record.Date,
                                 Notes = record.Notes,
                                 Mileage = record.Mileage,
-                                ExtraFields = record.ExtraFields
+                                ExtraFields = record.ExtraFields,
+                                RequisitionHistory = record.RequisitionHistory
                             });
                             recordsAdded++;
                         }
