@@ -191,6 +191,11 @@ app.UseStaticFiles(new StaticFileOptions
     }
 });
 
+app.UseWhen(
+    ctx => ctx.Request.Path.StartsWithSegments("/api") && ctx.Request.ContentType == "application/json",
+    ab => ab.UseMiddleware<BufferBody>()
+);
+
 app.UseRouting();
 
 app.UseAuthorization();
