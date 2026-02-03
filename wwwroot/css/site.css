@@ -31,7 +31,6 @@ html {
     }
 
 .vehicleDetailTabContainer {
-    max-height: 65vh;
     overflow-y: auto;
     overflow-x: auto;
 }
@@ -338,6 +337,9 @@ html {
 
     .lubelogger-navbar-button {
         display: none;
+    }
+    .lubelogger-record-nav {
+        display:none;
     }
 }
 
@@ -706,4 +708,8 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 
 .settingsToolTip {
     color: var(--bs-link-color);
+}
+
+.vehicleTabPane {
+    height: calc(100vh - 48px - 2.5rem);
 }

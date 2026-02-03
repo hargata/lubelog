@@ -1509,7 +1509,20 @@ function handleTableRowClick(e, callBack, rowId) {
         $(e).removeClass('table-active');
     }
 }
-
+function showTableContextMenuMobileNav(sender) {
+    let tableRowsActive = $('.table tr.table-active');
+    if (tableRowsActive.length == 0) {
+        return;
+    }
+    let xPosition = $(sender).position().left;
+    let yPosition = $(sender).position().top;
+    $(".table-context-menu").fadeIn("fast");
+    determineContextMenuItems();
+    $(".table-context-menu").css({
+        left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
+        top: getMenuPosition(yPosition, 'height', 'scrollTop')
+    });
+}
 function showTableContextMenuForMobile(e, xPosition, yPosition) {
     if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
@@ -1982,4 +1995,22 @@ function isOperationResponse(result) {
         }
         return true;
     }
+}
+function toggleSelectMode() {
+    $('#chkSelectMode').trigger('click');
+}
+function checkSelectModeToggle() {
+    if ($('#chkSelectMode').is(':checked')) {
+        $('.select-mode-toggle').removeClass('btn-outline-secondary');
+        $('.select-mode-toggle').addClass('btn-primary');
+    } else {
+        $('.select-mode-toggle').removeClass('btn-primary');
+        $('.select-mode-toggle').addClass('btn-outline-secondary');
+    }
+}
+function showDropDownForRecordNav(sender) {
+    //remove all previously copied dropdown
+    $(sender).parent().find('.record-dropdown').remove();
+    let clonedMenu = $('.record-dropdown').clone();
+    $(sender).parent().append(clonedMenu);
 }
