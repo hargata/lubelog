@@ -1007,5 +1007,24 @@ namespace CarCareTracker.Helper
 
             return Sb.ToString();
         }
+        public static string TrimDecimal(decimal input, int maxDecimalPlace = 3)
+        {
+            //determine number of decimal places
+            string separator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
+            var decimalPart = input.ToString().Split(separator);
+            if (decimalPart.Length < 2) //no decimals
+            {
+                return input.ToString();
+            }
+            else
+            {
+                int numOfDecimals = decimalPart[1].Length;
+                if (numOfDecimals > 3)
+                {
+                    numOfDecimals = 3;
+                }
+                return input.ToString($"N{numOfDecimals}");
+            }
+        }
     }
 }
