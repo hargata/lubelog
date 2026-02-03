@@ -324,6 +324,9 @@ html {
     .lubelogger-mobile-nav > ul > li > .nav-link.active {
         color: #6ea8fe;
     }
+    .lubelogger-record-add {
+        display:none;
+    }
 }
 
 @media(min-width: 576px) {
@@ -712,4 +715,8 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 
 .vehicleTabPane {
     height: calc(100vh - 48px - 2.5rem);
+}
+
+.lubelogger-record-nav .nav-no-copy {
+    display:none;
 }

@@ -2009,8 +2009,12 @@ function checkSelectModeToggle() {
     }
 }
 function showDropDownForRecordNav(sender) {
-    //remove all previously copied dropdown
-    $(sender).parent().find('.record-dropdown').remove();
-    let clonedMenu = $('.record-dropdown').clone();
-    $(sender).parent().append(clonedMenu);
+    $('.lubelogger-record-add .record-dropdown > li').map((index, elem) => {
+        $(sender).parent().find('.record-dropdown').append($(elem));
+    })
+    $(sender).off('hidden.bs.dropdown').on('hidden.bs.dropdown', () => {
+        $(sender).parent().find('.record-dropdown > li').map((index, elem) => {
+            $('.lubelogger-record-add .record-dropdown').append($(elem));
+        })
+    });
 }

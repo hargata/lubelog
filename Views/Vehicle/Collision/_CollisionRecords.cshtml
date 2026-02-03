@@ -32,7 +32,7 @@
                     }
                 </datalist>
             </div>
-            <div>
+            <div class="lubelogger-record-add">
                 @if (enableCsvImports)
                 {
                     <div class="btn-group">
@@ -45,9 +45,9 @@
                             <li><a class="dropdown-item" href="#" onclick="exportVehicleData('RepairRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="searchTableRows('accident-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
+                            <li class="nav-no-copy"><a class="dropdown-item" href="#" onclick="searchTableRows('accident-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
+                            <li class="nav-no-copy"><hr class="dropdown-divider"></li>
+                            <li class="nav-no-copy">
                                 <div class="list-group-item">               
                                     <input class="btn-check" type="checkbox" id="chkSelectMode" onchange="checkSelectModeToggle()">
                                     <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
@@ -175,11 +175,13 @@
     <div class="row lubelogger-record-nav mt-2 hideOnPrint">
         <div class="d-flex justify-content-between">
             <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
-            <button onclick="showTableContextMenuMobileNav(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-menu-up"></i></button>
+            <button onclick="showTableContextMenuMobileNav(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-menu-app-fill"></i></button>
             <button onclick="showAddCollisionRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
             <button onclick="searchTableRows('accident-tab-pane')" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-search"></i></button>
             <div>
                 <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+                <ul class="dropdown-menu record-dropdown">
+                </ul>
             </div>
         </div>
     </div>
