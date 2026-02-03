@@ -124,7 +124,7 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
-        [TypeFilter(typeof(VehicleIdFilter), Arguments = new object[] { new string[] { "vehicleId" } })]
+        [TypeFilter(typeof(QueryParamFilter), Arguments = new object[] { new string[] { "vehicleId", "autoIncludeEquipment" } })]
         [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
