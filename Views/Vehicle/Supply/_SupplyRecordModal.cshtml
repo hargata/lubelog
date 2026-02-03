@@ -32,7 +32,7 @@
                         <div class="col-md-6 col-12">
                             <label for="supplyRecordQuantity">@translator.Translate(userLanguage,"Quantity")</label>
                             <div class="input-group">
-                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "" : Model.Quantity.ToString("N2"))">
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="supplyRecordQuantity" class="form-control" placeholder="@translator.Translate(userLanguage,"Quantity")" value="@(isNew ? "" : StaticHelper.TrimDecimal(Model.Quantity, 2))">
                                 <div class="input-group-text">
                                     <button type="button" class="btn btn-sm zero-y-padding btn-primary" onclick="replenishSupplies()"><i class="bi bi-plus"></i></button>
                                 </div>
