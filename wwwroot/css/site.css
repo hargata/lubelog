@@ -481,12 +481,10 @@ input[type="file"] {
 }
 
 .vehicle-sold-banner {
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.6);
     width: 100%;
-    text-align: center;
     position: absolute;
     z-index: 10;
+    padding: 0.25rem;
 }
 
 .copyable {
@@ -771,4 +769,8 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .supply-store-row:has(input:checked) {
     background-color: var(--bs-primary-bg-subtle);
     border-color: var(--bs-primary-border-subtle) !important;
+}
+
+.badge.garage-metric-badge {
+    background-color: rgba(0, 0, 0, 0.6);
 }

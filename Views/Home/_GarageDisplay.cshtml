@@ -40,69 +40,69 @@
         }
     </div>
 }
-<div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(renderTopRow ? "" : "mt-2")">
+    @if (Model.Any())
+    {
+    <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(renderTopRow ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item user-select-none" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-extra-fields="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" onmousemove="garageRangeMouseMove(this)" ontouchstart="detectGarageLongTouch(this)" ontouchend="detectGarageTouchEndPremature(this)">
+                <div class="col-lg-4 col-md-6 col-12 garage-item user-select-none" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-extra-fields="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" onmousemove="garageRangeMouseMove(this)" ontouchstart="detectGarageLongTouch(this)" ontouchend="detectGarageTouchEndPremature(this)">
                     <div class="card">
-                        <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
+                        <img src="@vehicle.ImageLocation" style="height:145px; object-fit:cover; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
-                            <div class="vehicle-sold-banner"><p class='display-6 mb-0'>@translator.Translate(userLanguage, "SOLD")</p></div>
+                            <div class="vehicle-sold-banner">
+                                <p class='display-6 mb-0'></p>
+                                <span class="badge garage-metric-badge">@($"{translator.Translate(userLanguage, "SOLD")} {vehicle.SoldDate}")</span>
+                            </div>
                         } else if (vehicle.DashboardMetrics.Any())
                         {
-                            <div class="vehicle-sold-banner">
+                            <div class="vehicle-sold-banner d-flex gap-2 flex-wrap">
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.Default) && vehicle.LastReportedMileage != default)
                             {
-                                
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
-                                        </div>
-                                        @if (vehicle.HasReminders)
-                                        {
-                                            <div>
-                                                <span class="me-2"><i class="bi bi bi-bell-fill text-warning"></i></span>
-                                            </div>
-                                        }
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
+                                    @if (vehicle.HasReminders)
+                                    {
+                                        <span class="badge garage-metric-badge" style="order: 1;"><i class="bi bi bi-bell-fill text-warning"></i></span>
+                                    }
                             }
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.CostPerMile) && vehicle.CostPerMile != default)
                             {
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.CostPerMile.ToString("C2")}/{vehicle.DistanceUnit}")</span>
-                                        </div>
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.CostPerMile.ToString("C2")}/{vehicle.DistanceUnit}")</span>
                             }
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.TotalCost) && vehicle.TotalCost != default)
                             {
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.TotalCost.ToString("C2")}")</span>
-                                        </div>
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.TotalCost.ToString("C2")}")</span>
                             }
                             </div>
                         }
                         <div class="card-body">
-                            <h5 class="garage-item-attribute card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
+                            <small class="garage-item-attribute card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</small>
                             <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Make}")</h5>
                             <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Model}")</h5>
-                            <p class="garage-item-attribute card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
+                            <small class="garage-item-attribute card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</small>
                         </div>
                     </div>
                 </div>
             }
         }
-    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 garage-item-add user-select-none">
-            <div class="card" onclick="showAddVehicleModal()" style="height:100%;">
-                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;pointer-events:none;" />
+         <div class="col-lg-4 col-md-6 col-12 garage-item-add user-select-none">
+            <div class="card d-flex justify-content-center align-items-center" onclick="showAddVehicleModal()" style="height:100%; min-height: 145px; border-style:dashed;">
+                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;pointer-events:none;" />
+            </div>
+        </div> 
+    </div>
+    } else
+    {
+        <div class="d-flex justify-content-center align-items-center mt-2">
+            <div class="col-lg-4 col-md-6 col-12 garage-item-add user-select-none">
+                <div class="card d-flex justify-content-center align-items-center" onclick="showAddVehicleModal()" style="height:100%; min-height: 145px; border-style:dashed;">
+                    <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;pointer-events:none;" />
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
 <ul class="garage-context-menu dropdown-menu" style="display:none;">
     <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
