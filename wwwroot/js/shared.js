@@ -1509,20 +1509,6 @@ function handleTableRowClick(e, callBack, rowId) {
         $(e).removeClass('table-active');
     }
 }
-function showTableContextMenuMobileNav(sender) {
-    let tableRowsActive = $('.table tr.table-active');
-    if (tableRowsActive.length == 0) {
-        return;
-    }
-    let xPosition = $(sender).position().left;
-    let yPosition = $(sender).position().top;
-    $(".table-context-menu").fadeIn("fast");
-    determineContextMenuItems();
-    $(".table-context-menu").css({
-        left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
-        top: getMenuPosition(yPosition, 'height', 'scrollTop')
-    });
-}
 function showTableContextMenuForMobile(e, xPosition, yPosition) {
     if (!$(e).hasClass('table-active')) {
         addToSelectedRows($(e).attr('data-rowId'));
@@ -2009,12 +1995,34 @@ function checkSelectModeToggle() {
     }
 }
 function showDropDownForRecordNav(sender) {
-    $('.lubelogger-record-add .record-dropdown > li').map((index, elem) => {
-        $(sender).parent().find('.record-dropdown').append($(elem));
-    })
-    $(sender).off('hidden.bs.dropdown').on('hidden.bs.dropdown', () => {
-        $(sender).parent().find('.record-dropdown > li').map((index, elem) => {
-            $('.lubelogger-record-add .record-dropdown').append($(elem));
-        })
-    });
+    $(sender).off('hide.bs.dropdown');
+    let tableRowsActive = $('.table tr.table-active');
+    let siblingContextMenu = $('.lubelogger-record-nav .record-dropdown');
+    if (!siblingContextMenu.hasClass('show')) {
+        return;
+    }
+    //clear off any existing items
+    if (siblingContextMenu.find('li').length > 0) {
+        siblingContextMenu.find('li').remove();
+    }
+    if (tableRowsActive.length == 0) {
+        //clone menu items
+        var storedMenuItems = $('.lubelogger-record-add .record-dropdown > li');
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            storedMenuItems.map((index, elem) => {
+                $('.lubelogger-record-add .record-dropdown').append($(elem));
+            })
+        });
+    } else {
+        let storedMenuItems = $('.table-context-menu > li').clone();
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            siblingContextMenu.find('li').remove();
+        });
+    }
 }
