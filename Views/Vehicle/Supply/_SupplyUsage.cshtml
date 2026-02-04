@@ -76,13 +76,17 @@
     }
 </div>
 <div class="modal-footer">
-    <span id="supplySumLabel" style="margin-right:auto;">Total: 0.00</span>
-    <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="inputCopySuppliesAttachments">
-        <label class="form-check-label" for="inputCopySuppliesAttachments">@translator.Translate(userLanguage, "Copy Attachments")</label>
+    <div class="d-flex flex-wrap justify-content-between flex-grow-1">
+        <span id="supplySumLabel">Total: 0.00</span>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="inputCopySuppliesAttachments">
+            <label class="form-check-label" for="inputCopySuppliesAttachments">@translator.Translate(userLanguage, "Copy Attachments")</label>
+        </div>
     </div>
-    <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">@translator.Translate(userLanguage, "Cancel")</button>
-    <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">@translator.Translate(userLanguage, "Select")</button>
+    <div>
+        <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">@translator.Translate(userLanguage, "Cancel")</button>
+        <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">@translator.Translate(userLanguage, "Select")</button>
+    </div>
 </div>
 <script>
     function recalculateTotal() {
