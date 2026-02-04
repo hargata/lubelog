@@ -1983,3 +1983,48 @@ function isOperationResponse(result) {
         return true;
     }
 }
+function toggleSelectMode() {
+    $('#chkSelectMode').trigger('click');
+}
+function checkSelectModeToggle() {
+    if ($('#chkSelectMode').is(':checked')) {
+        $('.select-mode-toggle').removeClass('btn-outline-secondary');
+        $('.select-mode-toggle').addClass('btn-primary');
+    } else {
+        $('.select-mode-toggle').removeClass('btn-primary');
+        $('.select-mode-toggle').addClass('btn-outline-secondary');
+    }
+}
+function showDropDownForRecordNav(sender) {
+    $(sender).off('hide.bs.dropdown');
+    let tableRowsActive = $('.table tr.table-active');
+    let siblingContextMenu = $('.lubelogger-record-nav .record-dropdown');
+    if (!siblingContextMenu.hasClass('show')) {
+        return;
+    }
+    //clear off any existing items
+    if (siblingContextMenu.find('li').length > 0) {
+        siblingContextMenu.find('li').remove();
+    }
+    if (tableRowsActive.length == 0) {
+        //clone menu items
+        let storedMenuItems = $('.lubelogger-record-add .record-dropdown > li');
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            storedMenuItems.map((index, elem) => {
+                $('.lubelogger-record-add .record-dropdown').append($(elem));
+            })
+        });
+    } else {
+        determineContextMenuItems();
+        let storedMenuItems = $('.table-context-menu > li').clone();
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            siblingContextMenu.find('li').remove();
+        });
+    }
+}

@@ -15,14 +15,15 @@
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x=>x.Tab == ImportMode.OdometerRecord);
 }
 @model List<OdometerRecord>
+<div class="d-flex flex-column vehicleTabPane">
 <div class="row">
     <div class="d-flex justify-content-between">
-        <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count()}")</span>
-            <span class="ms-2 badge bg-primary" data-aggregate-type="sum-distance">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.Sum(x => x.DistanceTraveled)}")</span>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Odometer Records")}: {Model.Count()}")</span>
+            <span class="badge bg-primary" data-aggregate-type="sum-distance">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.Sum(x => x.DistanceTraveled)}")</span>
             @foreach (string recordTag in recordTags)
             {
-                <span onclick="filterTable('odometer-tab-pane', this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                <span onclick="filterTable('odometer-tab-pane', this)" class="user-select-none rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
             }
             <datalist id="tagList">
                 @foreach (string recordTag in recordTags)
@@ -31,7 +32,7 @@
                 }
             </datalist>
         </div>
-        <div>
+        <div class="lubelogger-record-add">
             @if (enableCsvImports)
             {
                 <div class="btn-group">
@@ -39,16 +40,16 @@
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu record-dropdown">
                         <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('OdometerRecord')">@translator.Translate(userLanguage, "Import via CSV")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('OdometerRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="searchTableRows('odometer-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
+                        <li class="nav-no-copy"><hr class="dropdown-divider"></li>
+                        <li class="nav-no-copy">
                             <div class="list-group-item">
-                                <input class="btn-check" type="checkbox" id="chkSelectMode">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode" onchange="checkSelectModeToggle()">
                                 <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
                             </div>
                         </li>
@@ -110,7 +111,7 @@
         </div>
     </div>
 </div>
-<div class="row vehicleDetailTabContainer">
+<div class="row vehicleDetailTabContainer flex-grow-1">
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
@@ -171,7 +172,18 @@
         </table>
     </div>
 </div>
-
+<div class="row lubelogger-record-nav mt-2 hideOnPrint">
+    <div class="d-flex justify-content-between">
+        <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
+            <button onclick="showAddOdometerRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+        <div>
+            <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu record-dropdown">
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
 
 <div class="modal fade" data-bs-focus="false" id="odometerRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
     <div class="modal-dialog modal-lg" role="document">

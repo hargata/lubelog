@@ -13,12 +13,13 @@
     var autoFillOdometer = userConfig.EnableAutoFillOdometer;
 }
 @model List<PlanRecord>
+<div class="d-flex flex-column vehicleTabPane">
 <div class="row">
     <div class="d-flex justify-content-between">
-        <div class="d-flex align-items-center flex-wrap">
-            <span class="ms-2 badge bg-success">@($"{translator.Translate(userLanguage,"# of Plan Records")}: {Model.Count()}")</span>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-success">@($"{translator.Translate(userLanguage,"# of Plan Records")}: {Model.Count()}")</span>
         </div>
-        <div>
+        <div class="lubelogger-record-add">
             @if (enableCsvImports)
             {
                 <div class="btn-group">
@@ -26,11 +27,11 @@
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu record-dropdown">
                         <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('PlanRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('PlanRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
+                        <li class="nav-no-copy"><hr class="dropdown-divider"></li>
+                        <li class="nav-no-copy"><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
                     </ul>
                 </div>
             }
@@ -41,7 +42,7 @@
         </div>
     </div>
 </div>
-<div class="row vehicleDetailTabContainer fixed">
+<div class="row vehicleDetailTabContainer flex-grow-1">
     <div class="col-12">
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
@@ -96,7 +97,18 @@
         </div>
     </div>
 </div>
-
+<div class="row lubelogger-record-nav mt-2 hideOnPrint">
+    <div class="d-flex justify-content-between">
+            <button onclick="showPlanRecordTemplatesModal()" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-file-earmark-text"></i></button>
+            <button onclick="showAddPlanRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+        <div>
+            <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu record-dropdown">
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
 
 <div class="modal fade" data-bs-focus="false" id="planRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
     <div class="modal-dialog modal-lg" role="document">
