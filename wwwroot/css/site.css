@@ -767,7 +767,8 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .store-detail-row{
     overflow:hidden;
 }
+
 .supply-store-row:has(input:checked) {
-    background-color: #1A2A3A;
-    border-color: #0066CC !important;
+    background-color: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary-border-subtle) !important;
 }
