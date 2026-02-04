@@ -2007,7 +2007,7 @@ function showDropDownForRecordNav(sender) {
     }
     if (tableRowsActive.length == 0) {
         //clone menu items
-        var storedMenuItems = $('.lubelogger-record-add .record-dropdown > li');
+        let storedMenuItems = $('.lubelogger-record-add .record-dropdown > li');
         storedMenuItems.map((index, elem) => {
             siblingContextMenu.append($(elem));
         });
