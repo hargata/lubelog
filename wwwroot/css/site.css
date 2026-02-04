@@ -764,3 +764,10 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     border-top: 1px solid;
     border-top-color: var(--bs-border-color);
 }
+.store-detail-row{
+    overflow:hidden;
+}
+.supply-store-row:has(input:checked) {
+    background-color: #1A2A3A;
+    border-color: #0066CC !important;
+}
