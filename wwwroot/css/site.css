@@ -760,3 +760,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .lubelogger-record-nav .nav-no-copy {
     display: none;
 }
+.lubelogger-record-nav {
+    border-top: 1px solid;
+    border-top-color: var(--bs-border-color);
+}
