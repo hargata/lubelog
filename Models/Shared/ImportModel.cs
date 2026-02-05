@@ -32,6 +32,15 @@ namespace CarCareTracker.Models
         public string Tags { get; set; }
         public string IsEquipped { get; set; }
         public Dictionary<string,string> ExtraFields {get;set;}
+        // Reminder-specific fields
+        public string Metric { get; set; }
+        public string DueDate { get; set; }
+        public string DueOdometer { get; set; }
+        public string IsRecurring { get; set; }
+        public string ReminderMileageInterval { get; set; }
+        public string ReminderMonthInterval { get; set; }
+        public string CustomMileageInterval { get; set; }
+        public string CustomMonthInterval { get; set; }
     }
 
     public class SupplyRecordExportModel
@@ -163,6 +172,14 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromIntOptional))]
         public string DueOdometer { get; set; }
         public string Tags { get; set; }
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsRecurring { get; set; }
+        public string ReminderMileageInterval { get; set; }
+        public string ReminderMonthInterval { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string CustomMileageInterval { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string CustomMonthInterval { get; set; }
     }
     /// <summary>
     /// Only used for the API GET Method

@@ -69,6 +69,8 @@
                     getVehicleOdometerRecords(vehicleId);
                 } else if (mode == "EquipmentRecord"){
                     getVehicleEquipmentRecords(vehicleId);
+                } else if (mode == "ReminderRecord"){
+                    getVehicleReminders(vehicleId);
                 }
             } else {
                 errorToast(genericErrorMessage());

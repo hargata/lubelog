@@ -41,6 +41,9 @@
                         <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
                         <li><a class="dropdown-item" href="#" onclick="searchTableRows('reminder-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('ReminderRecord')">@translator.Translate(userLanguage, "Import from CSV")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportVehicleData('ReminderRecord')">@translator.Translate(userLanguage, "Export to CSV")</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <div class="list-group-item">
                                 <input class="btn-check" type="checkbox" id="chkSelectMode">
@@ -133,10 +136,10 @@
                 <tr class="d-flex">
                     <th scope="col" data-column="urgency" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Urgency")</th>
                     <th scope="col" data-column="metric" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Metric")</th>
-                    <th scope="col" data-column="date" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" data-column="odometer" style="display:none;"  class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Odometer")</th>
-                    <th scope="col" data-column="duedays" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Days")</th>
-                    <th scope="col" data-column="duedistance" style="display:none;" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Distance")</th>
+                    <th scope="col" data-column="date" style="display:none; cursor:pointer;" onclick="toggleSort('reminder-tab-pane', this)" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" data-column="odometer" style="display:none; cursor:pointer;" onclick="toggleSort('reminder-tab-pane', this)" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" data-column="duedays" style="display:none; cursor:pointer;" onclick="toggleSort('reminder-tab-pane', this)" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Days")</th>
+                    <th scope="col" data-column="duedistance" style="display:none; cursor:pointer;" onclick="toggleSort('reminder-tab-pane', this)" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Due Distance")</th>
                     <th scope="col" data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@translator.Translate(userLanguage, "Notes")</th>
                     @if (hasRefresh)

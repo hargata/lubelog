@@ -185,6 +185,33 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     break;
+                case ImportMode.ReminderRecord:
+                    {
+                        var exportData = new List<ReminderExportModel> { new ReminderExportModel
+                        {
+                            Description = "Oil Change",
+                            Metric = ReminderMetric.Both.ToString(),
+                            DueDate = DateTime.Now.AddMonths(6).ToShortDateString(),
+                            DueOdometer = 50000.ToString(),
+                            Notes = "Test Note",
+                            Tags = "maintenance",
+                            IsRecurring = true.ToString(),
+                            ReminderMileageInterval = ReminderMileageInterval.FiveThousandMiles.ToString(),
+                            ReminderMonthInterval = ReminderMonthInterval.SixMonths.ToString(),
+                            CustomMileageInterval = 0.ToString(),
+                            CustomMonthInterval = 0.ToString()
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteReminderRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
                 default:
                     return Json(OperationResponse.Failed("No parameters"));
             }
@@ -662,6 +689,63 @@ namespace CarCareTracker.Controllers
                     return Json(OperationResponse.Failed("No Records"));
                 }
             }
+            else if (mode == ImportMode.ReminderRecord)
+            {
+                var vehicleRecords = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new ReminderExportModel
+                    {
+                        Description = x.Description,
+                        Metric = x.Metric.ToString(),
+                        DueDate = (x.Metric == ReminderMetric.Date || x.Metric == ReminderMetric.Both) ? x.Date.ToShortDateString() : string.Empty,
+                        DueOdometer = (x.Metric == ReminderMetric.Odometer || x.Metric == ReminderMetric.Both) ? x.Mileage.ToString() : string.Empty,
+                        Notes = x.Notes,
+                        Tags = string.Join(" ", x.Tags),
+                        IsRecurring = x.IsRecurring.ToString(),
+                        ReminderMileageInterval = x.ReminderMileageInterval.ToString(),
+                        ReminderMonthInterval = x.ReminderMonthInterval.ToString(),
+                        CustomMileageInterval = x.CustomMileageInterval.ToString(),
+                        CustomMonthInterval = x.CustomMonthInterval.ToString()
+                    });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            StaticHelper.WriteReminderRecordExportModel(csv, exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
+            }
             return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
         }
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
@@ -920,6 +1004,78 @@ namespace CarCareTracker.Controllers
                                         ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value, IsRequired = requiredExtraFields.Contains(x.Key) }).ToList() : new List<ExtraField>()
                                     };
                                     _taxRecordDataAccess.SaveTaxRecordToVehicle(convertedRecord);
+                                }
+                                else if (mode == ImportMode.ReminderRecord)
+                                {
+                                    // Parse Metric enum
+                                    var metricIsEnum = Enum.TryParse(importModel.Metric, true, out ReminderMetric parsedMetric);
+                                    if (!metricIsEnum && int.TryParse(importModel.Metric, out int metricInt))
+                                    {
+                                        parsedMetric = (ReminderMetric)metricInt;
+                                    }
+
+                                    // Parse DueDate and DueOdometer based on Metric
+                                    DateTime dueDate = DateTime.Now.AddMonths(1);
+                                    int dueOdometer = 0;
+
+                                    if (!string.IsNullOrWhiteSpace(importModel.DueDate))
+                                    {
+                                        dueDate = DateTime.Parse(importModel.DueDate);
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(importModel.DueOdometer))
+                                    {
+                                        dueOdometer = decimal.ToInt32(decimal.Parse(importModel.DueOdometer, NumberStyles.Any));
+                                    }
+
+                                    // Parse IsRecurring
+                                    bool isRecurring = false;
+                                    if (!string.IsNullOrWhiteSpace(importModel.IsRecurring))
+                                    {
+                                        var possibleTrueValues = new List<string> { "1", "true" };
+                                        isRecurring = possibleTrueValues.Contains(importModel.IsRecurring.Trim().ToLower());
+                                    }
+
+                                    // Parse interval enums with fallbacks
+                                    var mileageIntervalIsEnum = Enum.TryParse(importModel.ReminderMileageInterval, true, out ReminderMileageInterval parsedMileageInterval);
+                                    if (!mileageIntervalIsEnum)
+                                    {
+                                        parsedMileageInterval = ReminderMileageInterval.FiveThousandMiles;
+                                    }
+
+                                    var monthIntervalIsEnum = Enum.TryParse(importModel.ReminderMonthInterval, true, out ReminderMonthInterval parsedMonthInterval);
+                                    if (!monthIntervalIsEnum)
+                                    {
+                                        parsedMonthInterval = ReminderMonthInterval.OneYear;
+                                    }
+
+                                    // Parse custom intervals
+                                    int customMileageInterval = 0;
+                                    int customMonthInterval = 0;
+                                    if (!string.IsNullOrWhiteSpace(importModel.CustomMileageInterval))
+                                    {
+                                        int.TryParse(importModel.CustomMileageInterval, out customMileageInterval);
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(importModel.CustomMonthInterval))
+                                    {
+                                        int.TryParse(importModel.CustomMonthInterval, out customMonthInterval);
+                                    }
+
+                                    var convertedRecord = new ReminderRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Description = string.IsNullOrWhiteSpace(importModel.Description) ? "Reminder" : importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Metric = parsedMetric,
+                                        Date = dueDate,
+                                        Mileage = dueOdometer,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        IsRecurring = isRecurring,
+                                        ReminderMileageInterval = parsedMileageInterval,
+                                        ReminderMonthInterval = parsedMonthInterval,
+                                        CustomMileageInterval = customMileageInterval,
+                                        CustomMonthInterval = customMonthInterval
+                                    };
+                                    _reminderRecordDataAccess.SaveReminderRecordToVehicle(convertedRecord);
                                 }
                             }
                         }
