@@ -31,6 +31,15 @@ namespace CarCareTracker.MapProfile
             Map(m => m.Priority).Name(["priority"]);
             Map(m => m.Tags).Name(["tags"]);
             Map(m => m.IsEquipped).Name(["isequipped"]);
+            // Reminder-specific mappings
+            Map(m => m.Metric).Name(["metric"]);
+            Map(m => m.DueDate).Name(["duedate", "due_date"]);
+            Map(m => m.DueOdometer).Name(["dueodometer", "due_odometer"]);
+            Map(m => m.IsRecurring).Name(["isrecurring", "recurring"]);
+            Map(m => m.ReminderMileageInterval).Name(["remindermileageinterval", "mileage_interval"]);
+            Map(m => m.ReminderMonthInterval).Name(["remindermonthinterval", "month_interval"]);
+            Map(m => m.CustomMileageInterval).Name(["custommileageinterval"]);
+            Map(m => m.CustomMonthInterval).Name(["custommonthinterval"]);
             Map(m => m.ExtraFields).Convert(row =>
             {
                 var attributes = new Dictionary<string, string>();

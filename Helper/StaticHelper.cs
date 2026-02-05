@@ -905,6 +905,37 @@ namespace CarCareTracker.Helper
                 _csv.NextRecord();
             }
         }
+        public static void WriteReminderRecordExportModel(CsvWriter _csv, IEnumerable<ReminderExportModel> genericRecords)
+        {
+            //write headers
+            _csv.WriteField(nameof(ReminderExportModel.Description));
+            _csv.WriteField(nameof(ReminderExportModel.Metric));
+            _csv.WriteField("DueDate");
+            _csv.WriteField("DueOdometer");
+            _csv.WriteField(nameof(ReminderExportModel.Notes));
+            _csv.WriteField(nameof(ReminderExportModel.Tags));
+            _csv.WriteField(nameof(ReminderExportModel.IsRecurring));
+            _csv.WriteField(nameof(ReminderExportModel.ReminderMileageInterval));
+            _csv.WriteField(nameof(ReminderExportModel.ReminderMonthInterval));
+            _csv.WriteField(nameof(ReminderExportModel.CustomMileageInterval));
+            _csv.WriteField(nameof(ReminderExportModel.CustomMonthInterval));
+            _csv.NextRecord();
+            foreach (ReminderExportModel genericRecord in genericRecords)
+            {
+                _csv.WriteField(genericRecord.Description);
+                _csv.WriteField(genericRecord.Metric);
+                _csv.WriteField(genericRecord.DueDate);
+                _csv.WriteField(genericRecord.DueOdometer);
+                _csv.WriteField(genericRecord.Notes);
+                _csv.WriteField(genericRecord.Tags);
+                _csv.WriteField(genericRecord.IsRecurring);
+                _csv.WriteField(genericRecord.ReminderMileageInterval);
+                _csv.WriteField(genericRecord.ReminderMonthInterval);
+                _csv.WriteField(genericRecord.CustomMileageInterval);
+                _csv.WriteField(genericRecord.CustomMonthInterval);
+                _csv.NextRecord();
+            }
+        }
         public static byte[] RemindersToCalendar(List<ReminderRecordViewModel> reminders)
         {
             //converts reminders to iCal file
