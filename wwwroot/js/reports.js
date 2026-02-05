@@ -399,6 +399,9 @@ function loadCustomWidgets() {
         $("#vehicleCustomWidgetsModalContent").html(data);
     })
 }
+function scrollCollaboratorsIntoView() {
+    $("#collaboratorContent")[0].scrollIntoView({ behavior: "smooth" });
+}
 function hideCustomWidgetsModal() {
     $("#vehicleCustomWidgetsModal").modal('hide');
 }

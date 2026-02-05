@@ -148,8 +148,9 @@ html {
 }
 
 .chartContainer {
-    height: 30vh;
+    min-height: 30vh;
     overflow: auto;
+    padding: 0.25rem;
 }
 
 .vehicleNoteContainer {
@@ -336,6 +337,12 @@ html {
 
     .vehicleTabPane {
         padding-top: 0.25rem;
+    }
+    #collaboratorContent{
+        order: 1;
+    }
+    #reportControls{
+        display:none;
     }
 }
 
@@ -773,4 +780,10 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 
 .badge.garage-metric-badge {
     background-color: rgba(0, 0, 0, 0.6);
+}
+
+.report-collaborator {
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
+    padding: .5rem;
 }
