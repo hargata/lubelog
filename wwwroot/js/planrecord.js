@@ -271,15 +271,20 @@ function dragStart(event, planRecordId) {
 }
 function dragOver(event) {
     event.preventDefault();
+    event.currentTarget.classList.add('drag-hover');
     if (planTouchTimer) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
 }
+function dragLeave(event) {
+    event.currentTarget.classList.remove('drag-hover');
+}
 function dropBox(event, newProgress) {
-    var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
-    var draggedSwimLane = $(dragged).parents(".swimlane")[0];
-    if (targetSwimLane != draggedSwimLane) {
+    event.currentTarget.classList.remove('drag-hover');
+    var targetPlannerColumn = $(event.target).hasClass("planner-column") ? event.target : $(event.target).parents(".planner-column")[0];
+    var draggedPlannerColumn = $(dragged).parents(".planner-column")[0];
+    if (targetPlannerColumn != draggedPlannerColumn) {
         updatePlanRecordProgress(newProgress);
     }
     event.preventDefault();
@@ -361,14 +366,28 @@ function hideOrderSupplyModal() {
     $("#planRecordTemplateSupplyOrderModal").modal('hide');
     showPlanRecordTemplatesModal();
 }
-function configurePlanTableContextMenu(planRecordId, currentSwimLane) {
-    //clear any bound actions
+function configurePlanTableContextMenu(planRecordId, currentColumn) {
+    syncPlanBoardColumns();
+    const planUserConfig = getPlanUserConfig();
+    const boardColumns = planUserConfig.boardColumns;
+
+    // Clear any bound actions
     $(".context-menu-move").off('click');
+
     //bind context menu actions
     $(".context-menu-delete").on('click', () => {
         deletePlanRecord(planRecordId, true);
     });
     let planRecordIdArray = [planRecordId];
+    $(".context-menu-move").hide();
+    $(".context-menu-delete").show();
+
+    if (currentColumn === 'Done') {
+        return;
+    }
+
+    $(".context-menu-move.move-header").show();
+
     $(".context-menu-print-tab-sticker").on('click', () => {
         printTabStickers(planRecordIdArray, 'PlanRecord');
     });
@@ -378,50 +397,23 @@ function configurePlanTableContextMenu(planRecordId, currentSwimLane) {
     $(".context-menu-duplicate-vehicle").on('click', () => {
         duplicateRecordsToOtherVehicles(planRecordIdArray, 'PlanRecord');
     });
-    $(".context-menu-move.move-planned").on('click', () => {
-        draggedId = planRecordId;
-        updatePlanRecordProgress('Backlog');
-        draggedId = 0;
-    });
-    $(".context-menu-move.move-doing").on('click', () => {
-        draggedId = planRecordId;
-        updatePlanRecordProgress('InProgress');
-    });
-    $(".context-menu-move.move-testing").on('click', () => {
-        draggedId = planRecordId;
-        updatePlanRecordProgress('Testing');
-    });
-    $(".context-menu-move.move-done").on('click', () => {
-        draggedId = planRecordId;
-        updatePlanRecordProgress('Done');
-    });
-    //hide all move buttons
-    $(".context-menu-move").hide();
-    $(".context-menu-delete").show(); //delete is always visible.
-    switch (currentSwimLane) {
-        case 'Backlog':
-            $(".context-menu-move.move-header").show();
-            $(".context-menu-move.move-doing").show();
-            $(".context-menu-move.move-testing").show();
-            $(".context-menu-move.move-done").show();
-            break;
-        case 'InProgress':
-            $(".context-menu-move.move-header").show();
-            $(".context-menu-move.move-planned").show();
-            $(".context-menu-move.move-testing").show();
-            $(".context-menu-move.move-done").show();
-            break;
-        case 'Testing':
-            $(".context-menu-move.move-header").show();
-            $(".context-menu-move.move-planned").show();
-            $(".context-menu-move.move-doing").show();
-            $(".context-menu-move.move-done").show();
-            break;
-        case 'Done':
-            break;
+    if (boardColumns) {
+        boardColumns.forEach(column => {
+            if (column.progress === currentColumn || !column.visible) {
+                return;
+            }
+            const menuItem = $(`.context-menu-move[data-column="${column.progress}"]`);
+            if (menuItem.length > 0) {
+                menuItem.show();
+                menuItem.on('click', () => {
+                    draggedId = planRecordId;
+                    updatePlanRecordProgress(column.progress);
+                });
+            }
+        });
     }
 }
-function showPlanTableContextMenu(e, planRecordId, currentSwimLane) {
+function showPlanTableContextMenu(e, planRecordId, currentColumn) {
     if (event != undefined) {
         event.preventDefault();
     }
@@ -436,15 +428,15 @@ function showPlanTableContextMenu(e, planRecordId, currentSwimLane) {
         left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
         top: getMenuPosition(event.clientY, 'height', 'scrollTop')
     });
-    configurePlanTableContextMenu(planRecordId, currentSwimLane);
+    configurePlanTableContextMenu(planRecordId, currentColumn);
 }
-function showPlanTableContextMenuForMobile(e, xPosition, yPosition, planRecordId, currentSwimLane) {
+function showPlanTableContextMenuForMobile(e, xPosition, yPosition, planRecordId, currentColumn) {
     $(".table-context-menu").fadeIn("fast");
     $(".table-context-menu").css({
         left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
         top: getMenuPosition(yPosition, 'height', 'scrollTop')
     });
-    configurePlanTableContextMenu(planRecordId, currentSwimLane);
+    configurePlanTableContextMenu(planRecordId, currentColumn);
     if (planTouchTimer) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
@@ -452,11 +444,11 @@ function showPlanTableContextMenuForMobile(e, xPosition, yPosition, planRecordId
 }
 var planTouchTimer;
 var planTouchDuration = 3000;
-function detectPlanItemLongTouch(sender, planRecordId, currentSwimLane) {
+function detectPlanItemLongTouch(sender, planRecordId, currentColumn) {
     var touchX = event.touches[0].clientX;
     var touchY = event.touches[0].clientY;
     if (!planTouchTimer) {
-        planTouchTimer = setTimeout(function () { showPlanTableContextMenuForMobile(sender, touchX, touchY, planRecordId, currentSwimLane); detectPlanItemTouchEndPremature(sender); }, planTouchDuration);
+        planTouchTimer = setTimeout(function () { showPlanTableContextMenuForMobile(sender, touchX, touchY, planRecordId, currentColumn); detectPlanItemTouchEndPremature(sender); }, planTouchDuration);
     }
 }
 function detectPlanItemTouchEndPremature(sender) {
@@ -464,4 +456,23 @@ function detectPlanItemTouchEndPremature(sender) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
+}
+function scrollToColumn(navButton) {
+    var $btn = $(navButton);
+    var $target = $(`.planner-column[data-column="${$btn.data('column')}"]`);
+    if ($target.length) {
+        $('.planner-nav .btn').removeClass('active');
+        $btn.addClass('active');
+        $target[0].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+    return false;
+}
+function syncPlanBoardColumns() {
+    var boardColumns = getPlanUserConfig().boardColumns;
+    if (!boardColumns) return;
+    boardColumns.forEach(function (column) {
+        var checkbox = $(`input.col-visible-toggle[data-column-toggle='${column.progress}']`);
+        column.visible = checkbox.is(':checked');
+        column.order = checkbox.closest('li[draggable="true"]').index();
+    });
 }

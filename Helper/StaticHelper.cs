@@ -84,11 +84,26 @@ namespace CarCareTracker.Helper
                 case PlanPriority.Critical:
                     return "text-bg-danger";
                 case PlanPriority.Normal:
-                    return "text-bg-primary";
+                    return "text-bg-warning";
                 case PlanPriority.Low:
-                    return "text-bg-info";
+                    return "text-bg-primary";
                 default:
                     return "text-bg-primary";
+            }
+        }
+
+        public static string GetPlanRecordTextColor(PlanPriority input)
+        {
+            switch (input)
+            {
+                case PlanPriority.Critical:
+                    return "text-danger";
+                case PlanPriority.Normal:
+                    return "text-warning";
+                case PlanPriority.Low:
+                    return "text-primary";
+                default:
+                    return "text-primary";
             }
         }
 
@@ -107,6 +122,35 @@ namespace CarCareTracker.Helper
                 default:
                     return input.ToString();
             }
+        }
+
+        public static List<BoardColumn> GetBoardColumnsWithUserPreferences(UserConfig userConfig)
+        {
+            var userColumnPreference = userConfig.UserColumnPreferences
+                .FirstOrDefault(x => x.Tab == ImportMode.PlanRecord)
+                ?? new UserColumnPreference
+                {
+                    Tab = ImportMode.PlanRecord,
+                    VisibleColumns = Enum.GetNames<PlanProgress>().ToList(),
+                    ColumnOrder = Enum.GetNames<PlanProgress>().ToList()
+                };
+
+            var boardColumns = Enum.GetValues<PlanProgress>()
+                .Select(planProgress =>
+                {
+                    var name = planProgress.ToString();
+                    return new BoardColumn
+                    {
+                        Name = GetPlanRecordProgress(planProgress),
+                        Progress = planProgress,
+                        Visible = userColumnPreference.VisibleColumns.Contains(name),
+                        Order = userColumnPreference.ColumnOrder.IndexOf(name)
+                    };
+                })
+                .OrderBy(x => x.Order)
+                .ToList();
+
+            return boardColumns;
         }
 
         public static string TruncateStrings(string input, int maxLength = 25)
@@ -457,6 +501,22 @@ namespace CarCareTracker.Helper
                     return "bi-disc";
                 default:
                     return "bi-file-bar-graph";
+            }
+        }
+        public static string GetPlannerColumnIcon(PlanProgress planProgress)
+        {
+            switch (planProgress)
+            {
+                case PlanProgress.Backlog:
+                    return "bi-list-task";
+                case PlanProgress.InProgress:
+                    return "bi-tools";
+                case PlanProgress.Testing:
+                    return "bi-eyeglasses";
+                case PlanProgress.Done:
+                    return "bi-check2-all";
+                default:
+                    return "bi-list-task";
             }
         }
         public static string GetVehicleIdentifier(Vehicle vehicle)

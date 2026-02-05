@@ -6,6 +6,9 @@
     var isNew = Model.Id == 0;
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var boardColumns = StaticHelper.GetBoardColumnsWithUserPreferences(userConfig)
+        .Where(x => x.Progress != PlanProgress.Done)
+        .ToList();
 }
 <div class="modal-header">
     <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Plan Record") : translator.Translate(userLanguage, "Edit Plan Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditPlanRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
@@ -34,11 +37,13 @@
                         <!option value="Normal" @(Model.Priority == PlanPriority.Normal || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Normal")</!option>
                         <!option value="Low" @(Model.Priority == PlanPriority.Low ? "selected" : "")>@translator.Translate(userLanguage, "Low")</!option>
                     </select>
-                    <label for="planRecordProgress">@translator.Translate(userLanguage, "Current Stage")</label>
+                    <label for="planRecordProgress">@translator.Translate(userLanguage, "Current Board")</label>
                     <select class="form-select" id="planRecordProgress">
-                        <!option value = "Backlog" @(Model.Progress == PlanProgress.Backlog || isNew ? "selected" : "")>@translator.Translate(userLanguage, "Planned")</!option>
-                        <!option value="InProgress" @(Model.Progress == PlanProgress.InProgress ? "selected" : "")>@translator.Translate(userLanguage, "Doing")</!option>
-                        <!option value = "Testing" @(Model.Progress == PlanProgress.Testing ? "selected" : "")>@translator.Translate(userLanguage, "Testing")</!option>
+                        @foreach (var column in boardColumns)
+                        {
+                            var isSelected = (Model.Progress == column.Progress) || (isNew && column.Progress == PlanProgress.Backlog);
+                            <!option value="@column.Progress" @(isSelected ? "selected" : "")>@translator.Translate(userLanguage, column.Name)</!option>
+                        }
                     </select>
                     @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                     @if (!isNew)

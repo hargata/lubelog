@@ -44,13 +44,76 @@ html {
     height: 65vh;
 }
 
-.swimlane {
+/* Plan board flex column container */
+.planner-flex {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+/* The scrollable planner container */
+.planner-board {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    align-items: stretch;
+    scroll-behavior: smooth;
+    gap: 1rem;
+}
+.planner-column {
+    background: rgba(127, 127, 127, 0.1);
+    overflow-y: auto;
     height: 100%;
+    max-height: 100%;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 0.5rem;
+    flex: 0 0 312px;
+}
+.planner-column.drag-hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.15);
+    box-shadow: inset 0 0 0 3px var(--bs-primary);
+}
+.planner-nav a {
+    transition: all 0.2s ease;
+}
+.planner-nav .drag-hover {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+    transform: scale(1.2);
 }
 
-    .swimlane:not(:last-child) {
-        border-right-style: solid;
+@media (max-width: 768px) {
+    /* Single board visible on mobile */
+    .planner-board {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
+    .planner-board::-webkit-scrollbar {
+        display: none;
+    }
+    .planner-column {
+        scroll-snap-align: center;
+        flex: 0 0 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .planner-board:not(:has(.planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"])))
+    .planner-column:not([style*="display: none"]):not([style*="display:none"]) { flex: 0 0 100%; }
+
+    .planner-board:has(.planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"])):not(:has(.planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"])))
+    .planner-column:not([style*="display: none"]):not([style*="display:none"]) { flex: 0 0 calc(50% - 0.5rem); }
+
+}
+@media (min-width: 1200px) {
+    .planner-board:has(.planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"])):not(:has(.planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"]) ~ .planner-column:not([style*="display: none"]):not([style*="display:none"])))
+    .planner-column:not([style*="display: none"]):not([style*="display:none"]) { flex: 0 0 calc(33.333% - 0.667rem); }
+}
 
 .showOnPrint {
     display: none;
@@ -145,6 +208,61 @@ html {
     tr {
         border: hidden;
     }
+
+    .planner-nav {
+        display: none !important;
+    }
+    .planner-board {
+        flex: none !important;
+        padding-right: calc(var(--bs-gutter-x) * .5) !important;
+        padding-left: calc(var(--bs-gutter-x) * .5) !important;
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+    .planner-column {
+        display: block !important;
+        width: 100% !important;
+        flex: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        background: transparent !important;
+        margin-bottom: 1rem;
+        border: none !important;
+        padding: 0.5rem;
+    }
+    .task-card {
+        background-color: #fff !important;
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        transform: none !important;
+        cursor: default !important;
+        page-break-inside: avoid;
+        margin-bottom: 0.5rem;
+        opacity: 1 !important;
+    }
+    .task-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .task-card .badge{
+        font-size: 14px !important;
+    }
+    .task-card .title-container {
+        max-height:fit-content !important;
+        overflow: auto !important;
+    }
+    .planner-column .sticky-top {
+        position: relative !important;
+        background-color: transparent !important;
+    }
+    .planner-column .sticky-top .badge {
+        color: #000 !important;
+        background-color: #fff !important;
+    }
+     
+
 }
 
 .chartContainer {
@@ -422,35 +540,27 @@ input[type="file"] {
     max-width: 75%;
 }
 
-.taskCard {
-    max-height: 20vh;
-    padding: 0.5rem;
-    overflow: hidden;
-    border-radius: 4px;
+.task-card {
+    background-color: var(--bs-body-bg);
+    padding:0.5rem;
+    overflow:hidden;
+    border-radius: 0.5em;
     box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
     transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
     cursor: pointer;
 }
-
-    .taskCard.nodrag {
-        cursor: not-allowed;
-    }
-
-.taskCard-title {
-    font-size: 1.5rem;
-    font-weight: 300;
-    max-height: 10vh;
+.task-card.nodrag{
+    cursor:not-allowed;
 }
-
-[data-bs-theme=dark] .taskCard {
-    background-color: rgba(255,255,255,0.5);
+.task-card-title{
+    word-wrap: break-word;
 }
-
-[data-bs-theme=light] .taskCard {
-    background-color: rgba(80,80,80,0.25);
+.task-card .title-container {
+    max-height: 9vh;
+    overflow: hidden;
+    line-height: 1.5;
 }
-
-.override-hide {
+.override-hide{
     display: none !important;
 }
 
@@ -502,12 +612,6 @@ input[type="file"] {
     padding: 0.438rem 0rem !important;
     background-color: inherit !important;
 }
-
-.planner-indicator {
-    font-size: 1em;
-    padding: 0.2em;
-}
-
 html[data-bs-theme="dark"] .btn-adaptive {
     --bs-btn-color: #fff;
     --bs-btn-bg: #212529;

@@ -1,61 +1,73 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
 }
 @model PlanRecord
-<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
+
+<div class="task-card @(Model.Progress == PlanProgress.Done ? "nodrag opacity-50" : "") user-select-none mx-1 mt-3" 
+     draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" 
+     ondragstart="dragStart(event, @Model.Id)" 
+     onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" 
+     oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")"
+     onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" 
+     ontouchend="detectPlanItemTouchEndPremature(this)">
     <div class="card-body">
         <div class="row">
-            <div class="col-12 col-lg-8 text-truncate">
-                @if (Model.Progress == PlanProgress.Done)
-                {
-                    <span class="taskCard-title text-truncate"><s>@Model.Description</s></span>
-                } else
-                {
-                    <span class="taskCard-title text-truncate">@Model.Description</span>
-                }
-            </div>
-            <div class="col-12 col-lg-4 d-flex align-items-center">
-                <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
+            <div class="col-12 mb-1">
+                <div class="title-container">
+                    @if (Model.Priority == PlanPriority.Critical)
+                    {
+                        <span class="float-end badge @StaticHelper.GetPlanRecordTextColor(PlanPriority.Critical) @StaticHelper.GetPlanRecordColor(PlanPriority.Critical) bg-opacity-10 " title="@translator.Translate(userLanguage, "Priority") @translator.Translate(userLanguage, "Critical")"> @translator.Translate(userLanguage, "Critical")</span>
+                    }
+                    else if (Model.Priority == PlanPriority.Normal)
+                    {
+                        <span class="float-end badge @StaticHelper.GetPlanRecordTextColor(PlanPriority.Normal) @StaticHelper.GetPlanRecordColor(PlanPriority.Normal) bg-opacity-10 " title="@translator.Translate(userLanguage, "Priority") @translator.Translate(userLanguage, "Normal")"> @translator.Translate(userLanguage, "Normal")</span>
+                    }
+                    else if (Model.Priority == PlanPriority.Low)
+                    {
+                        <span class="float-end badge @StaticHelper.GetPlanRecordTextColor(PlanPriority.Low) @StaticHelper.GetPlanRecordColor(PlanPriority.Low) bg-opacity-10 " title="@translator.Translate(userLanguage, "Priority") @translator.Translate(userLanguage, "Low")"> @translator.Translate(userLanguage, "Low")</span>
+                    }
+                    @if (Model.ReminderRecordId != default)
+                    {
+                        <span class="px-1" title="@translator.Translate(userLanguage,"Reminder")"><i class="bi bi-bell-fill text-warning"></i></span>
+                    }
+                    @if (Model.Progress == PlanProgress.Done)
+                    {
+                        <span class="task-card-title"><s>@Model.Description</s></span>
+                    } else
+                    {
+                        <span class="task-card-title">@Model.Description</span>
+                    }
+                </div>
             </div>
         </div>
         <div class="row">
-            @if (Model.ReminderRecordId != default)
-            {
-                <div class="col-3 col-md-1">
-                    <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
-                </div>
-            }
-            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
+            <div class="col-6">
                 @if (Model.ImportMode == ImportMode.ServiceRecord)
                 {
-                    <span class="badge text-bg-primary planner-indicator"><i class="bi bi-card-checklist text-white"></i></span>
+                    <span class="badge text-bg-primary" title="@translator.Translate(userLanguage,"Service")"><i class="bi bi-card-checklist text-white"></i> @translator.Translate(userLanguage,"Service")</span>
                 }
                 else if (Model.ImportMode == ImportMode.UpgradeRecord)
                 {
-                    <span class="badge text-bg-success planner-indicator"><i class="bi bi-wrench-adjustable text-white"></i></span>
+                    <span class="badge text-bg-success" title="@translator.Translate(userLanguage,"Upgrade")"><i class="bi bi-wrench-adjustable text-white"></i> @translator.Translate(userLanguage,"Upgrade")</span>
                 }
                 else if (Model.ImportMode == ImportMode.RepairRecord)
                 {
-                    <span class="badge text-bg-warning planner-indicator"><i class="bi bi-exclamation-octagon text-white"></i></span>
+                    <span class="badge text-bg-danger" title="@translator.Translate(userLanguage,"Repair")"><i class="bi bi-exclamation-octagon text-white"></i> @translator.Translate(userLanguage,"Repair")</span>
                 }
+            </div>              
+            <div class="col-6 d-flex justify-content-end ">
+                <span class="badge text-secondary"> @(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
             </div>
-            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
-                @if (Model.Priority == PlanPriority.Critical)
-                {
-                    <span class="badge text-bg-danger planner-indicator"><i class="bi bi-fire text-white"></i></span>
-                }
-                else if (Model.Priority == PlanPriority.Normal)
-                {
-                    <span class="badge text-bg-primary planner-indicator"><i class="bi bi-water text-white"></i></span>
-                }
-                else if (Model.Priority == PlanPriority.Low)
-                {
-                    <span class="badge text-bg-info planner-indicator"><i class="bi bi-snow text-white"></i></span>
-                }
-            </div>
+        </div>        
+        <div class="row">
+            <div class="col-12 hideOnPrint flex-grow-1 flex-shrink-1 text-secondary small mt-1">@StaticHelper.TruncateStrings(@Model.Notes, 100)</div>
+            <div id="markdown-@Model.Id" class="col-12 showOnPrint text-secondary mt-1">@Model.Notes</div>
+
         </div>
     </div>
 </div>

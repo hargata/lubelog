@@ -6,11 +6,9 @@
     var enableCsvImports = userConfig.EnableCsvImports;
     var hideZero = userConfig.HideZero;
     var userLanguage = userConfig.UserLanguage;
-    var backLogItems = Model.Where(x => x.Progress == PlanProgress.Backlog).OrderBy(x=>x.Priority);
-    var inProgressItems = Model.Where(x => x.Progress == PlanProgress.InProgress).OrderBy(x => x.Priority);
-    var testingItems = Model.Where(x => x.Progress == PlanProgress.Testing).OrderBy(x => x.Priority);
-    var doneItems = Model.Where(x => x.Progress == PlanProgress.Done).OrderBy(x => x.Priority);
     var autoFillOdometer = userConfig.EnableAutoFillOdometer;
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x=>x.Tab == ImportMode.PlanRecord);
+    var boardColumns = StaticHelper.GetBoardColumnsWithUserPreferences(userConfig);
 }
 @model List<PlanRecord>
 <div class="d-flex flex-column vehicleTabPane">
@@ -32,6 +30,26 @@
                         <li><a class="dropdown-item" href="#" onclick="exportVehicleData('PlanRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
                         <li class="nav-no-copy"><hr class="dropdown-divider"></li>
                         <li class="nav-no-copy"><a class="dropdown-item" href="#" onclick="showPlanRecordTemplatesModal()">@translator.Translate(userLanguage, "View Templates")</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Boards")</h6></li>
+                        @foreach (var column in boardColumns)
+                        {
+                            <li class="dropdown-item" draggable="true"
+                                ondragstart="handleTableColumnDragStart(event)"
+                                ondragover="handleTableColumnDragOver(event)"
+                                ondragend="handleTableColumnDragEnd('PlanRecord')">
+                                <div class="list-group-item">
+                                    <input class="form-check-input col-visible-toggle"
+                                           data-column-toggle='@column.Progress'
+                                           onChange="showTableColumns(this, 'PlanRecord')"
+                                           type="checkbox"
+                                           id="chkBoard_@column.Progress"
+                                           @(column.Visible ? "checked" : "")>
+                                    <label class="form-check-label stretched-link" for="chkBoard_@column.Progress"> @translator.Translate(userLanguage, column.Name)</label>
+                                </div>
+                            </li>
+                        }
+
                     </ul>
                 </div>
             }
@@ -42,65 +60,72 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="d-md-none py-2 mt-2 mb-2 planner-nav">
+        <div class="d-flex justify-content-around">
+            @foreach (var column in boardColumns)
+            {
+                var items = Model.Where(x => x.Progress == column.Progress).OrderBy(x => x.Priority).ToList();
+                var columnStyle = column.Visible ? $"order: {column.Order};" : $"order: {column.Order}; display: none;";
+                <a href="#board-@column.Progress.ToString()"
+                   onclick="return scrollToColumn(this)"
+                   class="btn btn-outline-primary px-2 py-2 border-2"
+                   style="@columnStyle"
+                   data-column="@column.Progress.ToString()"
+                   ondragover="dragOver(event)"
+                   ondragleave="dragLeave(event)"
+                   ondrop="dropBox(event, '@column.Progress')">
+                    @translator.Translate(userLanguage, column.Name) <span class="fs-6 opacity-75">(@items.Count)</span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
 <div class="row vehicleDetailTabContainer flex-grow-1">
-    <div class="col-12">
+    <div class="col-12 planner-flex">
+
         <div class="row mt-2 showOnPrint">
             <div class="d-flex">
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <div class="row swimlane">
-            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Backlog')">
-                <div class="row sticky-top frosted">
-                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
-                        <span class="display-7">@translator.Translate(userLanguage,"Planned")</span>
+        <div class="row mt-2 planner-board d-flex flex-nowrap overflow-auto">
+            @foreach (var column in boardColumns)
+            {
+                var items = Model.Where(x => x.Progress == column.Progress).OrderBy(x => x.Priority).ToList();
+                var columnIcon = StaticHelper.GetPlannerColumnIcon(column.Progress);
+                var columnStyle = column.Visible ? $"order: {column.Order};" : $"order: {column.Order}; display: none;";
+                <div id="board-@column.Progress.ToString()"
+                     class="pb-4 planner-column"
+                     style="@columnStyle"
+                     data-column="@column.Progress.ToString()"
+                     ondragover="dragOver(event)"
+                     ondragleave="dragLeave(event)"
+                     ondrop="dropBox(event, '@column.Progress')">
+                    <div class="row sticky-top frosted">
+                        <div class="col-12 d-flex align-items-center">
+                            <i class="bi @columnIcon"></i>
+                            <span class="lead m-2">@translator.Translate(userLanguage, column.Name)</span>
+                            <span class="badge text-body-secondary bg-secondary-subtle">@items.Count</span>
+                        </div>
                     </div>
+                    @foreach (var planRecord in items)
+                    {
+                        @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
+                    }
                 </div>
-                @foreach (PlanRecord planRecord in backLogItems)
-                {
-                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
-                }
-            </div>
-            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'InProgress')">
-                <div class="row sticky-top frosted">
-                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
-                        <span class="display-7">@translator.Translate(userLanguage,"Doing")</span>
-                    </div>
-                </div>
-                @foreach (PlanRecord planRecord in inProgressItems)
-                {
-                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
-                }
-            </div>
-            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Testing')">
-                <div class="row sticky-top frosted">
-                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
-                        <span class="display-7">@translator.Translate(userLanguage,"Testing")</span>
-                    </div>
-                </div>
-                @foreach (PlanRecord planRecord in testingItems)
-                {
-                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
-                }
-            </div>
-            <div class="col-3 d-flex flex-column swimlane" ondragover="dragOver(event)" ondrop="dropBox(event, 'Done')">
-                <div class="row sticky-top frosted">
-                    <div class="col-12 d-flex justify-content-center" style="height:5vh;">
-                        <span class="display-7">@translator.Translate(userLanguage,"Done")</span>
-                    </div>
-                </div>
-                @foreach (PlanRecord planRecord in doneItems)
-                {
-                    @await Html.PartialAsync("Plan/_PlanRecordItem", planRecord)
-                }
-            </div>
+            }
+        </div>
+    </div>
+    <div class="row showOnPrint">
+        <div class="col-12 lubelogger-report-banner">
+            @StaticHelper.ReportNote
         </div>
     </div>
 </div>
 <div class="row lubelogger-record-nav pt-1 hideOnPrint">
     <div class="d-flex justify-content-between">
-            <button onclick="showPlanRecordTemplatesModal()" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-file-earmark-text"></i></button>
-            <button onclick="showAddPlanRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+        <button onclick="showAddPlanRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
         <div>
             <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
             <ul class="dropdown-menu record-dropdown">
@@ -133,10 +158,19 @@
 
 <ul class="table-context-menu dropdown-menu" style="display:none;">
     <li><h6 class="dropdown-header context-menu-move move-header">@translator.Translate(userLanguage, "Move To")</h6></li>
-    <li><a class="dropdown-item context-menu-move move-planned" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Planned")</span><i class="bi bi-list-task"></i></div></a></li>
-    <li><a class="dropdown-item context-menu-move move-doing" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Doing")</span><i class="bi bi-tools"></i></div></a></li>
-    <li><a class="dropdown-item context-menu-move move-testing" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Testing")</span><i class="bi bi-eyeglasses"></i></div></a></li>
-    <li><a class="dropdown-item context-menu-move move-done" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Done")</span><i class="bi bi-check2-all"></i></div></a></li>
+    @foreach (var column in boardColumns)
+    {
+        var columnIcon = StaticHelper.GetPlannerColumnIcon(column.Progress);
+        var columnStyle = column.Visible ? $"" : $"display: none;";
+        <li>
+            <a class="dropdown-item context-menu-move" data-column="@column.Progress.ToString()" href="#"  style="@columnStyle">
+                <div class="d-flex justify-content-between">
+                    <span class="me-5">@translator.Translate(userLanguage, column.Name)</span>
+                    <i class="bi @columnIcon"></i>
+                </div>
+            </a>
+        </li>
+    }
     <li><hr class="context-menu-move move-header dropdown-divider"></li>
     <li><a class="dropdown-item context-menu-move move-header context-menu-duplicate" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
     <li><a class="dropdown-item context-menu-move move-header context-menu-duplicate-vehicle" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
@@ -146,9 +180,15 @@
     <li><a class="dropdown-item context-menu-move move-header text-danger context-menu-delete" href="#"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
 </ul>
 <script>
+    var _planBoardColumns = @Html.Raw(Json.Serialize(boardColumns));
     function getPlanUserConfig(){
         return {
-            autoFillOdometer: "@autoFillOdometer" == "True"
+            autoFillOdometer: "@autoFillOdometer" == "True",
+            boardColumns: _planBoardColumns
         }
     }
 </script>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
