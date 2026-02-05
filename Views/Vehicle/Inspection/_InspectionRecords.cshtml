@@ -28,8 +28,6 @@
             </datalist>
         </div>
         <div class="lubelogger-record-add">
-            @if (enableCsvImports)
-            {
                 <div class="btn-group">
                     <button onclick="showInspectionRecordTemplateSelectorModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Inspection Record")</button>
                     <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
@@ -85,11 +83,6 @@
                         </li>
                     </ul>
                 </div>
-            }
-            else
-            {
-                <button onclick="showInspectionRecordTemplateSelectorModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Inspection Record")</button>
-            }
         </div>
     </div>
 </div>
