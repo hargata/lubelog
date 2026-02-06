@@ -38,7 +38,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-12 border rounded">
+        <div class="col-md-6 col-12 border rounded d-flex flex-column">
             <div class="row pt-1">
                 <div class="flex-grow-1">
                     <div class="dropdown d-grid dropdown-center">
@@ -92,7 +92,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row flex-grow-1 flex-shrink-1">
                 <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
                     @await Html.PartialAsync("_GasCostByMonthReport", Model.CostForVehicleByMonth)
                 </div>
