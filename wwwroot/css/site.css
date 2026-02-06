@@ -47,10 +47,10 @@ html {
 .swimlane {
     height: 100%;
 }
-
-    .swimlane:not(:last-child) {
-        border-right-style: solid;
-    }
+.swimlane-container {
+    height: 100%;
+    padding-bottom: 0.25rem;
+}
 
 .showOnPrint {
     display: none;
@@ -338,10 +338,13 @@ html {
     .vehicleTabPane {
         padding-top: 0.25rem;
     }
-    #collaboratorContent{
-        order: 1;
-    }
     #reportControls{
+        display:none;
+    }
+    .swimlane-container {
+        padding-top: 0.25rem;
+    }
+    .swimlane-header {
         display:none;
     }
 }
@@ -360,6 +363,9 @@ html {
     }
 
     .lubelogger-record-nav {
+        display: none;
+    }
+    .swimlane-mobile-nav {
         display: none;
     }
 }
@@ -430,6 +436,8 @@ input[type="file"] {
     box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
     transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
     cursor: pointer;
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
 }
 
     .taskCard.nodrag {
@@ -440,14 +448,6 @@ input[type="file"] {
     font-size: 1.5rem;
     font-weight: 300;
     max-height: 10vh;
-}
-
-[data-bs-theme=dark] .taskCard {
-    background-color: rgba(255,255,255,0.5);
-}
-
-[data-bs-theme=light] .taskCard {
-    background-color: rgba(80,80,80,0.25);
 }
 
 .override-hide {
@@ -786,4 +786,15 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     background-color: var(--bs-secondary-bg-subtle);
     color: var(--bs-secondary-text-emphasis);
     padding: .5rem;
+}
+.swimlane-dropzone.dragover {
+    background-color: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary-border-subtle) !important;
+}
+.swimlane-header {
+    margin-right: -0.5rem;
+    margin-left: -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 0.25rem;
 }

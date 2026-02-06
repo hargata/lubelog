@@ -3,6 +3,7 @@
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
+const mobileScreen = window.matchMedia("(max-width: 576px)");
 function returnToGarage() {
     window.location.href = '/Home';
 }
@@ -2013,9 +2014,15 @@ function showDropDownForRecordNav(sender) {
             siblingContextMenu.append($(elem));
         });
         $(sender).on('hide.bs.dropdown', () => {
-            storedMenuItems.map((index, elem) => {
-                $('.lubelogger-record-add .record-dropdown').append($(elem));
-            })
+            if (siblingContextMenu.find('li').length > 0) {
+                siblingContextMenu.find('li').map((index, elem) => {
+                    $('.lubelogger-record-add .record-dropdown').append($(elem));
+                })
+            } else {
+                storedMenuItems.map((index, elem) => {
+                    $('.lubelogger-record-add .record-dropdown').append($(elem));
+                })
+            }
         });
     } else {
         determineContextMenuItems();

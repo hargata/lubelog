@@ -98,9 +98,29 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="collaboratorContent">
-            @await Html.PartialAsync("_Collaborators", Model.Collaborators)
-        </div>
+            <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="reportControls">
+                <div class="d-grid">
+                    <button onclick="showGlobalSearch()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Search")<i class="bi ms-2 bi-search"></i></button>
+                </div>
+                <div class="d-grid">
+                    <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+                <div class="d-grid">
+                    <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+                @if (Model.HasVehicleImageMap)
+                {
+                    <div class="d-grid">
+                        <button onclick="loadVehicleImageMap()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Map")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                    </div>
+                }
+                @if (Model.CustomWidgetsConfigured)
+                {
+                    <div class="d-grid">
+                        <button onclick="showCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                    </div>
+                }
+            </div>
         <div class="col-md-3 col-12 border rounded">
             <div class="row pt-1">
                 <div class="col-12">
@@ -123,29 +143,9 @@
                 @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
             </div>
         </div>
-        <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="reportControls">
-            <div class="d-grid">
-                <button onclick="showGlobalSearch()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Search")<i class="bi ms-2 bi-search"></i></button>
+            <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="collaboratorContent">
+                @await Html.PartialAsync("_Collaborators", Model.Collaborators)
             </div>
-            <div class="d-grid">
-                <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-            </div>
-            <div class="d-grid">
-                <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-            </div>
-            @if (Model.HasVehicleImageMap)
-            {
-                <div class="d-grid">
-                    <button onclick="loadVehicleImageMap()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Map")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-                </div>
-            }
-            @if (Model.CustomWidgetsConfigured)
-            {
-                <div class="d-grid">
-                    <button onclick="showCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-                </div>
-            }
-        </div>
     </div>
 </div>
 <div class="row lubelogger-record-nav pt-1 hideOnPrint">
