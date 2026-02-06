@@ -5,7 +5,7 @@
     var hideZero = userConfig.HideZero;
 }
 @model PlanRecord
-<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
+<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") user-select-none mt-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
     <div class="card-body">
         <div class="d-flex gap-2 align-items-center">
             @if (Model.Progress == PlanProgress.Done)
@@ -51,5 +51,11 @@
                 <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
             </div>
         </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="d-flex mt-2 flex-wrap">
+                <small style="word-break:break-all;">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
+            </div>
+        }
     </div>
 </div>
