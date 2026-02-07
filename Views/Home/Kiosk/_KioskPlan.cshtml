@@ -16,7 +16,7 @@
 {
     <div class="d-flex justify-content-end mt-1">
         <div>
-            <select class="form-select" onchange="filterKioskPlan(this)">
+            <select class="form-select kiosk-plan-selector" onchange="filterKioskPlan(this)">
                 <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
                 @foreach(Vehicle vehicle in vehicles)
                 {
@@ -99,9 +99,13 @@
             </div>
         </div>
         <div class="col-12 col-md-9 p-2 kiosk-plan-details-container" style="height:100%;display:none;order:5">
-            <div class="kiosk-plan-details border rounded" style="height:100%;">
-                <div class="d-flex justify-content-between border-bottom">
+            <div class="kiosk-plan-details border rounded d-flex flex-column" style="height:100%;">
+                <div class="d-flex justify-content-between border-bottom sticky-top">
+                    <span></span>
                     <button type="button" class="btn btn-link" onclick="showAllKioskPlan()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="kiosk-plan-details-target flex-grow-1" style="overflow:auto;">
+
                 </div>
             </div>
         </div>
@@ -136,10 +140,21 @@
         swimlane.show();
         planCard.show();
         $('.kiosk-plan-details-container').show();
+        let dataToCopy = planCard.find('.kiosk-plan-details-copyable').html();
+        $('.kiosk-plan-details-target').html(dataToCopy);
+        setMarkDownPlanNotes($('.kiosk-plan-details-target .stickerNote'));
+    }
+    function setMarkDownPlanNotes(elem) {
+        if (elem.length > 0){
+            let originalStickerNote = elem.html().trim();
+            let markDownStickerNote = markdown(originalStickerNote);
+            elem.html(markDownStickerNote);
+        }
     }
     function showAllKioskPlan(){
          $('[data-column]').show();
          $('[data-recordId]').show();
          $('.kiosk-plan-details-container').hide();
+         $('.kiosk-plan-selector').trigger('change');
     }
 </script>

@@ -1,8 +1,10 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
+@inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
 }
 @model KioskPlanViewModel
 <div data-vehicleId="@Model.VehicleData.Id" style="cursor:pointer;" onclick="showKioskPlan(this)" data-recordId="@Model.Id">
@@ -62,6 +64,49 @@
                     <small style="word-break:break-all;">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
                 </div>
             }
+            <div class="d-none kiosk-plan-details-copyable">
+                    @if (Model.RequisitionHistory.Any())
+                    {
+                        <ul class="list-group list-group-flush plan-supplies">
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Part Number")
+                                    </div>
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Description")
+                                    </div>
+                                    <div class="col-4">
+                                        @translator.Translate(userLanguage, "Quantity")
+                                    </div>
+                                </div>
+                            </li>
+                            @foreach (SupplyUsageHistory supply in Model.RequisitionHistory)
+                            {
+                                <li class="list-group-item plan-supply">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            @supply.PartNumber
+                                        </div>
+                                        <div class="col-4">
+                                            @supply.Description
+                                        </div>
+                                        <div class="col-4">
+                                            @supply.Quantity
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                        <hr />
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="stickerNote">
+                            @Model.Notes
+                        </div>
+                    }
+            </div>
         </div>
     </div>
 </div>
