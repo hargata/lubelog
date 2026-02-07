@@ -99,21 +99,21 @@ namespace CarCareTracker.Controllers
                 case KioskMode.Vehicle:
                     {
                         var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-                        return PartialView("_Kiosk", kioskResult);
+                        return PartialView("Kiosk/_Kiosk", kioskResult);
                     }
                 case KioskMode.Plan:
                     {
-                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
-                        return PartialView("_KioskPlan", kioskResult);
+                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, false);
+                        return PartialView("Kiosk/_KioskPlan", kioskResult);
                     }
                 case KioskMode.Reminder:
                     {
                         var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);
-                        return PartialView("_KioskReminder", kioskResult);
+                        return PartialView("Kiosk/_KioskReminder", kioskResult);
                     }
             }
             var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-            return PartialView("_Kiosk", result);
+            return PartialView("Kiosk/_Kiosk", result);
         }
         public IActionResult Garage()
         {

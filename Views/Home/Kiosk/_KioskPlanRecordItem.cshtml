@@ -1,0 +1,68 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+}
+@model KioskPlanViewModel
+<div data-vehicleId="@Model.VehicleData.Id" style="cursor:pointer;" onclick="showKioskPlan(this)" data-recordId="@Model.Id">
+<div class="d-flex flex-column user-select-none mt-2 p-2 @StaticHelper.GetPlanRecordColor(Model.Priority)">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <span class="lead">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+        <small>@(StaticHelper.GetVehicleIdentifier(Model.VehicleData))</small>
+    </div>
+    <div class="taskCard">
+        <div class="card-body">
+            @if (Model.Progress == PlanProgress.Done)
+            {
+                <span class="taskCard-title text-truncate"><s>@Model.Description</s></span>
+            }
+            else
+            {
+                <span class="taskCard-title text-truncate">@Model.Description</span>
+            }
+            <div class="d-flex justify-content-between">
+                <div class="d-flex gap-2">
+                    @if (Model.ImportMode == ImportMode.ServiceRecord)
+                    {
+                        <span class="badge text-bg-primary planner-indicator"><i class="bi bi-card-checklist text-white"></i></span>
+                    }
+                    else if (Model.ImportMode == ImportMode.UpgradeRecord)
+                    {
+                        <span class="badge text-bg-success planner-indicator"><i class="bi bi-wrench-adjustable text-white"></i></span>
+                    }
+                    else if (Model.ImportMode == ImportMode.RepairRecord)
+                    {
+                        <span class="badge text-bg-warning planner-indicator"><i class="bi bi-exclamation-octagon text-white"></i></span>
+                    }
+                    @if (Model.ReminderRecordId != default)
+                    {
+                        <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
+                    }
+                    @if (Model.Priority == PlanPriority.Critical)
+                    {
+                        <span class="badge text-bg-danger planner-indicator"><i class="bi bi-fire text-white"></i></span>
+                    }
+                    else if (Model.Priority == PlanPriority.Normal)
+                    {
+                        <span class="badge text-bg-primary planner-indicator"><i class="bi bi-water text-white"></i></span>
+                    }
+                    else if (Model.Priority == PlanPriority.Low)
+                    {
+                        <span class="badge text-bg-info planner-indicator"><i class="bi bi-snow text-white"></i></span>
+                    }
+                </div>
+                <div>
+                    <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <div class="d-flex mt-2 flex-wrap">
+                    <small style="word-break:break-all;">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+</div>

@@ -17,7 +17,7 @@ namespace CarCareTracker.Logic
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId, int currentMileage);
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
-        List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone);
+        List<KioskPlanViewModel> GetPlans(List<Vehicle> vehicles, bool excludeDone);
         bool UpdateRecurringTaxes(int vehicleId);
         void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription);
     }
@@ -334,9 +334,9 @@ namespace CarCareTracker.Logic
             }
             return reminders.OrderByDescending(x=>x.Urgency).ToList();
         }
-        public List<PlanRecord> GetPlans(List<Vehicle> vehicles, bool excludeDone)
+        public List<KioskPlanViewModel> GetPlans(List<Vehicle> vehicles, bool excludeDone)
         {
-            List<PlanRecord> plans = new List<PlanRecord>();
+            List<KioskPlanViewModel> plans = new List<KioskPlanViewModel>();
             foreach (Vehicle vehicle in vehicles)
             {
                 var vehiclePlans = _planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id);
@@ -346,7 +346,15 @@ namespace CarCareTracker.Logic
                 }
                 if (vehiclePlans.Any())
                 {
-                    var convertedPlans = vehiclePlans.Select(x => new PlanRecord { ImportMode = x.ImportMode, Priority = x.Priority, Progress = x.Progress, Notes = x.Notes, RequisitionHistory = x.RequisitionHistory, Description = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)} - {x.Description}" });
+                    var convertedPlans = vehiclePlans.Select(x => new KioskPlanViewModel {
+                        VehicleData = vehicle,
+                        ImportMode = x.ImportMode, 
+                        Priority = x.Priority, 
+                        Progress = x.Progress, 
+                        Notes = x.Notes, 
+                        RequisitionHistory = x.RequisitionHistory, 
+                        Description = x.Description 
+                    });
                     plans.AddRange(convertedPlans);
                 }
             }
