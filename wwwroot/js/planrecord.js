@@ -269,20 +269,25 @@ function dragStart(event, planRecordId) {
     draggedId = planRecordId;
     event.dataTransfer.setData('text/plain', draggedId);
 }
-function dragOver(event) {
+function dragOver(event, sender) {
     event.preventDefault();
     if (planTouchTimer) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
+    $(sender).addClass('dragover');
+}
+function planDragLeave(sender) {
+    $(sender).removeClass('dragover');
 }
 function dropBox(event, newProgress) {
-    var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
-    var draggedSwimLane = $(dragged).parents(".swimlane")[0];
-    if (targetSwimLane != draggedSwimLane) {
+    var targetSwimLane = $(event.target).hasClass("swimlane-dropzone") ? event.target : $(event.target).parents(".swimlane-dropzone")[0];
+    var draggedSwimLane = $(dragged).parents(".swimlane-dropzone")[0];
+    if ($(targetSwimLane).attr('data-column') != $(draggedSwimLane).attr('data-column')) {
         updatePlanRecordProgress(newProgress);
     }
     event.preventDefault();
+    $(targetSwimLane).removeClass('dragover');
 }
 function updatePlanRecordProgress(newProgress) {
     if (draggedId > 0) {
@@ -464,4 +469,54 @@ function detectPlanItemTouchEndPremature(sender) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
+}
+function hideOtherSwimLanes(sender) {
+    $('.swimlane-mobile-nav .btn[data-column]').removeClass('btn-primary');
+    $('.swimlane-mobile-nav .btn[data-column]').addClass('btn-outline-secondary');
+    let senderColumn = $(sender).attr('data-column');
+    $(sender).removeClass('btn-outline-secondary');
+    $(sender).addClass('btn-primary');
+    //hide other columns
+    $(`.swimlane:not([data-column='${senderColumn}'])`).addClass('d-none');
+    $(`.swimlane[data-column='${senderColumn}']`).removeClass('d-none');
+    //set in session
+    sessionStorage.setItem(`${GetVehicleId().vehicleId}_selectedPlanTab`, senderColumn);
+}
+function showAllSwimLanes(sender) {
+    $(`.swimlane`).removeClass('d-none');
+}
+function showFirstVisibleSwimLane() {
+    //check for stored values
+    let storedTab = sessionStorage.getItem(`${GetVehicleId().vehicleId}_selectedPlanTab`);
+    if (storedTab != null && storedTab != undefined) {
+        let storedTabButton = $(`.swimlane-mobile-nav .btn[data-column='${storedTab}']:visible`);
+        if (storedTabButton.length > 0) {
+            storedTabButton.trigger('click');
+            return;
+        }
+    }
+    let visibleButtons = $('.swimlane-mobile-nav .btn[data-column]:visible');
+    let btnOrders = visibleButtons.map((index, elem) => $(elem).css('order'));
+    if (btnOrders.toArray().every((val, i, arr) => val == arr[0])) {
+        $('.swimlane-mobile-nav .btn[data-column]:visible').first().trigger('click');
+    }
+    else {
+        let minOrder = Math.min(...btnOrders);
+        $('.swimlane-mobile-nav .btn[data-column]:visible').filter((index, elem) => $(elem).css('order') == minOrder).trigger('click');
+    }
+}
+function bindScreenSize() {
+    if (mobileScreen.matches) {
+        showFirstVisibleSwimLane();
+    }
+    mobileScreen.addEventListener('change', () => {
+        if (mobileScreen.matches) {
+            showFirstVisibleSwimLane();
+        } else {
+            showAllSwimLanes();
+        }
+    })
+    $('[data-column-toggle]').on('change', () => {
+        showFirstVisibleSwimLane();
+    })
 }

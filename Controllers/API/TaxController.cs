@@ -125,6 +125,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed($"No Recurring Taxes Updated Due To Error: {ex.Message}"));
             }
         }
+        [TypeFilter(typeof(QueryParamFilter), Arguments = new object[] { new string[] { "vehicleId" } })]
         [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]

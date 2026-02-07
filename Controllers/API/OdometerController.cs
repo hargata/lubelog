@@ -124,17 +124,18 @@ namespace CarCareTracker.Controllers
                 return Json(result);
             }
         }
+        [TypeFilter(typeof(QueryParamFilter), Arguments = new object[] { new string[] { "vehicleId", "autoIncludeEquipment" } })]
         [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
         [Consumes("application/json")]
-        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input) => AddOdometerRecord(vehicleId, input);
+        public IActionResult AddOdometerRecordJson(int vehicleId, [FromBody] OdometerRecordExportModel input, bool autoIncludeEquipment = false) => AddOdometerRecord(vehicleId, input, autoIncludeEquipment);
         [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/vehicle/odometerrecords/add")]
-        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input)
+        public IActionResult AddOdometerRecord(int vehicleId, OdometerRecordExportModel input, bool autoIncludeEquipment = false)
         {
             if (vehicleId == default)
             {
@@ -184,6 +185,17 @@ namespace CarCareTracker.Controllers
                 {
                     Response.StatusCode = 400;
                     return Json(OperationResponse.Failed($"Input object invalid, equipment with ids {string.Join(' ', invalidEquipmentRecordIds)} does not exist."));
+                }
+            }
+            // Auto include equipment marked as currently equipped for vehicle (merges with any explicit IDs)
+            if (autoIncludeEquipment)
+            {
+                var equipmentRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                var equippedEquipment = equipmentRecords.Where(x => x.IsEquipped);
+                if (equippedEquipment.Any())
+                {
+                    equipmentRecordId.AddRange(equippedEquipment.Select(x => x.Id));
+                    equipmentRecordId = equipmentRecordId.Distinct().ToList();
                 }
             }
             try

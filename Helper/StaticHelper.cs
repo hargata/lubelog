@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.8";
+        public const string VersionNumber = "1.5.9";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -1006,6 +1006,25 @@ namespace CarCareTracker.Helper
             }
 
             return Sb.ToString();
+        }
+        public static string TrimDecimal(decimal input, int maxDecimalPlace = 3, string format = "N")
+        {
+            //determine number of decimal places
+            string separator = format == "N" ? CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator : CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
+            var decimalPart = input.ToString().Split(separator);
+            if (decimalPart.Length < 2) //no decimals
+            {
+                return input.ToString();
+            }
+            else
+            {
+                int numOfDecimals = decimalPart[1].Length;
+                if (numOfDecimals > 3)
+                {
+                    numOfDecimals = 3;
+                }
+                return input.ToString($"{format}{numOfDecimals}");
+            }
         }
     }
 }

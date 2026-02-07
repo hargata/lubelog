@@ -154,11 +154,15 @@ function getAndValidateGasRecordValues() {
         gallons: gasGallons,
         cost: gasCost,
         files: uploadedFiles,
+        supplies: selectedSupplies,
         tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
         notes: gasNotes,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        requisitionHistory: supplyUsageHistory,
+        deletedRequisitionHistory: deletedSupplyUsageHistory,
+        copySuppliesAttachment: copySuppliesAttachments
     }
 }
 

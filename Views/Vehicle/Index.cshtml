@@ -140,53 +140,54 @@
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="nav navbar-nav" id="vehicleTab" role="tablist">
-        <li class="nav-item" role="presentation" style="order: -3">
-            <button class="nav-link" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: -3">
+            <button class="nav-link flex-grow-1 text-start" onclick="returnToGarage()"><span class="display-3 ms-2"><i class="bi bi-arrow-left-square me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
+            <button class="nav-link" onclick="hideMobileNav()"><span class="display-3 me-2"><i class="bi bi-x-lg"></i></span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: -2">
-            <button class="nav-link" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Edit Vehicle")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: -2">
+            <button class="nav-link flex-grow-1 text-start" onclick="editVehicle(@Model.Id)"><span class="display-3 ms-2"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Edit Vehicle")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: -1">
-            <button class="nav-link" onclick="showGlobalSearch()"><span class="display-3 ms-2"><i class="bi bi-search me-2"></i>@translator.Translate(userLanguage, "Search")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: -1">
+            <button class="nav-link flex-grow-1 text-start" onclick="showGlobalSearch()"><span class="display-3 ms-2"><i class="bi bi-search me-2"></i>@translator.Translate(userLanguage, "Search")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.Dashboard)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>@translator.Translate(userLanguage, "Dashboard")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.Dashboard)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" id="report-tab" data-bs-toggle="tab" data-bs-target="#report-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-file-bar-graph me-2"></i>@translator.Translate(userLanguage, "Dashboard")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.PlanRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-bar-chart-steps me-2"></i>@translator.Translate(userLanguage, "Planner")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.PlanRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" id="plan-tab" data-bs-toggle="tab" data-bs-target="#plan-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-bar-chart-steps me-2"></i>@translator.Translate(userLanguage, "Planner")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.OdometerRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" id="odometer-tab" data-bs-toggle="tab" data-bs-target="#odometer-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-speedometer me-2"></i>@translator.Translate(userLanguage, "Odometer")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.OdometerRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" id="odometer-tab" data-bs-toggle="tab" data-bs-target="#odometer-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-speedometer me-2"></i>@translator.Translate(userLanguage, "Odometer")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.ServiceRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service Records")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.ServiceRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" id="servicerecord-tab" data-bs-toggle="tab" data-bs-target="#servicerecord-tab-pane" type="button" role="tab" aria-selected="true"><span class="display-3 ms-2"><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service Records")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.RepairRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>@translator.Translate(userLanguage,"Repairs")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.RepairRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" id="accident-tab" data-bs-toggle="tab" data-bs-target="#accident-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-exclamation-octagon me-2"></i>@translator.Translate(userLanguage, "Repairs")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.UpgradeRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-wrench-adjustable me-2"></i>@translator.Translate(userLanguage, "Upgrades")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.UpgradeRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" id="upgrade-tab" data-bs-toggle="tab" data-bs-target="#upgrade-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-wrench-adjustable me-2"></i>@translator.Translate(userLanguage, "Upgrades")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.GasRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Fuel")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.GasRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Fuel")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.SupplyRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.SupplyRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.TaxRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Taxes")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.TaxRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Taxes")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.NoteRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>@translator.Translate(userLanguage, "Notes")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.NoteRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>@translator.Translate(userLanguage, "Notes")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.InspectionRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" id="inspection-tab" data-bs-toggle="tab" data-bs-target="#inspection-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-clipboard-check me-2"></i>@translator.Translate(userLanguage, "Inspections")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.InspectionRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" id="inspection-tab" data-bs-toggle="tab" data-bs-target="#inspection-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-clipboard-check me-2"></i>@translator.Translate(userLanguage, "Inspections")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.EquipmentRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.EquipmentRecord)" id="equipment-tab" data-bs-toggle="tab" data-bs-target="#equipment-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-disc me-2"></i>@translator.Translate(userLanguage, "Equipment")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.EquipmentRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.EquipmentRecord)" id="equipment-tab" data-bs-toggle="tab" data-bs-target="#equipment-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-disc me-2"></i>@translator.Translate(userLanguage, "Equipment")</span></button>
         </li>
-        <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.ReminderRecord)">
-            <button class="nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>@translator.Translate(userLanguage, "Reminders")</span></button>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.ReminderRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><div class="reminderBellDiv" style="display:inline-flex;"><i class="reminderBell bi bi-bell me-2"></i></div>@translator.Translate(userLanguage, "Reminders")</span></button>
         </li>
     </ul>
 </div>

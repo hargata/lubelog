@@ -6,46 +6,25 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model VehicleCollaboratorViewModel
-<div class="row">
-    <div class="@(Model.CanModifyCollaborators ? "col-8" : "col-12")">
-        <span class="lead">@translator.Translate(userLanguage, "Collaborators")</span>
-    </div>
+<div class="d-flex justify-content-between align-items-center">
+    <span class="lead text-truncate">@translator.Translate(userLanguage, "Collaborators")</span>
     @if (Model.CanModifyCollaborators)
     {
-        <div class="col-4">
-            <button onclick="addCollaborator()" class="btn btn-link btn-sm"><i class="bi bi-person-add"></i></button>
-        </div>
+        <button onclick="addCollaborator()" class="btn btn-primary btn-sm"><i class="bi bi-person-add"></i></button>
     }
 </div>
-<div class="row">
-    <table class="table table-hover">
-        <thead>
-            <tr class="d-flex">
-                <th scope="col" class="@(Model.CanModifyCollaborators ? "col-8" : "col-12")">@translator.Translate(userLanguage, "Username")</th>
-                @if (Model.CanModifyCollaborators)
-                {
-                    <th scope="col" class="col-4">@translator.Translate(userLanguage, "Delete")</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (UserCollaborator user in Model.Collaborators)
+<hr />
+<div class="d-flex flex-column gap-2">
+    @foreach (UserCollaborator user in Model.Collaborators)
+    {
+        <div class="d-flex justify-content-between align-items-center report-collaborator border rounded">
+            <span class="text-truncate">@user.UserName</span>
+            @if (User.Identity.Name != user.UserName && Model.CanModifyCollaborators)
             {
-                <tr class="d-flex">
-                    <td class="@(Model.CanModifyCollaborators ? "col-8" : "col-12")">@user.UserName</td>
-                    @if (Model.CanModifyCollaborators)
-                    {
-                        <td class="col-4">
-                            @if (User.Identity.Name != user.UserName && Model.CanModifyCollaborators)
-                            {
-                                <button onclick="deleteCollaborator(@user.UserVehicle.UserId, @user.UserVehicle.VehicleId)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
-                            }
-                        </td>
-                    }
-                </tr>
+                <button onclick="deleteCollaborator(@user.UserVehicle.UserId, @user.UserVehicle.VehicleId)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
             }
-        </tbody>
-    </table>
+        </div>
+    }
 </div>
 <script>
     function deleteCollaborator(userId, vehicleId) {

@@ -18,8 +18,12 @@
         public bool MissedFuelUp { get; set; } = false;
         public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public List<SupplyUsageHistory> DeletedRequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public bool CopySuppliesAttachment { get; set; } = false;
         public GasRecord ToGasRecord() { return new GasRecord { 
             Id = Id, 
             Cost = Cost, 
@@ -32,7 +36,8 @@
             MissedFuelUp = MissedFuelUp,
             Notes = Notes,
             Tags = Tags,
-            ExtraFields = ExtraFields
+            ExtraFields = ExtraFields,
+            RequisitionHistory = RequisitionHistory
         }; }
     }
 }
