@@ -91,50 +91,6 @@ else
     </div>
 }
 <script>
-    function filterKioskReminder(sender){
-        let selectedVal = $(sender).val();
-        if (selectedVal != 0){
-            $('[data-vehicleId]').hide();
-            $(`[data-vehicleId='${selectedVal}']`).show();
-            setBrowserHistory('vehicleId', selectedVal);
-        } else {
-            $('[data-vehicleId]').show();
-            setBrowserHistory('vehicleId', '');
-        }
-        $('.kiosk-content').masonry();
-    }
-    function showAllKioskReminder(){
-         $('[data-recordId]').show();
-         $('.kiosk-reminder-selector').trigger('change');
-         $('.kiosk-card').removeClass('kiosk-card-expanded');
-         $('.kiosk-card-details').hide();
-         $('.kiosk-reminder-selector').prop('disabled', false);
-         $('.kiosk-content').masonry();
-    }
-    function showKioskReminder(sender){
-        let reminderCard = $(sender).closest('[data-recordId]');
-        let reminderKioskCard = reminderCard.find('.kiosk-card');
-        if (reminderKioskCard.hasClass('kiosk-card-expanded')){
-            showAllKioskReminder();
-            return;
-        }
-        $('[data-recordId]').hide();
-        reminderCard.show();
-        reminderKioskCard.addClass('kiosk-card-expanded');
-        $('.kiosk-reminder-selector').prop('disabled', true);
-        $('.kiosk-card-details').show();
-        let dataToCopy = reminderCard.find('.stickerNote').html();
-        $('.kiosk-tab-content').html(dataToCopy);
-        setMarkDownPlanNotes($('.kiosk-tab-content'));
-        $(".kiosk-content").masonry();
-    }
-     function setMarkDownPlanNotes(elem) {
-        if (elem.length > 0){
-            let originalStickerNote = elem.html().trim();
-            let markDownStickerNote = markdown(originalStickerNote);
-            elem.html(markDownStickerNote);
-        }
-    }
      function kioskLoadVehicleIdFromParam(){
         let currentParams = new URLSearchParams(window.location.search);
         let vehicleIdToLoad = currentParams.get('vehicleId');

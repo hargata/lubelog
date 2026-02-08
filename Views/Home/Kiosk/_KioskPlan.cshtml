@@ -123,42 +123,6 @@
     @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
 }
 <script>
-    function filterKioskPlan(sender){
-        let selectedVal = $(sender).val();
-        if (selectedVal != 0){
-            $('[data-vehicleId]').hide();
-            $(`[data-vehicleId='${selectedVal}']`).show();
-            setBrowserHistory('vehicleId', selectedVal);
-        } else {
-            $('[data-vehicleId]').show();
-            setBrowserHistory('vehicleId', '');
-        }
-    }
-    function showKioskPlan(sender){
-        let planCard = $(sender).closest('[data-recordId]');
-        let swimlane = $(sender).closest('[data-column]');
-        $('[data-recordId]').hide();
-        $('[data-column]').hide();
-        swimlane.show();
-        planCard.show();
-        $('.kiosk-plan-details-container').show();
-        let dataToCopy = planCard.find('.kiosk-plan-details-copyable').html();
-        $('.kiosk-plan-details-target').html(dataToCopy);
-        setMarkDownPlanNotes($('.kiosk-plan-details-target .stickerNote'));
-    }
-    function setMarkDownPlanNotes(elem) {
-        if (elem.length > 0){
-            let originalStickerNote = elem.html().trim();
-            let markDownStickerNote = markdown(originalStickerNote);
-            elem.html(markDownStickerNote);
-        }
-    }
-    function showAllKioskPlan(){
-         $('[data-column]').show();
-         $('[data-recordId]').show();
-         $('.kiosk-plan-details-container').hide();
-         $('.kiosk-plan-selector').trigger('change');
-    }
      function kioskLoadVehicleIdFromParam(){
         let currentParams = new URLSearchParams(window.location.search);
         let vehicleIdToLoad = currentParams.get('vehicleId');
