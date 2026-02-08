@@ -1,12 +1,13 @@
 using CarCareTracker.External.Interfaces;
+using CarCareTracker.Filter;
+using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using CarCareTracker.Helper;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using CarCareTracker.Logic;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -99,21 +100,27 @@ namespace CarCareTracker.Controllers
                 case KioskMode.Vehicle:
                     {
                         var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-                        return PartialView("_Kiosk", kioskResult);
+                        return PartialView("Kiosk/_Kiosk", kioskResult);
                     }
                 case KioskMode.Plan:
                     {
-                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
-                        return PartialView("_KioskPlan", kioskResult);
+                        var kioskResult = _vehicleLogic.GetPlansForKiosk(vehiclesStored, false);
+                        return PartialView("Kiosk/_KioskPlan", kioskResult);
                     }
                 case KioskMode.Reminder:
                     {
-                        var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);
-                        return PartialView("_KioskReminder", kioskResult);
+                        var kioskResult = _vehicleLogic.GetRemindersForKiosk(vehiclesStored);
+                        return PartialView("Kiosk/_KioskReminder", kioskResult);
                     }
             }
             var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-            return PartialView("_Kiosk", result);
+            return PartialView("Kiosk/_Kiosk", result);
+        }
+        [TypeFilter(typeof(CollaboratorFilter))]
+        public IActionResult GetKioskVehicleInfo(int vehicleId)
+        {
+            var result = _vehicleLogic.GetKioskVehicleInfo(vehicleId);
+            return PartialView("Kiosk/_KioskVehicleInfo", result);
         }
         public IActionResult Garage()
         {

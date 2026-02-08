@@ -1,0 +1,130 @@
+﻿@using CarCareTracker.Helper
+@model List<KioskPlanViewModel>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.PlanRecord);
+    var backLogItems = Model.Where(x => x.Progress == PlanProgress.Backlog).OrderBy(x => x.Priority);
+    var inProgressItems = Model.Where(x => x.Progress == PlanProgress.InProgress).OrderBy(x => x.Priority);
+    var testingItems = Model.Where(x => x.Progress == PlanProgress.Testing).OrderBy(x => x.Priority);
+    var doneItems = Model.Where(x => x.Progress == PlanProgress.Done).OrderBy(x => x.Priority);
+    var vehicles = Model.Select(x => x.VehicleData).Distinct();
+}
+@if (Model.Any())
+{
+    <div class="d-flex justify-content-between mt-1 align-items-center">
+        <div>
+            <a class="btn btn-link" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
+        </div>
+        <div>
+            <select class="form-select kiosk-plan-selector" onchange="filterKioskPlan(this)">
+                <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
+                @foreach(Vehicle vehicle in vehicles)
+                {
+                    <!option value="@vehicle.Id">@($"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)}")</!option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row g-4 vehicleTabPane">
+        <div class="col-12 col-md-3 p-2 flex-grow-1" style="height:100%;" data-column="backlog">
+            <div class="d-flex flex-column" style="height:100%;">
+                <div class="border rounded p-2 flex-grow-1" style="overflow:auto;">
+                    <div class="d-flex flex-column">
+                        <div class="sticky-top frosted text-truncate swimlane-header" style="height:5vh;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="display-7 text-truncate">@translator.Translate(userLanguage, "Planned")</span>
+                                <span class="px-2 py-1 rounded text-bg-secondary">@backLogItems.Count()</span>
+                            </div>
+                        </div>
+                        @foreach (PlanRecord planRecord in backLogItems)
+                        {
+                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3 p-2 flex-grow-1" style="height:100%;" data-column="inprogress">
+            <div class="d-flex flex-column" style="height:100%;">
+                <div class="border rounded p-2 flex-grow-1" style="overflow:auto;">
+                    <div class="d-flex flex-column">
+                        <div class="sticky-top frosted text-truncate swimlane-header" style="height:5vh;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="display-7 text-truncate">@translator.Translate(userLanguage, "Doing")</span>
+                                <span class="px-2 py-1 rounded text-bg-secondary">@inProgressItems.Count()</span>
+                            </div>
+                        </div>
+                        @foreach (PlanRecord planRecord in inProgressItems)
+                        {
+                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3 p-2 flex-grow-1" style="height:100%;" data-column="testing">
+            <div class="d-flex flex-column" style="height:100%;">
+                <div class="border rounded p-2 flex-grow-1" style="overflow:auto;">
+                    <div class="d-flex flex-column">
+                        <div class="sticky-top frosted text-truncate swimlane-header" style="height:5vh;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="display-7 text-truncate">@translator.Translate(userLanguage, "Testing")</span>
+                                <span class="px-2 py-1 rounded text-bg-secondary">@testingItems.Count()</span>
+                            </div>
+                        </div>
+                        @foreach (PlanRecord planRecord in testingItems)
+                        {
+                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3 p-2 flex-grow-1" style="height:100%;" data-column="done">
+            <div class="d-flex flex-column" style="height:100%;">
+                <div class="border rounded p-2 flex-grow-1" style="overflow:auto;">
+                    <div class="d-flex flex-column">
+                        <div class="sticky-top frosted text-truncate swimlane-header" style="height:5vh;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="display-7 text-truncate">@translator.Translate(userLanguage, "Done")</span>
+                                <span class="px-2 py-1 rounded text-bg-secondary">@doneItems.Count()</span>
+                            </div>
+                        </div>
+                        @foreach (PlanRecord planRecord in doneItems)
+                        {
+                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-9 p-2 kiosk-plan-details-container" style="height:100%;display:none;order:5">
+            <div class="kiosk-plan-details border rounded d-flex flex-column" style="height:100%;">
+                <div class="d-flex justify-content-between border-bottom sticky-top">
+                    <span></span>
+                    <button type="button" class="btn btn-link" onclick="showAllKioskPlan()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="kiosk-plan-details-target flex-grow-1" style="overflow:auto;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+} else
+{
+    <div class="row no-data-message">
+        <div class="col">
+            <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        </div>
+    </div>
+}
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
+<script>
+    kioskSelectLoadVehicleIdFromParam($('.kiosk-plan-selector'));
+</script>

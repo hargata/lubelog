@@ -798,3 +798,29 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     padding-right: 0.5rem;
     padding-top: 0.25rem;
 }
+.kiosk-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+    border-color: var(--bs-primary-border-subtle) !important;
+}
+.kiosk-card:hover .kiosk-card-remove{
+    display:initial;
+}
+.kiosk-card-remove{
+    display:none;
+}
+.kiosk-card-expanded .hideOnExpand {
+    display:none !important;
+}
+.showOnExpand{
+    display:none;
+}
+.kiosk-card-expanded .showOnExpand{
+    display: initial;
+}
+.kiosk-card-container:has(.kiosk-card-expanded){
+    width: 100% !important;
+}
+.kiosk-reminder-card {
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
+}
