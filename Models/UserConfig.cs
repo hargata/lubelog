@@ -26,6 +26,7 @@
         public bool ShowCalendar { get; set; }
         public bool ShowVehicleThumbnail { get; set; }
         public bool ShowSearch { get; set; }
+        public bool DisableAutoZoom { get; set; }
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public string UserNameHash { get; set; }
         public string UserPasswordHash { get; set;}

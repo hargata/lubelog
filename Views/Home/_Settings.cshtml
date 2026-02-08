@@ -22,6 +22,10 @@
                 <input class="form-check-input" onChange="updateColorModeSettings(this)" type="checkbox" role="switch" id="useSystemColorMode" checked="@Model.UserConfig.UseSystemColorMode">
                 <label class="form-check-label" for="useSystemColorMode">@translator.Translate(userLanguage, "Adaptive Color Mode")</label>
             </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="disableAutoZoom" checked="@Model.UserConfig.DisableAutoZoom">
+                <label class="form-check-label" for="disableAutoZoom">@translator.Translate(userLanguage, "Disable Zoom")</label>
+            </div>
         </div>
         <div>
             <div class="form-check form-switch form-check-inline">
