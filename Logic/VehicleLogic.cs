@@ -1,5 +1,4 @@
-﻿using CarCareTracker.Controllers;
-using CarCareTracker.External.Interfaces;
+﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 
@@ -17,9 +16,11 @@ namespace CarCareTracker.Logic
         bool GetVehicleHasUrgentOrPastDueReminders(int vehicleId, int currentMileage);
         List<VehicleInfo> GetVehicleInfo(List<Vehicle> vehicles);
         List<ReminderRecordViewModel> GetReminders(List<Vehicle> vehicles, bool isCalendar);
-        List<KioskPlanViewModel> GetPlans(List<Vehicle> vehicles, bool excludeDone);
+        List<KioskReminderViewModel> GetRemindersForKiosk(List<Vehicle> vehicles);
+        List<KioskPlanViewModel> GetPlansForKiosk(List<Vehicle> vehicles, bool excludeDone);
         bool UpdateRecurringTaxes(int vehicleId);
         void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription);
+        KioskVehicleViewModel GetKioskVehicleInfo(int vehicleId);
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -334,7 +335,36 @@ namespace CarCareTracker.Logic
             }
             return reminders.OrderByDescending(x=>x.Urgency).ToList();
         }
-        public List<KioskPlanViewModel> GetPlans(List<Vehicle> vehicles, bool excludeDone)
+        public List<KioskReminderViewModel> GetRemindersForKiosk(List<Vehicle> vehicles)
+        {
+            List<KioskReminderViewModel> reminders = new List<KioskReminderViewModel>();
+            foreach (Vehicle vehicle in vehicles)
+            {
+                var vehicleReminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicle.Id);
+                if (vehicleReminders.Any())
+                {
+                    var vehicleMileage = GetMaxMileage(vehicle.Id);
+                    var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(vehicleReminders, vehicleMileage, DateTime.Now);
+                    var reminderUrgencyToAdd = reminderUrgency.Select(x => new KioskReminderViewModel {
+                        VehicleData = vehicle,
+                        Id = x.Id, 
+                        Metric = x.Metric, 
+                        Date = x.Date, 
+                        Notes = x.Notes, 
+                        Mileage = x.Mileage, 
+                        Urgency = x.Urgency, 
+                        Description = x.Description,
+                        CurrentOdometer = vehicleMileage,
+                        DueDays = x.DueDays,
+                        DueMileage = x.DueMileage,
+                        UserMetric = x.UserMetric
+                    }).ToList();
+                    reminders.AddRange(reminderUrgencyToAdd);
+                }
+            }
+            return reminders.OrderByDescending(x => x.Urgency).ToList();
+        }
+        public List<KioskPlanViewModel> GetPlansForKiosk(List<Vehicle> vehicles, bool excludeDone)
         {
             List<KioskPlanViewModel> plans = new List<KioskPlanViewModel>();
             foreach (Vehicle vehicle in vehicles)
@@ -452,6 +482,83 @@ namespace CarCareTracker.Logic
                     _logger.LogError($"Error restoring supply with id {supply.Id} : {ex.Message}");
                 }
             }
+        }
+        public KioskVehicleViewModel GetKioskVehicleInfo(int vehicleId)
+        {
+            
+            var serviceRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+            var repairRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+            var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+            var viewModel = new KioskVehicleViewModel()
+            {
+                ServiceRecordCost = serviceRecords.Sum(x => x.Cost),
+                ServiceRecordCount = serviceRecords.Count(),
+                RepairRecordCost = repairRecords.Sum(x => x.Cost),
+                RepairRecordCount = repairRecords.Count(),
+                UpgradeRecordCost = upgradeRecords.Sum(x => x.Cost),
+                UpgradeRecordCount = upgradeRecords.Count()
+            };
+            if (serviceRecords.Any())
+            {
+                //most common
+                var _mostCommonServiceRecordDescription = serviceRecords.GroupBy(x => x.Description).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault() ?? string.Empty;
+                var _mostCommonServiceRecords = serviceRecords.Where(x => x.Description == _mostCommonServiceRecordDescription);
+                if (_mostCommonServiceRecords.Count() > 1)
+                {
+                    viewModel.MostCommonServiceRecord = _mostCommonServiceRecordDescription;
+                    viewModel.MostCommonServiceRecordAverageCost = _mostCommonServiceRecords.Average(x => x.Cost);
+                    viewModel.MostCommonServiceRecordOccurrence = _mostCommonServiceRecords.Count();
+                    viewModel.MostCommonServiceRecordLastOccurred = _mostCommonServiceRecords.Max(x => x.Date);
+                }
+                //most expensive
+                var _mostExpensiveServiceRecordCost = serviceRecords.Max(x => x.Cost);
+                var _mostExpensiveServiceRecord = serviceRecords.FirstOrDefault(x => x.Cost == _mostExpensiveServiceRecordCost) ?? new ServiceRecord();
+                viewModel.MostExpensiveServiceRecord = _mostExpensiveServiceRecord.Description;
+                viewModel.MostExpensiveServiceRecordCost = _mostExpensiveServiceRecordCost;
+                viewModel.MostExpensiveServiceRecordOdometer = _mostExpensiveServiceRecord.Mileage;
+                viewModel.MostExpensiveServiceRecordDate = _mostExpensiveServiceRecord.Date;
+            }
+            if (repairRecords.Any())
+            {
+                //most common
+                var _mostCommonRepairRecordDescription = repairRecords.GroupBy(x => x.Description).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault() ?? string.Empty;
+                var _mostCommonRepairRecords = repairRecords.Where(x => x.Description == _mostCommonRepairRecordDescription);
+                if (_mostCommonRepairRecords.Count() > 1)
+                {
+                    viewModel.MostCommonRepairRecord = _mostCommonRepairRecordDescription;
+                    viewModel.MostCommonRepairRecordAverageCost = _mostCommonRepairRecords.Average(x => x.Cost);
+                    viewModel.MostCommonRepairRecordOccurrence = _mostCommonRepairRecords.Count();
+                    viewModel.MostCommonRepairRecordLastOccurred = _mostCommonRepairRecords.Max(x => x.Date);
+                }
+                //most expensive
+                var _mostExpensiveRepairRecordCost = repairRecords.Max(x => x.Cost);
+                var _mostExpensiveRepairRecord = repairRecords.FirstOrDefault(x => x.Cost == _mostExpensiveRepairRecordCost) ?? new CollisionRecord();
+                viewModel.MostExpensiveRepairRecord = _mostExpensiveRepairRecord.Description;
+                viewModel.MostExpensiveRepairRecordCost = _mostExpensiveRepairRecordCost;
+                viewModel.MostExpensiveRepairRecordOdometer = _mostExpensiveRepairRecord.Mileage;
+                viewModel.MostExpensiveRepairRecordDate = _mostExpensiveRepairRecord.Date;
+            }
+            if (upgradeRecords.Any())
+            {
+                //most common
+                var _mostCommonUpgradeRecordDescription = upgradeRecords.GroupBy(x => x.Description).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault() ?? string.Empty;
+                var _mostCommonUpgradeRecords = upgradeRecords.Where(x => x.Description == _mostCommonUpgradeRecordDescription);
+                if (_mostCommonUpgradeRecords.Count() > 1)
+                {
+                    viewModel.MostCommonUpgradeRecord = _mostCommonUpgradeRecordDescription;
+                    viewModel.MostCommonUpgradeRecordAverageCost = _mostCommonUpgradeRecords.Average(x => x.Cost);
+                    viewModel.MostCommonUpgradeRecordOccurrence = _mostCommonUpgradeRecords.Count();
+                    viewModel.MostCommonUpgradeRecordLastOccurred = _mostCommonUpgradeRecords.Max(x => x.Date);
+                }
+                //most expensive
+                var _mostExpensiveUpgradeRecordCost = upgradeRecords.Max(x => x.Cost);
+                var _mostExpensiveUpgradeRecord = upgradeRecords.FirstOrDefault(x => x.Cost == _mostExpensiveUpgradeRecordCost) ?? new UpgradeRecord();
+                viewModel.MostExpensiveUpgradeRecord = _mostExpensiveUpgradeRecord.Description;
+                viewModel.MostExpensiveUpgradeRecordCost = _mostExpensiveUpgradeRecordCost;
+                viewModel.MostExpensiveUpgradeRecordOdometer = _mostExpensiveUpgradeRecord.Mileage;
+                viewModel.MostExpensiveUpgradeRecordDate = _mostExpensiveUpgradeRecord.Date;
+            }
+            return viewModel;
         }
     }
 }

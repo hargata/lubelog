@@ -128,8 +128,10 @@
         if (selectedVal != 0){
             $('[data-vehicleId]').hide();
             $(`[data-vehicleId='${selectedVal}']`).show();
+            setBrowserHistory('vehicleId', selectedVal);
         } else {
             $('[data-vehicleId]').show();
+            setBrowserHistory('vehicleId', '');
         }
     }
     function showKioskPlan(sender){
@@ -157,4 +159,13 @@
          $('.kiosk-plan-details-container').hide();
          $('.kiosk-plan-selector').trigger('change');
     }
+     function kioskLoadVehicleIdFromParam(){
+        let currentParams = new URLSearchParams(window.location.search);
+        let vehicleIdToLoad = currentParams.get('vehicleId');
+        if (vehicleIdToLoad != null) {
+            $('.kiosk-plan-selector').val(vehicleIdToLoad);
+             $('.kiosk-plan-selector').trigger('change');
+        }
+    }
+    kioskLoadVehicleIdFromParam();
 </script>

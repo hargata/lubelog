@@ -1,32 +1,68 @@
 ﻿@using CarCareTracker.Helper
-@model List<ReminderRecordViewModel>
+@model List<KioskReminderViewModel>
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var vehicles = Model.Select(x => x.VehicleData).Distinct();
 }
 @if (Model.Any())
 {
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
-        @foreach (ReminderRecordViewModel reminder in Model)
+    <div class="d-flex justify-content-end mt-1 mb-3">
+        <div>
+            <select class="form-select kiosk-reminder-selector" onchange="filterKioskReminder(this)">
+                <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
+                @foreach (Vehicle vehicle in vehicles)
+                {
+                    <!option value="@vehicle.Id">@($"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)}")</!option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row g-4 kiosk-content" data-masonry='{"percentPosition": true }'>
+        @foreach (KioskReminderViewModel reminder in Model)
         {
-            <div class="col" onclick="toggleReminderNote(this)">
-                <div class="card @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">
-                    <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem;">
-                        <h5 class="card-title">@reminder.Description</h5>
-                        <div class="row">
-                            <div class="col-12">
-                                <p class="display-7 d-none reminder-note" style="white-space: pre-wrap">@reminder.Notes</p>
-                                <p class="lead text-wrap">@translator.Translate(userLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency))</p>
-                                <div class="row">
-                                    @if (reminder.Metric == ReminderMetric.Date || reminder.Metric == ReminderMetric.Both)
+            var distanceUnit = reminder.VehicleData.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
+            <div class="col-12 col-lg-4 p-2 kiosk-card-container" data-vehicleId="@reminder.VehicleData.Id" style="cursor:pointer;" data-recordId="@reminder.Id" onclick="showKioskReminder(this)">
+                <div class="border rounded p-2 kiosk-card @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center">
+                            <span class="lead">@($"{reminder.VehicleData.Year} {reminder.VehicleData.Make} {reminder.VehicleData.Model}")</span>
+                            <span class="badge garage-metric-badge rounded-pill">@translator.Translate(userLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency))</span>
+                        </div>
+                        <div class="d-flex">
+                            <small>@(StaticHelper.GetVehicleIdentifier(reminder.VehicleData))</small>
+                        </div>
+                        <div class="d-flex">
+                            <span class="lead">@reminder.Description</span>
+                        </div>
+                        <div class="kiosk-reminder-card p-2">
+                            <div class="d-flex gap-2 flex-row p-2 flex-wrap">
+                                @if (reminder.UserMetric == ReminderMetric.Date || reminder.UserMetric == ReminderMetric.Both)
+                                {
+                                    <div class="d-flex flex-column p-2 border rounded flex-grow-1">
+                                        <span>@translator.Translate(userLanguage, "Due Date")</span>
+                                        <span class="lead"><i class='bi bi-calendar-event me-2'></i>@reminder.Date.ToShortDateString()</span>
+                                        <div>
+                                            <small class="badge @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">@($"{reminder.DueDays} {translator.Translate(userLanguage, "days remaining")}")</small>
+                                        </div>
+                                    </div>
+                                }
+                                @if (reminder.UserMetric == ReminderMetric.Odometer || reminder.UserMetric == ReminderMetric.Both)
+                                {
+                                    <div class="d-flex flex-column p-2 border rounded flex-grow-1">
+                                        <span>@translator.Translate(userLanguage, "Due Odometer")</span>
+                                        <span class="lead"><i class='bi bi-speedometer me-2'></i>@reminder.Mileage</span>
+                                        <div>
+                                            <small class="badge @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">@($"{reminder.DueMileage} {distanceUnit} {translator.Translate(userLanguage, "remaining")}")</small>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="d-none stickerNote">
+                                    @if (!string.IsNullOrWhiteSpace(reminder.Notes))
                                     {
-                                        <div class="col-6"><i class='bi bi-calendar-event me-2'></i>@reminder.Date.ToShortDateString()</div>
-                                    }
-                                    @if (reminder.Metric == ReminderMetric.Odometer || reminder.Metric == ReminderMetric.Both)
-                                    {
-                                        <div class="col-6"><i class='bi bi-speedometer me-2'></i>@reminder.Mileage</div>
+                                        @reminder.Notes
                                     }
                                 </div>
                             </div>
@@ -35,6 +71,15 @@
                 </div>
             </div>
         }
+        <div class="col-12 p-2 kiosk-card-details flex-grow-1" style="display:none;">
+            <div class="border rounded p-2 d-flex flex-column">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-link" onclick="showAllKioskReminder()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="kiosk-tab-content flex-grow-1 d-flex flex-wrap">
+                </div>
+            </div>
+        </div>
     </div>
 }
 else
@@ -45,3 +90,53 @@ else
         </div>
     </div>
 }
+<script>
+    function filterKioskReminder(sender){
+        let selectedVal = $(sender).val();
+        if (selectedVal != 0){
+            $('[data-vehicleId]').hide();
+            $(`[data-vehicleId='${selectedVal}']`).show();
+            setBrowserHistory('vehicleId', selectedVal);
+        } else {
+            $('[data-vehicleId]').show();
+            setBrowserHistory('vehicleId', '');
+        }
+        $('.kiosk-content').masonry();
+    }
+    function showAllKioskReminder(){
+         $('[data-recordId]').show();
+         $('.kiosk-reminder-selector').trigger('change');
+         $('.kiosk-card').removeClass('kiosk-card-expanded');
+         $('.kiosk-card-details').hide();
+         $('.kiosk-reminder-selector').prop('disabled', false);
+         $('.kiosk-content').masonry();
+    }
+    function showKioskReminder(sender){
+        let reminderCard = $(sender).closest('[data-recordId]');
+        $('[data-recordId]').hide();
+        reminderCard.show();
+        reminderCard.find('.kiosk-card').addClass('kiosk-card-expanded');
+        $('.kiosk-reminder-selector').prop('disabled', true);
+        $('.kiosk-card-details').show();
+        let dataToCopy = reminderCard.find('.stickerNote').html();
+        $('.kiosk-tab-content').html(dataToCopy);
+        setMarkDownPlanNotes($('.kiosk-tab-content'));
+        $(".kiosk-content").masonry();
+    }
+     function setMarkDownPlanNotes(elem) {
+        if (elem.length > 0){
+            let originalStickerNote = elem.html().trim();
+            let markDownStickerNote = markdown(originalStickerNote);
+            elem.html(markDownStickerNote);
+        }
+    }
+     function kioskLoadVehicleIdFromParam(){
+        let currentParams = new URLSearchParams(window.location.search);
+        let vehicleIdToLoad = currentParams.get('vehicleId');
+        if (vehicleIdToLoad != null) {
+            $('.kiosk-reminder-selector').val(vehicleIdToLoad);
+            $('.kiosk-reminder-selector').trigger('change');
+        }
+    }
+    kioskLoadVehicleIdFromParam();
+</script>

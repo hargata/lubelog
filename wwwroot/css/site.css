@@ -820,3 +820,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .kiosk-card-container:has(.kiosk-card-expanded){
     width: 100% !important;
 }
+.kiosk-reminder-card {
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
+}

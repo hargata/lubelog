@@ -1939,7 +1939,11 @@ function closeAttachmentPreview() {
 }
 function setBrowserHistory(param, val) {
     let currentParams = new URLSearchParams(window.location.search);
-    currentParams.set(param, val);
+    if (val == '') {
+        currentParams.delete(param);
+    } else {
+        currentParams.set(param, val);
+    }
     let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
     window.history.pushState({}, '', updatedURL);
 }

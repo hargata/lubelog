@@ -90,8 +90,12 @@ namespace CarCareTracker.Helper
                     return "text-bg-warning";
             }
         }
-        public static string GetPlanRecordColor(PlanPriority input)
+        public static string GetPlanRecordColor(PlanPriority input, PlanProgress planProgress)
         {
+            if (planProgress == PlanProgress.Done)
+            {
+                return "text-bg-success";
+            }
             switch (input)
             {
                 case PlanPriority.Critical:

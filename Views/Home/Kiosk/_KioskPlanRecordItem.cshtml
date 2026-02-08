@@ -8,7 +8,7 @@
 }
 @model KioskPlanViewModel
 <div data-vehicleId="@Model.VehicleData.Id" style="cursor:pointer;" onclick="showKioskPlan(this)" data-recordId="@Model.Id">
-<div class="d-flex flex-column user-select-none mt-2 p-2 @StaticHelper.GetPlanRecordColor(Model.Priority)">
+<div class="d-flex flex-column user-select-none mt-2 p-2 @StaticHelper.GetPlanRecordColor(Model.Priority, Model.Progress)">
     <div class="d-flex justify-content-between align-items-center flex-wrap">
         <span class="lead">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
         <small>@(StaticHelper.GetVehicleIdentifier(Model.VehicleData))</small>

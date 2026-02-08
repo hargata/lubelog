@@ -8,7 +8,47 @@
 }
 @if (Model.Any())
 {
-    <div class="row g-4 mt-1 kiosk-content" data-masonry='{"percentPosition": true }'>
+    <div class="d-flex justify-content-between mt-1">
+        <div class="d-flex gap-2 flex-grow-1">
+            <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small class="text-success">@Model.Sum(x => x.ServiceRecordCost).ToString("C0")</small>
+                <small>@translator.Translate(userLanguage, "Service")</small>
+            </div>
+            <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small class="text-success">@Model.Sum(x => x.RepairRecordCost).ToString("C0")</small>
+                <small>@translator.Translate(userLanguage, "Repairs")</small>
+            </div>
+            <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small class="text-success">@Model.Sum(x => x.UpgradeRecordCost).ToString("C0")</small>
+                <small>@translator.Translate(userLanguage, "Upgrades")</small>
+            </div>
+            <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small class="text-success">@Model.Sum(x => x.GasRecordCost).ToString("C0")</small>
+                <small>@translator.Translate(userLanguage, "Fuel")</small>
+            </div>
+        </div>
+        <div class="d-flex flex-grow-1">
+        </div>
+        <div class="d-flex gap-2 flex-grow-1">
+            <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small>@Model.Sum(x => x.PastDueReminderCount)</small>
+                <small>@translator.Translate(userLanguage, "Past Due")</small>
+            </div>
+            <div class="col-2 p-2 bg-danger-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small>@Model.Sum(x => x.VeryUrgentReminderCount)</small>
+                <small>@translator.Translate(userLanguage, "Very Urgent")</small>
+            </div>
+            <div class="col-2 p-2 bg-warning-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small>@Model.Sum(x => x.UrgentReminderCount)</small>
+                <small>@translator.Translate(userLanguage, "Urgent")</small>
+            </div>
+            <div class="col-2 p-2 bg-success-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
+                <small>@Model.Sum(x => x.NotUrgentReminderCount)</small>
+                <small>@translator.Translate(userLanguage, "Not Urgent")</small>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 kiosk-content vehicleTabPane" data-masonry='{"percentPosition": true }'>
         @foreach (VehicleInfo vehicle in Model)
         {
             <div class="col-12 col-lg-4 p-2 kiosk-card-container">
@@ -60,7 +100,7 @@
                     </div>
                     @if (vehicle.PastDueReminderCount + vehicle.VeryUrgentReminderCount + vehicle.UrgentReminderCount + vehicle.NotUrgentReminderCount > 0)
                     {
-                        <div class="d-flex flex-column mt-2 bg-secondary-subtle border rounded p-2 hideOnExpand">
+                        <div class="d-flex flex-column mt-2 bg-secondary-subtle border rounded p-2">
                             <span class="lead">@translator.Translate(userLanguage, "Reminders")</span>
                             <div class="d-flex justify-content-between gap-2 mt-1">
                                 <div class="col-2 p-2 bg-secondary-subtle flex-grow-1 d-flex flex-column border rounded justify-content-center align-items-center text-break">
@@ -84,7 +124,7 @@
                     }
                     @if (vehicle.NextReminder != null)
                     {
-                        <div class="d-flex mt-2 border rounded justify-content-between hideOnExpand p-2 @(StaticHelper.GetReminderUrgencyColor(vehicle.NextReminder.Urgency))">
+                        <div class="d-flex mt-2 border rounded justify-content-between p-2 @(StaticHelper.GetReminderUrgencyColor(vehicle.NextReminder.Urgency))">
                             <div class="d-flex flex-column">
                                 <span>@vehicle.NextReminder.Description</span>
                                 <small class="text-truncate">@translator.Translate(userLanguage, StaticHelper.GetTitleCaseReminderUrgency(vehicle.NextReminder.Urgency))</small>
@@ -105,16 +145,12 @@
             </div>
         }
         <div class="col-12 p-2 kiosk-card-details flex-grow-1" style="display:none;">
-            <div class="border rounded p-2">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <button type="button" class="btn btn-primary" onclick="showAllKioskVehicle(event)">@translator.Translate(userLanguage, "Planner")</button>
-                        <button type="button" class="btn btn-primary" onclick="showAllKioskVehicle(event)">@translator.Translate(userLanguage, "Reminders")</button>
-                    </div>
-                    <button type="button" class="btn btn-link" onclick="showAllKioskVehicle(event)"><i class="bi bi-x-lg"></i></button>
+            <div class="border rounded p-2 d-flex flex-column">
+                <div class="d-flex justify-content-end">
+                    <a class="btn btn-link" onclick="redirectToPlanner()">@translator.Translate(userLanguage, "Planner")<i class="bi ms-2 bi-box-arrow-up-right"></i></a>
+                    <a class="btn btn-link" onclick="redirectToReminder()">@translator.Translate(userLanguage, "Reminders")<i class="bi ms-2 bi-box-arrow-up-right"></i></a>
                 </div>
-                <div class="kiosk-tab-content">
-
+                <div class="kiosk-tab-content flex-grow-1 d-flex flex-wrap">
                 </div>
             </div>
         </div>
@@ -131,11 +167,18 @@ else
 <script>
     function focusKioskVehicle(sender){
         let vehicleId = $(sender).attr('data-vehicleId');
-        $('.kiosk-card-container').hide();
-        $(`.kiosk-card-container:has(.kiosk-card[data-vehicleId='${vehicleId}'])`).show();
-        $(`.kiosk-card-container .kiosk-card[data-vehicleId='${vehicleId}']`).addClass('kiosk-card-expanded');
-        $('.kiosk-card-details').show();
-        $(".kiosk-content").masonry();
+        showKioskVehicle(vehicleId);
+    }
+    function showKioskVehicle(vehicleId){
+        $.get('/Home/GetKioskVehicleInfo', {vehicleId: vehicleId}, function(data){
+            $('.kiosk-tab-content').html(data);
+            $('.kiosk-card-container').hide();
+            $(`.kiosk-card-container:has(.kiosk-card[data-vehicleId='${vehicleId}'])`).show();
+            $(`.kiosk-card-container .kiosk-card[data-vehicleId='${vehicleId}']`).addClass('kiosk-card-expanded');
+            $('.kiosk-card-details').show();
+            $(".kiosk-content").masonry();
+            setBrowserHistory('vehicleId', vehicleId)
+        });
     }
     function showAllKioskVehicle(event){
         event.stopPropagation()
@@ -143,5 +186,26 @@ else
         $('.kiosk-card').removeClass('kiosk-card-expanded');
         $('.kiosk-card-details').hide();
         $(".kiosk-content").masonry();
+        setBrowserHistory('vehicleId', '');
     }
+    function kioskLoadVehicleIdFromParam(){
+        let currentParams = new URLSearchParams(window.location.search);
+        let vehicleIdToLoad = currentParams.get('vehicleId');
+        if (vehicleIdToLoad != null) {
+             showKioskVehicle(vehicleIdToLoad);
+        }
+    }
+    function redirectToPlanner(){
+        let currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('kioskMode', 'plan');
+        let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
+        window.location.href = updatedURL;
+    }
+    function redirectToReminder(){
+        let currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('kioskMode', 'reminder');
+        let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
+        window.location.href = updatedURL;
+    }
+    kioskLoadVehicleIdFromParam();
 </script>
