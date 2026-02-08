@@ -62,6 +62,7 @@ function updateSettings() {
         showCalendar: $("#showCalendar").is(":checked"),
         showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
         showSearch: $("#showGarageSearch").is(":checked"),
+        disableAutoZoom: $("#disableAutoZoom").is(":checked"),
         enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
         hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
         preferredGasUnit: $("#preferredGasUnit").val(),
