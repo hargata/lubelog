@@ -9,7 +9,10 @@
 }
 @if (Model.Any())
 {
-    <div class="d-flex justify-content-end mt-1 mb-3">
+    <div class="d-flex justify-content-between mt-1 mb-3">
+        <div>
+            <a class="btn btn-link" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
+        </div>
         <div>
             <select class="form-select kiosk-reminder-selector" onchange="filterKioskReminder(this)">
                 <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
@@ -91,13 +94,5 @@ else
     </div>
 }
 <script>
-     function kioskLoadVehicleIdFromParam(){
-        let currentParams = new URLSearchParams(window.location.search);
-        let vehicleIdToLoad = currentParams.get('vehicleId');
-        if (vehicleIdToLoad != null) {
-            $('.kiosk-reminder-selector').val(vehicleIdToLoad);
-            $('.kiosk-reminder-selector').trigger('change');
-        }
-    }
-    kioskLoadVehicleIdFromParam();
+    kioskSelectLoadVehicleIdFromParam($('.kiosk-reminder-selector'));
 </script>

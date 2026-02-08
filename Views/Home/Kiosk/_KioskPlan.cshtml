@@ -14,7 +14,10 @@
 }
 @if (Model.Any())
 {
-    <div class="d-flex justify-content-end mt-1">
+    <div class="d-flex justify-content-between mt-1 align-items-center">
+        <div>
+            <a class="btn btn-link" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
+        </div>
         <div>
             <select class="form-select kiosk-plan-selector" onchange="filterKioskPlan(this)">
                 <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
@@ -123,13 +126,5 @@
     @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
 }
 <script>
-     function kioskLoadVehicleIdFromParam(){
-        let currentParams = new URLSearchParams(window.location.search);
-        let vehicleIdToLoad = currentParams.get('vehicleId');
-        if (vehicleIdToLoad != null) {
-            $('.kiosk-plan-selector').val(vehicleIdToLoad);
-             $('.kiosk-plan-selector').trigger('change');
-        }
-    }
-    kioskLoadVehicleIdFromParam();
+    kioskSelectLoadVehicleIdFromParam($('.kiosk-plan-selector'));
 </script>

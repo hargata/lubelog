@@ -165,12 +165,5 @@ else
     </div>
 }
 <script>
-    function kioskLoadVehicleIdFromParam(){
-        let currentParams = new URLSearchParams(window.location.search);
-        let vehicleIdToLoad = currentParams.get('vehicleId');
-        if (vehicleIdToLoad != null) {
-             showKioskVehicle(vehicleIdToLoad);
-        }
-    }
     kioskLoadVehicleIdFromParam();
 </script>
