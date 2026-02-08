@@ -113,9 +113,14 @@ else
     }
     function showKioskReminder(sender){
         let reminderCard = $(sender).closest('[data-recordId]');
+        let reminderKioskCard = reminderCard.find('.kiosk-card');
+        if (reminderKioskCard.hasClass('kiosk-card-expanded')){
+            showAllKioskReminder();
+            return;
+        }
         $('[data-recordId]').hide();
         reminderCard.show();
-        reminderCard.find('.kiosk-card').addClass('kiosk-card-expanded');
+        reminderKioskCard.addClass('kiosk-card-expanded');
         $('.kiosk-reminder-selector').prop('disabled', true);
         $('.kiosk-card-details').show();
         let dataToCopy = reminderCard.find('.stickerNote').html();
