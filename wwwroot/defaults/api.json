@@ -1560,11 +1560,11 @@
       ]
    },
    {
-      "categoryName":"Note Records",
+      "categoryName":"Notes",
       "methods":[
          {
             "path":"/api/vehicle/notes/all",
-            "description":"Gets Note Records for all vehicles in user's garage",
+            "description":"Gets Notes for all vehicles in user's garage",
             "methodType":0,
             "queryParams":[
                {
@@ -1583,7 +1583,7 @@
          },
          {
             "path":"/api/vehicle/notes",
-            "description":"Gets Note Records for a vehicle in user's garage",
+            "description":"Gets Notes for a vehicle in user's garage",
             "methodType":0,
             "queryParams":[
                {
@@ -1607,7 +1607,7 @@
          },
          {
             "path":"/api/vehicle/notes/add",
-            "description":"Adds a Note Record for a vehicle",
+            "description":"Adds a Note for a vehicle",
             "bodyParamName":"input",
             "methodType":1,
             "queryParams":[
@@ -1639,7 +1639,7 @@
          },
          {
             "path":"/api/vehicle/notes/update",
-            "description":"Updates a Note Record for a vehicle",
+            "description":"Updates a Note for a vehicle",
             "bodyParamName":"input",
             "methodType":2,
             "queryParams":[
@@ -1668,12 +1668,12 @@
          },
          {
             "path":"/api/vehicle/notes/delete",
-            "description":"Deletes a Note Record",
+            "description":"Deletes a Note",
             "methodType":3,
             "queryParams":[
                {
                   "name":"id",
-                  "description":"Id of the Note Record",
+                  "description":"Id of the Note",
                   "required":true
                }
             ],
