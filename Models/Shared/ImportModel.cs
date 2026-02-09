@@ -37,6 +37,8 @@ namespace CarCareTracker.Models
     public class SupplyRecordExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -55,6 +57,8 @@ namespace CarCareTracker.Models
     public class GenericRecordExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -70,6 +74,8 @@ namespace CarCareTracker.Models
     }
     public class OdometerRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
@@ -87,6 +93,8 @@ namespace CarCareTracker.Models
     public class TaxRecordExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; }
@@ -100,6 +108,8 @@ namespace CarCareTracker.Models
     }
     public class GasRecordExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
@@ -124,6 +134,8 @@ namespace CarCareTracker.Models
     public class EquipmentRecordExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         public string Description { get; set; }
         [JsonConverter(typeof(FromBoolOptional))]
@@ -139,6 +151,8 @@ namespace CarCareTracker.Models
     public class EquipmentRecordAPIExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         public string Description { get; set; }
         [JsonConverter(typeof(FromBoolOptional))]
@@ -152,6 +166,8 @@ namespace CarCareTracker.Models
     }
     public class ReminderExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         public string Description { get; set; }
@@ -169,6 +185,8 @@ namespace CarCareTracker.Models
     /// </summary>
     public class ReminderAPIExportModel
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         public string Description { get; set; }
@@ -188,6 +206,8 @@ namespace CarCareTracker.Models
     }
     public class PlanRecordExportModel 
     {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
         [JsonConverter(typeof(FromIntOptional))]
         public string Id { get; set; }
         [JsonConverter(typeof(FromDateOptional))]

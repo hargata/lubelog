@@ -40,7 +40,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var results = reminderResults.Select(x => new ReminderAPIExportModel { Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
+            var results = reminderResults.Select(x => new ReminderAPIExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -78,7 +78,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 reminderResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var results = reminderResults.Select(x => new ReminderAPIExportModel { Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
+            var results = reminderResults.Select(x => new ReminderAPIExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Urgency = x.Urgency.ToString(), Metric = x.Metric.ToString(), UserMetric = x.UserMetric.ToString(), Notes = x.Notes, DueDate = x.Date.ToShortDateString(), DueOdometer = x.Mileage.ToString(), DueDays = x.DueDays.ToString(), DueDistance = x.DueMileage.ToString(), Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());

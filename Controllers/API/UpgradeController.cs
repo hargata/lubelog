@@ -40,7 +40,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -79,7 +79,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new GenericRecordExportModel { Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new GenericRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Cost = x.Cost.ToString(), Notes = x.Notes, Odometer = x.Mileage.ToString(), ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());

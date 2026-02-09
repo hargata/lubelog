@@ -44,6 +44,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords
                 .Select(x => new GasRecordExportModel
                 {
+                    VehicleId = x.VehicleId.ToString(),
                     Id = x.Id.ToString(),
                     Date = x.Date,
                     Odometer = x.Mileage.ToString(),
@@ -99,6 +100,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords
                 .Select(x => new GasRecordExportModel
                 {
+                    VehicleId = x.VehicleId.ToString(),
                     Id = x.Id.ToString(),
                     Date = x.Date,
                     Odometer = x.Mileage.ToString(),

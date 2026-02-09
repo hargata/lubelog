@@ -47,6 +47,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords
                 .Select(x => new SupplyRecordExportModel
                 {
+                    VehicleId = x.VehicleId.ToString(),
                     Id = x.Id.ToString(),
                     Date = x.Date.ToString(),
                     PartNumber = x.PartNumber,
@@ -100,6 +101,7 @@ namespace CarCareTracker.Controllers
             var result = vehicleRecords
                 .Select(x => new SupplyRecordExportModel
                 {
+                    VehicleId = x.VehicleId.ToString(),
                     Id = x.Id.ToString(),
                     Date = x.Date.ToString(),
                     PartNumber = x.PartNumber,

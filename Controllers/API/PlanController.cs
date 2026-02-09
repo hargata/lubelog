@@ -37,6 +37,7 @@ namespace CarCareTracker.Controllers
             }
             var result = vehicleRecords.Select(x => new PlanRecordExportModel
             {
+                VehicleId = x.VehicleId.ToString(),
                 Id = x.Id.ToString(),
                 DateCreated = x.DateCreated.ToShortDateString(),
                 DateModified = x.DateModified.ToShortDateString(),
@@ -84,6 +85,7 @@ namespace CarCareTracker.Controllers
             }
             var result = vehicleRecords.Select(x => new PlanRecordExportModel
             {
+                VehicleId = x.VehicleId.ToString(),
                 Id = x.Id.ToString(),
                 DateCreated = x.DateCreated.ToShortDateString(),
                 DateModified = x.DateModified.ToShortDateString(),
