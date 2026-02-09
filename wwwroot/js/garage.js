@@ -130,13 +130,7 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
         event.stopPropagation();
     }
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Reminders cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Reminders cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
                 if (data.success) {
@@ -357,13 +351,7 @@ function deleteVehicles(vehicleIds) {
         return;
     }
     let messageWording = vehicleIds.length > 1 ? `these ${vehicleIds.length} vehicles` : 'this vehicle';
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: `This will also delete all data tied to ${messageWording}. Deleted Vehicles and their associated data cannot be restored.`,
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete(`This will also delete all data tied to ${messageWording}. Deleted Vehicles and their associated data cannot be restored.`, (result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicles', { vehicleIds: vehicleIds }, function (data) {
                 if (data.success) {

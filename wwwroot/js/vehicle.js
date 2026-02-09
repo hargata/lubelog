@@ -225,13 +225,7 @@ function hideEditVehicleModal() {
     $('#editVehicleModal').modal('hide');
 }
 function deleteVehicle(vehicleId) {
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "This will also delete all data tied to this vehicle. Deleted Vehicles and their associated data cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("This will also delete all data tied to this vehicle. Deleted Vehicles and their associated data cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicle', { vehicleId: vehicleId }, function (data) {
                 if (data.success) {

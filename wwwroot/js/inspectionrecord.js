@@ -191,13 +191,7 @@ function saveInspectionRecordTemplateToVehicle(isEdit) {
 }
 function deleteInspectionRecordTemplate(inspectionRecordTemplateId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Inspection Templates cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Inspection Templates cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteInspectionRecordTemplateById?inspectionRecordTemplateId=${inspectionRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();
@@ -413,13 +407,7 @@ function showEditInspectionRecordModal(inspectionRecordId) {
 }
 function deleteInspectionRecord(inspectionRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Inspection Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Inspection Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteInspectionRecordById?inspectionRecordId=${inspectionRecordId}`, function (data) {
                 if (data.success) {
