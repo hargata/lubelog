@@ -25,16 +25,19 @@ function redirectToPlanner() {
     setBrowserHistory('kioskMode', 'plan');
     kioskMode = 'plan';
     retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function redirectToReminder() {
     setBrowserHistory('kioskMode', 'reminder');
     kioskMode = 'reminder';
     retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function redirectToKiosk() {
     setBrowserHistory('kioskMode', '');
     kioskMode = '';
     retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function filterKioskPlan(sender) {
     let selectedVal = $(sender).val();
@@ -142,7 +145,13 @@ function initKiosk() {
         subtractAmount = 2;
     }
     retrieveKioskContent();
+    acquireKioskWakeLock();
+}
+function acquireKioskWakeLock() {
     //acquire wakeLock;
+    if (kioskWakeLock != null) {
+        kioskWakeLock = null;
+    }
     try {
         navigator.wakeLock.request('screen').then((wl) => {
             kioskWakeLock = wl;
