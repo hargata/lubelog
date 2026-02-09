@@ -43,13 +43,7 @@ function hideAddCollisionRecordModal() {
 }
 function deleteCollisionRecord(collisionRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Repair Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Repair Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteCollisionRecordById?collisionRecordId=${collisionRecordId}`, function (data) {
                 if (data.success) {

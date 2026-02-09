@@ -85,13 +85,7 @@ function deleteReminderRecord(reminderRecordId, e) {
         event.stopPropagation();
     }
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Reminders cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Reminders cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
                 if (data.success) {

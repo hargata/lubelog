@@ -79,13 +79,7 @@ function hideAddPlanRecordModal() {
 }
 function deletePlanRecord(planRecordId, noModal) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Plan Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Plan Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordById?planRecordId=${planRecordId}`, function (data) {
                 if (data.success) {
@@ -161,13 +155,7 @@ function usePlannerRecordTemplate(planRecordTemplateId) {
 
 function deletePlannerRecordTemplate(planRecordTemplateId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Plan Templates cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Plan Templates cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordTemplateById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();

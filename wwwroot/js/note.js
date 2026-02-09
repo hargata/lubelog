@@ -39,13 +39,7 @@ function hideAddNoteModal() {
 }
 function deleteNote(noteId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Notes cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Notes cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteNoteById?noteId=${noteId}`, function (data) {
                 if (data.success) {

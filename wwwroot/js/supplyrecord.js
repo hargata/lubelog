@@ -43,13 +43,7 @@ function hideAddSupplyRecordModal() {
 }
 function deleteSupplyRecord(supplyRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Supply Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Supply Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteSupplyRecordById?supplyRecordId=${supplyRecordId}`, function (data) {
                 if (data.success) {
