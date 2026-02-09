@@ -41,7 +41,7 @@
                         </div>
                         @foreach (PlanRecord planRecord in backLogItems)
                         {
-                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                            @await Html.PartialAsync("_KioskPlanRecordItem", planRecord)
                         }
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                         </div>
                         @foreach (PlanRecord planRecord in inProgressItems)
                         {
-                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                            @await Html.PartialAsync("_KioskPlanRecordItem", planRecord)
                         }
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                         </div>
                         @foreach (PlanRecord planRecord in testingItems)
                         {
-                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                            @await Html.PartialAsync("_KioskPlanRecordItem", planRecord)
                         }
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                         </div>
                         @foreach (PlanRecord planRecord in doneItems)
                         {
-                            @await Html.PartialAsync("Kiosk/_KioskPlanRecordItem", planRecord)
+                            @await Html.PartialAsync("_KioskPlanRecordItem", planRecord)
                         }
                     </div>
                 </div>

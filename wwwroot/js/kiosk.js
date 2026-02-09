@@ -3,7 +3,7 @@
     showKioskVehicle(vehicleId);
 }
 function showKioskVehicle(vehicleId) {
-    $.get('/Home/GetKioskVehicleInfo', { vehicleId: vehicleId }, function (data) {
+    $.get('/Kiosk/GetKioskVehicleInfo', { vehicleId: vehicleId }, function (data) {
         $('.kiosk-tab-content').html(data);
         $('.kiosk-card-container').hide();
         $(`.kiosk-card-container:has(.kiosk-card[data-vehicleId='${vehicleId}'])`).show();
@@ -22,22 +22,22 @@ function showAllKioskVehicle(event) {
     setBrowserHistory('vehicleId', '');
 }
 function redirectToPlanner() {
-    let currentParams = new URLSearchParams(window.location.search);
-    currentParams.set('kioskMode', 'plan');
-    let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
-    window.location.href = updatedURL;
+    setBrowserHistory('kioskMode', 'plan');
+    kioskMode = 'plan';
+    retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function redirectToReminder() {
-    let currentParams = new URLSearchParams(window.location.search);
-    currentParams.set('kioskMode', 'reminder');
-    let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
-    window.location.href = updatedURL;
+    setBrowserHistory('kioskMode', 'reminder');
+    kioskMode = 'reminder';
+    retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function redirectToKiosk() {
-    let currentParams = new URLSearchParams(window.location.search);
-    currentParams.delete('kioskMode');
-    let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
-    window.location.href = updatedURL;
+    setBrowserHistory('kioskMode', '');
+    kioskMode = '';
+    retrieveKioskContent();
+    acquireKioskWakeLock();
 }
 function filterKioskPlan(sender) {
     let selectedVal = $(sender).val();
@@ -132,7 +132,7 @@ function setAccessToken(accessToken) {
     //use this function to never worry about user session expiring.
     $.ajaxSetup({
         headers: {
-            'Authorization': `Basic ${accessToken}`
+            'x-api-key': accessToken
         }
     });
     console.log("Access Token for Kiosk Mode Configured!");
@@ -145,7 +145,13 @@ function initKiosk() {
         subtractAmount = 2;
     }
     retrieveKioskContent();
+    acquireKioskWakeLock();
+}
+function acquireKioskWakeLock() {
     //acquire wakeLock;
+    if (kioskWakeLock != null) {
+        kioskWakeLock = null;
+    }
     try {
         navigator.wakeLock.request('screen').then((wl) => {
             kioskWakeLock = wl;
@@ -157,7 +163,7 @@ function initKiosk() {
 function retrieveKioskContent() {
     clearInterval(refreshTimer);
     if (kioskMode != 'Cycle') {
-        $.post('/Home/KioskContent', { exclusions: exceptionList, kioskMode: kioskMode }, function (data) {
+        $.post('/Kiosk/KioskContent', { exclusions: exceptionList, kioskMode: kioskMode }, function (data) {
             $("#kioskContainer").html(data);
             $(".kiosk-content").masonry();
             if ($(".no-data-message").length == 0) {
@@ -178,7 +184,7 @@ function retrieveKioskContent() {
                 currentKioskMode = "Vehicle";
                 break;
         }
-        $.post('/Home/KioskContent', { exclusions: exceptionList, kioskMode: currentKioskMode }, function (data) {
+        $.post('/Kiosk/KioskContent', { exclusions: exceptionList, kioskMode: currentKioskMode }, function (data) {
             $("#kioskContainer").html(data);
             $(".kiosk-content").masonry();
             if ($(".no-data-message").length > 0) {

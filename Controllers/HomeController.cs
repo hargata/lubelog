@@ -1,5 +1,4 @@
 using CarCareTracker.External.Interfaces;
-using CarCareTracker.Filter;
 using CarCareTracker.Helper;
 using CarCareTracker.Logic;
 using CarCareTracker.Models;
@@ -63,64 +62,6 @@ namespace CarCareTracker.Controllers
         public IActionResult Index()
         {
             return View();
-        }
-        [Route("/kiosk")]
-        public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
-        { 
-            try {
-                var viewModel = new KioskViewModel
-                {
-                    Exclusions = string.IsNullOrWhiteSpace(exclusions) ? new List<int>() : exclusions.Split(',').Select(x => int.Parse(x)).ToList(),
-                    KioskMode = kioskMode
-                };
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return View(new KioskViewModel());
-            }
-        }
-        [HttpPost]
-        public IActionResult KioskContent(KioskViewModel kioskParameters)
-        {
-            var vehiclesStored = _dataAccess.GetVehicles();
-            if (!User.IsInRole(nameof(UserData.IsRootUser)))
-            {
-                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
-            }
-            vehiclesStored.RemoveAll(x => kioskParameters.Exclusions.Contains(x.Id));
-            var userConfig = _config.GetUserConfig(User);
-            if (userConfig.HideSoldVehicles)
-            {
-                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
-            }
-            switch (kioskParameters.KioskMode)
-            {
-                case KioskMode.Vehicle:
-                    {
-                        var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-                        return PartialView("Kiosk/_Kiosk", kioskResult);
-                    }
-                case KioskMode.Plan:
-                    {
-                        var kioskResult = _vehicleLogic.GetPlansForKiosk(vehiclesStored, false);
-                        return PartialView("Kiosk/_KioskPlan", kioskResult);
-                    }
-                case KioskMode.Reminder:
-                    {
-                        var kioskResult = _vehicleLogic.GetRemindersForKiosk(vehiclesStored);
-                        return PartialView("Kiosk/_KioskReminder", kioskResult);
-                    }
-            }
-            var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-            return PartialView("Kiosk/_Kiosk", result);
-        }
-        [TypeFilter(typeof(CollaboratorFilter))]
-        public IActionResult GetKioskVehicleInfo(int vehicleId)
-        {
-            var result = _vehicleLogic.GetKioskVehicleInfo(vehicleId);
-            return PartialView("Kiosk/_KioskVehicleInfo", result);
         }
         public IActionResult Garage()
         {
