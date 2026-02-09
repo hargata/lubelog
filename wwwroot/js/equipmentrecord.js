@@ -39,13 +39,7 @@ function hideAddEquipmentRecordModal() {
 }
 function deleteEquipmentRecord(equipmentRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Equipment Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Equipment Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteEquipmentRecordById?equipmentRecordId=${equipmentRecordId}`, function (data) {
                 if (data.success) {

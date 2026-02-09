@@ -7,6 +7,17 @@ const mobileScreen = window.matchMedia("(max-width: 576px)");
 function returnToGarage() {
     window.location.href = '/Home';
 }
+function confirmDelete(message, callBack) {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: message,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        callBack(result);
+    });
+}
 function successToast(message) {
     Swal.fire({
         toast: true,
@@ -1064,13 +1075,7 @@ function deleteRecords(ids, source) {
             break;
     }
 
-    Swal.fire({
-        title: "Confirm Delete?",
-        text: `Delete ${recordVerbiage} from ${friendlySource}?`,
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete(`Delete ${recordVerbiage} from ${friendlySource}?`, (result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
                 if (data.success) {

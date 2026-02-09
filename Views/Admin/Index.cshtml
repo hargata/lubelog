@@ -147,13 +147,7 @@
     }
     function deleteUser(userId) {
         event.stopPropagation();
-        Swal.fire({
-            title: "Confirm Deletion?",
-            text: "Deleted Users cannot be restored.",
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-            confirmButtonColor: "#dc3545"
-        }).then((result) => {
+        confirmDelete("Deleted Users cannot be restored.",(result) => {
             if (result.isConfirmed) {
                 $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
                     if (data) {

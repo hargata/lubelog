@@ -51,13 +51,7 @@ function hideAddTaxRecordModal() {
 }
 function deleteTaxRecord(taxRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Tax Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Tax Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteTaxRecordById?taxRecordId=${taxRecordId}`, function (data) {
                 if (data.success) {
