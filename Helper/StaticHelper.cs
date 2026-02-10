@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.5.9";
+        public const string VersionNumber = "1.6.0";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -486,7 +486,7 @@ namespace CarCareTracker.Helper
             {
                 if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value;
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? "N/A";
                 }
                 else
                 {
@@ -504,7 +504,7 @@ namespace CarCareTracker.Helper
             {
                 if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value;
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? "N/A";
                 }
                 else
                 {
@@ -554,7 +554,7 @@ namespace CarCareTracker.Helper
                         return displayName;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     return name;
                 }

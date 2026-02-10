@@ -7,7 +7,7 @@
         public string Date { get; set; } = DateTime.Now.ToShortDateString();
         public int Mileage { get; set; }
         public decimal Cost { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public List<int> ReminderRecordId { get; set; } = new List<int>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();

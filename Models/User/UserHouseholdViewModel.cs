@@ -2,7 +2,7 @@
 {
     public class UserHouseholdViewModel
     {
-        public string UserName { get; set; }
-        public UserHousehold UserHousehold { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public UserHousehold UserHousehold { get; set; } = new UserHousehold();
     }
 }

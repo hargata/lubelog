@@ -57,7 +57,7 @@ namespace CarCareTracker.Controllers
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         public IActionResult Index()
         {
@@ -236,8 +236,8 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetUserAccountInformationModal()
         {
-            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
-            var userName = User.Identity.Name;
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            var userName = User?.Identity?.Name ?? string.Empty;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
         }
         [HttpGet]
@@ -311,7 +311,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetRootAccountInformationModal()
         {
-            var userName = User.Identity.Name;
+            var userName = User?.Identity?.Name ?? string.Empty;
             return PartialView("_RootAccountModal", new UserData() { UserName = userName });
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -330,7 +330,7 @@ namespace CarCareTracker.Controllers
             using (var sReader = new StreamReader(file.OpenReadStream()))
             {
                 var sData = sReader.ReadToEnd();
-                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData);
+                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData) ?? new Dictionary<string, string>();
             }
             var result = _translationHelper.SaveTranslation(userLanguage, translationData);
             return Json(result);

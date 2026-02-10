@@ -16,7 +16,7 @@
         public decimal Cost { get; set; }
         public bool IsFillToFull { get; set; } = true;
         public bool MissedFuelUp { get; set; } = false;
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public List<string> Tags { get; set; } = new List<string>();

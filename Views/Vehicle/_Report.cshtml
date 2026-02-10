@@ -157,7 +157,10 @@
             <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#" onclick="generateVehicleHistoryReport()">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</a></li>
                     <li><a class="dropdown-item" href="#" onclick="exportAttachments()">@translator.Translate(userLanguage, "Export Attachments")</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    @if (Model.HasVehicleImageMap || Model.CustomWidgetsConfigured)
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                    }
                     @if (Model.HasVehicleImageMap)
                     {
                         <li><a class="dropdown-item" href="#" onclick="loadVehicleImageMap()">@translator.Translate(userLanguage, "Vehicle Map")</a></li>

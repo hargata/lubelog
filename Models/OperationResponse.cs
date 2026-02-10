@@ -6,7 +6,7 @@ namespace CarCareTracker.Models
     public class OperationResponseBase
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object? AdditionalData { get; set; }
     }

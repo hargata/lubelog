@@ -6,9 +6,9 @@
         public int VehicleId { get; set; }
         public List<int> ReminderRecordId { get; set; } = new List<int>();
         public string Date { get; set; } = DateTime.Now.ToShortDateString();
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public decimal Cost { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.ThreeMonths;
         public int CustomMonthInterval { get; set; } = 0;

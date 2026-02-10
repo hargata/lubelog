@@ -117,7 +117,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            Vehicle vehicle = JsonSerializer.Deserialize<Vehicle>(reader["data"] as string);
+                            Vehicle vehicle = JsonSerializer.Deserialize<Vehicle>(reader["data"] as string ?? string.Empty) ?? new Vehicle();
                             vehicles.Add(vehicle);
                         }
                 }
@@ -135,7 +135,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            repairrecords.Add(JsonSerializer.Deserialize<CollisionRecord>(reader["data"] as string));
+                            repairrecords.Add(JsonSerializer.Deserialize<CollisionRecord>(reader["data"] as string ?? string.Empty) ?? new CollisionRecord());
                         }
                 }
                 foreach (var record in repairrecords)
@@ -152,7 +152,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            upgraderecords.Add(JsonSerializer.Deserialize<UpgradeRecord>(reader["data"] as string));
+                            upgraderecords.Add(JsonSerializer.Deserialize<UpgradeRecord>(reader["data"] as string ?? string.Empty) ?? new UpgradeRecord());
                         }
                 }
                 foreach (var record in upgraderecords)
@@ -169,7 +169,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            servicerecords.Add(JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string));
+                            servicerecords.Add(JsonSerializer.Deserialize<ServiceRecord>(reader["data"] as string ?? string.Empty) ?? new ServiceRecord());
                         }
                 }
                 foreach (var record in servicerecords)
@@ -188,7 +188,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            gasrecords.Add(JsonSerializer.Deserialize<GasRecord>(reader["data"] as string));
+                            gasrecords.Add(JsonSerializer.Deserialize<GasRecord>(reader["data"] as string ?? string.Empty) ?? new GasRecord());
                         }
                 }
                 foreach (var record in gasrecords)
@@ -205,7 +205,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            noterecords.Add(JsonSerializer.Deserialize<Note>(reader["data"] as string));
+                            noterecords.Add(JsonSerializer.Deserialize<Note>(reader["data"] as string ?? string.Empty) ?? new Note());
                         }
                 }
                 foreach (var record in noterecords)
@@ -222,7 +222,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            odometerrecords.Add(JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string));
+                            odometerrecords.Add(JsonSerializer.Deserialize<OdometerRecord>(reader["data"] as string ?? string.Empty) ?? new OdometerRecord());
                         }
                 }
                 foreach (var record in odometerrecords)
@@ -239,7 +239,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            reminderrecords.Add(JsonSerializer.Deserialize<ReminderRecord>(reader["data"] as string));
+                            reminderrecords.Add(JsonSerializer.Deserialize<ReminderRecord>(reader["data"] as string ?? string.Empty) ?? new ReminderRecord());
                         }
                 }
                 foreach (var record in reminderrecords)
@@ -258,7 +258,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            planrecords.Add(JsonSerializer.Deserialize<PlanRecord>(reader["data"] as string));
+                            planrecords.Add(JsonSerializer.Deserialize<PlanRecord>(reader["data"] as string ?? string.Empty) ?? new PlanRecord());
                         }
                 }
                 foreach (var record in planrecords)
@@ -275,7 +275,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            planrecordtemplates.Add(JsonSerializer.Deserialize<PlanRecordInput>(reader["data"] as string));
+                            planrecordtemplates.Add(JsonSerializer.Deserialize<PlanRecordInput>(reader["data"] as string ?? string.Empty) ?? new PlanRecordInput());
                         }
                 }
                 foreach (var record in planrecordtemplates)
@@ -292,7 +292,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            supplyrecords.Add(JsonSerializer.Deserialize<SupplyRecord>(reader["data"] as string));
+                            supplyrecords.Add(JsonSerializer.Deserialize<SupplyRecord>(reader["data"] as string ?? string.Empty) ?? new SupplyRecord());
                         }
                 }
                 foreach (var record in supplyrecords)
@@ -309,7 +309,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            taxrecords.Add(JsonSerializer.Deserialize<TaxRecord>(reader["data"] as string));
+                            taxrecords.Add(JsonSerializer.Deserialize<TaxRecord>(reader["data"] as string ?? string.Empty) ?? new TaxRecord());
                         }
                 }
                 foreach (var record in taxrecords)
@@ -329,11 +329,11 @@ namespace CarCareTracker.Controllers
                         while (reader.Read())
                         {
                             UserData result = new UserData();
-                            result.Id = int.Parse(reader["id"].ToString());
-                            result.UserName = reader["username"].ToString();
-                            result.EmailAddress = reader["emailaddress"].ToString();
-                            result.Password = reader["password"].ToString();
-                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString());
+                            result.Id = int.Parse(reader["id"].ToString() ?? string.Empty);
+                            result.UserName = reader["username"].ToString() ?? string.Empty;
+                            result.EmailAddress = reader["emailaddress"].ToString() ?? string.Empty;
+                            result.Password = reader["password"].ToString() ?? string.Empty;
+                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString() ?? string.Empty);
                             userrecords.Add(result);
                         }
                 }
@@ -352,9 +352,9 @@ namespace CarCareTracker.Controllers
                         while (reader.Read())
                         {
                             Token result = new Token();
-                            result.Id = int.Parse(reader["id"].ToString());
-                            result.EmailAddress = reader["emailaddress"].ToString();
-                            result.Body = reader["body"].ToString();
+                            result.Id = int.Parse(reader["id"].ToString() ?? string.Empty);
+                            result.EmailAddress = reader["emailaddress"].ToString() ?? string.Empty;
+                            result.Body = reader["body"].ToString() ?? string.Empty;
                             tokenrecords.Add(result);
                         }
                 }
@@ -372,7 +372,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            userconfigrecords.Add(JsonSerializer.Deserialize<UserConfigData>(reader["data"] as string));
+                            userconfigrecords.Add(JsonSerializer.Deserialize<UserConfigData>(reader["data"] as string ?? string.Empty) ?? new UserConfigData());
                         }
                 }
                 foreach (var record in userconfigrecords)
@@ -393,8 +393,8 @@ namespace CarCareTracker.Controllers
                             {
                                 Id = new UserVehicle
                                 {
-                                    UserId = int.Parse(reader["userId"].ToString()),
-                                    VehicleId = int.Parse(reader["vehicleId"].ToString())
+                                    UserId = int.Parse(reader["userId"].ToString() ?? string.Empty),
+                                    VehicleId = int.Parse(reader["vehicleId"].ToString() ?? string.Empty)
                                 }
                             };
                             useraccessrecords.Add(result);
@@ -416,7 +416,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            extrafields.Add(JsonSerializer.Deserialize<RecordExtraField>(reader["data"] as string));
+                            extrafields.Add(JsonSerializer.Deserialize<RecordExtraField>(reader["data"] as string ?? string.Empty) ?? new RecordExtraField());
                         }
                 }
                 foreach (var record in extrafields)
@@ -433,7 +433,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            inspectionrecords.Add(JsonSerializer.Deserialize<InspectionRecord>(reader["data"] as string));
+                            inspectionrecords.Add(JsonSerializer.Deserialize<InspectionRecord>(reader["data"] as string ?? string.Empty) ?? new InspectionRecord());
                         }
                 }
                 foreach (var record in inspectionrecords)
@@ -451,7 +451,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            inspectionrecordtemplates.Add(JsonSerializer.Deserialize<InspectionRecordInput>(reader["data"] as string));
+                            inspectionrecordtemplates.Add(JsonSerializer.Deserialize<InspectionRecordInput>(reader["data"] as string ?? string.Empty) ?? new InspectionRecordInput());
                         }
                 }
                 foreach (var record in inspectionrecordtemplates)
@@ -468,7 +468,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            equipmentrecords.Add(JsonSerializer.Deserialize<EquipmentRecord>(reader["data"] as string));
+                            equipmentrecords.Add(JsonSerializer.Deserialize<EquipmentRecord>(reader["data"] as string ?? string.Empty) ?? new EquipmentRecord());
                         }
                 }
                 foreach (var record in equipmentrecords)
@@ -488,7 +488,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            UserHousehold result = JsonSerializer.Deserialize<UserHousehold>(reader["data"] as string);
+                            UserHousehold result = JsonSerializer.Deserialize<UserHousehold>(reader["data"] as string ?? string.Empty) ?? new UserHousehold();
                             userhouseholdrecords.Add(result);
                         }
                 }
@@ -507,7 +507,7 @@ namespace CarCareTracker.Controllers
                     using (NpgsqlDataReader reader = ctext.ExecuteReader())
                         while (reader.Read())
                         {
-                            APIKey result = JsonSerializer.Deserialize<APIKey>(reader["data"] as string);
+                            APIKey result = JsonSerializer.Deserialize<APIKey>(reader["data"] as string ?? string.Empty) ?? new APIKey();
                             apikeyrecords.Add(result);
                         }
                 }

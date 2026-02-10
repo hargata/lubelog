@@ -31,7 +31,7 @@ namespace CarCareTracker.Controllers
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         public IActionResult Index(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
         {

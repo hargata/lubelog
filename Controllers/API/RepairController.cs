@@ -150,7 +150,7 @@ namespace CarCareTracker.Controllers
                     };
                     _odometerLogic.AutoInsertOdometerRecord(odometerRecord);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(repairRecord, "repairrecord.add.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(repairRecord, "repairrecord.add.api", User.Identity?.Name ?? string.Empty));
 
                 return Json(OperationResponse.Succeed("Repair Record Added", new { recordId = repairRecord.Id }));
             }
@@ -185,7 +185,7 @@ namespace CarCareTracker.Controllers
             var result = _collisionRecordDataAccess.DeleteCollisionRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Repair Record Deleted"));
         }
@@ -237,7 +237,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.update.api", User.Identity.Name));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "repairrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

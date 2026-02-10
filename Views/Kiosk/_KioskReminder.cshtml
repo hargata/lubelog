@@ -89,9 +89,10 @@
 }
 else
 {
-    <div class="row no-data-message">
-        <div class="col">
-            <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+    <div class="d-flex justify-content-center align-items-center flex-column no-data-message">
+        <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        <div>
+            <a class="btn btn-outline-secondary" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
         </div>
     </div>
 }

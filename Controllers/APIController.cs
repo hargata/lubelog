@@ -107,7 +107,7 @@ namespace CarCareTracker.Controllers
             //load up documentation
             var apiDocFilePath = _fileHelper.GetFullFilePath("/defaults/api.json");
             var apiDocText = _fileHelper.GetFileText(apiDocFilePath);
-            var apiDocData = JsonSerializer.Deserialize<List<APIDocumentation>>(apiDocText);
+            var apiDocData = JsonSerializer.Deserialize<List<APIDocumentation>>(apiDocText) ?? new List<APIDocumentation>();
             var apiSerializeOptions = StaticHelper.GetNoEncodingOption();
             apiSerializeOptions.WriteIndented = true;
             foreach(APIDocumentation apiDocumentation in apiDocData)
@@ -124,7 +124,7 @@ namespace CarCareTracker.Controllers
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         [HttpGet]
         [Route("/api/whoami")]
@@ -132,8 +132,8 @@ namespace CarCareTracker.Controllers
         {
             var result = new UserExportModel
             {
-                Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email),
+                Username = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
                 IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
@@ -309,7 +309,7 @@ namespace CarCareTracker.Controllers
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicle.Id);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)}) via API", "vehicle.add.api", User.Identity.Name, vehicle.Id.ToString()));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)}) via API", "vehicle.add.api", User.Identity?.Name ?? string.Empty, vehicle.Id.ToString()));
                 return Json(OperationResponse.Succeed("Vehicle Added", new { vehicleId = vehicle.Id }));
             } catch (Exception ex)
             {
@@ -387,7 +387,7 @@ namespace CarCareTracker.Controllers
                             break;
                     }
                     _dataAccess.SaveVehicle(existingVehicle);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity.Name, existingVehicle.Id.ToString()));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity?.Name ?? string.Empty, existingVehicle.Id.ToString()));
                     return Json(OperationResponse.Succeed("Vehicle Updated"));
                 }
                 else

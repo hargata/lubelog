@@ -6,8 +6,8 @@
         public int VehicleId { get; set; }
         public DateTime Date { get; set; }
         public int Mileage { get; set; }
-        public string Description { get; set; }
-        public string Notes { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
         public bool IsRecurring { get; set; } = false;
         public bool UseCustomThresholds { get; set; } = false;
         public bool FixedIntervals { get; set; } = false;
