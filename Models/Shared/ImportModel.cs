@@ -167,13 +167,13 @@ namespace CarCareTracker.Models
      public class NoteRecordExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
-        public string VehicleId { get; set; }
+        public string VehicleId { get; set; } = string.Empty;
         [JsonConverter(typeof(FromIntOptional))]
-        public string Id { get; set; }
-        public string Description { get; set; }
-        public string NoteText { get; set; }
-        public bool Pinned { get; set; }
-        public string Tags { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string NoteText { get; set; } = string.Empty;
+        public string Pinned { get; set; } = string.Empty;
+        public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
