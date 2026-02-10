@@ -504,7 +504,7 @@ namespace CarCareTracker.Helper
             {
                 if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value;
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? vehicle.LicensePlate;
                 }
                 else
                 {
@@ -554,7 +554,7 @@ namespace CarCareTracker.Helper
                         return displayName;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     return name;
                 }

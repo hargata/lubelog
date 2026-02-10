@@ -50,14 +50,14 @@ namespace CarCareTracker.Middleware
             else
             {
                 //auth is enabled by user, we will have to authenticate the user via a ticket retrieved from the auth cookie.
-                var access_token = _httpContext.HttpContext.Request.Cookies[StaticHelper.LoginCookieName];
+                var access_token = _httpContext.HttpContext?.Request.Cookies[StaticHelper.LoginCookieName] ?? string.Empty;
                 //auth using Basic Auth for API.
-                var request_header = _httpContext.HttpContext.Request.Headers["Authorization"];
+                var request_header = _httpContext.HttpContext?.Request.Headers["Authorization"] ?? string.Empty;
                 //auth using API Key for API.
-                var apikey_header = _httpContext.HttpContext.Request.Headers["x-api-key"];
+                var apikey_header = _httpContext.HttpContext?.Request.Headers["x-api-key"] ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(apikey_header))
                 {
-                    apikey_header = _httpContext.HttpContext.Request.Query["apiKey"];
+                    apikey_header = _httpContext.HttpContext?.Request.Query["apiKey"] ?? string.Empty;
                 }
                 if (string.IsNullOrWhiteSpace(access_token) && string.IsNullOrWhiteSpace(request_header) && string.IsNullOrWhiteSpace(apikey_header))
                 {
@@ -106,7 +106,7 @@ namespace CarCareTracker.Middleware
                     {
                         //decrypt the access token.
                         var decryptedCookie = _dataProtector.Unprotect(access_token);
-                        AuthCookie authCookie = JsonSerializer.Deserialize<AuthCookie>(decryptedCookie);
+                        AuthCookie? authCookie = JsonSerializer.Deserialize<AuthCookie>(decryptedCookie);
                         if (authCookie != null)
                         {
                             //validate auth cookie
@@ -148,12 +148,12 @@ namespace CarCareTracker.Middleware
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         return AuthenticateResult.Fail("Corrupted credentials");
                     }
                 } 
-                else if (!string.IsNullOrWhiteSpace(apikey_header) && (_httpContext.HttpContext.Request.Path.StartsWithSegments("/api") || _httpContext.HttpContext.Request.Path.StartsWithSegments("/kiosk")))
+                else if (!string.IsNullOrWhiteSpace(apikey_header) && _httpContext.HttpContext != null && (_httpContext.HttpContext.Request.Path.StartsWithSegments("/api") || _httpContext.HttpContext.Request.Path.StartsWithSegments("/kiosk")))
                 {
                     //only do API Key Auth for API methods
                     var userData = _loginLogic.ValidateAPIKey(apikey_header);
