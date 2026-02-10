@@ -100,7 +100,7 @@ namespace CarCareTracker.Controllers
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]

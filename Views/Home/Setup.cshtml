@@ -168,23 +168,23 @@
         <form class="form-inline">
             <div class="form-group">
                 <label for="inputHTTPURL">@translator.Translate(userLanguage, "HTTP Endpoint")</label>
-                <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.Http.Url">
+                <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.Http?.Url ?? string.Empty)">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputHTTPSURL">@translator.Translate(userLanguage, "HTTPS Endpoint")</label>
-                <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Url">
+                <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Url ?? string.Empty)">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputHTTPSCertLocation">@translator.Translate(userLanguage, "HTTPS Certificate Location")</label>
-                <input type="text" id="inputHTTPSCertLocation" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Path">
+                <input type="text" id="inputHTTPSCertLocation" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Path ?? string.Empty)">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputHTTPSCertPassword">@translator.Translate(userLanguage, "HTTPS Certificate Password")</label>
                 <div class="input-group">
-                    <input type="password" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password">
+                    <input type="password" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Password ?? string.Empty)">
                     <div class="input-group-text">
                         <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
                     </div>

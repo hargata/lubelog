@@ -329,11 +329,11 @@ namespace CarCareTracker.Controllers
                         while (reader.Read())
                         {
                             UserData result = new UserData();
-                            result.Id = int.Parse(reader["id"].ToString());
-                            result.UserName = reader["username"].ToString();
-                            result.EmailAddress = reader["emailaddress"].ToString();
-                            result.Password = reader["password"].ToString();
-                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString());
+                            result.Id = int.Parse(reader["id"].ToString() ?? string.Empty);
+                            result.UserName = reader["username"].ToString() ?? string.Empty;
+                            result.EmailAddress = reader["emailaddress"].ToString() ?? string.Empty;
+                            result.Password = reader["password"].ToString() ?? string.Empty;
+                            result.IsAdmin = bool.Parse(reader["isadmin"].ToString() ?? string.Empty);
                             userrecords.Add(result);
                         }
                 }
@@ -352,9 +352,9 @@ namespace CarCareTracker.Controllers
                         while (reader.Read())
                         {
                             Token result = new Token();
-                            result.Id = int.Parse(reader["id"].ToString());
-                            result.EmailAddress = reader["emailaddress"].ToString();
-                            result.Body = reader["body"].ToString();
+                            result.Id = int.Parse(reader["id"].ToString() ?? string.Empty);
+                            result.EmailAddress = reader["emailaddress"].ToString() ?? string.Empty;
+                            result.Body = reader["body"].ToString() ?? string.Empty;
                             tokenrecords.Add(result);
                         }
                 }
@@ -393,8 +393,8 @@ namespace CarCareTracker.Controllers
                             {
                                 Id = new UserVehicle
                                 {
-                                    UserId = int.Parse(reader["userId"].ToString()),
-                                    VehicleId = int.Parse(reader["vehicleId"].ToString())
+                                    UserId = int.Parse(reader["userId"].ToString() ?? string.Empty),
+                                    VehicleId = int.Parse(reader["vehicleId"].ToString() ?? string.Empty)
                                 }
                             };
                             useraccessrecords.Add(result);

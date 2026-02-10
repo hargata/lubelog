@@ -124,7 +124,7 @@ namespace CarCareTracker.Controllers
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         [HttpGet]
         [Route("/api/whoami")]
@@ -132,8 +132,8 @@ namespace CarCareTracker.Controllers
         {
             var result = new UserExportModel
             {
-                Username = User.FindFirstValue(ClaimTypes.Name),
-                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email),
+                Username = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
+                EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
                 IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
             };
