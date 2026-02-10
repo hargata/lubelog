@@ -164,7 +164,20 @@ namespace CarCareTracker.Models
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
-    public class ReminderExportModel
+     public class NoteRecordExportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; }
+        public string Description { get; set; }
+        public string NoteText { get; set; }
+        public bool Pinned { get; set; }
+        public string Tags { get; set; }
+        public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+    }
+     public class ReminderExportModel
     {
         [JsonConverter(typeof(FromIntOptional))]
         public string VehicleId { get; set; } = string.Empty;
