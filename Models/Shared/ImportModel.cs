@@ -99,7 +99,7 @@ namespace CarCareTracker.Models
         [JsonConverter(typeof(FromDateOptional))]
         public string Date { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;

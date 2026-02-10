@@ -18,10 +18,10 @@ builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true,
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
 {
-    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
+    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"] ?? string.Empty);
     if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]))
     {
-        var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]);
+        var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"] ?? string.Empty);
         overrideCulture.DateTimeFormat = overrideDTFormat.DateTimeFormat;
     }
     CultureInfo.DefaultThreadCurrentCulture = overrideCulture;
@@ -143,7 +143,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/images"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            if (!ctx.Context.User.Identity.IsAuthenticated)
+            if (!ctx.Context.User.Identity?.IsAuthenticated ?? false)
             {
                 ctx.Context.Response.Redirect("/Login");
             }
@@ -160,7 +160,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/documents"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            if (!ctx.Context.User.Identity.IsAuthenticated)
+            if (!ctx.Context.User.Identity?.IsAuthenticated ?? false)
             {
                 ctx.Context.Response.Redirect("/Login");
             }
@@ -183,7 +183,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/temp"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            if (!ctx.Context.User.Identity.IsAuthenticated)
+            if (!ctx.Context.User.Identity?.IsAuthenticated ?? false)
             {
                 ctx.Context.Response.Redirect("/Login");
             }

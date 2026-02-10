@@ -236,7 +236,7 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetUserAccountInformationModal()
         {
-            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
             var userName = User?.Identity?.Name ?? string.Empty;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
         }

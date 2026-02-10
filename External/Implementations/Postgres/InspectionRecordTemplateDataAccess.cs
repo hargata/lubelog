@@ -12,7 +12,7 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "inspectionrecordtemplates";
         public PGInspectionRecordTemplateDataAccess(IConfiguration config, ILogger<PGInspectionRecordTemplateDataAccess> logger)
         {
-            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"] ?? string.Empty);
             _logger = logger;
             try
             {

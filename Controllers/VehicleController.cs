@@ -264,7 +264,7 @@ namespace CarCareTracker.Controllers
             var allFailed = results.All(x => !x.Success);
             if (allFailed && results.Any())
             {
-                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success).Message));
+                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success)?.Message ?? StaticHelper.GenericErrorMessage));
             }
             return Json(OperationResponse.Succeed());
         }
@@ -284,7 +284,7 @@ namespace CarCareTracker.Controllers
             var allFailed = results.All(x => !x.Success);
             if (allFailed && results.Any())
             {
-                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success).Message));
+                return Json(OperationResponse.Failed(results.FirstOrDefault(x => !x.Success)?.Message ?? StaticHelper.GenericErrorMessage));
             }
             return Json(OperationResponse.Succeed());
         }

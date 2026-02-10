@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int MonthId { get; set; }
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
         /// <summary>
         /// American moment
         /// </summary>

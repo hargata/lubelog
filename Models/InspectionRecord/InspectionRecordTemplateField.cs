@@ -25,21 +25,21 @@
     }
     public class InspectionRecordTemplateFieldOption
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public bool IsFail { get; set; }
         public bool IsSelected { get; set; }
     }
     public class InspectionRecordResult
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public List<InspectionRecordResultValue> Values { get; set; } = new List<InspectionRecordResultValue>();
         public bool Failed { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         public InspectionFieldType FieldType { get; set; } = InspectionFieldType.Text;
     }
     public class InspectionRecordResultValue
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public bool IsSelected { get; set; }
         public bool IsFail { get; set; }
     }

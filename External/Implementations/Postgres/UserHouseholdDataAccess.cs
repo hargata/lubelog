@@ -12,7 +12,7 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "userhouseholdrecords";
         public PGUserHouseholdDataAccess(IConfiguration config, ILogger<PGUserHouseholdDataAccess> logger)
         {
-            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"] ?? string.Empty);
             _logger = logger;
             try
             {
