@@ -172,6 +172,7 @@ namespace CarCareTracker.Models
         public string Id { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string NoteText { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromBoolOptional))]
         public string Pinned { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
