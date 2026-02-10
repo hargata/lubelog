@@ -7,7 +7,7 @@
         public DateTime Date { get; set; }
         public int Mileage { get; set; }
         public decimal Cost { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<InspectionRecordResult> Results { get; set; } = new List<InspectionRecordResult>();

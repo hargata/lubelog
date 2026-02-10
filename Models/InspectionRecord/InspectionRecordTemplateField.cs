@@ -2,15 +2,15 @@
 {
     public class InspectionRecordTemplateField
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public InspectionFieldType FieldType { get; set; } = InspectionFieldType.Text;
         public List<InspectionRecordTemplateFieldOption> Options { get; set; } = new List<InspectionRecordTemplateFieldOption>();
         public ImportMode ActionItemType { get; set; } = ImportMode.ServiceRecord;
-        public string ActionItemDescription { get; set; }
+        public string ActionItemDescription { get; set; } = string.Empty;
         public PlanPriority ActionItemPriority { get; set; } = PlanPriority.Normal;
         public bool HasNotes { get; set; }
         public bool HasActionItem { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         public InspectionRecordResult ToInspectionRecordResult()
         {
             return Options.Any() ? new InspectionRecordResult

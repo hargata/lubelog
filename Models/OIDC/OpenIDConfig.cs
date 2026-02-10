@@ -2,15 +2,15 @@
 {
     public class OpenIDConfig
     {
-        public string Name { get; set; }
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
-        public string AuthURL { get; set; }
-        public string TokenURL { get; set; }
-        public string RedirectURL { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string ClientId { get; set; } = string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
+        public string AuthURL { get; set; } = string.Empty;
+        public string TokenURL { get; set; } = string.Empty;
+        public string RedirectURL { get; set; } = string.Empty;
         public string Scope { get; set; } = "openid email";
-        public string State { get; set; }
-        public string CodeChallenge { get; set; }
+        public string State { get; set; } = string.Empty;
+        public string CodeChallenge { get; set; } = string.Empty;
         public bool ValidateState { get; set; } = false;
         public bool DisableRegularLogin { get; set; } = false;
         public bool UsePKCE { get; set; } = false;
