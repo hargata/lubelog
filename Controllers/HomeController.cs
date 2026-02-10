@@ -330,7 +330,7 @@ namespace CarCareTracker.Controllers
             using (var sReader = new StreamReader(file.OpenReadStream()))
             {
                 var sData = sReader.ReadToEnd();
-                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData);
+                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData) ?? new Dictionary<string, string>();
             }
             var result = _translationHelper.SaveTranslation(userLanguage, translationData);
             return Json(result);

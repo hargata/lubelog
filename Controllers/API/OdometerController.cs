@@ -213,7 +213,7 @@ namespace CarCareTracker.Controllers
                     EquipmentRecordId = equipmentRecordId
                 };
                 _odometerRecordDataAccess.SaveOdometerRecordToVehicle(odometerRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(odometerRecord, "odometerrecord.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Odometer Record Added", new { recordId = odometerRecord.Id }));
             }
             catch (Exception ex)
@@ -242,7 +242,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Odometer Record Deleted"));
         }
@@ -324,7 +324,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     existingRecord.EquipmentRecordId = equipmentRecordId;
                     _odometerRecordDataAccess.SaveOdometerRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity.Name));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

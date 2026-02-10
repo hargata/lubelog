@@ -174,7 +174,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord, "supplyrecord.add.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord, "supplyrecord.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Supply Record Added", new { recordId = supplyRecord.Id }));
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ namespace CarCareTracker.Controllers
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete.api", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Supply Record Deleted"));
         }
@@ -276,7 +276,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _supplyRecordDataAccess.SaveSupplyRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.update.api", User.Identity.Name));
+                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

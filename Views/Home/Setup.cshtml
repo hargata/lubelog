@@ -5,13 +5,7 @@
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
-    bool emailServerIsSetup = true;
-    var mailConfig = config.GetMailConfig();
     var userLanguage = config.GetServerLanguage();
-    if (mailConfig is null || string.IsNullOrWhiteSpace(mailConfig.EmailServer))
-    {
-        emailServerIsSetup = false;
-    }
 }
 @section Scripts {
     <script src="~/js/serversettings.js?v=@StaticHelper.VersionNumber"></script>
