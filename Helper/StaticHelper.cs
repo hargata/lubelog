@@ -486,7 +486,7 @@ namespace CarCareTracker.Helper
             {
                 if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? vehicle.LicensePlate;
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? "N/A";
                 }
                 else
                 {
@@ -504,7 +504,7 @@ namespace CarCareTracker.Helper
             {
                 if (vehicle.ExtraFields.Any(x => x.Name == vehicle.VehicleIdentifier))
                 {
-                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? vehicle.LicensePlate;
+                    return vehicle.ExtraFields?.FirstOrDefault(x => x.Name == vehicle.VehicleIdentifier)?.Value ?? "N/A";
                 }
                 else
                 {
