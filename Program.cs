@@ -115,6 +115,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.DefaultPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes("AuthN").RequireAuthenticatedUser().Build();
 });
+builder.Services.AddHealthChecks();
 //Configure max file upload size
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
@@ -206,5 +207,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();
