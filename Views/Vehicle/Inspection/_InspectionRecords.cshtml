@@ -1,0 +1,173 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<InspectionRecord>
+@{
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var hideZero = userConfig.HideZero;
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.InspectionRecord);
+}
+<div class="d-flex flex-column vehicleTabPane">
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Inspection Records")}: {Model.Count()}")</span>
+            <span class="badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('inspection-tab-pane', this)" class="user-select-none rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
+        </div>
+        <div class="lubelogger-record-add">
+                <div class="btn-group">
+                    <button onclick="showInspectionRecordTemplateSelectorModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Inspection Record")</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu record-dropdown">
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage, "Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="searchTableRows('inspection-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
+                        <li class="nav-no-copy"><hr class="dropdown-divider"></li>
+                        <li class="nav-no-copy">
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkSelectMode" onchange="checkSelectModeToggle()">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Date" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Odometer" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Cost" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='result' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Result" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Result">@translator.Translate(userLanguage, "Result")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('InspectionRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'InspectionRecord')" type="checkbox" id="chkCol_Attachment">
+                                <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer flex-grow-1">
+    <div class="col-12">
+        <div class="row mt-2 showOnPrint">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead class="sticky-top">
+                <tr class="d-flex">
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('inspection-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="result">@translator.Translate(userLanguage, "Result")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (InspectionRecord inspectionRecord in Model)
+                {
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@inspectionRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditInspectionRecordModal,@inspectionRecord.Id)" data-tags='@string.Join(" ", inspectionRecord.Tags)'>
+                        <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(inspectionRecord.Date)">@inspectionRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(inspectionRecord.Mileage == default ? "---" : inspectionRecord.Mileage.ToString())</td>
+                        <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@inspectionRecord.Description</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(inspectionRecord.Cost, hideZero))</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="result">@(inspectionRecord.Failed ? translator.Translate(userLanguage, "Fail") : translator.Translate(userLanguage, "Pass"))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", inspectionRecord.Files)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="row lubelogger-record-nav pt-1 hideOnPrint">
+    <div class="d-flex justify-content-between">
+        <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
+            <button onclick="showInspectionRecordTemplateSelectorModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+        <div>
+            <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu record-dropdown">
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" data-bs-focus="false" id="inspectionRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="inspectionRecordModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="inspectionRecordTemplateModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="inspectionRecordTemplateModalContent">
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="inspectionRecordTemplateEditModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="inspectionRecordTemplateEditModalContent">
+        </div>
+    </div>
+</div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="printTabStickers(selectedRow, 'InspectionRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Print")</span><i class="bi bi-printer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'InspectionRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}

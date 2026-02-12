@@ -3,8 +3,20 @@
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
+const mobileScreen = window.matchMedia("(max-width: 576px)");
 function returnToGarage() {
     window.location.href = '/Home';
+}
+function confirmDelete(message, callBack) {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: message,
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
+        callBack(result);
+    });
 }
 function successToast(message) {
     Swal.fire({
@@ -45,6 +57,21 @@ function infoToast(message) {
         title: message,
         timerProgressBar: true,
         icon: "info",
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    })
+}
+function warnToast(message) {
+    Swal.fire({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        title: message,
+        timerProgressBar: true,
+        icon: "warning",
         didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
             toast.onmouseleave = Swal.resumeTimer;
@@ -162,6 +189,22 @@ function saveVehicle(isEdit) {
     } else {
         $("#inputSoldPrice").removeClass("is-invalid");
     }
+    if (vehiclePurchaseDate.trim() != '' && vehicleSoldDate.trim() != '') {
+        let purchaseTicks = $("#inputPurchaseDate").datepicker('getDate')?.getTime();
+        let soldTicks = $("#inputSoldDate").datepicker('getDate')?.getTime();
+        if (!purchaseTicks || !soldTicks || purchaseTicks > soldTicks) {
+            hasError = true;
+            $("#inputPurchaseDate").addClass("is-invalid");
+            $("#inputSoldDate").addClass("is-invalid");
+            $("#collapsePurchaseInfo").collapse('show');
+        } else {
+            $("#inputPurchaseDate").removeClass("is-invalid");
+            $("#inputSoldDate").removeClass("is-invalid");
+        }
+    } else {
+        $("#inputPurchaseDate").removeClass("is-invalid");
+        $("#inputSoldDate").removeClass("is-invalid");
+    }
     if (hasError) {
         return;
     }
@@ -191,7 +234,7 @@ function saveVehicle(isEdit) {
         dashboardMetrics: vehicleDashboardMetrics,
         vehicleIdentifier: vehicleIdentifier
     }, function (data) {
-        if (data) {
+        if (data.success) {
             if (!isEdit) {
                 successToast("Vehicle Added");
                 hideAddVehicleModal();
@@ -203,7 +246,7 @@ function saveVehicle(isEdit) {
                 viewVehicle(vehicleId);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -458,7 +501,6 @@ function bindWindowResize() {
     $(window).on('resize', function () {
         if (window.innerWidth != windowWidthForCompare) {
             hideMobileNav();
-            checkNavBarOverflow();
             windowWidthForCompare = window.innerWidth;
         }
     });
@@ -777,20 +819,127 @@ function printTabStickers(ids, source) {
         recordIds: ids,
         importMode: source
     }, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        }
+        else if (data) {
             printContainer(data);
         }
     })
 }
+function getAndValidateCSVExportParameter() {
+    let tagFilterMode = $("#tagSelector").val();
+    let tagsToFilter = $("#tagSelectorInput").val();
+    let filterByDateRange = $("#dateRangeSelector").is(":checked");
+    let startDate = $("#dateRangeStartDate").val();
+    let endDate = $("#dateRangeEndDate").val();
+    let hasValidationError = false;
+    let validationErrorMessage = "";
+    if (filterByDateRange) {
+        //validate date range
+        let startDateTicks = $("#dateRangeStartDate").datepicker('getDate')?.getTime();
+        let endDateTicks = $("#dateRangeEndDate").datepicker('getDate')?.getTime();
+        if (!startDateTicks || !endDateTicks || startDateTicks > endDateTicks) {
+            hasValidationError = true;
+            validationErrorMessage = "Invalid date range";
+        }
+    }
+    if (hasValidationError) {
+        return {
+            hasError: true,
+            errorMessage: validationErrorMessage,
+            tagFilter: tagFilterMode,
+            tags: [],
+            filterByDateRange: filterByDateRange,
+            starDate: '',
+            endDate: ''
+        }
+    } else {
+        return {
+            hasError: false,
+            errorMessage: '',
+            tagFilter: tagFilterMode,
+            tags: tagsToFilter,
+            filterByDateRange: filterByDateRange,
+            startDate: startDate,
+            endDate: endDate
+        }
+    }
+}
+function toggleCSVExportParameters() {
+    if ($(".csv-export-parameters").hasClass("d-none")) {
+        $(".csv-export-parameters").removeClass("d-none");
+    } else {
+        $(".csv-export-parameters").addClass("d-none");
+    }
+}
+function getSavedCSVExportParameters(mode) {
+    var vehicleId = GetVehicleId().vehicleId;
+    let savedCsvExportParameters = sessionStorage.getItem(`${vehicleId}_csvExportParameters_${mode}`);
+    if (savedCsvExportParameters != null) {
+        savedCsvExportParameters = JSON.parse(savedCsvExportParameters);
+        $("#tagSelector").val(savedCsvExportParameters.tagFilter);
+        savedCsvExportParameters.tags.map(x => {
+            $("#tagSelectorInput").append(`<option value='${x}'>${x}</option>`)
+        });
+        $("#dateRangeSelector").prop('checked', savedCsvExportParameters.filterByDateRange);
+        $("#dateRangeStartDate").val(savedCsvExportParameters.startDate);
+        $("#dateRangeEndDate").val(savedCsvExportParameters.endDate);
+        if (savedCsvExportParameters.tags.length > 0 || savedCsvExportParameters.filterByDateRange) {
+            $("#csvExportParameterToggle").trigger('click');
+        }
+    }
+}
 function exportVehicleData(mode) {
     var vehicleId = GetVehicleId().vehicleId;
-    $.get('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
-        if (!data) {
-            errorToast(genericErrorMessage());
-        } else {
-            window.location.href = data;
-        }
-    });
+    let bypassRecordTypes = ['PlanRecord', 'EquipmentRecord'];
+    if (!bypassRecordTypes.includes(mode)) {
+        $.get('/Vehicle/GetCSVExportParameters', function (paramData) {
+            if (paramData) {
+                Swal.fire({
+                    html: paramData,
+                    confirmButtonText: 'Generate CSV Export',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        //validate
+                        var exportParamsData = getAndValidateCSVExportParameter();
+                        if (exportParamsData.hasError) {
+                            Swal.showValidationMessage(exportParamsData.errorMessage);
+                        }
+                        return { exportParamsData };
+                    },
+                    didOpen: () => {
+                        getSavedCSVExportParameters(mode);
+                        initTagSelector($("#tagSelectorInput"));
+                        initDatePicker($('#dateRangeStartDate'));
+                        initDatePicker($('#dateRangeEndDate'));
+                    }
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        sessionStorage.setItem(`${vehicleId}_csvExportParameters_${mode}`, JSON.stringify(result.value.exportParamsData));
+                        $.post('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode, exportParameters: result.value.exportParamsData }, function (data) {
+                            if (isOperationResponse(data)) {
+                                return;
+                            }
+                            else if (data) {
+                                window.location.href = data;
+                            }
+                        });
+                    }
+                })
+            }
+        })
+    }
+    else {
+        $.post('/Vehicle/ExportFromVehicleToCsv', { vehicleId: vehicleId, mode: mode }, function (data) {
+            if (isOperationResponse(data)) {
+                return;
+            }
+            else if (data) {
+                window.location.href = data;
+            }
+        });
+    }
 }
 function showBulkImportModal(mode) {
     $.get(`/Vehicle/GetBulkImportModalPartialView?mode=${mode}`, function (data) {
@@ -878,12 +1027,13 @@ function moveRecords(ids, source, dest) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecords', { recordIds: ids, source: source, destination: dest }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Moved`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -936,23 +1086,26 @@ function deleteRecords(ids, source) {
             friendlySource = "Fuel Records";
             refreshDataCallBack = getVehicleGasRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Records";
+            refreshDataCallBack = getVehicleInspectionRecords;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
-    Swal.fire({
-        title: "Confirm Delete?",
-        text: `Delete ${recordVerbiage} from ${friendlySource}?`,
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete(`Delete ${recordVerbiage} from ${friendlySource}?`, (result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteRecords', { recordIds: ids, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Deleted`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -1009,6 +1162,14 @@ function duplicateRecords(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Record";
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     Swal.fire({
@@ -1020,12 +1181,13 @@ function duplicateRecords(ids, source) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DuplicateRecords', { recordIds: ids, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Record(s) Duplicated`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -1082,6 +1244,14 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             friendlySource = "Plan";
             refreshDataCallBack = getVehiclePlanRecords;
             break;
+        case "InspectionRecord":
+            friendlySource = "Inspection Record";
+            refreshDataCallBack = hideInspectionRecordTemplateModal;
+            break;
+        case "EquipmentRecord":
+            friendlySource = "Equipment Records";
+            refreshDataCallBack = getVehicleEquipmentRecords;
+            break;
     }
 
     $.get(`/Home/GetVehicleSelector?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -1103,10 +1273,10 @@ function duplicateRecordsToOtherVehicles(ids, source) {
             }).then(function (result) {
                 if (result.isConfirmed) {
                     $.post('/Vehicle/DuplicateRecordsToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, importMode: source}, function (data) {
-                        if (data) {
+                        if (data.success) {
                             successToast(`${ids.length} Record(s) Duplicated`);
                         } else {
-                            errorToast(genericErrorMessage());
+                            errorToast(data.message);
                         }
                     });
                 }
@@ -1152,12 +1322,13 @@ function insertOdometer(ids, source) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/BulkCreateOdometerRecords', { recordIds: ids, importMode: source }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast(`${ids.length} Odometer Record(s) Created`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -1283,17 +1454,17 @@ function showTableContextMenu(e) {
     if (getDeviceIsTouchOnly()) {
         return;
     }
-    $(".table-context-menu").fadeIn("fast");
-    $(".table-context-menu").css({
-        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
-        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
-    });
     if (!$(e).hasClass('table-active')) {
         clearSelectedRows();
         addToSelectedRows($(e).attr('data-rowId'));
         $(e).addClass('table-active');
     }
+    $(".table-context-menu").fadeIn("fast");
     determineContextMenuItems();
+    $(".table-context-menu").css({
+        left: getMenuPosition(event.clientX, 'width', 'scrollLeft'),
+        top: getMenuPosition(event.clientY, 'height', 'scrollTop')
+    });
 }
 function determineContextMenuItems() {
     var tableRows = $('.table tbody tr:visible');
@@ -1373,11 +1544,11 @@ function showTableContextMenuForMobile(e, xPosition, yPosition) {
         shakeTableRow(e);
     } else {
         $(".table-context-menu").fadeIn("fast");
+        determineContextMenuItems();
         $(".table-context-menu").css({
             left: getMenuPosition(xPosition, 'width', 'scrollLeft'),
             top: getMenuPosition(yPosition, 'height', 'scrollTop')
         });
-        determineContextMenuItems();
     }
 }
 function shakeTableRow(e) {
@@ -1740,10 +1911,17 @@ function handleEndFileDrop(event) {
         $(`#${recordType}`).trigger('change');
     }
 }
+function bindNavBarResize() {
+    let resizeObserver = new ResizeObserver((elems) => {
+        let targetElem = $(elems[0].target);
+        checkNavBarOverflow();
+    });
+    resizeObserver.observe(document.querySelector('.lubelogger-navbar'));
+}
 function checkNavBarOverflow() {
     //check height
     $('.lubelogger-navbar > .lubelogger-tab > .nav-item').show();
-    $('.nav-item-more > ul > li').remove(); //clear out cloned items.
+    $('.nav-item-more > ul > li').hide(); //hide collapsed items
     //check if icons loaded
     let iconWidth = `${$('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').width()}px`;
     let iconFontSize = $('.lubelogger-navbar > .lubelogger-tab > .nav-item .bi').css('font-size');
@@ -1760,11 +1938,9 @@ function checkNavBarOverflow() {
                 navbarHeight = $('.lubelogger-navbar').height();
                 if (navbarHeight > 48) {
                     $(sortedElems[i]).hide(); //hide elem.
-                    //clone item into additional nav dropdown
-                    let buttonToClone = $(sortedElems[i]).find('button').clone();
-                    let clonedItem = $(`<li class='text-truncate'></li>`)
-                    clonedItem.prepend(buttonToClone);
-                    $('.nav-item-more > ul').prepend(clonedItem);
+                    let hiddenButtonId = $(sortedElems[i]).find('button').attr('id');
+                    let buttonToShow = $(`.nav-item-more > ul > li > #${hiddenButtonId}`).closest('li');
+                    buttonToShow.show();
                 } else {
                     break;
                 }
@@ -1774,7 +1950,7 @@ function checkNavBarOverflow() {
         }
     }
     if (iconWidth != iconFontSize) {
-        setTimeout(() => { removeNavbarItems() }, 500);
+        setTimeout(() => { checkNavBarOverflow(); }, 500);
     } else {
         removeNavbarItems()
     }
@@ -1790,7 +1966,11 @@ function closeAttachmentPreview() {
 }
 function setBrowserHistory(param, val) {
     let currentParams = new URLSearchParams(window.location.search);
-    currentParams.set(param, val);
+    if (val == '') {
+        currentParams.delete(param);
+    } else {
+        currentParams.set(param, val);
+    }
     let updatedURL = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
     window.history.pushState({}, '', updatedURL);
 }
@@ -1804,5 +1984,85 @@ function getTabNameFromURL(defaultValue) {
         return `${defaultValue.toLowerCase()}-tab`;
     } else {
         return `${currentTab}-tab`;
+    }
+}
+function stretchedLinkClick(e) {
+    let closestCheckElem = $(e).closest('.form-check').find('.form-check-input');
+    if (closestCheckElem.prop('checked')) {
+        closestCheckElem.prop('checked', false).trigger('change');
+    } else {
+        closestCheckElem.prop('checked', true).trigger('change');
+    }
+}
+function clearModalContentOnHide(modalElem) {
+    modalElem.off('hidden.bs.modal').on('hidden.bs.modal', () => {
+        modalElem.find('.modal-content').html('');
+    });
+}
+function handleAttachmentCopyLink(e) {
+    event.stopPropagation();
+    event.preventDefault();
+    let textToCopy = $(e).attr('data-link');
+    navigator.clipboard.writeText(textToCopy);
+    successToast("Copied Link to Clipboard");
+}
+function isOperationResponse(result) {
+    //checks if response from controller is operationresponse
+    if (result.success != undefined && result.message != undefined) {
+        if (!result.success) {
+            errorToast(result.message);
+        }
+        return true;
+    }
+}
+function toggleSelectMode() {
+    $('#chkSelectMode').trigger('click');
+}
+function checkSelectModeToggle() {
+    if ($('#chkSelectMode').is(':checked')) {
+        $('.select-mode-toggle').removeClass('btn-outline-secondary');
+        $('.select-mode-toggle').addClass('btn-primary');
+    } else {
+        $('.select-mode-toggle').removeClass('btn-primary');
+        $('.select-mode-toggle').addClass('btn-outline-secondary');
+    }
+}
+function showDropDownForRecordNav(sender) {
+    $(sender).off('hide.bs.dropdown');
+    let tableRowsActive = $('.table tr.table-active');
+    let siblingContextMenu = $('.lubelogger-record-nav .record-dropdown');
+    if (!siblingContextMenu.hasClass('show')) {
+        return;
+    }
+    //clear off any existing items
+    if (siblingContextMenu.find('li').length > 0) {
+        siblingContextMenu.find('li').remove();
+    }
+    if (tableRowsActive.length == 0) {
+        //clone menu items
+        let storedMenuItems = $('.lubelogger-record-add .record-dropdown > li');
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            if (siblingContextMenu.find('li').length > 0) {
+                siblingContextMenu.find('li').map((index, elem) => {
+                    $('.lubelogger-record-add .record-dropdown').append($(elem));
+                })
+            } else {
+                storedMenuItems.map((index, elem) => {
+                    $('.lubelogger-record-add .record-dropdown').append($(elem));
+                })
+            }
+        });
+    } else {
+        determineContextMenuItems();
+        let storedMenuItems = $('.table-context-menu > li').clone();
+        storedMenuItems.map((index, elem) => {
+            siblingContextMenu.append($(elem));
+        });
+        $(sender).on('hide.bs.dropdown', () => {
+            siblingContextMenu.find('li').remove();
+        });
     }
 }

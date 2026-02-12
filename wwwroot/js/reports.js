@@ -2,14 +2,14 @@
     return $("#yearOption").val() ?? '0';
 }
 function getAndValidateSelectedColumns() {
-    var reportVisibleColumns = [];
-    var reportExtraFields = [];
-    var tagFilterMode = $("#tagSelector").val();
-    var tagsToFilter = $("#tagSelectorInput").val();
-    var filterByDateRange = $("#dateRangeSelector").is(":checked");
-    var printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
-    var startDate = $("#dateRangeStartDate").val();
-    var endDate = $("#dateRangeEndDate").val();
+    let reportVisibleColumns = [];
+    let reportExtraFields = [];
+    let tagFilterMode = $("#tagSelector").val();
+    let tagsToFilter = $("#tagSelectorInput").val();
+    let filterByDateRange = $("#dateRangeSelector").is(":checked");
+    let printIndividualRecords = $("#printIndividualRecordsCheck").is(":checked");
+    let startDate = $("#dateRangeStartDate").val();
+    let endDate = $("#dateRangeEndDate").val();
     $("#columnSelector :checked").map(function () {
         if ($(this).hasClass('column-default')) {
             reportVisibleColumns.push(this.value);
@@ -17,8 +17,8 @@ function getAndValidateSelectedColumns() {
             reportExtraFields.push(this.value);
         }
     });
-    var hasValidationError = false;
-    var validationErrorMessage = "";
+    let hasValidationError = false;
+    let validationErrorMessage = "";
     if (reportVisibleColumns.length + reportExtraFields.length == 0) {
         hasValidationError = true;
         validationErrorMessage = "You must select at least one column";
@@ -84,6 +84,9 @@ function getSavedReportParameters() {
         $("#dateRangeStartDate").val(selectedReportColumns.startDate);
         $("#dateRangeEndDate").val(selectedReportColumns.endDate);
         $("#printIndividualRecordsCheck").prop('checked', selectedReportColumns.printIndividualRecords);
+        if (selectedReportColumns.tags.length > 0 || selectedReportColumns.filterByDateRange) {
+            $("#reportAdvancedParameterToggle").trigger('click');
+        }
     }
 }
 function generateVehicleHistoryReport() {
@@ -318,64 +321,35 @@ function refreshCollaborators() {
     });
 }
 function exportAttachments() {
-    Swal.fire({
-        title: 'Export Attachments',
-        html: `
-        <div id='attachmentTabs'>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportServiceRecord" class="form-check-input me-1" value='ServiceRecord'>
-        <label for="exportServiceRecord" class='form-check-label'>Service Record</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportRepairRecord" class="form-check-input me-1" value='RepairRecord'>
-        <label for="exportRepairRecord" class='form-check-label'>Repairs</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportUpgradeRecord" class="form-check-input me-1" value='UpgradeRecord'>
-        <label for="exportUpgradeRecord" class='form-check-label'>Upgrades</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportGasRecord" class="form-check-input me-1" value='GasRecord'>
-        <label for="exportGasRecord" class='form-check-label'>Fuel</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportTaxRecord" class="form-check-input me-1" value='TaxRecord'>
-        <label for="exportTaxRecord" class='form-check-label'>Taxes</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportOdometerRecord" class="form-check-input me-1" value='OdometerRecord'>
-        <label for="exportOdometerRecord" class='form-check-label'>Odometer</label>
-        </div>
-        <div class='form-check form-check-inline'>
-        <input type="checkbox" id="exportNoteRecord" class="form-check-input me-1" value='NoteRecord'>
-        <label for="exportNoteRecord" class='form-check-label'>Notes</label>
-        </div>
-        </div>
-        `,
-        confirmButtonText: 'Export',
-        showCancelButton: true,
-        focusConfirm: false,
-        preConfirm: () => {
-            var selectedExportTabs = $("#attachmentTabs :checked").map(function () {
-                return this.value;
-            });
-            if (selectedExportTabs.toArray().length == 0) {
-                Swal.showValidationMessage(`Please make at least one selection`)
-            }
-            return { selectedTabs: selectedExportTabs.toArray() }
-        },
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            var vehicleId = GetVehicleId().vehicleId;
-            $.post('/Vehicle/GetVehicleAttachments', { vehicleId: vehicleId, exportTabs: result.value.selectedTabs }, function (data) {
-                if (data.success) {
-                    window.location.href = data.message;
-                } else {
-                    errorToast(data.message);
+    $.get(`/Vehicle/GetImportModeSelector?vehicleId=${GetVehicleId().vehicleId}`, function (selectorData) {
+        Swal.fire({
+            title: 'Export Attachments',
+            html: selectorData,
+            confirmButtonText: 'Export',
+            showCancelButton: true,
+            focusConfirm: false,
+            preConfirm: () => {
+                var selectedExportTabs = $("#attachmentTabs :checked").map(function () {
+                    return this.value;
+                });
+                if (selectedExportTabs.toArray().length == 0) {
+                    Swal.showValidationMessage(`Please make at least one selection`)
                 }
-            })
-        }
-    });
+                return { selectedTabs: selectedExportTabs.toArray() }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var vehicleId = GetVehicleId().vehicleId;
+                $.post('/Vehicle/GetVehicleAttachments', { vehicleId: vehicleId, exportTabs: result.value.selectedTabs }, function (data) {
+                    if (data.success) {
+                        window.location.href = data.message;
+                    } else {
+                        errorToast(data.message);
+                    }
+                })
+            }
+        });
+    })
 }
 function showDataTable(elemClicked) {
     var vehicleId = GetVehicleId().vehicleId;
@@ -412,11 +386,21 @@ function loadMapSearchResult(id, recordType) {
     hideDataTable();
     loadGlobalSearchResult(id, recordType);
 }
+function loadRecordAttachment(id, recordType) {
+    closeAttachmentPreview();
+    $(".modal.show").modal('hide');
+    loadGlobalSearchResult(id, recordType);
+}
+function showCustomWidgets() {
+    $("#vehicleCustomWidgetsModal").modal('show');
+}
 function loadCustomWidgets() {
     $.get('/Vehicle/GetAdditionalWidgets', function (data) {
         $("#vehicleCustomWidgetsModalContent").html(data);
-        $("#vehicleCustomWidgetsModal").modal('show');
     })
+}
+function scrollCollaboratorsIntoView() {
+    $("#collaboratorContent")[0].scrollIntoView({ behavior: "smooth" });
 }
 function hideCustomWidgetsModal() {
     $("#vehicleCustomWidgetsModal").modal('hide');
@@ -427,5 +411,52 @@ function showReportAdvancedParameters() {
         $(".report-advanced-parameters").removeClass("d-none");
     } else {
         $(".report-advanced-parameters").addClass("d-none");
+    }
+}
+function getCostDataTablePage(pageNumber) {
+    let pageSize = 5;
+    let years = $(".monthlyCostBreakDownTable").find("th").map((index, elem) => $(elem).text()).toArray().filter(y => !isNaN(y));
+    if (years.length < pageSize) {
+        return;
+    }
+    let firstYear = years[0];
+    let lastYear = years[years.length - 1];
+    // Calculate the starting index for the current page.
+    // Page numbers are usually 1-based, so we subtract 1 for 0-based array indexing.
+    let startIndex = (pageNumber - 1) * pageSize;
+
+    // Calculate the ending index for the current page.
+    // slice() extracts up to (but not including) the end index.
+    let endIndex = startIndex + pageSize;
+
+    // Use slice() to extract the elements for the current page.
+    let yearsToDisplay = years.slice(startIndex, endIndex);
+    $(".monthlyCostBreakDownTable").find("th").map((index, elem) => {
+        let year = $(elem).text();
+        if (yearsToDisplay.includes(year)) {
+            $(elem).show();
+            $(".monthlyCostBreakDownTable").find(`tr > td[report-year='${year}']`).show();
+        } else if (index != 0) {
+            $(elem).hide();
+            $(".monthlyCostBreakDownTable").find(`tr > td[report-year='${year}']`).hide();
+        }
+    });
+    let leftNavButton = $('.monthlyCostBreakDownTable').find('.btn-costdata-prev');
+    let rightNavButton = $('.monthlyCostBreakDownTable').find('.btn-costdata-next');
+    leftNavButton.off('click');
+    rightNavButton.off('click');
+    if (yearsToDisplay.includes(firstYear)) {
+        leftNavButton.attr('disabled', true);
+    } else {
+        let prevPage = pageNumber - 1
+        leftNavButton.on('click', function () { getCostDataTablePage(prevPage); });
+        leftNavButton.attr('disabled', false);
+    }
+    if (yearsToDisplay.includes(lastYear)) {
+        rightNavButton.attr('disabled', true);
+    } else {
+        let nextPage = pageNumber + 1
+        rightNavButton.on('click', function () { getCostDataTablePage(nextPage); });
+        rightNavButton.attr('disabled', false);
     }
 }

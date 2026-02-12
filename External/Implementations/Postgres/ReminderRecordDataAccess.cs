@@ -12,7 +12,7 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "reminderrecords";
         public PGReminderRecordDataAccess(IConfiguration config, ILogger<PGReminderRecordDataAccess> logger)
         {
-            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"] ?? string.Empty);
             _logger = logger;
             try
             {

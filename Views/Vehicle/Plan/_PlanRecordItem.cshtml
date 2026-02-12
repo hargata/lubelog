@@ -5,30 +5,19 @@
     var hideZero = userConfig.HideZero;
 }
 @model PlanRecord
-<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") text-dark user-select-none mt-2 mb-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
+<div class="taskCard @(Model.Progress == PlanProgress.Done ? "nodrag" : "") user-select-none mt-2" draggable="@(Model.Progress == PlanProgress.Done ? "false" : "true")" ondragstart="dragStart(event, @Model.Id)" onclick="@(Model.Progress == PlanProgress.Done ? $"deletePlanRecord({Model.Id}, true)" : $"showEditPlanRecordModal({Model.Id})")" oncontextmenu="@($"showPlanTableContextMenu(this, {Model.Id}, '{Model.Progress}')")" onmouseup="stopEvent()" ontouchstart="detectPlanItemLongTouch(this, @Model.Id, '@Model.Progress')" ontouchend="detectPlanItemTouchEndPremature(this)">
     <div class="card-body">
-        <div class="row">
-            <div class="col-12 col-lg-8 text-truncate">
-                @if (Model.Progress == PlanProgress.Done)
-                {
-                    <span class="taskCard-title text-truncate"><s>@Model.Description</s></span>
-                } else
-                {
-                    <span class="taskCard-title text-truncate">@Model.Description</span>
-                }
-            </div>
-            <div class="col-12 col-lg-4 d-flex align-items-center">
-                <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
-            </div>
-        </div>
-        <div class="row">
-            @if (Model.ReminderRecordId != default)
+        <div class="d-flex gap-2 align-items-center">
+            @if (Model.Progress == PlanProgress.Done)
             {
-                <div class="col-3 col-md-1">
-                    <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
-                </div>
+                <span class="taskCard-title text-truncate"><s>@Model.Description</s></span>
+            } else
+            {
+                <span class="taskCard-title text-truncate">@Model.Description</span>
             }
-            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
+        </div>
+        <div class="d-flex justify-content-between">
+            <div class="d-flex gap-2">
                 @if (Model.ImportMode == ImportMode.ServiceRecord)
                 {
                     <span class="badge text-bg-primary planner-indicator"><i class="bi bi-card-checklist text-white"></i></span>
@@ -41,8 +30,10 @@
                 {
                     <span class="badge text-bg-warning planner-indicator"><i class="bi bi-exclamation-octagon text-white"></i></span>
                 }
-            </div>
-            <div class="@(Model.ReminderRecordId != default ? "col-3" : "col-6") col-md-1">
+                @if (Model.ReminderRecordId != default)
+                {
+                    <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
+                }
                 @if (Model.Priority == PlanPriority.Critical)
                 {
                     <span class="badge text-bg-danger planner-indicator"><i class="bi bi-fire text-white"></i></span>
@@ -56,6 +47,15 @@
                     <span class="badge text-bg-info planner-indicator"><i class="bi bi-snow text-white"></i></span>
                 }
             </div>
+            <div>
+                <span class="text-truncate">@(StaticHelper.HideZeroCost(Model.Cost, hideZero))</span>
+            </div>
         </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="d-flex mt-2 flex-wrap">
+                <small style="word-break:break-all;">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
+            </div>
+        }
     </div>
 </div>

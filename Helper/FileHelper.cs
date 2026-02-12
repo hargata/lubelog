@@ -18,12 +18,14 @@ namespace CarCareTracker.Helper
         string MakeAttachmentsExport(List<GenericReportModel> exportData);
         List<string> GetLanguages();
         int ClearTempFolder();
+        List<string> GetTempFiles();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
         string GetWidgets();
         bool WidgetsExist();
         bool SaveWidgets(string widgetsData);
         bool DeleteWidgets();
+        string WriteFileToTemp(string fileName, string data);
     }
     public class FileHelper : IFileHelper
     {
@@ -426,6 +428,20 @@ namespace CarCareTracker.Helper
             }
             return filesDeleted;
         }
+        public List<string> GetTempFiles()
+        {
+            var tempFiles = new List<string>();
+            var tempPath = GetFullFilePath("temp", false);
+            if (Directory.Exists(tempPath))
+            {
+                var filesInTemp = Directory.GetFiles(tempPath, "*.*", SearchOption.AllDirectories);
+                foreach (var file in filesInTemp)
+                {
+                    tempFiles.Add(file.Replace(tempPath, string.Empty));
+                }
+            }
+            return tempFiles;
+        }
         public int ClearUnlinkedThumbnails(List<string> linkedImages)
         {
             int filesDeleted = 0;
@@ -512,6 +528,26 @@ namespace CarCareTracker.Helper
             {
                 _logger.LogError(ex.Message);
                 return false;
+            }
+        }
+        public string WriteFileToTemp(string fileName, string data)
+        {
+            try
+            {
+                //check if temp folder exists
+                var tempFolder = GetFullFilePath("/temp", false);
+                if (!Directory.Exists(tempFolder))
+                {
+                    Directory.CreateDirectory(tempFolder);
+                }
+                var tempFileName = $"/temp/{fileName}";
+                var fullTempFileName = GetFullFilePath(tempFileName, false);
+                File.WriteAllText(fullTempFileName, data);
+                return tempFileName;
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return string.Empty;
             }
         }
     }

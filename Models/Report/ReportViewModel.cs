@@ -8,7 +8,7 @@
         public CostMakeUpForVehicle CostMakeUpForVehicle { get; set; } = new CostMakeUpForVehicle();
         public ReminderMakeUpForVehicle ReminderMakeUpForVehicle { get; set; } = new ReminderMakeUpForVehicle();
         public List<int> Years { get; set; } = new List<int>();
-        public List<UserCollaborator> Collaborators { get; set; } = new List<UserCollaborator>();
+        public VehicleCollaboratorViewModel Collaborators { get; set; } = new VehicleCollaboratorViewModel();
         public bool CustomWidgetsConfigured { get; set; } = false;
         public List<ImportMode> AvailableMetrics { get; set; } = new List<ImportMode>();
         public bool HasVehicleImageMap { get; set; } = false;

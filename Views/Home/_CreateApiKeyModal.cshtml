@@ -1,0 +1,30 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="createApiKeyLabel">@translator.Translate(userLanguage, "Create API Key")</h5>
+    <button type="button" class="btn-close" onclick="hideCreateApiKeyModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form class="form-inline">
+        <div class="form-group">
+            <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+            <label for="inputApiKeyName">@translator.Translate(userLanguage, "Name")</label>
+            <input type="text" id="inputApiKeyName" class="form-control" placeholder="@translator.Translate(userLanguage, "Name for API Key")">
+            <label for="inputApiKeyRole">@translator.Translate(userLanguage, "Role")</label>
+            <select class="form-select" id="inputApiKeyRole">
+                <!option value="viewer">@translator.Translate(userLanguage, "Viewer")</!option>
+                <!option value="editor">@translator.Translate(userLanguage, "Editor")</!option>
+                <!option value="manager">@translator.Translate(userLanguage, "Manager")</!option>
+            </select>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideCreateApiKeyModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" onclick="createApiKey()" class="btn btn-primary">@translator.Translate(userLanguage, "Create")</button>
+</div>

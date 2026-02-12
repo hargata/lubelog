@@ -5,9 +5,16 @@
 @{
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var attachmentIsRecord = StaticHelper.GetAttachmentIsRecord(Model.Location, out ImportMode importMode, out int recordId);
 }
 <div class="modal-header">
-    @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+    @if (attachmentIsRecord)
+    {
+        <a href="#" onclick="loadRecordAttachment(@recordId, '@importMode')">
+            <span class="link-body-emphasis"><i class="bi @StaticHelper.GetImportModeIcon(importMode)"></i></span>
+        </a>
+    }
+    else if (StaticHelper.GetAttachmentIsLink(Model.Location))
     {
         <a href="@Model.Location" target="_blank">
             <span class="link-body-emphasis"><i class="bi bi-box-arrow-up-right"></i></span>
@@ -18,15 +25,28 @@
             <span class="link-body-emphasis"><i class="bi bi-download"></i></span>
         </a>
     }
-    <h5 class="modal-title" id="updateAccountModalLabel">@Model.Name</h5>
+    @if (StaticHelper.GetAttachmentIsInTemp(Model.Location))
+    {
+        <h5 class="modal-title" id="updateAccountModalLabel">@Model.Name</h5>
+    } else
+    {
+        <h5 class="modal-title" id="updateAccountModalLabel" data-link="@Model.Location" onclick="handleAttachmentCopyLink(this)" style="cursor:pointer;">@Model.Name</h5>
+    }
     <a style="cursor:pointer;" onclick="closeAttachmentPreview()"><span class="link-body-emphasis"><i class="bi bi-x-lg"></i></span></a>
 </div>
 <div class="modal-body">
     <div class="d-flex justify-content-center" style="height:100%; width:100%;" onclick="closeAttachmentPreview()">
-        @if (StaticHelper.GetAttachmentIsLink(Model.Location))
+        @if (attachmentIsRecord)
         {
             <div class="align-self-center">
+                <button onclick="loadRecordAttachment(@recordId, '@importMode')" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Go To Record")</span><span><i class="bi @StaticHelper.GetImportModeIcon(importMode)"></i></span></button>
+            </div>
+        }
+        else if (StaticHelper.GetAttachmentIsLink(Model.Location))
+        {
+            <div class="d-flex align-self-center flex-column">
                 <a href="@Model.Location" target="_blank" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Open Link in New Tab")</span><span><i class="bi bi-box-arrow-up-right"></i></span></a>
+                <a data-link="@Model.Location" href="#" onclick="handleAttachmentCopyLink(this)" class="mt-2 btn btn-secondary"><span class="me-2">@translator.Translate(userLanguage, "Copy Link Address")</span><span><i class="bi bi-link-45deg"></i></span></a>
             </div>
         } 
         else if (StaticHelper.GetAttachmentIsImage(Model.Location))
@@ -38,6 +58,10 @@
             <div class="d-flex align-self-center flex-column">
                 <a href="@Model.Location" download="@StaticHelper.GetAttachmentOriginalName(Model.Location, Model.Name)" onclick="noPropagation()" class="btn btn-primary"><span class="me-2">@translator.Translate(userLanguage, "Download File")</span><span><i class="bi bi-download"></i></span></a>
                 <a href="@Model.Location" target="_blank" onclick="noPropagation()" class="mt-2 btn btn-secondary"><span class="me-2">@translator.Translate(userLanguage, "Open Link in New Tab")</span><span><i class="bi bi-box-arrow-up-right"></i></span></a>
+                @if (!StaticHelper.GetAttachmentIsInTemp(Model.Location))
+                {
+                    <a data-link="@Model.Location" href="#" onclick="handleAttachmentCopyLink(this)" class="mt-2 btn btn-secondary"><span class="me-2">@translator.Translate(userLanguage, "Copy Link Address")</span><span><i class="bi bi-link-45deg"></i></span></a>
+                }
             </div>
         }
     </div>

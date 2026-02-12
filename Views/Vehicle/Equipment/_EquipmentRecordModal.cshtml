@@ -1,0 +1,74 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model EquipmentRecordInput
+@{
+    var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew ? translator.Translate(userLanguage, "Add New Equipment Record") : translator.Translate(userLanguage, "Edit Equipment Record"))<small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditEquipmentRecordModal({Model.Id}, true)" )'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
+    <button type="button" class="btn-close" onclick="hideAddEquipmentRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <label for="equipmentRecordDescription">@translator.Translate(userLanguage, "Description")</label>
+                    <input type="text" id="equipmentRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of equipment")" value="@Model.Description">
+                    <label for="equipmentRecordTag">@translator.Translate(userLanguage, "Tags(optional)")</label>
+                    <select multiple class="form-select" id="equipmentRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="equipmentRecordNotes">@translator.Translate(userLanguage, "Notes(optional)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="equipmentRecordNotes" class="form-control" rows="5">@Model.Notes</textarea>
+                    <div>
+                        <div class="form-check form-switch form-check-inline">
+                            <input class="form-check-input" type="checkbox" role="switch" id="equipmentEquippedCheck" checked="@Model.IsEquipped">
+                            <label class="form-check-label" for="equipmentEquippedCheck">@translator.Translate(userLanguage, "Is Equipped")</label>
+                        </div>
+                    </div>
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
+                    <div id="filesPendingUpload"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        @if (Model.OdometerRecords.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleOdometerHistory()"><i class="bi bi-speedometer"></i></button>
+        }
+        <button type="button" class="btn btn-danger" onclick="deleteEquipmentRecord(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage, "Delete")</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddEquipmentRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveEquipmentRecordToVehicle()">@translator.Translate(userLanguage, "Add New Equipment Record")</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveEquipmentRecordToVehicle(true)">@translator.Translate(userLanguage, "Edit Equipment Record")</button>
+    }
+</div>
+@await Html.PartialAsync("Odometer/_OdometerHistory", Model.OdometerRecords)
+<script>
+    function getEquipmentRecordModelData() {
+        return { id: @Model.Id}
+    }
+</script>
