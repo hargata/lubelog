@@ -13,14 +13,15 @@
             @:availableMetrics.push('@importMode');
     }
 </script>
-<div class="container reportTabContainer">
-    <div class="row hideOnPrint" id="reportHeaderContent">
+<div class="d-flex flex-column vehicleTabPane">
+<div class="container reportTabContainer flex-grow-1">
+    <div class="row hideOnPrint mb-2" id="reportHeaderContent">
         @await Html.PartialAsync("_ReportHeader", Model.ReportHeaderForVehicle)
     </div>
     <hr />
-    <div class="row hideOnPrint">
-        <div class="col-md-3 col-12 mt-2">
-            <div class="row">
+    <div class="row hideOnPrint flex-wrap gap-1">
+        <div class="col-md-3 col-12 border rounded">
+            <div class="row pt-1">
                 <div class="col-12">
                     <select class="form-select" id="yearOption" onchange="yearUpdated()">
                         <option value="0">@translator.Translate(userLanguage, "All Time")</option>
@@ -37,10 +38,9 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-12 mt-2">
-            <div class="row">
-                <div class="col-md-1 d-sm-none d-md-block"></div>
-                <div class="col-12 col-md-10">
+        <div class="col-md-6 col-12 border rounded d-flex flex-column">
+            <div class="row pt-1">
+                <div class="flex-grow-1">
                     <div class="dropdown d-grid dropdown-center">
                         <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" @(Model.AvailableMetrics.Any() ? "" : "disabled")>
                             @translator.Translate(userLanguage, "Metrics")
@@ -91,16 +91,38 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-1 d-sm-none d-md-block"></div>
             </div>
-            <div class="row">
+            <div class="row flex-grow-1 flex-shrink-1">
                 <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
                     @await Html.PartialAsync("_GasCostByMonthReport", Model.CostForVehicleByMonth)
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-12 mt-2">
-            <div class="row">
+            <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="reportControls">
+                <div class="d-grid">
+                    <button onclick="showGlobalSearch()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Search")<i class="bi ms-2 bi-search"></i></button>
+                </div>
+                <div class="d-grid">
+                    <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+                <div class="d-grid">
+                    <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                </div>
+                @if (Model.HasVehicleImageMap)
+                {
+                    <div class="d-grid">
+                        <button onclick="loadVehicleImageMap()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Map")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                    </div>
+                }
+                @if (Model.CustomWidgetsConfigured)
+                {
+                    <div class="d-grid">
+                        <button onclick="showCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
+                    </div>
+                }
+            </div>
+        <div class="col-md-3 col-12 border rounded">
+            <div class="row pt-1">
                 <div class="col-12">
                     <select class="form-select" onchange="updateReminderPie()" id="reminderOption">
                         <option value="0">@translator.Translate(userLanguage, "As of Today")</option>
@@ -116,41 +138,41 @@
                 </div>
             </div>
         </div>
-    </div>
-    <hr />
-    <div class="row hideOnPrint">
-        <div class="col-md-3 col-12 chartContainer" id="collaboratorContent">
-            @await Html.PartialAsync("_Collaborators", Model.Collaborators)
-        </div>
-        <div class="col-md-6 col-12 chartContainer">
-            <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="monthFuelMileageReportContent">
+        <div class="col-md-6 col-12 chartContainer border rounded">
+            <div class="d-flex justify-content-center align-items-center" style="height:100%;" id="monthFuelMileageReportContent">
                 @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
             </div>
         </div>
-        <div class="col-md-3 col-12 chartContainer">
-            <div class="d-grid">
-                <button onclick="showGlobalSearch()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Search")<i class="bi ms-2 bi-search"></i></button>
+            <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="collaboratorContent">
+                @await Html.PartialAsync("_Collaborators", Model.Collaborators)
             </div>
-            <div class="d-grid">
-                <button onclick="generateVehicleHistoryReport()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Maintenance Report")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-            </div>
-            <div class="d-grid">
-                <button onclick="exportAttachments()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Export Attachments")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-            </div>
-            @if (Model.HasVehicleImageMap)
-            {
-                <div class="d-grid">
-                    <button onclick="loadVehicleImageMap()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Vehicle Map")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-                </div>
-            }
-            @if (Model.CustomWidgetsConfigured)
-            {
-                <div class="d-grid">
-                    <button onclick="loadCustomWidgets()" class="btn btn-secondary btn-md mt-1 mb-1">@translator.Translate(userLanguage, "Additional Widgets")<i class="bi ms-2 bi-box-arrow-in-up-right"></i></button>
-                </div>
-            }
+    </div>
+</div>
+<div class="row lubelogger-record-nav pt-1 hideOnPrint">
+    <div class="d-flex justify-content-between">
+            <button onclick="scrollCollaboratorsIntoView()" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-person-add"></i></button>
+        <button onclick="showGlobalSearch()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-search"></i></button>
+        <div>
+            <button class="btn btn-outline-secondary btn-md mt-1 mb-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="generateVehicleHistoryReport()">@translator.Translate(userLanguage, "Vehicle Maintenance Report")</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exportAttachments()">@translator.Translate(userLanguage, "Export Attachments")</a></li>
+                    @if (Model.HasVehicleImageMap || Model.CustomWidgetsConfigured)
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                    }
+                    @if (Model.HasVehicleImageMap)
+                    {
+                        <li><a class="dropdown-item" href="#" onclick="loadVehicleImageMap()">@translator.Translate(userLanguage, "Vehicle Map")</a></li>
+                    }
+                    @if (Model.CustomWidgetsConfigured)
+                    {
+                        <li><a class="dropdown-item" href="#" onclick="showCustomWidgets()">@translator.Translate(userLanguage, "Additional Widgets")</a></li>
+                    }
+            </ul>
         </div>
     </div>
+</div>
 </div>
 <div class="modal fade" data-bs-focus="false" id="vehicleDataTableModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -167,6 +189,7 @@
             </div>
         </div>
     </div>
+    <script>loadCustomWidgets()</script>
 }
 
 <script>

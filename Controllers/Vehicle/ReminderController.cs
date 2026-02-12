@@ -18,7 +18,7 @@ namespace CarCareTracker.Controllers
         {
             var result = GetRemindersAndUrgency(vehicleId, DateTime.Now);
             //check if user wants auto-refresh past-due reminders
-            if (_config.GetUserConfig(User).EnableAutoReminderRefresh)
+            if (_config.GetUserConfig(User).EnableAutoReminderRefresh && _userLogic.UserCanEditVehicle(GetUserID(), vehicleId, HouseholdPermission.Edit))
             {
                 //check for past due reminders that are eligible for recurring.
                 var pastDueAndRecurring = result.Where(x => x.Urgency == ReminderUrgency.PastDue && x.IsRecurring);
@@ -75,49 +75,54 @@ namespace CarCareTracker.Controllers
             var result = PushbackRecurringReminderRecordWithChecks(reminderRecordId, null, null);
             return Json(result);
         }
-        private bool PushbackRecurringReminderRecordWithChecks(int reminderRecordId, DateTime? currentDate, int? currentMileage)
+        private OperationResponse PushbackRecurringReminderRecordWithChecks(int reminderRecordId, DateTime? currentDate, int? currentMileage)
         {
             try
             {
                 var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
                 if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
                 {
+                    //security check
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId, HouseholdPermission.Edit))
+                    {
+                        return OperationResponse.Failed("Access Denied");
+                    }
                     existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder, currentDate, currentMileage);
                     //save to db.
                     var reminderUpdateResult = _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
                     if (!reminderUpdateResult)
                     {
                         _logger.LogError("Unable to update reminder either because the reminder no longer exists or is no longer recurring");
-                        return false;
+                        return OperationResponse.Failed("Unable to update reminder either because the reminder no longer exists or is no longer recurring");
                     }
-                    return true;
+                    return OperationResponse.Succeed();
                 }
                 else
                 {
                     _logger.LogError("Unable to update reminder because it no longer exists.");
-                    return false;
+                    return OperationResponse.Failed("Unable to update reminder because it no longer exists.");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return false;
+                return OperationResponse.Failed(StaticHelper.GenericErrorMessage);
             }
         }
         [HttpPost]
         public IActionResult SaveReminderRecordToVehicleId(ReminderRecordInput reminderRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), reminderRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             var result = _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord.ToReminderRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(reminderRecord.ToReminderRecord(), reminderRecord.Id == default ? "reminderrecord.add" : "reminderrecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
@@ -136,7 +141,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -151,6 +156,7 @@ namespace CarCareTracker.Controllers
                 Mileage = result.Mileage,
                 Metric = result.Metric,
                 IsRecurring = result.IsRecurring,
+                FixedIntervals = result.FixedIntervals,
                 UseCustomThresholds = result.UseCustomThresholds,
                 CustomThresholds = result.CustomThresholds,
                 ReminderMileageInterval = result.ReminderMileageInterval,
@@ -162,20 +168,20 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Reminder/_ReminderRecordModal", convertedResult);
         }
-        private bool DeleteReminderRecordWithChecks(int reminderRecordId)
+        private OperationResponse DeleteReminderRecordWithChecks(int reminderRecordId)
         {
             var existingRecord = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete", User.Identity?.Name ?? string.Empty));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteReminderRecordById(int reminderRecordId)

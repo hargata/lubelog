@@ -165,6 +165,26 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     break;
+                case ImportMode.EquipmentRecord:
+                    {
+                        var exportData = new List<EquipmentRecordExportModel> { new EquipmentRecordExportModel
+                        {
+                            Description = "Test",
+                            Notes = "Test Note",
+                            Tags = "test1 test2",
+                            IsEquipped = true.ToString()
+                        } };
+                        using (var writer = new StreamWriter(fullExportFilePath))
+                        {
+                            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                            {
+                                //custom writer
+                                StaticHelper.WriteEquipmentRecordExportModel(csv, exportData);
+                            }
+                            writer.Dispose();
+                        }
+                    }
+                    break;
                 default:
                     return Json(OperationResponse.Failed("No parameters"));
             }
@@ -186,9 +206,13 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed($"An error has occurred while generating CSV sample: {ex.Message}"));
             }
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
-        [HttpGet]
-        public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode)
+        public IActionResult GetCSVExportParameters()
+        {
+            return PartialView("_CSVExportParameters");
+        }
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.View })]
+        [HttpPost]
+        public IActionResult ExportFromVehicleToCsv(int vehicleId, ImportMode mode, CSVExportParameter exportParameters)
         {
             if (vehicleId == default && mode != ImportMode.SupplyRecord)
             {
@@ -203,6 +227,30 @@ namespace CarCareTracker.Controllers
             if (mode == ImportMode.ServiceRecord)
             {
                 var vehicleRecords = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new GenericRecordExportModel
@@ -226,10 +274,38 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
             else if (mode == ImportMode.RepairRecord)
             {
                 var vehicleRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new GenericRecordExportModel
@@ -250,11 +326,39 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
                 }
             }
             else if (mode == ImportMode.UpgradeRecord)
             {
                 var vehicleRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new GenericRecordExportModel
@@ -276,10 +380,38 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
             else if (mode == ImportMode.OdometerRecord)
             {
                 var vehicleRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new OdometerRecordExportModel
@@ -300,10 +432,38 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
             else if (mode == ImportMode.SupplyRecord)
             {
                 var vehicleRecords = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new SupplyRecordExportModel
@@ -327,10 +487,38 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
             else if (mode == ImportMode.TaxRecord)
             {
                 var vehicleRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+                //filter by tags
+                if (exportParameters.Tags.Any())
+                {
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
+                    {
+                        vehicleRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        vehicleRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                }
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        vehicleRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    }
+                }
                 if (vehicleRecords.Any())
                 {
                     var exportData = vehicleRecords.Select(x => new TaxRecordExportModel
@@ -350,6 +538,10 @@ namespace CarCareTracker.Controllers
                         }
                     }
                     return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
                 }
             }
             else if (mode == ImportMode.PlanRecord)
@@ -378,6 +570,37 @@ namespace CarCareTracker.Controllers
                     }
                     return Json($"/{fileNameToExport}");
                 }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
+            }
+            else if (mode == ImportMode.EquipmentRecord)
+            {
+                var vehicleRecords = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
+                if (vehicleRecords.Any())
+                {
+                    var exportData = vehicleRecords.Select(x => new EquipmentRecordExportModel
+                    {
+                        Description = x.Description,
+                        Tags = string.Join(" ", x.Tags),
+                        Notes = x.Notes,
+                        IsEquipped = x.IsEquipped.ToString(),
+                        ExtraFields = x.ExtraFields
+                    });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            StaticHelper.WriteEquipmentRecordExportModel(csv, exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
             else if (mode == ImportMode.GasRecord)
             {
@@ -386,31 +609,62 @@ namespace CarCareTracker.Controllers
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
                 bool useUKMPG = !vehicleData.IsElectric && _config.GetUserConfig(User).UseUKMPG; //do not apply UK conversion on electric vehicles.
                 var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
-                var exportData = convertedRecords.Select(x => new GasRecordExportModel
+                //filter by tags
+                if (exportParameters.Tags.Any())
                 {
-                    Date = x.Date.ToString(),
-                    Cost = x.Cost.ToString(),
-                    FuelConsumed = x.Gallons.ToString(),
-                    FuelEconomy = x.MilesPerGallon.ToString(),
-                    Odometer = x.Mileage.ToString(),
-                    IsFillToFull = x.IsFillToFull.ToString(),
-                    MissedFuelUp = x.MissedFuelUp.ToString(),
-                    Notes = x.Notes,
-                    Tags = string.Join(" ", x.Tags),
-                    ExtraFields = x.ExtraFields
-                });
-                using (var writer = new StreamWriter(fullExportFilePath))
-                {
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    if (exportParameters.TagFilter == TagFilter.Exclude)
                     {
-                        StaticHelper.WriteGasRecordExportModel(csv, exportData);
+                        convertedRecords.RemoveAll(x => x.Tags.Any(y => exportParameters.Tags.Contains(y)));
+                    }
+                    else if (exportParameters.TagFilter == TagFilter.IncludeOnly)
+                    {
+                        convertedRecords.RemoveAll(x => !x.Tags.Any(y => exportParameters.Tags.Contains(y)));
                     }
                 }
-                return Json($"/{fileNameToExport}");
+                //filter by date range.
+                if (exportParameters.FilterByDateRange && !string.IsNullOrWhiteSpace(exportParameters.StartDate) && !string.IsNullOrWhiteSpace(exportParameters.EndDate))
+                {
+                    var startDate = DateTime.Parse(exportParameters.StartDate).Date;
+                    var endDate = DateTime.Parse(exportParameters.EndDate).Date;
+                    //validate date range
+                    if (endDate >= startDate) //allow for same day.
+                    {
+                        //remove all records with dates after the end date and dates before the start date.
+                        convertedRecords.RemoveAll(x => DateTime.Parse(x.Date).Date > endDate || DateTime.Parse(x.Date).Date < startDate);
+                    }
+                }
+                if (convertedRecords.Any())
+                {
+                    var exportData = convertedRecords.Select(x => new GasRecordExportModel
+                    {
+                        Date = x.Date.ToString(),
+                        Cost = x.Cost.ToString(),
+                        FuelConsumed = x.Gallons.ToString(),
+                        FuelEconomy = x.MilesPerGallon.ToString(),
+                        Odometer = x.Mileage.ToString(),
+                        IsFillToFull = x.IsFillToFull.ToString(),
+                        MissedFuelUp = x.MissedFuelUp.ToString(),
+                        Notes = x.Notes,
+                        Tags = string.Join(" ", x.Tags),
+                        ExtraFields = x.ExtraFields
+                    });
+                    using (var writer = new StreamWriter(fullExportFilePath))
+                    {
+                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        {
+                            StaticHelper.WriteGasRecordExportModel(csv, exportData);
+                        }
+                    }
+                    return Json($"/{fileNameToExport}");
+                }
+                else
+                {
+                    return Json(OperationResponse.Failed("No Records"));
+                }
             }
-            return Json(false);
+            return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
         }
-        [TypeFilter(typeof(CollaboratorFilter))]
+        [TypeFilter(typeof(CollaboratorFilter), Arguments = new object[] { false, true, HouseholdPermission.Edit })]
         [HttpPost]
         public IActionResult ImportToVehicleIdFromCsv(int vehicleId, ImportMode mode, string fileName)
         {
@@ -505,7 +759,8 @@ namespace CarCareTracker.Controllers
                                                 Date = convertedRecord.Date,
                                                 VehicleId = convertedRecord.VehicleId,
                                                 Mileage = convertedRecord.Mileage,
-                                                Notes = $"Auto Insert From Gas Record via CSV Import. {convertedRecord.Notes}"
+                                                Notes = $"Auto Insert From Gas Record via CSV Import. {convertedRecord.Notes}",
+                                                Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, convertedRecord.Id, $"Gas Record - {convertedRecord.Mileage.ToString()}")
                                             });
                                         }
                                     }
@@ -531,7 +786,8 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Service Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Service Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
                                 }
@@ -590,7 +846,8 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Repair Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Repair Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
                                 }
@@ -615,9 +872,23 @@ namespace CarCareTracker.Controllers
                                             Date = convertedRecord.Date,
                                             VehicleId = convertedRecord.VehicleId,
                                             Mileage = convertedRecord.Mileage,
-                                            Notes = $"Auto Insert From Upgrade Record via CSV Import. {convertedRecord.Notes}"
+                                            Notes = $"Auto Insert From Upgrade Record via CSV Import. {convertedRecord.Notes}",
+                                            Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
                                         });
                                     }
+                                }
+                                else if (mode == ImportMode.EquipmentRecord)
+                                {
+                                    var convertedRecord = new EquipmentRecord()
+                                    {
+                                        VehicleId = vehicleId,
+                                        Description = importModel.Description,
+                                        Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
+                                        Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
+                                        IsEquipped = bool.Parse(importModel.IsEquipped),
+                                        ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value, IsRequired = requiredExtraFields.Contains(x.Key) }).ToList() : new List<ExtraField>()
+                                    };
+                                    _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(convertedRecord);
                                 }
                                 else if (mode == ImportMode.SupplyRecord)
                                 {

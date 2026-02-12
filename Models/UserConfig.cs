@@ -17,6 +17,7 @@
         public bool UseMarkDownOnSavedNotes { get; set; }
         public bool EnableAutoReminderRefresh { get; set; }
         public bool EnableAutoOdometerInsert { get; set; }
+        public bool EnableAutoFillOdometer { get; set; }
         public bool EnableShopSupplies { get; set; }
         public bool EnableExtraFieldColumns { get; set; }
         public bool HideSoldVehicles { get; set; }
@@ -27,9 +28,10 @@
         public bool ShowCalendar { get; set; }
         public bool ShowVehicleThumbnail { get; set; }
         public bool ShowSearch { get; set; }
+        public bool DisableAutoZoom { get; set; }
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
-        public string UserNameHash { get; set; }
-        public string UserPasswordHash { get; set;}
+        public string UserNameHash { get; set; } = string.Empty;
+        public string UserPasswordHash { get; set; } = string.Empty;
         public string UserLanguage { get; set; } = "en_US";
         public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 
             ImportMode.Dashboard,
@@ -53,6 +55,8 @@
             ImportMode.SupplyRecord,
             ImportMode.TaxRecord,
             ImportMode.NoteRecord,
+            ImportMode.InspectionRecord,
+            ImportMode.EquipmentRecord,
             ImportMode.ReminderRecord
         };
     }

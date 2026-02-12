@@ -1,12 +1,13 @@
 using CarCareTracker.External.Interfaces;
+using CarCareTracker.Helper;
+using CarCareTracker.Logic;
 using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using CarCareTracker.Helper;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using CarCareTracker.Logic;
 using System.Globalization;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace CarCareTracker.Controllers
 {
@@ -25,6 +26,7 @@ namespace CarCareTracker.Controllers
         private readonly IReminderHelper _reminderHelper;
         private readonly ITranslationHelper _translationHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly IHttpClientFactory _httpClientFactory;
         public HomeController(ILogger<HomeController> logger,
             IVehicleDataAccess dataAccess,
             IUserLogic userLogic,
@@ -36,7 +38,8 @@ namespace CarCareTracker.Controllers
             IReminderRecordDataAccess reminderRecordDataAccess,
             IReminderHelper reminderHelper,
             ITranslationHelper translationHelper,
-            IMailHelper mailHelper)
+            IMailHelper mailHelper,
+            IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _dataAccess = dataAccess;
@@ -50,66 +53,15 @@ namespace CarCareTracker.Controllers
             _vehicleLogic = vehicleLogic;
             _translationHelper = translationHelper;
             _mailHelper = mailHelper;
+            _httpClientFactory = httpClientFactory;
         }
         private int GetUserID()
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
         }
         public IActionResult Index()
         {
             return View();
-        }
-        [Route("/kiosk")]
-        public IActionResult Kiosk(string exclusions, KioskMode kioskMode = KioskMode.Vehicle)
-        { 
-            try {
-                var viewModel = new KioskViewModel
-                {
-                    Exclusions = string.IsNullOrWhiteSpace(exclusions) ? new List<int>() : exclusions.Split(',').Select(x => int.Parse(x)).ToList(),
-                    KioskMode = kioskMode
-                };
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return View(new KioskViewModel());
-            }
-        }
-        [HttpPost]
-        public IActionResult KioskContent(KioskViewModel kioskParameters)
-        {
-            var vehiclesStored = _dataAccess.GetVehicles();
-            if (!User.IsInRole(nameof(UserData.IsRootUser)))
-            {
-                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
-            }
-            vehiclesStored.RemoveAll(x => kioskParameters.Exclusions.Contains(x.Id));
-            var userConfig = _config.GetUserConfig(User);
-            if (userConfig.HideSoldVehicles)
-            {
-                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
-            }
-            switch (kioskParameters.KioskMode)
-            {
-                case KioskMode.Vehicle:
-                    {
-                        var kioskResult = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-                        return PartialView("_Kiosk", kioskResult);
-                    }
-                case KioskMode.Plan:
-                    {
-                        var kioskResult = _vehicleLogic.GetPlans(vehiclesStored, true);
-                        return PartialView("_KioskPlan", kioskResult);
-                    }
-                case KioskMode.Reminder:
-                    {
-                        var kioskResult = _vehicleLogic.GetReminders(vehiclesStored, false);
-                        return PartialView("_KioskReminder", kioskResult);
-                    }
-            }
-            var result = _vehicleLogic.GetVehicleInfo(vehiclesStored);
-            return PartialView("_Kiosk", result);
         }
         public IActionResult Garage()
         {
@@ -198,7 +150,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var sponsorsData = await httpClient.GetFromJsonAsync<Sponsors>(StaticHelper.SponsorsPath) ?? new Sponsors();
                 return PartialView("_Sponsors", sponsorsData);
             }
@@ -284,15 +236,82 @@ namespace CarCareTracker.Controllers
         [HttpGet]
         public IActionResult GetUserAccountInformationModal()
         {
-            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
-            var userName = User.Identity.Name;
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            var userName = User?.Identity?.Name ?? string.Empty;
             return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
+        }
+        [HttpGet]
+        public IActionResult GetHouseholdModal()
+        {
+            var households = _userLogic.GetHouseholdForParentUserId(GetUserID());
+            if (households.Any())
+            {
+                households = households.OrderBy(x => x.UserName).ToList();
+            }
+            var userhouseholds = _userLogic.GetHouseholdForChildUserId(GetUserID());
+            if (userhouseholds.Any())
+            {
+                userhouseholds = userhouseholds.OrderBy(x => x.UserName).ToList();
+            }
+            var viewModel = new UserHouseholdUserViewModel()
+            {
+                Households = households,
+                UserHouseholds = userhouseholds
+            };
+            return PartialView("_UserHouseholdModal", viewModel);
+        }
+        [HttpPost]
+        public IActionResult RemoveUserFromHousehold(int userId)
+        {
+            var result = _userLogic.DeleteUserFromHousehold(GetUserID(), userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult LeaveHousehold(int userId)
+        {
+            var result = _userLogic.DeleteUserFromHousehold(userId, GetUserID());
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult ModifyUserHouseholdPermissions(int userId, List<HouseholdPermission> permissions)
+        {
+            var result = _userLogic.UpdateUserHousehold(GetUserID(), userId, permissions);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult AddUserToHousehold(string username)
+        {
+            var result = _userLogic.AddUserToHousehold(GetUserID(), username);
+            return Json(result);
+        }
+        [HttpGet]
+        public IActionResult GetUserAPIKeys()
+        {
+            var result = _userLogic.GetAPIKeysByUserId(GetUserID());
+            return PartialView("_UserApiKeysModal", result);
+        }
+        [HttpGet]
+        public IActionResult GetCreateApiKeyModal()
+        {
+            return PartialView("_CreateApiKeyModal");
+        }
+        [HttpPost]
+        public IActionResult CreateAPIKeyForUser(string keyName, List<HouseholdPermission> permissions)
+        {
+            var result = _userLogic.CreateAPIKey(GetUserID(), keyName, permissions);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult DeleteAPIKeyForUser(int keyId)
+        {
+            var result = _userLogic.DeleteAPIKeyByKeyIdAndUserId(keyId, GetUserID());
+            return Json(OperationResponse.Conditional(result, "API Key Deleted", StaticHelper.GenericErrorMessage));
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public IActionResult GetRootAccountInformationModal()
         {
-            var userName = User.Identity.Name;
+            var userName = User?.Identity?.Name ?? string.Empty;
             return PartialView("_RootAccountModal", new UserData() { UserName = userName });
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -304,16 +323,29 @@ namespace CarCareTracker.Controllers
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
-        public IActionResult SaveTranslation(string userLanguage, Dictionary<string, string> translationData)
+        public IActionResult SaveTranslation(IFormFile file)
         {
+            var userLanguage = Path.GetFileNameWithoutExtension(file.FileName);
+            var translationData = new Dictionary<string, string>();
+            using (var sReader = new StreamReader(file.OpenReadStream()))
+            {
+                var sData = sReader.ReadToEnd();
+                translationData = JsonSerializer.Deserialize<Dictionary<string, string>>(sData) ?? new Dictionary<string, string>();
+            }
             var result = _translationHelper.SaveTranslation(userLanguage, translationData);
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
-        public IActionResult ExportTranslation(Dictionary<string, string> translationData)
+        public IActionResult ExportTranslation(IFormFile file)
         {
-            var result = _translationHelper.ExportTranslation(translationData);
+            var result = string.Empty;
+            using (var sReader = new StreamReader(file.OpenReadStream()))
+            {
+                var fileName = $"{Guid.NewGuid()}.json";
+                var sData = sReader.ReadToEnd();
+                result = _fileHelper.WriteFileToTemp(fileName, sData);
+            }
             return Json(result);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -322,7 +354,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
                 return PartialView("_Translations", translations);
             }
@@ -338,7 +370,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translationData = await httpClient.GetFromJsonAsync<Dictionary<string, string>>(StaticHelper.GetTranslationDownloadPath(continent, name)) ?? new Dictionary<string, string>();
                 if (translationData.Any())
                 {
@@ -367,7 +399,7 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var httpClient = new HttpClient();
+                var httpClient = _httpClientFactory.CreateClient();
                 var translations = await httpClient.GetFromJsonAsync<Translations>(StaticHelper.TranslationDirectoryPath) ?? new Translations();
                 int translationsDownloaded = 0;
                 foreach (string translation in translations.Asia)
@@ -516,6 +548,24 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_VehicleSelector", vehiclesStored);
         }
+        public ActionResult GetVehicleSelectorOdometer(int vehicleId)
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            if (vehicleId != default)
+            {
+                vehiclesStored.RemoveAll(x => x.Id == vehicleId);
+            }
+            var userConfig = _config.GetUserConfig(User);
+            if (userConfig.HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            return PartialView("_VehicleSelectorOdometer", vehiclesStored);
+        }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         public IActionResult GetCustomWidgetEditor()
@@ -567,6 +617,24 @@ namespace CarCareTracker.Controllers
                 DecimalSample = 123456.78M.ToString("N2", cultureInfo)
             };
             return PartialView("_LocaleSample", viewModel);
+        }
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public async Task<IActionResult> ImportOpenIDConfiguration(string configUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(configUrl))
+            {
+                try
+                {
+                    var httpClient = _httpClientFactory.CreateClient();
+                    var openIdConfig = await httpClient.GetFromJsonAsync<OpenIDProviderConfig>(configUrl);
+                    return Json(openIdConfig);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Unable to retrieve OpenID Provider Config: {ex.Message}");
+                }
+            }
+            return Json(new OpenIDProviderConfig());
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [Route("/setup")]

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -14,24 +16,28 @@ namespace CarCareTracker.Controllers
         private IDataProtector _dataProtector;
         private ILoginLogic _loginLogic;
         private IConfigHelper _config;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LoginController> _logger;
         public LoginController(
             ILogger<LoginController> logger,
             IDataProtectionProvider securityProvider,
             ILoginLogic loginLogic,
-            IConfigHelper config
+            IConfigHelper config,
+            IHttpClientFactory httpClientFactory
             )
         {
             _dataProtector = securityProvider.CreateProtector("login");
             _logger = logger;
             _loginLogic = loginLogic;
             _config = config;
+            _httpClientFactory = httpClientFactory;
         }
-        public IActionResult Index(string redirectURL = "")
+        public IActionResult Index(string redirectURL = "", string redirectURLBase64 = "")
         {
             var remoteAuthConfig = _config.GetOpenIDConfig();
             if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
             {
+                //OIDC login flow
                 var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
                 remoteAuthConfig.State = generatedState;
                 var pkceKeyPair = _loginLogic.GetPKCEChallengeCode();
@@ -44,8 +50,24 @@ namespace CarCareTracker.Controllers
                 {
                     Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
                 }
+                if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+                {
+                    Response.Cookies.Append("OIDC_REDIRECTURL", redirectURLBase64, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+                }
                 var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
                 return Redirect(remoteAuthURL);
+            }
+            //regular login flow
+            if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+            {
+                try
+                {
+                    redirectURL = Encoding.UTF8.GetString(Convert.FromBase64String(redirectURLBase64));
+                }
+                catch
+                {
+                    redirectURL = string.Empty;
+                }
             }
             return View(model: redirectURL);
         }
@@ -75,7 +97,7 @@ namespace CarCareTracker.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult GetRemoteLoginLink()
+        public IActionResult GetRemoteLoginLink(string redirectURLBase64)
         {
             var remoteAuthConfig = _config.GetOpenIDConfig();
             var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
@@ -90,18 +112,27 @@ namespace CarCareTracker.Controllers
             {
                 Response.Cookies.Append("OIDC_VERIFIER", pkceKeyPair.Key, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
             }
+            if (!string.IsNullOrWhiteSpace(redirectURLBase64))
+            {
+                Response.Cookies.Append("OIDC_REDIRECTURL", redirectURLBase64, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
+            }
             var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
         }
         public async Task<IActionResult> RemoteAuth(string code, string state = "")
         {
+            var storedRedirectURL = Request.Cookies["OIDC_REDIRECTURL"];
+            if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+            {
+                Response.Cookies.Delete("OIDC_REDIRECTURL");
+            }
             try
             {
                 if (!string.IsNullOrWhiteSpace(code))
                 {
                     //received code from OIDC provider
                     //create http client to retrieve user token from OIDC
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     var openIdConfig = _config.GetOpenIDConfig();
                     //check if validate state is enabled.
                     if (openIdConfig.ValidateState)
@@ -143,73 +174,125 @@ namespace CarCareTracker.Controllers
                     var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
                     var userJwt = decodedToken?.id_token ?? string.Empty;
                     var userAccessToken = decodedToken?.access_token ?? string.Empty;
-                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    var tokenParser = new JsonWebTokenHandler();
+                    bool passedSignatureCheck = true;
+                    string signatureValidationError = "check jwks endpoint";
+                    if (!string.IsNullOrWhiteSpace(openIdConfig.JwksURL))
                     {
-                        //validate JWT token
-                        var tokenParser = new JsonWebTokenHandler();
-                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
-                        var userEmailAddress = string.Empty;
-                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        //validate token signature if jwks endpoint is provided
+                        var jwksData = await httpClient.GetStringAsync(openIdConfig.JwksURL);
+                        if (!string.IsNullOrWhiteSpace(jwksData))
                         {
-                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                            var signingKeys = new JsonWebKeySet(jwksData).GetSigningKeys();
+                            var tokenValidationParams = new TokenValidationParameters
+                            {
+                                ValidateAudience = false,
+                                ValidateIssuer = false,
+                                RequireAudience = false,
+                                IssuerSigningKeys = signingKeys,
+                                ValidateIssuerSigningKey = true
+                            };
+                            var validatedIdToken = await tokenParser.ValidateTokenAsync(userJwt, tokenValidationParams);
+                            if (!validatedIdToken.IsValid)
+                            {
+                                passedSignatureCheck = false;
+                                if (validatedIdToken.Exception != null && !string.IsNullOrWhiteSpace(validatedIdToken.Exception.Message))
+                                {
+                                    signatureValidationError = validatedIdToken.Exception.Message;
+                                }
+                            }
                         }
-                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                    }
+                    if (passedSignatureCheck)
+                    {
+                        if (!string.IsNullOrWhiteSpace(userJwt))
                         {
-                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
-                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
-                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
-                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
-                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
-                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            //validate JWT token
+                            var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
+                            var userEmailAddress = string.Empty;
+                            if (parsedToken.Claims.Any(x => x.Type == "email"))
                             {
-                                userEmailAddress = userInfo?.email ?? string.Empty;
-                            } else
+                                userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                            }
+                            else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
                             {
-                                _logger.LogError($"OpenID Provider did not provide an email claim via UserInfo endpoint");
+                                //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                                var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                                userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                                var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                                var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                                if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                                {
+                                    userEmailAddress = userInfo?.email ?? string.Empty;
+                                }
+                                else
+                                {
+                                    _logger.LogError($"OpenID Provider did not provide an email claim via UserInfo endpoint");
+                                }
+                            }
+                            else
+                            {
+                                var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                                _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
+                            }
+                            if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                            {
+                                var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                                if (userData.Id != default)
+                                {
+                                    AuthCookie authCookie = new AuthCookie
+                                    {
+                                        UserData = userData,
+                                        ExpiresOn = DateTime.Now.AddDays(1)
+                                    };
+                                    var serializedCookie = JsonSerializer.Serialize(authCookie);
+                                    var encryptedCookie = _dataProtector.Protect(serializedCookie);
+                                    Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
+                                    if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+                                    {
+                                        try
+                                        {
+                                            var decodedRedirectURL = Encoding.UTF8.GetString(Convert.FromBase64String(storedRedirectURL));
+                                            return new RedirectResult(decodedRedirectURL);
+                                        } catch
+                                        {
+                                            return new RedirectResult("/Home");
+                                        }
+                                    }
+                                    return new RedirectResult("/Home");
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
+                                    return View("OpenIDRegistration", model: userEmailAddress);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogInformation("OpenID Provider did not provide a valid email address for the user");
                             }
                         }
                         else
                         {
-                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
-                            _logger.LogError($"OpenID Provider did not provide an email claim, claims returned: {string.Join(",", returnedClaims)}");
-                        }
-                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
-                        {
-                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
-                            if (userData.Id != default)
+                            _logger.LogInformation("OpenID Provider did not provide a valid id_token");
+                            if (!string.IsNullOrWhiteSpace(tokenResult))
                             {
-                                AuthCookie authCookie = new AuthCookie
-                                {
-                                    UserData = userData,
-                                    ExpiresOn = DateTime.Now.AddDays(1)
-                                };
-                                var serializedCookie = JsonSerializer.Serialize(authCookie);
-                                var encryptedCookie = _dataProtector.Protect(serializedCookie);
-                                Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
-                                return new RedirectResult("/Home");
-                            } else
-                            {
-                                _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
-                                return View("OpenIDRegistration", model: userEmailAddress);
+                                //if something was returned from the IdP but it's invalid, we want to log it as an error.
+                                _logger.LogError($"Expected id_token, received {tokenResult}");
                             }
-                        } else
-                        {
-                            _logger.LogInformation("OpenID Provider did not provide a valid email address for the user");
                         }
-                    } else
+                    } 
+                    else
                     {
-                        _logger.LogInformation("OpenID Provider did not provide a valid id_token");
-                        if (!string.IsNullOrWhiteSpace(tokenResult))
-                        {
-                            //if something was returned from the IdP but it's invalid, we want to log it as an error.
-                            _logger.LogError($"Expected id_token, received {tokenResult}");
-                        }
+                        _logger.LogError($"OpenID Provider did not provide a valid id_token: {signatureValidationError}");
                     }
-                } else
+                }
+                else
                 {
                     _logger.LogInformation("OpenID Provider did not provide a code.");
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return new RedirectResult("/Login");
@@ -219,6 +302,12 @@ namespace CarCareTracker.Controllers
         public async Task<IActionResult> RemoteAuthDebug(string code, string state = "")
         {
             List<OperationResponse> results = new List<OperationResponse>();
+            var storedRedirectURL = Request.Cookies["OIDC_REDIRECTURL"];
+            if (!string.IsNullOrWhiteSpace(storedRedirectURL))
+            {
+                Response.Cookies.Delete("OIDC_REDIRECTURL");
+                results.Add(OperationResponse.Succeed($"Redirect URL Configured: {storedRedirectURL}"));
+            }
             try
             {
                 if (!string.IsNullOrWhiteSpace(code))
@@ -226,7 +315,7 @@ namespace CarCareTracker.Controllers
                     results.Add(OperationResponse.Succeed($"Received code from OpenID Provider: {code}"));
                     //received code from OIDC provider
                     //create http client to retrieve user token from OIDC
-                    var httpClient = new HttpClient();
+                    var httpClient = _httpClientFactory.CreateClient();
                     var openIdConfig = _config.GetOpenIDConfig();
                     //check if validate state is enabled.
                     if (openIdConfig.ValidateState)
@@ -239,7 +328,8 @@ namespace CarCareTracker.Controllers
                         if (string.IsNullOrWhiteSpace(storedStateValue) || string.IsNullOrWhiteSpace(state) || storedStateValue != state)
                         {
                             results.Add(OperationResponse.Failed($"Failed State Validation - Expected: {storedStateValue} Received: {state}"));
-                        } else
+                        }
+                        else
                         {
                             results.Add(OperationResponse.Succeed($"Passed State Validation - Expected: {storedStateValue} Received: {state}"));
                         }
@@ -270,59 +360,97 @@ namespace CarCareTracker.Controllers
                     var decodedToken = JsonSerializer.Deserialize<OpenIDResult>(tokenResult);
                     var userJwt = decodedToken?.id_token ?? string.Empty;
                     var userAccessToken = decodedToken?.access_token ?? string.Empty;
-                    if (!string.IsNullOrWhiteSpace(userJwt))
+                    var tokenParser = new JsonWebTokenHandler();
+                    bool passedSignatureCheck = true;
+                    if (!string.IsNullOrWhiteSpace(openIdConfig.JwksURL))
                     {
-                        results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
-                        //validate JWT token
-                        var tokenParser = new JsonWebTokenHandler();
-                        var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
-                        var userEmailAddress = string.Empty;
-                        if (parsedToken.Claims.Any(x => x.Type == "email"))
+                        //validate token signature if jwks endpoint is provided
+                        var jwksData = await httpClient.GetStringAsync(openIdConfig.JwksURL);
+                        if (!string.IsNullOrWhiteSpace(jwksData))
                         {
-                            userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
-                            results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
-                        }
-                        else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
-                        {
-                            //retrieve claims from userinfo endpoint if no email claims are returned within id_token
-                            var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
-                            userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
-                            var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
-                            var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
-                            if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                            var signingKeys = new JsonWebKeySet(jwksData).GetSigningKeys();
+                            var tokenValidationParams = new TokenValidationParameters
                             {
-                                userEmailAddress = userInfo?.email ?? string.Empty;
-                                results.Add(OperationResponse.Succeed($"Passed Claim Validation - Retrieved email via UserInfo endpoint"));
+                                ValidateAudience = false,
+                                ValidateIssuer = false,
+                                RequireAudience = false,
+                                IssuerSigningKeys = signingKeys,
+                                ValidateIssuerSigningKey = true
+                            };
+                            var validatedIdToken = await tokenParser.ValidateTokenAsync(userJwt, tokenValidationParams);
+                            if (!validatedIdToken.IsValid)
+                            {
+                                passedSignatureCheck = false;
+                                if (validatedIdToken.Exception != null && !string.IsNullOrWhiteSpace(validatedIdToken.Exception.Message))
+                                {
+                                    results.Add(OperationResponse.Failed($"Failed JWT Validation: {validatedIdToken.Exception.Message}"));
+                                }
                             } else
                             {
-                                results.Add(OperationResponse.Failed($"Failed Claim Validation - Unable to retrieve email via UserInfo endpoint: {openIdConfig.UserInfoURL} using access_token: {userAccessToken} - Received {userInfoResult}"));
+                                results.Add(OperationResponse.Succeed($"Passed JWT Validation - Valid To: {validatedIdToken.SecurityToken.ValidTo}"));
                             }
                         }
-                        else
+                    }
+                    if (passedSignatureCheck)
+                    {
+                        if (!string.IsNullOrWhiteSpace(userJwt))
                         {
-                            var returnedClaims = parsedToken.Claims.Select(x => x.Type);
-                            results.Add(OperationResponse.Failed($"Failed Claim Validation - Expected: email Received: {string.Join(",", returnedClaims)}"));
-                        }
-                        if (!string.IsNullOrWhiteSpace(userEmailAddress))
-                        {
-                            var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
-                            if (userData.Id != default)
+                            results.Add(OperationResponse.Succeed($"Passed JWT Parsing - id_token: {userJwt}"));
+                            //validate JWT token
+                            var parsedToken = tokenParser.ReadJsonWebToken(userJwt);
+                            var userEmailAddress = string.Empty;
+                            if (parsedToken.Claims.Any(x => x.Type == "email"))
                             {
-                                results.Add(OperationResponse.Succeed($"Passed User Validation - Email: {userEmailAddress} Username: {userData.UserName}"));
+                                userEmailAddress = parsedToken.Claims.First(x => x.Type == "email").Value;
+                                results.Add(OperationResponse.Succeed($"Passed Claim Validation - email"));
+                            }
+                            else if (!string.IsNullOrWhiteSpace(openIdConfig.UserInfoURL) && !string.IsNullOrWhiteSpace(userAccessToken))
+                            {
+                                //retrieve claims from userinfo endpoint if no email claims are returned within id_token
+                                var userInfoHttpRequest = new HttpRequestMessage(HttpMethod.Get, openIdConfig.UserInfoURL);
+                                userInfoHttpRequest.Headers.Add("Authorization", $"Bearer {userAccessToken}");
+                                var userInfoResult = await httpClient.SendAsync(userInfoHttpRequest).Result.Content.ReadAsStringAsync();
+                                var userInfo = JsonSerializer.Deserialize<OpenIDUserInfo>(userInfoResult);
+                                if (!string.IsNullOrWhiteSpace(userInfo?.email ?? string.Empty))
+                                {
+                                    userEmailAddress = userInfo?.email ?? string.Empty;
+                                    results.Add(OperationResponse.Succeed($"Passed Claim Validation - Retrieved email via UserInfo endpoint"));
+                                }
+                                else
+                                {
+                                    results.Add(OperationResponse.Failed($"Failed Claim Validation - Unable to retrieve email via UserInfo endpoint: {openIdConfig.UserInfoURL} using access_token: {userAccessToken} - Received {userInfoResult}"));
+                                }
                             }
                             else
                             {
-                                results.Add(OperationResponse.Succeed($"Passed Email Validation - Email: {userEmailAddress} User not registered"));
+                                var returnedClaims = parsedToken.Claims.Select(x => x.Type);
+                                results.Add(OperationResponse.Failed($"Failed Claim Validation - Expected: email Received: {string.Join(",", returnedClaims)}"));
+                            }
+                            if (!string.IsNullOrWhiteSpace(userEmailAddress))
+                            {
+                                var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
+                                if (userData.Id != default)
+                                {
+                                    results.Add(OperationResponse.Succeed($"Passed User Validation - Email: {userEmailAddress} Username: {userData.UserName}"));
+                                }
+                                else
+                                {
+                                    results.Add(OperationResponse.Succeed($"Passed Email Validation - Email: {userEmailAddress} User not registered"));
+                                }
+                            }
+                            else
+                            {
+                                results.Add(OperationResponse.Failed($"Failed Email Validation - No email received from OpenID Provider"));
                             }
                         }
                         else
                         {
-                            results.Add(OperationResponse.Failed($"Failed Email Validation - No email received from OpenID Provider"));
+                            results.Add(OperationResponse.Failed($"Failed to parse JWT - Expected: id_token Received: {tokenResult}"));
                         }
-                    }
+                    } 
                     else
                     {
-                        results.Add(OperationResponse.Failed($"Failed to parse JWT - Expected: id_token Received: {tokenResult}"));
+                        results.Add(OperationResponse.Failed("Failed JWT Validation: Check Signing Keys"));
                     }
                 }
                 else
@@ -363,10 +491,29 @@ namespace CarCareTracker.Controllers
                     Response.Cookies.Append(StaticHelper.LoginCookieName, encryptedCookie, new CookieOptions { Expires = new DateTimeOffset(authCookie.ExpiresOn) });
                     return Json(true);
                 }
+                else
+                {
+                    //log failed login attempts
+                    string ipAddressToLog = Request.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+                    //check for forwarded headers from reverse proxies
+                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                    {
+                        string forwardedIp = Request.Headers["X-Forwarded-For"].ToString();
+                        if (!string.IsNullOrWhiteSpace(forwardedIp))
+                        {
+                            //append forwarded ip
+                            ipAddressToLog += $", {forwardedIp}";
+                        }
+                    }
+                    if (!string.IsNullOrWhiteSpace(ipAddressToLog))
+                    {
+                        _logger.LogWarning($"Failed Login for {credentials.UserName} from {ipAddressToLog}");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error on saving config file.");
+                _logger.LogError(ex, "Login Error.");
             }
             return Json(false);
         }
