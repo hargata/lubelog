@@ -145,14 +145,26 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
+            if (supplyRecord.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), supplyRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddSupplyRecordPartialView()
@@ -163,6 +175,18 @@ namespace CarCareTracker.Controllers
         public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
+            if (result.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+                {
+                    return Redirect("/Error/Unauthorized");
+                }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             if (result.RequisitionHistory.Any())
             {
                 //requisition history when viewed through the supply is always immutable.
@@ -187,23 +211,27 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Supply/_SupplyRecordModal", convertedResult);
         }
-        private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
+        private OperationResponse DeleteSupplyRecordWithChecks(int supplyRecordId)
         {
             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
             if (existingRecord.VehicleId != default)
             {
                 //security check only if not editing shop supply.
-                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
                 {
-                    return false;
+                    return OperationResponse.Failed("Access Denied");
                 }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity?.Name ?? string.Empty));
             }
-            return result;
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)

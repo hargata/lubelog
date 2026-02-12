@@ -11,7 +11,7 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "tokenrecords";
         public PGTokenRecordDataAccess(IConfiguration config, ILogger<PGTokenRecordDataAccess> logger)
         {
-            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"] ?? string.Empty);
             _logger = logger;
             try
             {

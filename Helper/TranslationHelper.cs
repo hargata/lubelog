@@ -9,7 +9,6 @@ namespace CarCareTracker.Helper
         string Translate(string userLanguage, string text);
         Dictionary<string, string> GetTranslations(string userLanguage);
         OperationResponse SaveTranslation(string userLanguage, Dictionary<string, string> translations);
-        string ExportTranslation(Dictionary<string, string> translations);
     }
     public class TranslationHelper : ITranslationHelper
     {
@@ -165,32 +164,6 @@ namespace CarCareTracker.Helper
             {
                 _logger.LogError(ex.Message);
                 return OperationResponse.Failed();
-            }
-        }
-        public string ExportTranslation(Dictionary<string, string> translations)
-        {
-            try
-            {
-                var tempFileName = $"/temp/{Guid.NewGuid()}.json";
-                string uploadDirectory = _fileHelper.GetFullFilePath("temp/", false);
-                if (!Directory.Exists(uploadDirectory))
-                {
-                    Directory.CreateDirectory(uploadDirectory);
-                }
-                var saveFilePath = _fileHelper.GetFullFilePath(tempFileName, false);
-                //standardize translation format for export only.
-                Dictionary<string, string> sortedTranslations = new Dictionary<string, string>();
-                foreach (var translation in translations.OrderBy(x => x.Key))
-                {
-                    sortedTranslations.Add(translation.Key, translation.Value);
-                };
-                File.WriteAllText(saveFilePath, JsonSerializer.Serialize(sortedTranslations, new JsonSerializerOptions { WriteIndented = true }));
-                return tempFileName;
-            } 
-            catch(Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return string.Empty;
             }
         }
     }

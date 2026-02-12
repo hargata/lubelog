@@ -11,6 +11,7 @@
     var rx_space = /\t|\r|\uf8ff/g;
     var rx_escape = /\\([\\\|`*_{}\[\]()#+\-~])/g;
     var rx_hr = /^([*\-=_] *){3,}$/gm;
+    var rx_lb = /\s{2}\r?\n/gm;
     var rx_blockquote = /\n *&gt; *([^]*?)(?=(\n|$){2})/g;
     var rx_list = /\n( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})/g;
     var rx_listjoin = /<\/(ol|ul)>\n\n<\1>/g;
@@ -121,6 +122,9 @@
 
     // paragraph
     replace(rx_para, function(all, content) { return element('p', unesc(highlight(content))) });
+
+    // line breaks
+    replace(rx_lb, '<br />');
 
     // stash
     replace(rx_stash, function(all) { return stash[parseInt(all)] });

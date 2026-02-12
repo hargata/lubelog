@@ -90,7 +90,8 @@ function saveSetup() {
             DisableRegularLogin: $("#inputOIDCDisable").val(),
             UsePKCE: $("#inputOIDCPKCE").val(),
             LogOutURL: $("#inputOIDCLogout").val(),
-            UserInfoURL: $("#inputOIDCUserInfo").val()
+            UserInfoURL: $("#inputOIDCUserInfo").val(),
+            JwksURL: $("#inputOIDCJwks").val()
         },
         ReminderUrgencyConfig: {
             UrgentDays: $("#inputUrgentDays").val(),
@@ -186,6 +187,48 @@ function sendTestEmail() {
                     successToast(data.message);
                 } else {
                     errorToast(data.message);
+                }
+            });
+        }
+    });
+}
+function importOpenIDConfig() {
+    Swal.fire({
+        title: 'Import OpenID Config',
+        html: `
+                                        <input type="text" id="openIdImportEndpoint" class="swal2-input" placeholder=".well-known endpoint" onkeydown="handleSwalEnter(event)">
+                                        `,
+        confirmButtonText: 'Import',
+        focusConfirm: false,
+        preConfirm: () => {
+            const importEndpoint = $("#openIdImportEndpoint").val();
+            if (!importEndpoint || importEndpoint.trim() == '') {
+                Swal.showValidationMessage(`Please enter a valid URL`);
+            }
+            return { importEndpoint }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Home/ImportOpenIDConfiguration', { configUrl: result.value.importEndpoint }, function (data) {
+                if (data != null && data != undefined) {
+                    if (data.authorization_endpoint != null) {
+                        $('#inputOIDCAuth').val(data.authorization_endpoint);
+                    }
+                    if (data.token_endpoint != null) {
+                        $('#inputOIDCToken').val(data.token_endpoint);
+                    }
+                    if (data.userinfo_endpoint != null) {
+                        $('#inputOIDCUserInfo').val(data.userinfo_endpoint);
+                    }
+                    if (data.jwks_uri != null) {
+                        $('#inputOIDCJwks').val(data.jwks_uri);
+                    }
+                    if (data.end_session_endpoint != null) {
+                        $('#inputOIDCLogout').val(data.end_session_endpoint);
+                    }
+                }
+                else {
+                    errorToast(genericErrorMessage());
                 }
             });
         }

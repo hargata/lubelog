@@ -102,7 +102,7 @@ namespace CarCareTracker.Controllers
             string filePath = Path.Combine(uploadPath, fileName);
             string fileData = string.Join("\r\n", coordinates);
             System.IO.File.WriteAllText(filePath, fileData);
-            var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName) };
+            var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName), IsPending = true };
             return Json(uploadedFile);
         }
         public IActionResult PreviewFile(string fileName, string fileLocation)

@@ -12,6 +12,12 @@ namespace CarCareTracker.External.Implementations
         {
            _liteDB = liteDB;
         }
+        public List<RecordExtraField> GetExtraFields()
+        {
+            var db = _liteDB.GetLiteDB();
+            var table = db.GetCollection<RecordExtraField>(tableName);
+            return table.FindAll().ToList();
+        }
         public RecordExtraField GetExtraFieldsById(int importMode)
         {
             var db = _liteDB.GetLiteDB();

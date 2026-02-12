@@ -61,7 +61,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="d-flex align-items-center">
-                        <span class="lead">@translator.Translate(userLanguage, "Tokens")</span>
+                        <h5 class="modal-title">@translator.Translate(userLanguage, "Tokens")</h5>
                     </div>
                     <div class="d-flex align-items-center ms-auto">
                         <div class="btn-group">
@@ -92,6 +92,12 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" data-bs-focus="false" id="householdModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" id="householdModalContent">
             </div>
         </div>
     </div>
@@ -140,13 +146,8 @@
         });
     }
     function deleteUser(userId) {
-        Swal.fire({
-            title: "Confirm Deletion?",
-            text: "Deleted Users cannot be restored.",
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-            confirmButtonColor: "#dc3545"
-        }).then((result) => {
+        event.stopPropagation();
+        confirmDelete("Deleted Users cannot be restored.",(result) => {
             if (result.isConfirmed) {
                 $.post(`/Admin/DeleteUser?userId=${userId}`, function (data) {
                     if (data) {
@@ -185,5 +186,73 @@
                 });
             }
         });
+    }
+    function loadUserHousehold(userId){
+        $.get(`/Admin/GetUserHouseholdModal?userId=${userId}`, function(data){
+            $('#householdModalContent').html(data);
+            $('#householdModal').modal('show');
+        })
+    }
+    function hideHouseholdModal(){
+        $('#householdModal').modal('hide');
+    }
+    function adminRemoveUserFromHousehold(parentUserId, childUserId){
+        $.post('/Admin/RemoveUserFromHousehold', {parentUserId: parentUserId, childUserId: childUserId}, function(data){
+            if (data) {
+            successToast('User Removed');
+            loadUserHousehold(parentUserId);
+        } else {
+            errorToast(genericErrorMessage())
+        }
+        });
+    }
+    function adminUpdateUserHousehold(parentUserId, childUserId, e){
+        let selectedRole = $(e).val();
+        let permissions = [];
+        switch (selectedRole){
+            case 'editor':
+            permissions.push('Edit');
+            break;
+            case 'manager':
+            permissions.push('Edit');
+            permissions.push('Delete');
+            break;
+        }
+        $.post('/Admin/ModifyUserHouseholdPermissions', {parentUserId: parentUserId, childUserId: childUserId, permissions: permissions}, function(data){
+            if (data) {
+            successToast('Household Updated');
+            loadUserHousehold(parentUserId);
+        } else {
+            errorToast(genericErrorMessage())
+        }
+        })
+    }
+    function adminAddUserToHousehold(parentUserId){
+         Swal.fire({
+        title: 'Add User',
+        html: `
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username" onkeydown="handleSwalEnter(event)">
+                            `,
+        confirmButtonText: 'Add',
+        focusConfirm: false,
+        preConfirm: () => {
+            const userName = $("#inputUserName").val();
+            if (!userName) {
+                Swal.showValidationMessage(`Please enter a username`);
+            }
+            return { userName }
+        },
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            $.post('/Admin/AddUserToHousehold', { parentUserId: parentUserId, username: result.value.userName }, function (data) {
+                if (data.success) {
+                    loadUserHousehold(parentUserId);
+                    successToast('User Added');
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+    });
     }
 </script>

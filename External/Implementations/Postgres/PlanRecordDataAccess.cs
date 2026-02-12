@@ -12,7 +12,7 @@ namespace CarCareTracker.External.Implementations
         private static string tableName = "planrecords";
         public PGPlanRecordDataAccess(IConfiguration config, ILogger<PGPlanRecordDataAccess> logger)
         {
-            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"]);
+            pgDataSource = NpgsqlDataSource.Create(config["POSTGRES_CONNECTION"] ?? string.Empty);
             _logger = logger;
             try
             {

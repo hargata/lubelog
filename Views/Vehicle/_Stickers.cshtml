@@ -168,10 +168,105 @@
                 </div>
                 <hr />
             }
-            <div class="row flex-grow-1 flex-shrink-1">
+            <div class="row stickerNoteContainer">
                 <div class="col-12">
                     <div class="stickerNote ms-1 me-1 p-1">
                         @(genericRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
+} else if (Model.EquipmentRecords.Any())
+{
+    @foreach (EquipmentRecordStickerViewModel equipmentRecord in Model.EquipmentRecords)
+    {
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        @if (!string.IsNullOrWhiteSpace(equipmentRecord.Description))
+                        {
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {equipmentRecord.Description}")
+                            </li>
+                        }
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Distance")}: {equipmentRecord.Distance}")
+                        </li>
+                        @if (equipmentRecord.IsEquipped)
+                        {
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Equipped")}:")<i class="bi ms-2 bi-check-lg"></i>
+                            </li>
+                        }
+                        @foreach (ExtraField extraField in equipmentRecord.ExtraFields)
+                        {
+                            <li class="list-group-item">
+                                @($"{extraField.Name}: {extraField.Value}")
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            @if (equipmentRecord.OdometerRecords.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-hover">
+                            <thead class="sticky-top">
+                                <tr class="d-flex">
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Date")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Initial Odometer")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Odometer")</th>
+                                    <th scope="col" class="col-3">@translator.Translate(userLanguage, "Distance")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (OdometerRecord odometerHistory in equipmentRecord.OdometerRecords)
+                                {
+                                    <tr class="d-flex">
+                                        <td class="col-3">@StaticHelper.TruncateStrings(odometerHistory.Date.ToShortDateString())</td>
+                                        <td class="col-3">@odometerHistory.InitialMileage</td>
+                                        <td class="col-3">@odometerHistory.Mileage</td>
+                                        <td class="col-3">@(odometerHistory.DistanceTraveled == default ? "---" : odometerHistory.DistanceTraveled)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+            }
+            <div class="row stickerNoteContainer">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(equipmentRecord.Notes)
                     </div>
                 </div>
             </div>
@@ -264,11 +359,123 @@
                 }
             </div>
             <hr />
-            <div class="row flex-grow-1 flex-shrink-1">
+            <div class="row stickerNoteContainer">
                 <div class="col-12">
                     <div class="stickerNote ms-1 me-1 p-1">
                         @(supplyRecord.Notes)
                     </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
+} else if (Model.InspectionRecords.Any())
+{
+    @foreach (InspectionRecord inspectionRecord in Model.InspectionRecords)
+    {
+        var resultFields = inspectionRecord.Results.Where(x => x.FieldType == InspectionFieldType.Check || x.FieldType == InspectionFieldType.Radio);
+        var textFields = inspectionRecord.Results.Where(x => x.FieldType == InspectionFieldType.Text);
+        <div style="page-break-after: always;">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Description")}: {inspectionRecord.Description}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Result")}: {translator.Translate(userLanguage, inspectionRecord.Failed ? "Fail" : "Pass")}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Date")}: {inspectionRecord.Date.ToShortDateString()}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Odometer")}: {inspectionRecord.Mileage}")
+                        </li>
+                        <li class="list-group-item">
+                            @($"{translator.Translate(userLanguage, "Cost")}: {inspectionRecord.Cost.ToString("C")}")
+                        </li>
+                        @foreach (InspectionRecordResult textResult in textFields)
+                        {
+                            <li class="list-group-item">
+                                @($"{textResult.Description}: {textResult.Values?.FirstOrDefault(x => x.IsSelected)?.Description}")
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-12">
+                @if (resultFields.Any())
+                {
+                    <table class="table table-hover">
+                        <thead class="sticky-top">
+                            <tr class="d-flex">
+                                <th scope="col" class="col-9 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Description")</th>
+                                <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Result")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (InspectionRecordResult fieldResult in resultFields)
+                            {
+                                <tr class="d-flex user-select-none">
+                                    <td class="col-9 flex-grow-1 flex-shrink-1 text-truncate">
+                                        @fieldResult.Description
+                                        <div class="d-flex flex-wrap">
+                                            @foreach (InspectionRecordResultValue fieldValue in fieldResult.Values)
+                                            {
+                                                if (fieldResult.FieldType == InspectionFieldType.Radio)
+                                                {
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && fieldValue.IsSelected ? "inspection-value-fail text-danger" : "") @(fieldValue.IsSelected ? "inspection-value-selected" : "")">@fieldValue.Description</span>
+                                                }
+                                                else if (fieldResult.FieldType == InspectionFieldType.Check)
+                                                {
+                                                        <span class="inspection-value me-2 @(fieldValue.IsFail && !fieldValue.IsSelected ? "text-danger" : "")"><i class="bi @(fieldValue.IsSelected ? "bi-check-lg" : "bi-x-lg") me-2"></i>@fieldValue.Description</span>
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate">
+                                        @(fieldResult.Failed? translator.Translate(userLanguage, "Fail") : translator.Translate(userLanguage, "Pass"))
+                                    </td>
+                                </tr>
+                                @if (!string.IsNullOrWhiteSpace(fieldResult.Notes))
+                                {
+                                    <tr class="d-flex user-select-none">
+                                        <td class="col-12 flex-grow-1 flex-shrink-1 flex-wrap">
+                                            <div class="stickerNote ms-1 me-1 p-1">
+                                                @(fieldResult.Notes)
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
                 </div>
             </div>
         </div>
