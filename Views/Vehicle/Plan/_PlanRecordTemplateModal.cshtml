@@ -26,7 +26,7 @@
                     <tbody>
                         @foreach (PlanRecordInput planRecordTemplate in Model)
                         {
-                            <tr class="d-flex">
+                            <tr class="d-flex" id="supplyRows">
                                 <td class="col-8 text-truncate">
                                     @StaticHelper.TruncateStrings(planRecordTemplate.Description)
                                     @if(planRecordTemplate.ReminderRecordId != default)

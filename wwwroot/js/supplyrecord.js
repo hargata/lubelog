@@ -43,17 +43,22 @@ function hideAddSupplyRecordModal() {
 }
 function deleteSupplyRecord(supplyRecordId) {
     $("#workAroundInput").show();
-    confirmDelete("Deleted Supply Records cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Supply Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteSupplyRecordById?supplyRecordId=${supplyRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddSupplyRecordModal();
                     successToast("Supply Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleSupplyRecords(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -71,7 +76,7 @@ function saveSupplyRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveSupplyRecordToVehicleId', { supplyRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Supply Record Updated" : "Supply Record Added.");
             hideAddSupplyRecordModal();
             saveScrollPosition();
@@ -80,7 +85,7 @@ function saveSupplyRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }

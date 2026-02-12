@@ -7,9 +7,9 @@
         public List<int> ReminderRecordId { get; set; } = new List<int>();
         public string Date { get; set; } = DateTime.Now.ToShortDateString();
         public int Mileage { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
         public decimal Cost { get; set; }
-        public string Notes { get; set; } = string.Empty;
+        public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
         public List<string> Tags { get; set; } = new List<string>();

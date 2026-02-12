@@ -2,7 +2,7 @@
 {
     public class SupplyRequisitionHistory
     {
-        public string CostInputId { get; set; } = string.Empty;
+        public string CostInputId { get; set; }
         public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
     }
 }

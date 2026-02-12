@@ -85,17 +85,22 @@ function deleteReminderRecord(reminderRecordId, e) {
         event.stopPropagation();
     }
     $("#workAroundInput").show();
-    confirmDelete("Deleted Reminders cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Reminders cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddReminderRecordModal();
                     successToast("Reminder Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleReminders(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -121,17 +126,13 @@ function saveReminderRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveReminderRecordToVehicleId', { reminderRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Reminder Updated" : "Reminder Added.");
             hideAddReminderRecordModal();
-            if (!getReminderRecordModelData().createdFromRecord) {
-                saveScrollPosition();
-                getVehicleReminders(formValues.vehicleId);
-            } else {
-                getVehicleHaveImportantReminders(formValues.vehicleId);
-            }
+            saveScrollPosition();
+            getVehicleReminders(formValues.vehicleId);
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -150,7 +151,6 @@ function appendMileageToOdometer(increment) {
 function enableRecurring() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     if (reminderIsRecurring) {
-        $("#reminderFixedIntervals").attr('disabled', false);
         //check selected metric
         var reminderMetric = $('#reminderOptions input:radio:checked').val();
         if (reminderMetric == "Date") {
@@ -168,7 +168,6 @@ function enableRecurring() {
     } else {
         $("#reminderRecurringMileage").attr('disabled', true);
         $("#reminderRecurringMonth").attr('disabled', true);
-        $("#reminderFixedIntervals").attr('disabled', true);
     }
 }
 
@@ -176,11 +175,11 @@ function markDoneReminderRecord(reminderRecordId, e) {
     event.stopPropagation();
     var vehicleId = GetVehicleId().vehicleId;
     $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
-        if (data.success) {
+        if (data) {
             successToast("Reminder Updated");
             getVehicleReminders(vehicleId);
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     });
 }
@@ -202,7 +201,6 @@ function getAndValidateReminderRecordValues() {
     var reminderVeryUrgentDays = $("#reminderVeryUrgentDays").val();
     var reminderUrgentDistance = $("#reminderUrgentDistance").val();
     var reminderVeryUrgentDistance = $("#reminderVeryUrgentDistance").val();
-    var reminderFixedIntervals = $("#reminderFixedIntervals").is(":checked");
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
@@ -273,7 +271,6 @@ function getAndValidateReminderRecordValues() {
         notes: reminderNotes,
         metric: reminderOption,
         isRecurring: reminderIsRecurring,
-        fixedIntervals: reminderFixedIntervals,
         useCustomThresholds: reminderUseCustomThresholds,
         customThresholds: {
             urgentDays: reminderUrgentDays,

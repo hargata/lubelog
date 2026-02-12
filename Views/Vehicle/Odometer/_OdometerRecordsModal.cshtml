@@ -31,16 +31,6 @@
                 <div class="col-md-6 col-12">
                     <label for="odometerRecordNotes">@translator.Translate(userLanguage, "Notes(use --- to clear all existing notes)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
                     <textarea id="odometerRecordNotes" class="form-control" rows="5"></textarea>
-                    <div class="@(Model.EquipmentRecords.Any() ? "" : "d-none")">
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox" role="switch" id="equipmentEditCheck" onchange="toggleEquipmentEdit()">
-                            <label class="form-check-label" for="equipmentEditCheck">@translator.Translate(userLanguage, "Edit Equipment")</label>
-                        </div>
-                    </div>
-                    <div id="equipmentEditContainer" class="d-none">
-                        <label for="equipmentSelector">@translator.Translate(userLanguage, "Equipment")</label>
-                        @await Html.PartialAsync("Equipment/_EquipmentSelector", Model.EquipmentRecords)
-                    </div>
                 </div>
             </div>
         </div>

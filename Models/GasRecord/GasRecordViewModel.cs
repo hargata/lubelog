@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int MonthId { get; set; }
-        public string Date { get; set; } = string.Empty;
+        public string Date { get; set; }
         /// <summary>
         /// American moment
         /// </summary>
@@ -20,7 +20,7 @@
         public decimal CostPerGallon { get; set; }
         public bool IsFillToFull { get; set; }
         public bool MissedFuelUp { get; set; }
-        public string Notes { get; set; } = string.Empty;
+        public string Notes { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();

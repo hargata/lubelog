@@ -43,17 +43,22 @@ function hideAddGasRecordModal() {
 }
 function deleteGasRecord(gasRecordId) {
     $("#workAroundInput").show();
-    confirmDelete("Deleted Gas Records cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Gas Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteGasRecordById?gasRecordId=${gasRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddGasRecordModal();
                     successToast("Gas Record deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleGasRecords(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -71,13 +76,13 @@ function saveGasRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveGasRecordToVehicleId', { gasRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Gas Record Updated" : "Gas Record Added.");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -148,15 +153,11 @@ function getAndValidateGasRecordValues() {
         gallons: gasGallons,
         cost: gasCost,
         files: uploadedFiles,
-        supplies: selectedSupplies,
         tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
         notes: gasNotes,
-        extraFields: extraFields.extraFields,
-        requisitionHistory: supplyUsageHistory,
-        deletedRequisitionHistory: deletedSupplyUsageHistory,
-        copySuppliesAttachment: copySuppliesAttachments
+        extraFields: extraFields.extraFields
     }
 }
 
@@ -485,13 +486,13 @@ function saveMultipleGasRecordsToVehicle() {
         }
     }
     $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast("Gas Records Updated");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(GetVehicleId().vehicleId);
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }

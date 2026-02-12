@@ -29,29 +29,6 @@ namespace CarCareTracker.External.Implementations
                 _logger.LogError(ex.Message);
             }
         }
-        public List<RecordExtraField> GetExtraFields()
-        {
-            try
-            {
-                string cmd = $"SELECT data FROM app.{tableName}";
-                var results = new List<RecordExtraField>();
-                using (var ctext = pgDataSource.CreateCommand(cmd))
-                {
-                    using (NpgsqlDataReader reader = ctext.ExecuteReader())
-                        while (reader.Read())
-                        {
-                            RecordExtraField result = JsonSerializer.Deserialize<RecordExtraField>(reader["data"] as string);
-                            results.Add(result);
-                        }
-                }
-                return results;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return new List<RecordExtraField>();
-            }
-        }
         public RecordExtraField GetExtraFieldsById(int importMode)
         {
             try

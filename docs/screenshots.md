@@ -1,11 +1,11 @@
 ## Garage
-<img width="1429" height="750" alt="image" src="https://github.com/user-attachments/assets/70e6bab7-0ede-42e1-9bdb-945087b97fbc" />
+![garage](https://github.com/user-attachments/assets/c8b61cc2-2daf-4f47-b32f-119a493b1f31)
 
 ## Planner(Kanban Board)
-<img width="1438" height="834" alt="image" src="https://github.com/user-attachments/assets/8c1e5279-b79b-4338-960a-a93e112554f2" />
+![planner](https://github.com/user-attachments/assets/5f81076a-aa51-43bc-926c-ee31446c6108)
 
 ## Dashboard
-<img width="1355" height="896" alt="image" src="https://github.com/user-attachments/assets/8bd43b28-68a7-4ef4-b737-3a6c355cbf27" />
+![dashboard](https://github.com/user-attachments/assets/701fbb02-1cf9-4bf4-b349-ea5cdf49e7f9)
 
 ## Track Service Records / Repairs / Upgrades
 ![servicerecord](https://github.com/user-attachments/assets/4f429f13-7b46-4cac-9ce5-b4455de527ee)

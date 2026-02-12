@@ -51,17 +51,22 @@ function hideAddTaxRecordModal() {
 }
 function deleteTaxRecord(taxRecordId) {
     $("#workAroundInput").show();
-    confirmDelete("Deleted Tax Records cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Tax Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteTaxRecordById?taxRecordId=${taxRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddTaxRecordModal();
                     successToast("Tax Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleTaxRecords(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -79,7 +84,7 @@ function saveTaxRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
             saveScrollPosition();
@@ -88,7 +93,7 @@ function saveTaxRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }

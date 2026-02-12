@@ -41,24 +41,6 @@
                     <li class="nav-item dropdown nav-item-persist nav-item-more me-5" role="presentation" style="display:none;">
                         <a class="nav-link resizable-nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-three-dots"></i></a>
                         <ul class="dropdown-menu">
-                            <li class="nav-item text-truncate" role="presentation">
-                                <button class="nav-link resizable-nav-link" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><i class="bi bi-car-front"></i><span class="ms-2">@translator.Translate(userLanguage, "Garage")</span></button>
-                            </li>
-                            @if (config.GetServerEnableShopSupplies())
-                            {
-                                <li class="nav-item text-truncate" role="presentation">
-                                    <button class="nav-link resizable-nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shop"></i><span class="ms-2">@translator.Translate(userLanguage, "Supplies")</span></button>
-                                </li>
-                            }
-                            @if (userConfig.ShowCalendar)
-                            {
-                                <li class="nav-item text-truncate" role="presentation">
-                                    <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2">@translator.Translate(userLanguage, "Calendar")</span></button>
-                                </li>
-                            }
-                            <li class="nav-item text-truncate" role="presentation">
-                                <button class="nav-link resizable-nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
-                            </li>
                         </ul>
                     </li>
                     <li class="nav-item ms-auto" role="presentation">
@@ -86,11 +68,7 @@
                                     <li>
                                         <button class="dropdown-item" onclick="showAccountInformationModal()"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</button>
                                     </li>
-                                    <li>
-                                        <button class="dropdown-item" onclick="showHouseholdModal()"><i class="bi bi-house me-2"></i>@translator.Translate(userLanguage, "Household")</button>
-                                    </li>
                                 }
-                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <button class="dropdown-item" onclick="performLogOut()"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage, "Logout")</button>
                                 </li>
@@ -108,48 +86,44 @@
 }
 <div class="lubelogger-mobile-nav" onclick="hideMobileNav()">
     <ul class="navbar-nav" id="homeTab" role="tablist">
-        <li class="nav-item d-flex" role="presentation">
-            <button class="nav-link flex-grow-1 text-start" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage, "Garage")</span></button>
-            <button class="nav-link" onclick="hideMobileNav()"><span class="display-3 me-2"><i class="bi bi-x-lg"></i></span></button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="garage-tab" data-bs-toggle="tab" data-bs-target="#garage-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage,"Garage")</span></button>
         </li>
         @if(config.GetServerEnableShopSupplies())
         {
-            <li class="nav-item d-flex" role="presentation">
-                <button class="nav-link flex-grow-1 text-start" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</span></button>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="supply-tab" data-bs-toggle="tab" data-bs-target="#supply-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-shop me-2"></i>@translator.Translate(userLanguage, "Supplies")</span></button>
             </li>
         }
         @if(userConfig.ShowCalendar){
-            <li class="nav-item d-flex" role="presentation">
-                <button class="nav-link flex-grow-1 text-start" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</span></button>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-calendar-week me-2"></i>@translator.Translate(userLanguage, "Calendar")</span></button>
             </li>
         }
-        <li class="nav-item d-flex" role="presentation">
-            <button class="nav-link flex-grow-1 text-start" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage, "Settings")</span></button>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage,"Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
         {
             @if (User.IsInRole(nameof(UserData.IsAdmin)))
             {
-                <li class="nav-item d-flex" role="presentation">
-                    <button class="nav-link flex-grow-1 text-start" onclick="goToAdminPanel()"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage, "Admin Panel")</span></button>
+                <li class="nav-item" role="presentation">
+                    <a class="dropdown-item" href="/Admin"><span class="display-3 ms-2"><i class="bi bi-people me-2"></i>@translator.Translate(userLanguage,"Admin Panel")</span></a>
                 </li>
             }
             @if (User.IsInRole(nameof(UserData.IsRootUser)))
             {
-                <li class="nav-item d-flex" role="presentation">
-                    <button class="nav-link flex-grow-1 text-start" onclick="showRootAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
+                <li>
+                    <button class="nav-link" onclick="showRootAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
                 </li>
             } else
             {
-                <li class="nav-item d-flex" role="presentation">
-                    <button class="nav-link flex-grow-1 text-start" onclick="showAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
-                </li>
-                <li class="nav-item d-flex" role="presentation">
-                    <button class="nav-link flex-grow-1 text-start" onclick="showHouseholdModal()"><span class="display-3 ms-2"><i class="bi bi-house me-2"></i>@translator.Translate(userLanguage, "Household")</span></button>
+                <li>
+                    <button class="nav-link" onclick="showAccountInformationModal()"><span class="display-3 ms-2"><i class="bi bi-person-gear me-2"></i>@translator.Translate(userLanguage, "Profile")</span></button>
                 </li>
             }
-            <li class="nav-item d-flex" role="presentation">
-                <button class="nav-link flex-grow-1 text-start" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage, "Logout")</span></button>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="performLogOut()"><span class="display-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage,"Logout")</span></button>
             </li>
         }
     </ul>
@@ -185,12 +159,6 @@
         </div>
     </div>
 </div>
-<div class="modal fade" data-bs-focus="false" id="householdModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="householdModalContent">
-        </div>
-    </div>
-</div>
 <div class="modal fade" data-bs-focus="false" id="attachmentPreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content frosted" id="attachmentPreviewModalContent">
@@ -203,21 +171,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" data-bs-focus="false" id="createApiKeyModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="createApiKeyModalContent">
-        </div>
-    </div>
-</div>
-<div class="modal fade" data-bs-focus="false" id="userApiKeyModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="userApiKeyModalContent">
-        </div>
-    </div>
-</div>
 <div class="stickerPrintContainer hideOnPrint">
 </div>
 <script>
     bindWindowResize();
-    bindNavBarResize();
+    checkNavBarOverflow();
 </script>

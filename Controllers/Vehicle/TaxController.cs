@@ -42,9 +42,9 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveTaxRecordToVehicleId(TaxRecordInput taxRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId, HouseholdPermission.Edit))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), taxRecord.VehicleId))
             {
-                return Json(OperationResponse.Failed("Access Denied"));
+                return Json(false);
             }
             //move files from temp.
             taxRecord.Files = taxRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -60,9 +60,9 @@ namespace CarCareTracker.Controllers
             _vehicleLogic.UpdateRecurringTaxes(taxRecord.VehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity?.Name ?? string.Empty));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(taxRecord.ToTaxRecord(), taxRecord.Id == default ? "taxrecord.add" : "taxrecord.update", User.Identity.Name));
             }
-            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
+            return Json(result);
         }
         [HttpGet]
         public IActionResult GetAddTaxRecordPartialView()
@@ -74,7 +74,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -97,20 +97,20 @@ namespace CarCareTracker.Controllers
             };
             return PartialView("Tax/_TaxRecordModal", convertedResult);
         }
-        private OperationResponse DeleteTaxRecordWithChecks(int taxRecordId)
+        private bool DeleteTaxRecordWithChecks(int taxRecordId)
         {
             var existingRecord = _taxRecordDataAccess.GetTaxRecordById(taxRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
             {
-                return OperationResponse.Failed("Access Denied");
+                return false;
             }
             var result = _taxRecordDataAccess.DeleteTaxRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity?.Name ?? string.Empty));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromTaxRecord(existingRecord, "taxrecord.delete", User.Identity.Name));
             }
-            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
+            return result;
         }
         [HttpPost]
         public IActionResult DeleteTaxRecordById(int taxRecordId)
