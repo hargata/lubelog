@@ -39,17 +39,20 @@
         var caller = GetCaller().tab;
         switch (caller) {
             case "ServiceRecord":
-                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#serviceRecordCost'))
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#serviceRecordCost'));
                 break;
             case "RepairRecord":
-                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#collisionRecordCost'))
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#collisionRecordCost'));
                 break;
             case "UpgradeRecord":
-                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#upgradeRecordCost'))
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#upgradeRecordCost'));
                 break;
             case "PlanRecord":
             case "PlanRecordTemplate":
-                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#planRecordCost'))
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#planRecordCost'));
+                break;
+            case "GasRecord":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#gasRecordCost'));
                 break;
         }
         selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
@@ -72,6 +75,9 @@
             case "PlanRecordTemplate":
                 $('#planRecordModal').modal('hide');
                 break;
+            case "GasRecord":
+                $('#gasRecordModal').modal('hide');
+                break;
         }
     }
     function showParentModal() {
@@ -89,6 +95,9 @@
             case "PlanRecord":
             case "PlanRecordTemplate":
                 $('#planRecordModal').modal('show');
+                break;
+            case "GasRecord":
+                $('#gasRecordModal').modal('show');
                 break;
         }
     }

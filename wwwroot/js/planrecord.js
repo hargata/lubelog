@@ -79,16 +79,10 @@ function hideAddPlanRecordModal() {
 }
 function deletePlanRecord(planRecordId, noModal) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Plan Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Plan Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordById?planRecordId=${planRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     if (!noModal) {
                         hideAddPlanRecordModal();
                     }
@@ -96,7 +90,8 @@ function deletePlanRecord(planRecordId, noModal) {
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -114,7 +109,7 @@ function savePlanRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SavePlanRecordToVehicleId', { planRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Plan Record Updated" : "Plan Record Added.");
             hideAddPlanRecordModal();
             if (!getPlanRecordModelData().createdFromReminder) {
@@ -125,7 +120,7 @@ function savePlanRecordToVehicle(isEdit) {
                 }
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -160,21 +155,16 @@ function usePlannerRecordTemplate(planRecordTemplateId) {
 
 function deletePlannerRecordTemplate(planRecordTemplateId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Plan Templates cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Plan Templates cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeletePlanRecordTemplateById?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
                 $("#workAroundInput").hide();
-                if (data) {
+                if (data.success) {
                     successToast("Plan Template Deleted");
                     hideAddPlanRecordModal();
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -267,20 +257,25 @@ function dragStart(event, planRecordId) {
     draggedId = planRecordId;
     event.dataTransfer.setData('text/plain', draggedId);
 }
-function dragOver(event) {
+function dragOver(event, sender) {
     event.preventDefault();
     if (planTouchTimer) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
+    $(sender).addClass('dragover');
+}
+function planDragLeave(sender) {
+    $(sender).removeClass('dragover');
 }
 function dropBox(event, newProgress) {
-    var targetSwimLane = $(event.target).hasClass("swimlane") ? event.target : $(event.target).parents(".swimlane")[0];
-    var draggedSwimLane = $(dragged).parents(".swimlane")[0];
-    if (targetSwimLane != draggedSwimLane) {
+    var targetSwimLane = $(event.target).hasClass("swimlane-dropzone") ? event.target : $(event.target).parents(".swimlane-dropzone")[0];
+    var draggedSwimLane = $(dragged).parents(".swimlane-dropzone")[0];
+    if ($(targetSwimLane).attr('data-column') != $(draggedSwimLane).attr('data-column')) {
         updatePlanRecordProgress(newProgress);
     }
     event.preventDefault();
+    $(targetSwimLane).removeClass('dragover');
 }
 function updatePlanRecordProgress(newProgress) {
     if (draggedId > 0) {
@@ -304,17 +299,22 @@ function updatePlanRecordProgress(newProgress) {
                     }
                     return { odometer }
                 },
+                didOpen: () => {
+                    if (getPlanUserConfig().autoFillOdometer) {
+                        setLastOdometer('inputOdometer');
+                    }
+                }
             }).then(function (result) {
                 if (result.isConfirmed) {
                     //Odometer Adjustments
                     var adjustedOdometer = GetAdjustedOdometer(0, result.value.odometer);
                     $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress, odometer: adjustedOdometer }, function (data) {
-                        if (data) {
+                        if (data.success) {
                             successToast("Plan Progress Updated");
                             var vehicleId = GetVehicleId().vehicleId;
                             getVehiclePlanRecords(vehicleId);
                         } else {
-                            errorToast(genericErrorMessage());
+                            errorToast(data.message);
                         }
                     });
                 }
@@ -322,12 +322,12 @@ function updatePlanRecordProgress(newProgress) {
             });
         } else {
             $.post('/Vehicle/UpdatePlanRecordProgress', { planRecordId: draggedId, planProgress: newProgress }, function (data) {
-                if (data) {
+                if (data.success) {
                     successToast("Plan Progress Updated");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehiclePlanRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
                 }
             });
             draggedId = 0;
@@ -457,4 +457,54 @@ function detectPlanItemTouchEndPremature(sender) {
         clearTimeout(planTouchTimer);
         planTouchTimer = null;
     }
+}
+function hideOtherSwimLanes(sender) {
+    $('.swimlane-mobile-nav .btn[data-column]').removeClass('btn-primary');
+    $('.swimlane-mobile-nav .btn[data-column]').addClass('btn-outline-secondary');
+    let senderColumn = $(sender).attr('data-column');
+    $(sender).removeClass('btn-outline-secondary');
+    $(sender).addClass('btn-primary');
+    //hide other columns
+    $(`.swimlane:not([data-column='${senderColumn}'])`).addClass('d-none');
+    $(`.swimlane[data-column='${senderColumn}']`).removeClass('d-none');
+    //set in session
+    sessionStorage.setItem(`${GetVehicleId().vehicleId}_selectedPlanTab`, senderColumn);
+}
+function showAllSwimLanes(sender) {
+    $(`.swimlane`).removeClass('d-none');
+}
+function showFirstVisibleSwimLane() {
+    //check for stored values
+    let storedTab = sessionStorage.getItem(`${GetVehicleId().vehicleId}_selectedPlanTab`);
+    if (storedTab != null && storedTab != undefined) {
+        let storedTabButton = $(`.swimlane-mobile-nav .btn[data-column='${storedTab}']:visible`);
+        if (storedTabButton.length > 0) {
+            storedTabButton.trigger('click');
+            return;
+        }
+    }
+    let visibleButtons = $('.swimlane-mobile-nav .btn[data-column]:visible');
+    let btnOrders = visibleButtons.map((index, elem) => $(elem).css('order'));
+    if (btnOrders.toArray().every((val, i, arr) => val == arr[0])) {
+        $('.swimlane-mobile-nav .btn[data-column]:visible').first().trigger('click');
+    }
+    else {
+        let minOrder = Math.min(...btnOrders);
+        $('.swimlane-mobile-nav .btn[data-column]:visible').filter((index, elem) => $(elem).css('order') == minOrder).trigger('click');
+    }
+}
+function bindScreenSize() {
+    if (mobileScreen.matches) {
+        showFirstVisibleSwimLane();
+    }
+    mobileScreen.addEventListener('change', () => {
+        if (mobileScreen.matches) {
+            showFirstVisibleSwimLane();
+        } else {
+            showAllSwimLanes();
+        }
+    })
+    $('[data-column-toggle]').on('change', () => {
+        showFirstVisibleSwimLane();
+    })
 }

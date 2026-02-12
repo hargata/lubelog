@@ -90,6 +90,7 @@
                     {
                         <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
                     }
+                    @await Html.PartialAsync("Supply/_SupplyStore", new SupplyStore { Tab = "GasRecord", AdditionalSupplies = Model.GasRecord.RequisitionHistory.Any() })
                     <label for="gasRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="gasRecordTag">
                         @foreach (string tag in Model.GasRecord.Tags)
@@ -115,6 +116,10 @@
 <div class="modal-footer">
     @if (!isNew)
     {
+        @if (Model.GasRecord.RequisitionHistory.Any())
+        {
+            <button type="button" class="btn btn-warning" onclick="toggleSupplyUsageHistory()"><i class="bi bi-shop"></i></button>
+        }
         <button type="button" class="btn btn-danger" onclick="deleteGasRecord(@Model.GasRecord.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
     }
     <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">@translator.Translate(userLanguage,"Cancel")</button>
@@ -127,8 +132,17 @@
         <button type="button" class="btn btn-primary" onclick="saveGasRecordToVehicle(true)">@translator.Translate(userLanguage,"Edit Gas Record")</button>
     }
 </div>
+@await Html.PartialAsync("Supply/_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.GasRecord.RequisitionHistory, CostInputId = "gasRecordCost" })
 <script>
+    var selectedSupplies = [];
+    var copySuppliesAttachments = false;
     function getGasRecordModelData(){
         return { id: @Model.GasRecord.Id}
     }
 </script>
+@if (isNew && userConfig.EnableAutoFillOdometer)
+{
+    <script>
+        setLastOdometer('gasRecordMileage');
+    </script>
+}

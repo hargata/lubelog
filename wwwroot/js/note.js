@@ -39,22 +39,17 @@ function hideAddNoteModal() {
 }
 function deleteNote(noteId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Notes cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Notes cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteNoteById?noteId=${noteId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddNoteModal();
                     successToast("Note Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleNotes(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -72,13 +67,13 @@ function saveNoteToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveNoteToVehicleId', { note: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Note Updated" : "Note Added.");
             hideAddNoteModal();
             saveScrollPosition();
             getVehicleNotes(formValues.vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -121,9 +116,11 @@ function getAndValidateNoteValues() {
 }
 function pinNotes(ids, toggle, pinStatus) {
     $.post('/Vehicle/PinNotes', { noteIds: ids, isToggle: toggle, pinStatus: pinStatus  }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(ids.length > 1 ? `${ids.length} Notes Updated` : "Note Updated.");
             getVehicleNotes(GetVehicleId().vehicleId);
+        } else {
+            errorToast(data.message);
         }
     })
 }

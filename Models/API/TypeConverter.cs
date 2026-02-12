@@ -40,7 +40,14 @@ namespace CarCareTracker.Models
         {
             if (options.Converters.Any(x => x.Type == typeof(DummyType)))
             {
-                writer.WriteStringValue(DateTime.Parse(value).ToString("yyyy-MM-dd"));
+                try
+                {
+                    writer.WriteStringValue(DateTime.Parse(value).ToString("yyyy-MM-dd"));
+                }
+                catch
+                {
+                    writer.WriteStringValue(value);
+                }
             }
             else
             {

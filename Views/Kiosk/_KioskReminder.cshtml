@@ -1,0 +1,101 @@
+﻿@using CarCareTracker.Helper
+@model List<KioskReminderViewModel>
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var vehicles = Model.Select(x => x.VehicleData).Distinct();
+}
+@if (Model.Any())
+{
+    <div class="d-flex justify-content-between mt-1 mb-3">
+        <div>
+            <a class="btn btn-link" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
+        </div>
+        <div>
+            <select class="form-select kiosk-reminder-selector" onchange="filterKioskReminder(this)">
+                <!option value="0" selected>@translator.Translate(userLanguage, "All Vehicles")</!option>
+                @foreach (Vehicle vehicle in vehicles)
+                {
+                    <!option value="@vehicle.Id">@($"{vehicle.Year} {vehicle.Make} {vehicle.Model} #{StaticHelper.GetVehicleIdentifier(vehicle)}")</!option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row g-4 kiosk-content" data-masonry='{"percentPosition": true }'>
+        @foreach (KioskReminderViewModel reminder in Model)
+        {
+            var distanceUnit = reminder.VehicleData.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
+            <div class="col-12 col-lg-4 p-2 kiosk-card-container" data-vehicleId="@reminder.VehicleData.Id" style="cursor:pointer;" data-recordId="@reminder.Id" onclick="showKioskReminder(this)">
+                <div class="border rounded p-2 kiosk-card @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-row flex-wrap justify-content-between align-items-center">
+                            <span class="lead">@($"{reminder.VehicleData.Year} {reminder.VehicleData.Make} {reminder.VehicleData.Model}")</span>
+                            <span class="badge garage-metric-badge rounded-pill">@translator.Translate(userLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency))</span>
+                        </div>
+                        <div class="d-flex">
+                            <small>@(StaticHelper.GetVehicleIdentifier(reminder.VehicleData))</small>
+                        </div>
+                        <div class="d-flex">
+                            <span class="lead">@reminder.Description</span>
+                        </div>
+                        <div class="kiosk-reminder-card p-2">
+                            <div class="d-flex gap-2 flex-row p-2 flex-wrap">
+                                @if (reminder.UserMetric == ReminderMetric.Date || reminder.UserMetric == ReminderMetric.Both)
+                                {
+                                    <div class="d-flex flex-column p-2 border rounded flex-grow-1">
+                                        <span>@translator.Translate(userLanguage, "Due Date")</span>
+                                        <span class="lead"><i class='bi bi-calendar-event me-2'></i>@reminder.Date.ToShortDateString()</span>
+                                        <div>
+                                            <small class="badge @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">@($"{reminder.DueDays} {translator.Translate(userLanguage, "days remaining")}")</small>
+                                        </div>
+                                    </div>
+                                }
+                                @if (reminder.UserMetric == ReminderMetric.Odometer || reminder.UserMetric == ReminderMetric.Both)
+                                {
+                                    <div class="d-flex flex-column p-2 border rounded flex-grow-1">
+                                        <span>@translator.Translate(userLanguage, "Due Odometer")</span>
+                                        <span class="lead"><i class='bi bi-speedometer me-2'></i>@reminder.Mileage</span>
+                                        <div>
+                                            <small class="badge @StaticHelper.GetReminderUrgencyColor(reminder.Urgency)">@($"{reminder.DueMileage} {distanceUnit} {translator.Translate(userLanguage, "remaining")}")</small>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="d-none stickerNote">
+                                    @if (!string.IsNullOrWhiteSpace(reminder.Notes))
+                                    {
+                                        @reminder.Notes
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col-12 p-2 kiosk-card-details flex-grow-1" style="display:none;">
+            <div class="border rounded p-2 d-flex flex-column">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-link" onclick="showAllKioskReminder()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="kiosk-tab-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center flex-column no-data-message">
+        <span class="display-3">@translator.Translate(userLanguage, "No records available to display")</span>
+        <div>
+            <a class="btn btn-outline-secondary" onclick="redirectToKiosk()"><i class="bi bi-chevron-left"></i>@translator.Translate(userLanguage, "Kiosk")</a>
+        </div>
+    </div>
+}
+<script>
+    kioskSelectLoadVehicleIdFromParam($('.kiosk-reminder-selector'));
+</script>

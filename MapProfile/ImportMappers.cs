@@ -30,6 +30,7 @@ namespace CarCareTracker.MapProfile
             Map(m => m.Type).Name(["type"]);
             Map(m => m.Priority).Name(["priority"]);
             Map(m => m.Tags).Name(["tags"]);
+            Map(m => m.IsEquipped).Name(["isequipped"]);
             Map(m => m.ExtraFields).Convert(row =>
             {
                 var attributes = new Dictionary<string, string>();

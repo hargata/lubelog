@@ -168,6 +168,21 @@ namespace CarCareTracker.Models
                 Action = $"{userName} {GetFriendlyActionType(actionType)} Description: {taxRecord.Description}"
             };
         }
+        public static WebHookPayload FromEquipmentRecord(EquipmentRecord equipmentRecord, string actionType, string userName)
+        {
+            Dictionary<string, string> payloadDictionary = new Dictionary<string, string>();
+            payloadDictionary.Add("user", userName);
+            payloadDictionary.Add("description", equipmentRecord.Description);
+            payloadDictionary.Add("vehicleId", equipmentRecord.VehicleId.ToString());
+            return new WebHookPayload
+            {
+                Type = actionType,
+                Data = payloadDictionary,
+                VehicleId = equipmentRecord.VehicleId.ToString(),
+                Username = userName,
+                Action = $"{userName} {GetFriendlyActionType(actionType)} Description: {equipmentRecord.Description}"
+            };
+        }
         public static WebHookPayload FromPlanRecord(PlanRecord planRecord, string actionType, string userName)
         {
             Dictionary<string, string> payloadDictionary = new Dictionary<string, string>();
@@ -182,6 +197,22 @@ namespace CarCareTracker.Models
                 VehicleId = planRecord.VehicleId.ToString(),
                 Username = userName,
                 Action = $"{userName} {GetFriendlyActionType(actionType)} Description: {planRecord.Description}"
+            };
+        }
+        public static WebHookPayload FromInspectionRecord(InspectionRecord inspectionRecord, string actionType, string userName)
+        {
+            Dictionary<string, string> payloadDictionary = new Dictionary<string, string>();
+            payloadDictionary.Add("user", userName);
+            payloadDictionary.Add("description", inspectionRecord.Description);
+            payloadDictionary.Add("vehicleId", inspectionRecord.VehicleId.ToString());
+            payloadDictionary.Add("cost", inspectionRecord.Cost.ToString("F2"));
+            return new WebHookPayload
+            {
+                Type = actionType,
+                Data = payloadDictionary,
+                VehicleId = inspectionRecord.VehicleId.ToString(),
+                Username = userName,
+                Action = $"{userName} {GetFriendlyActionType(actionType)} Description: {inspectionRecord.Description}"
             };
         }
         public static WebHookPayload FromReminderRecord(ReminderRecord reminderRecord, string actionType, string userName)

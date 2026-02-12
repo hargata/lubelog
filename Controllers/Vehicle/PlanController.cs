@@ -18,9 +18,9 @@ namespace CarCareTracker.Controllers
         public IActionResult SavePlanRecordToVehicleId(PlanRecordInput planRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //populate createdDate
             if (planRecord.Id == default)
@@ -45,15 +45,15 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(planRecord.ToPlanRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(planRecord.ToPlanRecord(), planRecord.Id == default ? "planrecord.add" : "planrecord.update", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(planRecord.ToPlanRecord(), planRecord.Id == default ? "planrecord.add" : "planrecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
         public IActionResult SavePlanRecordTemplateToVehicleId(PlanRecordInput planRecord)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), planRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -65,7 +65,7 @@ namespace CarCareTracker.Controllers
             }
             planRecord.Files = planRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecord);
-            return Json(OperationResponse.Conditional(result, "Template Added", string.Empty));
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -80,15 +80,15 @@ namespace CarCareTracker.Controllers
             var existingRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
             if (existingRecord.Id == default)
             {
-                return Json(false);
+                return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             var result = _planRecordTemplateDataAccess.DeletePlanRecordTemplateById(planRecordTemplateId);
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult OrderPlanSupplies(int planRecordTemplateId)
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Unable to find template"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.View))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -122,7 +122,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed("Unable to find template"));
             }
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
@@ -161,7 +161,7 @@ namespace CarCareTracker.Controllers
                 }
             }
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
-            return Json(OperationResponse.Conditional(result, "Plan Record Added", string.Empty));
+            return Json(OperationResponse.Conditional(result, "Plan Record Added", StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
@@ -183,30 +183,20 @@ namespace CarCareTracker.Controllers
         {
             if (planRecordId == default)
             {
-                return Json(false);
+                return Json(OperationResponse.Failed(StaticHelper.GenericErrorMessage));
             }
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             existingRecord.Progress = planProgress;
             existingRecord.DateModified = DateTime.Now;
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
             if (planProgress == PlanProgress.Done)
             {
-                if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
-                {
-                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
-                    {
-                        Date = DateTime.Now.Date,
-                        VehicleId = existingRecord.VehicleId,
-                        Mileage = odometer,
-                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
-                        ExtraFields = existingRecord.ExtraFields
-                    });
-                }
+                int newRecordId = 0;
                 //convert plan record to service/upgrade/repair record.
                 if (existingRecord.ImportMode == ImportMode.ServiceRecord)
                 {
@@ -223,6 +213,7 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
                 }
                 else if (existingRecord.ImportMode == ImportMode.RepairRecord)
                 {
@@ -239,6 +230,7 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
                 }
                 else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
                 {
@@ -255,6 +247,19 @@ namespace CarCareTracker.Controllers
                         ExtraFields = existingRecord.ExtraFields
                     };
                     _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
+                }
+                if (newRecordId != default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                    {
+                        Date = DateTime.Now.Date,
+                        VehicleId = existingRecord.VehicleId,
+                        Mileage = odometer,
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        ExtraFields = existingRecord.ExtraFields,
+                        Files = StaticHelper.CreateAttachmentFromRecord(existingRecord.ImportMode, newRecordId, existingRecord.Description)
+                    });
                 }
                 //push back any reminders
                 if (existingRecord.ReminderRecordId != default)
@@ -262,12 +267,17 @@ namespace CarCareTracker.Controllers
                     PushbackRecurringReminderRecordWithChecks(existingRecord.ReminderRecordId, DateTime.Now, odometer);
                 }
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetPlanRecordTemplateForEditById(int planRecordTemplateId)
         {
             var result = _planRecordTemplateDataAccess.GetPlanRecordTemplateById(planRecordTemplateId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             return PartialView("Plan/_PlanRecordTemplateEditModal", result);
         }
         [HttpGet]
@@ -275,7 +285,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
             {
                 return Redirect("/Error/Unauthorized");
             }
@@ -304,9 +314,9 @@ namespace CarCareTracker.Controllers
         {
             var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return Json(false);
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //restore any requisitioned supplies if it has not been converted to other record types.
             if (existingRecord.RequisitionHistory.Any() && existingRecord.Progress != PlanProgress.Done)
@@ -316,9 +326,9 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete", User.Identity.Name));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

@@ -1,8 +1,18 @@
-﻿<div class="row">
-    <div class="col-1">
-        <a href="/Home" class="btn btn-secondary btn-md mt-1 mb-1"><i class="bi bi-arrow-left-square"></i></a>
-    </div>
-    <div class="col-11">
-        <h1>Access Denied</h1>
-    </div>
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userLanguage = config.GetServerLanguage();
+}
+@{
+    ViewData["Title"] = "Access Denied";
+}
+<div class="no-top-pad d-flex align-items-center justify-content-center" style="height:100vh;">
+   <div class="flex-column d-flex">
+        <span class="display-1">@translator.Translate(userLanguage, "Access Denied")</span>
+        <hr />
+        <div class="d-flex justify-content-center">
+            <a href="/Home" class="btn btn-outline-secondary"><i class="bi bi-car-front me-2"></i>@translator.Translate(userLanguage, "Return to Garage")</a>
+        </div>
+   </div>
 </div>

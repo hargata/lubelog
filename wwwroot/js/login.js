@@ -1,7 +1,7 @@
 ﻿function performLogin() {
-    var userName = $("#inputUserName").val();
-    var userPassword = $("#inputUserPassword").val();
-    var isPersistent = $("#inputPersistent").is(":checked");
+    let userName = $("#inputUserName").val();
+    let userPassword = $("#inputUserPassword").val();
+    let isPersistent = $("#inputPersistent").is(":checked");
     $.post('/Login/Login', {userName: userName, password: userPassword, isPersistent: isPersistent}, function (data) {
         if (data) {
             //check for redirectURL
@@ -17,10 +17,10 @@
     })
 }
 function performRegistration() {
-    var token = $("#inputToken").val();
-    var userName = $("#inputUserName").val();
-    var userPassword = $("#inputUserPassword").val();
-    var userEmail = $("#inputEmail").val();
+    let token = $("#inputToken").val();
+    let userName = $("#inputUserName").val();
+    let userPassword = $("#inputUserPassword").val();
+    let userEmail = $("#inputEmail").val();
     $.post('/Login/Register', { userName: userName, password: userPassword, token: token, emailAddress: userEmail }, function (data) {
         if (data.success) {
             successToast(data.message);
@@ -31,7 +31,7 @@ function performRegistration() {
     });
 }
 function requestPasswordReset() {
-    var userName = $("#inputUserName").val();
+    let userName = $("#inputUserName").val();
     $.post('/Login/RequestResetPassword', { userName: userName }, function (data) {
         if (data.success) {
             successToast(data.message);
@@ -42,9 +42,9 @@ function requestPasswordReset() {
     })
 }
 function performPasswordReset() {
-    var token = $("#inputToken").val();
-    var userPassword = $("#inputUserPassword").val();
-    var userEmail = $("#inputEmail").val();
+    let token = $("#inputToken").val();
+    let userPassword = $("#inputUserPassword").val();
+    let userEmail = $("#inputEmail").val();
     $.post('/Login/PerformPasswordReset', { password: userPassword, token: token, emailAddress: userEmail }, function (data) {
         if (data.success) {
             successToast(data.message);
@@ -56,7 +56,12 @@ function performPasswordReset() {
 }
 
 function remoteLogin() {
-    $.get('/Login/GetRemoteLoginLink', function (data) {
+    let currentParams = new URLSearchParams(window.location.search);
+    let redirectUrl = currentParams.get('redirectURLBase64');
+    if (redirectUrl == null) {
+        redirectUrl = '';
+    }
+    $.get(`/Login/GetRemoteLoginLink?redirectURLBase64=${redirectUrl}`, { redirectURLBase64: redirectUrl }, function (data) {
         if (data) {
             window.location.href = data;
         }
