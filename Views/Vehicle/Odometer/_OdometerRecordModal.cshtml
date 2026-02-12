@@ -78,6 +78,7 @@
                     @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                 </div>
                 <div class="col-md-6 col-12">
+                    }
                     <div>
                         @await Html.PartialAsync("_UploadedFiles", Model.Files)
                         @await Html.PartialAsync("_FileUploader", Model.Files.Any())
