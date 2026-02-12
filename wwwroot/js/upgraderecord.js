@@ -43,17 +43,22 @@ function hideAddUpgradeRecordModal() {
 }
 function deleteUpgradeRecord(upgradeRecordId) {
     $("#workAroundInput").show();
-    confirmDelete("Deleted Upgrade Records cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Upgrade Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteUpgradeRecordById?upgradeRecordId=${upgradeRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddUpgradeRecordModal();
                     successToast("Upgrade Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleUpgradeRecords(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -71,7 +76,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveUpgradeRecordToVehicleId', { upgradeRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Upgrade Record Updated" : "Upgrade Record Added.");
             hideAddUpgradeRecordModal();
             saveScrollPosition();
@@ -80,7 +85,7 @@ function saveUpgradeRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }

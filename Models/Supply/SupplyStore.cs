@@ -2,7 +2,7 @@
 {
     public class SupplyStore
     {
-        public string Tab { get; set; } = string.Empty;
+        public string Tab { get; set; }
         public bool AdditionalSupplies { get; set; }
     }
 }

@@ -8,13 +8,13 @@ namespace CarCareTracker.Models
         public string ImageLocation { get; set; } = "/defaults/noimage.png";
         public string MapLocation { get; set; } = "";
         public int Year { get; set; }
-        public string Make { get; set; } = string.Empty;
-        public string Model { get; set; } = string.Empty;
-        public string LicensePlate { get; set; } = string.Empty;
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public string LicensePlate { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
-        public string PurchaseDate { get; set; } = string.Empty;
+        public string PurchaseDate { get; set; }
         [JsonConverter(typeof(FromDateOptional))]
-        public string SoldDate { get; set; } = string.Empty;
+        public string SoldDate { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal SoldPrice { get; set; }
         public bool IsElectric { get; set; } = false;

@@ -16,8 +16,8 @@ namespace CarCareTracker.Helper
         }
         public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder, DateTime? currentDate, int? currentMileage)
         {
-            var newDate = existingReminder.FixedIntervals ? existingReminder.Date : currentDate ?? existingReminder.Date;
-            var newMileage = existingReminder.FixedIntervals ? existingReminder.Mileage : currentMileage ?? existingReminder.Mileage;
+            var newDate = currentDate ?? existingReminder.Date;
+            var newMileage = currentMileage ?? existingReminder.Mileage;
             if (existingReminder.Metric == ReminderMetric.Both)
             {
                 if (existingReminder.ReminderMonthInterval != ReminderMonthInterval.Other)

@@ -41,12 +41,6 @@ $(function () {
             case "odometer-tab":
                 getPaginatedVehicleOdometerRecords(vehicleId);
                 break;
-            case "inspection-tab":
-                getVehicleInspectionRecords(vehicleId);
-                break;
-            case "equipment-tab":
-                getVehicleEquipmentRecords(vehicleId);
-                break;
         }
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
         $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
@@ -84,12 +78,6 @@ $(function () {
                     break;
                 case "odometer-tab":
                     $("#odometer-tab-pane").html("");
-                    break;
-                case "inspection-tab":
-                    $("#inspection-tab-pane").html("");
-                    break;
-                case "equipment-tab":
-                    $("#equipment-tab-pane").html("");
                     break;
             }
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
@@ -198,7 +186,6 @@ function getVehicleTaxRecords(vehicleId) {
         if (data) {
             $("#tax-tab-pane").html(data);
             restoreScrollPosition();
-            getVehicleHaveImportantReminders(vehicleId);
         }
     });
 }
@@ -206,24 +193,6 @@ function getVehicleReminders(vehicleId) {
     $.get(`/Vehicle/GetReminderRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#reminder-tab-pane").html(data);
-            restoreScrollPosition();
-            getVehicleHaveImportantReminders(vehicleId);
-        }
-    });
-}
-function getVehicleInspectionRecords(vehicleId) {
-    $.get(`/Vehicle/GetInspectionRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
-            $("#inspection-tab-pane").html(data);
-            restoreScrollPosition();
-            getVehicleHaveImportantReminders(vehicleId);
-        }
-    });
-}
-function getVehicleEquipmentRecords(vehicleId) {
-    $.get(`/Vehicle/GetEquipmentRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
-            $("#equipment-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
@@ -252,13 +221,17 @@ function hideEditVehicleModal() {
     $('#editVehicleModal').modal('hide');
 }
 function deleteVehicle(vehicleId) {
-    confirmDelete("This will also delete all data tied to this vehicle. Deleted Vehicles and their associated data cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "This will also delete all data tied to this vehicle. Deleted Vehicles and their associated data cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/DeleteVehicle', { vehicleId: vehicleId }, function (data) {
-                if (data.success) {
+                if (data) {
                     window.location.href = '/Home';
-                } else {
-                    errorToast(data.message);
                 }
             })
         }
@@ -266,7 +239,6 @@ function deleteVehicle(vehicleId) {
 }
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
-        reminderModalInput['createdFromRecord'] = true;
         $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
@@ -342,35 +314,19 @@ function moveRecord(recordId, source, dest) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('/Vehicle/MoveRecord', { recordId: recordId, source: source, destination: dest }, function (data) {
-                if (data.success) {
+                if (data) {
                     hideModalCallBack();
                     successToast("Record Moved");
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
             $("#workAroundInput").hide();
         }
     });
-}
-function loadSelectedRecurringReminder() {
-    if (recurringReminderRecordId != undefined && recurringReminderRecordId.length > 0) {
-        if (recurringReminderRecordId.length > 1) {
-            //multiple reminders
-            $('#multipleRemindersCheck').prop('checked', true);
-            $('#multipleRemindersCheck').trigger('change');
-            recurringReminderRecordId.map(x => {
-                $(`#recurringReminder_${x}`).prop('checked', true);
-            });
-        }
-        else if (recurringReminderRecordId.length == 1) {
-            $("#recurringReminderInput").val(recurringReminderRecordId[0]);
-        }
-    }
 }
 function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
     $.get(`/Vehicle/GetRecurringReminderRecordsByVehicleId?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
@@ -381,9 +337,6 @@ function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
                 html: data,
                 confirmButtonText: 'Select',
                 focusConfirm: false,
-                didRender: () => {
-                    loadSelectedRecurringReminder();
-                },
                 preConfirm: () => {
                     //validate
                     var selectedRecurringReminderData = getAndValidateSelectedRecurringReminder();
@@ -451,12 +404,12 @@ function saveGenericRecord() {
     }
     //save to db.
     $.post('/Vehicle/EditMultipleRecords', { genericRecordEditModel: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(formValues.recordIds.length > 1 ? "Records Updated" : "Record Updated.");
             hideGenericRecordModal();
             refreshDataCallBack(GetVehicleId().vehicleId);
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }
@@ -600,13 +553,12 @@ function adjustRecordsOdometer(ids, source) {
         if (result.isConfirmed) {
             saveScrollPosition();
             $.post('/Vehicle/AdjustRecordsOdometer', { recordIds: ids, vehicleId: GetVehicleId().vehicleId, importMode: source }, function (data) {
-                if (data.success) {
+                if (data) {
                     successToast(`${ids.length} Record(s) Updated`);
                     var vehicleId = GetVehicleId().vehicleId;
                     refreshDataCallBack(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -746,110 +698,48 @@ function handleGlobalSearchKeyPress(event) {
 
 function loadGlobalSearchResult(recordId, recordType) {
     hideGlobalSearch();
-    $.post(`/Vehicle/CheckRecordExist?vehicleId=${GetVehicleId().vehicleId}&importMode=${recordType}&recordId=${recordId}`, function (data) {
-        if (data.success) {
-            switch (recordType) {
-                case "ServiceRecord":
-                    if ($('#servicerecord-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#servicerecord-tab').tab('show');
-                    waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
-                    break;
-                case "RepairRecord":
-                    if ($('#accident-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#accident-tab').tab('show');
-                    waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
-                    break;
-                case "UpgradeRecord":
-                    if ($('#upgrade-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#upgrade-tab').tab('show');
-                    waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
-                    break;
-                case "TaxRecord":
-                    if ($('#tax-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#tax-tab').tab('show');
-                    waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
-                    break;
-                case "SupplyRecord":
-                    if ($('#supply-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#supply-tab').tab('show');
-                    waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
-                    break;
-                case "NoteRecord":
-                    if ($('#notes-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#notes-tab').tab('show');
-                    waitForElement('#noteModalContent', showEditNoteModal, recordId);
-                    break;
-                case "OdometerRecord":
-                    if ($('#odometer-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#odometer-tab').tab('show');
-                    waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
-                    break;
-                case "ReminderRecord":
-                    if ($('#reminder-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#reminder-tab').tab('show');
-                    waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
-                    break;
-                case "GasRecord":
-                    if ($('#gas-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#gas-tab').tab('show');
-                    waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
-                    break;
-                case "PlanRecord":
-                    if ($('#plan-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#plan-tab').tab('show');
-                    waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
-                    break;
-                case "InspectionRecord":
-                    if ($('#inspection-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#inspection-tab').tab('show');
-                    waitForElement("#inspectionRecordModalContent", showEditInspectionRecordModal, recordId);
-                    break;
-                case "EquipmentRecord":
-                    if ($('#equipment-tab').hasClass('d-none')) {
-                        errorToast(`${recordType} Tab Not Enabled`);
-                        return;
-                    }
-                    $('#equipment-tab').tab('show');
-                    waitForElement("#equipmentRecordModalContent", showEditEquipmentRecordModal, recordId);
-                    break;
-            }
-        } else {
-            errorToast(data.message);
-        }
-    })
+    switch (recordType) {
+        case "ServiceRecord":
+            $('#servicerecord-tab').tab('show');
+            waitForElement('#serviceRecordModalContent', showEditServiceRecordModal, recordId);
+            break;
+        case "RepairRecord":
+            $('#accident-tab').tab('show');
+            waitForElement('#collisionRecordModalContent', showEditCollisionRecordModal, recordId);
+            break;
+        case "UpgradeRecord":
+            $('#upgrade-tab').tab('show');
+            waitForElement('#upgradeRecordModalContent', showEditUpgradeRecordModal, recordId);
+            break;
+        case "TaxRecord":
+            $('#tax-tab').tab('show');
+            waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
+            break;
+        case "SupplyRecord":
+            $('#supply-tab').tab('show');
+            waitForElement('#supplyRecordModalContent', showEditSupplyRecordModal, recordId);
+            break;
+        case "NoteRecord":
+            $('#notes-tab').tab('show');
+            waitForElement('#noteModalContent', showEditNoteModal, recordId);
+            break;
+        case "OdometerRecord":
+            $('#odometer-tab').tab('show');
+            waitForElement('#odometerRecordModalContent', showEditOdometerRecordModal, recordId);
+            break;
+        case "ReminderRecord":
+            $('#reminder-tab').tab('show');
+            waitForElement('#reminderRecordModalContent', showEditReminderRecordModal, recordId);
+            break;
+        case "GasRecord":
+            $('#gas-tab').tab('show');
+            waitForElement('#gasRecordModalContent', showEditGasRecordModal, recordId);
+            break;
+        case "PlanRecord":
+            $('#plan-tab').tab('show');
+            waitForElement('#planRecordModalContent', showEditPlanRecordModal, recordId);
+            break;
+    }
 }
 function loadDefaultTab() {
     //check if tab param exists
@@ -893,19 +783,5 @@ function getDefaultTabName() {
         case "OdometerRecord":
             return 'odometer';
             break;
-        case "InspectionRecord":
-            return 'inspection';
-            break;
-        case "EquipmentRecord":
-            return 'equipment';
-            break;
     }
-}
-function setLastOdometer(mileageInputId) {
-    $.get(`/Vehicle/GetMaxMileage?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
-        if (isNaN(data)) {
-            return;
-        }
-        $(`#${mileageInputId}`).val(data);
-    });
 }

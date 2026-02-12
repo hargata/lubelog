@@ -43,17 +43,22 @@ function hideAddCollisionRecordModal() {
 }
 function deleteCollisionRecord(collisionRecordId) {
     $("#workAroundInput").show();
-    confirmDelete("Deleted Repair Records cannot be restored.", (result) => {
+    Swal.fire({
+        title: "Confirm Deletion?",
+        text: "Deleted Repair Records cannot be restored.",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#dc3545"
+    }).then((result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteCollisionRecordById?collisionRecordId=${collisionRecordId}`, function (data) {
-                if (data.success) {
+                if (data) {
                     hideAddCollisionRecordModal();
                     successToast("Repair Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleCollisionRecords(vehicleId);
                 } else {
-                    errorToast(data.message);
-                    $("#workAroundInput").hide();
+                    errorToast(genericErrorMessage());
                 }
             });
         } else {
@@ -71,7 +76,7 @@ function saveCollisionRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveCollisionRecordToVehicleId', { collisionRecord: formValues }, function (data) {
-        if (data.success) {
+        if (data) {
             successToast(isEdit ? "Repair Record Updated" : "Repair Record Added.");
             hideAddCollisionRecordModal();
             saveScrollPosition();
@@ -80,7 +85,7 @@ function saveCollisionRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(data.message);
+            errorToast(genericErrorMessage());
         }
     })
 }

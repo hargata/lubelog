@@ -65,7 +65,7 @@ namespace CarCareTracker.External.Implementations
             return true;
         }
         /// <summary>
-        /// Delete all access records when a user is deleted.
+        /// Delee all access records when a user is deleted.
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>

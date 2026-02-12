@@ -5,6 +5,6 @@
         public int MaxOdometer { get; set; }
         public int DistanceTraveled { get; set; }
         public decimal TotalCost { get; set; }
-        public string AverageMPG { get; set; } = string.Empty;
+        public string AverageMPG { get; set; }
     }
 }

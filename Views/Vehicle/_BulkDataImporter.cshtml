@@ -45,10 +45,7 @@
         sloader.show();
         $.post('/Vehicle/ImportToVehicleIdFromCsv', { vehicleId: vehicleId, mode: mode, fileName: uploadedFile }, function (data) {
             sloader.hide();
-            if (isOperationResponse(data)) {
-                return;
-            }
-            else if (data) {
+            if (data) {
                 successToast("Data Imported Successfully");
                 hideBulkImportModal();
                 if (mode == "GasRecord") {
@@ -67,8 +64,6 @@
                     getVehiclePlanRecords(vehicleId);
                 } else if (mode == "OdometerRecord") {
                     getVehicleOdometerRecords(vehicleId);
-                } else if (mode == "EquipmentRecord"){
-                    getVehicleEquipmentRecords(vehicleId);
                 }
             } else {
                 errorToast(genericErrorMessage());

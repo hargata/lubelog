@@ -2,15 +2,15 @@ namespace CarCareTracker.Models
 {
     public class ServerSettingsViewModel
     {
-        public string LocaleOverride { get; set; } = string.Empty;
-        public string LocaleDateTimeOverride { get; set; } = string.Empty;
-        public string PostgresConnection { get; set; } = string.Empty;
-        public string AllowedFileExtensions { get; set; } = string.Empty;
-        public string CustomLogoURL { get; set; } = string.Empty;
-        public string CustomSmallLogoURL { get; set; } = string.Empty;
-        public string MessageOfTheDay { get; set; } = string.Empty;
-        public string WebHookURL { get; set; } = string.Empty;
-        public string Domain { get; set; } = string.Empty;
+        public string LocaleOverride { get; set; }
+        public string LocaleDateTimeOverride { get; set; }
+        public string PostgresConnection { get; set; }
+        public string AllowedFileExtensions { get; set; }
+        public string CustomLogoURL { get; set; }
+        public string CustomSmallLogoURL { get; set; }
+        public string MessageOfTheDay { get; set; }
+        public string WebHookURL { get; set; }
+        public string Domain { get; set; }
         public bool CustomWidgetsEnabled { get; set; }
         public bool InvariantAPIEnabled { get; set; }
         public MailConfig SMTPConfig { get; set; } = new MailConfig();
@@ -21,8 +21,8 @@ namespace CarCareTracker.Models
         public string DefaultReminderEmail { get; set; } = string.Empty;
         public bool EnableRootUserOIDC { get; set; }
         public bool EnableAuth { get; set; }
-        public List<string> AvailableLocales { get; set; } = new List<string>();
-        public string CookieLifeSpan { get; set; } = string.Empty;
+        public List<string> AvailableLocales { get; set; }
+        public string CookieLifeSpan { get; set; }
         public KestrelAppConfig KestrelAppConfig { get; set; }
     }
 }

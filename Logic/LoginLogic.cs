@@ -24,7 +24,6 @@ namespace CarCareTracker.Logic
         OperationResponse SendRegistrationToken(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         UserData ValidateOpenIDUser(LoginModel credentials);
-        UserData ValidateAPIKey(string apiKey);
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
@@ -37,20 +36,17 @@ namespace CarCareTracker.Logic
     {
         private readonly IUserRecordDataAccess _userData;
         private readonly ITokenRecordDataAccess _tokenData;
-        private readonly IApiKeyRecordDataAccess _apiKeyData;
         private readonly IMailHelper _mailHelper;
         private readonly IConfigHelper _configHelper;
         private IMemoryCache _cache;
         public LoginLogic(IUserRecordDataAccess userData, 
             ITokenRecordDataAccess tokenData, 
-            IApiKeyRecordDataAccess apiKeyData,
             IMailHelper mailHelper,
             IConfigHelper configHelper,
             IMemoryCache memoryCache)
         {
             _userData = userData;
             _tokenData = tokenData;
-            _apiKeyData = apiKeyData;
             _mailHelper = mailHelper;
             _configHelper = configHelper;
             _cache = memoryCache;
@@ -107,7 +103,7 @@ namespace CarCareTracker.Logic
             if (!string.IsNullOrWhiteSpace(credentials.Password))
             {
                 //update password
-                existingUser.Password = StaticHelper.GetHash(credentials.Password);
+                existingUser.Password = GetHash(credentials.Password);
             }
             //delete token
             _tokenData.DeleteToken(existingToken.Id);
@@ -140,7 +136,7 @@ namespace CarCareTracker.Logic
             var newUser = new UserData()
             {
                 UserName = credentials.UserName,
-                Password = StaticHelper.GetHash(NewToken()), //generate a password for OpenID User
+                Password = GetHash(NewToken()), //generate a password for OpenID User
                 EmailAddress = credentials.EmailAddress
             };
             var result = _userData.SaveUserRecord(newUser);
@@ -182,7 +178,7 @@ namespace CarCareTracker.Logic
             var newUser = new UserData()
             {
                 UserName = credentials.UserName,
-                Password = StaticHelper.GetHash(credentials.Password),
+                Password = GetHash(credentials.Password),
                 EmailAddress = credentials.EmailAddress
             };
             var result = _userData.SaveUserRecord(newUser);
@@ -239,7 +235,7 @@ namespace CarCareTracker.Logic
             {
                 return OperationResponse.Failed("Unable to locate user");
             }
-            existingUser.Password = StaticHelper.GetHash(credentials.Password);
+            existingUser.Password = GetHash(credentials.Password);
             var result = _userData.SaveUserRecord(existingUser);
             //delete token
             _tokenData.DeleteToken(existingToken.Id);
@@ -266,7 +262,7 @@ namespace CarCareTracker.Logic
             {
                 //authenticate via DB.
                 var result = _userData.GetUserRecordByUserName(credentials.UserName);
-                if (StaticHelper.GetHash(credentials.Password) == result.Password)
+                if (GetHash(credentials.Password) == result.Password)
                 {
                     result.Password = string.Empty;
                     return result;
@@ -296,26 +292,6 @@ namespace CarCareTracker.Logic
             {
                 return new UserData();
             }
-        }
-        public UserData ValidateAPIKey(string apiKey)
-        {
-            var hashedAPIKey = StaticHelper.GetHash(apiKey);
-            var apiKeyUser = _apiKeyData.GetAPIKeyByKey(hashedAPIKey);
-            if (apiKeyUser.UserId != default)
-            {
-                if (apiKeyUser.UserId == -1)
-                {
-                    var rootUserData = GetRootUserData(apiKeyUser.Name);
-                    return rootUserData;
-                }
-                var result = _userData.GetUserRecordById(apiKeyUser.UserId);
-                if (result.Id != default)
-                {
-                    result.Password = string.Empty;
-                    return result;
-                }
-            }
-            return new UserData();
         }
         #region "Admin Functions"
         public bool MakeUserAdmin(int userId, bool isAdmin)
@@ -400,7 +376,7 @@ namespace CarCareTracker.Logic
                 return OperationResponse.Failed("Unable to find user");
             }
             var newPassword = Guid.NewGuid().ToString().Substring(0, 8);
-            existingUser.Password = StaticHelper.GetHash(newPassword);
+            existingUser.Password = GetHash(newPassword);
             var result = _userData.SaveUserRecord(existingUser);
             if (result)
             {
@@ -423,8 +399,8 @@ namespace CarCareTracker.Logic
                 if (existingUserConfig is not null)
                 {
                     //create hashes of the login credentials.
-                    var hashedUserName = StaticHelper.GetHash(credentials.UserName);
-                    var hashedPassword = StaticHelper.GetHash(credentials.Password);
+                    var hashedUserName = GetHash(credentials.UserName);
+                    var hashedPassword = GetHash(credentials.Password);
                     //copy over settings that are off limits on the settings page.
                     existingUserConfig.EnableAuth = true;
                     existingUserConfig.UserNameHash = hashedUserName;
@@ -436,8 +412,8 @@ namespace CarCareTracker.Logic
                 var newUserConfig = new UserConfig()
                 {
                     EnableAuth = true,
-                    UserNameHash = StaticHelper.GetHash(credentials.UserName),
-                    UserPasswordHash = StaticHelper.GetHash(credentials.Password)
+                    UserNameHash = GetHash(credentials.UserName),
+                    UserPasswordHash = GetHash(credentials.Password)
                 };
                 File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(newUserConfig));
             }
@@ -462,8 +438,8 @@ namespace CarCareTracker.Logic
         }
         private bool UserIsRoot(LoginModel credentials)
         {
-            var hashedUserName = StaticHelper.GetHash(credentials.UserName);
-            var hashedPassword = StaticHelper.GetHash(credentials.Password);
+            var hashedUserName = GetHash(credentials.UserName);
+            var hashedPassword = GetHash(credentials.Password);
             return _configHelper.AuthenticateRootUser(hashedUserName, hashedPassword);
         }
         private UserData GetRootUserData(string username)
@@ -478,7 +454,21 @@ namespace CarCareTracker.Logic
             };
         }
         #endregion
-        
+        private static string GetHash(string value)
+        {
+            StringBuilder Sb = new StringBuilder();
+
+            using (var hash = SHA256.Create())
+            {
+                Encoding enc = Encoding.UTF8;
+                byte[] result = hash.ComputeHash(enc.GetBytes(value));
+
+                foreach (byte b in result)
+                    Sb.Append(b.ToString("x2"));
+            }
+
+            return Sb.ToString();
+        }
         private string NewToken()
         {
             return Guid.NewGuid().ToString().Substring(0, 8);

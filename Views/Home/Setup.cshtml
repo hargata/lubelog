@@ -5,7 +5,13 @@
 @inject IConfigHelper config
 @inject ITranslationHelper translator
 @{
+    bool emailServerIsSetup = true;
+    var mailConfig = config.GetMailConfig();
     var userLanguage = config.GetServerLanguage();
+    if (mailConfig is null || string.IsNullOrWhiteSpace(mailConfig.EmailServer))
+    {
+        emailServerIsSetup = false;
+    }
 }
 @section Scripts {
     <script src="~/js/serversettings.js?v=@StaticHelper.VersionNumber"></script>
@@ -167,28 +173,23 @@
         <hr />
         <form class="form-inline">
             <div class="form-group">
-                <label for="inputHTTPURL">@translator.Translate(userLanguage, "HTTP Endpoint")</label>
-                <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.Http?.Url ?? string.Empty)">
+                <label for="inputHTTPURL">@translator.Translate(userLanguage, "Http Endpoint")</label>
+                <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.Http.Url">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
-                <label for="inputHTTPSURL">@translator.Translate(userLanguage, "HTTPS Endpoint")</label>
-                <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Url ?? string.Empty)">
+                <label for="inputHTTPSURL">@translator.Translate(userLanguage, "Https Endpoint")</label>
+                <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Url">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputHTTPSCertLocation">@translator.Translate(userLanguage, "HTTPS Certificate Location")</label>
-                <input type="text" id="inputHTTPSCertLocation" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Path ?? string.Empty)">
+                <input type="text" id="inputHTTPSCertLocation" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Path">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputHTTPSCertPassword">@translator.Translate(userLanguage, "HTTPS Certificate Password")</label>
-                <div class="input-group">
-                    <input type="password" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Password ?? string.Empty)">
-                    <div class="input-group-text">
-                        <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
-                    </div>
-                </div>
+                <input type="text" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.KestrelAppConfig.Endpoints.HttpsInlineCertFile.Certificate.Password">
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
         </form>
@@ -233,10 +234,6 @@
                 <input type="text" id="inputOIDCUserInfo" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.UserInfoURL">
             </div>
             <div class="form-group">
-                <label for="inputOIDCJwks">@translator.Translate(userLanguage, "OIDC JWKS URL")</label>
-                <input type="text" id="inputOIDCJwks" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.JwksURL">
-            </div>
-            <div class="form-group">
                 <label for="inputOIDCRedirect">@translator.Translate(userLanguage, "OIDC Redirect URL")</label>
                 <input type="text" id="inputOIDCRedirect" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.RedirectURL">
             </div>
@@ -268,11 +265,6 @@
                     <!option value="true" @(Model.OIDCConfig.DisableRegularLogin ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
                     <!option value="false" @(Model.OIDCConfig.DisableRegularLogin ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
-            </div>
-            <div class="form-group">
-                <div class="d-flex align-items-center justify-content-center flex-column">
-                    <div class="mt-2"><a class="btn btn-warning" onclick="importOpenIDConfig()">@translator.Translate(userLanguage, "Import OpenID Config")</a></div>
-                </div>
             </div>
         </form>
     </div>

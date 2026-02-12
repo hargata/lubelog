@@ -114,9 +114,3 @@
         return { id: @Model.Id}
     }
 </script>
-@if (isNew && userConfig.EnableAutoFillOdometer)
-{
-    <script>
-        setLastOdometer('collisionRecordMileage');
-    </script>
-}

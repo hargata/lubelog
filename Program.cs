@@ -18,10 +18,10 @@ builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true,
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
 {
-    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"] ?? string.Empty);
+    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]);
     if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]))
     {
-        var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"] ?? string.Empty);
+        var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]);
         overrideCulture.DateTimeFormat = overrideDTFormat.DateTimeFormat;
     }
     CultureInfo.DefaultThreadCurrentCulture = overrideCulture;
@@ -58,11 +58,6 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<ITokenRecordDataAccess, PGTokenRecordDataAccess>();
     builder.Services.AddSingleton<IUserAccessDataAccess, PGUserAccessDataAccess>();
     builder.Services.AddSingleton<IExtraFieldDataAccess, PGExtraFieldDataAccess>();
-    builder.Services.AddSingleton<IInspectionRecordDataAccess, PGInspectionRecordDataAccess>();
-    builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, PGInspectionRecordTemplateDataAccess>();
-    builder.Services.AddSingleton<IEquipmentRecordDataAccess, PGEquipmentRecordDataAccess>();
-    builder.Services.AddSingleton<IUserHouseholdDataAccess, PGUserHouseholdDataAccess>();
-    builder.Services.AddSingleton<IApiKeyRecordDataAccess, PGApiKeyRecordDataAccess>();
 }
 else
 {
@@ -83,17 +78,11 @@ else
     builder.Services.AddSingleton<ITokenRecordDataAccess, TokenRecordDataAccess>();
     builder.Services.AddSingleton<IUserAccessDataAccess, UserAccessDataAccess>();
     builder.Services.AddSingleton<IExtraFieldDataAccess, ExtraFieldDataAccess>();
-    builder.Services.AddSingleton<IInspectionRecordDataAccess, InspectionRecordDataAccess>();
-    builder.Services.AddSingleton<IInspectionRecordTemplateDataAccess, InspectionRecordTemplateDataAccess>();
-    builder.Services.AddSingleton<IEquipmentRecordDataAccess, EquipmentRecordDataAccess>();
-    builder.Services.AddSingleton<IUserHouseholdDataAccess, UserHouseholdDataAccess>();
-    builder.Services.AddSingleton<IApiKeyRecordDataAccess, ApiKeyRecordDataAccess>();
 }
 
 //configure helpers
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
-builder.Services.AddSingleton<IEquipmentHelper, EquipmentHelper>();
 builder.Services.AddSingleton<IReminderHelper, ReminderHelper>();
 builder.Services.AddSingleton<IReportHelper, ReportHelper>();
 builder.Services.AddSingleton<IConfigHelper, ConfigHelper>();
@@ -107,7 +96,6 @@ builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 
 //Configure Auth
-builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
@@ -143,8 +131,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/images"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            var userIsAuthenticated = ctx.Context.User.Identity?.IsAuthenticated ?? false;
-            if (!userIsAuthenticated)
+            if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
             }
@@ -161,8 +148,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/documents"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            var userIsAuthenticated = ctx.Context.User.Identity?.IsAuthenticated ?? false;
-            if (!userIsAuthenticated)
+            if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
             }
@@ -185,19 +171,13 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.Context.Request.Path.StartsWithSegments("/temp"))
         {
             ctx.Context.Response.Headers.Append("Cache-Control", "no-store");
-            var userIsAuthenticated = ctx.Context.User.Identity?.IsAuthenticated ?? false;
-            if (!userIsAuthenticated)
+            if (!ctx.Context.User.Identity.IsAuthenticated)
             {
                 ctx.Context.Response.Redirect("/Login");
             }
         }
     }
 });
-
-app.UseWhen(
-    ctx => ctx.Request.Path.StartsWithSegments("/api") && ctx.Request.ContentType == "application/json",
-    ab => ab.UseMiddleware<BufferBody>()
-);
 
 app.UseRouting();
 

@@ -11,11 +11,11 @@
         /// <summary>
         /// Part number can be alphanumeric.
         /// </summary>
-        public string PartNumber { get; set; } = string.Empty;
+        public string PartNumber { get; set; }
         /// <summary>
         /// Where the part/supplies were purchased from.
         /// </summary>
-        public string PartSupplier { get; set; } = string.Empty;
+        public string PartSupplier { get; set; }
         /// <summary>
         /// Amount purchased, can be partial quantities such as fluids.
         /// </summary>
@@ -23,7 +23,7 @@
         /// <summary>
         /// Description of the part/supplies purchased.
         /// </summary>
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
         /// <summary>
         /// How much it costs
         /// </summary>
@@ -31,7 +31,7 @@
         /// <summary>
         /// Additional notes.
         /// </summary>
-        public string Notes { get; set; } = string.Empty;
+        public string Notes { get; set; }
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();

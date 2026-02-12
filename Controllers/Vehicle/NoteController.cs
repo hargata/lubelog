@@ -27,18 +27,18 @@ namespace CarCareTracker.Controllers
         public IActionResult SaveNoteToVehicleId(Note note)
         {
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId, HouseholdPermission.Edit))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId))
             {
-                return Json(OperationResponse.Failed("Access Denied"));
+                return Json(false);
             }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity?.Name ?? string.Empty));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity.Name));
             }
-            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
+            return Json(result);
         }
         [HttpGet]
         public IActionResult GetAddNotePartialView()
@@ -52,26 +52,26 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.GetNoteById(noteId);
             result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId))
             {
                 return Redirect("/Error/Unauthorized");
             }
             return PartialView("Note/_NoteModal", result);
         }
-        private OperationResponse DeleteNoteWithChecks(int noteId)
+        private bool DeleteNoteWithChecks(int noteId)
         {
             var existingRecord = _noteDataAccess.GetNoteById(noteId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
             {
-                return OperationResponse.Failed("Access Denied");
+                return false;
             }
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity?.Name ?? string.Empty));
+                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity.Name));
             }
-            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
+            return result;
         }
         [HttpPost]
         public IActionResult DeleteNoteById(int noteId)
@@ -86,10 +86,6 @@ namespace CarCareTracker.Controllers
             foreach (int noteId in noteIds)
             {
                 var existingNote = _noteDataAccess.GetNoteById(noteId);
-                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingNote.VehicleId, HouseholdPermission.Edit))
-                {
-                    return Json(OperationResponse.Failed("Access Denied"));
-                }
                 if (isToggle)
                 {
                     existingNote.Pinned = !existingNote.Pinned;
@@ -100,7 +96,7 @@ namespace CarCareTracker.Controllers
                 }
                 result = _noteDataAccess.SaveNoteToVehicle(existingNote);
             }
-            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
+            return Json(result);
         }
     }
 }
