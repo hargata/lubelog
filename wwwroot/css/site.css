@@ -833,3 +833,13 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     background-color: var(--bs-secondary-bg-subtle);
     color: var(--bs-secondary-text-emphasis);
 }
+[data-type="fieldOptionContainer"] {
+    background-color: var(--bs-secondary-bg-subtle);
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+[data-type="fieldOptionContainer"]:has([data-field="fail"]):has(input[type="checkbox"]):not(:has(input[type="checkbox"]:checked)) {
+    background-color: var(--bs-danger-bg-subtle);
+}
+[data-type="fieldOptionContainer"]:has([data-field="fail"]):has(input[type="radio"]:checked) {
+    background-color: var(--bs-danger-bg-subtle);
+}

@@ -53,26 +53,34 @@
                                     }
                                     else if (templateField.FieldType == InspectionFieldType.Check)
                                     {
-                                        <div class="d-flex justify-content-between flex-wrap">
+                                        <div class="d-flex justify-content-between flex-wrap gap-2">
                                             @foreach (InspectionRecordTemplateFieldOption fieldOption in templateField.Options)
                                             {
-                                                <div class="form-check form-check-inline" data-type="fieldOptionContainer">
+                                                <div class="border rounded p-2 col-4 flex-grow-1" data-type="fieldOptionContainer" onclick="triggerInnerCheckbox(this, event)">
                                                     <input class="form-check-input" data-type="fieldOption" type="checkbox" role="switch" data-field="@(fieldOption.IsFail ? "fail" : "")">
-                                                    <label class="form-check-label" data-type="fieldOptionText" onclick="stretchedLinkClick(this)">@fieldOption.Description</label>
+                                                    <label class="form-check-label text-break ms-1" data-type="fieldOptionText" onclick="stretchedLinkClick(this)">@fieldOption.Description</label>
                                                 </div>
+                                            }
+                                            @if (templateField.Options.Count() % 2 == 1)
+                                            {
+                                                <div class="col-4 flex-grow-1"></div>
                                             }
                                         </div>
                                     }
                                     else if (templateField.FieldType == InspectionFieldType.Radio)
                                     {
-                                        <div class="d-flex justify-content-between flex-wrap">
+                                            <div class="d-flex justify-content-between flex-wrap gap-2">
                                             @foreach (InspectionRecordTemplateFieldOption fieldOption in templateField.Options)
                                             {
-                                                    <div class="form-check form-check-inline" data-type="fieldOptionContainer">
+                                                    <div class="border rounded p-2 col-4 flex-grow-1" data-type="fieldOptionContainer" onclick="triggerInnerCheckbox(this, event)">
                                                     <input class="form-check-input" data-type="fieldOption" type="radio" role="switch" name="@templateFieldName" data-field="@(fieldOption.IsFail ? "fail" : "")">
-                                                    <label class="form-check-label" data-type="fieldOptionText" onclick="stretchedLinkClick(this)">@fieldOption.Description</label>
+                                                    <label class="form-check-label text-break ms-1" data-type="fieldOptionText" onclick="stretchedLinkClick(this)">@fieldOption.Description</label>
                                                 </div>
                                             }
+                                                @if (templateField.Options.Count() % 2 == 1)
+                                                {
+                                                    <div class="col-4 flex-grow-1"></div>
+                                                }
                                         </div>
                                     }
                                 </div>

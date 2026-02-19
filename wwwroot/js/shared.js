@@ -2044,3 +2044,14 @@ function showDropDownForRecordNav(sender) {
         });
     }
 }
+
+function triggerInnerCheckbox(sender, e) {
+    if ($(e.target).is('input')) {
+        return;
+    }
+    let checkbox = $(sender).find('input');
+    if (checkbox.length > 0) {
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        checkbox.trigger('change');
+    }
+}
