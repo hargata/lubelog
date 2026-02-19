@@ -643,7 +643,14 @@ html[data-bs-theme="light"] .api-method:hover {
     border-radius: 0.375rem;
     cursor: pointer;
     position: relative;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
+
+    .lubelogger-uploader:hover {
+        background-color: var(--bs-secondary-bg) !important;
+        color: var(--bs-secondary-color) !important;
+        border-style: solid;
+    }
 
 .lubelogger-link-uploader {
     position: absolute;
@@ -658,6 +665,8 @@ html[data-bs-theme="light"] .api-method:hover {
     }
 
 .lubelogger-uploader.solid {
+    background-color: var(--bs-secondary-bg) !important;
+    color: var(--bs-secondary-color) !important;
     border-style: solid;
 }
 
