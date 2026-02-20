@@ -2146,3 +2146,46 @@ function checkQueryParamForTab(tab) {
             break;
     }
 }
+
+function createQR(param, val) {
+    let currentParams = new URLSearchParams(window.location.search);
+    currentParams.set(param, val);
+    let urlToRender = `${window.location.origin}${window.location.pathname}?${currentParams.toString()}`;
+    let qr = qrcode(0, 'M');
+    qr.addData(urlToRender);
+    qr.make();
+    let svgData = qr.createSvgTag();
+    Swal.fire({
+        title: "QR Code",
+        html: `<div class='qr-container'>${svgData}</div>`,
+        confirmButtonText: 'Download',
+        showCancelButton: true
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            downloadQR();
+        }
+    });
+}
+function downloadQR() {
+    let svgElement = $(".qr-container").find('svg')[0];
+    let parentContainer = $('.qr-container');
+    let svgData = new XMLSerializer().serializeToString(svgElement);
+    let svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    let url = URL.createObjectURL(svgBlob);
+    let img = new Image();
+    let canvas = document.createElement("canvas");
+    img.src = url;
+    img.onload = function () {
+        let targetWidth = 500;
+        let targetHeight = 500;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0, targetWidth, targetHeight);
+        let pngDataUrl = canvas.toDataURL('image/png');
+        let downloadLink = document.createElement('a');
+        downloadLink.href = pngDataUrl;
+        downloadLink.download = `${crypto.randomUUID()}.png`;
+        downloadLink.click();
+        URL.revokeObjectURL(url);
+    };
+}

@@ -10,7 +10,7 @@
     var textFields = Model.Results.Where(x => x.FieldType == InspectionFieldType.Text);
 }
 <div class="modal-header">
-    <h5 class="modal-title">@(translator.Translate(userLanguage, "View Inspection Record"))</h5>
+    <h5 class="modal-title">@(translator.Translate(userLanguage, "View Inspection Record"))<a class="ms-1 link-body-emphasis" onclick="createQR('id', @Model.Id)"><i class="bi bi-qr-code"></i></a></h5>
     <button type="button" class="btn-close" onclick="hideAddInspectionRecordModal()" aria-label="Close"></button>
 </div>
 <div class="modal-body" onkeydown="handleEnter(this)">

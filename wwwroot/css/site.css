@@ -843,3 +843,10 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 [data-type="fieldOptionContainer"]:has([data-field="fail"]):has(input[type="radio"]:checked) {
     background-color: var(--bs-danger-bg-subtle);
 }
+.qr-container svg{
+    width: 100%;
+    height: 100%;
+}
+.qr-container{
+    aspect-ratio: 1/1;
+}
