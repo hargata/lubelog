@@ -16,7 +16,7 @@
 <div class="d-flex flex-column vehicleTabPane">
 <div class="container reportTabContainer flex-grow-1">
     <div class="row hideOnPrint mb-2" id="reportHeaderContent">
-        @await Html.PartialAsync("_ReportHeader", Model.ReportHeaderForVehicle)
+            @await Html.PartialAsync("Report/_ReportHeader", Model.ReportHeaderForVehicle)
     </div>
     <hr />
     <div class="row hideOnPrint flex-wrap gap-1">
@@ -34,7 +34,7 @@
             </div>
             <div class="row">
                 <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="costMakeUpReportContent">
-                    @await Html.PartialAsync("_CostMakeUpReport", Model.CostMakeUpForVehicle)
+                        @await Html.PartialAsync("Report/_CostMakeUpReport", Model.CostMakeUpForVehicle)
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
             </div>
             <div class="row flex-grow-1 flex-shrink-1">
                 <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="gasCostByMonthReportContent">
-                    @await Html.PartialAsync("_GasCostByMonthReport", Model.CostForVehicleByMonth)
+                        @await Html.PartialAsync("Report/_GasCostByMonthReport", Model.CostForVehicleByMonth)
                 </div>
             </div>
         </div>
@@ -134,17 +134,17 @@
             </div>
             <div class="row">
                 <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="reminderMakeUpReportContent">
-                    @await Html.PartialAsync("_ReminderMakeUpReport", Model.ReminderMakeUpForVehicle)
+                        @await Html.PartialAsync("Report/_ReminderMakeUpReport", Model.ReminderMakeUpForVehicle)
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-12 chartContainer border rounded">
             <div class="d-flex justify-content-center align-items-center" style="height:100%;" id="monthFuelMileageReportContent">
-                @await Html.PartialAsync("_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
+                    @await Html.PartialAsync("Report/_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
             </div>
         </div>
             <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="collaboratorContent">
-                @await Html.PartialAsync("_Collaborators", Model.Collaborators)
+                @await Html.PartialAsync("Report/_Collaborators", Model.Collaborators)
             </div>
     </div>
 </div>

@@ -43,6 +43,7 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getti
 - [Drawdown](https://github.com/adamvleggett/drawdown)
 - [MailKit](https://github.com/jstedfast/MailKit)
 - [Masonry](https://github.com/desandro/masonry)
+- [QRCode-Generator](https://github.com/kazuhikoarase/qrcode-generator)
 
 ## License
 MIT

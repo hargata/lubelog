@@ -72,6 +72,7 @@ function bindTabEvent() {
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
+        checkQueryParamForTab(e.target.id);
     });
 }
 function getVehicleCalendarEvents() {
@@ -837,6 +838,10 @@ function loadTabFromURL() {
 $(function () {
     bindTabEvent();
     loadTabFromURL();
+    //bind to browser pop state
+    window.addEventListener('popstate', function (event) {
+        loadTabFromURL();
+    });
 })
 function goToAdminPanel() {
     window.location.href = '/Admin';

@@ -1,4 +1,5 @@
 ﻿$(function () {
+    //bind functions on page load
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -91,8 +92,13 @@
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
+        checkQueryParamForTab(e.target.id);
     });
     loadDefaultTab();
+    //bind to browser pop state
+    window.addEventListener('popstate', function (event) {
+        loadDefaultTab();
+    });
 });
 
 function getVehicleNotes(vehicleId) {

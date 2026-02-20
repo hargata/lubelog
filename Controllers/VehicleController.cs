@@ -567,7 +567,7 @@ namespace CarCareTracker.Controllers
                         break;
                 }
             }
-            return PartialView("_MapSearchResult", searchResults);
+            return PartialView("Report/_MapSearchResult", searchResults);
         }
         [HttpPost]
         [TypeFilter(typeof(CollaboratorFilter))]
