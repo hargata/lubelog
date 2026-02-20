@@ -1,4 +1,5 @@
 ﻿$(function () {
+    //bind functions on page load
     var vehicleId = GetVehicleId().vehicleId;
     //bind tabs
     $('button[data-bs-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -93,6 +94,10 @@
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
     });
     loadDefaultTab();
+    //bind to browser pop state
+    window.addEventListener('popstate', function (event) {
+        loadDefaultTab();
+    });
 });
 
 function getVehicleNotes(vehicleId) {

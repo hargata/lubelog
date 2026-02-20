@@ -1944,6 +1944,10 @@ function closeAttachmentPreview() {
 }
 function setBrowserHistory(param, val) {
     let currentParams = new URLSearchParams(window.location.search);
+    //early return if the param already matches the val.
+    if (currentParams.get(param) == val) {
+        return;
+    }
     if (val == '') {
         currentParams.delete(param);
     } else {
