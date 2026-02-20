@@ -72,6 +72,7 @@ function bindTabEvent() {
             $(`.lubelogger-mobile-nav #${e.relatedTarget.id}`).removeClass('active');
         }
         setBrowserHistory('tab', getTabNameForURL(e.target.id));
+        checkQueryParamForTab(e.target.id);
     });
 }
 function getVehicleCalendarEvents() {

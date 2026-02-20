@@ -1717,11 +1717,31 @@ function noPropagation() {
     event.stopPropagation();
 }
 var checkExist;
-
+var elemsToCheck = [];
 function waitForElement(element, callBack, callBackParameter) {
+    //if element already exists
+    if ($(`${element}`).length) {
+        callBack(callBackParameter);
+        return;
+    }
+    //element does not exist, add to list
+    elemsToCheck.push({
+        element: element,
+        callBack: callBack,
+        callBackParameter: callBackParameter
+    });
     checkExist = setInterval(function () {
-        if ($(`${element}`).length) {
-            callBack(callBackParameter);
+        console.log(`Elems to check: ${elemsToCheck.length}`);
+        let elemsToRemove = [];
+        elemsToCheck.map(x => {
+            if ($(`${x.element}`).length) {
+                callBack(x.callBackParameter);
+                elemsToRemove.push(x);
+            }
+        });
+        elemsToCheck = elemsToCheck.filter(x => !elemsToRemove.find(y => y.element == x.element && y.callBack == x.callBack));
+        console.log(`Elems remaining: ${elemsToCheck.length}`);
+        if (elemsToCheck.length == 0) {
             clearInterval(checkExist);
         }
     }, 100); // check every 100ms
@@ -1945,7 +1965,7 @@ function closeAttachmentPreview() {
 function setBrowserHistory(param, val) {
     let currentParams = new URLSearchParams(window.location.search);
     //early return if the param already matches the val.
-    if (currentParams.get(param) == val) {
+    if (currentParams.get(param) == val && val != '') {
         return;
     }
     if (val == '') {
@@ -2057,5 +2077,72 @@ function triggerInnerCheckbox(sender, e) {
     if (checkbox.length > 0) {
         checkbox.prop('checked', !checkbox.prop('checked'));
         checkbox.trigger('change');
+    }
+}
+
+function checkQueryParams(elemToAwait, callBack, param) {
+    let currentParams = new URLSearchParams(window.location.search);
+    let paramData = currentParams.get(param);
+    if (paramData != null && paramData != undefined) {
+        waitForElement(elemToAwait, callBack, paramData);
+        setBrowserHistory(param, '');
+    }
+}
+
+function checkQueryParamForTab(tab) {
+    switch (tab) {
+        case "servicerecord-tab":
+            checkQueryParams('#serviceRecordModalContent', showEditServiceRecordModal, 'id');
+            checkQueryParams('#serviceRecordModalContent', showAddServiceRecordModal, 'add');
+            break;
+        case "notes-tab":
+            checkQueryParams('#noteModalContent', showEditNoteModal, 'id');
+            checkQueryParams('#noteModalContent', showAddNoteModal, 'add');
+            break;
+        case "gas-tab":
+            checkQueryParams('#gasRecordModalContent', showEditGasRecordModal, 'id');
+            checkQueryParams('#gasRecordModalContent', showAddGasRecordModal, 'add');
+            break;
+        case "accident-tab":
+            checkQueryParams('#collisionRecordModalContent', showEditCollisionRecordModal, 'id');
+            checkQueryParams('#collisionRecordModalContent', showAddCollisionRecordModal, 'add');
+            break;
+        case "tax-tab":
+            checkQueryParams('#taxRecordModalContent', showEditTaxRecordModal, 'id');
+            checkQueryParams('#taxRecordModalContent', showAddTaxRecordModal, 'add');
+            break;
+        case "report-tab":
+        case "garage-tab":
+        case "settings-tab":
+        case "calendar-tab":
+            break;
+        case "reminder-tab":
+            checkQueryParams('#reminderRecordModalContent', showEditReminderRecordModal, 'id');
+            checkQueryParams('#reminderRecordModalContent', showAddReminderModal, 'add');
+            break;
+        case "upgrade-tab":
+            checkQueryParams('#upgradeRecordModalContent', showEditUpgradeRecordModal, 'id');
+            checkQueryParams('#upgradeRecordModalContent', showAddUpgradeRecordModal, 'add');
+            break;
+        case "supply-tab":
+            checkQueryParams('#supplyRecordModalContent', showEditSupplyRecordModal, 'id');
+            checkQueryParams('#supplyRecordModalContent', showAddSupplyRecordModal, 'add');
+            break;
+        case "plan-tab":
+            checkQueryParams('#planRecordModalContent', showEditPlanRecordModal, 'id');
+            checkQueryParams('#planRecordModalContent', showAddPlanRecordModal, 'add');
+            break;
+        case "odometer-tab":
+            checkQueryParams('#odometerRecordModalContent', showEditOdometerRecordModal, 'id');
+            checkQueryParams('#odometerRecordModalContent', showAddOdometerRecordModal, 'add');
+            break;
+        case "inspection-tab":
+            checkQueryParams('#inspectionRecordModalContent', showEditInspectionRecordModal, 'id');
+            checkQueryParams('#inspectionRecordModalContent', useInspectionRecordTemplate, 'add');
+            break;
+        case "equipment-tab":
+            checkQueryParams('#equipmentRecordModalContent', showEditEquipmentRecordModal, 'id');
+            checkQueryParams('#equipmentRecordModalContent', showAddEquipmentRecordModal, 'add');
+            break;
     }
 }
