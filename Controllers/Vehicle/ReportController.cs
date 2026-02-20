@@ -169,7 +169,7 @@ namespace CarCareTracker.Controllers
             viewModel.ReportHeaderForVehicle.AverageMPG = $"{averageMPG} {mpgViewModel.Unit}";
             viewModel.ReportHeaderForVehicle.MaxOdometer = maxMileage;
             viewModel.ReportHeaderForVehicle.DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled);
-            return PartialView("_Report", viewModel);
+            return PartialView("Report/_Report", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -182,7 +182,7 @@ namespace CarCareTracker.Controllers
                 Collaborators = result,
                 CanModifyCollaborators = userCanModify
             };
-            return PartialView("_Collaborators", viewModel);
+            return PartialView("Report/_Collaborators", viewModel);
         }
         [TypeFilter(typeof(StrictCollaboratorFilter), Arguments = new object[] {false, true})]
         [HttpPost]
@@ -252,7 +252,7 @@ namespace CarCareTracker.Controllers
                 DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled)
             };
 
-            return PartialView("_ReportHeader", viewModel);
+            return PartialView("Report/_ReportHeader", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -279,7 +279,7 @@ namespace CarCareTracker.Controllers
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
-            return PartialView("_CostMakeUpReport", viewModel);
+            return PartialView("Report/_CostMakeUpReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -318,7 +318,7 @@ namespace CarCareTracker.Controllers
                 DistanceUnit = vehicleData.UseHours ? "Cost Per Hour" : userConfig.UseMPG ? "Cost Per Mile" : "Cost Per Kilometer",
                 NumberOfDays = totalDays
             };
-            return PartialView("_CostTableReport", viewModel);
+            return PartialView("Report/_CostTableReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetVehicleImageMap(int vehicleId)
@@ -334,7 +334,7 @@ namespace CarCareTracker.Controllers
                     imageMap = JsonSerializer.Deserialize<VehicleImageMap>(fullFileText) ?? new VehicleImageMap();
                 }
             }
-            return PartialView("_VehicleImageMap", imageMap);
+            return PartialView("Report/_VehicleImageMap", imageMap);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetReminderMakeUpByVehicle(int vehicleId, int daysToAdd)
@@ -347,7 +347,7 @@ namespace CarCareTracker.Controllers
                 VeryUrgentCount = reminders.Where(x => x.Urgency == ReminderUrgency.VeryUrgent).Count(),
                 PastDueCount = reminders.Where(x => x.Urgency == ReminderUrgency.PastDue).Count()
             };
-            return PartialView("_ReminderMakeUpReport", viewModel);
+            return PartialView("Report/_ReminderMakeUpReport", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -511,7 +511,7 @@ namespace CarCareTracker.Controllers
             }
             viewModel.ExtraFields = extraFields.Distinct().ToList();
 
-            return PartialView("_ReportParameters", viewModel);
+            return PartialView("Report/_ReportParameters", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         public IActionResult GetVehicleHistory(int vehicleId, ReportParameter reportParameter)
@@ -680,7 +680,7 @@ namespace CarCareTracker.Controllers
                 ExtraFields = x.ExtraFields
             }));
             vehicleHistory.VehicleHistory = reportData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
-            return PartialView("_VehicleHistory", vehicleHistory);
+            return PartialView("Report/_VehicleHistory", vehicleHistory);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -726,7 +726,7 @@ namespace CarCareTracker.Controllers
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
                 SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
             };
-            return PartialView("_MPGByMonthReport", mpgViewModel);
+            return PartialView("Report/_MPGByMonthReport", mpgViewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -769,7 +769,7 @@ namespace CarCareTracker.Controllers
                 Cost = x.Sum(y => y.Cost),
                 DistanceTraveled = x.Max(y => y.DistanceTraveled)
             }).ToList();
-            return PartialView("_GasCostByMonthReport", groupedRecord);
+            return PartialView("Report/_GasCostByMonthReport", groupedRecord);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
@@ -818,18 +818,18 @@ namespace CarCareTracker.Controllers
             var userConfig = _config.GetUserConfig(User);
             var viewModel = new CostDistanceTableForVehicle { CostData = groupedRecord };
             viewModel.DistanceUnit = vehicleData.UseHours ? "h" : userConfig.UseMPG ? "mi." : "km";
-            return PartialView("_CostDistanceTableReport", viewModel);
+            return PartialView("Report/_CostDistanceTableReport", viewModel);
         }
         [HttpGet]
         public IActionResult GetAdditionalWidgets()
         {
             var widgets = _fileHelper.GetWidgets();
-            return PartialView("_ReportWidgets", widgets);
+            return PartialView("Report/_ReportWidgets", widgets);
         }
         [HttpGet]
         public IActionResult GetImportModeSelector()
         {
-            return PartialView("_ImportModeSelector");
+            return PartialView("Report/_ImportModeSelector");
         }
     }
 }
