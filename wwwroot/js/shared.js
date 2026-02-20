@@ -2184,7 +2184,8 @@ function downloadQR() {
         let pngDataUrl = canvas.toDataURL('image/png');
         let downloadLink = document.createElement('a');
         downloadLink.href = pngDataUrl;
-        downloadLink.download = `${crypto.randomUUID()}.png`;
+        let downloadFileName = new Date().getTime();
+        downloadLink.download = `qr_${downloadFileName}.png`;
         downloadLink.click();
         URL.revokeObjectURL(url);
     };
