@@ -40,6 +40,7 @@ namespace CarCareTracker.Controllers
         private readonly IUserLogic _userLogic;
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
+        private readonly IEventLogic _eventLogic;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
 
         public VehicleController(ILogger<VehicleController> logger,
@@ -64,6 +65,7 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             IOdometerLogic odometerLogic,
             IVehicleLogic vehicleLogic,
+            IEventLogic eventLogic,
             IWebHostEnvironment webEnv,
             IConfigHelper config,
             IInspectionRecordDataAccess inspectionRecordDataAccess,
@@ -95,6 +97,7 @@ namespace CarCareTracker.Controllers
             _userLogic = userLogic;
             _odometerLogic = odometerLogic;
             _vehicleLogic = vehicleLogic;
+            _eventLogic = eventLogic;
             _webEnv = webEnv;
             _config = config; 
         }
@@ -143,11 +146,11 @@ namespace CarCareTracker.Controllers
                 if (isNewAddition)
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicleInput.Id);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity?.Name ?? string.Empty, vehicleInput.Id.ToString()));
+                    _eventLogic.PublishEvent(WebHookPayload.Generic($"Created Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.add", User.Identity?.Name ?? string.Empty, vehicleInput.Id.ToString()));
                 }
                 else
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity?.Name ?? string.Empty, vehicleInput.Id.ToString()));
+                    _eventLogic.PublishEvent(WebHookPayload.Generic($"Updated Vehicle {vehicleInput.Year} {vehicleInput.Make} {vehicleInput.Model}({StaticHelper.GetVehicleIdentifier(vehicleInput)})", "vehicle.update", User.Identity?.Name ?? string.Empty, vehicleInput.Id.ToString()));
                 }
                 return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
             }
@@ -180,7 +183,7 @@ namespace CarCareTracker.Controllers
                 _dataAccess.DeleteVehicle(vehicleId);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity?.Name ?? string.Empty, vehicleId.ToString()));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity?.Name ?? string.Empty, vehicleId.ToString()));
             }
             return Json(OperationResponse.Succeed());
         }
@@ -210,7 +213,7 @@ namespace CarCareTracker.Controllers
                     _dataAccess.DeleteVehicle(vehicleId);
                 if (result)
                 {
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity?.Name ?? string.Empty, vehicleId.ToString()));
+                    _eventLogic.PublishEvent(WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete", User.Identity?.Name ?? string.Empty, vehicleId.ToString()));
                 }
                 results.Add(result);
             }
@@ -757,7 +760,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity?.Name ?? string.Empty, string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Moved multiple {source.ToString()} to {destination.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.move", User.Identity?.Name ?? string.Empty, string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -805,7 +808,7 @@ namespace CarCareTracker.Controllers
             }
             if (result.Success)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity?.Name ?? string.Empty, string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Deleted multiple {importMode.ToString()} - Ids: {string.Join(", ", recordIds)}", "bulk.delete", User.Identity?.Name ?? string.Empty, string.Empty));
             }
             return Json(result);
         }
@@ -864,7 +867,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity?.Name ?? string.Empty, string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Adjusted odometer for multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.adjust", User.Identity?.Name ?? string.Empty, string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -1031,7 +1034,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity?.Name ?? string.Empty, string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.duplicate", User.Identity?.Name ?? string.Empty, string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -1191,7 +1194,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity?.Name ?? string.Empty, string.Join(",", vehicleIds)));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Duplicated multiple {importMode.ToString()} - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.to.vehicles", User.Identity?.Name ?? string.Empty, string.Join(",", vehicleIds)));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -1279,7 +1282,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity?.Name ?? string.Empty, string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Created Odometer Records based on {importMode.ToString()} - Ids: {string.Join(",", recordIds)}", "bulk.odometer.insert", User.Identity?.Name ?? string.Empty, string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }

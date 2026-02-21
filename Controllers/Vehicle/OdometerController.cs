@@ -54,7 +54,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.SaveOdometerRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(convertedRecord, odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromOdometerRecord(convertedRecord, odometerRecord.Id == default ? "odometerrecord.add" : "odometerrecord.update", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -197,7 +197,7 @@ namespace CarCareTracker.Controllers
             var result = _odometerRecordDataAccess.DeleteOdometerRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromOdometerRecord(existingRecord, "odometerrecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
@@ -262,7 +262,7 @@ namespace CarCareTracker.Controllers
             }
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Duplicated distance from OdometerRecord - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.distance.to.vehicles", User.Identity?.Name ?? string.Empty, string.Join(",", vehicleIds)));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Duplicated distance from OdometerRecord - Ids: {string.Join(",", recordIds)} - to Vehicle Ids: {string.Join(",", vehicleIds)}", "bulk.duplicate.distance.to.vehicles", User.Identity?.Name ?? string.Empty, string.Join(",", vehicleIds)));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }

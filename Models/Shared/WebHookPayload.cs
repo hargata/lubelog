@@ -188,6 +188,9 @@ namespace CarCareTracker.Models
             Dictionary<string, string> payloadDictionary = new Dictionary<string, string>();
             payloadDictionary.Add("user", userName);
             payloadDictionary.Add("description", planRecord.Description);
+            payloadDictionary.Add("progress", planRecord.Progress.ToString());
+            payloadDictionary.Add("priority", planRecord.Priority.ToString());
+            payloadDictionary.Add("type", planRecord.ImportMode.ToString());
             payloadDictionary.Add("vehicleId", planRecord.VehicleId.ToString());
             payloadDictionary.Add("cost", planRecord.Cost.ToString("F2"));
             return new WebHookPayload
