@@ -37,7 +37,7 @@ namespace CarCareTracker.Logic
                 int attempt = 1;
                 bool succeed = false;
                 int iterationDelay = 2;
-                while (!succeed && attempt < maxRetries)
+                while (!succeed && attempt <= maxRetries)
                 {
                     if (webhookURL.StartsWith("discord://"))
                     {
@@ -77,6 +77,7 @@ namespace CarCareTracker.Logic
                         await Task.Delay(iterationDelay * 1000);
                     } else
                     {
+                        doDelay = true;
                         _logger.LogWarning($"WebHook Error: {result.StatusCode} Attempt {attempt}");
                     }
                     attempt++;
