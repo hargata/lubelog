@@ -178,7 +178,7 @@ namespace CarCareTracker.Controllers
                     Files = input.Files
                 };
                 _planRecordDataAccess.SavePlanRecordToVehicle(planRecord);
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(planRecord, "planrecord.add.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromPlanRecord(planRecord, "planrecord.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Plan Record Added", new { recordId = planRecord.Id }));
             }
             catch (Exception ex)
@@ -212,7 +212,7 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.DeletePlanRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Plan Record Deleted"));
         }
@@ -284,7 +284,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.ExtraFields = input.ExtraFields;
                     _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.update.api", User.Identity?.Name ?? string.Empty));
+                    _eventLogic.PublishEvent(WebHookPayload.FromPlanRecord(existingRecord, "planrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

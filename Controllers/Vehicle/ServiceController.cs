@@ -57,7 +57,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(convertedRecord, serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromGenericRecord(convertedRecord, serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity?.Name ?? string.Empty));
             }
             if (convertedRecord.Id != default && serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
@@ -119,7 +119,7 @@ namespace CarCareTracker.Controllers
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
