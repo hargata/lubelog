@@ -105,6 +105,7 @@ builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
+builder.Services.AddSingleton<IEventLogic, EventLogic>();
 
 //Configure Auth
 builder.Services.AddHttpClient();

@@ -42,6 +42,7 @@ namespace CarCareTracker.Controllers
         private readonly IConfigHelper _config;
         private readonly IWebHostEnvironment _webEnv;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IEventLogic _eventLogic;
         public APIController(IVehicleDataAccess dataAccess,
             IGasHelper gasHelper,
             IEquipmentHelper equipmentHelper,
@@ -69,6 +70,7 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             IVehicleLogic vehicleLogic,
             IOdometerLogic odometerLogic,
+            IEventLogic eventLogic,
             IWebHostEnvironment webEnv,
             IHttpClientFactory httpClientFactory)
         {
@@ -97,6 +99,7 @@ namespace CarCareTracker.Controllers
             _userLogic = userLogic;
             _odometerLogic = odometerLogic;
             _vehicleLogic = vehicleLogic;
+            _eventLogic = eventLogic;
             _fileHelper = fileHelper;
             _config = config;
             _webEnv = webEnv;
@@ -309,7 +312,7 @@ namespace CarCareTracker.Controllers
                 {
                     _userLogic.AddUserAccessToVehicle(GetUserID(), vehicle.Id);
                 }
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)}) via API", "vehicle.add.api", User.Identity?.Name ?? string.Empty, vehicle.Id.ToString()));
+                _eventLogic.PublishEvent(WebHookPayload.Generic($"Created Vehicle {vehicle.Year} {vehicle.Make} {vehicle.Model}({StaticHelper.GetVehicleIdentifier(vehicle)}) via API", "vehicle.add.api", User.Identity?.Name ?? string.Empty, vehicle.Id.ToString()));
                 return Json(OperationResponse.Succeed("Vehicle Added", new { vehicleId = vehicle.Id }));
             } catch (Exception ex)
             {
@@ -387,7 +390,7 @@ namespace CarCareTracker.Controllers
                             break;
                     }
                     _dataAccess.SaveVehicle(existingVehicle);
-                    StaticHelper.NotifyAsync(_config.GetWebHookUrl(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity?.Name ?? string.Empty, existingVehicle.Id.ToString()));
+                    _eventLogic.PublishEvent(WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity?.Name ?? string.Empty, existingVehicle.Id.ToString()));
                     return Json(OperationResponse.Succeed("Vehicle Updated"));
                 }
                 else
