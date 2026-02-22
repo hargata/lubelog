@@ -12,7 +12,6 @@ namespace CarCareTracker.Logic
         private readonly IConfigHelper _config;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<EventLogic> _logger;
-        private List<int> delayDict = new List<int>() { 2, 4, 16, 32, 60 };
         public EventLogic(IConfigHelper config, IHttpClientFactory httpClientFactory, ILogger<EventLogic> logger)
         {
             _config = config;
@@ -31,7 +30,7 @@ namespace CarCareTracker.Logic
                 bool succeed = false;
                 while (!succeed && attempt <= maxRetries)
                 {
-                    int iterationDelay = delayDict[attempt - 1];
+                    int iterationDelay = (int)Math.Pow(2, attempt);
                     if (webhookURL.StartsWith("discord://"))
                     {
                         var cleanWebhookURL = webhookURL.Replace("discord://", "https://");
