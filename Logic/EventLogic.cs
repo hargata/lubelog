@@ -26,7 +26,7 @@ namespace CarCareTracker.Logic
             //signalr
             if (_config.GetWebSocketEnabled())
             {
-                await _eventHub.Clients.All.ReceiveChangeForAllVehicles();
+                await _eventHub.Clients.Groups(new List<string> { "kiosk", $"vehicleId_{webHookPayload.VehicleId}"}).ReceiveChangeForAllVehicles();
             }
             //webhook
             string webhookURL = _config.GetWebHookUrl();
