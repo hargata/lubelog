@@ -221,9 +221,9 @@ function retrieveKioskContent() {
                     retrieveKioskContent(); //skip until we hit a page with content.
                 }
             }
+            setTimeout(() => { retrieveKioskContent() }, 60000);
         });
     }
-
 }
 function addVehicleToExceptionList(vehicleId) {
     Swal.fire({
