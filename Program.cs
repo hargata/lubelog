@@ -107,7 +107,10 @@ builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 builder.Services.AddSingleton<IEventLogic, EventLogic>();
 
-//Configure Auth
+//configure signalr
+builder.Services.AddSignalR();
+
+//configure Auth
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
@@ -116,7 +119,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.DefaultPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes("AuthN").RequireAuthenticatedUser().Build();
 });
-//Configure max file upload size
+//configure max file upload size
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.Limits.MaxRequestBodySize = int.MaxValue; // if don't set default value is: 30 MB
@@ -130,9 +133,10 @@ builder.Services.Configure<FormOptions>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//configure the HTTP request pipeline.
 app.UseExceptionHandler("/Home/Error");
 
+//static file security
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -195,6 +199,7 @@ app.UseStaticFiles(new StaticFileOptions
     }
 });
 
+//api middleware
 app.UseWhen(
     ctx => ctx.Request.Path.StartsWithSegments("/api") && ctx.Request.ContentType == "application/json",
     ab => ab.UseMiddleware<BufferBody>()
@@ -207,5 +212,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+//signalr
+app.MapHub<EventHubLogic>("/api/ws");
 
 app.Run();

@@ -40,6 +40,10 @@ namespace CarCareTracker.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? InvariantAPIEnabled { get; set; }
 
+        [JsonPropertyName("LUBELOGGER_WEB_SOCKET")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? WebSocketEnabled { get; set; }
+
         [JsonPropertyName("MailConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MailConfig? SMTPConfig { get; set; }

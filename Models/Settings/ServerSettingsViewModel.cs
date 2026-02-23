@@ -13,6 +13,7 @@ namespace CarCareTracker.Models
         public string Domain { get; set; } = string.Empty;
         public bool CustomWidgetsEnabled { get; set; }
         public bool InvariantAPIEnabled { get; set; }
+        public bool WebSocketEnabled { get; set; }
         public MailConfig SMTPConfig { get; set; } = new MailConfig();
         public OpenIDConfig OIDCConfig { get; set; } = new OpenIDConfig();
         public bool OpenRegistration { get; set; }
