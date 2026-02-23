@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CarCareTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CarCareTracker.Logic
 {
     public interface IEventHubLogic
     {
-        Task ReceiveChangeForAllVehicles();
+        Task ReceiveChangeForAllVehicles(WebHookPayload webHookPayload);
     }
     [Authorize]
     public class EventHubLogic: Hub<IEventHubLogic>

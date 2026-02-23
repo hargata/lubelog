@@ -2113,7 +2113,6 @@ async function setupEventHub(groupName, callBack, callBackParam) {
     }
     catch (err) {
         console.log(err);
-        errorToast('WebSockets Not Enabled');
     }
 }
 

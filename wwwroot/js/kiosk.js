@@ -175,7 +175,7 @@ async function setupEventHubForKiosk(accessToken) {
         });
     }
     catch (err) {
-        errorToast('WebSockets Not Enabled');
+        console.log(err);
     }
 }
 function acquireKioskWakeLock() {
