@@ -102,6 +102,13 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="inputWebSocket">@translator.Translate(userLanguage, "WebSocket")</label>
+                <select class="form-select" id="inputWebSocket">
+                    <!option value="true" @(Model.WebSocketEnabled ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.WebSocketEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="inputInvariantAPI">@translator.Translate(userLanguage, "Invariant API")</label>
                 <select class="form-select" id="inputInvariantAPI">
                     <!option value="true" @(Model.InvariantAPIEnabled ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>

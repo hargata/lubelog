@@ -1,5 +1,6 @@
 ﻿using CarCareTracker.Helper;
 using CarCareTracker.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CarCareTracker.Logic
 {
@@ -12,14 +13,22 @@ namespace CarCareTracker.Logic
         private readonly IConfigHelper _config;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<EventLogic> _logger;
-        public EventLogic(IConfigHelper config, IHttpClientFactory httpClientFactory, ILogger<EventLogic> logger)
+        private readonly IHubContext<EventHubLogic, IEventHubLogic> _eventHub;
+        public EventLogic(IConfigHelper config, IHttpClientFactory httpClientFactory, IHubContext<EventHubLogic, IEventHubLogic> eventHub, ILogger<EventLogic> logger)
         {
             _config = config;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _eventHub = eventHub;
         }
         public async void PublishEvent(WebHookPayload webHookPayload)
         {
+            //signalr
+            if (_config.GetWebSocketEnabled())
+            {
+                await _eventHub.Clients.All.ReceiveChangeForAllVehicles();
+            }
+            //webhook
             string webhookURL = _config.GetWebHookUrl();
             int maxRetries = 5;
             if (!string.IsNullOrWhiteSpace(webhookURL))

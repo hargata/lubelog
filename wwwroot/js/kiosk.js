@@ -61,6 +61,7 @@ function showKioskPlan(sender) {
     let dataToCopy = planCard.find('.kiosk-plan-details-copyable').html();
     $('.kiosk-plan-details-target').html(dataToCopy);
     setMarkDownPlanNotes($('.kiosk-plan-details-target .stickerNote'));
+    setBrowserHistory('recordId', planCard.attr('data-recordId'));
 }
 function setMarkDownPlanNotes(elem) {
     if (elem.length > 0) {
@@ -74,6 +75,7 @@ function showAllKioskPlan() {
     $('[data-recordId]').show();
     $('.kiosk-plan-details-container').hide();
     $('.kiosk-plan-selector').trigger('change');
+    setBrowserHistory('recordId', '');
 }
 function filterKioskReminder(sender) {
     let selectedVal = $(sender).val();
@@ -94,6 +96,7 @@ function showAllKioskReminder() {
     $('.kiosk-card-details').hide();
     $('.kiosk-reminder-selector').prop('disabled', false);
     $('.kiosk-content').masonry();
+    setBrowserHistory('recordId', '');
 }
 function showKioskReminder(sender) {
     let reminderCard = $(sender).closest('[data-recordId]');
@@ -111,13 +114,20 @@ function showKioskReminder(sender) {
     $('.kiosk-tab-content').html(dataToCopy);
     setMarkDownPlanNotes($('.kiosk-tab-content'));
     $(".kiosk-content").masonry();
+    setBrowserHistory('recordId', reminderCard.attr('data-recordId'));
 }
 function kioskSelectLoadVehicleIdFromParam(elem) {
     let currentParams = new URLSearchParams(window.location.search);
     let vehicleIdToLoad = currentParams.get('vehicleId');
+    let recordIdToLoad = currentParams.get('recordId');
     if (vehicleIdToLoad != null && elem.find(`option[value='${vehicleIdToLoad}']`).length > 0) {
         elem.val(vehicleIdToLoad);
         elem.trigger('change');
+    }
+    if (recordIdToLoad != null && $(`[data-recordId='${recordIdToLoad}']:visible`).length > 0) {
+        $(`[data-recordId='${recordIdToLoad}']:visible`).trigger('click');
+    } else if (recordIdToLoad != null) {
+        setBrowserHistory('recordId', '');
     }
 }
 
@@ -128,24 +138,44 @@ function kioskLoadVehicleIdFromParam() {
         showKioskVehicle(vehicleIdToLoad);
     }
 }
-function setAccessToken(accessToken) {
+async function setAccessToken(accessToken) {
     //use this function to never worry about user session expiring.
     $.ajaxSetup({
         headers: {
             'x-api-key': accessToken
         }
     });
+    await setupEventHub(accessToken);
     console.log("Access Token for Kiosk Mode Configured!");
 }
+var eventHubConn = undefined;
 function initKiosk() {
     $("body > div").removeClass("container");
     $("body > div").css('height', '100vh');
-    subtractAmount = parseInt($("#kioskContainer").width() * 0.0016); //remove 0.0016% of width every 100 ms which will approximate to one minute.
-    if (subtractAmount < 2) {
-        subtractAmount = 2;
-    }
     retrieveKioskContent();
     acquireKioskWakeLock();
+    setupEventHub();
+}
+async function setupEventHub(accessToken) {
+    //initialize signalr
+    let eventHubUrl = '/api/ws';
+    if (accessToken != undefined && accessToken != '') {
+        eventHubUrl = `${eventHubUrl}?apiKey=${accessToken}`;
+    }
+    if (eventHubConn != undefined) {
+        await eventHubConn.stop();
+        eventHubConn = undefined;
+    }
+    try {
+        eventHubConn = new signalR.HubConnectionBuilder().withUrl(eventHubUrl).build();
+        eventHubConn.on("ReceiveChangeForAllVehicles", () => {
+            setDebounce(retrieveKioskContent);
+        })
+        await eventHubConn.start();
+    }
+    catch (err) {
+        errorToast('WebSockets Not Enabled');
+    }
 }
 function acquireKioskWakeLock() {
     //acquire wakeLock;
@@ -161,15 +191,10 @@ function acquireKioskWakeLock() {
     }
 }
 function retrieveKioskContent() {
-    clearInterval(refreshTimer);
     if (kioskMode != 'Cycle') {
         $.post('/Kiosk/KioskContent', { exclusions: exceptionList, kioskMode: kioskMode }, function (data) {
             $("#kioskContainer").html(data);
             $(".kiosk-content").masonry();
-            if ($(".no-data-message").length == 0) {
-                $(".progress-bar").width($("#kioskContainer").width());
-                setTimeout(function () { startTimer() }, 500);
-            }
         });
     } else {
         //cycle mode
@@ -194,23 +219,10 @@ function retrieveKioskContent() {
                 } else {
                     retrieveKioskContent(); //skip until we hit a page with content.
                 }
-            } else {
-                $(".progress-bar").width($("#kioskContainer").width());
-                setTimeout(function () { startTimer() }, 500);
             }
         });
     }
 
-}
-function startTimer() {
-    refreshTimer = setInterval(function () {
-        var currentWidth = $(".progress-bar").width();
-        if (currentWidth > 0) {
-            $(".progress-bar").width(currentWidth - subtractAmount);
-        } else {
-            retrieveKioskContent();
-        }
-    }, 100);
 }
 function addVehicleToExceptionList(vehicleId) {
     Swal.fire({

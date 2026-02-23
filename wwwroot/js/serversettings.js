@@ -70,6 +70,7 @@ function saveSetup() {
         ServerURL: $("#inputDomain").val(),
         CustomWidgetsEnabled: $("#inputCustomWidget").val(),
         InvariantAPIEnabled: $("#inputInvariantAPI").val(),
+        WebSocketEnabled: $("#inputWebSocket").val(),
         CookieLifeSpan: $("#inputCookieLifeSpan").val(),
         SMTPConfig: {
             EmailServer: $("#inputSMTPServer").val(),

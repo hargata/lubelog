@@ -34,6 +34,7 @@ namespace CarCareTracker.Helper
         string GetServerDomain();
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
+        bool GetWebSocketEnabled();
         bool GetServerOpenRegistration();
         string GetDefaultReminderEmail();
         int GetAuthCookieLifeSpan();
@@ -72,6 +73,10 @@ namespace CarCareTracker.Helper
         public bool GetInvariantApi()
         {
             return CheckBool(CheckString("LUBELOGGER_INVARIANT_API"));
+        }
+        public bool GetWebSocketEnabled()
+        {
+            return CheckBool(CheckString("LUBELOGGER_WEB_SOCKET"));
         }
         public string GetMOTD()
         {
@@ -247,6 +252,10 @@ namespace CarCareTracker.Helper
             if (serverConfig.InvariantAPIEnabled.HasValue && !serverConfig.InvariantAPIEnabled.Value)
             {
                 serverConfig.InvariantAPIEnabled = null;
+            }
+            if (serverConfig.WebSocketEnabled.HasValue && !serverConfig.WebSocketEnabled.Value)
+            {
+                serverConfig.WebSocketEnabled = null;
             }
             if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig?.EmailServer ?? string.Empty))
             {

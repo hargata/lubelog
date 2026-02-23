@@ -377,13 +377,15 @@ namespace CarCareTracker.Logic
                 if (vehiclePlans.Any())
                 {
                     var convertedPlans = vehiclePlans.Select(x => new KioskPlanViewModel {
+                        Id = x.Id,
                         VehicleData = vehicle,
                         ImportMode = x.ImportMode, 
                         Priority = x.Priority, 
                         Progress = x.Progress, 
                         Notes = x.Notes, 
                         RequisitionHistory = x.RequisitionHistory, 
-                        Description = x.Description 
+                        Description = x.Description,
+                        Cost = x.Cost
                     });
                     plans.AddRange(convertedPlans);
                 }
