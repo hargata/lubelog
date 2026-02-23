@@ -4,6 +4,7 @@
     };
 });
 const mobileScreen = window.matchMedia("(max-width: 576px)");
+var eventHubConn = undefined;
 function returnToGarage() {
     window.location.href = '/Home';
 }
@@ -2089,60 +2090,103 @@ function checkQueryParams(elemToAwait, callBack, param) {
     }
 }
 
-function checkQueryParamForTab(tab) {
+async function setupEventHub(groupName, callBack, callBackParam) {
+    //initialize signalr
+    let eventHubUrl = '/api/ws';
+    if (eventHubConn != undefined) {
+        await eventHubConn.stop();
+        eventHubConn = undefined;
+    }
+    try {
+        eventHubConn = new signalR.HubConnectionBuilder().withUrl(eventHubUrl).build();
+        eventHubConn.off("ReceiveChangeForAllVehicles");
+        eventHubConn.on("ReceiveChangeForAllVehicles", () => {
+            if ($('.modal.show').length == 0) { //only perform update if no modal is actively being shown.
+                callBack(callBackParam);
+            }
+        });
+        await eventHubConn.start().then(() => {
+            eventHubConn.invoke("JoinGroup", groupName);
+        });
+    }
+    catch (err) {
+        console.log(err);
+        errorToast('WebSockets Not Enabled');
+    }
+}
+
+function bindTabEvents(tab) {
     switch (tab) {
         case "servicerecord-tab":
             checkQueryParams('#serviceRecordModalContent', showEditServiceRecordModal, 'id');
             checkQueryParams('#serviceRecordModalContent', showAddServiceRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleServiceRecords, GetVehicleId().vehicleId);
             break;
         case "notes-tab":
             checkQueryParams('#noteModalContent', showEditNoteModal, 'id');
             checkQueryParams('#noteModalContent', showAddNoteModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
             break;
         case "gas-tab":
             checkQueryParams('#gasRecordModalContent', showEditGasRecordModal, 'id');
             checkQueryParams('#gasRecordModalContent', showAddGasRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
             break;
         case "accident-tab":
             checkQueryParams('#collisionRecordModalContent', showEditCollisionRecordModal, 'id');
             checkQueryParams('#collisionRecordModalContent', showAddCollisionRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
             break;
         case "tax-tab":
             checkQueryParams('#taxRecordModalContent', showEditTaxRecordModal, 'id');
             checkQueryParams('#taxRecordModalContent', showAddTaxRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
             break;
         case "report-tab":
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleReport, GetVehicleId().vehicleId);
+            break;
         case "garage-tab":
+            setupEventHub(`kiosk`, loadGarage, '');
+            break;
         case "settings-tab":
+            break;
         case "calendar-tab":
+            setupEventHub(`kiosk`, getVehicleCalendarEvents, '');
             break;
         case "reminder-tab":
             checkQueryParams('#reminderRecordModalContent', showEditReminderRecordModal, 'id');
             checkQueryParams('#reminderRecordModalContent', showAddReminderModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleReminders, GetVehicleId().vehicleId);
             break;
         case "upgrade-tab":
             checkQueryParams('#upgradeRecordModalContent', showEditUpgradeRecordModal, 'id');
             checkQueryParams('#upgradeRecordModalContent', showAddUpgradeRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleUpgradeRecords, GetVehicleId().vehicleId);
             break;
         case "supply-tab":
             checkQueryParams('#supplyRecordModalContent', showEditSupplyRecordModal, 'id');
             checkQueryParams('#supplyRecordModalContent', showAddSupplyRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleSupplyRecords, GetVehicleId().vehicleId);
             break;
         case "plan-tab":
             checkQueryParams('#planRecordModalContent', showEditPlanRecordModal, 'id');
             checkQueryParams('#planRecordModalContent', showAddPlanRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehiclePlanRecords, GetVehicleId().vehicleId);
             break;
         case "odometer-tab":
             checkQueryParams('#odometerRecordModalContent', showEditOdometerRecordModal, 'id');
             checkQueryParams('#odometerRecordModalContent', showAddOdometerRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleOdometerRecords, GetVehicleId().vehicleId);
             break;
         case "inspection-tab":
             checkQueryParams('#inspectionRecordModalContent', showEditInspectionRecordModal, 'id');
             checkQueryParams('#inspectionRecordModalContent', useInspectionRecordTemplate, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleInspectionRecords, GetVehicleId().vehicleId);
             break;
         case "equipment-tab":
             checkQueryParams('#equipmentRecordModalContent', showEditEquipmentRecordModal, 'id');
             checkQueryParams('#equipmentRecordModalContent', showAddEquipmentRecordModal, 'add');
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleEquipmentRecords, GetVehicleId().vehicleId);
             break;
     }
 }

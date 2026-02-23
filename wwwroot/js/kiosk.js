@@ -145,18 +145,17 @@ async function setAccessToken(accessToken) {
             'x-api-key': accessToken
         }
     });
-    await setupEventHub(accessToken);
+    await setupEventHubForKiosk(accessToken);
     console.log("Access Token for Kiosk Mode Configured!");
 }
-var eventHubConn = undefined;
 function initKiosk() {
     $("body > div").removeClass("container");
     $("body > div").css('height', '100vh');
     retrieveKioskContent();
     acquireKioskWakeLock();
-    setupEventHub();
+    setupEventHubForKiosk();
 }
-async function setupEventHub(accessToken) {
+async function setupEventHubForKiosk(accessToken) {
     //initialize signalr
     let eventHubUrl = '/api/ws';
     if (accessToken != undefined && accessToken != '') {
@@ -170,8 +169,10 @@ async function setupEventHub(accessToken) {
         eventHubConn = new signalR.HubConnectionBuilder().withUrl(eventHubUrl).build();
         eventHubConn.on("ReceiveChangeForAllVehicles", () => {
             setDebounce(retrieveKioskContent);
-        })
-        await eventHubConn.start();
+        });
+        await eventHubConn.start().then(() => {
+            eventHubConn.invoke("JoinGroup", "kiosk");
+        });
     }
     catch (err) {
         errorToast('WebSockets Not Enabled');
