@@ -2102,7 +2102,9 @@ async function setupEventHub(groupName, callBack, callBackParam) {
         eventHubConn.off("ReceiveChangeForAllVehicles");
         eventHubConn.on("ReceiveChangeForAllVehicles", () => {
             if ($('.modal.show').length == 0) { //only perform update if no modal is actively being shown.
-                callBack(callBackParam);
+                setDebounce(() => {
+                    callBack(callBackParam);
+                });
             }
         });
         await eventHubConn.start().then(() => {
