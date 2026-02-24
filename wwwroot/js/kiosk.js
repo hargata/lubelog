@@ -161,12 +161,10 @@ async function setupEventHubForKiosk(accessToken) {
     if (accessToken != undefined && accessToken != '') {
         eventHubUrl = `${eventHubUrl}?apiKey=${accessToken}`;
     }
-    if (eventHubConn != undefined) {
-        await eventHubConn.stop();
-        eventHubConn = undefined;
-    }
+    await resetEventHub();
     try {
         eventHubConn = new signalR.HubConnectionBuilder().withUrl(eventHubUrl).build();
+        eventHubConn.off("ReceiveChangeForAllVehicles");
         eventHubConn.on("ReceiveChangeForAllVehicles", () => {
             setDebounce(retrieveKioskContent);
         });
