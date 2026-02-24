@@ -33,7 +33,7 @@ namespace CarCareTracker.Controllers
             var result = _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(convertedRecord);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromEquipmentRecord(convertedRecord, equipmentRecord.Id == default ? "equipmentrecord.add" : "equipmentrecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromEquipmentRecord(convertedRecord, equipmentRecord.Id == default ? "equipmentrecord.add" : "equipmentrecord.update", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
             var result = _equipmentRecordDataAccess.DeleteEquipmentRecordById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }

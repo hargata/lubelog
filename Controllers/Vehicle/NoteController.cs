@@ -36,7 +36,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
@@ -69,7 +69,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }

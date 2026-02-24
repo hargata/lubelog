@@ -156,7 +156,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _reminderRecordDataAccess.SaveReminderRecordToVehicle(reminderRecord);
-                _eventLogic.PublishEvent(WebHookPayload.FromReminderRecord(reminderRecord, "reminderrecord.add.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromReminderRecord(reminderRecord, "reminderrecord.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Reminder Record Added", new { recordId = reminderRecord.Id }));
             }
             catch (Exception ex)
@@ -232,7 +232,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingRecord);
-                    _eventLogic.PublishEvent(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.update.api", User.Identity?.Name ?? string.Empty));
+                    _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {
@@ -267,7 +267,7 @@ namespace CarCareTracker.Controllers
             var result = _reminderRecordDataAccess.DeleteReminderRecordById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromReminderRecord(existingRecord, "reminderrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Reminder Record Deleted"));
         }

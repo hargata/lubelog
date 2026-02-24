@@ -6,7 +6,7 @@ namespace CarCareTracker.Logic
 {
     public interface IEventLogic
     {
-        void PublishEvent(WebHookPayload webHookPayload);
+        void PublishEvent(int userId, WebHookPayload webHookPayload);
     }
     public class EventLogic: IEventLogic
     {
@@ -21,12 +21,17 @@ namespace CarCareTracker.Logic
             _logger = logger;
             _eventHub = eventHub;
         }
-        public async void PublishEvent(WebHookPayload webHookPayload)
+        public async void PublishEvent(int userId, WebHookPayload webHookPayload)
         {
             //signalr
             if (_config.GetWebSocketEnabled())
             {
-                await _eventHub.Clients.Groups(new List<string> { "kiosk", $"vehicleId_{webHookPayload.VehicleId}"}).ReceiveChangeForAllVehicles(webHookPayload);
+                List<string> hubGroups = new List<string> { $"kiosk_{userId}", $"vehicleId_{webHookPayload.VehicleId}" };
+                if (userId != -1)
+                {
+                    hubGroups.Add("kiosk_-1");
+                }
+                await _eventHub.Clients.Groups(hubGroups).ReceiveChangeForAllVehicles(webHookPayload);
             }
             //webhook
             string webhookURL = _config.GetWebHookUrl();
