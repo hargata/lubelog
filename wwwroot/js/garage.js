@@ -180,6 +180,7 @@ function initCalendar() {
 function performLogOut() {
     $.post('/Login/LogOut', function (data) {
         if (data) {
+            resetEventHub();
             window.location.href = data;
         }
     })
