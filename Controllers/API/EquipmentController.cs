@@ -123,7 +123,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(equipmentRecord);
-                _eventLogic.PublishEvent(WebHookPayload.FromEquipmentRecord(equipmentRecord, "equipmentrecord.add.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromEquipmentRecord(equipmentRecord, "equipmentrecord.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Equipment Record Added", new { recordId = equipmentRecord.Id }));
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace CarCareTracker.Controllers
             var result = _equipmentRecordDataAccess.DeleteEquipmentRecordById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.delete.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Equipment Record Deleted"));
         }
@@ -211,7 +211,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _equipmentRecordDataAccess.SaveEquipmentRecordToVehicle(existingRecord);
-                    _eventLogic.PublishEvent(WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.update.api", User.Identity?.Name ?? string.Empty));
+                    _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromEquipmentRecord(existingRecord, "equipmentrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

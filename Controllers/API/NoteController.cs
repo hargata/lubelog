@@ -140,7 +140,7 @@ namespace CarCareTracker.Controllers
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
                 _noteDataAccess.SaveNoteToVehicle(note);
-                _eventLogic.PublishEvent(WebHookPayload.FromNoteRecord(note, "note.add.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(note, "note.add.api", User.Identity?.Name ?? string.Empty));
                 return Json(OperationResponse.Succeed("Note Added", new { recordId = note.Id }));
             }
             catch (Exception ex)
@@ -169,7 +169,7 @@ namespace CarCareTracker.Controllers
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromNoteRecord(existingRecord, "note.delete.api", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(existingRecord, "note.delete.api", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, "Note Deleted"));
         }
@@ -217,7 +217,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
                     _noteDataAccess.SaveNoteToVehicle(existingRecord);
-                    _eventLogic.PublishEvent(WebHookPayload.FromNoteRecord(existingRecord, "note.update.api", User.Identity?.Name ?? string.Empty));
+                    _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(existingRecord, "note.update.api", User.Identity?.Name ?? string.Empty));
                 }
                 else
                 {

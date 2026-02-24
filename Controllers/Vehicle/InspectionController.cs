@@ -111,7 +111,7 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordDataAccess.DeleteInspectionRecordById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
@@ -192,7 +192,7 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(convertedRecord);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromInspectionRecord(convertedRecord, "inspectionrecord.add", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromInspectionRecord(convertedRecord, "inspectionrecord.add", User.Identity?.Name ?? string.Empty));
             }
             if (convertedRecord.Id != 0)
             {
@@ -262,7 +262,7 @@ namespace CarCareTracker.Controllers
             var result = _inspectionRecordDataAccess.SaveInspectionRecordToVehicle(existingRecord);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromInspectionRecord(existingRecord, "inspectionrecord.update", User.Identity?.Name ?? string.Empty));
             }
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }

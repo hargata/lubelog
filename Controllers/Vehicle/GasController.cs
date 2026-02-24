@@ -57,7 +57,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromGasRecord(convertedRecord, gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGasRecord(convertedRecord, gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity?.Name ?? string.Empty));
             }
             if (convertedRecord.Id != default && gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
@@ -133,7 +133,7 @@ namespace CarCareTracker.Controllers
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
             if (result)
             {
-                _eventLogic.PublishEvent(WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity?.Name ?? string.Empty));
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity?.Name ?? string.Empty));
             }
             return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
