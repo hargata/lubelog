@@ -2091,6 +2091,9 @@ function checkQueryParams(elemToAwait, callBack, param) {
 }
 
 async function setupEventHub(groupName, callBack, callBackParam) {
+    if (!getGlobalConfig().webSocketEnabled) {
+        return;
+    }
     //initialize signalr
     let eventHubUrl = '/api/ws';
     await resetEventHub();

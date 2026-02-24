@@ -16,6 +16,7 @@
     var firstDayOfWeek = (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
     var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
+    var webSocketEnabled = config.GetWebSocketEnabled();
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
     {
@@ -70,6 +71,7 @@
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
                 useThreeDecimals: "@useThreeDecimals" == "True",
                 useMPG: "@useMPG" == "True",
+                webSocketEnabled: "@webSocketEnabled" == "True",
                 firstDayOfWeek: @firstDayOfWeek
             }
         }

@@ -1,4 +1,5 @@
-﻿function focusKioskVehicle(sender) {
+﻿var kioskTimer = undefined; //fallback timer
+function focusKioskVehicle(sender) {
     let vehicleId = $(sender).attr('data-vehicleId');
     showKioskVehicle(vehicleId);
 }
@@ -145,7 +146,9 @@ async function setAccessToken(accessToken) {
             'x-api-key': accessToken
         }
     });
-    await setupEventHubForKiosk(accessToken);
+    if (getGlobalConfig().webSocketEnabled) {
+        await setupEventHubForKiosk(accessToken);
+    }
     console.log("Access Token for Kiosk Mode Configured!");
 }
 function initKiosk() {
@@ -153,7 +156,20 @@ function initKiosk() {
     $("body > div").css('height', '100vh');
     retrieveKioskContent();
     acquireKioskWakeLock();
-    setupEventHubForKiosk();
+    if (getGlobalConfig().webSocketEnabled) {
+        setupEventHubForKiosk();
+    } else {
+        setUpKioskTimer();
+    }
+}
+function setUpKioskTimer() {
+    if (kioskTimer != undefined) {
+        clearInterval(kioskTimer);
+        kioskTimer = undefined;
+    }
+    kioskTimer = setInterval(() => {
+        retrieveKioskContent();
+    }, 60000)
 }
 async function setupEventHubForKiosk(accessToken) {
     //initialize signalr
@@ -219,7 +235,7 @@ function retrieveKioskContent() {
                     retrieveKioskContent(); //skip until we hit a page with content.
                 }
             }
-            setTimeout(() => { retrieveKioskContent() }, 60000);
+            setUpKioskTimer();
         });
     }
 }
