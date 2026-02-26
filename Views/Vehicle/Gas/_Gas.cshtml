@@ -54,7 +54,7 @@
 <div class="row">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center flex-wrap gap-2">
-            <span class="badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, "# of Gas Records")}: {Model.GasRecords.Count()}")</span>
+            <span class="badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage, useKwh ? "# of Charge Records" : "# of Gas Records")}: {Model.GasRecords.Count()}")</span>
             @if (Model.GasRecords.Where(x => x.MilesPerGallon > 0).Any())
             {
                 <span class="badge bg-primary" id="averageFuelMileageLabel">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
@@ -70,7 +70,7 @@
                 }
                 <span class="badge bg-success" id="totalDistanceLabel">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.GasRecords.Sum(x => x.DeltaMileage).ToString() ?? "0"} {distanceUnit}")</span>
             }
-            <span class="badge bg-success" id="totalFuelConsumedLabel">@($"{translator.Translate(userLanguage, "Total Fuel Consumed")}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
+            <span class="badge bg-success" id="totalFuelConsumedLabel">@($"{translator.Translate(userLanguage, useKwh ? "Total Energy Consumed" : "Total Fuel Consumed")}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
             <span class="badge bg-success" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total Cost")}: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
             @foreach (string recordTag in recordTags)
             {
@@ -85,7 +85,7 @@
         </div>
             <div class="lubelogger-record-add">
             <div class="btn-group">
-                <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, "Add Gas Record")</button>
+                <button onclick="showAddGasRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage, useKwh ? "Add Charge Record" : "Add Gas Record")</button>
                 <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
@@ -110,7 +110,7 @@
                     <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
                         <div class="list-group-item">
                             <input class="form-check-input col-visible-toggle" data-column-toggle='daterefueled' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_DateRefueled" checked>
-                            <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@translator.Translate(userLanguage, "Date Refueled")</label>
+                            <label class="form-check-label stretched-link" for="chkCol_DateRefueled">@translator.Translate(userLanguage, useKwh ? "Date Charged" : "Date Refueled")</label>
                         </div>
                     </li>
                     <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
@@ -186,7 +186,7 @@
         <table class="table table-hover">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>
+                    <th scope="col" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@translator.Translate(userLanguage, useKwh ? "Date Charged" : "Date Refueled")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta" style="cursor:pointer;" onclick="toggleSort('gas-tab-pane', this)">@($"Δ({distanceUnit})")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas="consumption" data-unit="@consumptionUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")</th>
