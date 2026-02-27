@@ -1,0 +1,63 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model ReportParameter
+<h2 class="swal2-title mb-2">@translator.Translate(userLanguage, "Select Columns")</h2>
+<div id="columnSelector" style="max-height:50vh; overflow-y:auto;">
+    <ul class="list-group">
+        @foreach (string column in Model.VisibleColumns)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input column-default" type="checkbox" value="@column" id="visibleColumn_@column" checked>
+                <label class="form-check-label stretched-link" for="visibleColumn_@column">@(translator.Translate(userLanguage, column == nameof(GenericReportModel.DataType) ? "Type" : column))</label>
+            </li>
+        }
+        @foreach (string extraField in Model.ExtraFields)
+        {
+            <li class="list-group-item text-start">
+                <input class="form-check-input column-extrafield" type="checkbox" value="@extraField" id="extraField_@extraField">
+                <label class="form-check-label stretched-link" for="extraField_@extraField">@extraField</label>
+            </li>
+        }
+    </ul>
+</div>
+<div class="mt-2 mb-2">
+    <ul class="list-group">
+        <li class="list-group-item text-start">
+            <input class="form-check-input" type="checkbox" role="switch" id="printIndividualRecordsCheck">
+            <label class="form-check-label" for="printIndividualRecordsCheck">@translator.Translate(userLanguage, "Print Individual Records")</label>
+        </li>
+    </ul>
+</div>
+<div class="mt-2 mb-2">
+     <ul class="list-group">
+        <li id="reportAdvancedParameterToggle" class="list-group-item text-center" style="cursor:pointer;" onclick="showReportAdvancedParameters()">
+            @translator.Translate(userLanguage, "Advanced Filters")
+        </li>
+     </ul>
+</div>
+<h2 class="mb-2 report-advanced-parameters d-none">@translator.Translate(userLanguage, "Filter by Tags")</h2>
+<div class="text-start report-advanced-parameters d-none">
+    <select class="form-select mb-2" id="tagSelector">
+        <!option value="@TagFilter.Exclude">@translator.Translate(userLanguage, "Exclude Records with these Tags")</!option>
+        <!option value="@TagFilter.IncludeOnly">@translator.Translate(userLanguage, "Only Include Records with these Tags")</!option>
+    </select>
+    <select multiple id="tagSelectorInput"></select>
+</div>
+<h2 class="mb-2 report-advanced-parameters d-none">@translator.Translate(userLanguage, "Filter by Date Range")</h2>
+<div class="text-start report-advanced-parameters d-none">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="dateRangeSelector">
+        <label class="form-check-label" for="dateRangeSelector">@translator.Translate(userLanguage, "Filter by Date Range")</label>
+    </div>
+            <div class="input-group">
+                <span class="input-group-text">@translator.Translate(userLanguage, "From")</span>
+                <input type="text" id="dateRangeStartDate" class="form-control" placeholder="@translator.Translate(userLanguage,"Start Date")">
+                <span class="input-group-text">@translator.Translate(userLanguage, "To")</span>
+                <input type="text" id="dateRangeEndDate" class="form-control" placeholder="@translator.Translate(userLanguage,"End Date")">
+            </div>
+        </div>

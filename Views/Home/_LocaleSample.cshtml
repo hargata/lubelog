@@ -1,0 +1,15 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model LocaleSample
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="d-flex flex-column text-secondary">
+    <span>@translator.Translate(userLanguage, "Short Date"): @Model.ShortDateSample</span>
+    <span>@translator.Translate(userLanguage, "Short DateTime"): @Model.ShortDateTimeSample</span>
+    <span>@translator.Translate(userLanguage, "Currency"): @Model.CurrencySample</span>
+    <span>@translator.Translate(userLanguage, "Number"): @Model.NumberSample</span>
+    <span>@translator.Translate(userLanguage, "Decimal"): @Model.DecimalSample</span>
+</div>

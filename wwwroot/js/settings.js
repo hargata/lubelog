@@ -42,10 +42,6 @@ function updateSettings() {
         defaultTab = "Dashboard"; //default to dashboard.
     }
     var tabOrder = getTabOrder();
-    //Root User Only Settings that aren't rendered:
-    var defaultReminderEmail = $("#inputDefaultEmail").length > 0 ? $("#inputDefaultEmail").val() : "";
-    var disableRegistration = $("#disableRegistration").length > 0 ? $("#disableRegistration").is(":checked") : false;
-    var enableRootUserOIDC = $("#enableRootUserOIDC").length > 0 ? $("#enableRootUserOIDC").is(":checked") : false;
 
     var userConfigObject = {
         useDarkMode: $("#enableDarkMode").is(':checked'),
@@ -61,18 +57,21 @@ function updateSettings() {
         useMarkDownOnSavedNotes: $("#useMarkDownOnSavedNotes").is(":checked"),
         enableAutoReminderRefresh: $("#enableAutoReminderRefresh").is(":checked"),
         enableAutoOdometerInsert: $("#enableAutoOdometerInsert").is(":checked"),
+        enableAutoFillOdometer: $("#enableAutoFillOdometer").is(":checked"),
         enableShopSupplies: $("#enableShopSupplies").is(":checked"),
+        showCalendar: $("#showCalendar").is(":checked"),
+        showVehicleThumbnail: $("#showVehicleThumbnail").is(":checked"),
+        showSearch: $("#showGarageSearch").is(":checked"),
+        disableAutoZoom: $("#disableAutoZoom").is(":checked"),
         enableExtraFieldColumns: $("#enableExtraFieldColumns").is(":checked"),
         hideSoldVehicles: $("#hideSoldVehicles").is(":checked"),
         preferredGasUnit: $("#preferredGasUnit").val(),
         preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
         userLanguage: $("#defaultLanguage").val(),
+        useUnitForFuelCost: $("#useUnitForFuelCost").is(":checked"),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
-        tabOrder: tabOrder,
-        disableRegistration: disableRegistration,
-        defaultReminderEmail: defaultReminderEmail,
-        enableRootUserOIDC: enableRootUserOIDC
+        tabOrder: tabOrder
     }
     sloader.show();
     $.post('/Home/WriteToSettings', { userConfig: userConfigObject }, function (data) {
@@ -157,12 +156,6 @@ function restoreBackup(event) {
     });
 }
 
-function handleDefaultReminderInputKeyDown() {
-    if (event.which == 13) {
-        updateSettings();
-    }
-}
-
 function loadSponsors() {
     $.get('/Home/Sponsors', function (data) {
         $("#sponsorsContainer").html(data);
@@ -178,13 +171,69 @@ function showTranslationEditor() {
 function hideTranslationEditor() {
     $('#translationEditorModal').modal('hide');
 }
+function createAndUploadTranslation(translationName, translationData) {
+    let jsonData = JSON.stringify(translationData);
+    let translationBlob = new Blob([jsonData], { type: "application/json" });
+    let translationFile = new File([translationBlob], `${translationName}.json`, { type: "application/json" });
+    let formData = new FormData();
+    formData.append("file", translationFile);
+    sloader.show();
+    $.ajax({
+        url: "/Home/SaveTranslation",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (response.success) {
+                setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+            } else {
+                errorToast(response.message);
+            }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.");
+        }
+    });
+}
+function createAndExportTranslation(translationData) {
+    let jsonData = JSON.stringify(translationData);
+    let translationBlob = new Blob([jsonData], { type: "application/json" });
+    let translationFile = new File([translationBlob], `translationexport.json`, { type: "application/json" });
+    let formData = new FormData();
+    formData.append("file", translationFile);
+    sloader.show();
+    $.ajax({
+        url: "/Home/ExportTranslation",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (response) {
+            sloader.hide();
+            if (!response) {
+                errorToast(genericErrorMessage());
+            } else {
+                window.location.href = response;
+            }
+        },
+        error: function () {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.");
+        }
+    });
+}
 function saveTranslation() {
     var currentLanguage = $("#defaultLanguage").val();
-    var translationData = [];
+    var translationData = {};
     $(".translation-keyvalue").map((index, elem) => {
         var translationKey = $(elem).find('.translation-key');
         var translationValue = $(elem).find('.translation-value textarea');
-        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+        translationData[translationKey.text().replaceAll(' ', '_').trim()] = translationValue.val().trim();
     });
     if (translationData.length == 0) {
         errorToast(genericErrorMessage());
@@ -209,35 +258,22 @@ function saveTranslation() {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
-            $.post('/Home/SaveTranslation', { userLanguage: result.value.translationFileName, translationData: translationData }, function (data) {
-                if (data.success) {
-                    successToast("Translation Updated");
-                    updateSettings();
-                } else {
-                    errorToast(genericErrorMessage());
-                }
-            });
+            createAndUploadTranslation(result.value.translationFileName, translationData);
         }
     });
 }
 function exportTranslation(){
-    var translationData = [];
+    var translationData = {};
     $(".translation-keyvalue").map((index, elem) => {
         var translationKey = $(elem).find('.translation-key');
         var translationValue = $(elem).find('.translation-value textarea');
-        translationData.push({ key: translationKey.text().replaceAll(' ', '_').trim(), value: translationValue.val().trim() });
+        translationData[translationKey.text().replaceAll(' ', '_').trim()] = translationValue.val().trim();
     });
     if (translationData.length == 0) {
         errorToast(genericErrorMessage());
         return;
     }
-    $.post('/Home/ExportTranslation', { translationData: translationData }, function (data) {
-        if (!data) {
-            errorToast(genericErrorMessage());
-        } else {
-            window.location.href = data;
-        }
-    });
+    createAndExportTranslation(translationData);
 }
 function showTranslationDownloader() {
     $.get('/Home/GetAvailableTranslations', function(data){
@@ -381,7 +417,30 @@ function deleteCustomWidgets() {
         }
     })
 }
+function saveCustomWidgetsAcknowledgement() {
+    sessionStorage.setItem('customWidgetsAcknowledged', true);
+}
+function getCustomWidgetsAcknowledgement() {
+    let storedItem = sessionStorage.getItem('customWidgetsAcknowledged');
+    if (storedItem == null || storedItem == undefined) {
+        return false;
+    } else {
+        return storedItem;
+    }
+}
 function showCustomWidgets() {
+    let acknowledged = getCustomWidgetsAcknowledgement();
+    if (acknowledged) {
+        $.get('/Home/GetCustomWidgetEditor', function (data) {
+            if (data.trim() != '') {
+                $("#customWidgetModalContent").html(data);
+                $("#customWidgetModal").modal('show');
+            } else {
+                errorToast("Custom Widgets Not Enabled");
+            }
+        });
+        return;
+    }
     Swal.fire({
         title: 'Warning',
         icon: "warning",
@@ -405,6 +464,7 @@ function showCustomWidgets() {
         },
     }).then(function (result) {
         if (result.isConfirmed) {
+            saveCustomWidgetsAcknowledgement();
             $.get('/Home/GetCustomWidgetEditor', function (data) {
                 if (data.trim() != '') {
                     $("#customWidgetModalContent").html(data);
@@ -415,4 +475,13 @@ function showCustomWidgets() {
             });
         }
     });
+}
+function loadTooltips() {
+    $('.settingsToolTip').map((index, elem) => {
+        new bootstrap.Tooltip(elem);
+    })
+    $('.settingsToolTip').on('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+    })
 }

@@ -24,7 +24,7 @@ namespace CarCareTracker.Helper
                         averageGasMileage = 100 / averageGasMileage;
                     }
                     return averageGasMileage.ToString("F");
-                } catch (Exception ex)
+                } catch
                 {
                     return "0";
                 }
@@ -76,7 +76,8 @@ namespace CarCareTracker.Helper
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
                         Tags = currentObject.Tags,
-                        ExtraFields = currentObject.ExtraFields
+                        ExtraFields = currentObject.ExtraFields,
+                        Files = currentObject.Files
                     };
                     if (currentObject.MissedFuelUp)
                     {
@@ -86,16 +87,16 @@ namespace CarCareTracker.Helper
                         unFactoredConsumption = 0;
                         unFactoredMileage = 0;
                     }
-                    else if (currentObject.IsFillToFull)
+                    else if (currentObject.IsFillToFull && currentObject.Mileage != default)
                     {
-                        //if user filled to full.
+                        //if user filled to full and an odometer is provided, otherwise we will defer calculations
                         if (convertedConsumption > 0.00M && deltaMileage > 0)
                         {
                             try
                             {
                                 gasRecordViewModel.MilesPerGallon = useMPG ? (unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption) : 100 / ((unFactoredMileage + deltaMileage) / (unFactoredConsumption + convertedConsumption));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 gasRecordViewModel.MilesPerGallon = 0;
                             }
@@ -130,10 +131,14 @@ namespace CarCareTracker.Helper
                         MissedFuelUp = currentObject.MissedFuelUp,
                         Notes = currentObject.Notes,
                         Tags = currentObject.Tags,
-                        ExtraFields = currentObject.ExtraFields
+                        ExtraFields = currentObject.ExtraFields,
+                        Files = currentObject.Files
                     });
                 }
-                previousMileage = currentObject.Mileage;
+                if (currentObject.Mileage != default)
+                {
+                    previousMileage = currentObject.Mileage;
+                }
             }
             return computedResults;
         }

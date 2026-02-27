@@ -1,0 +1,189 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var recordTags = Model.Supplies.SelectMany(x => x.Tags).Distinct();
+}
+@model SupplyUsageViewModel
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Select Supplies")</h5>
+    <button type="button" class="btn-close" onclick="hideSuppliesModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    @if (Model.Supplies.Any())
+    {
+        <div class="row">
+            <div class="col-12" style="max-height:50vh; overflow-y:auto;" id="supplies-table">
+                <div class="alert alert-warning" role="alert">
+                    @translator.Translate(userLanguage,"Supplies are requisitioned immediately after the record is saved.")
+                </div>
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                    @foreach (string recordTag in recordTags)
+                    {
+                        <span onclick="filterSupplyUsageTable(this)" class="user-select-none rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+                    }
+                </div>
+                <div class="d-flex flex-column">
+                    @foreach(SupplyRecord supplyRecord in Model.Supplies)
+                    {
+                        var supplyUsage = Model.Usage.Where(x => x.SupplyId == supplyRecord.Id).SingleOrDefault();
+                        <div class="d-flex align-items-center p-2 border rounded mb-2 supply-store-row" data-tags='@string.Join(" ", supplyRecord.Tags)'>
+                            <div class="ps-2 pe-2 supplycheckedinput">
+                                <input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")>
+                            </div>
+                            <div class="d-flex flex-column flex-grow-1 store-detail-row" onclick="toggleSupplyRowChecked(this)">
+                                <span class="text-truncate">
+                                    @StaticHelper.TruncateStrings(supplyRecord.Description, 125)
+                                </span>
+                                <div class="d-flex flex-row gap-2">
+                                    @if (!string.IsNullOrWhiteSpace(supplyRecord.PartNumber))
+                                    {
+                                        <div class="d-flex flex-column text-truncate">
+                                            <small class="text-secondary">@translator.Translate(userLanguage, "Part Number")</small>
+                                            <small>@supplyRecord.PartNumber</small>
+                                        </div>
+                                    }
+                                    <div class="d-flex flex-column text-truncate">
+                                        <small class="text-secondary">@translator.Translate(userLanguage, "In Stock")</small>
+                                        <small class="supplyquantity">@supplyRecord.Quantity</small>
+                                    </div>
+                                    <div class="d-flex flex-column text-truncate">
+                                        <small class="text-secondary">@translator.Translate(userLanguage, "Unit Cost")</small>
+                                        <small class="supplyprice">@((supplyRecord.Quantity > 0 ? supplyRecord.Cost / supplyRecord.Quantity : 0).ToString("F"))</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-md-2 supplyquantityinput">
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" @(supplyUsage == default ? "disabled" : "") value="@(supplyUsage == default ? "" : supplyUsage.Quantity)" onchange="recalculateTotal()" class="form-control">
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>@translator.Translate(userLanguage, "No supplies with quantities greater than 0 is found.")</h4>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div class="modal-footer">
+    <div class="d-flex flex-wrap justify-content-between flex-grow-1">
+        <span id="supplySumLabel">Total: 0.00</span>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="inputCopySuppliesAttachments">
+            <label class="form-check-label" for="inputCopySuppliesAttachments">@translator.Translate(userLanguage, "Copy Attachments")</label>
+        </div>
+    </div>
+    <div>
+        <button type="button" class="btn btn-secondary" onclick="hideSuppliesModal()">@translator.Translate(userLanguage, "Cancel")</button>
+        <button type="button" class="btn btn-primary" disabled id="selectSuppliesButton" onclick="selectSupplies()">@translator.Translate(userLanguage, "Select")</button>
+    </div>
+</div>
+<script>
+    function recalculateTotal() {
+        setDebounce(getSuppliesAndQuantity);
+    }
+    function toggleQuantityFieldDisabled(e) {
+        let textField = getTextFieldFromCheckBox(e);
+        let isChecked = $(e).is(":checked");
+        textField.attr('disabled', !isChecked);
+        if (!isChecked) {
+            textField.removeClass("is-invalid");
+        }
+        recalculateTotal();
+    }
+    function toggleSupplyRowChecked(e){
+        let supplyCheck = $(e).closest('.supply-store-row').find('.supplycheckedinput input[type=checkbox]');
+        supplyCheck.trigger('click');
+    }
+    function getTextFieldFromCheckBox(elem) {
+        let textField = $(elem).closest('.supply-store-row').find('.supplyquantityinput input[type=text]')[0];
+        return $(textField);
+    }
+    function getInStockFieldFromCheckBox(elem) {
+        let textField = $(elem).closest('.supply-store-row').find('.supplyquantity')[0];
+        return $(textField);
+    }
+    function getPriceFieldFromCheckBox(elem) {
+        let textField = $(elem).closest('.supply-store-row').find('.supplyprice')[0];
+        return $(textField);
+    }
+    function getSuppliesAndQuantity() {
+        let totalSum = 0;
+        let hasError = false;
+        let selectedSupplies = $(".supply-store-row :checked").map(function () {
+            let textField = getTextFieldFromCheckBox(this);
+            let inStock = getInStockFieldFromCheckBox(this);
+            let priceField = getPriceFieldFromCheckBox(this);
+            let requestedQuantity = globalParseFloat(textField.val());
+            let inStockQuantity = globalParseFloat(inStock.text());
+            let unitPrice = globalParseFloat(priceField.text());
+            //validation
+            if (isNaN(requestedQuantity) || requestedQuantity > inStockQuantity || requestedQuantity <= 0) {
+                textField.addClass("is-invalid");
+                hasError = true;
+            } else {
+                textField.removeClass("is-invalid");
+            }
+            //calculate sum.
+            let sum = requestedQuantity * unitPrice;
+            totalSum += sum;
+            return {
+                supplyId: this.value,
+                quantity: textField.val()
+            };
+        });
+        if (isNaN(totalSum) || hasError) {
+            $("#supplySumLabel").text(`Total: 0.00`);
+        } else {
+            totalSum = totalSum.toFixed(2);
+            let parsedFloat = globalFloatToString(totalSum);
+            $("#supplySumLabel").text(`Total: ${parsedFloat}`);
+        }
+        $("#selectSuppliesButton").attr('disabled', (hasError || selectedSupplies.toArray().length == 0));
+        if (!hasError) {
+            return {
+                totalSum: globalFloatToString(totalSum),
+                selectedSupplies: selectedSupplies.toArray()
+            };
+        } else {
+            return {
+                totalSum: 0,
+                selectedSupplies: []
+            }
+        }
+    }
+    function filterSupplyUsageTable(sender){
+        let tagName = sender.textContent;
+        let rowData = $(`.supply-store-row`);
+        if (sender == undefined) {
+            rowData.removeClass('override-hide');
+            return;
+        }
+        if ($(sender).hasClass("bg-primary")) {
+            rowData.removeClass('override-hide');
+            $(sender).removeClass('bg-primary');
+            $(sender).addClass('bg-secondary');
+        } else {
+            //hide table rows.
+            rowData.addClass('override-hide');
+            $(`[data-tags~='${tagName}']`).removeClass('override-hide');
+            if ($(".tagfilter.bg-primary").length > 0) {
+                //disabling other filters
+                $(".tagfilter.bg-primary").addClass('bg-secondary');
+                $(".tagfilter.bg-primary").removeClass('bg-primary');
+            }
+            $(sender).addClass('bg-primary');
+            $(sender).removeClass('bg-secondary');
+        }
+    }
+</script>

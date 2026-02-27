@@ -43,22 +43,17 @@ function hideAddOdometerRecordModal() {
 }
 function deleteOdometerRecord(odometerRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Odometer Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Odometer Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteOdometerRecordById?odometerRecordId=${odometerRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddOdometerRecordModal();
                     successToast("Odometer Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleOdometerRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +71,7 @@ function saveOdometerRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveOdometerRecordToVehicleId', { odometerRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Odometer Record Updated" : "Odometer Record Added.");
             hideAddOdometerRecordModal();
             saveScrollPosition();
@@ -85,7 +80,7 @@ function saveOdometerRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -97,6 +92,7 @@ function getAndValidateOdometerRecordValues() {
     var serviceTags = $("#odometerRecordTag").val();
     var vehicleId = GetVehicleId().vehicleId;
     var odometerRecordId = getOdometerRecordModelData().id;
+    var odometerEquipment = getSelectedEquipment();
     //Odometer Adjustments
     serviceMileage = GetAdjustedOdometer(odometerRecordId, serviceMileage);
     //validation
@@ -133,26 +129,31 @@ function getAndValidateOdometerRecordValues() {
         notes: serviceNotes,
         tags: serviceTags,
         files: uploadedFiles,
-        extraFields: extraFields.extraFields
+        extraFields: extraFields.extraFields,
+        equipmentRecordId: odometerEquipment
     }
 }
 
 function recalculateDistance() {
     //force distance recalculation
-    //reserved for when data is incoherent with negative distances due to non-chronologica order of odometer records.
+    //reserved for when data is incoherent with negative distances due to non-chronological order of odometer records.
     var vehicleId = GetVehicleId().vehicleId
     $.post(`/Vehicle/ForceRecalculateDistanceByVehicleId?vehicleId=${vehicleId}`, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Odometer Records Updated")
             getVehicleOdometerRecords(vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
 
 function editMultipleOdometerRecords(ids) {
-    $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids }, function (data) {
+    if (ids.length < 2) {
+        return;
+    }
+    let vehicleId = GetVehicleId().vehicleId;
+    $.post('/Vehicle/GetOdometerRecordsEditModal', { recordIds: ids, vehicleId: vehicleId }, function (data) {
         if (data) {
             $("#odometerRecordModalContent").html(data);
             //initiate datepicker
@@ -171,6 +172,8 @@ function saveMultipleOdometerRecordsToVehicle() {
     var odometerNotes = $("#odometerRecordNotes").val();
     var odometerTags = $("#odometerRecordTag").val();
     var odometerExtraFields = getAndValidateExtraFields();
+    let odometerEditEquipment = $('#equipmentEditCheck').is(':checked');
+    let odometerEquipment = getSelectedEquipment();
     //validation
     var hasError = false;
     if (odometerMileage.trim() != '' && (isNaN(odometerMileageToParse) || parseInt(odometerMileageToParse) < 0)) {
@@ -191,23 +194,25 @@ function saveMultipleOdometerRecordsToVehicle() {
     }
     var formValues = {
         recordIds: recordsToEdit,
+        editEquipment: odometerEditEquipment,
         editRecord: {
             date: odometerDate,
             initialMileage: initialOdometerMileageToParse,
             mileage: odometerMileageToParse,
             notes: odometerNotes,
             tags: odometerTags,
-            extraFields: odometerExtraFields.extraFields
+            extraFields: odometerExtraFields.extraFields,
+            equipmentRecordId: odometerEquipment
         }
     }
     $.post('/Vehicle/SaveMultipleOdometerRecords', { editModel: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Odometer Records Updated");
             hideAddOdometerRecordModal();
             saveScrollPosition();
             getVehicleOdometerRecords(GetVehicleId().vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -359,15 +364,16 @@ function getRecordedOdometer() {
     return parseFloat(`${recordedOdometer}.${recordedSubOdometer}`);
 }
 function saveRecordedOdometer() {
-    //update current odometer value
-    $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
     //save coordinates into a CSV file and upload
-    if (tripCoordinates.length > 0) {
+    if (tripCoordinates.length > 1) {
+        //update current odometer value
+        $("#odometerRecordMileage").val(parseInt(getRecordedOdometer()).toString());
+        //generate attachment
         $.post('/Files/UploadCoordinates', { coordinates: tripCoordinates }, function (response) {
             uploadedFiles.push(response);
             $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
                 $("#filesPendingUpload").html(viewData);
-                tripCoordinates = [];
+                tripCoordinates = ["Latitude,Longitude"];
             });
         });
     }
@@ -386,5 +392,56 @@ function checkTripRecorder() {
         $(".trip-show").remove();
     } else {
         $(".trip-show").removeClass('d-none');
+    }
+}
+function duplicateDistanceToOtherVehicles(ids) {
+    if (ids.length == 0) {
+        return;
+    }
+    $.get(`/Home/GetVehicleSelectorOdometer?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
+        if (data) {
+            //prompt user to select a vehicle
+            Swal.fire({
+                title: 'Duplicate Distance to Vehicle(s)',
+                html: data,
+                confirmButtonText: 'Duplicate',
+                focusConfirm: false,
+                preConfirm: () => {
+                    //validate
+                    var selectedVehicleData = getAndValidateSelectedVehicle();
+                    if (selectedVehicleData.hasError) {
+                        Swal.showValidationMessage(`You must select a vehicle`);
+                    }
+                    var shiftOdometer = $("#checkShiftOdometer").is(":checked");
+                    return { selectedVehicleData, shiftOdometer }
+                },
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.post('/Vehicle/DuplicateDistanceToOtherVehicles', { recordIds: ids, vehicleIds: result.value.selectedVehicleData.ids, shiftOdometer: result.value.shiftOdometer }, function (data) {
+                        if (data.success) {
+                            successToast(`${ids.length} Record(s) Duplicated`);
+                        } else {
+                            errorToast(data.message);
+                        }
+                    });
+                }
+            });
+        } else {
+            errorToast(genericErrorMessage());
+        }
+    })
+}
+function getSelectedEquipment() {
+    var selectedEquipmentArray = [];
+    $("#equipmentSelector :checked").map(function () {
+        selectedEquipmentArray.push(this.value);
+    });
+    return selectedEquipmentArray;
+}
+function toggleEquipmentEdit() {
+    if ($('#equipmentEditCheck').is(":checked")) {
+        $('#equipmentEditContainer').removeClass('d-none');
+    } else {
+        $('#equipmentEditContainer').addClass('d-none');
     }
 }

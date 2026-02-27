@@ -1,0 +1,104 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model CostDistanceTableForVehicle
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var hideZero = userConfig.HideZero;
+    var years = Model.CostData.Select(x => x.Year).OrderByDescending(x => x).Distinct();
+    var months = Model.CostData.OrderBy(x => x.MonthId).Select(x => x.MonthName).Distinct();
+}
+@if (Model.CostData.Any())
+{
+    <div class="monthlyCostBreakDownTable">
+        <div class="modal-header">
+            <h5 class="modal-title">@(translator.Translate(userLanguage, "Vehicle Monthly Cost Breakdown"))</h5>
+            <button type="button" class="btn-close" onclick="hideDataTable()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-12" style="overflow-x:auto;">
+                    <table class="table table-hover">
+                        <thead class="sticky-top">
+                            <tr class="d-flex">
+                                <th scope="col" style="cursor:pointer;" onclick="toggleBarChartTableData()" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@(translator.Translate(userLanguage, "Year"))</th>
+                                @foreach(int year in years){
+                                    if (year != default){
+                                        <th scope="col" style="cursor:pointer;" onclick="toggleBarChartTableData()" class="col-3 flex-grow-1 flex-shrink-1 text-truncate">@year</th>
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(string month in months){
+                                <tr class="d-flex">
+                                    <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@month</td>
+                                    @foreach(int year in years){
+                                        if (year != default){
+                                            {
+                                                var dataToDisplay = Model.CostData.Where(x => x.Year == year && x.MonthName == month).FirstOrDefault();
+                                                if (dataToDisplay != null && dataToDisplay != default)
+                                                {
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(dataToDisplay.Cost.ToString("C2"), hideZero))</td>
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@(dataToDisplay.DistanceTraveled != default ? $"{dataToDisplay.DistanceTraveled.ToString("N0")} {Model.DistanceUnit}" : "---")</td>
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@(StaticHelper.HideZeroCost(dataToDisplay.CostPerDistanceTraveled.ToString("C2"), hideZero, $"/{Model.DistanceUnit}"))</td>
+                                                } else {
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(0M.ToString("C2"), hideZero))</td>
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@("---")</td>
+                                                    <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@($"{StaticHelper.HideZeroCost(0M.ToString("C2"), hideZero, $"/{Model.DistanceUnit}")}")</td>
+                                                }
+                                            }
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="d-flex fw-bold">
+                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@(translator.Translate(userLanguage, "Total"))</td>
+                                @foreach (int year in years)
+                                {
+                                    if (year != default)
+                                    {
+                                        {
+                                            var yearDataToDisplay = Model.CostData.Where(x => x.Year == year);
+                                            if (yearDataToDisplay != null && yearDataToDisplay != default)
+                                            {
+                                                var distanceTraveled = yearDataToDisplay.Sum(x => x.DistanceTraveled);
+                                                var costAccrued = yearDataToDisplay.Sum(x => x.Cost);
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(costAccrued.ToString("C2"), hideZero))</td>
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@(distanceTraveled != default ? $"{distanceTraveled.ToString("N0")} {Model.DistanceUnit}" : "---")</td>
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@(StaticHelper.HideZeroCost(distanceTraveled != default && costAccrued != default ? (costAccrued / distanceTraveled).ToString("C2") : 0M.ToString("C2"), hideZero, $"/{Model.DistanceUnit}"))</td>
+                                            }                              
+                                            else                           
+                                            {                              
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" report-data="cost">@(StaticHelper.HideZeroCost(0M.ToString("C2"), hideZero))</td>
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="distance">@("---")</td>
+                                                <td report-year="@year" class="col-3 flex-grow-1 flex-shrink-1 text-truncate d-none" report-data="costperdistance">@($"{StaticHelper.HideZeroCost(0M.ToString("C2"), hideZero)}")</td>
+                                            }
+                                        }
+                                    }
+                                }
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @if(years.Where(x => x != default).Count() > 5)
+        {
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-costdata-prev"><i class="bi bi-caret-left-fill"></i></button>
+                <button type="button" class="btn btn-secondary btn-costdata-next"><i class="bi bi-caret-right-fill"></i></button>
+            </div>
+            <script>getCostDataTablePage(1)</script>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h4>@translator.Translate(userLanguage, "No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.")</h4>
+    </div>
+}

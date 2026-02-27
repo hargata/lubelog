@@ -3,24 +3,35 @@
 @inject ITranslationHelper translator
 @{
     var userLanguage = config.GetServerLanguage();
+    var openRegistrationEnabled = config.GetServerOpenRegistration();
 }
+@model LoginModel
 @{
     ViewData["Title"] = "Register";
 }
 @section Scripts {
     <script src="~/js/login.js?v=@StaticHelper.VersionNumber"></script>
 }
-<div class="container d-flex align-items-center justify-content-center" style="height:100vh">
+<div class="no-top-pad container d-flex align-items-center justify-content-center" style="height:100vh">
     <div>
         <div style="max-width:204px;">
             <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             <div class="form-group">
                 <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
-                <input type="text" id="inputToken" class="form-control">
+                @if (openRegistrationEnabled) {
+                    <div class="input-group">
+                        <input type="text" id="inputToken" class="form-control" value="@Model.Token">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="sendRegistrationToken()"><i class="bi bi-send"></i></button>
+                        </div>
+                    </div>
+                } else {
+                    <input type="text" id="inputToken" class="form-control" value="@Model.Token">
+                }
             </div>
             <div class="form-group">
-                <label for="inputUserName">@translator.Translate(userLanguage, "Email Address")</label>
-                <input type="text" id="inputEmail" class="form-control">
+                <label for="inputEmail">@translator.Translate(userLanguage, "Email Address")</label>
+                <input type="text" id="inputEmail" class="form-control" value="@Model.EmailAddress">
             </div>
             <div class="form-group">
                 <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
@@ -29,7 +40,7 @@
             <div class="form-group">
                 <label for="inputUserPassword">@translator.Translate(userLanguage, "Password")</label>
                 <div class="input-group">
-                    <input type="password" id="inputUserPassword" class="form-control">
+                    <input type="password" id="inputUserPassword" class="form-control" onkeyup="callBackOnEnter(event, performRegistration)">
                     <div class="input-group-text">
                         <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
                     </div>

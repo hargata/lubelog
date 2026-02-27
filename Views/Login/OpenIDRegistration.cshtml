@@ -3,6 +3,7 @@
 @inject ITranslationHelper translator
 @{
     var userLanguage = config.GetServerLanguage();
+    var openRegistrationEnabled = config.GetServerOpenRegistration();
 }
 @model string
 @{
@@ -11,17 +12,29 @@
 @section Scripts {
     <script src="~/js/login.js?v=@StaticHelper.VersionNumber"></script>
 }
-<div class="container d-flex align-items-center justify-content-center" style="height:100vh">
+<div class="no-top-pad container d-flex align-items-center justify-content-center" style="height:100vh">
     <div>
         <div style="max-width:204px;">
             <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             <div class="form-group">
                 <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
-                <input type="text" id="inputToken" class="form-control">
+                @if (openRegistrationEnabled)
+                {
+                    <div class="input-group">
+                        <input type="text" id="inputToken" class="form-control">
+                        <div class="input-group-text">
+                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="sendOpenIdRegistrationToken()"><i class="bi bi-send"></i></button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <input type="text" id="inputToken" class="form-control">
+                }
             </div>
             <div class="form-group">
                 <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
-                <input type="text" id="inputUserName" class="form-control" value="@Model">
+                <input type="text" id="inputUserName" class="form-control" value="@Model" onkeyup="callBackOnEnter(event, performOpenIdRegistration)">
             </div>
             <div class="d-grid">
                 <button type="button" class="btn btn-warning mt-2" onclick="performOpenIdRegistration()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Register")</button>
@@ -41,6 +54,16 @@
             if (data.success) {
                 successToast(data.message);
                 setTimeout(function () { window.location.href = '/Home' }, 500);
+            } else {
+                errorToast(data.message);
+            }
+        });
+    }
+    function sendOpenIdRegistrationToken(){
+        var userEmail = decodeHTMLEntities('@Model');
+        $.post('/Login/SendRegistrationToken', { emailAddress: userEmail }, function (data) {
+            if (data.success) {
+                successToast(data.message);
             } else {
                 errorToast(data.message);
             }

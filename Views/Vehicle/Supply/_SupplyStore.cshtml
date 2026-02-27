@@ -1,0 +1,142 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model SupplyStore
+<div class="row">
+    <div class="col-12">
+        <a onclick="showSuppliesModal()" class="btn btn-link">@translator.Translate(userLanguage,Model.AdditionalSupplies ? "Choose Additional Supplies" : "Choose Supplies")</a>
+    </div>
+</div>
+<script>
+    resetSuppliesModal();
+    function GetCaller() {
+        return { 
+            tab: '@Model.Tab',
+            addToSum: @Model.AdditionalSupplies.ToString().ToLower()
+        };
+    }
+    function resetSuppliesModal() {
+        $("#inputSuppliesModalContent").html("");
+    }
+    function setCostInputWithSupplySum(selectedSum, input){
+        var addToSum = GetCaller().addToSum;
+        if (addToSum){
+            //sum of all requisitioned supplies
+            var currentSum = supplyUsageHistory.length > 0 ? supplyUsageHistory.map(x => globalParseFloat(x.cost)).reduce((a,b) => a + b) : 0;
+            selectedSum = globalParseFloat(selectedSum);
+            var newSum = currentSum + selectedSum;
+            input.val(globalFloatToString(newSum.toFixed(2)));
+        } else {
+            input.val(selectedSum);
+        }
+    }
+    function selectSupplies() {
+        var selectedSupplyResult = getSuppliesAndQuantity();
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#serviceRecordCost'));
+                break;
+            case "RepairRecord":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#collisionRecordCost'));
+                break;
+            case "UpgradeRecord":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#upgradeRecordCost'));
+                break;
+            case "PlanRecord":
+            case "PlanRecordTemplate":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#planRecordCost'));
+                break;
+            case "GasRecord":
+                setCostInputWithSupplySum(selectedSupplyResult.totalSum, $('#gasRecordCost'));
+                break;
+        }
+        selectedSupplies = getSuppliesAndQuantity().selectedSupplies;
+        copySuppliesAttachments = $("#inputCopySuppliesAttachments").is(':checked');
+        hideSuppliesModal();
+    }
+    function hideParentModal(){
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('hide');
+                break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('hide');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('hide');
+                break;
+            case "PlanRecord":
+            case "PlanRecordTemplate":
+                $('#planRecordModal').modal('hide');
+                break;
+            case "GasRecord":
+                $('#gasRecordModal').modal('hide');
+                break;
+        }
+    }
+    function showParentModal() {
+        var caller = GetCaller().tab;
+        switch (caller) {
+            case "ServiceRecord":
+                $('#serviceRecordModal').modal('show');
+                break;
+            case "RepairRecord":
+                $('#collisionRecordModal').modal('show');
+                break;
+            case "UpgradeRecord":
+                $('#upgradeRecordModal').modal('show');
+                break;
+            case "PlanRecord":
+            case "PlanRecordTemplate":
+                $('#planRecordModal').modal('show');
+                break;
+            case "GasRecord":
+                $('#gasRecordModal').modal('show');
+                break;
+        }
+    }
+    function showSuppliesModal() {
+        if ($("#inputSuppliesModalContent").html() == "") {
+            getSupplies();
+        } else {
+            hideParentModal();
+            $('#inputSuppliesModal').modal('show');
+        }
+    }
+    function getSupplies() {
+        var caller = GetCaller().tab;
+        if (caller == 'PlanRecordTemplate') {
+            var planRecordTemplateId = getPlanRecordModelData().id;
+            $.get(`/Vehicle/GetSupplyRecordsForPlanRecordTemplate?planRecordTemplateId=${planRecordTemplateId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                    recalculateTotal();
+                    if (copySuppliesAttachments) {
+                        $('#inputCopySuppliesAttachments').attr('checked', true);
+                    }
+                }
+            });
+        } else {
+            var vehicleId = GetVehicleId().vehicleId;
+            $.get(`/Vehicle/GetSupplyRecordsForRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+                if (data) {
+                    hideParentModal();
+                    $("#inputSuppliesModalContent").html(data);
+                    $('#inputSuppliesModal').modal('show');
+                }
+            });
+        }
+    }
+    function hideSuppliesModal() {
+        $('#inputSuppliesModal').modal('hide');
+        showParentModal();
+    }
+</script>

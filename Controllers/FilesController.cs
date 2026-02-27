@@ -53,7 +53,7 @@ namespace CarCareTracker.Controllers
             foreach (IFormFile fileToUpload in file)
             {
                 var fileName = UploadFile(fileToUpload);
-                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName});
+                uploadedFiles.Add(new UploadedFiles { Name = fileToUpload.FileName, Location = fileName, IsPending = true});
             }
             return Json(uploadedFiles);
         }
@@ -81,7 +81,7 @@ namespace CarCareTracker.Controllers
         private string UploadFile(IFormFile fileToUpload)
         {
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string fileName = Guid.NewGuid() + Path.GetExtension(fileToUpload.FileName);
@@ -95,15 +95,20 @@ namespace CarCareTracker.Controllers
         public IActionResult UploadCoordinates(List<string> coordinates)
         {
             string uploadDirectory = "temp/";
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, uploadDirectory);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string fileName = Guid.NewGuid() + ".csv";
             string filePath = Path.Combine(uploadPath, fileName);
             string fileData = string.Join("\r\n", coordinates);
             System.IO.File.WriteAllText(filePath, fileData);
-            var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName) };
+            var uploadedFile = new UploadedFiles { Name = "coordinates.csv", Location = Path.Combine("/", uploadDirectory, fileName), IsPending = true };
             return Json(uploadedFile);
+        }
+        public IActionResult PreviewFile(string fileName, string fileLocation)
+        {
+            var viewModel = new UploadedFiles { Name = fileName, Location = fileLocation };
+            return PartialView("_AttachmentPreview", viewModel);
         }
     }
 }

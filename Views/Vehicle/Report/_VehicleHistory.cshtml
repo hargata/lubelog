@@ -1,0 +1,288 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model VehicleHistoryViewModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var hideZero = userConfig.HideZero;
+    var userLanguage = userConfig.UserLanguage;
+    var extraFields = Model.ReportParameters.ExtraFields;
+}
+<div style="page-break-after: always;">
+    <div class="row mt-2">
+        <div class="d-flex">
+            <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            <div class="ms-5">
+                <span class="display-6">
+                    @translator.Translate(userLanguage, "Vehicle Maintenance Report")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(Model.StartDate) && !string.IsNullOrWhiteSpace(Model.EndDate))
+                {
+                    <br />
+                    <span class="lead ms-2">
+                        @($"{@translator.Translate(userLanguage, "From")} {Model.StartDate} {@translator.Translate(userLanguage, "To")} {Model.EndDate}")
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-6">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                </li>
+                @if (!string.IsNullOrWhiteSpace(Model.VehicleData.LicensePlate))
+                {
+                    <li class="list-group-item">
+                        <span class="lead">@Model.VehicleData.LicensePlate</span>
+                    </li>
+                }
+                @foreach(ExtraField extraField in Model.VehicleData.ExtraFields)
+                {
+                    if (!string.IsNullOrWhiteSpace(extraField.Value))
+                    {
+                        <li class="list-group-item">
+                            <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                        </li>
+                    }
+                }
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-4">
+                            @if (Model.VehicleData.IsElectric)
+                            {
+                                <span><i class="bi bi-ev-station me-2"></i>@translator.Translate(userLanguage, "Electric")</span>
+                            }
+                            else if (Model.VehicleData.IsDiesel)
+                            {
+                                <span><i class="bi bi-fuel-pump-diesel me-2"></i>@translator.Translate(userLanguage, "Diesel")</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.DaysOwned))
+                        {
+                            <div class="col-4">
+                                <span><i class="bi bi-calendar-range me-2"></i>@($"{Model.DaysOwned} {translator.Translate(userLanguage, "Days")}")</span>
+                            </div>
+                        }
+                        @if (Model.DistanceTraveled != default)
+                        {
+                            <div class="col-4">
+                                <span><i class="bi bi-speedometer me-2"></i>@($"{Model.DistanceTraveled} {Model.DistanceUnit}")</span>
+                            </div>
+                        }
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-6">
+            <ul class="list-group">
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Last Reported Odometer Reading")}: {Model.Odometer}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {Model.MPG}") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent(excl. fuel)")}: {Model.TotalCost.ToString("C")} ({Model.TotalCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
+                <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent on Fuel")}: {Model.TotalGasCost.ToString("C")} ({Model.TotalGasCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
+            </ul>
+        </div>
+    </div>
+    <hr />
+    @if (Model.TotalDepreciation != default)
+    {
+        <div class="row">
+            <div class="col-3">
+                @(Model.TotalDepreciation > 0 ? translator.Translate(userLanguage, "Depreciation") : translator.Translate(userLanguage, "Appreciation"))
+            </div>
+            <div class="col-3">
+                <span><i class="bi @(Model.TotalDepreciation > 0 ? "bi-graph-down-arrow" : "bi-graph-up-arrow") me-2"></i>@Math.Abs(Model.TotalDepreciation).ToString("C")</span>
+            </div>
+            @if (Model.DepreciationPerDay != default)
+            {
+                <div class="col-3">
+                    <span><i class="bi bi-calendar-event me-2"></i>@($"{Model.DepreciationPerDay.ToString("C")}/{translator.Translate(userLanguage, "day")}")</span>
+                </div>
+            }
+            @if (Model.DepreciationPerMile != default)
+            {
+                <div class="col-3">
+                    <span><i class="bi bi-speedometer me-2"></i>@($"{Model.DepreciationPerMile.ToString("C")}/{Model.DistanceUnit}")</span>
+                </div>
+            }
+        </div>
+        <hr />
+    }
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr class="d-flex">
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.DataType)) ? "" : "d-none")">@translator.Translate(userLanguage, "Type")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@translator.Translate(userLanguage, "Date")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@translator.Translate(userLanguage, "Odometer")</th>
+                        <th scope="col" class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@translator.Translate(userLanguage, "Description")</th>
+                        <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@translator.Translate(userLanguage, "Cost")</th>
+                        <th scope="col" class="col-4 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@translator.Translate(userLanguage, "Notes")</th>
+                        @foreach(string extraField in extraFields)
+                        {
+                            <th scope="col" class="col-2 text-truncate flex-grow-1 flex-shrink-1">@extraField</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (GenericReportModel reportData in Model.VehicleHistory)
+                    {
+                        <tr class="d-flex">
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.DataType)) ? "" : "d-none")">
+                                @if (reportData.DataType == ImportMode.ServiceRecord)
+                                {
+                                    <span><i class="bi bi-card-checklist me-2"></i>@translator.Translate(userLanguage, "Service")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.RepairRecord)
+                                {
+                                    <span><i class="bi bi-exclamation-octagon me-2"></i>@translator.Translate(userLanguage, "Repair")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.UpgradeRecord)
+                                {
+                                    <span><i class="bi bi-wrench-adjustable me-2"></i>@translator.Translate(userLanguage, "Upgrade")</span>
+                                }
+                                else if (reportData.DataType == ImportMode.TaxRecord)
+                                {
+                                    <span><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Tax")</span>
+                                }
+                            </td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Date)) ? "" : "d-none")">@reportData.Date.ToShortDateString()</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Odometer)) ? "" : "d-none")">@(reportData.Odometer == default ? "---" : reportData.Odometer.ToString("N0"))</td>
+                            <td class="col-3 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Description)) ? "" : "d-none")">@reportData.Description</td>
+                            <td class="col-2 text-truncate flex-grow-1 flex-shrink-1 @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Cost)) ? "" : "d-none")">@(StaticHelper.HideZeroCost(reportData.Cost, hideZero))</td>
+                            <td class="col-4 flex-grow-1 flex-shrink-1 text-wrap text-break @(Model.ReportParameters.VisibleColumns.Contains(nameof(GenericReportModel.Notes)) ? "" : "d-none")">@StaticHelper.TruncateStrings(reportData.Notes, 100)</td>
+                            @foreach(string extraField in extraFields)
+                            {
+                                <td class="col-2 text-truncate flex-grow-1 flex-shrink-1">@(reportData.ExtraFields.Where(x => x.Name == extraField)?.FirstOrDefault()?.Value ?? "")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="d-flex">
+                        <td class="col-12 showOnPrint lubelogger-report-banner">
+                            @StaticHelper.ReportNote
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+@if (Model.ReportParameters.PrintIndividualRecords){
+    @foreach (GenericReportModel genericRecord in Model.VehicleHistory)
+    {
+        <div class="d-flex flex-column recordSticker">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-6">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="display-6">@($"{Model.VehicleData.Year} {Model.VehicleData.Make} {Model.VehicleData.Model}")</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="lead">@($"{StaticHelper.GetVehicleIdentifier(Model.VehicleData)}")</span>
+                        </li>
+                        @foreach (ExtraField extraField in Model.VehicleData.ExtraFields)
+                        {
+                            if (!string.IsNullOrWhiteSpace(extraField.Value))
+                            {
+                                <li class="list-group-item">
+                                    <span class="lead">@($"{extraField.Name}: {extraField.Value}")</span>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <ul class="list-group">
+                        @if (!string.IsNullOrWhiteSpace(genericRecord.Description))
+                        {
+                            <li class="list-group-item">
+                                @($"{translator.Translate(userLanguage, "Description")}: {genericRecord.Description}")
+                            </li>
+                        }
+                        @switch (genericRecord.DataType)
+                        {
+                            case ImportMode.ServiceRecord:
+                            case ImportMode.RepairRecord:
+                            case ImportMode.UpgradeRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Odometer")}: {genericRecord.Odometer}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                                break;
+                            case ImportMode.TaxRecord:
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Date")}: {genericRecord.Date.ToShortDateString()}")
+                                </li>
+                                <li class="list-group-item">
+                                    @($"{translator.Translate(userLanguage, "Cost")}: {genericRecord.Cost.ToString("C")}")
+                                </li>
+                                break;
+                        }
+                        @foreach (ExtraField extraField in genericRecord.ExtraFields)
+                        {
+                            <li class="list-group-item">
+                                @($"{extraField.Name}: {extraField.Value}")
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            @if (genericRecord.RequisitionHistory.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-hover">
+                            <thead class="sticky-top">
+                                <tr class="d-flex">
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Part Number")</th>
+                                    <th scope="col" class="col-6">@translator.Translate(userLanguage, "Description")</th>
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Quantity")</th>
+                                    <th scope="col" class="col-2">@translator.Translate(userLanguage, "Cost")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SupplyUsageHistory usageHistory in genericRecord.RequisitionHistory)
+                                {
+                                    <tr class="d-flex">
+                                        <td class="col-2 text-truncate">@usageHistory.PartNumber</td>
+                                        <td class="col-6 text-truncate">@usageHistory.Description</td>
+                                        <td class="col-2">@usageHistory.Quantity.ToString("F")</td>
+                                        <td class="col-2">@usageHistory.Cost.ToString("C2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+            }
+            <div class="row stickerNoteContainer">
+                <div class="col-12">
+                    <div class="stickerNote ms-1 me-1 p-1">
+                        @(genericRecord.Notes)
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <script>setMarkDownStickerNotes()</script>
+}

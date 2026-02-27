@@ -1,0 +1,347 @@
+﻿@using CarCareTracker.Helper
+@{
+    ViewData["Title"] = "Server Settings";
+}
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userLanguage = config.GetServerLanguage();
+}
+@section Scripts {
+    <script src="~/js/serversettings.js?v=@StaticHelper.VersionNumber"></script>
+}
+@section Nav {
+    <div class="container-fluid lubelogger-navbar-container frosted hideOnPrint">
+        <div class="row mt-2">
+            <div class="d-flex lubelogger-navbar">
+                <div style="cursor:pointer;" onclick="returnToGarage()" class="me-2">
+                    <img src="@config.GetSmallLogoUrl()" class="lubelogger-logo" />
+                </div>
+                <span class="text-truncate lead">@translator.Translate(userLanguage, "Server Settings Configurator")</span>
+            </div>
+        </div>
+        <hr />
+    </div>
+}
+@model ServerSettingsViewModel
+<div class="setup-wizard-container frosted">
+    <div class="setup-wizard-content" data-page="0">
+        <div class="d-flex text-center align-items-center justify-content-center flex-column" style="height:100%;">
+            <div><span class="display-5">@translator.Translate(userLanguage, "Server Settings Configurator")</span></div>
+            <div><span class="lead">@translator.Translate(userLanguage, "By proceeding, you acknowledge that you are solely responsible for all consequences from utilizing the Server Settings Configurator")</span></div>
+            <div class="mt-2"><a class="btn btn-primary" onclick="nextSetupPage()">@translator.Translate(userLanguage, "Acknowledge and Continue")</a></div>
+        </div>
+    </div>
+    <div class="setup-wizard-content" data-page="1" style="display:none;">
+        <span class="display-5">@translator.Translate(userLanguage, "Server Settings")</span>
+        <hr />
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputPostgres">@translator.Translate(userLanguage, "Postgres Connection")</label>
+                <div class="input-group">
+                    <input type="text" id="inputPostgres" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.PostgresConnection">
+                    <div class="input-group-text">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="skipPostgres">
+                            <label class="form-check-label" for="skipPostgres">@translator.Translate(userLanguage, "Skip")</label>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+            <div class="form-group">
+                <label for="inputLocale">@translator.Translate(userLanguage, "Locale Override")</label>
+                <select class="form-select" id="inputLocale" onchange="loadLocaleSample()">
+                    @foreach(string installedLocale in Model.AvailableLocales)
+                    {
+                        <!option value="@installedLocale" @(Model.LocaleOverride == installedLocale ? "selected" : "")>@installedLocale</!option>
+                    }
+                </select>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use system locale. Restart Required")</small>
+                <div id="dateTimeLocaleOverride" style="@(string.IsNullOrWhiteSpace(Model.LocaleOverride) ? "display:none;" : "")">
+                    <label for="inputDateTimeLocale">@translator.Translate(userLanguage, "Locale DateTime Override")</label>
+                    <select class="form-select" id="inputDateTimeLocale" onchange="loadLocaleSample()">
+                        @foreach (string installedLocale in Model.AvailableLocales)
+                        {
+                            <!option value="@installedLocale" @(Model.LocaleDateTimeOverride == installedLocale ? "selected" : "")>@installedLocale</!option>
+                        }
+                    </select>
+                    <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use default datetime format. Restart Required")</small>
+                </div>
+                <div id="localeSampleContainer" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label for="inputFileExt">@translator.Translate(userLanguage, "Allowed File Extensions")</label>
+                <input type="text" id="inputFileExt" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.AllowedFileExtensions">
+            </div>
+            <div class="form-group">
+                <label for="inputLogoURL">@translator.Translate(userLanguage, "Logo URL")</label>
+                <input type="text" id="inputLogoURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.CustomLogoURL">
+            </div>
+            <div class="form-group">
+                <label for="inputSmallLogoURL">@translator.Translate(userLanguage, "Small Logo URL")</label>
+                <input type="text" id="inputSmallLogoURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.CustomSmallLogoURL">
+            </div>
+            <div class="form-group">
+                <label for="inputMOTD">@translator.Translate(userLanguage, "Message of the Day")</label>
+                <input type="text" id="inputMOTD" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.MessageOfTheDay">
+            </div>
+            <div class="form-group">
+                <label for="inputWebHook">@translator.Translate(userLanguage, "WebHook URL")</label>
+                <input type="text" id="inputWebHook" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.WebHookURL">
+            </div>
+            <div class="form-group">
+                <label for="inputDomain">@translator.Translate(userLanguage, "Server URL")</label>
+                <input type="text" id="inputDomain" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.Domain">
+            </div>
+            <div class="form-group">
+                <label for="inputCustomWidget">@translator.Translate(userLanguage, "Custom Widgets")</label>
+                <select class="form-select" id="inputCustomWidget">
+                    <!option value="true" @(Model.CustomWidgetsEnabled ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.CustomWidgetsEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputWebSocket">@translator.Translate(userLanguage, "WebSocket")</label>
+                <select class="form-select" id="inputWebSocket">
+                    <!option value="true" @(Model.WebSocketEnabled ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.WebSocketEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputInvariantAPI">@translator.Translate(userLanguage, "Invariant API")</label>
+                <select class="form-select" id="inputInvariantAPI">
+                    <!option value="true" @(Model.InvariantAPIEnabled ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.InvariantAPIEnabled ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputCookieLifeSpan" class="form-label"><span>@($"{translator.Translate(userLanguage, "Auth Cookie Lifespan")} - ")</span><span id="inputCookieLifeSpanRangeLabel">@Model.CookieLifeSpan</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
+                <input type="range" class="form-range" oninput="updateCookieLifeSpanRange()" min="1" max="90" id="inputCookieLifeSpan" value="@Model.CookieLifeSpan">
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="2" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="display-5">@translator.Translate(userLanguage, "SMTP")</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipSMTP">
+                <label class="form-check-label" for="skipSMTP">@translator.Translate(userLanguage, "Skip")</label>
+            </div>
+        </div>
+        <hr />
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputSMTPServer">@translator.Translate(userLanguage, "SMTP Server")</label>
+                <input type="text" id="inputSMTPServer" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.EmailServer">
+            </div>
+            <div class="form-group">
+                <label for="inputSMTPPort">@translator.Translate(userLanguage, "SMTP Server Port")</label>
+                <input type="text" id="inputSMTPPort" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Port">
+            </div>
+            <div class="form-group">
+                <label for="inputSMTPFrom">@translator.Translate(userLanguage, "SMTP Sender Address")</label>
+                <input type="text" id="inputSMTPFrom" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.EmailFrom">
+            </div>
+            <div class="form-group">
+                <label for="inputSMTPUsername">@translator.Translate(userLanguage, "SMTP Username")</label>
+                <input type="text" id="inputSMTPUsername" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Username">
+            </div>
+            <div class="form-group">
+                <label for="inputSMTPPassword">@translator.Translate(userLanguage, "SMTP Password")</label>
+                <div class="input-group">
+                    <input type="password" id="inputSMTPPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.SMTPConfig.Password">
+                    <div class="input-group-text">
+                        <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="d-flex align-items-center justify-content-center flex-column">
+                    <div class="mt-2"><a class="btn btn-warning" onclick="sendTestEmail()">@translator.Translate(userLanguage, "Test SMTP Settings")</a></div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="3" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="display-5">@translator.Translate(userLanguage, "Server Endpoints")</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipHTTPS">
+                <label class="form-check-label" for="skipHTTPS">@translator.Translate(userLanguage, "Skip")</label>
+            </div>
+        </div>
+        <hr />
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputHTTPURL">@translator.Translate(userLanguage, "HTTP Endpoint")</label>
+                <input type="text" id="inputHTTPURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.Http?.Url ?? string.Empty)">
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+            <div class="form-group">
+                <label for="inputHTTPSURL">@translator.Translate(userLanguage, "HTTPS Endpoint")</label>
+                <input type="text" id="inputHTTPSURL" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Url ?? string.Empty)">
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+            <div class="form-group">
+                <label for="inputHTTPSCertLocation">@translator.Translate(userLanguage, "HTTPS Certificate Location")</label>
+                <input type="text" id="inputHTTPSCertLocation" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Path ?? string.Empty)">
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+            <div class="form-group">
+                <label for="inputHTTPSCertPassword">@translator.Translate(userLanguage, "HTTPS Certificate Password")</label>
+                <div class="input-group">
+                    <input type="password" id="inputHTTPSCertPassword" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@(Model.KestrelAppConfig?.Endpoints?.HttpsInlineCertFile?.Certificate?.Password ?? string.Empty)">
+                    <div class="input-group-text">
+                        <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                    </div>
+                </div>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="4" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="display-5">@translator.Translate(userLanguage, "Single Sign On")</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipOIDC">
+                <label class="form-check-label" for="skipOIDC">@translator.Translate(userLanguage, "Skip")</label>
+            </div>
+        </div>
+        <hr />
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputOIDCProvider">@translator.Translate(userLanguage, "OIDC Provider")</label>
+                <input type="text" id="inputOIDCProvider" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.Name">
+            </div>
+             <div class="form-group">
+                <label for="inputOIDCClient">@translator.Translate(userLanguage, "OIDC Client ID")</label>
+                <input type="text" id="inputOIDCClient" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.ClientId">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCSecret">@translator.Translate(userLanguage, "OIDC Client Secret")</label>
+                <div class="input-group">
+                    <input type="password" id="inputOIDCSecret" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.ClientSecret">
+                    <div class="input-group-text">
+                        <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="togglePasswordVisibility(this)"><i class="bi bi-eye"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCAuth">@translator.Translate(userLanguage, "OIDC Auth URL")</label>
+                <input type="text" id="inputOIDCAuth" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.AuthURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCToken">@translator.Translate(userLanguage, "OIDC Token URL")</label>
+                <input type="text" id="inputOIDCToken" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.TokenURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCUserInfo">@translator.Translate(userLanguage, "OIDC UserInfo URL")</label>
+                <input type="text" id="inputOIDCUserInfo" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.UserInfoURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCJwks">@translator.Translate(userLanguage, "OIDC JWKS URL")</label>
+                <input type="text" id="inputOIDCJwks" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.JwksURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCRedirect">@translator.Translate(userLanguage, "OIDC Redirect URL")</label>
+                <input type="text" id="inputOIDCRedirect" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.RedirectURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCScope">@translator.Translate(userLanguage, "OIDC Scope")</label>
+                <input type="text" id="inputOIDCScope" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.Scope">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCLogout">@translator.Translate(userLanguage, "OIDC Logout URL")</label>
+                <input type="text" id="inputOIDCLogout" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.OIDCConfig.LogOutURL">
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCState">@translator.Translate(userLanguage, "OIDC Validate State")</label>
+                <select class="form-select" id="inputOIDCState">
+                    <!option value="true" @(Model.OIDCConfig.ValidateState ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.OIDCConfig.ValidateState ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCPKCE">@translator.Translate(userLanguage, "OIDC Use PKCE")</label>
+                <select class="form-select" id="inputOIDCPKCE">
+                    <!option value="true" @(Model.OIDCConfig.UsePKCE ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.OIDCConfig.UsePKCE ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputOIDCDisable">@translator.Translate(userLanguage, "OIDC Login Only")</label>
+                <select class="form-select" id="inputOIDCDisable">
+                    <!option value="true" @(Model.OIDCConfig.DisableRegularLogin ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.OIDCConfig.DisableRegularLogin ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="d-flex align-items-center justify-content-center flex-column">
+                    <div class="mt-2"><a class="btn btn-warning" onclick="importOpenIDConfig()">@translator.Translate(userLanguage, "Import OpenID Config")</a></div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="5" style="display:none;">
+        <span class="display-5">@translator.Translate(userLanguage, "Miscellaneous")</span>
+        <hr />
+        <form class="form-inline">
+            @if (Model.EnableAuth)
+            {
+                <div class="form-group">
+                    <label for="inputRegistrationMode">@translator.Translate(userLanguage, "Registration")</label>
+                    <select class="form-select" id="inputRegistrationMode">
+                        <!option value="0" @(!Model.OpenRegistration && !Model.DisableRegistration ? "selected" : "")>@translator.Translate(userLanguage, "Invitation Only")</!option>
+                        <!option value="1" @(Model.DisableRegistration ? "selected" : "")>@translator.Translate(userLanguage, "Disable Registration")</!option>
+                        <!option value="2" @(Model.OpenRegistration ? "selected" : "")>@translator.Translate(userLanguage, "Open Registration")</!option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputOIDCRootUser">@translator.Translate(userLanguage, "Enable OIDC for Root User")</label>
+                    <select class="form-select" id="inputOIDCRootUser">
+                        <!option value="true" @(Model.EnableRootUserOIDC ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                        <!option value="false" @(Model.EnableRootUserOIDC ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                    </select>
+                </div>
+            }
+            <div class="form-group">
+                <label for="inputDefaultReminderEmail">@translator.Translate(userLanguage, "Root User Email Address")</label>
+                <input type="text" id="inputDefaultReminderEmail" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.DefaultReminderEmail">
+            </div>
+            <hr />
+            <div class="mb-2">
+                <span class="display-6">@translator.Translate(userLanguage, "Reminder Urgency Thresholds")</span>
+            </div>
+            <div class="form-group">
+                <label for="inputUrgentDays">@translator.Translate(userLanguage, "Urgent(Days)")</label>
+                <input type="number" inputmode="numeric" id="inputUrgentDays" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.ReminderUrgencyConfig.UrgentDays">
+            </div>
+            <div class="form-group">
+                <label for="inputVeryUrgentDays">@translator.Translate(userLanguage, "Very Urgent(Days)")</label>
+                <input type="number" inputmode="numeric" id="inputVeryUrgentDays" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.ReminderUrgencyConfig.VeryUrgentDays">
+            </div>
+            <div class="form-group">
+                <label for="inputUrgentDistance">@translator.Translate(userLanguage, "Urgent(Distance)")</label>
+                <input type="number" inputmode="numeric" id="inputUrgentDistance" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.ReminderUrgencyConfig.UrgentDistance">
+            </div>
+            <div class="form-group">
+                <label for="inputVeryUrgentDistance">@translator.Translate(userLanguage, "Very Urgent(Distance)")</label>
+                <input type="number" inputmode="numeric" id="inputVeryUrgentDistance" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.ReminderUrgencyConfig.VeryUrgentDistance">
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="6" style="display:none;">
+        <div class="d-flex text-center align-items-center justify-content-center flex-column" style="height:100%;">
+            <div><span class="display-5">@translator.Translate(userLanguage, "Server Settings Saved")<span class="text-success"><i class="bi bi-check-lg"></i></span></span></div>
+            <div class="mt-2"><a class="btn btn-secondary me-2" onclick="loadSetupPage(0)">@translator.Translate(userLanguage, "Restart Wizard")</a><a class="btn btn-primary" onclick="returnToGarage()">@translator.Translate(userLanguage, "Return to Garage")</a></div>
+        </div>
+    </div>
+    <div class="setup-wizard-nav" style="display:none;">
+        <div class="d-flex align-items-center justify-content-between pe-2" style="height:100%;">
+            <a class="btn btn-prev btn-link" onclick="previousSetupPage()">@translator.Translate(userLanguage, "Back")</a>
+            <a class="btn btn-next btn-primary" onclick="nextSetupPage()">@translator.Translate(userLanguage, "Next")</a>
+            <a class="btn btn-save btn-success" onclick="saveSetup()">@translator.Translate(userLanguage, "Save")</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+﻿@using CarCareTracker.Helper
+@using System.Globalization
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var hideZero = userConfig.HideZero;
+}
+@model VehicleImageMap
+@if (!string.IsNullOrWhiteSpace(Model.ImageLink))
+{
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title">@(translator.Translate(userLanguage, "Vehicle Maintenance Map"))</h5>
+            <button type="button" class="btn-close" onclick="hideDataTable()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-12">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 @Model.Width @Model.Height">
+                        <image width="@Model.Width" height="@Model.Height" xlink:href="@Model.ImageLink"></image>
+                        @foreach(ImageMap imageMap in Model.Map)
+                        {
+                            <a style='cursor:pointer;' onclick='loadRecordsByTags("@imageMap.Tags")'>
+                            @if(!string.IsNullOrWhiteSpace(imageMap.Shape) && imageMap.Shape.ToLower() == "circle") {
+                                    var cordParts = imageMap.Coordinates.Split(',');
+                                    if (cordParts.Length == 3)
+                                    {
+                                        <circle cx="@cordParts[0]" cy="@cordParts[1]" r="@cordParts[2]" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></circle>
+                                    }
+                            } else {
+                                <polygon points="@imageMap.Coordinates" fill="@imageMap.Color" opacity="@imageMap.Opacity.ToString(CultureInfo.InvariantCulture)"></polygon>
+                            }
+                            </a>
+                        }
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" id="vehicleMaintenanceMapResults" style="display:none;">
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h4>@translator.Translate(userLanguage, "Invalid Image Map.")</h4>
+    </div>
+}

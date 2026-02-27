@@ -1,0 +1,71 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model Note
+@{
+    var isNew = Model.Id == 0;
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@(isNew? translator.Translate(userLanguage, "Add New Note") : translator.Translate(userLanguage, "Edit Note"))<a class="ms-1 link-body-emphasis" onclick="@(isNew ? $"createQR('add', '')" : $"createQR('id', {Model.Id})")"><i class="bi bi-qr-code"></i></a><small style="display:none; @(isNew ? "" : "cursor:pointer;")" class="cached-banner ms-2 text-warning" onclick='@(isNew ? "" : $"showEditNoteModal({Model.Id}, true)")'>@translator.Translate(userLanguage, "Unsaved Changes")</small></h5>
+    <button type="button" class="btn-close" onclick="hideAddNoteModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-12">
+                    <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="noteIsPinned" checked="@Model.Pinned">
+                        <label class="form-check-label" for="noteIsPinned">@translator.Translate(userLanguage,"Pinned")</label>
+                    </div>
+                    <label for="noteDescription">@translator.Translate(userLanguage,"Description")</label>
+                    <input type="text" id="noteDescription" class="form-control" placeholder="@translator.Translate(userLanguage,"Description of the note")" value="@(isNew ? "" : Model.Description)">
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
+                </div>
+                <div class="col-12">
+                    <label for="noteTextArea">@translator.Translate(userLanguage,"Notes")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea class="form-control vehicleNoteContainer" id="noteTextArea">@Model.NoteText</textarea>
+                </div>
+                <div class="col-12">
+                    <div>
+                        @await Html.PartialAsync("_UploadedFiles", Model.Files)
+                        @await Html.PartialAsync("_FileUploader", Model.Files.Any())
+                    </div>
+                    <div id="filesPendingUpload"></div>
+                </div>
+                <div class="col-12">
+                    <label for="noteRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
+                    <select multiple class="form-select" id="noteRecordTag">
+                        @foreach (string tag in Model.Tags)
+                        {
+                            <!option value="@tag">@tag</!option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    @if (!isNew)
+    {
+        <button type="button" class="btn btn-danger" onclick="deleteNote(@Model.Id)" style="margin-right:auto;">@translator.Translate(userLanguage,"Delete")</button>
+    }
+    <button type="button" class="btn btn-secondary" onclick="hideAddNoteModal()">@translator.Translate(userLanguage,"Cancel")</button>
+    @if (isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveNoteToVehicle()">@translator.Translate(userLanguage,"Add New Note")</button>
+    }
+    else if (!isNew)
+    {
+        <button type="button" class="btn btn-primary" onclick="saveNoteToVehicle(true)">@translator.Translate(userLanguage,"Edit Note")</button>
+    }
+</div>
+<script>
+    function getNoteModelData(){
+        return { id: @Model.Id}
+    }
+</script>

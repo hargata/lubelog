@@ -1,17 +1,17 @@
 ## Garage
-![image](https://github.com/user-attachments/assets/b25835c8-3393-4cad-b2a7-7d2797ab4c9d)
+<img width="1429" height="750" alt="image" src="https://github.com/user-attachments/assets/70e6bab7-0ede-42e1-9bdb-945087b97fbc" />
 
 ## Planner(Kanban Board)
-![image](https://github.com/user-attachments/assets/76f49bac-c33b-4853-84ca-68fd108cda5f)
+<img width="1438" height="834" alt="image" src="https://github.com/user-attachments/assets/8c1e5279-b79b-4338-960a-a93e112554f2" />
 
 ## Dashboard
-![image](https://github.com/user-attachments/assets/4b8110d3-f3fd-4ac7-b0ba-77aa9d81f110)
+<img width="1355" height="896" alt="image" src="https://github.com/user-attachments/assets/8bd43b28-68a7-4ef4-b737-3a6c355cbf27" />
 
 ## Track Service Records / Repairs / Upgrades
-![image](https://github.com/user-attachments/assets/eaaff505-3ffe-4c12-9a17-1537b3c48886)
+![servicerecord](https://github.com/user-attachments/assets/4f429f13-7b46-4cac-9ce5-b4455de527ee)
 
 ## Attach Files to Records (i.e.: Receipts, Invoices, etc)
-![image](https://github.com/user-attachments/assets/f01a4722-ad7a-4d10-872e-eff65b54d2d2)
+![image](https://github.com/user-attachments/assets/6fc94b2b-761e-492e-927c-1c4ee52cc397)
 
 ## Import/Export from/to CSV (Supports Imports from Fuelly)
 ![image](https://github.com/user-attachments/assets/816120e9-72da-436b-862b-1478c91bd299)
@@ -23,19 +23,19 @@ Supports
 - L/100KM and KM/L
 - British use-case: Purchase gas in liters and calculate fuel economy in miles per UK Gallon(imp gal)
   
-![image](https://github.com/user-attachments/assets/8fbdf60f-18c6-4ead-9e28-6b92c64dbb1a)
+![fuelmileage](https://github.com/user-attachments/assets/c4b5c474-7c29-4f95-b125-b9d6f81a0064)
 
 ## Reminders
-![image](https://github.com/user-attachments/assets/ca104765-2482-4bea-976c-8d333832ffe7)
+![reminder](https://github.com/user-attachments/assets/01302d5a-93a7-4f3f-bc4e-12b387f65a8e)
 
 ## Set Reminders based on Odometer, Date, or whichever comes first
 ![image](https://github.com/user-attachments/assets/0dd9e668-f445-403f-80f4-9a89aefe8295)
 
 ## Settings
-![image](https://github.com/user-attachments/assets/b3a55635-8279-43c7-92a5-3bc555b6a2c7)
+![image](https://github.com/user-attachments/assets/8c1d5da0-6a34-4286-a9b5-26b9cf179896)
 
 ## Admin Panel (Generate Tokens for new users to sign up)
-![image](https://github.com/user-attachments/assets/51ace6fd-1056-4c09-86c5-221be7e2be10)
+![image](https://github.com/user-attachments/assets/0d7049f0-f121-4d98-a3b1-44ea9c2b3569)
 
 ![image](https://github.com/user-attachments/assets/4b9998cf-731c-4860-8a0d-7878f0453110)
 
@@ -43,10 +43,10 @@ Supports
 ![image](https://github.com/hargata/lubelog/assets/155338622/261a143f-cac0-4961-bcd0-bdb61be6990a)
 
 ## Track Supplies and Parts purchased for your vehicle
-![image](https://github.com/user-attachments/assets/b393baeb-bc93-4f0f-86f4-e049671c9370)
+![image](https://github.com/user-attachments/assets/ddc835e5-9b5f-4589-9d54-1b304f6ba74c)
 
 ## Supports Custom Fields
-![image](https://github.com/user-attachments/assets/f74b63ff-b87d-456c-97cf-078da5736359)
+![image](https://github.com/user-attachments/assets/6e160eca-441e-42d7-a3b5-83ebd9cab860)
 
 ## Add Collaborators (Multiple People can Add/Edit Records for same Vehicle)
 ![image](https://github.com/hargata/lubelog/assets/155338622/0ec57dc4-c552-48b9-9a8e-4d89b691aade)

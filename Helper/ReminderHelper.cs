@@ -16,8 +16,8 @@ namespace CarCareTracker.Helper
         }
         public ReminderRecord GetUpdatedRecurringReminderRecord(ReminderRecord existingReminder, DateTime? currentDate, int? currentMileage)
         {
-            var newDate = currentDate ?? existingReminder.Date;
-            var newMileage = currentMileage ?? existingReminder.Mileage;
+            var newDate = existingReminder.FixedIntervals ? existingReminder.Date : currentDate ?? existingReminder.Date;
+            var newMileage = existingReminder.FixedIntervals ? existingReminder.Mileage : currentMileage ?? existingReminder.Mileage;
             if (existingReminder.Metric == ReminderMetric.Both)
             {
                 if (existingReminder.ReminderMonthInterval != ReminderMonthInterval.Other)
@@ -25,7 +25,14 @@ namespace CarCareTracker.Helper
                     existingReminder.Date = newDate.AddMonths((int)existingReminder.ReminderMonthInterval);
                 } else
                 {
-                    existingReminder.Date = newDate.Date.AddMonths(existingReminder.CustomMonthInterval);
+                    if (existingReminder.CustomMonthIntervalUnit == ReminderIntervalUnit.Months)
+                    {
+                        existingReminder.Date = newDate.Date.AddMonths(existingReminder.CustomMonthInterval);
+                    } 
+                    else if (existingReminder.CustomMonthIntervalUnit == ReminderIntervalUnit.Days)
+                    {
+                        existingReminder.Date = newDate.Date.AddDays(existingReminder.CustomMonthInterval);
+                    }
                 }
                
                 if (existingReminder.ReminderMileageInterval != ReminderMileageInterval.Other)
@@ -55,7 +62,14 @@ namespace CarCareTracker.Helper
                 }
                 else
                 {
-                    existingReminder.Date = newDate.AddMonths(existingReminder.CustomMonthInterval);
+                    if (existingReminder.CustomMonthIntervalUnit == ReminderIntervalUnit.Months)
+                    {
+                        existingReminder.Date = newDate.AddMonths(existingReminder.CustomMonthInterval);
+                    }
+                    else if (existingReminder.CustomMonthIntervalUnit == ReminderIntervalUnit.Days)
+                    {
+                        existingReminder.Date = newDate.AddDays(existingReminder.CustomMonthInterval);
+                    }
                 }
             }
             return existingReminder;
@@ -79,6 +93,7 @@ namespace CarCareTracker.Helper
                     Description = reminder.Description,
                     Notes = reminder.Notes,
                     Metric = reminder.Metric,
+                    UserMetric = reminder.Metric,
                     IsRecurring = reminder.IsRecurring,
                     Tags = reminder.Tags
                 };
@@ -116,6 +131,8 @@ namespace CarCareTracker.Helper
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                         reminderViewModel.Metric = ReminderMetric.Odometer;
                     }
+                    reminderViewModel.DueDays = (reminder.Date - dateCompare).Days;
+                    reminderViewModel.DueMileage = reminder.Mileage - currentMileage;
                 }
                 else if (reminder.Metric == ReminderMetric.Date)
                 {
@@ -131,6 +148,7 @@ namespace CarCareTracker.Helper
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
+                    reminderViewModel.DueDays = (reminder.Date - dateCompare).Days;
                 }
                 else if (reminder.Metric == ReminderMetric.Odometer)
                 {
@@ -147,6 +165,7 @@ namespace CarCareTracker.Helper
                     {
                         reminderViewModel.Urgency = ReminderUrgency.Urgent;
                     }
+                    reminderViewModel.DueMileage = reminder.Mileage - currentMileage;
                 }
                 reminderViewModels.Add(reminderViewModel);
             }

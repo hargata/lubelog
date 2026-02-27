@@ -15,13 +15,13 @@ namespace CarCareTracker.Controllers
             //check if the user uses MPG or Liters per 100km.
             var userConfig = _config.GetUserConfig(User);
             bool useMPG = userConfig.UseMPG;
-            bool useUKMPG = userConfig.UseUKMPG;
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            bool useUKMPG = !vehicleData.IsElectric && userConfig.UseUKMPG; //do not apply UK conversion on electric vehicles.
             var computedResults = _gasHelper.GetGasRecordViewModels(result, useMPG, useUKMPG);
             if (userConfig.UseDescending)
             {
                 computedResults = computedResults.OrderByDescending(x => DateTime.Parse(x.Date)).ThenByDescending(x => x.Mileage).ToList();
             }
-            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
             var viewModel = new GasRecordViewModelContainer()
@@ -30,41 +30,66 @@ namespace CarCareTracker.Controllers
                 UseHours = vehicleUseHours,
                 GasRecords = computedResults
             };
-            return PartialView("_Gas", viewModel);
+            return PartialView("Gas/_Gas", viewModel);
         }
         [HttpPost]
         public IActionResult SaveGasRecordToVehicleId(GasRecordInput gasRecord)
         {
-            if (gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), gasRecord.VehicleId, HouseholdPermission.Edit))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
+            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            if (gasRecord.Supplies.Any())
+            {
+                gasRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(gasRecord.Supplies, DateTime.Parse(gasRecord.Date), $"Fuel Record {gasRecord.Date}"));
+                if (gasRecord.CopySuppliesAttachment)
+                {
+                    gasRecord.Files.AddRange(GetSuppliesAttachments(gasRecord.Supplies));
+                }
+            }
+            if (gasRecord.DeletedRequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(gasRecord.DeletedRequisitionHistory, $"Fuel Record {gasRecord.Date}");
+            }
+            var convertedRecord = gasRecord.ToGasRecord();
+            var result = _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGasRecord(convertedRecord, gasRecord.Id == default ? "gasrecord.add" : "gasrecord.update", User.Identity?.Name ?? string.Empty));
+            }
+            if (convertedRecord.Id != default && gasRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
             {
                 _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
                 {
                     Date = DateTime.Parse(gasRecord.Date),
                     VehicleId = gasRecord.VehicleId,
                     Mileage = gasRecord.Mileage,
-                    Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}"
+                    Notes = $"Auto Insert From Gas Record. {gasRecord.Notes}",
+                    Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.GasRecord, convertedRecord.Id, $"Gas Record - {gasRecord.Mileage.ToString()}")
                 });
             }
-            gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
-            var result = _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord.ToGasRecord());
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), gasRecord.VehicleId, User.Identity.Name, $"{(gasRecord.Id == default ? "Created" : "Edited")} Gas Record - Mileage: {gasRecord.Mileage.ToString()}");
-            }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
+        [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetAddGasRecordPartialView(int vehicleId)
         {
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
-            return PartialView("_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
+            return PartialView("Gas/_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
         {
             var result = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             var convertedResult = new GasRecordInput
             {
                 Id = result.Id,
@@ -78,6 +103,7 @@ namespace CarCareTracker.Controllers
                 MissedFuelUp = result.MissedFuelUp,
                 Notes = result.Notes,
                 Tags = result.Tags,
+                RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields)
             };
             var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
@@ -89,27 +115,32 @@ namespace CarCareTracker.Controllers
                 UseHours = vehicleUseHours,
                 GasRecord = convertedResult
             };
-            return PartialView("_GasModal", viewModel);
+            return PartialView("Gas/_GasModal", viewModel);
         }
-        private bool DeleteGasRecordWithChecks(int gasRecordId)
+        private OperationResponse DeleteGasRecordWithChecks(int gasRecordId)
         {
             var existingRecord = _gasRecordDataAccess.GetGasRecordById(gasRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
+            }
+            //restore any requisitioned supplies.
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, $"Fuel Record {existingRecord.Date.ToShortDateString()}");
             }
             var result = _gasRecordDataAccess.DeleteGasRecordById(existingRecord.Id);
-            return result;
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.delete", User.Identity?.Name ?? string.Empty));
+            }
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteGasRecordById(int gasRecordId)
         {
             var result = DeleteGasRecordWithChecks(gasRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Gas Record - Id: {gasRecordId}");
-            }
             return Json(result);
         }
         [HttpPost]
@@ -125,7 +156,7 @@ namespace CarCareTracker.Controllers
         public IActionResult GetGasRecordsEditModal(List<int> recordIds)
         {
             var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields;
-            return PartialView("_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds, EditRecord = new GasRecord { ExtraFields = extraFields } });
+            return PartialView("Gas/_GasRecordsModal", new GasRecordEditModel { RecordIds = recordIds, EditRecord = new GasRecord { ExtraFields = extraFields } });
         }
         [HttpPost]
         public IActionResult SaveMultipleGasRecords(GasRecordEditModel editModel)
@@ -150,6 +181,11 @@ namespace CarCareTracker.Controllers
             foreach (int recordId in editModel.RecordIds)
             {
                 var existingRecord = _gasRecordDataAccess.GetGasRecordById(recordId);
+                //security check
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 if (dateIsEdited)
                 {
                     existingRecord.Date = editModel.EditRecord.Date;
@@ -192,7 +228,7 @@ namespace CarCareTracker.Controllers
                 }
                 result = _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

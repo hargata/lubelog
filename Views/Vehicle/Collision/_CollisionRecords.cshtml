@@ -1,0 +1,222 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var enableCsvImports = userConfig.EnableCsvImports;
+    var hideZero = userConfig.HideZero;
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var userLanguage = userConfig.UserLanguage;
+    var extraFields = new List<string>();
+    if (userConfig.EnableExtraFieldColumns)
+    {
+        extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
+    }
+    var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.RepairRecord);
+}
+@model List<CollisionRecord>
+<script>
+    var tableArray = [];
+    var tablePageSize = 0;
+    let tableRowHeight = 0;
+</script>
+<div class="d-flex flex-column vehicleTabPane">
+<div class="row">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-success" data-aggregate-type="count">@($"{translator.Translate(userLanguage,"# of Repair Records")}: {Model.Count()}")</span>
+            <span class="badge bg-primary" data-aggregate-type="sum">@($"{translator.Translate(userLanguage,"Total")}: {Model.Sum(x => x.Cost).ToString("C")}")</span>
+            @foreach (string recordTag in recordTags)
+            {
+                <span onclick="filterTable('accident-tab-pane', this)" class="user-select-none rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
+            }
+            <datalist id="tagList">
+                @foreach (string recordTag in recordTags)
+                {
+                    <!option value="@recordTag"></!option>
+                }
+            </datalist>
+        </div>
+            <div class="lubelogger-record-add">
+                <div class="btn-group">
+                    <button onclick="showAddCollisionRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-pencil-square me-2"></i>@translator.Translate(userLanguage,"Add Repair Record")</button>
+                    <button type="button" class="btn btn-md btn-primary btn-md mt-1 mb-1 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu record-dropdown">
+                            @if (enableCsvImports)
+                            {
+                                <li><a class="dropdown-item" href="#" onclick="showBulkImportModal('RepairRecord')">@translator.Translate(userLanguage,"Import via CSV")</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportVehicleData('RepairRecord')">@translator.Translate(userLanguage,"Export to CSV")</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            }
+                        <li><a class="dropdown-item" href="#" onclick="printTab()">@translator.Translate(userLanguage,"Print")</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="searchTableRows('accident-tab-pane')">@translator.Translate(userLanguage, "Search")</a></li>
+                        <li class="nav-no-copy"><hr class="dropdown-divider"></li>
+                        <li class="nav-no-copy">
+                            <div class="list-group-item">               
+                                <input class="btn-check" type="checkbox" id="chkSelectMode" onchange="checkSelectModeToggle()">
+                                <label class="dropdown-item" for="chkSelectMode">@translator.Translate(userLanguage, "Select Mode")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='date' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Date" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Date">@translator.Translate(userLanguage, "Date")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='odometer' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Odometer" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Odometer">@translator.Translate(userLanguage, "Odometer")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='description' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Description" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Description">@translator.Translate(userLanguage, "Description")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='cost' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Cost" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Cost">@translator.Translate(userLanguage, "Cost")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Attachment">
+                                <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
+                            </div>
+                        </li>
+                        <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                            <div class="list-group-item">
+                                <input class="form-check-input col-visible-toggle" data-column-toggle='notes' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="chkCol_Notes" checked>
+                                <label class="form-check-label stretched-link" for="chkCol_Notes">@translator.Translate(userLanguage, "Notes")</label>
+                            </div>
+                        </li>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            var elementId = Guid.NewGuid();
+                            <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('RepairRecord')">
+                                <div class="list-group-item">
+                                    <input class="form-check-input col-visible-toggle" data-column-toggle='@extraFieldColumn' onChange="showTableColumns(this, 'RepairRecord')" type="checkbox" id="@elementId">
+                                    <label class="form-check-label stretched-link" for="@elementId">@extraFieldColumn</label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+        </div>
+    </div>
+</div>
+<div class="row vehicleDetailTabContainer flex-grow-1">
+    <div class="col-12">
+        <div class="row mt-2 showOnPrint">
+            <div class="d-flex">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+            </div>
+        </div>
+        <table class="table table-hover">
+            <thead class="sticky-top">
+                <tr class="d-flex">
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('accident-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
+                    <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
+                    @foreach (string extraFieldColumn in extraFields)
+                    {
+                        <th scope="col" style='display:none;' class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="@extraFieldColumn">@extraFieldColumn</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (CollisionRecord collisionRecord in Model)
+                {
+                    <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@collisionRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditCollisionRecordModal,@collisionRecord.Id)" data-tags='@string.Join(" ", collisionRecord.Tags)'>
+                        <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(collisionRecord.Date)">@collisionRecord.Date.ToShortDateString()</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(collisionRecord.Mileage == default ? "---" : collisionRecord.Mileage.ToString())</td>
+                        <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@collisionRecord.Description</td>
+                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(collisionRecord.Cost, hideZero))</td>
+                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", collisionRecord.Files)</td>
+                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(collisionRecord.Notes)</td>
+                        @foreach (string extraFieldColumn in extraFields)
+                        {
+                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                @{
+                                    var extraFieldValue = collisionRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
+                                    if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
+                                    {
+                                        <a href="@extraFieldValue" onclick="noPropagation()" target="_blank">@StaticHelper.TruncateStrings(extraFieldValue)</a>
+                                    }
+                                    else
+                                    {
+                                        @extraFieldValue
+                                    }
+                                }
+                            </td>
+                        }
+                    </tr>
+                    <script>addTableRowToArray()</script>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="d-flex">
+                    <td class="col-12 showOnPrint lubelogger-report-banner">
+                        @StaticHelper.ReportNote
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="row lubelogger-record-nav pt-1 hideOnPrint">
+        <div class="d-flex justify-content-between">
+            <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
+            <button onclick="showAddCollisionRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+            <div>
+                <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+                <ul class="dropdown-menu record-dropdown">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-bs-focus="false" id="collisionRecordModal" tabindex="-1" role="dialog" aria-hidden="true" onpaste="handleModalPaste(event)">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="collisionRecordModalContent">
+        </div>
+    </div>
+</div>
+
+<ul class="table-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedRows()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="editMultipleRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Edit Multiple")</span><i class="bi bi-pencil-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Move To")</h6></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'ServiceRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Service Records")</span><i class="bi bi-card-checklist"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="moveRecords(selectedRow, 'RepairRecord', 'UpgradeRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Upgrades")</span><i class="bi bi-wrench-adjustable"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="duplicateRecordsToOtherVehicles(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Duplicate To Vehicle")</span><i class="bi bi-copy"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="insertOdometer(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Create Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="printTabStickers(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Print")</span><i class="bi bi-printer"></i></div></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteRecords(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+    <li><hr class="context-menu-active-multiple dropdown-divider"></li>
+    <li><a class="context-menu-active-multiple dropdown-item" href="#" onclick="getRecordsDeltaStats(selectedRow)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Statistics")</span><i class="bi bi-graph-up"></i></div></a></li>
+    <li><hr class="context-menu-odometer-adjustment dropdown-divider"></li>
+    <li><a class="context-menu-odometer-adjustment dropdown-item" href="#" onclick="adjustRecordsOdometer(selectedRow, 'RepairRecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Adjust Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+</ul>
+@if (userColumnPreferences.Any())
+{
+    @await Html.PartialAsync("_UserColumnPreferences", userColumnPreferences)
+}
+<script>virtualizeTable()</script>

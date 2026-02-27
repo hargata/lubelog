@@ -1,9 +1,0 @@
-﻿@model IEnumerable<UserColumnPreference>
-<script>
-    var visibleColumns = [];
-     @foreach(string visibleColumn in Model.SelectMany(x=> x.VisibleColumns))
-        {
-            @:visibleColumns.push(decodeHTMLEntities('@visibleColumn'));
-        }
-     loadUserColumnPreferences(visibleColumns);
-</script>

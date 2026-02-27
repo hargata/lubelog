@@ -1,46 +1,31 @@
 ---
-version: "3.4"
 
 services:
-  app:
-    image: ghcr.io/hargata/lubelogger:latest
-    build: .
-    restart: unless-stopped
-    # volumes used to keep data persistent
-    volumes:
-      - config:/App/config
-      - data:/App/data
-      - translations:/App/wwwroot/translations
-      - documents:/App/wwwroot/documents
-      - images:/App/wwwroot/images
-      - temp:/App/wwwroot/temp
-      - log:/App/log
-      - keys:/root/.aspnet/DataProtection-Keys
-    # expose port and/or use serving via traefik
-    ports:
-      - 8080:8080
-    env_file:
-      - .env
-
   postgres:
-    image: postgres:14
+    image: postgres:18
     restart: unless-stopped
     environment:
       POSTGRES_USER: "lubelogger"
       POSTGRES_PASSWORD: "lubepass"
       POSTGRES_DB: "lubelogger"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/
       - /etc/localtime:/etc/localtime:ro
 
+  app:
+    image: ghcr.io/hargata/lubelogger:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_CONNECTION: "Host=postgres:5432;Username=lubelogger;Password=lubepass;Database=lubelogger;"
+    # volumes used to keep data persistent
+    volumes:
+      - data:/App/data
+      - keys:/root/.aspnet/DataProtection-Keys
+    # expose port and/or use serving via traefik
+    ports:
+      - 8080:8080
+
 volumes:
-  config:
   data:
-  translations:
-  documents:
-  images:
-  temp:
-  log:
   keys:
   postgres:

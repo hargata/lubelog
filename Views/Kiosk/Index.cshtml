@@ -1,0 +1,27 @@
+﻿@using CarCareTracker.Helper
+@{
+    ViewData["Title"] = "Kiosk";
+}
+@model KioskViewModel
+@section Scripts {
+    <script src="~/lib/masonry/masonry.min.js"></script>
+    <script src="~/lib/drawdown/drawdown.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script src="~/js/kiosk.js?v=@StaticHelper.VersionNumber"></script>
+}
+<div class="no-top-pad">
+    <div id="kioskContainer" class="container-fluid">
+    </div>
+</div>
+<script>
+    let exceptionList = [];
+    let kioskMode = '@Model.KioskMode';
+    let currentKioskMode = 'Plan';
+    let kioskWakeLock;
+
+    @foreach(int exception in Model.Exclusions)
+    {
+        @:exceptionList.push(@exception);
+    }
+    initKiosk();
+</script>

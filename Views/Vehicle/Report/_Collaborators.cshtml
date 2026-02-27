@@ -1,0 +1,69 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model VehicleCollaboratorViewModel
+<div class="d-flex justify-content-between align-items-center">
+    <span class="lead text-truncate">@translator.Translate(userLanguage, "Collaborators")</span>
+    @if (Model.CanModifyCollaborators)
+    {
+        <button onclick="addCollaborator()" class="btn btn-primary btn-sm"><i class="bi bi-person-add"></i></button>
+    }
+</div>
+<hr />
+<div class="d-flex flex-column gap-2">
+    @foreach (UserCollaborator user in Model.Collaborators)
+    {
+        <div class="d-flex justify-content-between align-items-center report-collaborator border rounded">
+            <span class="text-truncate">@user.UserName</span>
+            @if (User.Identity.Name != user.UserName && Model.CanModifyCollaborators)
+            {
+                <button onclick="deleteCollaborator(@user.UserVehicle.UserId, @user.UserVehicle.VehicleId)" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            }
+        </div>
+    }
+</div>
+<script>
+    function deleteCollaborator(userId, vehicleId) {
+        $.post('/Vehicle/DeleteCollaboratorFromVehicle', {userId: userId, vehicleId: vehicleId}, function(data){
+            if (data) {
+                successToast('Collaborator Removed');
+                refreshCollaborators();
+            } else {
+                errorToast(genericErrorMessage());
+            }
+        })
+    }
+    function addCollaborator() {
+        Swal.fire({
+            title: 'Add Collaborator',
+            html: `
+                            <input type="text" id="inputUserName" class="swal2-input" placeholder="Username" onkeydown="handleSwalEnter(event)">
+                            `,
+            confirmButtonText: 'Add',
+            focusConfirm: false,
+            preConfirm: () => {
+                const userName = $("#inputUserName").val();
+                if (!userName) {
+                    Swal.showValidationMessage(`Please enter a username`);
+                }
+                return { userName }
+            },
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var vehicleId = GetVehicleId().vehicleId;
+                $.post('/Vehicle/AddCollaboratorsToVehicle', { username: result.value.userName, vehicleId: vehicleId }, function (data) {
+                    if (data.success) {
+                        successToast(data.message);
+                        refreshCollaborators();
+                    } else {
+                        errorToast(data.message)
+                    }
+                });
+            }
+        });
+    }
+</script>

@@ -16,6 +16,7 @@
     var firstDayOfWeek = (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
     var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
+    var webSocketEnabled = config.GetWebSocketEnabled();
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
     {
@@ -32,13 +33,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-title" content="LubeLogger" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#181818">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f3f3">
+    @if (userConfig.DisableAutoZoom)
+    {
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    }
     <title>@ViewData["Title"] - LubeLogger</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.css" />
-    <link rel="stylesheet" href="~/css/site.css"/>
+    <link rel="stylesheet" href="~/css/site.css?v=@StaticHelper.VersionNumber" />
     <link rel="stylesheet" href="~/css/loader.css"/>
     <link rel="stylesheet" href="~/sweetalert/sweetalert2.min.css"/>
     <link rel="icon" sizes="192x192" href="~/defaults/lubelogger_icon_192.png" />
@@ -63,6 +71,7 @@
                 currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
                 useThreeDecimals: "@useThreeDecimals" == "True",
                 useMPG: "@useMPG" == "True",
+                webSocketEnabled: "@webSocketEnabled" == "True",
                 firstDayOfWeek: @firstDayOfWeek
             }
         }
@@ -160,11 +169,13 @@
     @await RenderSectionAsync("Scripts", required: false)
 </head>
 <body>
-    <div class="container" style="height:85vh;">
+    @await RenderSectionAsync("Nav", required: false)
+    <div class="container lubelogger-body-container">
         <main role="main">
             @RenderBody()
         </main>
     </div>
+    @await RenderSectionAsync("Footer", required: false)
 </body>
 </html>
 @if (useSystemColorMode)

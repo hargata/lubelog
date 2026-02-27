@@ -36,14 +36,7 @@
                     <input type="text" id="inputModel" class="form-control" placeholder="@translator.Translate(userLanguage, "Model")" value="@Model.Model">
                     <label for="inputLicensePlate">@translator.Translate(userLanguage, "License Plate")</label>
                     <input type="text" id="inputLicensePlate" class="form-control" placeholder="@translator.Translate(userLanguage, "License Plate")" value="@Model.LicensePlate">
-                    @foreach (ExtraField field in Model.ExtraFields)
-                    {
-                        var elementId = Guid.NewGuid();
-                        <div class="extra-field">
-                            <label for="@elementId">@field.Name</label>
-                            <input type="text" id="@elementId" class="form-control @(field.IsRequired ? "extra-field-required" : "")" placeholder="@field.Name" value="@field.Value">
-                        </div>
-                    }
+                    @await Html.PartialAsync("_ExtraField", Model.ExtraFields)
                     <label for="inputIdentifier" class="@(!Model.ExtraFields.Any() ? "d-none" : "")">@translator.Translate(userLanguage, "Identifier")</label>
                     <select class="form-select @(!Model.ExtraFields.Any() ? "d-none" : "")" id="inputIdentifier" )>
                         <!option value="LicensePlate" @(Model.VehicleIdentifier == "LicensePlate" ? "selected" : "")>@translator.Translate(userLanguage, "License Plate")</!option>
@@ -63,6 +56,10 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="inputUseHours" checked="@Model.UseHours">
                         <label class="form-check-label" for="inputUseHours">@translator.Translate(userLanguage, "Use Engine Hours")</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="inputHasVehicleMap" onchange="handleVehicleMapCheckChanged()" checked="@(!string.IsNullOrWhiteSpace(Model.MapLocation))">
+                        <label class="form-check-label" for="inputHasVehicleMap">@translator.Translate(userLanguage, "Vehicle Map")</label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="inputOdometerOptional" checked="@Model.OdometerOptional">
@@ -89,9 +86,15 @@
                             </div>
                             <div id="collapsePurchaseInfo" class="accordion-collapse collapse" data-bs-parent="#vehicleModalAccordion">
                                 <label for="inputPurchaseDate">@translator.Translate(userLanguage, "Purchased Date(optional)")</label>
-                                <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
+                                <div class="input-group">
+                                    <input type="text" id="inputPurchaseDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Date")" value="@Model.PurchaseDate">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                </div>
                                 <label for="inputSoldDate">@translator.Translate(userLanguage, "Sold Date(optional)")</label>
-                                <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
+                                <div class="input-group">
+                                    <input type="text" id="inputSoldDate" class="form-control" placeholder="@translator.Translate(userLanguage, "Sold Date")" value="@Model.SoldDate">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                </div>
                                 <label for="inputPurchasePrice">@translator.Translate(userLanguage, "Purchased Price(optional)")</label>
                                 <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="inputPurchasePrice" class="form-control" placeholder="@translator.Translate(userLanguage, "Purchased Price")" value="@(Model.PurchasePrice == default ? "" : Model.PurchasePrice)">
                                 <label for="inputSoldPrice">@translator.Translate(userLanguage, "Sold Price(optional)")</label>
@@ -139,6 +142,7 @@
                         <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
                         <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     }
+                    <input style="display:none;" onChange="uploadMap(this)" type="file" accept=".json" class="form-control-file" id="inputMap">
                 </div>
             </div>
         </div>
@@ -158,6 +162,7 @@
 </div>
 <script>
     var uploadedFile = "@Model.ImageLocation";
+    var uploadedMap = "@Model.MapLocation";
     function getVehicleModelData() {
         return { id: @Model.Id}
     }

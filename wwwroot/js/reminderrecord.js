@@ -21,23 +21,29 @@ function checkCustomMonthInterval() {
     if (selectedValue == "Other") {
         $("#workAroundInput").show();
         Swal.fire({
-            title: 'Specify Custom Month Interval',
+            title: 'Specify Custom Time Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
+                            <input type="text" inputmode="numeric" id="inputCustomMonth" class="swal2-input" placeholder="Time" onkeydown="handleSwalEnter(event)">
+                            <select class="swal2-select" id="inputCustomMonthUnit">
+                                <option value="Months">Months</option>
+                                <option value="Days">Days</option>
+                            </select>
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,
             preConfirm: () => {
-                const customMonth = $("#inputCustomMileage").val();
+                const customMonth = $("#inputCustomMonth").val();
                 if (!customMonth || isNaN(parseInt(customMonth)) || parseInt(customMonth) <= 0) {
                     Swal.showValidationMessage(`Please enter a valid number`);
                 }
-                return { customMonth }
+                const customMonthUnit = $("#inputCustomMonthUnit").val();
+                return { customMonth, customMonthUnit }
             },
         }).then(function (result) {
             if (result.isConfirmed) {
                 customMonthInterval = result.value.customMonth;
-                $("#reminderRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth}`);
+                customMonthIntervalUnit = result.value.customMonthUnit;
+                $("#reminderRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth} ${result.value.customMonthUnit}`);
             } else {
                 $("#reminderRecurringMonth").val(getReminderRecordModelData().monthInterval);
             }
@@ -79,22 +85,17 @@ function deleteReminderRecord(reminderRecordId, e) {
         event.stopPropagation();
     }
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Reminders cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Reminders cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteReminderRecordById?reminderRecordId=${reminderRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddReminderRecordModal();
                     successToast("Reminder Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleReminders(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -120,13 +121,17 @@ function saveReminderRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveReminderRecordToVehicleId', { reminderRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Reminder Updated" : "Reminder Added.");
             hideAddReminderRecordModal();
-            saveScrollPosition();
-            getVehicleReminders(formValues.vehicleId);
+            if (!getReminderRecordModelData().createdFromRecord) {
+                saveScrollPosition();
+                getVehicleReminders(formValues.vehicleId);
+            } else {
+                getVehicleHaveImportantReminders(formValues.vehicleId);
+            }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -145,6 +150,7 @@ function appendMileageToOdometer(increment) {
 function enableRecurring() {
     var reminderIsRecurring = $("#reminderIsRecurring").is(":checked");
     if (reminderIsRecurring) {
+        $("#reminderFixedIntervals").attr('disabled', false);
         //check selected metric
         var reminderMetric = $('#reminderOptions input:radio:checked').val();
         if (reminderMetric == "Date") {
@@ -162,6 +168,7 @@ function enableRecurring() {
     } else {
         $("#reminderRecurringMileage").attr('disabled', true);
         $("#reminderRecurringMonth").attr('disabled', true);
+        $("#reminderFixedIntervals").attr('disabled', true);
     }
 }
 
@@ -169,11 +176,11 @@ function markDoneReminderRecord(reminderRecordId, e) {
     event.stopPropagation();
     var vehicleId = GetVehicleId().vehicleId;
     $.post(`/Vehicle/PushbackRecurringReminderRecord?reminderRecordId=${reminderRecordId}`, function (data) {
-        if (data) {
+        if (data.success) {
             successToast("Reminder Updated");
             getVehicleReminders(vehicleId);
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     });
 }
@@ -195,6 +202,7 @@ function getAndValidateReminderRecordValues() {
     var reminderVeryUrgentDays = $("#reminderVeryUrgentDays").val();
     var reminderUrgentDistance = $("#reminderUrgentDistance").val();
     var reminderVeryUrgentDistance = $("#reminderVeryUrgentDistance").val();
+    var reminderFixedIntervals = $("#reminderFixedIntervals").is(":checked");
     //validation
     var hasError = false;
     var reminderDateIsInvalid = reminderDate.trim() == ''; //eliminates whitespace.
@@ -265,6 +273,7 @@ function getAndValidateReminderRecordValues() {
         notes: reminderNotes,
         metric: reminderOption,
         isRecurring: reminderIsRecurring,
+        fixedIntervals: reminderFixedIntervals,
         useCustomThresholds: reminderUseCustomThresholds,
         customThresholds: {
             urgentDays: reminderUrgentDays,
@@ -276,6 +285,7 @@ function getAndValidateReminderRecordValues() {
         reminderMonthInterval: reminderRecurringMonth,
         customMileageInterval: customMileageInterval,
         customMonthInterval: customMonthInterval,
+        customMonthIntervalUnit: customMonthIntervalUnit,
         tags: reminderTags
     }
 }

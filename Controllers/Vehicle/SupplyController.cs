@@ -73,44 +73,7 @@ namespace CarCareTracker.Controllers
             }
             return results;
         }
-        private void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription)
-        {
-            foreach (SupplyUsageHistory supply in supplyUsage)
-            {
-                try
-                {
-                    if (supply.Id == default)
-                    {
-                        continue; //no id, skip current supply.
-                    }
-                    var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.Id);
-                    if (result != null && result.Id != default)
-                    {
-                        //supply exists, re-add the quantity and cost
-                        result.Quantity += supply.Quantity;
-                        result.Cost += supply.Cost;
-                        var requisitionRecord = new SupplyUsageHistory
-                        {
-                            Id = supply.Id,
-                            Date = DateTime.Now.Date,
-                            Description = $"Restored from {usageDescription}",
-                            Quantity = supply.Quantity,
-                            Cost = supply.Cost
-                        };
-                        result.RequisitionHistory.Add(requisitionRecord);
-                        //save
-                        _supplyRecordDataAccess.SaveSupplyRecordToVehicle(result);
-                    }
-                    else
-                    {
-                        _logger.LogError($"Unable to find supply with id {supply.Id}");
-                    }
-                } catch (Exception ex)
-                {
-                    _logger.LogError($"Error restoring supply with id {supply.Id} : {ex.Message}");
-                }
-            }
-        }
+        
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
         public IActionResult GetSupplyRecordsByVehicleId(int vehicleId)
@@ -125,7 +88,7 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ToList();
             }
-            return PartialView("_SupplyRecords", result);
+            return PartialView("Supply/_SupplyRecords", result);
         }
         [HttpGet]
         public IActionResult GetSupplyRecordsForPlanRecordTemplate(int planRecordTemplateId)
@@ -152,7 +115,7 @@ namespace CarCareTracker.Controllers
                 viewModel.Supplies = supplies;
                 viewModel.Usage = planRecordTemplate.Supplies;
             }
-            return PartialView("_SupplyUsage", viewModel);
+            return PartialView("Supply/_SupplyUsage", viewModel);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -177,29 +140,53 @@ namespace CarCareTracker.Controllers
             {
                 Supplies = result
             };
-            return PartialView("_SupplyUsage", viewModel);
+            return PartialView("Supply/_SupplyUsage", viewModel);
         }
         [HttpPost]
         public IActionResult SaveSupplyRecordToVehicleId(SupplyRecordInput supplyRecord)
         {
+            if (supplyRecord.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), supplyRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             //move files from temp.
             supplyRecord.Files = supplyRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             var result = _supplyRecordDataAccess.SaveSupplyRecordToVehicle(supplyRecord.ToSupplyRecord());
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), supplyRecord.VehicleId, User.Identity.Name, $"{(supplyRecord.Id == default ? "Created" : "Edited")} Supply Record - Description: {supplyRecord.Description}");
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromSupplyRecord(supplyRecord.ToSupplyRecord(), supplyRecord.Id == default ? "supplyrecord.add" : "supplyrecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddSupplyRecordPartialView()
         {
-            return PartialView("_SupplyRecordModal", new SupplyRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields });
+            return PartialView("Supply/_SupplyRecordModal", new SupplyRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetSupplyRecordForEditById(int supplyRecordId)
         {
             var result = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
+            if (result.VehicleId != default)
+            {
+                //security check only if not editing shop supply.
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+                {
+                    return Redirect("/Error/Unauthorized");
+                }
+            }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             if (result.RequisitionHistory.Any())
             {
                 //requisition history when viewed through the supply is always immutable.
@@ -222,30 +209,34 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.SupplyRecord).ExtraFields)
             };
-            return PartialView("_SupplyRecordModal", convertedResult);
+            return PartialView("Supply/_SupplyRecordModal", convertedResult);
         }
-        private bool DeleteSupplyRecordWithChecks(int supplyRecordId)
+        private OperationResponse DeleteSupplyRecordWithChecks(int supplyRecordId)
         {
             var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecordId);
             if (existingRecord.VehicleId != default)
             {
                 //security check only if not editing shop supply.
-                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
                 {
-                    return false;
+                    return OperationResponse.Failed("Access Denied");
                 }
             }
+            else if (!_config.GetServerEnableShopSupplies())
+            {
+                return OperationResponse.Failed("Access Denied");
+            }
             var result = _supplyRecordDataAccess.DeleteSupplyRecordById(existingRecord.Id);
-            return result;
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromSupplyRecord(existingRecord, "supplyrecord.delete", User.Identity?.Name ?? string.Empty));
+            }
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteSupplyRecordById(int supplyRecordId)
         {
             var result = DeleteSupplyRecordWithChecks(supplyRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Supply Record - Id: {supplyRecordId}");
-            }
             return Json(result);
         }
     }

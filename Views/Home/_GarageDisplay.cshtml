@@ -6,86 +6,157 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
+    var tagsExist = recordTags.Any();
+    var searchExist = userConfig.ShowSearch && Model.Count() > 1;
+    var renderTopRow = tagsExist || searchExist;
 }
-@if (recordTags.Any())
+<div id="garageContainer">
+@if (renderTopRow)
 {
     <div class='row'>
-        <div class="d-flex align-items-center flex-wrap mt-4">
-            @foreach (string recordTag in recordTags)
-            {
-                <span onclick="filterGarage(this)" class="user-select-none ms-2 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
-            }
-            <datalist id="tagList">
+        @if (tagsExist)
+        {
+            <div class="@(searchExist ? "col-xl-10 col-lg-9 col-md-8 col-sm-8" : "") col-12 d-flex align-items-center flex-wrap mb-2">
                 @foreach (string recordTag in recordTags)
                 {
-                    <!option value="@recordTag"></!option>
+                    <span onclick="filterGarage(this)" class="user-select-none ms-1 me-1 mt-1 mb-1 rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
                 }
-            </datalist>
-        </div>
+                <datalist id="tagList">
+                    @foreach (string recordTag in recordTags)
+                    {
+                        <!option value="@recordTag"></!option>
+                    }
+                </datalist>
+            </div>
+        }
+        @if (searchExist)
+        {
+            <div class="@(tagsExist ? "col-xl-2 col-lg-3 col-md-4 col-sm-4" : "") col-12 pt-2 pb-2">
+                <div class="input-group">
+                    <input type="text" id="garageSearchInput" class="form-control" onkeyup="handleGarageSearchKeyPress(event)" placeholder="@translator.Translate(userLanguage, "Search")" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="searchGarage()"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+        }
     </div>
 }
-<div class="row">
-    <div class="row gy-3 align-items-stretch vehiclesContainer">
+    @if (Model.Any())
+    {
+    <div class="row gy-3 align-items-stretch vehiclesContainer pb-2 @(renderTopRow ? "" : "mt-2")">
         @foreach (VehicleViewModel vehicle in Model)
         {
             @if (!(userConfig.HideSoldVehicles && !string.IsNullOrWhiteSpace(vehicle.SoldDate)))
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 user-select-none garage-item" ondragover="dragOver(event)" ondrop="dropBox(event, @vehicle.Id)" draggable="true" ondragstart="dragStart(event, @vehicle.Id)" data-tags='@string.Join(" ", vehicle.Tags)' id="gridVehicle_@vehicle.Id" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" data-bs-placement="bottom" data-bs-trigger="manual" onmouseenter="loadPinnedNotes(@vehicle.Id)" ontouchstart="loadPinnedNotes(@vehicle.Id)" ontouchcancel="hidePinnedNotes(@vehicle.Id)" ontouchend="hidePinnedNotes(@vehicle.Id)" onmouseleave="hidePinnedNotes(@vehicle.Id)">
-                    <div class="card" onclick="viewVehicle(@vehicle.Id)">
-                        <img src="@vehicle.ImageLocation" style="height:145px; object-fit:scale-down; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
+                <div class="col-lg-4 col-md-6 col-12 garage-item user-select-none" onclick="handleGarageItemClick(this, @vehicle.Id)" oncontextmenu="showGarageContextMenu(this)" data-tags='@string.Join(" ", vehicle.Tags)' data-rowId="@vehicle.Id" id="gridVehicle_@vehicle.Id" data-extra-fields="@await Html.PartialAsync("_VehicleExtraFields", vehicle.ExtraFields)" onmousemove="garageRangeMouseMove(this)" ontouchstart="detectGarageLongTouch(this)" ontouchend="detectGarageTouchEndPremature(this)">
+                    <div class="card">
+                        <img src="@vehicle.ImageLocation" style="height:145px; object-fit:cover; pointer-events:none; @(string.IsNullOrWhiteSpace(vehicle.SoldDate) ? "" : "filter: grayscale(100%);")" />
                         @if (!string.IsNullOrWhiteSpace(vehicle.SoldDate))
                         {
-                            <div class="vehicle-sold-banner"><p class='display-6 mb-0'>@translator.Translate(userLanguage, "SOLD")</p></div>
+                            <div class="vehicle-sold-banner">
+                                <p class='display-6 mb-0'></p>
+                                <span class="badge garage-metric-badge">@($"{translator.Translate(userLanguage, "SOLD")} {vehicle.SoldDate}")</span>
+                            </div>
                         } else if (vehicle.DashboardMetrics.Any())
                         {
-                            <div class="vehicle-sold-banner">
+                            <div class="vehicle-sold-banner d-flex gap-2 flex-wrap">
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.Default) && vehicle.LastReportedMileage != default)
                             {
-                                
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
-                                        </div>
-                                        @if (vehicle.HasReminders)
-                                        {
-                                            <div>
-                                                <span class="me-2"><i class="bi bi bi-bell-fill text-warning"></i></span>
-                                            </div>
-                                        }
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-speedometer me-2"></i>@vehicle.LastReportedMileage.ToString("N0")</span>
+                                    @if (vehicle.HasReminders)
+                                    {
+                                        <span class="badge garage-metric-badge" style="order: 1;"><i class="bi bi bi-bell-fill text-warning"></i></span>
+                                    }
                             }
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.CostPerMile) && vehicle.CostPerMile != default)
                             {
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.CostPerMile.ToString("C2")}/{vehicle.DistanceUnit}")</span>
-                                        </div>
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.CostPerMile.ToString("C2")}/{vehicle.DistanceUnit}")</span>
                             }
                             @if (vehicle.DashboardMetrics.Contains(DashboardMetric.TotalCost) && vehicle.TotalCost != default)
                             {
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <span class="ms-2"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.TotalCost.ToString("C2")}")</span>
-                                        </div>
-                                    </div>
+                                    <span class="badge garage-metric-badge"><i class="bi bi-cash-coin me-2"></i>@($"{vehicle.TotalCost.ToString("C2")}")</span>
                             }
                             </div>
                         }
                         <div class="card-body">
-                            <h5 class="card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Make}")</h5>
-                            <h5 class="card-title text-truncate">@($"{vehicle.Model}")</h5>
-                            <p class="card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</p>
+                            <small class="garage-item-attribute card-title text-truncate garage-item-year" data-unit="@vehicle.Year">@($"{vehicle.Year}")</small>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Make}")</h5>
+                            <h5 class="garage-item-attribute card-title text-truncate">@($"{vehicle.Model}")</h5>
+                            <small class="garage-item-attribute card-text text-truncate">@StaticHelper.GetVehicleIdentifier(vehicle)</small>
                         </div>
                     </div>
                 </div>
             }
         }
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 garage-item-add">
-            <div class="card" onclick="showAddVehicleModal()" style="height:100%;">
-                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;height:100%;" />
+         <div class="col-lg-4 col-md-6 col-12 garage-item-add user-select-none">
+            <div class="card d-flex justify-content-center align-items-center" onclick="showAddVehicleModal()" style="height:100%; min-height: 145px; border-style:dashed;">
+                <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;pointer-events:none;" />
+            </div>
+        </div> 
+    </div>
+    } else
+    {
+        <div class="d-flex justify-content-center align-items-center mt-2">
+            <div class="col-lg-4 col-md-6 col-12 garage-item-add user-select-none">
+                <div class="card d-flex justify-content-center align-items-center" onclick="showAddVehicleModal()" style="height:100%; min-height: 145px; border-style:dashed;">
+                    <img src="/defaults/addnew_vehicle.png" style="object-fit:scale-down;pointer-events:none;" />
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
+<ul class="garage-context-menu dropdown-menu" style="display:none;">
+    <li><a class="context-menu-multiple context-menu-select-all dropdown-item" href="#" onclick="selectAllVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Select All")</span><i class="bi bi-check-square"></i></div></a></li>
+    <li><a class="context-menu-multiple context-menu-deselect-all dropdown-item" href="#" onclick="clearSelectedVehicles()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Deselect All")</span><i class="bi bi-x-square"></i></div></a></li>
+    <li><hr class="context-menu-multiple dropdown-divider"></li>
+    <li><a class="context-menu-multiple dropdown-item" href="#" onclick="sortGarage()"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Sort")</span><i class="garage-sort-icon bi bi-arrow-down-up"></i></div></a></li>
+    <li><a class="context-menu-extra-field dropdown-item" href="#" onclick="showVehicleExtraFields(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Extra Fields")</span><i class="bi bi-list-ul"></i></div></a></li>
+    <li><a class="dropdown-item" href="#" onclick="manageCollaborators(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Manage Collaborators")</span><i class="bi bi-people"></i></div></a></li>
+    <li><hr class="context-menu-active-single dropdown-divider"></li>
+    <li><h6 class="context-menu-active-single dropdown-header">@translator.Translate(userLanguage, "Navigate To")</h6></li>
+    @foreach(ImportMode importMode in userConfig.TabOrder)
+    {
+        switch (importMode){
+            case ImportMode.Dashboard:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.Dashboard)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'report')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Dashboard")</span><i class="bi bi-file-bar-graph"></i></div></a></li>
+                break;
+            case ImportMode.PlanRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.PlanRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'plan')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Planner")</span><i class="bi bi-bar-chart-steps"></i></div></a></li>
+                break;
+            case ImportMode.OdometerRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.OdometerRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'odometer')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Odometer")</span><i class="bi bi-speedometer"></i></div></a></li>
+                break;
+            case ImportMode.ServiceRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ServiceRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'servicerecord')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Service Records")</span><i class="bi bi-card-checklist"></i></div></a></li>
+                break;
+            case ImportMode.RepairRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.RepairRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'accident')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Repairs")</span><i class="bi bi-exclamation-octagon"></i></div></a></li>
+                break;
+            case ImportMode.UpgradeRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.UpgradeRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'upgrade')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Upgrades")</span><i class="bi bi-wrench-adjustable"></i></div></a></li>
+                break;
+            case ImportMode.GasRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.GasRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'gas')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Fuel")</span><i class="bi bi-fuel-pump"></i></div></a></li>
+                break;
+            case ImportMode.SupplyRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.SupplyRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'supply')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Supplies")</span><i class="bi bi-shop"></i></div></a></li>
+                break;
+            case ImportMode.TaxRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'tax')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Taxes")</span><i class="bi bi-currency-dollar"></i></div></a></li>
+                break;
+            case ImportMode.NoteRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'notes')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Notes")</span><i class="bi bi-journal-bookmark"></i></div></a></li>
+                break;
+            case ImportMode.InspectionRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InspectionRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'inspection')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Inspections")</span><i class="bi bi-clipboard-check"></i></div></a></li>
+                break;
+            case ImportMode.EquipmentRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.EquipmentRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'equipment')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Equipment")</span><i class="bi bi-disc"></i></div></a></li>
+                break;
+            case ImportMode.ReminderRecord:
+                <li><a class="context-menu-active-single dropdown-item @StaticHelper.DefaultActiveTab(userConfig, ImportMode.ReminderRecord)" href="#" onclick="viewVehicleWithTab(selectedVehicles, 'reminder')"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Reminders")</span><i class="bi bi-bell"></i></div></a></li>
+                break;
+        }
+    }
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" onclick="deleteVehicles(selectedVehicles)"><div class="d-flex justify-content-between"><span class="me-5">@translator.Translate(userLanguage, "Delete")</span><i class="bi bi-trash"></i></div></a></li>
+</ul>

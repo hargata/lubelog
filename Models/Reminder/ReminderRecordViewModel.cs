@@ -6,8 +6,14 @@
         public int VehicleId { get; set; }
         public DateTime Date { get; set; }
         public int Mileage { get; set; }
-        public string Description { get; set; }
-        public string Notes { get; set; }
+        public int DueDays { get; set; }
+        public int DueMileage { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+        /// <summary>
+        /// The metric the user selected to calculate the urgency of this reminder.
+        /// </summary>
+        public ReminderMetric UserMetric { get; set; } = ReminderMetric.Date;
         /// <summary>
         /// Reason why this reminder is urgent
         /// </summary>

@@ -1,0 +1,53 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model GasRecordEditModel
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var useThreeDecimals = userConfig.UseThreeDecimalGasCost;
+    var useThreeDecimalsConsumption = userConfig.UseThreeDecimalGasConsumption;
+}
+<div class="modal-header">
+    <h5 class="modal-title">@translator.Translate(userLanguage,"Edit Multiple Gas Records")</h5>
+    <button type="button" class="btn-close" onclick="hideAddGasRecordModal()" aria-label="Close"></button>
+</div>
+<div class="modal-body" onkeydown="handleEnter(this)">
+    <form>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <label for="gasRecordDate">@translator.Translate(userLanguage, "Date")</label>
+                    <div class="input-group">
+                        <input type="text" id="gasRecordDate" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                    <label for="gasRecordMileage">@translator.Translate(userLanguage, "Odometer")</label>
+                    <input type="number" inputmode="numeric" id="gasRecordMileage" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="gasRecordConsumption">@translator.Translate(userLanguage, "Fuel Consumption")</label>
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimalsConsumption ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordConsumption" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="gasRecordCost">@translator.Translate(userLanguage, "Cost")</label>
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"(multiple)")">
+                    <label for="gasRecordTag">@translator.Translate(userLanguage, "Tags(use --- to clear all existing tags)")</label>
+                    <select multiple class="form-select" id="gasRecordTag"></select>
+                    @await Html.PartialAsync("_ExtraFieldMultiple", Model.EditRecord.ExtraFields)
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="gasRecordNotes">@translator.Translate(userLanguage, "Notes(use --- to clear all existing notes)")<a class="link-underline link-underline-opacity-0" onclick="showLinks(this)"><i class="bi bi-markdown ms-2"></i></a></label>
+                    <textarea id="gasRecordNotes" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="hideAddGasRecordModal()">@translator.Translate(userLanguage, "Cancel")</button>
+    <button type="button" class="btn btn-primary" onclick="saveMultipleGasRecordsToVehicle()">@translator.Translate(userLanguage, "Edit")</button>
+</div>
+<script>
+    var recordsToEdit = [];
+    @foreach(int recordId in Model.RecordIds)
+        {
+        @:recordsToEdit.push(@recordId);
+    }
+</script>

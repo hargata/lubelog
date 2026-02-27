@@ -13,7 +13,7 @@ namespace CarCareTracker.Controllers
         {
             var result = _noteDataAccess.GetNotesByVehicleId(vehicleId);
             result = result.OrderByDescending(x => x.Pinned).ThenBy(x => x.Description).ToList();
-            return PartialView("_Notes", result);
+            return PartialView("Note/_Notes", result);
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpGet]
@@ -26,44 +26,57 @@ namespace CarCareTracker.Controllers
         [HttpPost]
         public IActionResult SaveNoteToVehicleId(Note note)
         {
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), note.VehicleId, HouseholdPermission.Edit))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
             var result = _noteDataAccess.SaveNoteToVehicle(note);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), note.VehicleId, User.Identity.Name, $"{(note.Id == default ? "Created" : "Edited")} Note - Description: {note.Description}");
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(note, isCreate ? "noterecord.add" : "noterecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddNotePartialView()
         {
-            return PartialView("_NoteModal", new Note());
+            var extraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields;
+            return PartialView("Note/_NoteModal", new Note() { ExtraFields = extraFields });
         }
         [HttpGet]
         public IActionResult GetNoteForEditById(int noteId)
         {
             var result = _noteDataAccess.GetNoteById(noteId);
-            return PartialView("_NoteModal", result);
+            result.ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.NoteRecord).ExtraFields);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
+            return PartialView("Note/_NoteModal", result);
         }
-        private bool DeleteNoteWithChecks(int noteId)
+        private OperationResponse DeleteNoteWithChecks(int noteId)
         {
             var existingRecord = _noteDataAccess.GetNoteById(noteId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             var result = _noteDataAccess.DeleteNoteById(existingRecord.Id);
-            return result;
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromNoteRecord(existingRecord, "noterecord.delete", User.Identity?.Name ?? string.Empty));
+            }
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteNoteById(int noteId)
         {
             var result = DeleteNoteWithChecks(noteId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Note - Id: {noteId}");
-            }
             return Json(result);
         }
         [HttpPost]
@@ -73,6 +86,10 @@ namespace CarCareTracker.Controllers
             foreach (int noteId in noteIds)
             {
                 var existingNote = _noteDataAccess.GetNoteById(noteId);
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingNote.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
                 if (isToggle)
                 {
                     existingNote.Pinned = !existingNote.Pinned;
@@ -83,7 +100,7 @@ namespace CarCareTracker.Controllers
                 }
                 result = _noteDataAccess.SaveNoteToVehicle(existingNote);
             }
-            return Json(result);
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
     }
 }

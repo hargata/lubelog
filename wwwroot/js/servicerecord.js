@@ -43,22 +43,17 @@ function hideAddServiceRecordModal() {
 }
 function deleteServiceRecord(serviceRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Service Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Service Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteServiceRecordById?serviceRecordId=${serviceRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddServiceRecordModal();
                     successToast("Service Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleServiceRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -76,7 +71,7 @@ function saveServiceRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveServiceRecordToVehicleId', { serviceRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Service Record Updated" : "Service Record Added.");
             hideAddServiceRecordModal();
             saveScrollPosition();
@@ -85,7 +80,7 @@ function saveServiceRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }

@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Report a bug
-title: ''
-labels: ''
+title: "[BUG]"
+labels: bug
 assignees: ''
 
 ---
@@ -18,7 +18,7 @@ Please make sure you have performed the following steps before opening a new bug
 
 **Platform**
 - [ ] Docker Image
-- [ ] Windows Standalone Executable
+- [ ] Windows/Linux Standalone Executable
 
 **Browser Console Errors(F12)**
 <!-- Attach a screenshot or codeblock containing the browser console error -->
@@ -28,3 +28,7 @@ Please make sure you have performed the following steps before opening a new bug
 
 **Screenshots(optional)**
 <!-- Attach a screenshot describing the bug -->
+
+**Acknowledgment**
+
+- [ ] I acknowledge that LubeLogger is a side project and that development efforts are entirely voluntary. I do not expect the core maintainers to respond to this issue, and I will not hound or chase them regarding this issue or any other issues.

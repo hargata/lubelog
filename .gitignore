@@ -1,15 +1,6 @@
 .vs/
 bin/
 obj/
-wwwroot/images/
-cartracker.db
-data/cartracker.db
-wwwroot/documents/
-wwwroot/temp/
-wwwroot/imports/
-wwwroot/translations/
-config/userConfig.json
+data/
 CarCareTracker.csproj.user
 Properties/launchSettings.json
-data/cartracker-log.db
-data/widgets.html

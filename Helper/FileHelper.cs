@@ -1,4 +1,6 @@
 ﻿using CarCareTracker.Models;
+using CsvHelper;
+using System.Globalization;
 using System.IO.Compression;
 
 namespace CarCareTracker.Helper
@@ -6,6 +8,8 @@ namespace CarCareTracker.Helper
     public interface IFileHelper
     {
         string GetFullFilePath(string currentFilePath, bool mustExist = true);
+        byte[] GetFileBytes(string fullFilePath, bool deleteFile = false);
+        string GetFileText(string fullFilePath);
         string MoveFileFromTemp(string currentFilePath, string newFolder);
         bool RenameFile(string currentFilePath, string newName);
         bool DeleteFile(string currentFilePath);
@@ -14,12 +18,14 @@ namespace CarCareTracker.Helper
         string MakeAttachmentsExport(List<GenericReportModel> exportData);
         List<string> GetLanguages();
         int ClearTempFolder();
+        List<string> GetTempFiles();
         int ClearUnlinkedThumbnails(List<string> linkedImages);
         int ClearUnlinkedDocuments(List<string> linkedDocuments);
         string GetWidgets();
         bool WidgetsExist();
         bool SaveWidgets(string widgetsData);
         bool DeleteWidgets();
+        string WriteFileToTemp(string fileName, string data);
     }
     public class FileHelper : IFileHelper
     {
@@ -34,7 +40,7 @@ namespace CarCareTracker.Helper
         }
         public List<string> GetLanguages()
         {
-            var languagePath = Path.Combine(_webEnv.WebRootPath, "translations");
+            var languagePath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
             var defaultList = new List<string>() { "en_US" };
             if (Directory.Exists(languagePath))
             {
@@ -72,7 +78,7 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string oldFilePath = currentFilePath.StartsWith("defaults/") ? Path.Combine(_webEnv.WebRootPath, currentFilePath) : Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (File.Exists(oldFilePath))
             {
                 return oldFilePath;
@@ -85,6 +91,28 @@ namespace CarCareTracker.Helper
                 return string.Empty;
             }
         }
+        public byte[] GetFileBytes(string fullFilePath, bool deleteFile = false)
+        {
+            if (File.Exists(fullFilePath))
+            {
+                var fileBytes = File.ReadAllBytes(fullFilePath);
+                if (deleteFile)
+                {
+                    File.Delete(fullFilePath);
+                }
+                return fileBytes;
+            }
+            return Array.Empty<byte>();
+        }
+        public string GetFileText(string fullFilePath)
+        {
+            if (File.Exists(fullFilePath))
+            {
+                var fileText = File.ReadAllText(fullFilePath);
+                return fileText;
+            }
+            return string.Empty;
+        }
         public bool RestoreBackup(string fileName, bool clearExisting = false)
         {
             var fullFilePath = GetFullFilePath(fileName);
@@ -94,7 +122,7 @@ namespace CarCareTracker.Helper
             }
             try
             {
-                var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{Guid.NewGuid()}");
+                var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{Guid.NewGuid()}");
                 if (!Directory.Exists(tempPath))
                     Directory.CreateDirectory(tempPath);
                 //extract zip file
@@ -105,10 +133,11 @@ namespace CarCareTracker.Helper
                 var translationPath = Path.Combine(tempPath, "translations");
                 var dataPath = Path.Combine(tempPath, StaticHelper.DbName);
                 var widgetPath = Path.Combine(tempPath, StaticHelper.AdditionalWidgetsPath);
-                var configPath = Path.Combine(tempPath, StaticHelper.UserConfigPath);
+                var configPath = Path.Combine(tempPath, StaticHelper.LegacyUserConfigPath);
+                var serverConfigPath = Path.Combine(tempPath, StaticHelper.LegacyServerConfigPath);
                 if (Directory.Exists(imagePath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "images");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -130,7 +159,7 @@ namespace CarCareTracker.Helper
                 }
                 if (Directory.Exists(documentPath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "documents");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "documents");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -152,7 +181,7 @@ namespace CarCareTracker.Helper
                 }
                 if (Directory.Exists(translationPath))
                 {
-                    var existingPath = Path.Combine(_webEnv.WebRootPath, "translations");
+                    var existingPath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
                     if (!Directory.Exists(existingPath))
                     {
                         Directory.CreateDirectory(existingPath);
@@ -186,11 +215,20 @@ namespace CarCareTracker.Helper
                 if (File.Exists(configPath))
                 {
                     //check if config folder exists.
-                    if (!Directory.Exists("config/"))
+                    if (!Directory.Exists("data/config"))
                     {
-                        Directory.CreateDirectory("config/");
+                        Directory.CreateDirectory("data/config");
                     }
                     File.Move(configPath, StaticHelper.UserConfigPath, true);
+                }
+                if (File.Exists(serverConfigPath))
+                {
+                    //check if config folder exists.
+                    if (!Directory.Exists("data/config"))
+                    {
+                        Directory.CreateDirectory("data/config");
+                    }
+                    File.Move(serverConfigPath, StaticHelper.ServerConfigPath, true);
                 }
                 return true;
             }
@@ -203,18 +241,45 @@ namespace CarCareTracker.Helper
         public string MakeAttachmentsExport(List<GenericReportModel> exportData)
         {
             var folderName = Guid.NewGuid();
-            var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{folderName}");
+            var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{folderName}");
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             int fileIndex = 0;
+            List<AttachmentExportModel> urlAttachments = new List<AttachmentExportModel>();
             foreach (GenericReportModel reportModel in exportData)
             {
                 foreach (UploadedFiles file in reportModel.Files)
                 {
                     var fileToCopy = GetFullFilePath(file.Location);
                     var destFileName = $"{tempPath}/{fileIndex}_{reportModel.DataType}_{reportModel.Date.ToString("yyyy-MM-dd")}_{file.Name}{Path.GetExtension(file.Location)}";
-                    File.Copy(fileToCopy, destFileName);
-                    fileIndex++;
+                    if (File.Exists(fileToCopy))
+                    {
+                        File.Copy(fileToCopy, destFileName);
+                        fileIndex++;
+                    } else
+                    {
+                        //file not found, must be a URL
+                        urlAttachments.Add(new AttachmentExportModel { 
+                            DataType = reportModel.DataType.ToString(),
+                            Date = reportModel.Date.ToString("yyyy-MM-dd"),
+                            Name = file.Name,
+                            Location = file.Location
+                        });
+                    }
+                }
+            }
+            if (urlAttachments.Any())
+            {
+                //write csv file detailing all urls.
+                var destFileName = $"{tempPath}/link_attachments.csv";
+                using (var writer = new StreamWriter(destFileName))
+                {
+                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        //custom writer
+                        StaticHelper.WriteAttachmentExportModel(csv, urlAttachments);
+                    }
+                    writer.Dispose();
                 }
             }
             var destFilePath = $"{tempPath}.zip";
@@ -227,13 +292,14 @@ namespace CarCareTracker.Helper
         public string MakeBackup()
         {
             var folderName = $"db_backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}";
-            var tempPath = Path.Combine(_webEnv.WebRootPath, $"temp/{folderName}");
-            var imagePath = Path.Combine(_webEnv.WebRootPath, "images");
-            var documentPath = Path.Combine(_webEnv.WebRootPath, "documents");
-            var translationPath = Path.Combine(_webEnv.WebRootPath, "translations");
+            var tempPath = Path.Combine(_webEnv.ContentRootPath, "data", $"temp/{folderName}");
+            var imagePath = Path.Combine(_webEnv.ContentRootPath, "data", "images");
+            var documentPath = Path.Combine(_webEnv.ContentRootPath, "data", "documents");
+            var translationPath = Path.Combine(_webEnv.ContentRootPath, "data", "translations");
             var dataPath = StaticHelper.DbName;
             var widgetPath = StaticHelper.AdditionalWidgetsPath;
             var configPath = StaticHelper.UserConfigPath;
+            var serverConfigPath = StaticHelper.ServerConfigPath;
             if (!Directory.Exists(tempPath))
                 Directory.CreateDirectory(tempPath);
             if (Directory.Exists(imagePath))
@@ -284,6 +350,12 @@ namespace CarCareTracker.Helper
                 Directory.CreateDirectory(newPath);
                 File.Copy(configPath, $"{newPath}/{Path.GetFileName(configPath)}");
             }
+            if (File.Exists(serverConfigPath))
+            {
+                var newPath = Path.Combine(tempPath, "config");
+                Directory.CreateDirectory(newPath);
+                File.Copy(serverConfigPath, $"{newPath}/{Path.GetFileName(serverConfigPath)}");
+            }
             var destFilePath = $"{tempPath}.zip";
             ZipFile.CreateFromDirectory(tempPath, destFilePath);
             //delete temp directory
@@ -301,8 +373,8 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string uploadPath = Path.Combine(_webEnv.WebRootPath, newFolder);
-            string oldFilePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", newFolder);
+            string oldFilePath = Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
             string newFileUploadPath = oldFilePath.Replace(tempPath, newFolder);
@@ -319,7 +391,7 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string filePath = Path.Combine(_webEnv.WebRootPath, currentFilePath);
+            string filePath = Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
@@ -355,6 +427,20 @@ namespace CarCareTracker.Helper
                 }
             }
             return filesDeleted;
+        }
+        public List<string> GetTempFiles()
+        {
+            var tempFiles = new List<string>();
+            var tempPath = GetFullFilePath("temp", false);
+            if (Directory.Exists(tempPath))
+            {
+                var filesInTemp = Directory.GetFiles(tempPath, "*.*", SearchOption.AllDirectories);
+                foreach (var file in filesInTemp)
+                {
+                    tempFiles.Add(file.Replace(tempPath, string.Empty));
+                }
+            }
+            return tempFiles;
         }
         public int ClearUnlinkedThumbnails(List<string> linkedImages)
         {
@@ -442,6 +528,26 @@ namespace CarCareTracker.Helper
             {
                 _logger.LogError(ex.Message);
                 return false;
+            }
+        }
+        public string WriteFileToTemp(string fileName, string data)
+        {
+            try
+            {
+                //check if temp folder exists
+                var tempFolder = GetFullFilePath("/temp", false);
+                if (!Directory.Exists(tempFolder))
+                {
+                    Directory.CreateDirectory(tempFolder);
+                }
+                var tempFileName = $"/temp/{fileName}";
+                var fullTempFileName = GetFullFilePath(tempFileName, false);
+                File.WriteAllText(fullTempFileName, data);
+                return tempFileName;
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return string.Empty;
             }
         }
     }

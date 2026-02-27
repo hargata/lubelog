@@ -21,20 +21,15 @@ namespace CarCareTracker.Controllers
             {
                 result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ToList();
             }
-            return PartialView("_ServiceRecords", result);
+            return PartialView("Service/_ServiceRecords", result);
         }
         [HttpPost]
         public IActionResult SaveServiceRecordToVehicleId(ServiceRecordInput serviceRecord)
         {
-            if (serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), serviceRecord.VehicleId, HouseholdPermission.Edit))
             {
-                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
-                {
-                    Date = DateTime.Parse(serviceRecord.Date),
-                    VehicleId = serviceRecord.VehicleId,
-                    Mileage = serviceRecord.Mileage,
-                    Notes = $"Auto Insert From Service Record: {serviceRecord.Description}"
-                });
+                return Json(OperationResponse.Failed("Access Denied"));
             }
             //move files from temp.
             serviceRecord.Files = serviceRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
@@ -48,7 +43,7 @@ namespace CarCareTracker.Controllers
             }
             if (serviceRecord.DeletedRequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(serviceRecord.DeletedRequisitionHistory, serviceRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(serviceRecord.DeletedRequisitionHistory, serviceRecord.Description);
             }
             //push back any reminders
             if (serviceRecord.ReminderRecordId.Any())
@@ -58,22 +53,39 @@ namespace CarCareTracker.Controllers
                     PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Parse(serviceRecord.Date), serviceRecord.Mileage);
                 }
             }
-            var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(serviceRecord.ToServiceRecord());
+            var convertedRecord = serviceRecord.ToServiceRecord();
+            var result = _serviceRecordDataAccess.SaveServiceRecordToVehicle(convertedRecord);
             if (result)
             {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), serviceRecord.VehicleId, User.Identity.Name, $"{(serviceRecord.Id == default ? "Created" : "Edited")} Service Record - Description: {serviceRecord.Description}");
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGenericRecord(convertedRecord, serviceRecord.Id == default ? "servicerecord.add" : "servicerecord.update", User.Identity?.Name ?? string.Empty));
             }
-            return Json(result);
+            if (convertedRecord.Id != default && serviceRecord.Id == default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+            {
+                _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                {
+                    Date = DateTime.Parse(serviceRecord.Date),
+                    VehicleId = serviceRecord.VehicleId,
+                    Mileage = serviceRecord.Mileage,
+                    Notes = $"Auto Insert From Service Record: {serviceRecord.Description}",
+                    Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.ServiceRecord, convertedRecord.Id, convertedRecord.Description)
+                });
+            }
+            return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpGet]
         public IActionResult GetAddServiceRecordPartialView()
         {
-            return PartialView("_ServiceRecordModal", new ServiceRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields });
+            return PartialView("Service/_ServiceRecordModal", new ServiceRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields });
         }
         [HttpGet]
         public IActionResult GetServiceRecordForEditById(int serviceRecordId)
         {
             var result = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.View))
+            {
+                return Redirect("/Error/Unauthorized");
+            }
             //convert to Input object.
             var convertedResult = new ServiceRecordInput
             {
@@ -89,32 +101,32 @@ namespace CarCareTracker.Controllers
                 RequisitionHistory = result.RequisitionHistory,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.ServiceRecord).ExtraFields)
             };
-            return PartialView("_ServiceRecordModal", convertedResult);
+            return PartialView("Service/_ServiceRecordModal", convertedResult);
         }
-        private bool DeleteServiceRecordWithChecks(int serviceRecordId)
+        private OperationResponse DeleteServiceRecordWithChecks(int serviceRecordId)
         {
             var existingRecord = _serviceRecordDataAccess.GetServiceRecordById(serviceRecordId);
             //security check.
-            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId))
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Delete))
             {
-                return false;
+                return OperationResponse.Failed("Access Denied");
             }
             //restore any requisitioned supplies.
             if (existingRecord.RequisitionHistory.Any())
             {
-                RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
+                _vehicleLogic.RestoreSupplyRecordsByUsage(existingRecord.RequisitionHistory, existingRecord.Description);
             }
             var result = _serviceRecordDataAccess.DeleteServiceRecordById(existingRecord.Id);
-            return result;
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGenericRecord(existingRecord, "servicerecord.delete", User.Identity?.Name ?? string.Empty));
+            }
+            return OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage);
         }
         [HttpPost]
         public IActionResult DeleteServiceRecordById(int serviceRecordId)
         {
             var result = DeleteServiceRecordWithChecks(serviceRecordId);
-            if (result)
-            {
-                StaticHelper.NotifyAsync(_config.GetWebHookUrl(), 0, User.Identity.Name, $"Deleted Service Record - Id: {serviceRecordId}");
-            }
             return Json(result);
         }
     }

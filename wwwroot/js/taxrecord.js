@@ -51,22 +51,17 @@ function hideAddTaxRecordModal() {
 }
 function deleteTaxRecord(taxRecordId) {
     $("#workAroundInput").show();
-    Swal.fire({
-        title: "Confirm Deletion?",
-        text: "Deleted Tax Records cannot be restored.",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        confirmButtonColor: "#dc3545"
-    }).then((result) => {
+    confirmDelete("Deleted Tax Records cannot be restored.", (result) => {
         if (result.isConfirmed) {
             $.post(`/Vehicle/DeleteTaxRecordById?taxRecordId=${taxRecordId}`, function (data) {
-                if (data) {
+                if (data.success) {
                     hideAddTaxRecordModal();
                     successToast("Tax Record Deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleTaxRecords(vehicleId);
                 } else {
-                    errorToast(genericErrorMessage());
+                    errorToast(data.message);
+                    $("#workAroundInput").hide();
                 }
             });
         } else {
@@ -84,7 +79,7 @@ function saveTaxRecordToVehicle(isEdit) {
     }
     //save to db.
     $.post('/Vehicle/SaveTaxRecordToVehicleId', { taxRecord: formValues }, function (data) {
-        if (data) {
+        if (data.success) {
             successToast(isEdit ? "Tax Record Updated" : "Tax Record Added.");
             hideAddTaxRecordModal();
             saveScrollPosition();
@@ -93,7 +88,7 @@ function saveTaxRecordToVehicle(isEdit) {
                 setTimeout(function () { showAddReminderModal(formValues); }, 500);
             }
         } else {
-            errorToast(genericErrorMessage());
+            errorToast(data.message);
         }
     })
 }
@@ -102,23 +97,29 @@ function checkCustomMonthIntervalForTax() {
     if (selectedValue == "Other") {
         $("#workAroundInput").show();
         Swal.fire({
-            title: 'Specify Custom Month Interval',
+            title: 'Specify Custom Time Interval',
             html: `
-                            <input type="text" inputmode="numeric" id="inputCustomMileage" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
+                            <input type="text" inputmode="numeric" id="inputCustomMonth" class="swal2-input" placeholder="Months" onkeydown="handleSwalEnter(event)">
+                            <select class="swal2-select" id="inputCustomMonthUnit">
+                                <option value="Months">Months</option>
+                                <option value="Days">Days</option>
+                            </select>
                             `,
             confirmButtonText: 'Set',
             focusConfirm: false,
             preConfirm: () => {
-                const customMonth = $("#inputCustomMileage").val();
+                const customMonth = $("#inputCustomMonth").val();
                 if (!customMonth || isNaN(parseInt(customMonth)) || parseInt(customMonth) <= 0) {
                     Swal.showValidationMessage(`Please enter a valid number`);
                 }
-                return { customMonth }
+                const customMonthUnit = $("#inputCustomMonthUnit").val();
+                return { customMonth, customMonthUnit }
             },
         }).then(function (result) {
             if (result.isConfirmed) {
                 customMonthInterval = result.value.customMonth;
-                $("#taxRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth}`);
+                customMonthIntervalUnit = result.value.customMonthUnit;
+                $("#taxRecurringMonth > option[value='Other']").text(`Other: ${result.value.customMonth} ${result.value.customMonthUnit}`);
             } else {
                 $("#taxRecurringMonth").val(getTaxRecordModelData().monthInterval);
             }
@@ -172,10 +173,21 @@ function getAndValidateTaxRecordValues() {
         isRecurring: taxIsRecurring,
         recurringInterval: taxRecurringMonth,
         customMonthInterval: customMonthInterval,
+        customMonthIntervalUnit: customMonthIntervalUnit,
         tags: taxTags,
         files: uploadedFiles,
         addReminderRecord: addReminderRecord,
         extraFields: extraFields.extraFields,
         reminderRecordId: recurringReminderRecordId
     }
+}
+
+function checkRecurringTaxes() {
+    let vehicleId = GetVehicleId().vehicleId
+    $.post('/Vehicle/CheckRecurringTaxRecords', { vehicleId: vehicleId }, function (data) {
+        if (data) {
+            //notify users that recurring tax records were updated and they should refresh the page to see the new changes.
+            infoToast(`Recurring Tax Records Updated!<br /><br /><a class='text-link' style='cursor:pointer;' onclick='viewVehicle(${vehicleId})'>Refresh to see new records</a>`);
+        }
+    })
 }

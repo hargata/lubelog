@@ -11,6 +11,7 @@
     var rx_space = /\t|\r|\uf8ff/g;
     var rx_escape = /\\([\\\|`*_{}\[\]()#+\-~])/g;
     var rx_hr = /^([*\-=_] *){3,}$/gm;
+    var rx_lb = /\s{2}\r?\n/gm;
     var rx_blockquote = /\n *&gt; *([^]*?)(?=(\n|$){2})/g;
     var rx_list = /\n( *)(?:[*\-+]|((\d+)|([a-z])|[A-Z])[.)]) +([^]*?)(?=(\n|$){2})/g;
     var rx_listjoin = /<\/(ol|ul)>\n\n<\1>/g;
@@ -98,8 +99,8 @@
     replace(rx_link, function(all, p1, p2, p3, p4, p5, p6) {
         stash[--si] = p4
             ? p2
-                ? '<img src="' + p4 + '" alt="' + p3 + '"/>'
-                : '<a href="' + p4 + '">' + unesc(highlight(p3)) + '</a>'
+                ? '<img style="max-width:100%;max-height:100%;object-fit:scale-down;" src="' + p4 + '" alt="' + p3 + '"/>'
+                : '<a class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" target="_blank" href="' + p4 + '">' + unesc(highlight(p3)) + '</a>'
             : p6;
         return si + '\uf8ff';
     });
@@ -121,6 +122,9 @@
 
     // paragraph
     replace(rx_para, function(all, content) { return element('p', unesc(highlight(content))) });
+
+    // line breaks
+    replace(rx_lb, '<br />');
 
     // stash
     replace(rx_stash, function(all) { return stash[parseInt(all)] });

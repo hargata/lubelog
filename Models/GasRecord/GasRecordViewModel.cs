@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int MonthId { get; set; }
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
         /// <summary>
         /// American moment
         /// </summary>
@@ -20,9 +20,10 @@
         public decimal CostPerGallon { get; set; }
         public bool IsFillToFull { get; set; }
         public bool MissedFuelUp { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
-        public bool IncludeInAverage { get { return MilesPerGallon > 0 || (!IsFillToFull && !MissedFuelUp); } }
+        public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        public bool IncludeInAverage { get { return MilesPerGallon > 0 || (!IsFillToFull && !MissedFuelUp) || (Mileage == default && !MissedFuelUp); } }
     }
 }

@@ -1,0 +1,93 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model CostMakeUpForVehicle
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
+{
+    <canvas id="pie-chart"></canvas>
+    <script>
+        function getCostMakeUpChart() {
+            let costMakeUpChartLabels = [];
+            let costMakeUpChartData = [];
+            availableMetrics.map(x=> {
+                switch(x) {
+                    case 'ServiceRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Service Records")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.ServiceRecordSum'));
+                        break;
+                    case 'RepairRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Repairs")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.CollisionRecordSum'));
+                        break;
+                    case 'UpgradeRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Upgrades")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.UpgradeRecordSum'));
+                        break;
+                    case 'GasRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Fuel")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.GasRecordSum'));
+                        break;
+                    case 'TaxRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Tax")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.TaxRecordSum'));
+                        break;
+                }
+            })
+            return {
+                labels: costMakeUpChartLabels,
+                data: costMakeUpChartData
+            }
+        }
+        renderChart();
+        function renderChart() {
+            let chartData = getCostMakeUpChart();
+            var useDarkMode = getGlobalConfig().useDarkMode;
+            new Chart($("#pie-chart"), {
+                type: 'pie',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
+                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ffa600", "#ff6361" ],
+                            data: chartData.data
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (e, a, c) => {
+                        showDataTable(a);
+                    },
+                    onHover: (e, a, c) => {
+                        a.length > 0 ? c.canvas.style.cursor = 'pointer' : c.canvas.style.cursor = 'default';
+                    },
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: useDarkMode ? "#fff" : "#000"
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
+                            color: useDarkMode ? "#fff" : "#000"
+                        },
+                    }
+                }
+            });
+        }
+    </script>
+}
+else
+{
+    <div class="text-center">
+        <h4>@translator.Translate(userLanguage, "No data found or all records have zero sums, insert records with non-zero sums to see visualizations here.")</h4>
+    </div>
+}
