@@ -731,16 +731,21 @@ namespace CarCareTracker.Controllers
                                     {
                                         convertedRecord.Cost = decimal.Parse(importModel.Cost, NumberStyles.Any);
                                     }
-                                    if (string.IsNullOrWhiteSpace(importModel.IsFillToFull) && !string.IsNullOrWhiteSpace(importModel.PartialFuelUp))
+                                    if (!string.IsNullOrWhiteSpace(importModel.SoC) && int.TryParse(importModel.SoC.Trim(), out int parsedSoC))
+                                    {
+                                        // New SoC field takes priority
+                                        convertedRecord.SoC = Math.Clamp(parsedSoC, 0, 100);
+                                    }
+                                    else if (string.IsNullOrWhiteSpace(importModel.IsFillToFull) && !string.IsNullOrWhiteSpace(importModel.PartialFuelUp))
                                     {
                                         var parsedBool = importModel.PartialFuelUp.Trim() == "1";
-                                        convertedRecord.IsFillToFull = !parsedBool;
+                                        convertedRecord.SoC = !parsedBool ? 100 : 0;
                                     }
                                     else if (!string.IsNullOrWhiteSpace(importModel.IsFillToFull))
                                     {
                                         var possibleFillToFullValues = new List<string> { "1", "true", "full" };
                                         var parsedBool = possibleFillToFullValues.Contains(importModel.IsFillToFull.Trim().ToLower());
-                                        convertedRecord.IsFillToFull = parsedBool;
+                                        convertedRecord.SoC = parsedBool ? 100 : 0;
                                     }
                                     if (!string.IsNullOrWhiteSpace(importModel.MissedFuelUp))
                                     {

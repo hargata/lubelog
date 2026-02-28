@@ -87,7 +87,15 @@ function getAndValidateGasRecordValues() {
     var gasGallons = $("#gasRecordGallons").val();
     var gasCost = $("#gasRecordCost").val();
     var gasCostType = $("#gasCostType").val();
+    // SoC field (EV): 0-100. If present, use it directly.
+    // IsFillToFull checkbox (non-EV): fall back to this when SoC field is absent.
+    var gasSoCRaw = $("#gasRecordSoC").val();
     var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
+    var gasSoC = (gasSoCRaw !== undefined && gasSoCRaw !== "")
+        ? Math.min(100, Math.max(0, parseInt(gasSoCRaw) || 0))
+        : (gasIsFillToFull ? 100 : 0);
+    // Only send isFillToFull when the checkbox exists (non-EV); for EV we rely solely on soC.
+    var gasHasFillToFullCheckbox = $("#gasIsFillToFull").length > 0;
     var gasIsMissed = $("#gasIsMissed").is(":checked");
     var gasNotes = $("#gasRecordNotes").val();
     var gasTags = $("#gasRecordTag").val();
@@ -150,7 +158,8 @@ function getAndValidateGasRecordValues() {
         files: uploadedFiles,
         supplies: selectedSupplies,
         tags: gasTags,
-        isFillToFull: gasIsFillToFull,
+        soC: gasSoC,
+        isFillToFull: gasHasFillToFullCheckbox ? gasIsFillToFull : (gasSoC === 100),
         missedFuelUp: gasIsMissed,
         notes: gasNotes,
         extraFields: extraFields.extraFields,

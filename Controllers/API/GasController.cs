@@ -51,6 +51,7 @@ namespace CarCareTracker.Controllers
                     Cost = x.Cost.ToString(),
                     FuelConsumed = x.Gallons.ToString(),
                     FuelEconomy = x.MilesPerGallon.ToString(),
+                    SoC = x.SoC.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
                     Notes = x.Notes,
@@ -107,6 +108,7 @@ namespace CarCareTracker.Controllers
                     Cost = x.Cost.ToString(),
                     FuelConsumed = x.Gallons.ToString(),
                     FuelEconomy = x.MilesPerGallon.ToString(),
+                    SoC = x.SoC.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
                     Notes = x.Notes,
@@ -168,7 +170,7 @@ namespace CarCareTracker.Controllers
                     Date = DateTime.Parse(input.Date),
                     Mileage = int.Parse(input.Odometer),
                     Gallons = decimal.Parse(input.FuelConsumed),
-                    IsFillToFull = bool.Parse(input.IsFillToFull),
+                    SoC = !string.IsNullOrWhiteSpace(input.SoC) ? int.Parse(input.SoC) : (bool.Parse(input.IsFillToFull) ? 100 : 0),
                     MissedFuelUp = bool.Parse(input.MissedFuelUp),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
@@ -266,7 +268,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Date = DateTime.Parse(input.Date);
                     existingRecord.Mileage = int.Parse(input.Odometer);
                     existingRecord.Gallons = decimal.Parse(input.FuelConsumed);
-                    existingRecord.IsFillToFull = bool.Parse(input.IsFillToFull);
+                    existingRecord.SoC = !string.IsNullOrWhiteSpace(input.SoC) ? int.Parse(input.SoC) : (bool.Parse(input.IsFillToFull) ? 100 : 0);
                     existingRecord.MissedFuelUp = bool.Parse(input.MissedFuelUp);
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);

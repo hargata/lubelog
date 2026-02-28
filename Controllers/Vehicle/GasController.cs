@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 Date = result.Date.ToShortDateString(),
                 Files = result.Files,
                 Gallons = result.Gallons,
-                IsFillToFull = result.IsFillToFull,
+                SoC = result.SoC,
                 MissedFuelUp = result.MissedFuelUp,
                 Notes = result.Notes,
                 Tags = result.Tags,

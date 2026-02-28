@@ -67,13 +67,29 @@
                     <label for="gasRecordGallons">@($"{translator.Translate(userLanguage, "Fuel Consumption")}({consumptionUnit})")</label>
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimalsConsumption ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordGallons" class="form-control" placeholder="@translator.Translate(userLanguage,"Amount of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Gallons)">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.GasRecord.IsFillToFull">
-                        <label class="form-check-label" for="gasIsFillToFull">@translator.Translate(userLanguage,"Is Filled To Full")</label>
-                    </div>
-                    <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="gasIsMissed" checked="@Model.GasRecord.MissedFuelUp">
                         <label class="form-check-label" for="gasIsMissed">@translator.Translate(userLanguage,"Missed Fuel Up(Skip MPG Calculation)")</label>
                     </div>
+                    @if (useKwh)
+                    {
+                        <div class="mb-2">
+                            <label for="gasRecordSoC">@translator.Translate(userLanguage, "Charge Level at Fill-Up") (%)</label>
+                            <div class="input-group">
+                                <input type="number" id="gasRecordSoC" class="form-control" min="0" max="100" step="1"
+                                       value="@(isNew ? 100 : Model.GasRecord.SoC)"
+                                       placeholder="100">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="form-text">@translator.Translate(userLanguage, "Set to your usual charge limit (e.g. 80). Efficiency is calculated between consecutive entries at the same charge level. Use 100 for a full charge, 0 to skip calculation.")</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="gasIsFillToFull" checked="@Model.GasRecord.IsFillToFull">
+                            <label class="form-check-label" for="gasIsFillToFull">@translator.Translate(userLanguage,"Is Filled To Full")</label>
+                        </div>
+                    }
                     <label for="GasRecordCost">@translator.Translate(userLanguage,"Cost")</label>
                     @if (isNew)
                     {

@@ -1,4 +1,4 @@
-﻿namespace CarCareTracker.Models
+namespace CarCareTracker.Models
 {
     public class GasRecordInput
     {
@@ -14,7 +14,32 @@
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
-        public bool IsFillToFull { get; set; } = true;
+        /// <summary>
+        /// State of Charge at fill-up (0-100). 0 = not tracked. See GasRecord.SoC for details.
+        /// </summary>
+        private int _soC = 100;
+        private bool _soCExplicitlySet = false;
+        public int SoC
+        {
+            get => _soC;
+            set { _soC = value; _soCExplicitlySet = true; }
+        }
+        /// <summary>
+        /// Legacy field for backward compatibility with form submissions that still send isFillToFull.
+        /// If SoC was explicitly set (e.g. EV form sending soC=80), IsFillToFull is ignored.
+        /// </summary>
+        public bool IsFillToFull
+        {
+            get => SoC == 100;
+            set
+            {
+                // Only apply if SoC was NOT explicitly set — avoids overwriting soC=80 with isFillToFull=false.
+                if (!_soCExplicitlySet)
+                {
+                    _soC = value ? 100 : 0;
+                }
+            }
+        }
         public bool MissedFuelUp { get; set; } = false;
         public string Notes { get; set; } = string.Empty;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
@@ -32,7 +57,7 @@
             Mileage = Mileage, 
             VehicleId = VehicleId, 
             Files = Files,
-            IsFillToFull = IsFillToFull,
+            SoC = SoC,
             MissedFuelUp = MissedFuelUp,
             Notes = Notes,
             Tags = Tags,
