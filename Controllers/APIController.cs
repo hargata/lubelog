@@ -284,6 +284,31 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Fuel Type must be either Gasoline, Diesel, or Eletric"));
             }
+            if (input.PurchaseDate != null && !string.IsNullOrWhiteSpace(input.PurchaseDate) && !DateTime.TryParse(input.PurchaseDate, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, PurchaseDate could not be parsed as a date."));
+            }
+            if (input.SoldDate != null && !string.IsNullOrWhiteSpace(input.SoldDate) && !DateTime.TryParse(input.SoldDate, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, SoldDate could not be parsed as a date."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && !bool.TryParse(input.HasOdometerAdjustment, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, HasOdometerAdjustment could not be parsed as a boolean."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier) && !decimal.TryParse(input.OdometerMultiplier, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, OdometerMultiplier could not be parsed as a decimal."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.OdometerDifference) && !int.TryParse(input.OdometerDifference, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, OdometerDifference could not be parsed as an integer."));
+            }
             try
             {
                 var vehicle = new Vehicle()
@@ -309,6 +334,19 @@ namespace CarCareTracker.Controllers
                         vehicle.IsElectric = true;
                         break;
                 }
+                if (input.ImageLocation != null)
+                    vehicle.ImageLocation = _fileHelper.MoveFileFromTemp(input.ImageLocation, "images/");
+                if (input.PurchaseDate != null)
+                    vehicle.PurchaseDate = input.PurchaseDate;
+                if (input.SoldDate != null)
+                    vehicle.SoldDate = input.SoldDate;
+                if (input.PurchasePrice != null)
+                    vehicle.PurchasePrice = input.PurchasePrice.Value;
+                if (input.SoldPrice != null)
+                    vehicle.SoldPrice = input.SoldPrice.Value;
+                vehicle.HasOdometerAdjustment = !string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && bool.Parse(input.HasOdometerAdjustment);
+                vehicle.OdometerMultiplier = !string.IsNullOrWhiteSpace(input.OdometerMultiplier) ? input.OdometerMultiplier : "1";
+                vehicle.OdometerDifference = !string.IsNullOrWhiteSpace(input.OdometerDifference) ? input.OdometerDifference : "0";
                 _dataAccess.SaveVehicle(vehicle);
                 if (vehicle.Id != default)
                 {
@@ -363,6 +401,31 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Fuel Type must be either Gasoline, Diesel, or Eletric"));
             }
+            if (input.PurchaseDate != null && !string.IsNullOrWhiteSpace(input.PurchaseDate) && !DateTime.TryParse(input.PurchaseDate, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, PurchaseDate could not be parsed as a date."));
+            }
+            if (input.SoldDate != null && !string.IsNullOrWhiteSpace(input.SoldDate) && !DateTime.TryParse(input.SoldDate, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, SoldDate could not be parsed as a date."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && !bool.TryParse(input.HasOdometerAdjustment, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, HasOdometerAdjustment could not be parsed as a boolean."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier) && !decimal.TryParse(input.OdometerMultiplier, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, OdometerMultiplier could not be parsed as a decimal."));
+            }
+            if (!string.IsNullOrWhiteSpace(input.OdometerDifference) && !int.TryParse(input.OdometerDifference, out _))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, OdometerDifference could not be parsed as an integer."));
+            }
             try
             {
                 var existingVehicle = _dataAccess.GetVehicleById(int.Parse(input.Id));
@@ -393,6 +456,22 @@ namespace CarCareTracker.Controllers
                             existingVehicle.IsElectric = true;
                             break;
                     }
+                    if (input.ImageLocation != null)
+                        existingVehicle.ImageLocation = _fileHelper.MoveFileFromTemp(input.ImageLocation, "images/");
+                    if (input.PurchaseDate != null)
+                        existingVehicle.PurchaseDate = input.PurchaseDate;
+                    if (input.SoldDate != null)
+                        existingVehicle.SoldDate = input.SoldDate;
+                    if (input.PurchasePrice != null)
+                        existingVehicle.PurchasePrice = input.PurchasePrice.Value;
+                    if (input.SoldPrice != null)
+                        existingVehicle.SoldPrice = input.SoldPrice.Value;
+                    if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment))
+                        existingVehicle.HasOdometerAdjustment = bool.Parse(input.HasOdometerAdjustment);
+                    if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier))
+                        existingVehicle.OdometerMultiplier = input.OdometerMultiplier;
+                    if (!string.IsNullOrWhiteSpace(input.OdometerDifference))
+                        existingVehicle.OdometerDifference = input.OdometerDifference;
                     _dataAccess.SaveVehicle(existingVehicle);
                     _eventLogic.PublishEvent(GetUserID(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity?.Name ?? string.Empty, existingVehicle.Id.ToString()));
                     return Json(OperationResponse.Succeed("Vehicle Updated"));
@@ -439,6 +518,49 @@ namespace CarCareTracker.Controllers
             {
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("No files to upload"));
+            }
+        }
+        [HttpPost]
+        [Route("/api/images/upload")]
+        public IActionResult UploadImage(IFormFile image)
+        {
+            if (image == null)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("No file to upload"));
+            }
+            if (!image.ContentType.StartsWith("image/"))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("File must be an image"));
+            }
+            if (image.Length > 500 * 1024)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Image must be less than 500KB."));
+            }
+            try
+            {
+                string uploadDirectory = "images/";
+                string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+                string fileName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+                string filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    image.CopyTo(stream);
+                }
+                return Json(new UploadedFiles
+                {
+                    Location = Path.Combine("/", uploadDirectory, fileName),
+                    Name = Path.GetFileName(image.FileName)
+                });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed(ex.Message));
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
