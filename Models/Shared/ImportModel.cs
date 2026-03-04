@@ -290,8 +290,6 @@ namespace CarCareTracker.Models
         public string? SoldDate { get; set; }
         public decimal? PurchasePrice { get; set; }
         public decimal? SoldPrice { get; set; }
-        [JsonConverter(typeof(FromBoolOptional))]
-        public string? HasOdometerAdjustment { get; set; }
         [JsonConverter(typeof(FromDecimalOptional))]
         public string? OdometerMultiplier { get; set; }
         [JsonConverter(typeof(FromIntOptional))]

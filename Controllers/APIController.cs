@@ -294,11 +294,6 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, SoldDate could not be parsed as a date."));
             }
-            if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && !bool.TryParse(input.HasOdometerAdjustment, out _))
-            {
-                Response.StatusCode = 400;
-                return Json(OperationResponse.Failed("Input object invalid, HasOdometerAdjustment could not be parsed as a boolean."));
-            }
             if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier) && !decimal.TryParse(input.OdometerMultiplier, out _))
             {
                 Response.StatusCode = 400;
@@ -344,9 +339,9 @@ namespace CarCareTracker.Controllers
                     vehicle.PurchasePrice = input.PurchasePrice.Value;
                 if (input.SoldPrice != null)
                     vehicle.SoldPrice = input.SoldPrice.Value;
-                vehicle.HasOdometerAdjustment = !string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && bool.Parse(input.HasOdometerAdjustment);
                 vehicle.OdometerMultiplier = !string.IsNullOrWhiteSpace(input.OdometerMultiplier) ? input.OdometerMultiplier : "1";
                 vehicle.OdometerDifference = !string.IsNullOrWhiteSpace(input.OdometerDifference) ? input.OdometerDifference : "0";
+                vehicle.HasOdometerAdjustment = (vehicle.OdometerMultiplier != "1") || (vehicle.OdometerDifference != "0");
                 _dataAccess.SaveVehicle(vehicle);
                 if (vehicle.Id != default)
                 {
@@ -411,11 +406,6 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, SoldDate could not be parsed as a date."));
             }
-            if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment) && !bool.TryParse(input.HasOdometerAdjustment, out _))
-            {
-                Response.StatusCode = 400;
-                return Json(OperationResponse.Failed("Input object invalid, HasOdometerAdjustment could not be parsed as a boolean."));
-            }
             if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier) && !decimal.TryParse(input.OdometerMultiplier, out _))
             {
                 Response.StatusCode = 400;
@@ -466,12 +456,12 @@ namespace CarCareTracker.Controllers
                         existingVehicle.PurchasePrice = input.PurchasePrice.Value;
                     if (input.SoldPrice != null)
                         existingVehicle.SoldPrice = input.SoldPrice.Value;
-                    if (!string.IsNullOrWhiteSpace(input.HasOdometerAdjustment))
-                        existingVehicle.HasOdometerAdjustment = bool.Parse(input.HasOdometerAdjustment);
                     if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier))
                         existingVehicle.OdometerMultiplier = input.OdometerMultiplier;
                     if (!string.IsNullOrWhiteSpace(input.OdometerDifference))
                         existingVehicle.OdometerDifference = input.OdometerDifference;
+                    if (!string.IsNullOrWhiteSpace(input.OdometerMultiplier) || !string.IsNullOrWhiteSpace(input.OdometerDifference))
+                        existingVehicle.HasOdometerAdjustment = (existingVehicle.OdometerMultiplier != "1") || (existingVehicle.OdometerDifference != "0");
                     _dataAccess.SaveVehicle(existingVehicle);
                     _eventLogic.PublishEvent(GetUserID(), WebHookPayload.Generic($"Updated Vehicle {existingVehicle.Year} {existingVehicle.Make} {existingVehicle.Model}({StaticHelper.GetVehicleIdentifier(existingVehicle)}) via API", "vehicle.update.api", User.Identity?.Name ?? string.Empty, existingVehicle.Id.ToString()));
                     return Json(OperationResponse.Succeed("Vehicle Updated"));
