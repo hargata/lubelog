@@ -426,7 +426,6 @@ namespace CarCareTracker.Helper
                     var newFilePath = $"data/images/{Path.GetFileName(fileToMove)}";
                     Console.WriteLine($"Migrating Image: {Path.GetFileName(fileToMove)}");
                     File.Move(fileToMove, newFilePath, true);
-                    Console.WriteLine($"Migrated Image: {Path.GetFileName(fileToMove)}");
                 }
             }
             if (Directory.Exists(docsPath))
@@ -436,7 +435,6 @@ namespace CarCareTracker.Helper
                     var newFilePath = $"data/documents/{Path.GetFileName(fileToMove)}";
                     Console.WriteLine($"Migrating Document: {Path.GetFileName(fileToMove)}");
                     File.Move(fileToMove, newFilePath, true);
-                    Console.WriteLine($"Migrated Document: {Path.GetFileName(fileToMove)}");
                 }
             }
             if (Directory.Exists(translationPath))
@@ -446,7 +444,6 @@ namespace CarCareTracker.Helper
                     var newFilePath = $"data/translations/{Path.GetFileName(fileToMove)}";
                     Console.WriteLine($"Migrating Translation: {Path.GetFileName(fileToMove)}");
                     File.Move(fileToMove, newFilePath, true);
-                    Console.WriteLine($"Migrated Translation: {Path.GetFileName(fileToMove)}");
                 }
             }
             if (Directory.Exists(tempPath))
@@ -456,7 +453,6 @@ namespace CarCareTracker.Helper
                     var newFilePath = $"data/temp/{Path.GetFileName(fileToMove)}";
                     Console.WriteLine($"Migrating Temp File: {Path.GetFileName(fileToMove)}");
                     File.Move(fileToMove, newFilePath, true);
-                    Console.WriteLine($"Migrated Temp File: {Path.GetFileName(fileToMove)}");
                 }
             }
         }
