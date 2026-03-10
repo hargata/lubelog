@@ -34,12 +34,15 @@ StaticHelper.InitMessage(builder.Configuration);
 StaticHelper.CheckMigration(builder.Environment.WebRootPath, builder.Environment.ContentRootPath);
 
 // Add services to the container.
+Console.WriteLine("AppBuilder: Adding services for controllers");
 builder.Services.AddControllersWithViews();
 
 //LiteDB is always injected even if user uses Postgres.
+Console.WriteLine("AppBuilder: Initializing LiteDB");
 builder.Services.AddSingleton<ILiteDBHelper, LiteDBHelper>();
 
 //data access method
+Console.WriteLine("AppBuilder: Registering DB access services");
 if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
@@ -91,6 +94,7 @@ else
 }
 
 //configure helpers
+Console.WriteLine("AppBuilder: Registering helper services");
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IEquipmentHelper, EquipmentHelper>();
@@ -101,6 +105,7 @@ builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 builder.Services.AddSingleton<IMailHelper, MailHelper>();
 
 //configure logic
+Console.WriteLine("AppBuilder: Registering logic services");
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
@@ -108,9 +113,11 @@ builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 builder.Services.AddSingleton<IEventLogic, EventLogic>();
 
 //configure signalr
+Console.WriteLine("AppBuilder: Initializing SignalR");
 builder.Services.AddSignalR();
 
 //configure Auth
+Console.WriteLine("AppBuilder: Registering auth services");
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
