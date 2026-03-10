@@ -134,10 +134,13 @@ builder.Services.Configure<FormOptions>(options =>
 var app = builder.Build();
 
 //configure the HTTP request pipeline.
+app.Logger.LogTrace("Creating exception handler");
 app.UseExceptionHandler("/Home/Error");
 
 //static file security
+app.Logger.LogTrace("Creating static file route");
 app.UseStaticFiles();
+app.Logger.LogTrace("Creating static file route for images");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -156,6 +159,7 @@ app.UseStaticFiles(new StaticFileOptions
         }
     }
 });
+app.Logger.LogTrace("Creating static file route for documents");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -174,12 +178,14 @@ app.UseStaticFiles(new StaticFileOptions
         }
     }
 });
+app.Logger.LogTrace("Creating static file route for translations");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, "data", "translations")),
     RequestPath = "/translations"
 });
+app.Logger.LogTrace("Creating static file route for temp");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -200,13 +206,16 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 //api middleware
+app.Logger.LogTrace("Creating routes for API");
 app.UseWhen(
     ctx => ctx.Request.Path.StartsWithSegments("/api") && ctx.Request.ContentType == "application/json",
     ab => ab.UseMiddleware<BufferBody>()
 );
 
+app.Logger.LogTrace("Enable routing middleware");
 app.UseRouting();
 
+app.Logger.LogTrace("Enable auth middleware");
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -216,4 +225,5 @@ app.MapControllerRoute(
 //signalr
 app.MapHub<EventHubLogic>("/api/ws");
 
+app.Logger.LogTrace("Running app");
 app.Run();
