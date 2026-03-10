@@ -344,30 +344,60 @@ namespace CarCareTracker.Helper
                 Directory.CreateDirectory("data");
                 Console.WriteLine("Created data directory");
             }
+            else
+            {
+                Console.WriteLine("Data directory exists");
+
+            }
             if (!Directory.Exists("data/images"))
             {
                 Console.WriteLine("Created images directory");
                 Directory.CreateDirectory("data/images");
+            }
+            else
+            {
+                Console.WriteLine("Images directory exists");
+
             }
             if (!Directory.Exists("data/documents"))
             {
                 Directory.CreateDirectory("data/documents");
                 Console.WriteLine("Created documents directory");
             }
+            else
+            {
+                Console.WriteLine("Documents directory exists");
+
+            }
             if (!Directory.Exists("data/translations"))
             {
                 Directory.CreateDirectory("data/translations");
                 Console.WriteLine("Created translations directory");
             }
+            else
+            {
+                Console.WriteLine("Translations directory exists");
+
+            }
             if (!Directory.Exists("data/temp"))
             {
                 Directory.CreateDirectory("data/temp");
-                Console.WriteLine("Created translations directory");
+                Console.WriteLine("Created temp directory");
+            }
+            else
+            {
+                Console.WriteLine("Temp directory exists");
+
             }
             if (!Directory.Exists("data/config"))
             {
                 Directory.CreateDirectory("data/config");
                 Console.WriteLine("Created config directory");
+            }
+            else
+            {
+                Console.WriteLine("Config directory exists");
+
             }
         }
         public static void CheckMigration(string webRootPath, string webContentPath)
@@ -376,9 +406,9 @@ namespace CarCareTracker.Helper
             if (Directory.GetCurrentDirectory() != webContentPath)
             {
                 Console.WriteLine("WARNING: The Working Directory differs from the Web Content Path");
-                Console.WriteLine($"Working Directory: {Directory.GetCurrentDirectory()}");
-                Console.WriteLine($"Web Content Path: {webContentPath}");
             }
+            Console.WriteLine($"Working Directory: {Directory.GetCurrentDirectory()}");
+            Console.WriteLine($"Web Content Path: {webContentPath}");
             //migrates all user-uploaded files from webroot to new data folder
             //images
             var imagePath = Path.Combine(webRootPath, "images");
