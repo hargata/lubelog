@@ -372,6 +372,8 @@ html {
         display:flex;
         justify-content: space-between;
         flex-wrap:wrap;
+        white-space:normal;
+        word-break:break-all;
     }
     .ll-responsive-table tbody td::before {
         content: attr(data-label);

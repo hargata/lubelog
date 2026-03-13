@@ -126,7 +126,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover ll-responsive-table">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
@@ -147,17 +147,17 @@
                 @foreach (SupplyRecord supplyRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@supplyRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditSupplyRecordModal,@supplyRecord.Id)" data-tags='@string.Join(" ", supplyRecord.Tags)'>
-                        <td class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@supplyRecord.Date.ToShortDateString()</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="partnumber">@supplyRecord.PartNumber</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@supplyRecord.PartSupplier</td>
-                        <td class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(supplyRecord.Cost, hideZero))</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", supplyRecord.Files)</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Date")" class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@supplyRecord.Date.ToShortDateString()</td>
+                            <td data-label="@translator.Translate(userLanguage, "Part #")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="partnumber">@supplyRecord.PartNumber</td>
+                            <td data-label="@translator.Translate(userLanguage, "Supplier")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="supplier">@supplyRecord.PartSupplier</td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" class="col-2 flex-grow-1 col-xl-3 text-truncate" data-column="description">@supplyRecord.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Quantity")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="quantity">@supplyRecord.Quantity</td>
+                            <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(supplyRecord.Cost, hideZero))</td>
+                            <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", supplyRecord.Files)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(supplyRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
                                 @{
                                     var extraFieldValue = supplyRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))

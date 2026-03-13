@@ -115,7 +115,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover ll-responsive-table">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
@@ -134,15 +134,15 @@
                 @foreach (OdometerRecord odometerRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@odometerRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditOdometerRecordModal,@odometerRecord.Id)" data-tags='@string.Join(" ", odometerRecord.Tags)'>
-                        <td class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="initialodometer">@odometerRecord.InitialMileage</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", odometerRecord.Files)</td>
-                        <td class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes, 75)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Date")" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@odometerRecord.Date.ToShortDateString()</td>
+                        <td data-label="@translator.Translate(userLanguage, "Initial Odometer")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="initialodometer">@odometerRecord.InitialMileage</td>
+                        <td data-label="@translator.Translate(userLanguage, "Odometer")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
+                        <td data-label="@translator.Translate(userLanguage, "Distance")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", odometerRecord.Files)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                            <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
                                 @{
                                     var extraFieldValue = odometerRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))

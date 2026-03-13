@@ -88,7 +88,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover ll-responsive-table">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
@@ -106,16 +106,16 @@
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@note.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditNoteModal,@note.Id)" data-tags='@string.Join(" ", note.Tags)'>
                         @if (note.Pinned)
                         {
-                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description"><i class='bi bi-pin-fill me-2'></i>@note.Description</td>
+                                <td data-label="@translator.Translate(userLanguage, "Description")" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description"><span><i class='bi bi-pin-fill me-2'></i>@note.Description</span></td>
                         } else
                         {
-                            <td class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@note.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@note.Description</td>
                         }
-                        <td class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost" data-column="notes">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", note.Files)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Note")" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost" data-column="notes">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", note.Files)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                            <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
                                 @{
                                     var extraFieldValue = note.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))

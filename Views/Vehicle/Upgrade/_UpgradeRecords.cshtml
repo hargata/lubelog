@@ -114,7 +114,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover ll-responsive-table">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
@@ -133,15 +133,15 @@
                 @foreach (UpgradeRecord upgradeRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@upgradeRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditUpgradeRecordModal,@upgradeRecord.Id)" data-tags='@string.Join(" ", upgradeRecord.Tags)'>
-                        <td class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(upgradeRecord.Date)">@upgradeRecord.Date.ToShortDateString()</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(upgradeRecord.Mileage == default ? "---" : upgradeRecord.Mileage.ToString())</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 col-xl-4 text-truncate" data-column="description">@upgradeRecord.Description</td>
-                        <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(upgradeRecord.Cost, hideZero))</td>
-                        <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", upgradeRecord.Files)</td>
-                        <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(upgradeRecord.Notes)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Date")" class="col-2 flex-grow-1 col-xl-1 text-truncate" data-column="date" data-date="@StaticHelper.GetEpochFromDateTime(upgradeRecord.Date)">@upgradeRecord.Date.ToShortDateString()</td>
+                            <td data-label="@translator.Translate(userLanguage, "Odometer")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@(upgradeRecord.Mileage == default ? "---" : upgradeRecord.Mileage.ToString())</td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" class="col-3 flex-grow-1 flex-shrink-1 col-xl-4 text-truncate" data-column="description">@upgradeRecord.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(upgradeRecord.Cost, hideZero))</td>
+                            <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", upgradeRecord.Files)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(upgradeRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
                                 @{
                                     var extraFieldValue = upgradeRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                     if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
