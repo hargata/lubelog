@@ -357,6 +357,7 @@ html {
         border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
         margin-bottom: 0.5rem;
         margin-top: 0.5rem;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
     }
     .ll-responsive-table tbody tr:hover {
         color: var(--bs-emphasis-color);
@@ -369,14 +370,15 @@ html {
     .ll-responsive-table tbody td {
         width: initial;
         border-bottom-width: 0px;
-        display:flex;
+        display: flex;
         justify-content: space-between;
-        flex-wrap:wrap;
-        white-space:normal;
-        word-break:break-all;
+        flex-wrap: wrap;
+        white-space: normal;
+        word-break: break-all;
     }
     .ll-responsive-table tbody td::before {
         content: attr(data-label);
+        font-weight: 600;
     }
 }
 
