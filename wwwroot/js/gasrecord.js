@@ -72,7 +72,7 @@ function saveGasRecordToVehicle(isEdit) {
     //save to db.
     $.post('/Vehicle/SaveGasRecordToVehicleId', { gasRecord: formValues }, function (data) {
         if (data.success) {
-            successToast(isEdit ? (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Updated" : "Gas Record Updated") : (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Added." : "Gas Record Added."));
+            successToast(isEdit ? (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Updated" : "Gas Record Updated") : (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Added" : "Gas Record Added"));
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
