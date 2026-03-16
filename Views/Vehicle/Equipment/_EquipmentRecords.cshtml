@@ -107,7 +107,7 @@
                     <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
                 </div>
             </div>
-            <table class="table table-hover">
+            <table class="table table-hover ll-responsive-table">
                 <thead class="sticky-top">
                     <tr class="d-flex">
                         <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
@@ -125,14 +125,14 @@
                     @foreach (EquipmentRecordViewModel equipmentRecord in Model)
                     {
                         <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@equipmentRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditEquipmentRecordModal,@equipmentRecord.Id)" data-tags='@string.Join(" ", equipmentRecord.Tags)'>
-                            <td class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description" data-record-type="cost">@equipmentRecord.Description</td>
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="equipped"><i class="bi bi-check-lg @(equipmentRecord.IsEquipped ? "" : "d-none")"></i></td>
-                            <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance">@(equipmentRecord.DistanceTraveled == default ? "---" : equipmentRecord.DistanceTraveled)</td>
-                            <td class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", equipmentRecord.Files)</td>
-                            <td class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(equipmentRecord.Notes)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description" data-record-type="cost">@equipmentRecord.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Equipped")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="equipped"><i class="bi bi-check-lg @(equipmentRecord.IsEquipped ? "" : "d-none")"></i></td>
+                            <td data-label="@translator.Translate(userLanguage, "Distance")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance">@(equipmentRecord.DistanceTraveled == default ? "---" : equipmentRecord.DistanceTraveled)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", equipmentRecord.Files)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(equipmentRecord.Notes)</td>
                             @foreach (string extraFieldColumn in extraFields)
                             {
-                                <td class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
+                                <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">
                                     @{
                                         var extraFieldValue = equipmentRecord.ExtraFields.Where(x => x.Name == extraFieldColumn)?.FirstOrDefault()?.Value ?? "";
                                         if (!string.IsNullOrWhiteSpace(extraFieldValue) && Uri.IsWellFormedUriString(extraFieldValue, UriKind.Absolute))
@@ -162,7 +162,7 @@
     <div class="row lubelogger-record-nav pt-1 hideOnPrint">
             <div class="d-flex justify-content-between">
                 <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
-                <button onclick="showAddEquipmentRecordModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+                <button onclick="showAddEquipmentRecordModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
                 <div>
                     <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
                     <ul class="dropdown-menu record-dropdown">

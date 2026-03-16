@@ -122,7 +122,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover ll-responsive-table">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" data-column="urgency" class="col-2 flex-grow-1 flex-shrink-1 text-truncate">@translator.Translate(userLanguage, "Urgency")</th>
@@ -144,7 +144,7 @@
                 @foreach (ReminderRecordViewModel reminderRecord in Model)
                 {
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@reminderRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditReminderRecordModal,@reminderRecord.Id)" data-tags='@string.Join(" ", reminderRecord.Tags)'>
-                        <td class="col-2 flex-grow-1 flex-shrink-1" data-column="urgency">
+                            <td data-label="@translator.Translate(userLanguage, "Urgency")" class="col-2 flex-grow-1 flex-shrink-1" data-column="urgency">
                             @if (reminderRecord.Urgency == ReminderUrgency.VeryUrgent)
                             {
                                 <span class="badge text-bg-danger">@translator.Translate(userLanguage, "Very Urgent")</span>
@@ -162,7 +162,7 @@
                                 <span class="badge text-bg-success">@translator.Translate(userLanguage, "Not Urgent")</span>
                             }
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric" data-record-type="cost">
+                            <td data-label="@translator.Translate(userLanguage, "Metric")" class="col-2 text-truncate flex-grow-1 flex-shrink-1" data-column="metric" data-record-type="cost">
                             @if (reminderRecord.Metric == ReminderMetric.Date)
                             {
                             @reminderRecord.Date.ToShortDateString()
@@ -176,30 +176,30 @@
                             @reminderRecord.Metric
                             }
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="date">
+                            <td data-label="@translator.Translate(userLanguage, "Date")" class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="date">
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Date ? reminderRecord.Date.ToShortDateString() : "---")
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="odometer">
+                            <td data-label="@translator.Translate(userLanguage, "Odometer")" class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="odometer">
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.Mileage : "---")
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedays">
+                            <td data-label="@translator.Translate(userLanguage, "Due Days")" class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedays">
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Date ? reminderRecord.DueDays : "---")
                         </td>
-                        <td class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedistance">
+                            <td data-label="@translator.Translate(userLanguage, "Due Distance")" class="col-2 text-truncate flex-grow-1 flex-shrink-1" style="display:none;" data-column="duedistance">
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.DueMileage : "---")
                         </td>
-                        <td data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@reminderRecord.Description</td>
-                        <td data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@reminderRecord.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
                         @if (hasRefresh)
                         {
-                            <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="done">
+                                <td data-label="@translator.Translate(userLanguage, "Done")" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="done">
                                 @if((reminderRecord.Urgency == ReminderUrgency.VeryUrgent || reminderRecord.Urgency == ReminderUrgency.PastDue) && reminderRecord.IsRecurring)
                                 {
                                     <button type="button" class="btn btn-secondary" onclick="markDoneReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-check-lg"></i></button>
                                 }
                             </td>
                         }
-                        <td class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="delete">
+                            <td data-label="@translator.Translate(userLanguage, "Delete")" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="delete">
                             <button type="button" class="btn btn-danger" onclick="deleteReminderRecord(@reminderRecord.Id, this)"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
@@ -218,7 +218,7 @@
 <div class="row lubelogger-record-nav pt-1 hideOnPrint">
     <div class="d-flex justify-content-between">
         <button onclick="toggleSelectMode(this)" class="btn btn-outline-secondary btn-md mt-1 mb-1 select-mode-toggle"><i class="bi bi-check2-square"></i></button>
-            <button onclick="showAddReminderModal()" class="btn btn-outline-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
+            <button onclick="showAddReminderModal()" class="btn btn-primary btn-md mt-1 mb-1"><i class="bi bi-plus-lg"></i></button>
         <div>
             <button class="btn btn-outline-secondary btn-md mt-1 mb-1" onclick="showDropDownForRecordNav(this)" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
             <ul class="dropdown-menu record-dropdown">
