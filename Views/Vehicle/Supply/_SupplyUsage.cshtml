@@ -34,7 +34,7 @@
                                 <input class="form-check-input" type="checkbox" onchange="toggleQuantityFieldDisabled(this)" value="@supplyRecord.Id" @(supplyUsage == default ? "" : "checked")>
                             </div>
                             <div class="d-flex flex-column flex-grow-1 store-detail-row" onclick="toggleSupplyRowChecked(this)">
-                                <span class="text-truncate">
+                                <span class="text-wrap pe-2">
                                     @StaticHelper.TruncateStrings(supplyRecord.Description, 125)
                                 </span>
                                 <div class="d-flex flex-row gap-2">
