@@ -372,6 +372,7 @@ html {
         border-bottom-width: 0px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
         flex-wrap: wrap;
         white-space: normal;
         word-break: break-all;
@@ -885,4 +886,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 }
 .qr-container{
     aspect-ratio: 1/1;
+}
+.break-all{
+    overflow-wrap: anywhere;
 }
