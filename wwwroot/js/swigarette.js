@@ -82,15 +82,7 @@ function executeAPIEndpoint(sender) {
     let ajaxConfig = {
         url: apiPath,
         type: apiMethodType,
-        data: apiData,
-        success: function (response) {
-            apiResult.removeClass('d-none');
-            apiResult.children('.api-tester-result-text').val(JSON.stringify(response, null, 2));
-        },
-        error: function (xhr, status, error) {
-            apiResult.removeClass('d-none');
-            apiResult.children('.api-tester-result-text').val(JSON.stringify(xhr.responseJSON, null, 2));
-        }
+        data: apiData
     };
     if (isFileUpload) {
         ajaxConfig['processData'] = false;
@@ -98,7 +90,13 @@ function executeAPIEndpoint(sender) {
         ajaxConfig['contentType'] = false;
     }
     //execute AJAX
-    $.ajax(ajaxConfig);
+    $.ajax(ajaxConfig).done((response) => {
+        apiResult.removeClass('d-none');
+        apiResult.children('.api-tester-result-text').val(JSON.stringify(response, null, 2));
+    }).fail((xhr, status, error) => {
+        apiResult.removeClass('d-none');
+        apiResult.children('.api-tester-result-text').val(JSON.stringify(xhr.responseJSON, null, 2));
+    });
 }
 function copyAPIPath(sender) {
     let textToCopy = $(sender).attr('data-endpoint');

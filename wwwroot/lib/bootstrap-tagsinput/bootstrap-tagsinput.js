@@ -75,7 +75,7 @@
 
       // Trim value
       if (typeof item === "string" && self.options.trimValue) {
-        item = $.trim(item);
+        item = item.trim();
       }
 
       // Throw an error when trying to add an object while the itemValue option was not set
@@ -273,26 +273,26 @@
       makeOptionItemFunction(self.options, 'itemText');
       makeOptionFunction(self.options, 'tagClass');
 
-      self.$container.on('click', $.proxy(function(event) {
-        if (! self.$element.attr('disabled')) {
-          self.$input.removeAttr('disabled');
-        }
-        self.$input.focus();
-      }, self));
+        self.$container.on('click', () => {
+            if (!self.$element.attr('disabled')) {
+                self.$input.removeAttr('disabled');
+            }
+            self.$input.focus();
+        });
 
         if (self.options.addOnBlur && self.options.freeInput) {
-          self.$input.on('focusout', $.proxy(function(event) {
+          self.$input.on('focusout', (event) => {
               // HACK: only process on focusout when no typeahead opened, to
               //       avoid adding the typeahead text as tag
               if ($('.typeahead, .twitter-typeahead', self.$container).length === 0) {
                 self.add(self.$input.val());
                 self.$input.val('');
               }
-          }, self));
+          });
         }
 
 
-      self.$container.on('keydown', 'input', $.proxy(function(event) {
+      self.$container.on('keydown input', (event) => {
         var $input = $(event.target),
             $inputWrapper = self.findInputWrapper();
 
@@ -379,9 +379,9 @@
             wordSpace = Math.ceil(textLength / 5),
             size = textLength + wordSpace + 1;
         $input.attr('size', Math.max(this.inputSize, size));
-      }, self));
+      });
 
-      self.$container.on('input', 'input', $.proxy(function(event) {
+      self.$container.on('input', (event) => {
           var $input = $(event.target);
           //check if the previous inserted value was a space.
           var text = $input.val();
@@ -393,15 +393,15 @@
                   $input.val('');
               }
           }
-      }, self));
+      });
 
       // Remove icon clicked
-      self.$container.on('click', '[data-role=remove]', $.proxy(function(event) {
+      self.$container.on('click', '[data-role=remove]', () => {
         if (self.$element.attr('disabled')) {
           return;
         }
         self.remove($(event.target).closest('.tag').data('item'));
-      }, self));
+      });
 
       // Only add existing value as tags when using strings as tags
       if (self.options.itemValue === defaultOptions.itemValue) {

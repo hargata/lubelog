@@ -66,24 +66,22 @@
             cache: false,
             processData: false,
             contentType: false,
-            type: 'POST',
-            success: function (response) {
-                if (response.trim() != '') {
-                    $.post('/Migration/Import', { fileName: response }, function (data) {
-                        sloader.hide();
-                        if (data.success) {
-                            successToast(data.message);
-                            setTimeout(function () { window.location.href = '/Home/Index' }, 500);
-                        } else {
-                            errorToast(genericErrorMessage());
-                        }
-                    });
-                }
-            },
-            error: function () {
-                sloader.hide();
-                errorToast("An error has occurred, please check the file size and try again later.");
-            }
+            type: 'POST'
+        }).done((response) => {
+            if (response.trim() != '') {
+               $.post('/Migration/Import', { fileName: response }, function (data) {
+                   sloader.hide();
+                   if (data.success) {
+                       successToast(data.message);
+                       setTimeout(function () { window.location.href = '/Home/Index' }, 500);
+                   } else {
+                       errorToast(genericErrorMessage());
+                   }
+               });
+           }
+        }).fail(() => {
+            sloader.hide();
+            errorToast("An error has occurred, please check the file size and try again later.");
         });
     }
     function importToPostgres() {

@@ -1,4 +1,4 @@
-﻿$.expr[":"].containsNC = $.expr.createPseudo(function (arg) {
+﻿$.expr.pseudos.containsNC = $.expr.createPseudo(function (arg) {
     return function (elem) {
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
@@ -392,17 +392,15 @@ function uploadFileAsync(event, callBack) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            if (response.trim() != '') {
-                callBack(response);
-            }
-        },
-        error: function () {
-            sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.");
+        type: 'POST'
+    }).done((response) => {
+        sloader.hide();
+        if (response.trim() != '') {
+            callBack(response);
         }
+    }).fail(() => {
+        sloader.hide();
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 function isValidMoney(input) {
@@ -639,21 +637,19 @@ function uploadVehicleFilesAsync(event) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            $(event).val(""); //clear out the filename from the uploader
-            if (response.length > 0) {
-                uploadedFiles.push.apply(uploadedFiles, response);
-                $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
-                    $("#filesPendingUpload").html(viewData);
-                });
-            }
-        },
-        error: function () {
-            sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.")
+        type: 'POST'
+    }).done((response) => {
+        sloader.hide();
+        $(event).val(""); //clear out the filename from the uploader
+        if (response.length > 0) {
+            uploadedFiles.push.apply(uploadedFiles, response);
+            $.post('/Vehicle/GetFilesPendingUpload', { uploadedFiles: uploadedFiles }, function (viewData) {
+                $("#filesPendingUpload").html(viewData);
+            });
         }
+    }).fail(() => {
+        sloader.hide();
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 function uploadVehicleLinksAsync(event) {

@@ -104,19 +104,17 @@ function uploadLanguage(event) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            if (response.success) {
-                setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
-            } else {
-                errorToast(response.message);
-            }
-        },
-        error: function () {
-            sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.");
+        type: 'POST'
+    }).done((response) => {
+        sloader.hide();
+        if (response.success) {
+            setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+        } else {
+            errorToast(response.message);
         }
+    }).fail(() => {
+        sloader.hide();
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 function restoreBackup(event) {
@@ -130,29 +128,27 @@ function restoreBackup(event) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            if (response.trim() != '') {
-                $.post('/Files/RestoreBackup', { fileName: response }, function (data) {
-                    sloader.hide();
-                    if (data) {
-                        console.log('LubeLogger - DB Restoration Completed');
-                        successToast("Backup Restored");
-                        setTimeout(function () { window.location.href = '/Home/Index' }, 500);
-                    } else {
-                        errorToast(genericErrorMessage());
-                        console.log('LubeLogger - DB Restoration Failed - Failed to process backup file.');
-                    }
-                });
-            } else {
-                console.log('LubeLogger - DB Restoration Failed - Failed to upload backup file.');
-            }
-        },
-        error: function () {
-            sloader.hide();
-            console.log('LubeLogger - DB Restoration Failed - Request failed to reach backend, please check file size.');
-            errorToast("An error has occurred, please check the file size and try again later.");
+        type: 'POST'
+    }).done((response) => {
+        if (response.trim() != '') {
+            $.post('/Files/RestoreBackup', { fileName: response }, function (data) {
+                sloader.hide();
+                if (data) {
+                    console.log('LubeLogger - DB Restoration Completed');
+                    successToast("Backup Restored");
+                    setTimeout(function () { window.location.href = '/Home/Index' }, 500);
+                } else {
+                    errorToast(genericErrorMessage());
+                    console.log('LubeLogger - DB Restoration Failed - Failed to process backup file.');
+                }
+            });
+        } else {
+            console.log('LubeLogger - DB Restoration Failed - Failed to upload backup file.');
         }
+    }).fail(() => {
+        sloader.hide();
+        console.log('LubeLogger - DB Restoration Failed - Request failed to reach backend, please check file size.');
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 
@@ -184,19 +180,17 @@ function createAndUploadTranslation(translationName, translationData) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            if (response.success) {
-                setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
-            } else {
-                errorToast(response.message);
-            }
-        },
-        error: function () {
-            sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.");
+        type: 'POST'
+    }).done((response) => {
+        sloader.hide();
+        if (response.success) {
+            setTimeout(function () { window.location.href = '/Home/Index?tab=settings' }, 500);
+        } else {
+            errorToast(response.message);
         }
+    }).fail(() => {
+        sloader.hide();
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 function createAndExportTranslation(translationData) {
@@ -212,19 +206,17 @@ function createAndExportTranslation(translationData) {
         cache: false,
         processData: false,
         contentType: false,
-        type: 'POST',
-        success: function (response) {
-            sloader.hide();
-            if (!response) {
-                errorToast(genericErrorMessage());
-            } else {
-                window.location.href = response;
-            }
-        },
-        error: function () {
-            sloader.hide();
-            errorToast("An error has occurred, please check the file size and try again later.");
+        type: 'POST'
+    }).done((response) => {
+        sloader.hide();
+        if (!response) {
+            errorToast(genericErrorMessage());
+        } else {
+            window.location.href = response;
         }
+    }).fail(() => {
+        sloader.hide();
+        errorToast("An error has occurred, please check the file size and try again later.");
     });
 }
 function saveTranslation() {
