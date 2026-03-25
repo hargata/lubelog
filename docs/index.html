@@ -10,8 +10,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
 		.full-height {
-			height: 80vh;
-			max-height: 80vh;
+			height: calc(100dvh - 55px);
+			max-height: calc(100dvh - 55px);
 			overflow:auto;
 			padding-left: 5%;
 			padding-right: 5%;
@@ -25,7 +25,7 @@
 			-webkit-backdrop-filter: blur(10px);
 		}
 		.carousel-img {
-			height: 50vh;
+			height: 50dvh;
 			width: 100%;
 			object-fit: scale-down;
 			border: #495057 1px solid;
@@ -35,6 +35,7 @@
 		}
 		.big-container{
 			width: 100%;
+			padding-top: 1rem;
 		}
 		.half {
 			width: 50%;
@@ -54,16 +55,19 @@
 				justify-content:center;
 			}
 			.carousel-img {
-				height: 40vh;
+				height: 40dvh;
 			}
 		}
 		.ll-footer {
 			padding: 15px 10px;
 		}
+		.ll-navbar {
+			max-height: 55px;
+		}
     </style>
 </head>
 <body>
-	<div class="container-fluid sticky-top frosted" style="padding-top: 7px;">
+	<div class="container-fluid sticky-top frosted ll-navbar" style="padding-top: 7px;">
 		<div class="d-flex align-items-center">
 			<div class="flex-grow-1">
 				<a href="#"><img src="lubelogger_logo.png" alt="LubeLogger Logo" /></a>
