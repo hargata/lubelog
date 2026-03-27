@@ -34,12 +34,15 @@ StaticHelper.InitMessage(builder.Configuration);
 StaticHelper.CheckMigration(builder.Environment.WebRootPath, builder.Environment.ContentRootPath);
 
 // Add services to the container.
+Console.WriteLine("AppBuilder: Adding services for controllers");
 builder.Services.AddControllersWithViews();
 
 //LiteDB is always injected even if user uses Postgres.
+Console.WriteLine("AppBuilder: Initializing LiteDB");
 builder.Services.AddSingleton<ILiteDBHelper, LiteDBHelper>();
 
 //data access method
+Console.WriteLine("AppBuilder: Registering DB access services");
 if (!string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_CONNECTION"])){
     builder.Services.AddSingleton<IVehicleDataAccess, PGVehicleDataAccess>();
     builder.Services.AddSingleton<INoteDataAccess, PGNoteDataAccess>();
@@ -91,6 +94,7 @@ else
 }
 
 //configure helpers
+Console.WriteLine("AppBuilder: Registering helper services");
 builder.Services.AddSingleton<IFileHelper, FileHelper>();
 builder.Services.AddSingleton<IGasHelper, GasHelper>();
 builder.Services.AddSingleton<IEquipmentHelper, EquipmentHelper>();
@@ -101,6 +105,7 @@ builder.Services.AddSingleton<ITranslationHelper, TranslationHelper>();
 builder.Services.AddSingleton<IMailHelper, MailHelper>();
 
 //configure logic
+Console.WriteLine("AppBuilder: Registering logic services");
 builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
@@ -108,9 +113,11 @@ builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
 builder.Services.AddSingleton<IEventLogic, EventLogic>();
 
 //configure signalr
+Console.WriteLine("AppBuilder: Initializing SignalR");
 builder.Services.AddSignalR();
 
 //configure Auth
+Console.WriteLine("AppBuilder: Registering auth services");
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
@@ -134,10 +141,13 @@ builder.Services.Configure<FormOptions>(options =>
 var app = builder.Build();
 
 //configure the HTTP request pipeline.
+app.Logger.LogTrace("Creating exception handler");
 app.UseExceptionHandler("/Home/Error");
 
 //static file security
+app.Logger.LogTrace("Creating static file route");
 app.UseStaticFiles();
+app.Logger.LogTrace("Creating static file route for images");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -156,6 +166,7 @@ app.UseStaticFiles(new StaticFileOptions
         }
     }
 });
+app.Logger.LogTrace("Creating static file route for documents");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -174,12 +185,14 @@ app.UseStaticFiles(new StaticFileOptions
         }
     }
 });
+app.Logger.LogTrace("Creating static file route for translations");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, "data", "translations")),
     RequestPath = "/translations"
 });
+app.Logger.LogTrace("Creating static file route for temp");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -200,13 +213,16 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 //api middleware
+app.Logger.LogTrace("Creating routes for API");
 app.UseWhen(
     ctx => ctx.Request.Path.StartsWithSegments("/api") && ctx.Request.ContentType == "application/json",
     ab => ab.UseMiddleware<BufferBody>()
 );
 
+app.Logger.LogTrace("Enable routing middleware");
 app.UseRouting();
 
+app.Logger.LogTrace("Enable auth middleware");
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -216,4 +232,5 @@ app.MapControllerRoute(
 //signalr
 app.MapHub<EventHubLogic>("/api/ws");
 
+app.Logger.LogTrace("Running app");
 app.Run();
