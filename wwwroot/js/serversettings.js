@@ -92,7 +92,9 @@ function saveSetup() {
             UsePKCE: $("#inputOIDCPKCE").val(),
             LogOutURL: $("#inputOIDCLogout").val(),
             UserInfoURL: $("#inputOIDCUserInfo").val(),
-            JwksURL: $("#inputOIDCJwks").val()
+            JwksURL: $("#inputOIDCJwks").val(),
+            DisableRegistration: $("#inputOIDCRegistrationMode").val() == '1',
+            AutoGenerateTokens: $("#inputOIDCRegistrationMode").val() == '2'
         },
         ReminderUrgencyConfig: {
             UrgentDays: $("#inputUrgentDays").val(),

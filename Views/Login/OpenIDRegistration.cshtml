@@ -5,68 +5,89 @@
     var userLanguage = config.GetServerLanguage();
     var openRegistrationEnabled = config.GetServerOpenRegistration();
 }
-@model string
+@model OpenIDRegistrationModel
 @{
     ViewData["Title"] = "Register";
 }
 @section Scripts {
     <script src="~/js/login.js?v=@StaticHelper.VersionNumber"></script>
 }
-<div class="no-top-pad container d-flex align-items-center justify-content-center" style="height:100dvh">
-    <div class="border rounded shadow p-5">
-        <div style="max-width:204px;">
-            <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
-            <div class="form-group">
-                <label for="inputToken">@translator.Translate(userLanguage, "Token")</label>
-                @if (openRegistrationEnabled)
-                {
-                    <div class="input-group">
-                        <input type="text" id="inputToken" class="form-control">
-                        <div class="input-group-text">
-                            <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="sendOpenIdRegistrationToken()"><i class="bi bi-send"></i></button>
+@if (Model.RegistrationDisabled)
+{
+    <div class="no-top-pad d-flex align-items-center justify-content-center" style="height:100vh;">
+        <div class="flex-column d-flex">
+            <span class="display-1">@translator.Translate(userLanguage, "Access Denied")</span>
+            <hr />
+            <div class="d-flex justify-content-center">
+                <a href="/Login/Index" class="btn btn-outline-secondary"><i class="bi bi-box-arrow-left me-2"></i>@translator.Translate(userLanguage, "Back to Login")</a>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.LogOutUrl))
+            {
+                <div class="d-flex justify-content-center mt-3">
+                    <a href="@Model.LogOutUrl" class="btn btn-outline-secondary"><i class="bi bi-box-arrow-right me-2"></i>@translator.Translate(userLanguage, "Logout")</a>
+                </div>
+            }
+        </div>
+    </div>
+} 
+else
+{
+    <div class="no-top-pad container d-flex align-items-center justify-content-center" style="height:100dvh">
+        <div class="border rounded shadow p-5">
+            <div style="max-width:204px;">
+                <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+                <div class="form-group">
+                    <label for="inputToken" class="@(string.IsNullOrWhiteSpace(Model.Token) ? "" : "d-none")">@translator.Translate(userLanguage, "Token")</label>
+                    @if (openRegistrationEnabled && string.IsNullOrWhiteSpace(Model.Token))
+                    {
+                        <div class="input-group">
+                            <input type="text" id="inputToken" class="form-control">
+                            <div class="input-group-text">
+                                <button type="button" class="btn btn-sm text-secondary password-visible-button" onclick="sendOpenIdRegistrationToken()"><i class="bi bi-send"></i></button>
+                            </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    <input type="text" id="inputToken" class="form-control">
-                }
-            </div>
-            <div class="form-group">
-                <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
-                <input type="text" id="inputUserName" class="form-control" value="@Model" onkeyup="callBackOnEnter(event, performOpenIdRegistration)">
-            </div>
-            <div class="d-grid">
-                <button type="button" class="btn btn-warning mt-2" onclick="performOpenIdRegistration()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Register")</button>
-            </div>
-            <div class="d-grid">
-                <a href="/Login/Index" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Back to Login")</a>
+                    }
+                    else
+                    {
+                        <input type="text" id="inputToken" class="form-control @(string.IsNullOrWhiteSpace(Model.Token) ? "" : "d-none")" value="@Model.Token">
+                    }
+                </div>
+                <div class="form-group">
+                    <label for="inputUserName">@translator.Translate(userLanguage, "Username")</label>
+                    <input type="text" id="inputUserName" class="form-control" value="@Model.EmailAddress" onkeyup="callBackOnEnter(event, performOpenIdRegistration)">
+                </div>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-warning mt-2" onclick="performOpenIdRegistration()"><i class="bi bi-box-arrow-in-right me-2"></i>@translator.Translate(userLanguage, "Register")</button>
+                </div>
+                <div class="d-grid">
+                    <a href="/Login/Index" class="btn btn-link mt-2">@translator.Translate(userLanguage, "Back to Login")</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    function performOpenIdRegistration() {
-        var token = $("#inputToken").val();
-        var userName = $("#inputUserName").val();
-        var userEmail = decodeHTMLEntities('@Model');
-        $.post('/Login/RegisterOpenIdUser', { userName: userName, token: token, emailAddress: userEmail }, function (data) {
-            if (data.success) {
-                successToast(data.message);
-                setTimeout(function () { window.location.href = '/Home' }, 500);
-            } else {
-                errorToast(data.message);
-            }
-        });
-    }
-    function sendOpenIdRegistrationToken(){
-        var userEmail = decodeHTMLEntities('@Model');
-        $.post('/Login/SendRegistrationToken', { emailAddress: userEmail }, function (data) {
-            if (data.success) {
-                successToast(data.message);
-            } else {
-                errorToast(data.message);
-            }
-        });
-    }
-</script>
+    <script>
+        function performOpenIdRegistration() {
+            var token = $("#inputToken").val();
+            var userName = $("#inputUserName").val();
+            var userEmail = decodeHTMLEntities('@Model.EmailAddress');
+            $.post('/Login/RegisterOpenIdUser', { userName: userName, token: token, emailAddress: userEmail }, function (data) {
+                if (data.success) {
+                    successToast(data.message);
+                    setTimeout(function () { window.location.href = '/Home' }, 500);
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+        function sendOpenIdRegistrationToken(){
+            var userEmail = decodeHTMLEntities('@Model.EmailAddress');
+            $.post('/Login/SendRegistrationToken', { emailAddress: userEmail }, function (data) {
+                if (data.success) {
+                    successToast(data.message);
+                } else {
+                    errorToast(data.message);
+                }
+            });
+        }
+    </script>
+}

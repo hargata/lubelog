@@ -264,7 +264,16 @@ namespace CarCareTracker.Controllers
                                 else
                                 {
                                     _logger.LogInformation($"User {userEmailAddress} tried to login via OpenID but is not a registered user in LubeLogger.");
-                                    return View("OpenIDRegistration", model: userEmailAddress);
+                                    OpenIDRegistrationModel openIDRegistrationViewModel = new OpenIDRegistrationModel() { 
+                                        EmailAddress = userEmailAddress,
+                                        RegistrationDisabled = openIdConfig.DisableRegistration,
+                                        LogOutUrl = openIdConfig.LogOutURL
+                                    };
+                                    if (openIdConfig.AutoGenerateTokens)
+                                    {
+                                        openIDRegistrationViewModel.Token = _loginLogic.GenerateOIDCUserToken(userEmailAddress);
+                                    }
+                                    return View("OpenIDRegistration", model: openIDRegistrationViewModel);
                                 }
                             }
                             else

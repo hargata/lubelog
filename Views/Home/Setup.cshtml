@@ -277,6 +277,14 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="inputOIDCRegistrationMode">@translator.Translate(userLanguage, "OIDC User Registration")</label>
+                <select class="form-select" id="inputOIDCRegistrationMode">
+                    <!option value="0" @(!Model.OIDCConfig.AutoGenerateTokens && !Model.OIDCConfig.DisableRegistration ? "selected" : "")>@translator.Translate(userLanguage, "Invitation Only")</!option>
+                    <!option value="1" @(Model.OIDCConfig.DisableRegistration ? "selected" : "")>@translator.Translate(userLanguage, "Disable Registration")</!option>
+                    <!option value="2" @(Model.OIDCConfig.AutoGenerateTokens ? "selected" : "")>@translator.Translate(userLanguage, "Auto Registration")</!option>
+                </select>
+            </div>
+            <div class="form-group">
                 <div class="d-flex align-items-center justify-content-center flex-column">
                     <div class="mt-2"><a class="btn btn-warning" onclick="importOpenIDConfig()">@translator.Translate(userLanguage, "Import OpenID Config")</a></div>
                 </div>
