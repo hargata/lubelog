@@ -12,6 +12,7 @@ namespace CarCareTracker.Logic
     public interface ILoginLogic
     {
         bool MakeUserAdmin(int userId, bool isAdmin);
+        string GenerateOIDCUserToken(string emailAddress);
         OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
@@ -338,6 +339,27 @@ namespace CarCareTracker.Logic
         {
             var result = _tokenData.GetTokens();
             return result;
+        }
+        public string GenerateOIDCUserToken(string emailAddress)
+        {
+            var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
+            if (existingToken.Id != default)
+            {
+                return existingToken.Body;
+            }
+            var token = new Token()
+            {
+                Body = NewToken(),
+                EmailAddress = emailAddress
+            };
+            var result = _tokenData.CreateNewToken(token);
+            if (result)
+            {
+                return token.Body;
+            } else
+            {
+                return string.Empty;
+            }
         }
         public OperationResponse GenerateUserToken(string emailAddress, bool autoNotify)
         {

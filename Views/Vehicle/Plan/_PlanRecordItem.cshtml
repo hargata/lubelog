@@ -54,7 +54,7 @@
         @if (!string.IsNullOrWhiteSpace(Model.Notes))
         {
             <div class="d-flex mt-2 flex-wrap">
-                <small style="word-break:break-all;">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
+                <small class="break-all">@(StaticHelper.TruncateStrings(Model.Notes, 100))</small>
             </div>
         }
     </div>

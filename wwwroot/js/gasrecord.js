@@ -171,37 +171,37 @@ function saveUserGasTabPreferences() {
 }
 
 function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
-    var sender = $("[data-gas='consumption']");
+    let sender = $("[data-gas='consumption']");
+    let senderLabel = sender.text();
     if (currentUnit == "US gal") {
         switch (destinationUnit) {
             case "l":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "l"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "l");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(l)");
+                sender.attr("data-unit", "l");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "imp gal"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "imp gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(imp gal)");
+                sender.attr("data-unit", "imp gal");
+                $("[data-gas-type='consumption']").attr("data-label", senderLabel);
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
@@ -211,30 +211,28 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 3.785;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "US gal"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "US gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 3.785;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(US gal)");
+                sender.attr("data-unit", "US gal");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "imp gal":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "imp gal"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "imp gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(imp gal)");
+                sender.attr("data-unit", "imp gal");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
@@ -244,34 +242,34 @@ function convertGasConsumptionUnits(currentUnit, destinationUnit, save) {
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 1.201;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "US gal"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "US gal");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 1.201;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(US gal)");
+                sender.attr("data-unit", "US gal");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
             case "l":
                 $("[data-gas-type='consumption']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) * 4.546;
                     elem.innerText = globalFloatToString(convertedAmount.toFixed(2));
-                    sender.text(sender.text().replace(sender.attr("data-unit"), "l"));
-                    $(elem).attr("data-label", sender.text());
-                    sender.attr("data-unit", "l");
                 });
                 $("[data-gas-type='unitcost']").map((index, elem) => {
                     var convertedAmount = globalParseFloat(elem.innerText) / 4.546;
                     var decimalPoints = getGlobalConfig().useThreeDecimals ? 3 : 2;
                     elem.innerText = `${globalAppendCurrency(globalFloatToString(convertedAmount.toFixed(decimalPoints)))}`;
                 });
+                senderLabel = senderLabel.replace(`(${sender.attr("data-unit")})`, "(l)");
+                sender.attr("data-unit", "l");
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
     }
+    sender.text(senderLabel);
+    $("[data-gas-type='consumption']").attr("data-label", senderLabel);
     updateMPGLabels();
 }
 
@@ -289,6 +287,7 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                 });
                 sender.text(sender.text().replace(sender.attr("data-unit"), "km/l"));
                 sender.attr("data-unit", "km/l");
+                $("[data-gas-type='fueleconomy']").attr('data-label', sender.text());
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }
@@ -304,6 +303,7 @@ function convertFuelMileageUnits(currentUnit, destinationUnit, save) {
                 });
                 sender.text(sender.text().replace(sender.attr("data-unit"), "l/100km"));
                 sender.attr("data-unit", "l/100km");
+                $("[data-gas-type='fueleconomy']").attr('data-label', sender.text());
                 if (save) { setDebounce(saveUserGasTabPreferences); }
                 break;
         }

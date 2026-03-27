@@ -14,6 +14,8 @@
         public bool ValidateState { get; set; } = false;
         public bool DisableRegularLogin { get; set; } = false;
         public bool UsePKCE { get; set; } = false;
+        public bool DisableRegistration { get; set; } = false;
+        public bool AutoGenerateTokens { get; set; } = false;
         public string LogOutURL { get; set; } = "";
         public string UserInfoURL { get; set; } = "";
         public string JwksURL { get; set; } = "";

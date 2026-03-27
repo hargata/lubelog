@@ -78,7 +78,14 @@ namespace CarCareTracker.Helper
             {
                 currentFilePath = currentFilePath.Substring(1);
             }
-            string oldFilePath = currentFilePath.StartsWith("defaults/") ? Path.Combine(_webEnv.WebRootPath, currentFilePath) : Path.Combine(_webEnv.ContentRootPath, "data", currentFilePath);
+            string dataPath = Path.Combine(_webEnv.ContentRootPath, "data");
+            string oldFilePath = currentFilePath.StartsWith("defaults/") ? Path.Combine(_webEnv.WebRootPath, currentFilePath) : Path.Combine(dataPath, currentFilePath);
+            //security: check for path traversal exploit
+            string absoluteFilePath = Path.GetFullPath(oldFilePath);
+            if (!absoluteFilePath.StartsWith(_webEnv.WebRootPath) && !absoluteFilePath.StartsWith(dataPath))
+            {
+                return string.Empty;
+            }
             if (File.Exists(oldFilePath))
             {
                 return oldFilePath;
