@@ -57,12 +57,24 @@
 			.carousel-img {
 				height: 40dvh;
 			}
+			.ll-button {
+				--bs-btn-padding-y: 0.375rem !important;
+				--bs-btn-padding-x: 0.75rem !important;
+				--bs-btn-font-size: 1rem !important;
+				--bs-btn-border-radius: var(--bs-border-radius) !important;
+			}
 		}
 		.ll-footer {
 			padding: 15px 10px;
 		}
 		.ll-navbar {
 			max-height: 55px;
+		}
+		.ll-button {
+			--bs-btn-padding-y: 0.5rem;
+			--bs-btn-padding-x: 1rem;
+			--bs-btn-font-size: 1.25rem;
+			--bs-btn-border-radius: var(--bs-border-radius-lg);
 		}
     </style>
 </head>
@@ -75,7 +87,7 @@
 			<ul class="nav d-none d-lg-flex">
 				<li class="nav-item"><a class="nav-link" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></li>
                 <li class="nav-item"><a class="nav-link" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></li>
-				<li class="nav-item"><a class="nav-link" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
+				<li class="nav-item"><a class="nav-link" href="#demo" aria-label="Try the demo for LubeLogger"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
                 <li class="nav-item"><a class="nav-link" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></li>
                 <li class="nav-item"><a class="nav-link" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></li>
 			</ul>
@@ -87,7 +99,7 @@
 				<ul class="dropdown-menu">
 					<li class="dropdown-item"><a class="nav-link" href="#showcase"><i class="bi bi-eyeglasses me-2"></i>Showcase</a></li>
 					<li class="dropdown-item"><a class="nav-link" href="#features"><i class="bi bi-card-checklist me-2"></i>Features</a></li>
-					<li class="dropdown-item"><a class="nav-link" href="#demo"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
+					<li class="dropdown-item"><a class="nav-link" href="#demo" aria-label="Try the demo for LubeLogger"><i class="bi bi-eyedropper me-2"></i>Demo</a></li>
 					<li class="dropdown-item"><a class="nav-link" href="https://docs.lubelogger.com"><i class="bi bi-file-text me-2"></i>Documentation</a></li>
 					<li class="dropdown-item"><a class="nav-link" href="https://github.com/hargata/lubelog"><i class="bi bi-git me-2"></i>GitHub Repo</a></li>
 				</ul>
@@ -98,7 +110,7 @@
 	<main>
 		<div class="big-container">
 			<div class="full-height d-flex align-items-center">
-				<h6 class="display-6 half text-center">Self-Hosted, Open-Source, Unconventionally-Named Vehicle Maintenance Records and Fuel Mileage Tracker<br/><a class='me-2 mt-2 btn btn-lg btn-primary' href="https://docs.lubelogger.com/Installation/Getting%20Started"><span class='d-flex align-items-center'>Get Started<i style="font-size:1rem;" class="ms-2 bi bi-box-arrow-up-right"></i></span></a><a class='mt-2 btn-lg btn btn-outline-primary' href="#demo">Try the demo</a></h6>
+				<h6 class="display-6 half text-center">Self-Hosted, Open-Source, Unconventionally-Named Vehicle Maintenance Records and Fuel Mileage Tracker<br/><a class='me-2 mt-2 btn ll-button btn-primary' href="https://docs.lubelogger.com/Installation/Getting%20Started"><span class='d-flex align-items-center'>Get Started<i style="font-size:1rem;" class="ms-2 bi bi-box-arrow-up-right"></i></span></a><a class='mt-2 ll-button btn btn-outline-light' href="#demo" aria-label="Try the demo for LubeLogger">Try the demo</a></h6>
 				<div class="half">
 					<img class="carousel-img" alt="Image of the Garage tab in LubeLogger showing multiple vehicles in the user's garage along with metrics such as last reported odometer." src="garage.webp"/>
 				</div>
