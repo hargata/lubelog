@@ -77,6 +77,11 @@ namespace CarCareTracker.Controllers
             {
                 return RedirectToAction("Index");
             }
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
+            {
+                return RedirectToAction("Index");
+            }
             var viewModel = new LoginModel
             {
                 EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
@@ -86,10 +91,20 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult ForgotPassword()
         {
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
+            {
+                return RedirectToAction("Index");
+            }
             return View();
         }
         public IActionResult ResetPassword(string token = "", string email = "")
         {
+            var remoteAuthConfig = _config.GetOpenIDConfig();
+            if (remoteAuthConfig.DisableRegularLogin && !string.IsNullOrWhiteSpace(remoteAuthConfig.LogOutURL))
+            {
+                return RedirectToAction("Index");
+            }
             var viewModel = new LoginModel
             {
                 EmailAddress = string.IsNullOrWhiteSpace(email) ? string.Empty : email,
