@@ -1,4 +1,4 @@
-﻿function showAddGasRecordModal() {
+function showAddGasRecordModal() {
     $.get(`/Vehicle/GetAddGasRecordPartialView?vehicleId=${GetVehicleId().vehicleId}`, function (data) {
         if (data) {
             $("#gasRecordModalContent").html(data);
@@ -48,7 +48,7 @@ function deleteGasRecord(gasRecordId) {
             $.post(`/Vehicle/DeleteGasRecordById?gasRecordId=${gasRecordId}`, function (data) {
                 if (data.success) {
                     hideAddGasRecordModal();
-                    successToast("Gas Record deleted");
+                    successToast(getGasModelData().consumptionUnit === 'kWh' ? "Charge Record deleted" : "Gas Record deleted");
                     var vehicleId = GetVehicleId().vehicleId;
                     getVehicleGasRecords(vehicleId);
                 } else {
@@ -72,7 +72,7 @@ function saveGasRecordToVehicle(isEdit) {
     //save to db.
     $.post('/Vehicle/SaveGasRecordToVehicleId', { gasRecord: formValues }, function (data) {
         if (data.success) {
-            successToast(isEdit ? "Gas Record Updated" : "Gas Record Added.");
+            successToast(isEdit ? (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Updated" : "Gas Record Updated") : (getGasModelData().consumptionUnit === 'kWh' ? "Charge Record Added" : "Gas Record Added"));
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(formValues.vehicleId);
@@ -492,7 +492,7 @@ function saveMultipleGasRecordsToVehicle() {
     }
     $.post('/Vehicle/SaveMultipleGasRecords', { editModel: formValues }, function (data) {
         if (data.success) {
-            successToast("Gas Records Updated");
+            successToast(getGasModelData().consumptionUnit === 'kWh' ? "Charge Records Updated" : "Gas Records Updated");
             hideAddGasRecordModal();
             saveScrollPosition();
             getVehicleGasRecords(GetVehicleId().vehicleId);
