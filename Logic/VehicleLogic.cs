@@ -384,6 +384,8 @@ namespace CarCareTracker.Logic
                         Progress = x.Progress, 
                         Notes = x.Notes, 
                         RequisitionHistory = x.RequisitionHistory, 
+                        ReminderRecordId = x.ReminderRecordId,
+                        ReminderRecordIds = x.ReminderRecordIds,
                         Description = x.Description,
                         Cost = x.Cost
                     });

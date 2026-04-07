@@ -5,6 +5,8 @@
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int ReminderRecordId { get; set; }
+        public List<int> ReminderRecordIds { get; set; } = new List<int>();
+        public bool HasReminder { get { return ReminderRecordId != default || ReminderRecordIds.Any(); } }
         public string DateCreated { get; set; } = DateTime.Now.ToShortDateString();
         public string DateModified { get; set; } = DateTime.Now.ToShortDateString();
         public string Description { get; set; } = string.Empty;
@@ -23,6 +25,7 @@
             Id = Id, 
             VehicleId = VehicleId, 
             ReminderRecordId = ReminderRecordId,
+            ReminderRecordIds = ReminderRecordIds,
             DateCreated = DateTime.Parse(DateCreated), 
             DateModified = DateTime.Parse(DateModified),
             Description = Description, 

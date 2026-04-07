@@ -29,7 +29,7 @@
                             <tr class="d-flex">
                                 <td class="col-8 text-truncate">
                                     @StaticHelper.TruncateStrings(planRecordTemplate.Description)
-                                    @if(planRecordTemplate.ReminderRecordId != default)
+                                    @if(planRecordTemplate.HasReminder)
                                     {
                                         <i class="bi bi-bell ms-2"></i>
                                     }

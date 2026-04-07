@@ -139,13 +139,28 @@ namespace CarCareTracker.Controllers
                     return Json(OperationResponse.Failed("Insufficient Supplies"));
                 }
             }
-            if (existingRecord.ReminderRecordId != default)
+            if (existingRecord.HasReminder)
             {
-                //check if reminder still exists and is still recurring.
-                var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
-                if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                if (existingRecord.ReminderRecordId != default)
                 {
-                    return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Please Delete This Template and Recreate It."));
+                    //check if reminder still exists and is still recurring.
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
+                    if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                    {
+                        return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Please Delete This Template and Recreate It."));
+                    }
+                } 
+                else if (existingRecord.ReminderRecordIds.Any())
+                {
+                    foreach(int reminderRecordId in existingRecord.ReminderRecordIds)
+                    {
+                        //check if reminder still exists and is still recurring.
+                        var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+                        if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                        {
+                            return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Please Delete This Template and Recreate It."));
+                        }
+                    }
                 }
             }
             //populate createdDate
@@ -266,6 +281,13 @@ namespace CarCareTracker.Controllers
                 {
                     PushbackRecurringReminderRecordWithChecks(existingRecord.ReminderRecordId, DateTime.Now, odometer);
                 }
+                if (existingRecord.ReminderRecordIds.Any())
+                {
+                    foreach(int reminderRecordId in existingRecord.ReminderRecordIds)
+                    {
+                        PushbackRecurringReminderRecordWithChecks(reminderRecordId, DateTime.Now, odometer);
+                    }
+                }
             }
             if (result)
             {
@@ -309,6 +331,7 @@ namespace CarCareTracker.Controllers
                 Files = result.Files,
                 RequisitionHistory = result.RequisitionHistory,
                 ReminderRecordId = result.ReminderRecordId,
+                ReminderRecordIds = result.ReminderRecordIds,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.PlanRecord).ExtraFields)
             };
             return PartialView("Plan/_PlanRecordModal", convertedResult);

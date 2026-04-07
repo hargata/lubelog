@@ -1001,6 +1001,7 @@ namespace CarCareTracker.Controllers
                             }
                             existingRecord.Id = default;
                             existingRecord.ReminderRecordId = default;
+                            existingRecord.ReminderRecordIds = new List<int>();
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
                         }
@@ -1159,6 +1160,7 @@ namespace CarCareTracker.Controllers
                             var existingRecord = _planRecordDataAccess.GetPlanRecordById(recordId);
                             existingRecord.Id = default;
                             existingRecord.ReminderRecordId = default;
+                            existingRecord.ReminderRecordIds = new List<int>();
                             existingRecord.RequisitionHistory = new List<SupplyUsageHistory>();
                             foreach (int vehicleId in vehicleIds)
                             {

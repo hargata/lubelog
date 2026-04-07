@@ -242,6 +242,7 @@ function getAndValidatePlanRecordValues() {
         requisitionHistory: supplyUsageHistory,
         deletedRequisitionHistory: deletedSupplyUsageHistory,
         reminderRecordId: reminderRecordId,
+        reminderRecordIds: recurringReminderRecordId,
         copySuppliesAttachment: copySuppliesAttachments
     }
 }

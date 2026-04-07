@@ -16,6 +16,7 @@
 <select class="form-select" id="recurringReminderInput">
     @if (Model.Any())
     {
+        <!option value="-1">@translator.Translate(userLanguage, "No Reminders")</!option>
         @foreach (ReminderRecordViewModel reminderRecord in Model)
         {
             @switch(reminderRecord.UserMetric){

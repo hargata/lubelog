@@ -37,7 +37,7 @@
                     {
                         <span class="badge text-bg-warning planner-indicator"><i class="bi bi-exclamation-octagon text-white"></i></span>
                     }
-                    @if (Model.ReminderRecordId != default)
+                    @if (Model.ReminderRecordId != default || Model.ReminderRecordIds.Any())
                     {
                         <span class="badge text-bg-light planner-indicator"><i class="bi bi-bell-fill text-warning"></i></span>
                     }
