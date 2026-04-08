@@ -1,7 +1,7 @@
 ﻿using CarCareTracker.Models;
-using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using MimeKit;
 
 namespace CarCareTracker.Helper
 {
@@ -15,11 +15,9 @@ namespace CarCareTracker.Helper
     }
     public class MailHelper : IMailHelper
     {
-        private readonly MailConfig mailConfig;
-        private readonly string serverLanguage;
-        private readonly string serverDomain;
         private readonly IFileHelper _fileHelper;
         private readonly ITranslationHelper _translator;
+        private readonly IConfigHelper _config;
         private readonly ILogger<MailHelper> _logger;
         public MailHelper(
             IConfigHelper config,
@@ -27,16 +25,17 @@ namespace CarCareTracker.Helper
             ITranslationHelper translationHelper,
             ILogger<MailHelper> logger
             ) {
-            //load mailConfig from Configuration
-            mailConfig = config.GetMailConfig();
-            serverLanguage = config.GetServerLanguage();
-            serverDomain = config.GetServerDomain();
+            _config = config;
             _fileHelper = fileHelper;
             _translator = translationHelper;
             _logger = logger;
         }
         public OperationResponse NotifyUserForRegistration(string emailAddress, string token)
         {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
+            var serverLanguage = _config.GetServerLanguage();
+            var serverDomain = _config.GetServerDomain();
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
@@ -45,14 +44,17 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed("Email Address or Token is invalid");
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your Registration Token for LubeLogger");
-            string tokenHtml = token;
+            //construct email body
+            string emailBody = "<html><body style='font-family: arial, sans-serif;text-align: center;'>"; //begin
+            emailBody += $"<span style='display:block;font-size:1.5em;font-weight:bold;padding:10px 15px;'>{emailSubject}</span>";
+            emailBody += $"<span style='display:block;font-size:1.25em;padding:10px 15px;'>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please complete your registration for LubeLogger using the token")}</span>";
+            emailBody += $"<span style='display:block;margin:10px;'><span style='border:2px dashed black;border-radius:12px;padding:10px 15px;font-family:Courier New, Courier, monospace;letter-spacing:6px;font-weight:bold;font-size:22px;'>{token}</span></span>";
             if (!string.IsNullOrWhiteSpace(serverDomain))
             {
                 string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
-                //construct registration URL.
-                tokenHtml = $"<a href='{cleanedURL}/Login/Registration?email={emailAddress}&token={token}' target='_blank'>{token}</a>";
+                emailBody += $"<span style='display:block;margin-top:35px;margin-bottom:35px;'><a style='border-radius:12px;color:#fff;background-color:#0d6efd;padding:0.75rem 0.375rem;text-decoration:none;font-size:22px;' href='{cleanedURL}/Login/Registration?email={emailAddress}&token={token}' target='_blank'>{_translator.Translate(serverLanguage, "Register")}</a></span>";
             }
-            string emailBody = $"<span>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please complete your registration for LubeLogger using the token")}: {tokenHtml}</span>";
+            emailBody += "</body></html>"; //end
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
@@ -64,6 +66,10 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse NotifyUserForPasswordReset(string emailAddress, string token)
         {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
+            var serverLanguage = _config.GetServerLanguage();
+            var serverDomain = _config.GetServerDomain();
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
@@ -73,14 +79,17 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed("Email Address or Token is invalid");
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your Password Reset Token for LubeLogger");
-            string tokenHtml = token;
+            //construct email body
+            string emailBody = "<html><body style='font-family: arial, sans-serif;text-align: center;'>"; //begin
+            emailBody += $"<span style='display:block;font-size:1.5em;font-weight:bold;padding:10px 15px;'>{emailSubject}</span>";
+            emailBody += $"<span style='display:block;font-size:1.25em;padding:10px 15px;'>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please reset your password for LubeLogger using the token")}</span>";
+            emailBody += $"<span style='display:block;margin:10px;'><span style='border:2px dashed black;border-radius:12px;padding:10px 15px;font-family:Courier New, Courier, monospace;letter-spacing:6px;font-weight:bold;font-size:22px;'>{token}</span></span>";
             if (!string.IsNullOrWhiteSpace(serverDomain))
             {
                 string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
-                //construct registration URL.
-                tokenHtml = $"<a href='{cleanedURL}/Login/ResetPassword?email={emailAddress}&token={token}' target='_blank'>{token}</a>";
+                emailBody += $"<span style='display:block;margin-top:35px;margin-bottom:35px;'><a style='border-radius:12px;color:#fff;background-color:#0d6efd;padding:0.75rem 0.375rem;text-decoration:none;font-size:22px;' href='{cleanedURL}/Login/ResetPassword?email={emailAddress}&token={token}' target='_blank'>{_translator.Translate(serverLanguage, "Reset Password")}</a></span>";
             }
-            string emailBody = $"<span>{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please reset your password for LubeLogger using the token")}: {tokenHtml}</span>";
+            emailBody += "</body></html>"; //end
             var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
@@ -93,6 +102,8 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig)
         {
+            //load mailConfig from Configuration
+            var serverLanguage = _config.GetServerLanguage();
             if (string.IsNullOrWhiteSpace(testMailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
@@ -115,6 +126,9 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token)
         {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
+            var serverLanguage = _config.GetServerLanguage();
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
@@ -137,6 +151,9 @@ namespace CarCareTracker.Helper
         }
         public OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
         {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
+            var serverLanguage = _config.GetServerLanguage();
             if (string.IsNullOrWhiteSpace(mailConfig.EmailServer))
             {
                 return OperationResponse.Failed("SMTP Server Not Setup");
@@ -179,6 +196,8 @@ namespace CarCareTracker.Helper
             }
         }
         private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
             string from = mailConfig.EmailFrom;
             var server = mailConfig.EmailServer;
             var message = new MimeMessage();
