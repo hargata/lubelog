@@ -84,6 +84,9 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_AUTO_EVENTS")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? EnableAutomatedEvents { get; set; }
+        [JsonPropertyName("NotificationConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public NotificationConfig? NotificationConfig { get; set; }
         [JsonPropertyName("Kestrel")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public KestrelAppConfig? KestrelAppConfig { get; set; }

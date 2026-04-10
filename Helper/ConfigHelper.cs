@@ -11,6 +11,8 @@ namespace CarCareTracker.Helper
         OpenIDConfig GetOpenIDConfig();
         ReminderUrgencyConfig GetReminderUrgencyConfig();
         MailConfig GetMailConfig();
+        bool GetAutomatedEventsEnabled();
+        NotificationConfig GetNotificationConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         KestrelAppConfig GetKestrelAppConfig();
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
@@ -140,6 +142,15 @@ namespace CarCareTracker.Helper
         {
             MailConfig mailConfig = _config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
             return mailConfig;
+        }
+        public bool GetAutomatedEventsEnabled()
+        {
+            return CheckBool(CheckString("LUBELOGGER_AUTO_EVENTS"));
+        }
+        public NotificationConfig GetNotificationConfig()
+        {
+            NotificationConfig notificationConfig = _config.GetSection("NotificationConfig").Get<NotificationConfig>() ?? new NotificationConfig();
+            return notificationConfig;
         }
         public string GetLogoUrl()
         {

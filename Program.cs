@@ -105,16 +105,16 @@ builder.Services.AddSingleton<ILoginLogic, LoginLogic>();
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IOdometerLogic, OdometerLogic>();
 builder.Services.AddSingleton<IVehicleLogic, VehicleLogic>();
-builder.Services.AddSingleton<IEventLogic, EventLogic>();
 
-//configure signalr
-builder.Services.AddSignalR();
-
-//configure automated events
+//configure automated event logic
 if (StaticHelper.CheckConfigBoolean(builder.Configuration, "LUBELOGGER_AUTO_EVENTS"))
 {
     builder.Services.AddHostedService<AutomatedEventLogic>();
 }
+
+//configure signalr
+builder.Services.AddSingleton<IEventLogic, EventLogic>();
+builder.Services.AddSignalR();
 
 //configure Auth
 builder.Services.AddHttpClient();
