@@ -1,6 +1,10 @@
-﻿$.expr.pseudos.containsNC = $.expr.createPseudo(function (arg) {
+﻿function stripDiacritics(str) {
+    return str.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+}
+$.expr.pseudos.containsNC = $.expr.createPseudo(function (arg) {
+    var normalizedArg = stripDiacritics(arg.toUpperCase());
     return function (elem) {
-        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        return stripDiacritics($(elem).text().toUpperCase()).indexOf(normalizedArg) >= 0;
     };
 });
 const mobileScreen = window.matchMedia("(max-width: 576px)");
