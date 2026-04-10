@@ -110,6 +110,12 @@ builder.Services.AddSingleton<IEventLogic, EventLogic>();
 //configure signalr
 builder.Services.AddSignalR();
 
+//configure automated events
+if (StaticHelper.CheckConfigBoolean(builder.Configuration, "LUBELOGGER_AUTO_EVENTS"))
+{
+    builder.Services.AddHostedService<AutomatedEventLogic>();
+}
+
 //configure Auth
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
