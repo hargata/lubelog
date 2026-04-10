@@ -584,10 +584,40 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/makebackup")]
-        public IActionResult MakeBackup()
+        public IActionResult MakeBackup(string? output = "")
         {
             var result = _fileHelper.MakeBackup();
-            return Json(result);
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                return Json(result);
+            } 
+            else if (output.Trim().ToLower() == "download")
+            {
+                //download file
+                var fullExportFilePath = _fileHelper.GetFullFilePath(result, false);
+                var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
+                return File(fileContents, "application/zip", Path.GetFileName(result));
+            }
+            else if (output.Trim().ToLower() == "email")
+            {
+                var defaultEmailAddress = _config.GetDefaultReminderEmail();
+                if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                {
+                    //download file
+                    var fullExportFilePath = _fileHelper.GetFullFilePath(result, false);
+                    var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
+                    var emailResponse = _mailHelper.SendBackupEmail(Path.GetFileName(result), fileContents, defaultEmailAddress);
+                    return Json(emailResponse);
+                } 
+                else
+                {
+                    return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
+                }
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]

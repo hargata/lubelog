@@ -11,6 +11,7 @@ namespace CarCareTracker.Helper
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
         OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token);
         OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
+        OperationResponse SendBackupEmail(string fileName, byte[] fileContent, string emailAddress);
         OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig);
     }
     public class MailHelper : IMailHelper
@@ -193,6 +194,50 @@ namespace CarCareTracker.Helper
             } catch (Exception ex)
             {
                 return OperationResponse.Failed(ex.Message);
+            }
+        }
+        public OperationResponse SendBackupEmail(string fileName, byte[] fileContent, string emailAddress)
+        {
+            //load mailConfig from Configuration
+            var mailConfig = _config.GetMailConfig();
+            var serverLanguage = _config.GetServerLanguage();
+            string from = mailConfig.EmailFrom;
+            var server = mailConfig.EmailServer;
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(from, from));
+            message.To.Add(new MailboxAddress(emailAddress, emailAddress));
+            string emailSubject = $"{_translator.Translate(serverLanguage, "Automated Backup From LubeLogger")} - {DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}";
+            message.Subject = emailSubject;
+            //construct email body
+            string emailBody = "<html><body style='font-family: arial, sans-serif;text-align: center;'>"; //begin
+            emailBody += $"<span style='display:block;font-size:1.5em;font-weight:bold;padding:10px 15px;'>{emailSubject}</span>";
+            emailBody += $"<span style='display:block;font-size:1.25em;padding:10px 15px;'>{_translator.Translate(serverLanguage, "Review the attached file containing a backup of your LubeLogger instance")}</span>";
+            emailBody += "</body></html>"; //end
+            var builder = new BodyBuilder();
+            builder.HtmlBody = emailBody;
+            builder.Attachments.Add(fileName, fileContent);
+            message.Body = builder.ToMessageBody();
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
+                //perform authentication if either username or password is provided.
+                //do not perform authentication if neither are provided.
+                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password))
+                {
+                    client.Authenticate(mailConfig.Username, mailConfig.Password);
+                }
+                try
+                {
+                    client.Send(message);
+                    client.Disconnect(true);
+                    return OperationResponse.Succeed("Backup Email Sent!");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return OperationResponse.Failed();
+                }
             }
         }
         private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
