@@ -7,5 +7,6 @@ namespace CarCareTracker.Models
         public string CurrencySample { get; set; } = string.Empty;
         public string NumberSample { get; set; } = string.Empty;
         public string DecimalSample { get; set; } = string.Empty;
+        public bool DecimalSeparatorMismatch { get; set; }
     }
 }

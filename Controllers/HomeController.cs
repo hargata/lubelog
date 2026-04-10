@@ -614,7 +614,8 @@ namespace CarCareTracker.Controllers
                 ShortDateTimeSample = DateTime.Now.ToString("G", cultureInfo.DateTimeFormat),
                 CurrencySample = 13.45M.ToString("C", cultureInfo),
                 NumberSample = 123456.ToString("N", cultureInfo),
-                DecimalSample = 123456.78M.ToString("N2", cultureInfo)
+                DecimalSample = 123456.78M.ToString("N2", cultureInfo),
+                DecimalSeparatorMismatch = cultureInfo.NumberFormat.NumberDecimalSeparator.Trim() != cultureInfo.NumberFormat.CurrencyDecimalSeparator.Trim()
             };
             return PartialView("_LocaleSample", viewModel);
         }
