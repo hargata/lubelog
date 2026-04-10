@@ -448,7 +448,8 @@ namespace CarCareTracker.Helper
                 DefaultTab = (ImportMode)int.Parse(CheckString(nameof(UserConfig.DefaultTab), "8")),
                 ShowVehicleThumbnail = CheckBool(CheckString(nameof(UserConfig.ShowVehicleThumbnail))),
                 ShowSearch = CheckBool(CheckString(nameof(UserConfig.ShowSearch))),
-                DisableAutoZoom = CheckBool(CheckString(nameof(UserConfig.DisableAutoZoom)))
+                DisableAutoZoom = CheckBool(CheckString(nameof(UserConfig.DisableAutoZoom))),
+                UseGridInMobile = CheckBool(CheckString(nameof(UserConfig.UseGridInMobile)))
             };
             int userId = 0;
             if (user != null)
