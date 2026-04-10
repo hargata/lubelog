@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace CarCareTracker.Controllers
@@ -314,7 +315,7 @@ namespace CarCareTracker.Controllers
             {
                 compareOptions |= CompareOptions.IgnoreCase;
             }
-            var serializerOption = StaticHelper.GetNoEncodingOption();
+            var serializerOption = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
             bool Matches<T>(T x) => compareInfo.IndexOf(JsonSerializer.Serialize(x, serializerOption), searchQuery, compareOptions) >= 0;
             foreach (ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
             {
