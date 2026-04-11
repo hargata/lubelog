@@ -7,48 +7,29 @@ namespace CarCareTracker.Logic
     public interface INotificationLogic
     {
         Task RunAutomatedEvents();
+        Task CheckReminderStateChanged();
     }
     public class NotificationLogic: INotificationLogic
     {
-        private List<ReminderRecord> _cachedReminders { get; set; } = new List<ReminderRecord>();
+        private List<CachedReminderRecord> _cachedReminders { get; set; } = new List<CachedReminderRecord>();
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
         private readonly IMailHelper _mailHelper;
         private readonly IVehicleDataAccess _dataAccess;
-        private readonly INoteDataAccess _noteDataAccess;
-        private readonly IServiceRecordDataAccess _serviceRecordDataAccess;
-        private readonly IGasRecordDataAccess _gasRecordDataAccess;
-        private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
-        private readonly ITaxRecordDataAccess _taxRecordDataAccess;
-        private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
-        private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
-        private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
-        private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
-        private readonly IPlanRecordDataAccess _planRecordDataAccess;
-        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
-        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
-        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
-        private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IVehicleLogic _vehicleLogic;
+        private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
+        private readonly IUserAccessDataAccess _userAccessDataAccess;
+        private readonly IUserRecordDataAccess _userRecordDataAccess;
+        private readonly IReminderHelper _reminderHelper;
         private readonly ILogger<NotificationLogic> _logger;
         public NotificationLogic(IConfigHelper config, 
             IFileHelper fileHelper, 
             IMailHelper mailHelper,
+            IReminderHelper reminderHelper,
             IVehicleDataAccess dataAccess,
-            INoteDataAccess noteDataAccess,
-            IServiceRecordDataAccess serviceRecordDataAccess,
-            IGasRecordDataAccess gasRecordDataAccess,
-            ICollisionRecordDataAccess collisionRecordDataAccess,
-            ITaxRecordDataAccess taxRecordDataAccess,
+            IUserAccessDataAccess userAccessDataAccess,
+            IUserRecordDataAccess userRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
-            IUpgradeRecordDataAccess upgradeRecordDataAccess,
-            IOdometerRecordDataAccess odometerRecordDataAccess,
-            ISupplyRecordDataAccess supplyRecordDataAccess,
-            IPlanRecordDataAccess planRecordDataAccess,
-            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
-            IInspectionRecordDataAccess inspectionRecordDataAccess,
-            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
-            IEquipmentRecordDataAccess equipmentRecordDataAccess,
             IVehicleLogic vehicleLogic,
             ILogger<NotificationLogic> logger
             )
@@ -56,21 +37,11 @@ namespace CarCareTracker.Logic
             _config = config;
             _fileHelper = fileHelper;
             _mailHelper = mailHelper;
+            _reminderHelper = reminderHelper;
             _dataAccess = dataAccess;
-            _noteDataAccess = noteDataAccess;
-            _serviceRecordDataAccess = serviceRecordDataAccess;
-            _gasRecordDataAccess = gasRecordDataAccess;
-            _collisionRecordDataAccess = collisionRecordDataAccess;
-            _taxRecordDataAccess = taxRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
-            _upgradeRecordDataAccess = upgradeRecordDataAccess;
-            _odometerRecordDataAccess = odometerRecordDataAccess;
-            _supplyRecordDataAccess = supplyRecordDataAccess;
-            _planRecordDataAccess = planRecordDataAccess;
-            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
-            _inspectionRecordDataAccess = inspectionRecordDataAccess;
-            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
-            _equipmentRecordDataAccess = equipmentRecordDataAccess;
+            _userRecordDataAccess = userRecordDataAccess;
+            _userAccessDataAccess = userAccessDataAccess;
             _vehicleLogic = vehicleLogic;
             _logger = logger;
         }
@@ -78,7 +49,14 @@ namespace CarCareTracker.Logic
         {
             if (_config.GetAutomatedEventsEnabled())
             {
-                var automatedEvents = _config.GetNotificationConfig().AutomatedEvents;
+                List<Vehicle> vehicles = new List<Vehicle>();
+                var notificationConfig = _config.GetNotificationConfig();
+                var automatedEvents = notificationConfig.AutomatedEvents;
+                var defaultEmailAddress = _config.GetDefaultReminderEmail();
+                if (automatedEvents.Any())
+                {
+                    vehicles = _dataAccess.GetVehicles();
+                }
                 if (automatedEvents.Contains(AutomatedEvent.CleanTempFile) || automatedEvents.Contains(AutomatedEvent.DeepClean))
                 {
                     //Clear out temp folder
@@ -87,36 +65,16 @@ namespace CarCareTracker.Logic
                     if (automatedEvents.Contains(AutomatedEvent.DeepClean))
                     {
                         //clear out unused vehicle thumbnails
-                        var vehicles = _dataAccess.GetVehicles();
-                        var vehicleImages = vehicles.Select(x => x.ImageLocation).Where(x => x.StartsWith("/images/")).Select(x => Path.GetFileName(x)).ToList();
+                        var vehicleImages = _vehicleLogic.GetVehicleThumbnails(vehicles);
                         if (vehicleImages.Any())
                         {
                             var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
                             _logger.LogInformation($"unlinked_thumbnails_deleted: {thumbnailsDeleted.ToString()}");
                         }
                         var vehicleDocuments = new List<string>();
-                        foreach (Vehicle vehicle in vehicles)
-                        {
-                            if (!string.IsNullOrWhiteSpace(vehicle.MapLocation))
-                            {
-                                vehicleDocuments.Add(Path.GetFileName(vehicle.MapLocation));
-                            }
-                            vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_noteDataAccess.GetNotesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                            vehicleDocuments.AddRange(_equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                        }
+                        vehicleDocuments.AddRange(_vehicleLogic.GetVehicleDocuments(vehicles));
                         //shop supplies
-                        vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                        vehicleDocuments.AddRange(_vehicleLogic.GetStoreSupplyDocuments());
                         if (vehicleDocuments.Any())
                         {
                             var documentsDeleted = _fileHelper.ClearUnlinkedDocuments(vehicleDocuments);
@@ -126,18 +84,22 @@ namespace CarCareTracker.Logic
                 }
                 if (automatedEvents.Contains(AutomatedEvent.BackupEmail))
                 {
-                    var defaultEmailAddress = _config.GetDefaultReminderEmail();
                     if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
                     {
                         string backupFileLocation = _fileHelper.MakeBackup();
                         var fileContents = _fileHelper.GetFileBytes(backupFileLocation);
                         var result = _mailHelper.SendBackupEmail(Path.GetFileName(backupFileLocation), fileContents, defaultEmailAddress);
-                        _logger.LogInformation(result.Message);
+                        if (result.Success)
+                        {
+                            _logger.LogInformation(result.Message);
+                        } else
+                        {
+                            _logger.LogError(result.Message);
+                        }
                     }
                 }
                 if (automatedEvents.Contains(AutomatedEvent.UpdateRecurringTax))
                 {
-                    List<Vehicle> vehicles = _dataAccess.GetVehicles();
                     try
                     {
                         int vehiclesUpdated = 0;
@@ -160,14 +122,148 @@ namespace CarCareTracker.Logic
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"No Recurring Taxes Updated Due To Error: {ex.Message}");
+                        _logger.LogError($"No Recurring Taxes Updated Due To Error: {ex.Message}");
                     }
+                }
+                if (automatedEvents.Contains(AutomatedEvent.AllReminder))
+                {
+                    List<OperationResponse> operationResponses = new List<OperationResponse>();
+                    foreach (Vehicle vehicle in vehicles)
+                    {
+                        var vehicleId = vehicle.Id;
+                        //get reminders
+                        var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
+                        var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                        var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
+                        results.RemoveAll(x => !notificationConfig.UrgenciesTracked.Contains(x.Urgency));
+                        if (!results.Any())
+                        {
+                            continue;
+                        }
+                        //get list of recipients.
+                        var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicleId).Select(x => x.Id.UserId);
+                        List<string> emailRecipients = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                        {
+                            emailRecipients.Add(defaultEmailAddress);
+                        }
+                        foreach (int userId in userIds)
+                        {
+                            var userData = _userRecordDataAccess.GetUserRecordById(userId);
+                            emailRecipients.Add(userData.EmailAddress);
+                        }
+                        if (!emailRecipients.Any())
+                        {
+                            continue;
+                        }
+                        var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                        operationResponses.Add(result);
+                    }
+                    if (!operationResponses.Any())
+                    {
+                        _logger.LogWarning("No Emails Sent, No Vehicles Available or No Recipients Configured");
+                    }
+                    else if (operationResponses.All(x => x.Success))
+                    {
+                        _logger.LogInformation($"Emails Sent({operationResponses.Count()})");
+                    }
+                    else if (operationResponses.All(x => !x.Success))
+                    {
+                        _logger.LogError($"All Emails Failed({operationResponses.Count()}), Check SMTP Settings");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Emails Sent({operationResponses.Count(x => x.Success)}), Emails Failed({operationResponses.Count(x => !x.Success)}), Check Recipient Settings");
+                    }
+                }
+                if (automatedEvents.Contains(AutomatedEvent.ReminderStateChanged))
+                {
+                    await CheckReminderStateChanged();
                 }
             }
         }
         public async Task CheckReminderStateChanged()
         {
-
+            List<Vehicle> vehicles = new List<Vehicle>();
+            var notificationConfig = _config.GetNotificationConfig();
+            var automatedEvents = notificationConfig.AutomatedEvents;
+            var defaultEmailAddress = _config.GetDefaultReminderEmail();
+            if (automatedEvents.Any())
+            {
+                vehicles = _dataAccess.GetVehicles();
+            }
+            int _daysToCache = notificationConfig.DaysToCache * -1;
+            //clear out expired reminders
+            int expiredReminders = _cachedReminders.RemoveAll(x => x.DateAdded < DateTime.Now.AddDays(_daysToCache));
+            if (expiredReminders != default)
+            {
+                _logger.LogInformation($"Cleared {expiredReminders} Expired Reminders");
+            }
+            List<ReminderRecordViewModel> remindersToSend = new List<ReminderRecordViewModel>();
+            foreach (Vehicle vehicle in vehicles)
+            {
+                var vehicleId = vehicle.Id;
+                //get reminders
+                var currentMileage = _vehicleLogic.GetMaxMileage(vehicleId);
+                var reminders = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
+                var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
+                //filter reminders with untracked urgencies
+                results.RemoveAll(x => !notificationConfig.UrgenciesTracked.Contains(x.Urgency));
+                //filter reminders that have already been cached
+                results.RemoveAll(x => _cachedReminders.Any(y => y.Id == x.Id && y.Urgency == x.Urgency));
+                if (!results.Any())
+                {
+                    continue;
+                }
+                remindersToSend.AddRange(results);
+            }
+            if (remindersToSend.Any())
+            {
+                var groupedNotifications = remindersToSend.GroupBy(x => x.VehicleId);
+                foreach(var groupedNotification in groupedNotifications)
+                {
+                    var vehicle = _dataAccess.GetVehicleById(groupedNotification.Key);
+                    if (notificationConfig.UseEmailNotification)
+                    {
+                        var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicle.Id).Select(x => x.Id.UserId);
+                        List<string> emailRecipients = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                        {
+                            emailRecipients.Add(defaultEmailAddress);
+                        }
+                        foreach (int userId in userIds)
+                        {
+                            var userData = _userRecordDataAccess.GetUserRecordById(userId);
+                            emailRecipients.Add(userData.EmailAddress);
+                        }
+                        if (!emailRecipients.Any())
+                        {
+                            continue;
+                        }
+                        var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, groupedNotification.ToList());
+                        if (result.Success)
+                        {
+                            _logger.LogInformation("Email Sent!");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Email Failed: {result.Message}");
+                        }
+                    }
+                    if (notificationConfig.ServiceConfigs.Any())
+                    {
+                        foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
+                        {
+                            //loop through all configured service
+                        }
+                    }
+                    _cachedReminders.AddRange(groupedNotification.Select(x => new CachedReminderRecord { Id = x.Id, Urgency = x.Urgency, DateAdded = DateTime.Now }));
+                }
+            } 
+            else
+            {
+                _logger.LogInformation($"No Reminder State Changed");
+            }
         }
     }
 }

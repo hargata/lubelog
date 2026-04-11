@@ -8,6 +8,7 @@ namespace CarCareTracker.Models
         public int DaysToCache { get; set; }
         public List<AutomatedEvent> AutomatedEvents { get; set; } = new List<AutomatedEvent>();
         public List<NotificationServiceConfig> ServiceConfigs { get; set; } = new List<NotificationServiceConfig>();
+        public bool UseEmailNotification { get; set; }
     }
     public class NotificationServiceConfig
     {
