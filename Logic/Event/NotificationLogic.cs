@@ -222,7 +222,11 @@ namespace CarCareTracker.Logic
                 var groupedNotifications = remindersToSend.GroupBy(x => x.VehicleId);
                 foreach(var groupedNotification in groupedNotifications)
                 {
-                    var vehicle = _dataAccess.GetVehicleById(groupedNotification.Key);
+                    var vehicle = vehicles.FirstOrDefault(x=>x.Id == groupedNotification.Key) ?? new Vehicle();
+                    if (vehicle.Id == default)
+                    {
+                        continue;
+                    }
                     if (notificationConfig.UseEmailNotification)
                     {
                         var userIds = _userAccessDataAccess.GetUserAccessByVehicleId(vehicle.Id).Select(x => x.Id.UserId);
@@ -236,18 +240,17 @@ namespace CarCareTracker.Logic
                             var userData = _userRecordDataAccess.GetUserRecordById(userId);
                             emailRecipients.Add(userData.EmailAddress);
                         }
-                        if (!emailRecipients.Any())
+                        if (emailRecipients.Any())
                         {
-                            continue;
-                        }
-                        var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, groupedNotification.ToList());
-                        if (result.Success)
-                        {
-                            _logger.LogInformation("Email Sent!");
-                        }
-                        else
-                        {
-                            _logger.LogError($"Email Failed: {result.Message}");
+                            var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, groupedNotification.ToList());
+                            if (result.Success)
+                            {
+                                _logger.LogInformation("Email Sent!");
+                            }
+                            else
+                            {
+                                _logger.LogError($"Email Failed: {result.Message}");
+                            }
                         }
                     }
                     if (notificationConfig.ServiceConfigs.Any())
@@ -259,7 +262,7 @@ namespace CarCareTracker.Logic
                     }
                     _cachedReminders.AddRange(groupedNotification.Select(x => new CachedReminderRecord { Id = x.Id, Urgency = x.Urgency, DateAdded = DateTime.Now }));
                 }
-            } 
+            }
             else
             {
                 _logger.LogInformation($"No Reminder State Changed");
