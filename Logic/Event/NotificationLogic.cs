@@ -1,6 +1,8 @@
 ﻿using CarCareTracker.External.Interfaces;
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
+using System.Text;
+using System.Text.Json;
 
 namespace CarCareTracker.Logic
 {
@@ -15,22 +17,26 @@ namespace CarCareTracker.Logic
         private readonly IConfigHelper _config;
         private readonly IFileHelper _fileHelper;
         private readonly IMailHelper _mailHelper;
+        private readonly ITranslationHelper _translator;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly IVehicleLogic _vehicleLogic;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
         private readonly IReminderHelper _reminderHelper;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<NotificationLogic> _logger;
         public NotificationLogic(IConfigHelper config, 
             IFileHelper fileHelper, 
             IMailHelper mailHelper,
+            ITranslationHelper translationHelper,
             IReminderHelper reminderHelper,
             IVehicleDataAccess dataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IVehicleLogic vehicleLogic,
+            IHttpClientFactory httpClientFactory,
             ILogger<NotificationLogic> logger
             )
         {
@@ -38,11 +44,13 @@ namespace CarCareTracker.Logic
             _fileHelper = fileHelper;
             _mailHelper = mailHelper;
             _reminderHelper = reminderHelper;
+            _translator = translationHelper;
             _dataAccess = dataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _vehicleLogic = vehicleLogic;
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
         public async Task RunAutomatedEvents()
@@ -188,9 +196,28 @@ namespace CarCareTracker.Logic
             var notificationConfig = _config.GetNotificationConfig();
             var automatedEvents = notificationConfig.AutomatedEvents;
             var defaultEmailAddress = _config.GetDefaultReminderEmail();
-            if (automatedEvents.Any())
+            var serverLanguage = _config.GetServerLanguage();
+            var serverDomain = _config.GetServerDomain();
+            if (!automatedEvents.Contains(AutomatedEvent.ReminderStateChanged))
             {
-                vehicles = _dataAccess.GetVehicles();
+                //return early because this event is not configured
+                return;
+            }
+            if (!notificationConfig.UseEmailNotification && !notificationConfig.ServiceConfigs.Any())
+            {
+                //return early because there is no service to send to
+                return;
+            }
+            if (!notificationConfig.UrgenciesTracked.Any())
+            {
+                //return early because no urgencies tracked
+                return;
+            }
+            vehicles = _dataAccess.GetVehicles();
+            if (!vehicles.Any())
+            {
+                //return early because there are no vehicles
+                return;
             }
             int _daysToCache = notificationConfig.DaysToCache * -1;
             //clear out expired reminders
@@ -255,9 +282,47 @@ namespace CarCareTracker.Logic
                     }
                     if (notificationConfig.ServiceConfigs.Any())
                     {
-                        foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
+                        string notificationTitle = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})";
+                        string vehicleId = vehicle.Id.ToString();
+                        string linkToClick = string.Empty;
+                        if (!string.IsNullOrWhiteSpace(serverDomain))
                         {
-                            //loop through all configured service
+                            string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
+                            linkToClick = $"{cleanedURL}/Vehicle/Index?vehicleId={vehicleId}&tab=reminder";
+                        }
+                        var httpClient = _httpClientFactory.CreateClient();
+                        foreach (ReminderRecordViewModel reminderToSend in groupedNotification)
+                        {
+                            string notificationBody = $"{_translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminderToSend.Urgency))} - {reminderToSend.Description}";
+                            foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
+                            {
+                                //loop through all configured service
+                                string priority = string.Empty;
+                                if (serviceConfig.PriorityMapping.TryGetValue(reminderToSend.Urgency.ToString().ToLower(), out string? mappedPriority))
+                                {
+                                    priority = mappedPriority ?? string.Empty;
+                                }
+                                string messageBody = notificationBody;
+                                if (serviceConfig.Body != null)
+                                {
+                                    string templateBody = JsonSerializer.Serialize(serviceConfig.Body).Trim('"');
+                                    messageBody = RenderNotificationBody(templateBody, vehicleId, notificationTitle, notificationBody, priority, linkToClick);
+                                }
+                                string cleanedUrl = RenderNotificationBody(serviceConfig.Url, vehicleId, notificationTitle, notificationBody, priority, linkToClick);
+                                var request = new HttpRequestMessage(HttpMethod.Post, cleanedUrl);
+                                if (serviceConfig.Headers.Any())
+                                {
+                                    foreach (var header in serviceConfig.Headers)
+                                    {
+                                        request.Headers.Add(header.Key, RenderNotificationBody(header.Value, vehicleId, notificationTitle, notificationBody, priority, linkToClick));
+                                    }
+                                }
+                                if (!string.IsNullOrWhiteSpace(messageBody))
+                                {
+                                    request.Content = new StringContent(messageBody, Encoding.UTF8, serviceConfig.ContentType);
+                                }
+                                await httpClient.SendAsync(request);
+                            }
                         }
                     }
                     _cachedReminders.AddRange(groupedNotification.Select(x => new CachedReminderRecord { Id = x.Id, Urgency = x.Urgency, DateAdded = DateTime.Now }));
@@ -267,6 +332,10 @@ namespace CarCareTracker.Logic
             {
                 _logger.LogInformation($"No Reminder State Changed");
             }
+        }
+        private string RenderNotificationBody(string inputString, string vehicleId, string title, string message, string priority, string linkToClick)
+        {
+            return inputString.Replace("{vehicleId}", vehicleId).Replace("{title}", title).Replace("{message}", message).Replace("{priority}", priority).Replace("{link}", linkToClick);
         }
     }
 }
