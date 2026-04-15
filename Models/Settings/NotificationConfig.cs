@@ -16,6 +16,6 @@ namespace CarCareTracker.Models
         public string ContentType { get; set; } = string.Empty;
         public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> PriorityMapping { get; set; } = new Dictionary<string, string>();
-        public object? Body { get; set;  }
+        public string Body { get; set; } = string.Empty;
     }
 }

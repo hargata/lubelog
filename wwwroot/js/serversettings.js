@@ -195,8 +195,8 @@ function saveSetup() {
                     VeryUrgent: $(elem).find('.serviceConfigVeryUrgentPriority').val(),
                     PastDue: $(elem).find('.serviceConfigPastDuePriority').val()
                 },
-                Headers: JSON.parse($(elem).find('.serviceConfigHeaders')).val(),
-                Body: JSON.parse($(elem).find('.serviceConfigBody')).val()
+                Headers: JSON.parse($(elem).find('.serviceConfigHeaders').val()),
+                Body: $(elem).find('.serviceConfigBody').val()
             };
             notificationConfig.ServiceConfigs.push(serviceConfig);
         });
@@ -207,6 +207,36 @@ function saveSetup() {
             lastSetupPage();
         } else {
             errorToast(genericErrorMessage());
+        }
+    })
+}
+function addNewNotificationServiceConfig() {
+    $.get('/Home/GetNotificationServiceConfigPartialView', function (data) {
+        $('#inputNotificationServiceConfig').append(data);
+    });
+}
+function deleteNotificationServiceConfig(e) {
+    $(e).closest('.serviceConfig').remove();
+}
+function sendTestNotification(e) {
+    let serviceConfigElem = $(e).closest('.serviceConfig');
+    let serviceConfigToTest = {
+        Url: serviceConfigElem.find('.serviceConfigUrl').val(),
+        ContentType: serviceConfigElem.find('.serviceConfigContentType').val(),
+        PriorityMapping: {
+            NotUrgent: serviceConfigElem.find('.serviceConfigNotUrgentPriority').val(),
+            Urgent: serviceConfigElem.find('.serviceConfigUrgentPriority').val(),
+            VeryUrgent: serviceConfigElem.find('.serviceConfigVeryUrgentPriority').val(),
+            PastDue: serviceConfigElem.find('.serviceConfigPastDuePriority').val()
+        },
+        Headers: JSON.parse(serviceConfigElem.find('.serviceConfigHeaders').val()),
+        Body: serviceConfigElem.find('.serviceConfigBody').val()
+    }
+    $.post('/Home/SendTestNotification', { serviceConfig: serviceConfigToTest }, function (data) {
+        if (data.success) {
+            successToast(data.message);
+        } else {
+            errorToast(data.message);
         }
     })
 }

@@ -301,6 +301,7 @@
                     <!option value="true" @(Model.EnableAutomatedEvents ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
                     <!option value="false" @(Model.EnableAutomatedEvents ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Restart Required")</small>
             </div>
             <div class="form-group">
                 <label for="inputAutomatedEventsTime">@translator.Translate(userLanguage, "Run Automated Events At")</label>
@@ -367,8 +368,18 @@
                     <!option value="false" @(Model.NotificationConfig.UseEmailNotification ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
                 </select>
             </div>
-            <label class="form-label">@translator.Translate(userLanguage, "External Notification Services")</label>
+            <div class="d-flex align-items-center justify-content-between mt-2">
+                <label>@translator.Translate(userLanguage, "External Notification Services")</label>
+                <a class="btn btn-warning" onclick="addNewNotificationServiceConfig()">@translator.Translate(userLanguage, "Add External Notification Service")</a>
+            </div>
             <div id="inputNotificationServiceConfig">
+                    @if (Model.NotificationConfig.ServiceConfigs.Any())
+                    {
+                        @foreach(NotificationServiceConfig serviceConfig in Model.NotificationConfig.ServiceConfigs)
+                        {
+                            @await Html.PartialAsync("_NotificationServiceConfig", serviceConfig)
+                        }
+                    }
             </div>
         </form>
     </div>

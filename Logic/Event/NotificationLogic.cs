@@ -10,6 +10,7 @@ namespace CarCareTracker.Logic
     {
         Task RunAutomatedEvents();
         Task CheckReminderStateChanged();
+        Task SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, ReminderRecordViewModel reminderToSend, Vehicle vehicle);
     }
     public class NotificationLogic: INotificationLogic
     {
@@ -71,7 +72,7 @@ namespace CarCareTracker.Logic
                     {
                         //Clear out temp folder
                         var tempFilesDeleted = _fileHelper.ClearTempFolder();
-                        _logger.LogInformation($"temp_files_deleted: {tempFilesDeleted.ToString()}");
+                        _logger.LogInformation($"Temp Files Deleted: {tempFilesDeleted.ToString()}");
                         if (automatedEvents.Contains(AutomatedEvent.DeepClean))
                         {
                             //clear out unused vehicle thumbnails
@@ -79,7 +80,7 @@ namespace CarCareTracker.Logic
                             if (vehicleImages.Any())
                             {
                                 var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
-                                _logger.LogInformation($"unlinked_thumbnails_deleted: {thumbnailsDeleted.ToString()}");
+                                _logger.LogInformation($"Unlinked Thumbnails Deleted: {thumbnailsDeleted.ToString()}");
                             }
                             var vehicleDocuments = new List<string>();
                             vehicleDocuments.AddRange(_vehicleLogic.GetVehicleDocuments(vehicles));
@@ -88,7 +89,7 @@ namespace CarCareTracker.Logic
                             if (vehicleDocuments.Any())
                             {
                                 var documentsDeleted = _fileHelper.ClearUnlinkedDocuments(vehicleDocuments);
-                                _logger.LogInformation($"unlinked_documents_deleted: {documentsDeleted.ToString()}");
+                                _logger.LogInformation($"Unlinked Documents Deleted: {documentsDeleted.ToString()}");
                             }
                         }
                     }
@@ -309,46 +310,11 @@ namespace CarCareTracker.Logic
                         }
                         if (notificationConfig.ServiceConfigs.Any())
                         {
-                            string notificationTitle = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})";
-                            string vehicleId = vehicle.Id.ToString();
-                            string linkToClick = string.Empty;
-                            if (!string.IsNullOrWhiteSpace(serverDomain))
-                            {
-                                string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
-                                linkToClick = $"{cleanedURL}/Vehicle/Index?vehicleId={vehicleId}&tab=reminder";
-                            }
-                            var httpClient = _httpClientFactory.CreateClient();
                             foreach (ReminderRecordViewModel reminderToSend in groupedNotification)
                             {
-                                string notificationBody = $"{_translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminderToSend.Urgency))} - {reminderToSend.Description}";
                                 foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
                                 {
-                                    //loop through all configured service
-                                    string priority = string.Empty;
-                                    if (serviceConfig.PriorityMapping.TryGetValue(reminderToSend.Urgency.ToString().ToLower(), out string? mappedPriority))
-                                    {
-                                        priority = mappedPriority ?? string.Empty;
-                                    }
-                                    string messageBody = notificationBody;
-                                    if (serviceConfig.Body != null)
-                                    {
-                                        string templateBody = JsonSerializer.Serialize(serviceConfig.Body).Trim('"');
-                                        messageBody = RenderNotificationBody(templateBody, vehicleId, notificationTitle, notificationBody, priority, linkToClick);
-                                    }
-                                    string cleanedUrl = RenderNotificationBody(serviceConfig.Url, vehicleId, notificationTitle, notificationBody, priority, linkToClick);
-                                    var request = new HttpRequestMessage(HttpMethod.Post, cleanedUrl);
-                                    if (serviceConfig.Headers.Any())
-                                    {
-                                        foreach (var header in serviceConfig.Headers)
-                                        {
-                                            request.Headers.Add(header.Key, RenderNotificationBody(header.Value, vehicleId, notificationTitle, notificationBody, priority, linkToClick));
-                                        }
-                                    }
-                                    if (!string.IsNullOrWhiteSpace(messageBody))
-                                    {
-                                        request.Content = new StringContent(messageBody, Encoding.UTF8, serviceConfig.ContentType);
-                                    }
-                                    await httpClient.SendAsync(request);
+                                    await SendNotificationToExternalServices(serviceConfig, reminderToSend, vehicle);
                                 }
                             }
                         }
@@ -365,9 +331,49 @@ namespace CarCareTracker.Logic
                 _logger.LogError($"Unable To Detect Reminder State Change Due To Error {ex.Message}");
             }
         }
-        private string RenderNotificationBody(string inputString, string vehicleId, string title, string message, string priority, string linkToClick)
+        public async Task SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, ReminderRecordViewModel reminderToSend, Vehicle vehicle)
         {
-            return inputString.Replace("{vehicleId}", vehicleId).Replace("{title}", title).Replace("{message}", message).Replace("{priority}", priority).Replace("{link}", linkToClick);
+            var serverLanguage = _config.GetServerLanguage();
+            var serverDomain = _config.GetServerDomain();
+            string notificationTitle = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})";
+            string notificationBody = $"{_translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminderToSend.Urgency))} - {reminderToSend.Description}";
+            string vehicleId = vehicle.Id.ToString();
+            string linkToClick = string.Empty;
+            if (!string.IsNullOrWhiteSpace(serverDomain))
+            {
+                string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
+                linkToClick = $"{cleanedURL}/Vehicle/Index?vehicleId={vehicleId}&tab=reminder";
+            }
+            var httpClient = _httpClientFactory.CreateClient();
+            //loop through all configured service
+            string priority = string.Empty;
+            if (serviceConfig.PriorityMapping.TryGetValue(reminderToSend.Urgency.ToString(), out string? mappedPriority))
+            {
+                priority = mappedPriority ?? string.Empty;
+            }
+            string messageBody = notificationBody;
+            if (!string.IsNullOrWhiteSpace(serviceConfig.Body))
+            {
+                messageBody = RenderNotificationBody(serviceConfig.Body, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain);
+            }
+            string cleanedUrl = RenderNotificationBody(serviceConfig.Url, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain);
+            var request = new HttpRequestMessage(HttpMethod.Post, cleanedUrl);
+            if (serviceConfig.Headers.Any())
+            {
+                foreach (var header in serviceConfig.Headers)
+                {
+                    request.Headers.Add(header.Key, RenderNotificationBody(header.Value, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain));
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(messageBody))
+            {
+                request.Content = new StringContent(messageBody, Encoding.UTF8, serviceConfig.ContentType);
+            }
+            await httpClient.SendAsync(request);
+        }
+        private string RenderNotificationBody(string inputString, string vehicleId, string title, string message, string priority, string linkToClick, string domain)
+        {
+            return inputString.Replace("{vehicleId}", vehicleId).Replace("{title}", title).Replace("{message}", message).Replace("{priority}", priority).Replace("{link}", linkToClick).Replace("{domain}", domain);
         }
     }
 }
