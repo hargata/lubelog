@@ -10,25 +10,31 @@ function determineSetupButtons() {
     let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
     switch (currentVisiblePage) {
         case '0':
-        case '6':
+        case '7':
             $(".setup-wizard-nav").hide();
             break;
         case '1':
         case '2':
         case '3':
         case '4':
+        case '5':
             $(".setup-wizard-nav").show();
             $(".btn-prev").show();
             $(".btn-next").show();
-            $(".btn-save").hide();
+            $(".btn-save").show();
             break;
-        case '5':
+        case '6':
             $(".setup-wizard-nav").show();
             $(".btn-prev").show();
             $(".btn-next").hide();
             $(".btn-save").show();
             break;
     }
+}
+function lastSetupPage() {
+    let pageArray = $(".setup-wizard-content").map((index, elem) => parseInt($(elem).attr('data-page'))).toArray();
+    let maxPage = Math.max(...pageArray);
+    loadSetupPage(maxPage);
 }
 function nextSetupPage() {
     let currentVisiblePage = $(".setup-wizard-content:visible").attr('data-page');
@@ -54,8 +60,9 @@ function loadLocaleSample() {
         })
     }
 }
-function updateCookieLifeSpanRange() {
-    $("#inputCookieLifeSpanRangeLabel").text($("#inputCookieLifeSpan").val());
+function updateRangeLabel(e) {
+    let labelElem = $(e).closest('.form-group').find('.rangeLabel');
+    labelElem.text($(e).val());
 }
 function saveSetup() {
     let setupData = {
@@ -117,7 +124,10 @@ function saveSetup() {
                     }
                 }
             }
-        }
+        },
+        EnableAutomatedEvents: $("#inputAutomatedEvents").val(),
+        NotificationConfig: null,
+        SkippedSettings: []
     };
     let registrationMode = $("#inputRegistrationMode");
     if (registrationMode.length > 0) {
@@ -139,23 +149,62 @@ function saveSetup() {
     //nullify skipped settings
     if ($("#skipSMTP").is(":checked")) {
         setupData["SMTPConfig"] = null;
+        setupData.SkippedSettings.push('SMTP');
     }
     if ($("#skipOIDC").is(":checked")) {
         setupData["OIDCConfig"] = null;
+        setupData.SkippedSettings.push('OIDC');
     }
     if ($("#skipPostgres").is(":checked")) {
         setupData["PostgresConnection"] = null;
+        setupData.SkippedSettings.push('Postgres');
     }
     if ($("#skipHTTPS").is(":checked")) {
         setupData["KestrelAppConfig"] = null;
+        setupData.SkippedSettings.push('HTTPS');
     }
     let rootUserOIDC = $("#inputOIDCRootUser");
     if (rootUserOIDC.length > 0) {
         setupData["EnableRootUserOIDC"] = $("#inputOIDCRootUser").val();
     }
+    //notification config
+    if (setupData["EnableAutomatedEvents"] == 'true') {
+        let [hourToCheck, minuteToCheck] = $("#inputAutomatedEventsTime").val().split(':');
+        let notificationConfig = {
+            HourToCheck: hourToCheck,
+            MinuteToCheck: minuteToCheck,
+            DaysToCache: $("#inputDaysToCache").val(),
+            UseEmailNotification: $("#inputUseEmailNotification").val(),
+            UrgenciesTracked: [],
+            AutomatedEvents: [],
+            ServiceConfigs: []
+        }
+        $("#inputUrgenciesTracked :checked").map(function () {
+            notificationConfig.UrgenciesTracked.push(this.value);
+        });
+        $("#inputAutomatedEventsList :checked").map(function () {
+            notificationConfig.AutomatedEvents.push(this.value);
+        });
+        $("#inputNotificationServiceConfig .serviceConfig").map((index, elem) => {
+            let serviceConfig = {
+                Url: $(elem).find('.serviceConfigUrl').val(),
+                ContentType: $(elem).find('.serviceConfigContentType').val(),
+                PriorityMapping: {
+                    NotUrgent: $(elem).find('.serviceConfigNotUrgentPriority').val(),
+                    Urgent: $(elem).find('.serviceConfigUrgentPriority').val(),
+                    VeryUrgent: $(elem).find('.serviceConfigVeryUrgentPriority').val(),
+                    PastDue: $(elem).find('.serviceConfigPastDuePriority').val()
+                },
+                Headers: JSON.parse($(elem).find('.serviceConfigHeaders')).val(),
+                Body: JSON.parse($(elem).find('.serviceConfigBody')).val()
+            };
+            notificationConfig.ServiceConfigs.push(serviceConfig);
+        });
+        setupData["NotificationConfig"] = notificationConfig;
+    }
     $.post('/Home/WriteServerConfiguration', { serverConfig: setupData }, function (data) {
         if (data) {
-            nextSetupPage();
+            lastSetupPage();
         } else {
             errorToast(genericErrorMessage());
         }

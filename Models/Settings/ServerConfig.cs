@@ -90,5 +90,8 @@ namespace CarCareTracker.Models
         [JsonPropertyName("Kestrel")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public KestrelAppConfig? KestrelAppConfig { get; set; }
+        [JsonPropertyName("SkippedSettings")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<SkippedSetting>? SkippedSettings { get; set; }
     }
 }

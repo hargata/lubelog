@@ -42,7 +42,7 @@
                     <input type="text" id="inputPostgres" class="form-control" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.PostgresConnection">
                     <div class="input-group-text">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="skipPostgres">
+                            <input class="form-check-input" type="checkbox" role="switch" id="skipPostgres" @(Model.SkippedSettings.Contains(SkippedSetting.Postgres) ? "checked" : "")>
                             <label class="form-check-label" for="skipPostgres">@translator.Translate(userLanguage, "Skip")</label>
                         </div>
                     </div>
@@ -116,8 +116,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="inputCookieLifeSpan" class="form-label"><span>@($"{translator.Translate(userLanguage, "Auth Cookie Lifespan")} - ")</span><span id="inputCookieLifeSpanRangeLabel">@Model.CookieLifeSpan</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
-                <input type="range" class="form-range" oninput="updateCookieLifeSpanRange()" min="1" max="90" id="inputCookieLifeSpan" value="@Model.CookieLifeSpan">
+                <label for="inputCookieLifeSpan" class="form-label"><span>@($"{translator.Translate(userLanguage, "Auth Cookie Lifespan")} - ")</span><span class="rangeLabel">@Model.CookieLifeSpan</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
+                <input type="range" class="form-range" oninput="updateRangeLabel(this)" min="1" max="90" id="inputCookieLifeSpan" value="@Model.CookieLifeSpan">
             </div>
         </form>
     </div>
@@ -125,7 +125,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <span class="display-5">@translator.Translate(userLanguage, "SMTP")</span>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipSMTP">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipSMTP" @(Model.SkippedSettings.Contains(SkippedSetting.SMTP) ? "checked" : "")>
                 <label class="form-check-label" for="skipSMTP">@translator.Translate(userLanguage, "Skip")</label>
             </div>
         </div>
@@ -167,7 +167,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <span class="display-5">@translator.Translate(userLanguage, "Server Endpoints")</span>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipHTTPS">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipHTTPS" @(Model.SkippedSettings.Contains(SkippedSetting.HTTPS) ? "checked" : "")>
                 <label class="form-check-label" for="skipHTTPS">@translator.Translate(userLanguage, "Skip")</label>
             </div>
         </div>
@@ -204,7 +204,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <span class="display-5">@translator.Translate(userLanguage, "Single Sign On")</span>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipOIDC">
+                <input class="form-check-input" type="checkbox" onchange="nextOnSkip(this)" role="switch" id="skipOIDC" @(Model.SkippedSettings.Contains(SkippedSetting.OIDC) ? "checked" : "")>
                 <label class="form-check-label" for="skipOIDC">@translator.Translate(userLanguage, "Skip")</label>
             </div>
         </div>
@@ -292,6 +292,87 @@
         </form>
     </div>
     <div class="setup-wizard-content" data-page="5" style="display:none;">
+        <span class="display-5">@translator.Translate(userLanguage, "Automated Events")</span>
+        <hr />
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="inputAutomatedEvents">@translator.Translate(userLanguage, "Enable Automated Events")</label>
+                <select class="form-select" id="inputAutomatedEvents">
+                    <!option value="true" @(Model.EnableAutomatedEvents ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.EnableAutomatedEvents ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="inputAutomatedEventsTime">@translator.Translate(userLanguage, "Run Automated Events At")</label>
+                <input type="time" id="inputAutomatedEventsTime" class="form-control" value="@($"{Model.NotificationConfig.HourToCheck.ToString("D2")}:{Model.NotificationConfig.MinuteToCheck.ToString("D2")}")">
+            </div>
+            <div class="form-group">
+                <label for="inputDaysToCache" class="form-label"><span>@($"{translator.Translate(userLanguage, "Days To Cache Reminder State Changes")} - ")</span><span class="rangeLabel">@Model.NotificationConfig.DaysToCache</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
+                <input type="range" class="form-range" oninput="updateRangeLabel(this)" min="1" max="30" id="inputDaysToCache" value="@Model.NotificationConfig.DaysToCache">
+            </div>
+            <label class="form-label">@translator.Translate(userLanguage, "Urgencies Tracked")</label>
+            <div id="inputUrgenciesTracked">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="NotUrgent" id="inputUrgenciesTrackedNotUrgent" @(Model.NotificationConfig.UrgenciesTracked.Contains(ReminderUrgency.NotUrgent) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputUrgenciesTrackedNotUrgent">@translator.Translate(userLanguage, "Not Urgent")</label>
+                    </li>
+                     <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="Urgent" id="inputUrgenciesTrackedUrgent" @(Model.NotificationConfig.UrgenciesTracked.Contains(ReminderUrgency.Urgent) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputUrgenciesTrackedUrgent">@translator.Translate(userLanguage, "Urgent")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="VeryUrgent" id="inputUrgenciesTrackedVeryUrgent" @(Model.NotificationConfig.UrgenciesTracked.Contains(ReminderUrgency.VeryUrgent) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputUrgenciesTrackedVeryUrgent">@translator.Translate(userLanguage, "Very Urgent")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="PastDue" id="inputUrgenciesTrackedPastDue" @(Model.NotificationConfig.UrgenciesTracked.Contains(ReminderUrgency.PastDue) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputUrgenciesTrackedPastDue">@translator.Translate(userLanguage, "Past Due")</label>
+                    </li>
+                </ul>
+            </div>
+            <label class="form-label">@translator.Translate(userLanguage, "Automated Events")</label>
+            <div id="inputAutomatedEventsList">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="AllReminder" id="inputAutomatedEventAllReminder" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.AllReminder) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventAllReminder">@translator.Translate(userLanguage, "All Reminders")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="ReminderStateChanged" id="inputAutomatedEventReminderStateChanged" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.ReminderStateChanged) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventReminderStateChanged">@translator.Translate(userLanguage, "Reminder State Changed")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="BackupEmail" id="inputAutomatedEventBackupEmail" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.BackupEmail) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventBackupEmail">@translator.Translate(userLanguage, "Send Backup Email")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="UpdateRecurringTax" id="inputAutomatedEventUpdateRecurringTax" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.UpdateRecurringTax) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventUpdateRecurringTax">@translator.Translate(userLanguage, "Update Recurring Tax Records")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="CleanTempFile" id="inputAutomatedEventCleanTempFile" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.CleanTempFile) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventCleanTempFile">@translator.Translate(userLanguage, "Clear Temp Files")</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="DeepClean" id="inputAutomatedEventDeepClean" @(Model.NotificationConfig.AutomatedEvents.Contains(AutomatedEvent.DeepClean) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="inputAutomatedEventDeepClean">@translator.Translate(userLanguage, "Perform Deep Clean")</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group">
+                <label for="inputUseEmailNotification">@translator.Translate(userLanguage, "Use Email for Reminder State Changed Notification")</label>
+                <select class="form-select" id="inputUseEmailNotification">
+                    <!option value="true" @(Model.NotificationConfig.UseEmailNotification ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.NotificationConfig.UseEmailNotification ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <label class="form-label">@translator.Translate(userLanguage, "External Notification Services")</label>
+            <div id="inputNotificationServiceConfig">
+            </div>
+        </form>
+    </div>
+    <div class="setup-wizard-content" data-page="6" style="display:none;">
         <span class="display-5">@translator.Translate(userLanguage, "Miscellaneous")</span>
         <hr />
         <form class="form-inline">
@@ -339,7 +420,7 @@
             </div>
         </form>
     </div>
-    <div class="setup-wizard-content" data-page="6" style="display:none;">
+    <div class="setup-wizard-content" data-page="7" style="display:none;">
         <div class="d-flex text-center align-items-center justify-content-center flex-column" style="height:100%;">
             <div><span class="display-5">@translator.Translate(userLanguage, "Server Settings Saved")<span class="text-success"><i class="bi bi-check-lg"></i></span></span></div>
             <div class="mt-2"><a class="btn btn-secondary me-2" onclick="loadSetupPage(0)">@translator.Translate(userLanguage, "Restart Wizard")</a><a class="btn btn-primary" onclick="returnToGarage()">@translator.Translate(userLanguage, "Return to Garage")</a></div>
@@ -348,8 +429,10 @@
     <div class="setup-wizard-nav" style="display:none;">
         <div class="d-flex align-items-center justify-content-between pe-2" style="height:100%;">
             <a class="btn btn-prev btn-link" onclick="previousSetupPage()">@translator.Translate(userLanguage, "Back")</a>
-            <a class="btn btn-next btn-primary" onclick="nextSetupPage()">@translator.Translate(userLanguage, "Next")</a>
-            <a class="btn btn-save btn-success" onclick="saveSetup()">@translator.Translate(userLanguage, "Save")</a>
+            <div>
+                <a class="btn btn-save btn-success" onclick="saveSetup()">@translator.Translate(userLanguage, "Save")</a>
+                <a class="btn btn-next btn-primary" onclick="nextSetupPage()">@translator.Translate(userLanguage, "Next")</a>
+            </div>
         </div>
     </div>
 </div>

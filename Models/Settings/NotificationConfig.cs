@@ -5,7 +5,7 @@ namespace CarCareTracker.Models
         public int HourToCheck { get; set; }
         public int MinuteToCheck { get; set; }
         public List<ReminderUrgency> UrgenciesTracked { get; set; } = new List<ReminderUrgency>();
-        public int DaysToCache { get; set; }
+        public int DaysToCache { get; set; } = 7;
         public List<AutomatedEvent> AutomatedEvents { get; set; } = new List<AutomatedEvent>();
         public List<NotificationServiceConfig> ServiceConfigs { get; set; } = new List<NotificationServiceConfig>();
         public bool UseEmailNotification { get; set; }

@@ -55,11 +55,11 @@ namespace CarCareTracker.Logic
             catch (OperationCanceledException)
             {
                 // This exception is expected when the stoppingToken is canceled
-                _logger.LogInformation("Background Task is stopping due to cancellation.");
+                _logger.LogInformation("Automated Events Background Task Is Stopping Due To Cancellation.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred in the background task.");
+                _logger.LogError($"An Error Cccurred In The Automated Events Background Task: {ex.Message}");
             }
         }
     }
