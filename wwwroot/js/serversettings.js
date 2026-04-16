@@ -186,6 +186,10 @@ function saveSetup() {
             notificationConfig.AutomatedEvents.push(this.value);
         });
         $("#inputNotificationServiceConfig .serviceConfig").map((index, elem) => {
+            let headerValues = $(elem).find('.serviceConfigHeaders').val();
+            if (headerValues.trim() == '') {
+                headerValues = '{}';
+            }
             let serviceConfig = {
                 Url: $(elem).find('.serviceConfigUrl').val(),
                 ContentType: $(elem).find('.serviceConfigContentType').val(),
@@ -195,7 +199,7 @@ function saveSetup() {
                     VeryUrgent: $(elem).find('.serviceConfigVeryUrgentPriority').val(),
                     PastDue: $(elem).find('.serviceConfigPastDuePriority').val()
                 },
-                Headers: JSON.parse($(elem).find('.serviceConfigHeaders').val()),
+                Headers: JSON.parse(headerValues),
                 Body: $(elem).find('.serviceConfigBody').val()
             };
             notificationConfig.ServiceConfigs.push(serviceConfig);
@@ -220,6 +224,10 @@ function deleteNotificationServiceConfig(e) {
 }
 function sendTestNotification(e) {
     let serviceConfigElem = $(e).closest('.serviceConfig');
+    let headerValues = serviceConfigElem.find('.serviceConfigHeaders').val();
+    if (headerValues.trim() == '') {
+        headerValues = '{}';
+    }
     let serviceConfigToTest = {
         Url: serviceConfigElem.find('.serviceConfigUrl').val(),
         ContentType: serviceConfigElem.find('.serviceConfigContentType').val(),
@@ -229,7 +237,7 @@ function sendTestNotification(e) {
             VeryUrgent: serviceConfigElem.find('.serviceConfigVeryUrgentPriority').val(),
             PastDue: serviceConfigElem.find('.serviceConfigPastDuePriority').val()
         },
-        Headers: JSON.parse(serviceConfigElem.find('.serviceConfigHeaders').val()),
+        Headers: JSON.parse(headerValues),
         Body: serviceConfigElem.find('.serviceConfigBody').val()
     }
     $.post('/Home/SendTestNotification', { serviceConfig: serviceConfigToTest }, function (data) {
