@@ -37,6 +37,7 @@ namespace CarCareTracker.Controllers
         private readonly IEquipmentHelper _equipmentHelper;
         private readonly IReminderHelper _reminderHelper;
         private readonly IReportHelper _reportHelper;
+        private readonly ITranslationHelper _translator;
         private readonly IUserLogic _userLogic;
         private readonly IOdometerLogic _odometerLogic;
         private readonly IVehicleLogic _vehicleLogic;
@@ -49,6 +50,7 @@ namespace CarCareTracker.Controllers
             IEquipmentHelper equipmentHelper,
             IReminderHelper reminderHelper,
             IReportHelper reportHelper,
+            ITranslationHelper translator,
             IVehicleDataAccess dataAccess,
             INoteDataAccess noteDataAccess,
             IServiceRecordDataAccess serviceRecordDataAccess,
@@ -80,6 +82,7 @@ namespace CarCareTracker.Controllers
             _equipmentHelper = equipmentHelper;
             _reminderHelper = reminderHelper;
             _reportHelper = reportHelper;
+            _translator = translator;
             _serviceRecordDataAccess = serviceRecordDataAccess;
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
@@ -1221,7 +1224,7 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Service Record: {existingRecord.Description}",
+                                Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.ServiceRecord, false))}: {existingRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
@@ -1239,7 +1242,7 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Repair Record: {existingRecord.Description}",
+                                Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.RepairRecord, false))}: {existingRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
@@ -1257,7 +1260,7 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Upgrade Record: {existingRecord.Description}",
+                                Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.UpgradeRecord, false))}: {existingRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, existingRecord.Description)
                             });
                         }
@@ -1275,7 +1278,7 @@ namespace CarCareTracker.Controllers
                                 Date = existingRecord.Date,
                                 VehicleId = existingRecord.VehicleId,
                                 Mileage = existingRecord.Mileage,
-                                Notes = $"Auto Insert From Gas Record. {existingRecord.Notes}",
+                                Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.GasRecord, false))}: {existingRecord.Notes}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(importMode, existingRecord.Id, $"Gas Record - {existingRecord.Mileage.ToString()}")
                             });
                         }

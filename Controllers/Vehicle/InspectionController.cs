@@ -207,7 +207,7 @@ namespace CarCareTracker.Controllers
                     Mileage = inspectionRecord.Mileage,
                     Description = inspectionRecord.Description,
                     Cost = inspectionRecord.Cost,
-                    Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                    Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.InspectionRecord, false))}: {inspectionRecord.Description}",
                     Files = newAttachments
                 });
                 //auto-insert into odometer if configured
@@ -218,7 +218,7 @@ namespace CarCareTracker.Controllers
                         Date = DateTime.Parse(inspectionRecord.Date),
                         VehicleId = inspectionRecord.VehicleId,
                         Mileage = inspectionRecord.Mileage,
-                        Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                        Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.InspectionRecord, false))}: {inspectionRecord.Description}",
                         Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
                     });
                 }
@@ -239,7 +239,7 @@ namespace CarCareTracker.Controllers
                                 ImportMode = inspectionField.ActionItemType,
                                 Priority = inspectionField.ActionItemPriority,
                                 Progress = PlanProgress.Backlog,
-                                Notes = $"Auto Insert From Inspection Record: {inspectionRecord.Description}",
+                                Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.GasRecord, false))}: {inspectionRecord.Description}",
                                 Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.InspectionRecord, convertedRecord.Id, convertedRecord.Description)
                             });
                         }

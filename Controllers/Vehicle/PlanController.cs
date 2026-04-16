@@ -271,7 +271,7 @@ namespace CarCareTracker.Controllers
                         Date = DateTime.Now.Date,
                         VehicleId = existingRecord.VehicleId,
                         Mileage = odometer,
-                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.PlanRecord, false))}: {existingRecord.Description}",
                         ExtraFields = existingRecord.ExtraFields,
                         Files = StaticHelper.CreateAttachmentFromRecord(existingRecord.ImportMode, newRecordId, existingRecord.Description)
                     });
