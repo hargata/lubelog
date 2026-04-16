@@ -30,7 +30,7 @@
                     <input onChange="uploadFileAsync(this, setUploadedFile)" type="file" multiple accept=".csv" class="form-control-file" id="csvFileUploader">
                 </div>
             </div>
-            <div class="row mt-2 importValidationErrorContainer">
+            <div class="row mt-2 importValidationErrorContainer" style="display:none;">
                 <div class="col-12 importValidationError bg-secondary-subtle border rounded">
 
                 </div>
@@ -73,7 +73,6 @@
                     getVehicleEquipmentRecords(vehicleId);
                 }
             } else {
-                console.log(data);
                 errorToast(data.message);
                 if (data.additionalData != undefined && data.additionalData.length > 0){
                     $('.importValidationErrorContainer').show();
