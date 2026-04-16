@@ -28,6 +28,14 @@ namespace CarCareTracker.Models
             }
             return new OperationResponse { Success = false, Message = message};
         }
+        public static OperationResponse Failed(string message, object additionalData)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                message = StaticHelper.GenericErrorMessage;
+            }
+            return new OperationResponse { Success = false, Message = message, AdditionalData = additionalData };
+        }
         public static OperationResponse Conditional(bool result, string successMessage = "", string errorMessage = "")
         {
             if (string.IsNullOrWhiteSpace(errorMessage))

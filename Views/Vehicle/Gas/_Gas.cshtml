@@ -183,7 +183,7 @@
                 <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
             </div>
         </div>
-        <table class="table table-hover ll-responsive-table">
+        <table class="table table-hover @(userConfig.UseGridInMobile ? "" : "ll-responsive-table")">
             <thead class="sticky-top">
                 <tr class="d-flex">
                     <th scope="col" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@translator.Translate(userLanguage, "Date Refueled")</th>

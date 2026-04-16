@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int ReminderRecordId { get; set; }
+        public List<int> ReminderRecordIds { get; set; } = new List<int>();
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public string Description { get; set; } = string.Empty;

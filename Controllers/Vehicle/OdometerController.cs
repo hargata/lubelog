@@ -240,7 +240,7 @@ namespace CarCareTracker.Controllers
                     Date = lastDate,
                     InitialMileage = currentOdometer,
                     Mileage = newOdometer,
-                    Notes = "Auto Insert From Distance Export."
+                    Notes = _translator.Translate(_config.GetUserConfig(User).UserLanguage, "Auto Insert From Distance Export")
                 });
                 if (shiftOdometer)
                 {

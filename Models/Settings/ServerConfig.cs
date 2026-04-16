@@ -81,8 +81,17 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_COOKIE_LIFESPAN")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? CookieLifeSpan { get; set; } = string.Empty;
+        [JsonPropertyName("LUBELOGGER_AUTO_EVENTS")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? EnableAutomatedEvents { get; set; }
+        [JsonPropertyName("NotificationConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public NotificationConfig? NotificationConfig { get; set; }
         [JsonPropertyName("Kestrel")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public KestrelAppConfig? KestrelAppConfig { get; set; }
+        [JsonPropertyName("SkippedSettings")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<SkippedSetting>? SkippedSettings { get; set; }
     }
 }

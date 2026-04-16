@@ -24,9 +24,6 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
-        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
-        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
-        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
@@ -57,9 +54,6 @@ namespace CarCareTracker.Controllers
             IOdometerRecordDataAccess odometerRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
-            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
-            IInspectionRecordDataAccess inspectionRecordDataAccess,
-            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IEquipmentRecordDataAccess equipmentRecordDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
@@ -85,9 +79,6 @@ namespace CarCareTracker.Controllers
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
-            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
-            _inspectionRecordDataAccess = inspectionRecordDataAccess;
-            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
@@ -440,7 +431,7 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
-        public IActionResult SendReminders(ReminderMethodParameter parameters)
+        public async Task<IActionResult> SendReminders(ReminderMethodParameter parameters)
         {
             if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
@@ -488,7 +479,7 @@ namespace CarCareTracker.Controllers
                 {
                     return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
                 }
-                var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
             } 
             else
@@ -526,7 +517,7 @@ namespace CarCareTracker.Controllers
                     {
                         continue;
                     }
-                    var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                    var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                     operationResponses.Add(result);
                 }
             }
@@ -584,10 +575,40 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/makebackup")]
-        public IActionResult MakeBackup()
+        public async Task<IActionResult> MakeBackup(string? output = "")
         {
             var result = _fileHelper.MakeBackup();
-            return Json(result);
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                return Json(result);
+            } 
+            else if (output.Trim().ToLower() == "download")
+            {
+                //download file
+                var fullExportFilePath = _fileHelper.GetFullFilePath(result, false);
+                var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
+                return File(fileContents, "application/zip", Path.GetFileName(result));
+            }
+            else if (output.Trim().ToLower() == "email")
+            {
+                var defaultEmailAddress = _config.GetDefaultReminderEmail();
+                if (!string.IsNullOrWhiteSpace(defaultEmailAddress))
+                {
+                    //download file
+                    var fullExportFilePath = _fileHelper.GetFullFilePath(result, false);
+                    var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
+                    var emailResponse = await _mailHelper.SendBackupEmail(Path.GetFileName(result), fileContents, defaultEmailAddress);
+                    return Json(emailResponse);
+                } 
+                else
+                {
+                    return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
+                }
+            }
+            else
+            {
+                return Json(result);
+            }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
@@ -610,35 +631,16 @@ namespace CarCareTracker.Controllers
             {
                 //clear out unused vehicle thumbnails
                 var vehicles = _dataAccess.GetVehicles();
-                var vehicleImages = vehicles.Select(x => x.ImageLocation).Where(x => x.StartsWith("/images/")).Select(x=>Path.GetFileName(x)).ToList();
+                var vehicleImages = _vehicleLogic.GetVehicleThumbnails(vehicles);
                 if (vehicleImages.Any())
                 {
                     var thumbnailsDeleted = _fileHelper.ClearUnlinkedThumbnails(vehicleImages);
                     jsonResponse.Add("unlinked_thumbnails_deleted", thumbnailsDeleted.ToString());
                 }
                 var vehicleDocuments = new List<string>();
-                foreach(Vehicle vehicle in vehicles)
-                {
-                    if (!string.IsNullOrWhiteSpace(vehicle.MapLocation))
-                    {
-                        vehicleDocuments.Add(Path.GetFileName(vehicle.MapLocation));
-                    }
-                    vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y=>Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_noteDataAccess.GetNotesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                    vehicleDocuments.AddRange(_equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
-                }
+                vehicleDocuments.AddRange(_vehicleLogic.GetVehicleDocuments(vehicles));
                 //shop supplies
-                vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_vehicleLogic.GetStoreSupplyDocuments());
                 if (vehicleDocuments.Any())
                 {
                     var documentsDeleted = _fileHelper.ClearUnlinkedDocuments(vehicleDocuments);

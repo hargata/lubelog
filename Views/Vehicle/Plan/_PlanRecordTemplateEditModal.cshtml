@@ -19,6 +19,14 @@
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
                     <label for="planRecordDescription">@translator.Translate(userLanguage, "Description")</label>
                     <input type="text" id="planRecordDescription" class="form-control" placeholder="@translator.Translate(userLanguage, "Describe the Plan")" value="@Model.Description">
+                    @if (Model.ReminderRecordId == default && !Model.CreatedFromReminder)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <a onclick="showRecurringReminderSelector('planRecordDescription', 'planRecordNotes')" class="btn btn-link">@translator.Translate(userLanguage, "Select Reminder")</a>
+                            </div>
+                        </div>
+                    }
                     <label for="planRecordCost">@translator.Translate(userLanguage, "Cost")</label>
                     <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="planRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage, "Cost of the Plan")" value="@Model.Cost">
                     @await Html.PartialAsync("Supply/_SupplyStore", new SupplyStore { Tab = "PlanRecordTemplate", AdditionalSupplies = Model.RequisitionHistory.Any() })
@@ -70,6 +78,7 @@
 @await Html.PartialAsync("Supply/_SupplyRequisitionHistory", new SupplyRequisitionHistory { RequisitionHistory = Model.RequisitionHistory, CostInputId = "planRecordCost" })
 <script>
     var selectedSupplies = [];
+    var recurringReminderRecordId = [];
     var copySuppliesAttachments = @Model.CopySuppliesAttachment.ToString().ToLower();
     getSelectedSuppliesFromModel();
     function getSelectedSuppliesFromModel() {
@@ -86,5 +95,9 @@
             createdFromReminder: @Model.CreatedFromReminder.ToString().ToLower(),
             isTemplate: true
         }
+    }
+    @foreach (int reminderRecordId in Model.ReminderRecordIds)
+    {
+                    @:recurringReminderRecordId.push(@reminderRecordId);
     }
 </script>

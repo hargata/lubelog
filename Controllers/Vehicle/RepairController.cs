@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
                     Date = DateTime.Parse(collisionRecord.Date),
                     VehicleId = collisionRecord.VehicleId,
                     Mileage = collisionRecord.Mileage,
-                    Notes = $"Auto Insert From Repair Record: {collisionRecord.Description}",
+                    Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.RepairRecord, false))}: {collisionRecord.Description}",
                     Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.RepairRecord, convertedRecord.Id, convertedRecord.Description)
                 });
             }

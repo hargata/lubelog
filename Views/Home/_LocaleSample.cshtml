@@ -12,4 +12,8 @@
     <span>@translator.Translate(userLanguage, "Currency"): @Model.CurrencySample</span>
     <span>@translator.Translate(userLanguage, "Number"): @Model.NumberSample</span>
     <span>@translator.Translate(userLanguage, "Decimal"): @Model.DecimalSample</span>
+    @if (Model.DecimalSeparatorMismatch)
+    {
+        <span class="text-warning"><i class="bi bi-exclamation-triangle me-2"></i>@translator.Translate(userLanguage, "This locale has mismatched currency and number decimal separators")</span>
+    }
 </div>

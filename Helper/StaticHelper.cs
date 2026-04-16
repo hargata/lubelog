@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.6.3";
+        public const string VersionNumber = "1.6.4";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -425,6 +425,15 @@ namespace CarCareTracker.Helper
                     Console.WriteLine($"Migrated Temp File: {Path.GetFileName(fileToMove)}");
                 }
             }
+        }
+        public static bool CheckConfigBoolean(IConfiguration config, string configKey)
+        {
+            var configValue = config[configKey] ?? string.Empty;
+            if (bool.TryParse(configValue, out bool result))
+            {
+                return result;
+            }
+            return false;
         }
         public static string GetImportModeIcon(ImportMode importMode)
         {
@@ -1024,6 +1033,67 @@ namespace CarCareTracker.Helper
                 }
                 return input.ToString($"{format}{numOfDecimals}");
             }
+        }
+        public static string GetImportModeName(ImportMode importMode, bool plural)
+        {
+            var outputVerbiage = string.Empty;
+            switch (importMode)
+            {
+                case ImportMode.ServiceRecord:
+                    outputVerbiage = "Service Record";
+                    break;
+                case ImportMode.RepairRecord:
+                    outputVerbiage = "Repair Record";
+                    break;
+                case ImportMode.UpgradeRecord:
+                    outputVerbiage = "Upgrade Record";
+                    break;
+                case ImportMode.TaxRecord:
+                    outputVerbiage = "Tax Record";
+                    break;
+                case ImportMode.SupplyRecord:
+                    outputVerbiage = "Supply Record";
+                    break;
+                case ImportMode.PlanRecord:
+                    outputVerbiage = "Plan Record";
+                    break;
+                case ImportMode.OdometerRecord:
+                    outputVerbiage = "Odometer Record";
+                    break;
+                case ImportMode.GasRecord:
+                    outputVerbiage = "Fuel Record";
+                    break;
+                case ImportMode.NoteRecord:
+                    outputVerbiage = "Note Record";
+                    break;
+                case ImportMode.ReminderRecord:
+                    outputVerbiage = "Reminder Record";
+                    break;
+                case ImportMode.InspectionRecord:
+                    outputVerbiage = "Inspection Record";
+                    break;
+                case ImportMode.EquipmentRecord:
+                    outputVerbiage = "Equipment Record";
+                    break;
+            }
+            if (plural && !string.IsNullOrWhiteSpace(outputVerbiage))
+            {
+                return $"{outputVerbiage}s";
+            }
+            return outputVerbiage;
+        }
+        public static string GetAutoInsertVerbiage(ImportMode importMode, bool isCsv)
+        {
+            string outputVerbiage = GetImportModeName(importMode, false);
+            if (!string.IsNullOrWhiteSpace(outputVerbiage))
+            {
+                outputVerbiage = $"Auto Insert From {outputVerbiage}";
+                if (isCsv)
+                {
+                    outputVerbiage = $"{outputVerbiage} via CSV Import";
+                }
+            }
+            return outputVerbiage;
         }
     }
 }

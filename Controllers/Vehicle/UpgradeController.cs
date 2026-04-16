@@ -66,7 +66,7 @@ namespace CarCareTracker.Controllers
                     Date = DateTime.Parse(upgradeRecord.Date),
                     VehicleId = upgradeRecord.VehicleId,
                     Mileage = upgradeRecord.Mileage,
-                    Notes = $"Auto Insert From Upgrade Record: {upgradeRecord.Description}",
+                    Notes = $"{_translator.Translate(_config.GetUserConfig(User).UserLanguage, StaticHelper.GetAutoInsertVerbiage(ImportMode.UpgradeRecord, false))}: {upgradeRecord.Description}",
                     Files = StaticHelper.CreateAttachmentFromRecord(ImportMode.UpgradeRecord, convertedRecord.Id, convertedRecord.Description)
                 });
             }

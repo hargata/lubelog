@@ -27,6 +27,7 @@
         public bool ShowVehicleThumbnail { get; set; }
         public bool ShowSearch { get; set; }
         public bool DisableAutoZoom { get; set; }
+        public bool UseGridInMobile { get; set; }
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public string UserNameHash { get; set; } = string.Empty;
         public string UserPasswordHash { get; set; } = string.Empty;

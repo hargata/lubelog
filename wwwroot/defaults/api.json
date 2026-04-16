@@ -1767,7 +1767,14 @@
          {
             "path":"/api/makebackup",
             "description":"Creates a backup and returns download link",
-            "methodType":0
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"output",
+                  "description":"Accepted values: download, email, or leave blank for a link to the file",
+                  "required":false
+               }
+            ]
          },
          {
             "path":"/api/tempfiles",

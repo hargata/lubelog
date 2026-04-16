@@ -373,6 +373,10 @@ function showRecurringReminderSelector(descriptionFieldName, noteFieldName) {
                 },
             }).then(function (result) {
                 if (result.isConfirmed) {
+                    if (result.value.selectedRecurringReminderData.isClear) {
+                        recurringReminderRecordId = [];
+                        return;
+                    }
                     recurringReminderRecordId = result.value.selectedRecurringReminderData.ids;
                     let descriptionField = $(`#${descriptionFieldName}`);
                     let noteField = $(`#${noteFieldName}`);
@@ -605,7 +609,7 @@ function showMultipleRemindersSelector() {
 function getAndValidateSelectedRecurringReminder() {
     if ($("#multipleRemindersCheck").is(":checked")) {
         //validate multiple reminders
-        var selectedRecurringRemindersArray = [];
+        let selectedRecurringRemindersArray = [];
         $("#recurringMultipleReminders :checked").map(function () {
             selectedRecurringRemindersArray.push({
                 value: this.value,
@@ -616,30 +620,34 @@ function getAndValidateSelectedRecurringReminder() {
             return {
                 hasError: true,
                 ids: [],
-                text: ''
+                text: '',
+                isClear: false
             }
         } else {
             return {
                 hasError: false,
                 ids: selectedRecurringRemindersArray.map(x=>x.value),
-                text: selectedRecurringRemindersArray.map(x=>x.text) 
+                text: selectedRecurringRemindersArray.map(x => x.text),
+                isClear: false
             }
         }
     } else {
         //validate single reminder
-        var selectedRecurringReminder = $("#recurringReminderInput").val();
-        var selectedRecurringReminderText = $("#recurringReminderInput option:selected").attr("data-description");
+        let selectedRecurringReminder = $("#recurringReminderInput").val();
+        let selectedRecurringReminderText = $("#recurringReminderInput option:selected").attr("data-description");
         if (!selectedRecurringReminder || parseInt(selectedRecurringReminder) == 0) {
             return {
                 hasError: true,
                 ids: [],
-                text: ''
+                text: '',
+                isClear: false
             }
         } else {
             return {
                 hasError: false,
                 ids: [selectedRecurringReminder],
-                text: [selectedRecurringReminderText]
+                text: [selectedRecurringReminderText],
+                isClear: parseInt(selectedRecurringReminder) == -1
             }
         }
     }

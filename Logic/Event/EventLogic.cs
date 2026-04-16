@@ -11,15 +11,17 @@ namespace CarCareTracker.Logic
     public class EventLogic: IEventLogic
     {
         private readonly IConfigHelper _config;
+        INotificationLogic _notificationLogic;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<EventLogic> _logger;
         private readonly IHubContext<EventHubLogic, IEventHubLogic> _eventHub;
-        public EventLogic(IConfigHelper config, IHttpClientFactory httpClientFactory, IHubContext<EventHubLogic, IEventHubLogic> eventHub, ILogger<EventLogic> logger)
+        public EventLogic(IConfigHelper config, IHttpClientFactory httpClientFactory, IHubContext<EventHubLogic, IEventHubLogic> eventHub, INotificationLogic notificationLogic, ILogger<EventLogic> logger)
         {
             _config = config;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             _eventHub = eventHub;
+            _notificationLogic = notificationLogic;
         }
         public async void PublishEvent(int userId, WebHookPayload webHookPayload)
         {
@@ -82,6 +84,10 @@ namespace CarCareTracker.Logic
                 {
                     _logger.LogWarning($"WebHook Error: Exhausted All Attempts");
                 }
+            }
+            if (_config.GetAutomatedEventsEnabled() && _config.GetNotificationConfig().AutomatedEvents.Contains(AutomatedEvent.ReminderStateChanged))
+            {
+                await _notificationLogic.CheckReminderStateChanged();
             }
         }
     }

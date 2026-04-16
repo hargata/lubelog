@@ -25,6 +25,10 @@ namespace CarCareTracker.Helper
         }
         public string Translate(string userLanguage, string text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
             bool create = bool.Parse(_config["LUBELOGGER_TRANSLATOR"] ?? "false");
             //transform input text into key.
             string translationKey = text.Replace(" ", "_");
