@@ -25,5 +25,8 @@ namespace CarCareTracker.Models
         public List<string> AvailableLocales { get; set; } = new List<string>();
         public string CookieLifeSpan { get; set; } = string.Empty;
         public KestrelAppConfig KestrelAppConfig { get; set; }
+        public bool EnableAutomatedEvents { get; set; }
+        public NotificationConfig NotificationConfig { get; set; } = new NotificationConfig();
+        public List<SkippedSetting> SkippedSettings { get; set; } = new List<SkippedSetting>();
     }
 }

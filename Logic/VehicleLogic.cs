@@ -21,6 +21,9 @@ namespace CarCareTracker.Logic
         bool UpdateRecurringTaxes(int vehicleId);
         void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription);
         KioskVehicleViewModel GetKioskVehicleInfo(int vehicleId);
+        List<string> GetVehicleThumbnails(List<Vehicle> vehicles);
+        List<string> GetVehicleDocuments(List<Vehicle> vehicles);
+        List<string> GetStoreSupplyDocuments();
     }
     public class VehicleLogic: IVehicleLogic
     {
@@ -35,6 +38,11 @@ namespace CarCareTracker.Logic
         private readonly IReminderHelper _reminderHelper;
         private readonly IVehicleDataAccess _dataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
+        private readonly INoteDataAccess _noteDataAccess;
+        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
+        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
+        private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly ILogger<VehicleLogic> _logger;
 
         public VehicleLogic(
@@ -49,6 +57,11 @@ namespace CarCareTracker.Logic
             IReminderHelper reminderHelper,
             IVehicleDataAccess dataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
+            INoteDataAccess noteDataAccess,
+            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
+            IInspectionRecordDataAccess inspectionRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
+            IEquipmentRecordDataAccess equipmentRecordDataAccess,
             ILogger<VehicleLogic> logger
             ) {
             _serviceRecordDataAccess = serviceRecordDataAccess;
@@ -62,6 +75,11 @@ namespace CarCareTracker.Logic
             _reminderHelper = reminderHelper;
             _dataAccess = dataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
+            _noteDataAccess = noteDataAccess;
+            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
+            _inspectionRecordDataAccess = inspectionRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
+            _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _logger = logger;
         }
         public VehicleRecords GetVehicleRecords(int vehicleId)
@@ -563,6 +581,42 @@ namespace CarCareTracker.Logic
                 viewModel.MostExpensiveUpgradeRecordDate = _mostExpensiveUpgradeRecord.Date;
             }
             return viewModel;
+        }
+        public List<string> GetVehicleThumbnails(List<Vehicle> vehicles)
+        {
+            List<string> vehicleImages = vehicles.Select(x => x.ImageLocation).Where(x => x.StartsWith("/images/")).Select(x => Path.GetFileName(x)).ToList();
+            return vehicleImages;
+        }
+        public List<string> GetVehicleDocuments(List<Vehicle> vehicles)
+        {
+            List<string> vehicleDocuments = new List<string>();
+            foreach (Vehicle vehicle in vehicles)
+            {
+                if (!string.IsNullOrWhiteSpace(vehicle.MapLocation))
+                {
+                    vehicleDocuments.Add(Path.GetFileName(vehicle.MapLocation));
+                }
+                vehicleDocuments.AddRange(_serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_noteDataAccess.GetNotesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_planRecordDataAccess.GetPlanRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_inspectionRecordTemplateDataAccess.GetInspectionRecordTemplatesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+            }
+            return vehicleDocuments;
+        }
+        public List<string> GetStoreSupplyDocuments()
+        {
+            List<string> vehicleDocuments = new List<string>();
+            vehicleDocuments.AddRange(_supplyRecordDataAccess.GetSupplyRecordsByVehicleId(0).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+            return vehicleDocuments;
         }
     }
 }

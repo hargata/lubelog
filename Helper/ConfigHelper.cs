@@ -11,8 +11,11 @@ namespace CarCareTracker.Helper
         OpenIDConfig GetOpenIDConfig();
         ReminderUrgencyConfig GetReminderUrgencyConfig();
         MailConfig GetMailConfig();
+        bool GetAutomatedEventsEnabled();
+        NotificationConfig GetNotificationConfig();
         UserConfig GetUserConfig(ClaimsPrincipal user);
         KestrelAppConfig GetKestrelAppConfig();
+        List<SkippedSetting> GetSkippedSettings();
         bool SaveUserConfig(ClaimsPrincipal user, UserConfig configData);
         bool SaveServerConfig(ServerConfig serverConfig);
         bool AuthenticateRootUser(string username, string password);
@@ -140,6 +143,20 @@ namespace CarCareTracker.Helper
         {
             MailConfig mailConfig = _config.GetSection("MailConfig").Get<MailConfig>() ?? new MailConfig();
             return mailConfig;
+        }
+        public List<SkippedSetting> GetSkippedSettings()
+        {
+            List<SkippedSetting> skippedSettings = _config.GetSection("SkippedSettings").Get<List<SkippedSetting>>() ?? new List<SkippedSetting>();
+            return skippedSettings;
+        }
+        public bool GetAutomatedEventsEnabled()
+        {
+            return CheckBool(CheckString("LUBELOGGER_AUTO_EVENTS"));
+        }
+        public NotificationConfig GetNotificationConfig()
+        {
+            NotificationConfig notificationConfig = _config.GetSection("NotificationConfig").Get<NotificationConfig>() ?? new NotificationConfig();
+            return notificationConfig;
         }
         public string GetLogoUrl()
         {
@@ -284,6 +301,14 @@ namespace CarCareTracker.Helper
             if (serverConfig.CookieLifeSpan == StaticHelper.DefaultCookieLifeSpan || string.IsNullOrWhiteSpace(serverConfig.CookieLifeSpan))
             {
                 serverConfig.CookieLifeSpan = null;
+            }
+            if (serverConfig.SkippedSettings == null || !serverConfig.SkippedSettings.Any())
+            {
+                serverConfig.SkippedSettings = null;
+            }
+            if (serverConfig.EnableAutomatedEvents.HasValue && !serverConfig.EnableAutomatedEvents.Value)
+            {
+                serverConfig.NotificationConfig = null;
             }
             if (serverConfig.KestrelAppConfig != null)
             {

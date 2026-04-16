@@ -19,6 +19,7 @@ namespace CarCareTracker.Controllers
         private readonly IUserLogic _userLogic;
         private readonly ILoginLogic _loginLogic;
         private readonly IVehicleLogic _vehicleLogic;
+        private readonly INotificationLogic _notificationLogic;
         private readonly IFileHelper _fileHelper;
         private readonly IConfigHelper _config;
         private readonly IExtraFieldDataAccess _extraFieldDataAccess;
@@ -32,6 +33,7 @@ namespace CarCareTracker.Controllers
             IUserLogic userLogic,
             ILoginLogic loginLogic,
             IVehicleLogic vehicleLogic,
+            INotificationLogic notificationLogic,
             IConfigHelper configuration,
             IFileHelper fileHelper,
             IExtraFieldDataAccess extraFieldDataAccess,
@@ -45,6 +47,7 @@ namespace CarCareTracker.Controllers
             _dataAccess = dataAccess;
             _config = configuration;
             _userLogic = userLogic;
+            _notificationLogic = notificationLogic;
             _fileHelper = fileHelper;
             _extraFieldDataAccess = extraFieldDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
@@ -668,9 +671,18 @@ namespace CarCareTracker.Controllers
                 DefaultReminderEmail = _config.GetDefaultReminderEmail(),
                 EnableRootUserOIDC = _config.GetEnableRootUserOIDC(),
                 CookieLifeSpan = _config.GetAuthCookieLifeSpan().ToString(),
-                KestrelAppConfig = _config.GetKestrelAppConfig()
+                KestrelAppConfig = _config.GetKestrelAppConfig(),
+                EnableAutomatedEvents = _config.GetAutomatedEventsEnabled(),
+                NotificationConfig = _config.GetNotificationConfig(),
+                SkippedSettings = _config.GetSkippedSettings()
             };
             return View(viewModel);
+        }
+        [HttpGet]
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public IActionResult GetNotificationServiceConfigPartialView()
+        {
+            return PartialView("_NotificationServiceConfig", new NotificationServiceConfig());
         }
         [HttpPost]
         [Authorize(Roles = nameof(UserData.IsRootUser))]
@@ -679,11 +691,40 @@ namespace CarCareTracker.Controllers
             var result = _config.SaveServerConfig(serverConfig);
             return Json(result);
         }
+        [HttpPost]
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         public IActionResult SendTestEmail(string emailAddress, MailConfig mailConfig)
         {
             var result = _mailHelper.SendTestEmail(emailAddress, mailConfig);
             return Json(result);
+        }
+        [HttpPost]
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
+        public async Task<IActionResult> SendTestNotification(NotificationServiceConfig serviceConfig)
+        {
+            try
+            {
+                var testReminder = new ReminderRecordViewModel
+                {
+                    Urgency = ReminderUrgency.VeryUrgent,
+                    Description = "Test"
+                };
+                var testVehicle = new Vehicle
+                {
+                    Id = 1,
+                    Year = 1992,
+                    Make = "Make",
+                    Model = "Model",
+                    LicensePlate = "Identifier",
+                    VehicleIdentifier = "LicensePlate"
+                };
+                await _notificationLogic.SendNotificationToExternalServices(serviceConfig, testReminder, testVehicle);
+                return Json(OperationResponse.Succeed("Notification Sent!"));
+            } catch (Exception ex)
+            {
+                _logger.LogError($"Error Sending Test Notification: {ex.Message}");
+                return Json(OperationResponse.Failed());
+            }
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

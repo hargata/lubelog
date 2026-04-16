@@ -1,0 +1,63 @@
+﻿@inject IConfigHelper config
+@inject ITranslationHelper translator
+@using CarCareTracker.Helper
+@model NotificationServiceConfig
+
+@{
+    var userLanguage = config.GetUserConfig(User).UserLanguage;
+    var serializedHeaders = "{}";
+    if (Model.Headers.Any())
+    {
+        serializedHeaders = System.Text.Json.JsonSerializer.Serialize(Model.Headers, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    Model.PriorityMapping.TryGetValue("NotUrgent", out string notUrgentPriority);
+    Model.PriorityMapping.TryGetValue("Urgent", out string urgentPriority);
+    Model.PriorityMapping.TryGetValue("VeryUrgent", out string veryUrgentPriority);
+    Model.PriorityMapping.TryGetValue("PastDue", out string pastDuePriority);
+}
+
+<div class="serviceConfig border rounded p-2 mt-2">
+    <div class="d-flex flex-wrap gap-2">
+        <div class="form-group flex-grow-1">
+            <label>@translator.Translate(userLanguage, "Notification Service URL")</label>
+            <input type="text" class="form-control serviceConfigUrl" value="@Model.Url">
+        </div>
+        <div class="form-group">
+            <label>@translator.Translate(userLanguage, "Content Type")</label>
+            <input type="text" class="form-control serviceConfigContentType" value="@Model.ContentType">
+        </div>
+        <div class="form-group d-flex align-items-center">
+            <button type="button" class="btn btn-outline-warning btn-sm ms-2" onclick="sendTestNotification(this)"><i class="bi bi-play-fill"></i></button>
+        </div>
+        <div class="form-group d-flex align-items-center">
+            <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="deleteNotificationServiceConfig(this)"><i class="bi bi-trash"></i></button>
+        </div>
+    </div>
+    <label class="form-label">@translator.Translate(userLanguage, "Priority Mapping")</label>
+    <div class="d-flex flex-wrap gap-2">
+        <div class="form-group flex-grow-1">
+            <label>@translator.Translate(userLanguage, "Not Urgent")</label>
+            <input type="text" class="form-control serviceConfigNotUrgentPriority" value="@(notUrgentPriority ?? string.Empty)">
+        </div>
+        <div class="form-group flex-grow-1">
+            <label>@translator.Translate(userLanguage, "Urgent")</label>
+            <input type="text" class="form-control serviceConfigUrgentPriority" value="@(urgentPriority ?? string.Empty)">
+        </div>
+        <div class="form-group flex-grow-1">
+            <label>@translator.Translate(userLanguage, "Very Urgent")</label>
+            <input type="text" class="form-control serviceConfigVeryUrgentPriority" value="@(veryUrgentPriority ?? string.Empty)">
+        </div>
+        <div class="form-group flex-grow-1">
+            <label>@translator.Translate(userLanguage, "Past Due")</label>
+            <input type="text" class="form-control serviceConfigPastDuePriority" value="@(pastDuePriority ?? string.Empty)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>@translator.Translate(userLanguage, "Headers")</label>
+        <textarea class="form-control serviceConfigHeaders" rows="5">@serializedHeaders</textarea>
+    </div>
+    <div class="form-group">
+        <label>@translator.Translate(userLanguage, "Body")</label>
+        <textarea class="form-control serviceConfigBody" rows="5">@Model.Body</textarea>
+    </div>
+</div>

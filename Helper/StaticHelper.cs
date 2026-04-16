@@ -426,6 +426,15 @@ namespace CarCareTracker.Helper
                 }
             }
         }
+        public static bool CheckConfigBoolean(IConfiguration config, string configKey)
+        {
+            var configValue = config[configKey] ?? string.Empty;
+            if (bool.TryParse(configValue, out bool result))
+            {
+                return result;
+            }
+            return false;
+        }
         public static string GetImportModeIcon(ImportMode importMode)
         {
             switch (importMode)
