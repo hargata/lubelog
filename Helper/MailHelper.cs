@@ -10,9 +10,9 @@ namespace CarCareTracker.Helper
         OperationResponse NotifyUserForRegistration(string emailAddress, string token);
         OperationResponse NotifyUserForPasswordReset(string emailAddress, string token);
         OperationResponse NotifyUserForAccountUpdate(string emailAddress, string token);
-        OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
-        OperationResponse SendBackupEmail(string fileName, byte[] fileContent, string emailAddress);
-        OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig);
+        Task<OperationResponse> NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders);
+        Task<OperationResponse> SendBackupEmail(string fileName, byte[] fileContent, string emailAddress);
+        Task<OperationResponse> SendTestEmail(string emailAddress, MailConfig testMailConfig);
     }
     public class MailHelper : IMailHelper
     {
@@ -56,7 +56,7 @@ namespace CarCareTracker.Helper
                 emailBody += $"<span style='display:block;margin-top:35px;margin-bottom:35px;'><a style='border-radius:12px;color:#fff;background-color:#0d6efd;padding:0.75rem 0.375rem;text-decoration:none;font-size:22px;' href='{cleanedURL}/Login/Registration?email={emailAddress}&token={token}' target='_blank'>{_translator.Translate(serverLanguage, "Register")}</a></span>";
             }
             emailBody += "</body></html>"; //end
-            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
+            var result = SendEmail(mailConfig, new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return OperationResponse.Succeed("Email Sent!");
@@ -91,7 +91,7 @@ namespace CarCareTracker.Helper
                 emailBody += $"<span style='display:block;margin-top:35px;margin-bottom:35px;'><a style='border-radius:12px;color:#fff;background-color:#0d6efd;padding:0.75rem 0.375rem;text-decoration:none;font-size:22px;' href='{cleanedURL}/Login/ResetPassword?email={emailAddress}&token={token}' target='_blank'>{_translator.Translate(serverLanguage, "Reset Password")}</a></span>";
             }
             emailBody += "</body></html>"; //end
-            var result = SendEmail(new List<string> { emailAddress }, emailSubject, emailBody);
+            var result = SendEmail(mailConfig, new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return OperationResponse.Succeed("Email Sent!");
@@ -101,7 +101,7 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed();
             }
         }
-        public OperationResponse SendTestEmail(string emailAddress, MailConfig testMailConfig)
+        public async Task<OperationResponse> SendTestEmail(string emailAddress, MailConfig testMailConfig)
         {
             //load mailConfig from Configuration
             var serverLanguage = _config.GetServerLanguage();
@@ -115,7 +115,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = _translator.Translate(serverLanguage, "Test Email from LubeLogger");
             string emailBody = _translator.Translate(serverLanguage, "If you are seeing this email it means your SMTP configuration is functioning correctly");
-            var result = SendEmail(testMailConfig, new List<string> { emailAddress }, emailSubject, emailBody);
+            var result = await SendEmailAsync(testMailConfig, new List<string> { emailAddress }, emailSubject, emailBody);
             if (result)
             {
                 return OperationResponse.Succeed("Email Sent!");
@@ -140,7 +140,7 @@ namespace CarCareTracker.Helper
             }
             string emailSubject = _translator.Translate(serverLanguage, "Your User Account Update Token for LubeLogger");
             string emailBody = $"{_translator.Translate(serverLanguage, "A token has been generated on your behalf, please update your account for LubeLogger using the token")}: {token}";
-            var result = SendEmail(new List<string> { emailAddress}, emailSubject, emailBody);
+            var result = SendEmail(mailConfig, new List<string> { emailAddress}, emailSubject, emailBody);
             if (result)
             {
                 return OperationResponse.Succeed("Email Sent!");
@@ -150,7 +150,7 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed();
             }
         }
-        public OperationResponse NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
+        public async Task<OperationResponse> NotifyUserForReminders(Vehicle vehicle, List<string> emailAddresses, List<ReminderRecordViewModel> reminders)
         {
             //load mailConfig from Configuration
             var mailConfig = _config.GetMailConfig();
@@ -183,7 +183,7 @@ namespace CarCareTracker.Helper
             emailBody = emailBody.Replace("{TableHeader}", tableHeader).Replace("{TableBody}", tableBody);
             try
             {
-                var result = SendEmail(emailAddresses, emailSubject, emailBody);
+                var result = await SendEmailAsync(mailConfig, emailAddresses, emailSubject, emailBody);
                 if (result)
                 {
                     return OperationResponse.Succeed("Email Sent!");
@@ -196,7 +196,7 @@ namespace CarCareTracker.Helper
                 return OperationResponse.Failed(ex.Message);
             }
         }
-        public OperationResponse SendBackupEmail(string fileName, byte[] fileContent, string emailAddress)
+        public async Task<OperationResponse> SendBackupEmail(string fileName, byte[] fileContent, string emailAddress)
         {
             //load mailConfig from Configuration
             var mailConfig = _config.GetMailConfig();
@@ -220,17 +220,17 @@ namespace CarCareTracker.Helper
 
             using (var client = new SmtpClient())
             {
-                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
+                await client.ConnectAsync(server, mailConfig.Port, SecureSocketOptions.Auto);
                 //perform authentication if either username or password is provided.
                 //do not perform authentication if neither are provided.
                 if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password))
                 {
-                    client.Authenticate(mailConfig.Username, mailConfig.Password);
+                    await client.AuthenticateAsync(mailConfig.Username, mailConfig.Password);
                 }
                 try
                 {
-                    client.Send(message);
-                    client.Disconnect(true);
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
                     return OperationResponse.Succeed("Backup Email Sent!");
                 }
                 catch (Exception ex)
@@ -240,49 +240,10 @@ namespace CarCareTracker.Helper
                 }
             }
         }
-        private bool SendEmail(List<string> emailTo, string emailSubject, string emailBody) {
-            //load mailConfig from Configuration
-            var mailConfig = _config.GetMailConfig();
+        private async Task<bool> SendEmailAsync(MailConfig mailConfig, List<string> emailTo, string emailSubject, string emailBody)
+        {
             string from = mailConfig.EmailFrom;
             var server = mailConfig.EmailServer;
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(from, from));
-            foreach(string emailRecipient in emailTo)
-            {
-                message.To.Add(new MailboxAddress(emailRecipient, emailRecipient));
-            }
-            message.Subject = emailSubject;
-
-            var builder = new BodyBuilder();
-
-            builder.HtmlBody = emailBody;
-
-            message.Body = builder.ToMessageBody();
-
-            using (var client = new SmtpClient())
-            {
-                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
-                //perform authentication if either username or password is provided.
-                //do not perform authentication if neither are provided.
-                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password)) {
-                    client.Authenticate(mailConfig.Username, mailConfig.Password);
-                }
-                try
-                {
-                    client.Send(message);
-                    client.Disconnect(true);
-                    return true;
-                } catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                    return false;
-                }
-            }
-        }
-        private bool SendEmail(MailConfig testMailConfig, List<string> emailTo, string emailSubject, string emailBody)
-        {
-            string from = testMailConfig.EmailFrom;
-            var server = testMailConfig.EmailServer;
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(from, from));
             foreach (string emailRecipient in emailTo)
@@ -299,12 +260,52 @@ namespace CarCareTracker.Helper
 
             using (var client = new SmtpClient())
             {
-                client.Connect(server, testMailConfig.Port, SecureSocketOptions.Auto);
+                await client.ConnectAsync(server, mailConfig.Port, SecureSocketOptions.Auto);
                 //perform authentication if either username or password is provided.
                 //do not perform authentication if neither are provided.
-                if (!string.IsNullOrWhiteSpace(testMailConfig.Username) || !string.IsNullOrWhiteSpace(testMailConfig.Password))
+                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password))
                 {
-                    client.Authenticate(testMailConfig.Username, testMailConfig.Password);
+                    await client.AuthenticateAsync(mailConfig.Username, mailConfig.Password);
+                }
+                try
+                {
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return false;
+                }
+            }
+        }
+        private bool SendEmail(MailConfig mailConfig, List<string> emailTo, string emailSubject, string emailBody)
+        {
+            string from = mailConfig.EmailFrom;
+            var server = mailConfig.EmailServer;
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(from, from));
+            foreach (string emailRecipient in emailTo)
+            {
+                message.To.Add(new MailboxAddress(emailRecipient, emailRecipient));
+            }
+            message.Subject = emailSubject;
+
+            var builder = new BodyBuilder();
+
+            builder.HtmlBody = emailBody;
+
+            message.Body = builder.ToMessageBody();
+
+            using (var client = new SmtpClient())
+            {
+                client.Connect(server, mailConfig.Port, SecureSocketOptions.Auto);
+                //perform authentication if either username or password is provided.
+                //do not perform authentication if neither are provided.
+                if (!string.IsNullOrWhiteSpace(mailConfig.Username) || !string.IsNullOrWhiteSpace(mailConfig.Password))
+                {
+                    client.Authenticate(mailConfig.Username, mailConfig.Password);
                 }
                 try
                 {

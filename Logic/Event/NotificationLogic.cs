@@ -106,7 +106,7 @@ namespace CarCareTracker.Logic
                             string backupFileLocation = _fileHelper.MakeBackup();
                             string fullExportFilePath = _fileHelper.GetFullFilePath(backupFileLocation, false);
                             var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
-                            var result = _mailHelper.SendBackupEmail(Path.GetFileName(backupFileLocation), fileContents, defaultEmailAddress);
+                            var result = await _mailHelper.SendBackupEmail(Path.GetFileName(backupFileLocation), fileContents, defaultEmailAddress);
                             if (result.Success)
                             {
                                 _logger.LogInformation(result.Message);
@@ -185,7 +185,7 @@ namespace CarCareTracker.Logic
                             {
                                 continue;
                             }
-                            var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                            var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                             operationResponses.Add(result);
                         }
                         if (!operationResponses.Any())
@@ -297,7 +297,7 @@ namespace CarCareTracker.Logic
                             }
                             if (emailRecipients.Any())
                             {
-                                var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, groupedNotification.ToList());
+                                var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, groupedNotification.ToList());
                                 if (result.Success)
                                 {
                                     _logger.LogInformation("Email Sent!");

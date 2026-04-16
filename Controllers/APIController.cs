@@ -431,7 +431,7 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
-        public IActionResult SendReminders(ReminderMethodParameter parameters)
+        public async Task<IActionResult> SendReminders(ReminderMethodParameter parameters)
         {
             if (parameters.Urgencies == null || !parameters.Urgencies.Any())
             {
@@ -479,7 +479,7 @@ namespace CarCareTracker.Controllers
                 {
                     return Json(OperationResponse.Failed("No Emails Sent, No Recipients Configured"));
                 }
-                var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                 operationResponses.Add(result);
             } 
             else
@@ -517,7 +517,7 @@ namespace CarCareTracker.Controllers
                     {
                         continue;
                     }
-                    var result = _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
+                    var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                     operationResponses.Add(result);
                 }
             }
@@ -575,7 +575,7 @@ namespace CarCareTracker.Controllers
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpGet]
         [Route("/api/makebackup")]
-        public IActionResult MakeBackup(string? output = "")
+        public async Task<IActionResult> MakeBackup(string? output = "")
         {
             var result = _fileHelper.MakeBackup();
             if (string.IsNullOrWhiteSpace(output))
@@ -597,7 +597,7 @@ namespace CarCareTracker.Controllers
                     //download file
                     var fullExportFilePath = _fileHelper.GetFullFilePath(result, false);
                     var fileContents = _fileHelper.GetFileBytes(fullExportFilePath);
-                    var emailResponse = _mailHelper.SendBackupEmail(Path.GetFileName(result), fileContents, defaultEmailAddress);
+                    var emailResponse = await _mailHelper.SendBackupEmail(Path.GetFileName(result), fileContents, defaultEmailAddress);
                     return Json(emailResponse);
                 } 
                 else

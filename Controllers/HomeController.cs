@@ -693,9 +693,9 @@ namespace CarCareTracker.Controllers
         }
         [HttpPost]
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult SendTestEmail(string emailAddress, MailConfig mailConfig)
+        public async Task<IActionResult> SendTestEmail(string emailAddress, MailConfig mailConfig)
         {
-            var result = _mailHelper.SendTestEmail(emailAddress, mailConfig);
+            var result = await _mailHelper.SendTestEmail(emailAddress, mailConfig);
             return Json(result);
         }
         [HttpPost]
@@ -704,21 +704,25 @@ namespace CarCareTracker.Controllers
         {
             try
             {
-                var testReminder = new ReminderRecordViewModel
+                List<ReminderUrgency> testUrgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
+                foreach(ReminderUrgency reminderUrgency in testUrgencies)
                 {
-                    Urgency = ReminderUrgency.VeryUrgent,
-                    Description = "Test"
-                };
-                var testVehicle = new Vehicle
-                {
-                    Id = 1,
-                    Year = 1992,
-                    Make = "Make",
-                    Model = "Model",
-                    LicensePlate = "Identifier",
-                    VehicleIdentifier = "LicensePlate"
-                };
-                await _notificationLogic.SendNotificationToExternalServices(serviceConfig, testReminder, testVehicle);
+                    var testReminder = new ReminderRecordViewModel
+                    {
+                        Urgency = reminderUrgency,
+                        Description = "Test"
+                    };
+                    var testVehicle = new Vehicle
+                    {
+                        Id = 1,
+                        Year = 1992,
+                        Make = "Make",
+                        Model = "Model",
+                        LicensePlate = "Identifier",
+                        VehicleIdentifier = "LicensePlate"
+                    };
+                    await _notificationLogic.SendNotificationToExternalServices(serviceConfig, testReminder, testVehicle);
+                }
                 return Json(OperationResponse.Succeed("Notification Sent!"));
             } catch (Exception ex)
             {
