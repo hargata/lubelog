@@ -1106,7 +1106,6 @@ namespace CarCareTracker.Controllers
                             {
                                 convertedRecords = importModels.Select(importModel =>
                                 {
-                                    var parsedDate = GetParsedDateFromModel(importModel);
                                     var convertedRecord = new EquipmentRecord()
                                     {
                                         VehicleId = vehicleId,
