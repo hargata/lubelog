@@ -30,6 +30,11 @@
                     <input onChange="uploadFileAsync(this, setUploadedFile)" type="file" multiple accept=".csv" class="form-control-file" id="csvFileUploader">
                 </div>
             </div>
+            <div class="row mt-2 importValidationErrorContainer">
+                <div class="col-12 importValidationError bg-secondary-subtle border rounded">
+
+                </div>
+            </div>
         </div>
     </form>
 </div>
@@ -45,11 +50,8 @@
         sloader.show();
         $.post('/Vehicle/ImportToVehicleIdFromCsv', { vehicleId: vehicleId, mode: mode, fileName: uploadedFile }, function (data) {
             sloader.hide();
-            if (isOperationResponse(data)) {
-                return;
-            }
-            else if (data) {
-                successToast("Data Imported Successfully");
+            if (data.success) {
+                successToast(data.message);
                 hideBulkImportModal();
                 if (mode == "GasRecord") {
                     getVehicleGasRecords(vehicleId);
@@ -71,7 +73,21 @@
                     getVehicleEquipmentRecords(vehicleId);
                 }
             } else {
-                errorToast(genericErrorMessage());
+                console.log(data);
+                errorToast(data.message);
+                if (data.additionalData != undefined && data.additionalData.length > 0){
+                    $('.importValidationErrorContainer').show();
+                    $('.importValidationError').html("");
+                    data.additionalData.map(x => {
+                        if (x.success){
+                            let importResult = $(`<div class='p-2 text-success'>${x.message}</div>`);
+                            $('.importValidationError').append(importResult);
+                        } else {
+                            let importResult = $(`<div class='p-2 text-danger'>${x.message}</div>`);
+                            $('.importValidationError').append(importResult);
+                        }
+                    });
+                }
             }
         });
     }
