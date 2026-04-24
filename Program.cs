@@ -15,6 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 //Additional JsonFile
 builder.Configuration.AddJsonFile(StaticHelper.UserConfigPath, optional: true, reloadOnChange: true);
 builder.Configuration.AddJsonFile(StaticHelper.ServerConfigPath, optional: true, reloadOnChange: true);
+if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_SECRETS_PATH"]))
+{
+    builder.Configuration.AddKeyPerFile(builder.Configuration["LUBELOGGER_SECRETS_PATH"] ?? string.Empty, optional: true);
+}
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
 {
