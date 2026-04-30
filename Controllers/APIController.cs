@@ -5,6 +5,7 @@ using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -139,6 +140,21 @@ namespace CarCareTracker.Controllers
             {
                 return Json(result);
             }
+        }
+        [HttpGet]
+        [Route("/api/info")]
+        public async Task<IActionResult> GetServerInformation()
+        {
+            var currentCulture = CultureInfo.CurrentCulture;
+            var viewModel = new ServerInformation
+            {
+                Locale = currentCulture.Name,
+                CurrentVersion = StaticHelper.VersionNumber,
+                CurrencySymbol = currentCulture.NumberFormat.CurrencySymbol,
+                DecimalSeparator = currentCulture.NumberFormat.NumberDecimalSeparator,
+                DateFormat = currentCulture.DateTimeFormat.ShortDatePattern
+            };
+            return Json(viewModel);
         }
         [HttpGet]
         [Route("/api/version")]
