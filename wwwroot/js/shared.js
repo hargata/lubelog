@@ -3,7 +3,7 @@
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
-const mobileScreen = window.matchMedia("(max-width: 576px)");
+const mobileScreen = window.matchMedia("(max-width: 575px)");
 var eventHubConn = undefined;
 function returnToGarage() {
     window.location.href = '/Home';

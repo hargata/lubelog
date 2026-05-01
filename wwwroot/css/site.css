@@ -281,7 +281,7 @@ html {
         }
 
 /*Media Queries*/
-@media (max-width: 576px) {
+@media (max-width: 575px) {
     .lubelogger-tab {
         display: none;
     }
