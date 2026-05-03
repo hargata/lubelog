@@ -50,6 +50,8 @@ namespace CarCareTracker.Controllers
                     Odometer = x.Mileage.ToString(),
                     Cost = x.Cost.ToString(),
                     FuelConsumed = x.Gallons.ToString(),
+                    CO2 = x.CO2.ToString(),
+                    Station = x.Station,
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
@@ -106,6 +108,8 @@ namespace CarCareTracker.Controllers
                     Odometer = x.Mileage.ToString(),
                     Cost = x.Cost.ToString(),
                     FuelConsumed = x.Gallons.ToString(),
+                    CO2 = x.CO2.ToString(),
+                    Station = x.Station,
                     FuelEconomy = x.MilesPerGallon.ToString(),
                     IsFillToFull = x.IsFillToFull.ToString(),
                     MissedFuelUp = x.MissedFuelUp.ToString(),
@@ -172,6 +176,8 @@ namespace CarCareTracker.Controllers
                     MissedFuelUp = bool.Parse(input.MissedFuelUp),
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
                     Cost = decimal.Parse(input.Cost),
+                    CO2 = string.IsNullOrWhiteSpace(input.CO2) ? 0 : decimal.Parse(input.CO2),
+                    Station = string.IsNullOrWhiteSpace(input.Station) ? "" : input.Station,
                     ExtraFields = input.ExtraFields,
                     Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
@@ -270,6 +276,8 @@ namespace CarCareTracker.Controllers
                     existingRecord.MissedFuelUp = bool.Parse(input.MissedFuelUp);
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
                     existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.CO2 = string.IsNullOrWhiteSpace(input.CO2) ? 0 : decimal.Parse(input.CO2);
+                    existingRecord.Station = string.IsNullOrWhiteSpace(input.Station) ? "" : input.Station;
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();

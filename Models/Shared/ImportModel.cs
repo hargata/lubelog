@@ -26,6 +26,8 @@ namespace CarCareTracker.Models
         public string PartialFuelUp { get; set; } = string.Empty;
         public string IsFillToFull { get; set; } = string.Empty;
         public string MissedFuelUp { get; set; } = string.Empty;
+        public string CO2 { get; set; } = string.Empty;
+        public string Station { get; set; } = string.Empty;
         public string PartNumber { get; set; } = string.Empty;
         public string PartSupplier { get; set; } = string.Empty;
         public string PartQuantity { get; set; } = string.Empty;
@@ -120,6 +122,9 @@ namespace CarCareTracker.Models
         public string FuelConsumed { get; set; } = string.Empty;
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string CO2 { get; set; } = string.Empty;
+        public string Station { get; set; } = string.Empty;
         [JsonConverter(typeof(FromDecimalOptional))]
         public string FuelEconomy { get; set; } = string.Empty;
         [JsonConverter(typeof(FromBoolOptional))]

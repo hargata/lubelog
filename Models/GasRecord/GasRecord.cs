@@ -14,6 +14,8 @@
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
+        public decimal CO2 { get; set; }
+        public string Station { get; set; } = string.Empty;
         public bool IsFillToFull { get; set; } = true;
         public bool MissedFuelUp { get; set; } = false;
         public string Notes { get; set; } = string.Empty;

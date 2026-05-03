@@ -640,6 +640,8 @@ namespace CarCareTracker.Controllers
                         Date = x.Date.ToString(),
                         Cost = x.Cost.ToString(),
                         FuelConsumed = x.Gallons.ToString(),
+                        CO2 = x.CO2.ToString(),
+                        Station = x.Station,
                         FuelEconomy = x.MilesPerGallon.ToString(),
                         Odometer = x.Mileage.ToString(),
                         IsFillToFull = x.IsFillToFull.ToString(),
@@ -745,6 +747,8 @@ namespace CarCareTracker.Controllers
                                         Date = parsedDate,
                                         Mileage = decimal.ToInt32(decimal.Parse(importModel.Odometer, NumberStyles.Any)),
                                         Gallons = decimal.Parse(importModel.FuelConsumed, NumberStyles.Any),
+                                        CO2 = string.IsNullOrWhiteSpace(importModel.CO2) ? 0 : decimal.Parse(importModel.CO2, NumberStyles.Any),
+                                        Station = string.IsNullOrWhiteSpace(importModel.Station) ? "" : importModel.Station,
                                         Notes = string.IsNullOrWhiteSpace(importModel.Notes) ? "" : importModel.Notes,
                                         Tags = string.IsNullOrWhiteSpace(importModel.Tags) ? [] : importModel.Tags.Split(" ").ToList(),
                                         ExtraFields = importModel.ExtraFields.Any() ? importModel.ExtraFields.Select(x => new ExtraField { Name = x.Key, Value = x.Value, IsRequired = requiredExtraFields.Contains(x.Key) }).ToList() : new List<ExtraField>()

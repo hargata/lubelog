@@ -151,6 +151,18 @@
                     </li>
                     <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
                         <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='co2' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_CO2">
+                            <label class="form-check-label stretched-link" for="chkCol_CO2">CO2 (kg)</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
+                            <input class="form-check-input col-visible-toggle" data-column-toggle='station' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Station">
+                            <label class="form-check-label stretched-link" for="chkCol_Station">@translator.Translate(userLanguage, "Station")</label>
+                        </div>
+                    </li>
+                    <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                        <div class="list-group-item">
                             <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Attachment">
                             <label class="form-check-label stretched-link" for="chkCol_Attachment">@translator.Translate(userLanguage, "Attachments")</label>
                         </div>
@@ -193,6 +205,8 @@
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
+                    <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="co2">CO2 (kg)</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="station">@translator.Translate(userLanguage, "Station")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
@@ -212,6 +226,8 @@
                         <td data-label="@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
                         <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
                         <td data-label="@translator.Translate(userLanguage, "Unit Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        <td data-label="CO2 (kg)" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="co2">@(gasRecord.CO2 == default ? "---" : gasRecord.CO2.ToString("F3"))</td>
+                        <td data-label="@translator.Translate(userLanguage, "Station")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="station">@StaticHelper.TruncateStrings(gasRecord.Station)</td>
                         <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", gasRecord.Files)</td>
                         <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)

@@ -15,6 +15,8 @@
         /// </summary>
         public decimal Gallons { get; set; }
         public decimal Cost { get; set; }
+        public decimal CO2 { get; set; }
+        public string Station { get; set; } = string.Empty;
         public int DeltaMileage { get; set; }
         public decimal MilesPerGallon { get; set; }
         public decimal CostPerGallon { get; set; }
