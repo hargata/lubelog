@@ -38,6 +38,7 @@ namespace CarCareTracker.Helper
         bool DeleteUserConfig(int userId);
         bool GetInvariantApi();
         bool GetWebSocketEnabled();
+        bool GetResizeThumbnailEnabled();
         bool GetServerOpenRegistration();
         string GetDefaultReminderEmail();
         int GetAuthCookieLifeSpan();
@@ -80,6 +81,10 @@ namespace CarCareTracker.Helper
         public bool GetWebSocketEnabled()
         {
             return CheckBool(CheckString("LUBELOGGER_WEB_SOCKET"));
+        }
+        public bool GetResizeThumbnailEnabled()
+        {
+            return CheckBool(CheckString("LUBELOGGER_RESIZE_THUMBNAIL"));
         }
         public string GetMOTD()
         {
@@ -273,6 +278,10 @@ namespace CarCareTracker.Helper
             if (serverConfig.WebSocketEnabled.HasValue && !serverConfig.WebSocketEnabled.Value)
             {
                 serverConfig.WebSocketEnabled = null;
+            }
+            if (serverConfig.ResizeThumbnail.HasValue && !serverConfig.ResizeThumbnail.Value)
+            {
+                serverConfig.ResizeThumbnail = null;
             }
             if (string.IsNullOrWhiteSpace(serverConfig.SMTPConfig?.EmailServer ?? string.Empty))
             {

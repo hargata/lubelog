@@ -661,6 +661,7 @@ namespace CarCareTracker.Controllers
                 CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),
                 InvariantAPIEnabled = _config.GetInvariantApi(),
                 WebSocketEnabled = _config.GetWebSocketEnabled(),
+                ResizeThumbnail = _config.GetResizeThumbnailEnabled(),
                 SMTPConfig = _config.GetMailConfig(),
                 Domain = _config.GetServerDomain(),
                 OIDCConfig = _config.GetOpenIDConfig(),

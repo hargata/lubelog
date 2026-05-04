@@ -28,5 +28,6 @@ namespace CarCareTracker.Models
         public bool EnableAutomatedEvents { get; set; }
         public NotificationConfig NotificationConfig { get; set; } = new NotificationConfig();
         public List<SkippedSetting> SkippedSettings { get; set; } = new List<SkippedSetting>();
+        public bool ResizeThumbnail { get; set; }
     }
 }

@@ -77,6 +77,7 @@ function saveSetup() {
         ServerURL: $("#inputDomain").val(),
         CustomWidgetsEnabled: $("#inputCustomWidget").val(),
         InvariantAPIEnabled: $("#inputInvariantAPI").val(),
+        ResizeThumbnail: $('#inputResizeThumbnail').val(),
         WebSocketEnabled: $("#inputWebSocket").val(),
         CookieLifeSpan: $("#inputCookieLifeSpan").val(),
         SMTPConfig: {

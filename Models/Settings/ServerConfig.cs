@@ -43,6 +43,9 @@ namespace CarCareTracker.Models
         [JsonPropertyName("LUBELOGGER_WEB_SOCKET")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? WebSocketEnabled { get; set; }
+        [JsonPropertyName("LUBELOGGER_RESIZE_THUMBNAIL")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? ResizeThumbnail { get; set; }
 
         [JsonPropertyName("MailConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

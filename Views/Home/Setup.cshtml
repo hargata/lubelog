@@ -116,6 +116,13 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="inputResizeThumbnail">@translator.Translate(userLanguage, "Resize Vehicle Thumbnails")</label>
+                <select class="form-select" id="inputResizeThumbnail">
+                    <!option value="true" @(Model.ResizeThumbnail ? "selected" : "")>@translator.Translate(userLanguage, "Enabled")</!option>
+                    <!option value="false" @(Model.ResizeThumbnail ? "" : "selected")>@translator.Translate(userLanguage, "Disabled")</!option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="inputCookieLifeSpan" class="form-label"><span>@($"{translator.Translate(userLanguage, "Auth Cookie Lifespan")} - ")</span><span class="rangeLabel">@Model.CookieLifeSpan</span><span>@($" {translator.Translate(userLanguage, "Days")}")</span></label>
                 <input type="range" class="form-range" oninput="updateRangeLabel(this)" min="1" max="90" id="inputCookieLifeSpan" value="@Model.CookieLifeSpan">
             </div>
