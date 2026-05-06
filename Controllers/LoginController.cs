@@ -112,7 +112,7 @@ namespace CarCareTracker.Controllers
             };
             return View(viewModel);
         }
-        public IActionResult GetRemoteLoginLink(string redirectURLBase64)
+        public IActionResult GetRemoteLoginLink(string redirectURLBase64, bool isPersistent)
         {
             var remoteAuthConfig = _config.GetOpenIDConfig();
             var generatedState = Guid.NewGuid().ToString().Substring(0, 8);
@@ -131,6 +131,9 @@ namespace CarCareTracker.Controllers
             {
                 Response.Cookies.Append("OIDC_REDIRECTURL", redirectURLBase64, new CookieOptions { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(5)) });
             }
+
+            Response.Cookies.Append("OIDC_PERSISTENT", isPersistent.ToString().ToLower(), new CookieOptions { Expires = DateTimeOffset.Now.AddMinutes(5) });
+
             var remoteAuthURL = remoteAuthConfig.RemoteAuthURL;
             return Json(remoteAuthURL);
         }
@@ -255,10 +258,19 @@ namespace CarCareTracker.Controllers
                                 var userData = _loginLogic.ValidateOpenIDUser(new LoginModel() { EmailAddress = userEmailAddress });
                                 if (userData.Id != default)
                                 {
+                                    var persistentCookie = Request.Cookies["OIDC_PERSISTENT"];
+
+                                    bool isPersistent = false;
+                                    if (!string.IsNullOrWhiteSpace(persistentCookie))
+                                    {
+                                        bool.TryParse(persistentCookie, out isPersistent);
+                                        Response.Cookies.Delete("OIDC_PERSISTENT");
+                                    }
+
                                     AuthCookie authCookie = new AuthCookie
                                     {
                                         UserData = userData,
-                                        ExpiresOn = DateTime.Now.AddDays(1)
+                                        ExpiresOn = DateTime.Now.AddDays(isPersistent ? _config.GetAuthCookieLifeSpan() : 1)
                                     };
                                     var serializedCookie = JsonSerializer.Serialize(authCookie);
                                     var encryptedCookie = _dataProtector.Protect(serializedCookie);

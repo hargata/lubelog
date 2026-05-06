@@ -57,11 +57,12 @@ function performPasswordReset() {
 
 function remoteLogin() {
     let currentParams = new URLSearchParams(window.location.search);
+    let isPersistent = $("#inputPersistent").is(":checked");
     let redirectUrl = currentParams.get('redirectURLBase64');
     if (redirectUrl == null) {
         redirectUrl = '';
     }
-    $.get(`/Login/GetRemoteLoginLink?redirectURLBase64=${redirectUrl}`, { redirectURLBase64: redirectUrl }, function (data) {
+    $.get(`/Login/GetRemoteLoginLink?redirectURLBase64=${redirectUrl}`, { redirectURLBase64: redirectUrl, isPersistent: isPersistent }, function (data) {
         if (data) {
             window.location.href = data;
         }
