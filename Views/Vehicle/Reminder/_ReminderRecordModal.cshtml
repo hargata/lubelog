@@ -1,11 +1,24 @@
 ﻿@using CarCareTracker.Helper
 @inject IConfigHelper config
 @inject ITranslationHelper translator
-@model ReminderRecordInput
+@model ReminderRecordInputViewModel
 @{
     var isNew = Model.Id == 0;
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    string distanceUnit;
+    if (Model.UseHours)
+    {
+        distanceUnit = @translator.Translate(userLanguage, "hours");
+    }
+    else if (userConfig.UseUKMPG)
+    {
+        distanceUnit = @translator.Translate(userLanguage, "miles");
+    }
+    else
+    {
+        distanceUnit = userConfig.UseMPG ? @translator.Translate(userLanguage, "miles") : @translator.Translate(userLanguage, "kilometers");
+    }
 }
 <div class="modal-header">
     <h5 class="modal-title">@(isNew? translator.Translate(userLanguage, "Add New Reminder") : translator.Translate(userLanguage, "Edit Reminder"))<a class="ms-1 link-body-emphasis" onclick="@(isNew ? $"createQR('add', '')" : $"createQR('id', {Model.Id})")"><i class="bi bi-qr-code"></i></a></h5>
@@ -69,24 +82,24 @@
                     </div>
                     <label for="reminderRecurringMileage">@translator.Translate(userLanguage,"Odometer")</label>
                     <select class="form-select" onchange="checkCustomMileageInterval()" id="reminderRecurringMileage" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Odometer || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
-                        <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.ReminderMileageInterval == ReminderMileageInterval.Other && Model.CustomMileageInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMileageInterval}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
-                        <!option value="FiftyMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyMiles ? "selected" : "")>50 mi. / Km</!option>
-                        <!option value="OneHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredMiles ? "selected" : "")>100 mi. / Km</!option>
-                        <!option value="FiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveHundredMiles ? "selected" : "")>500 mi. / Km</!option>
-                        <!option value="OneThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneThousandMiles ? "selected" : "")>1000 mi. / Km</!option>
-                        <!option value="ThreeThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.ThreeThousandMiles ? "selected" : "")>3000 mi. / Km</!option>
-                        <!option value="FourThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FourThousandMiles ? "selected" : "")>4000 mi. / Km</!option>
-                        <!option value="FiveThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveThousandMiles || isNew ? "selected" : "")>5000 mi. / Km</!option>
-                        <!option value="SevenThousandFiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.SevenThousandFiveHundredMiles ? "selected" : "")>7500 mi. / Km</!option>
-                        <!option value="TenThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.TenThousandMiles ? "selected" : "")>10000 mi. / Km</!option>
-                        <!option value="FifteenThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FifteenThousandMiles ? "selected" : "")>15000 mi. / Km</!option>
-                        <!option value="TwentyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.TwentyThousandMiles ? "selected" : "")>20000 mi. / Km</!option>
-                        <!option value="ThirtyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.ThirtyThousandMiles ? "selected" : "")>30000 mi. / Km</!option>
-                        <!option value="FortyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FortyThousandMiles ? "selected" : "")>40000 mi. / Km</!option>
-                        <!option value="FiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyThousandMiles ? "selected" : "")>50000 mi. / Km</!option>
-                        <!option value="SixtyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.SixtyThousandMiles ? "selected" : "")>60000 mi. / Km</!option>
-                        <!option value="OneHundredThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredThousandMiles ? "selected" : "")>100000 mi. / Km</!option>
-                        <!option value="OneHundredFiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredFiftyThousandMiles ? "selected" : "")>150000 mi. / Km</!option>
+                        <!option value="Other" @(Model.ReminderMileageInterval == ReminderMileageInterval.Other ? "selected" : "")>@(Model.ReminderMileageInterval == ReminderMileageInterval.Other && Model.CustomMileageInterval > 0 ? $"{translator.Translate(userLanguage, "Other")}: {Model.CustomMileageInterval} {distanceUnit}" : $"{translator.Translate(userLanguage, "Other")}") </!option>
+                        <!option value="FiftyMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyMiles ? "selected" : "")>50 @distanceUnit</!option>
+                        <!option value="OneHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredMiles ? "selected" : "")>100 @distanceUnit</!option>
+                        <!option value="FiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveHundredMiles ? "selected" : "")>500 @distanceUnit</!option>
+                        <!option value="OneThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneThousandMiles ? "selected" : "")>1000 @distanceUnit</!option>
+                        <!option value="ThreeThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.ThreeThousandMiles ? "selected" : "")>3000 @distanceUnit</!option>
+                        <!option value="FourThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FourThousandMiles ? "selected" : "")>4000 @distanceUnit</!option>
+                        <!option value="FiveThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiveThousandMiles || isNew ? "selected" : "")>5000 @distanceUnit</!option>
+                        <!option value="SevenThousandFiveHundredMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.SevenThousandFiveHundredMiles ? "selected" : "")>7500 @distanceUnit</!option>
+                        <!option value="TenThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.TenThousandMiles ? "selected" : "")>10000 @distanceUnit</!option>
+                        <!option value="FifteenThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FifteenThousandMiles ? "selected" : "")>15000 @distanceUnit</!option>
+                        <!option value="TwentyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.TwentyThousandMiles ? "selected" : "")>20000 @distanceUnit</!option>
+                        <!option value="ThirtyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.ThirtyThousandMiles ? "selected" : "")>30000 @distanceUnit</!option>
+                        <!option value="FortyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FortyThousandMiles ? "selected" : "")>40000 @distanceUnit</!option>
+                        <!option value="FiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.FiftyThousandMiles ? "selected" : "")>50000 @distanceUnit</!option>
+                        <!option value="SixtyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.SixtyThousandMiles ? "selected" : "")>60000 @distanceUnit</!option>
+                        <!option value="OneHundredThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredThousandMiles ? "selected" : "")>100000 @distanceUnit</!option>
+                        <!option value="OneHundredFiftyThousandMiles" @(Model.ReminderMileageInterval == ReminderMileageInterval.OneHundredFiftyThousandMiles ? "selected" : "")>150000 @distanceUnit</!option>
                     </select>
                     <label for="reminderRecurringMonth">@translator.Translate(userLanguage, "Time")</label>
                     <select class="form-select" onchange="checkCustomMonthInterval()" id="reminderRecurringMonth" @(Model.IsRecurring && (Model.Metric == ReminderMetric.Date || Model.Metric == ReminderMetric.Both) ? "" : "disabled")>
@@ -148,7 +161,8 @@
             id: @Model.Id, 
             createdFromRecord: @Model.CreatedFromRecord.ToString().ToLower(),
             mileageInterval: decodeHTMLEntities('@Model.ReminderMileageInterval.ToString()'), 
-            monthInterval: decodeHTMLEntities('@Model.ReminderMonthInterval.ToString()')
+            monthInterval: decodeHTMLEntities('@Model.ReminderMonthInterval.ToString()'),
+            distanceUnit: decodeHTMLEntities('@distanceUnit')
         }
     }
 </script>

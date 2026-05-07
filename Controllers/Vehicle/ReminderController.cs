@@ -125,16 +125,18 @@ namespace CarCareTracker.Controllers
             return Json(OperationResponse.Conditional(result, string.Empty, StaticHelper.GenericErrorMessage));
         }
         [HttpPost]
-        public IActionResult GetAddReminderRecordPartialView(ReminderRecordInput? reminderModel)
+        public IActionResult GetAddReminderRecordPartialView(ReminderRecordInputViewModel? reminderModel)
         {
-            if (reminderModel is not null)
+            if (reminderModel is null)
             {
-                return PartialView("Reminder/_ReminderRecordModal", reminderModel);
+                reminderModel = new ReminderRecordInputViewModel();
             }
-            else
+            if (reminderModel.VehicleId != default)
             {
-                return PartialView("Reminder/_ReminderRecordModal", new ReminderRecordInput());
+                var vehicleData = _dataAccess.GetVehicleById(reminderModel.VehicleId);
+                reminderModel.UseHours = vehicleData.UseHours;
             }
+            return PartialView("Reminder/_ReminderRecordModal", reminderModel);
         }
         [HttpGet]
         public IActionResult GetReminderRecordForEditById(int reminderRecordId)
@@ -145,8 +147,10 @@ namespace CarCareTracker.Controllers
             {
                 return Redirect("/Error/Unauthorized");
             }
+            var vehicleData = _dataAccess.GetVehicleById(result.VehicleId);
+            var vehicleUseHours = vehicleData.UseHours;
             //convert to Input object.
-            var convertedResult = new ReminderRecordInput
+            var convertedResult = new ReminderRecordInputViewModel
             {
                 Id = result.Id,
                 Date = result.Date.ToShortDateString(),
@@ -164,7 +168,8 @@ namespace CarCareTracker.Controllers
                 CustomMileageInterval = result.CustomMileageInterval,
                 CustomMonthInterval = result.CustomMonthInterval,
                 CustomMonthIntervalUnit = result.CustomMonthIntervalUnit,
-                Tags = result.Tags
+                Tags = result.Tags,
+                UseHours = vehicleUseHours
             };
             return PartialView("Reminder/_ReminderRecordModal", convertedResult);
         }

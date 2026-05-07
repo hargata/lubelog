@@ -20,23 +20,23 @@
         consumptionUnit = "kWh";
     } else if (useUKMPG)
     {
-        consumptionUnit = @translator.Translate(userLanguage, "liters");
+        consumptionUnit = translator.Translate(userLanguage, "liters");
     }
     else
     {
-        consumptionUnit = useMPG ? @translator.Translate(userLanguage, "gallons") : @translator.Translate(userLanguage, "liters");
+        consumptionUnit = useMPG ? translator.Translate(userLanguage, "gallons") : translator.Translate(userLanguage, "liters");
     }
     if (useHours)
     {
-        distanceUnit = @translator.Translate(userLanguage, "hours");
+        distanceUnit = translator.Translate(userLanguage, "hours");
     }
     else if (useUKMPG)
     {
-        distanceUnit = @translator.Translate(userLanguage, "miles");
+        distanceUnit = translator.Translate(userLanguage, "miles");
     }
     else
     {
-        distanceUnit = useMPG ? @translator.Translate(userLanguage, "miles") : @translator.Translate(userLanguage, "kilometers");
+        distanceUnit = useMPG ? translator.Translate(userLanguage, "miles") : translator.Translate(userLanguage, "kilometers");
     }
 }
 <div class="modal-header">
