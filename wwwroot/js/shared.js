@@ -79,8 +79,12 @@ function warnToast(message) {
         }
     })
 }
-function viewVehicle(vehicleId) {
-    window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
+function viewVehicle(vehicleId, tab) {
+    if (tab != undefined) {
+        window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}&tab=${tab}`;
+    } else {
+        window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
+    }
 }
 function saveVehicle(isEdit) {
     var vehicleId = getVehicleModelData().id;
@@ -231,7 +235,13 @@ function saveVehicle(isEdit) {
             else {
                 successToast("Vehicle Updated");
                 hideEditVehicleModal();
-                viewVehicle(vehicleId);
+                //persist current tab
+                let currentParams = new URLSearchParams(window.location.search);
+                let currentTab = currentParams.get('tab');
+                if (currentTab == undefined || currentTab == '' || currentTab == null) {
+                    currentTab = getDefaultTabName();
+                }
+                viewVehicle(vehicleId, currentTab);
             }
         } else {
             errorToast(data.message);
