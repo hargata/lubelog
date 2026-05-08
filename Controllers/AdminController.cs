@@ -37,7 +37,7 @@ namespace CarCareTracker.Controllers
             var viewModel = _loginLogic.GetAllUsers().OrderBy(x => x.Id).ToList();
             return PartialView("_Users", viewModel);
         }
-        public IActionResult GenerateNewToken(string emailAddress, bool autoNotify)
+        public async Task<IActionResult> GenerateNewToken(string emailAddress, bool autoNotify)
         {
             if (emailAddress.Contains(","))
             {
@@ -47,7 +47,7 @@ namespace CarCareTracker.Controllers
                     var trimmedEmail = emailAdd.Trim();
                     if (!string.IsNullOrWhiteSpace(trimmedEmail))
                     {
-                        var result = _loginLogic.GenerateUserToken(emailAdd.Trim(), autoNotify);
+                        var result = await _loginLogic.GenerateUserToken(emailAdd.Trim(), autoNotify);
                         if (!result.Success)
                         {
                             //if fail, return prematurely
@@ -59,7 +59,7 @@ namespace CarCareTracker.Controllers
                 return Json(successResponse);
             } else
             {
-                var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
+                var result = await _loginLogic.GenerateUserToken(emailAddress, autoNotify);
                 return Json(result);
             }
         }

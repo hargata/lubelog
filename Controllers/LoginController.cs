@@ -567,15 +567,15 @@ namespace CarCareTracker.Controllers
             return Json(result);
         }
         [HttpPost]
-        public IActionResult SendRegistrationToken(LoginModel credentials)
+        public async Task<IActionResult> SendRegistrationToken(LoginModel credentials)
         {
-            var result = _loginLogic.SendRegistrationToken(credentials);
+            var result = await _loginLogic.SendRegistrationToken(credentials);
             return Json(result);
         }
         [HttpPost]
-        public IActionResult RequestResetPassword(LoginModel credentials)
+        public async Task<IActionResult> RequestResetPassword(LoginModel credentials)
         {
-            var result = _loginLogic.RequestResetPassword(credentials);
+            var result = await _loginLogic.RequestResetPassword(credentials);
             return Json(result);
         }
         [HttpPost]

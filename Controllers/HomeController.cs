@@ -198,7 +198,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_ExtraFields", recordExtraFields);
         }
         [HttpPost]
-        public IActionResult GenerateTokenForUser()
+        public async Task<IActionResult> GenerateTokenForUser()
         {
             try
             {
@@ -206,7 +206,7 @@ namespace CarCareTracker.Controllers
                 var emailAddress = User.FindFirstValue(ClaimTypes.Email);
                 if (!string.IsNullOrWhiteSpace(emailAddress))
                 {
-                    var result = _loginLogic.GenerateTokenForEmailAddress(emailAddress, false);
+                    var result = await _loginLogic.GenerateTokenForEmailAddress(emailAddress, false);
                     return Json(result);
                 }
                 return Json(false);

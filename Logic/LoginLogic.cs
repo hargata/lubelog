@@ -13,23 +13,23 @@ namespace CarCareTracker.Logic
     {
         bool MakeUserAdmin(int userId, bool isAdmin);
         string GenerateOIDCUserToken(string emailAddress);
-        OperationResponse GenerateUserToken(string emailAddress, bool autoNotify);
+        Task<OperationResponse> GenerateUserToken(string emailAddress, bool autoNotify);
         bool DeleteUserToken(int tokenId);
         bool DeleteUser(int userId);
         OperationResponse RegisterOpenIdUser(LoginModel credentials);
         OperationResponse UpdateUserDetails(int userId, LoginModel credentials);
         OperationResponse RegisterNewUser(LoginModel credentials);
-        OperationResponse RequestResetPassword(LoginModel credentials);
+        Task<OperationResponse> RequestResetPassword(LoginModel credentials);
         OperationResponse ResetPasswordByUser(LoginModel credentials);
         OperationResponse ResetUserPassword(LoginModel credentials);
-        OperationResponse SendRegistrationToken(LoginModel credentials);
+        Task<OperationResponse> SendRegistrationToken(LoginModel credentials);
         UserData ValidateUserCredentials(LoginModel credentials);
         UserData ValidateOpenIDUser(LoginModel credentials);
         UserData ValidateAPIKey(string apiKey);
         bool CheckIfUserIsValid(int userId);
         bool CreateRootUserCredentials(LoginModel credentials);
         bool DeleteRootUserCredentials();
-        bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
+        Task<bool> GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset);
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
         KeyValuePair<string, string> GetPKCEChallengeCode();
@@ -196,11 +196,12 @@ namespace CarCareTracker.Logic
                 return OperationResponse.Failed();
             }
         }
-        public OperationResponse SendRegistrationToken(LoginModel credentials)
+        public async Task<OperationResponse> SendRegistrationToken(LoginModel credentials)
         {
             if (_configHelper.GetServerOpenRegistration())
             {
-                return GenerateUserToken(credentials.EmailAddress, true);
+                var response = await GenerateUserToken(credentials.EmailAddress, true);
+                return response;
             } else
             {
                 return OperationResponse.Failed("Open Registration Disabled");
@@ -211,13 +212,13 @@ namespace CarCareTracker.Logic
         /// </summary>
         /// <param name="credentials"></param>
         /// <returns></returns>
-        public OperationResponse RequestResetPassword(LoginModel credentials)
+        public async Task<OperationResponse> RequestResetPassword(LoginModel credentials)
         {
             var existingUser = _userData.GetUserRecordByUserName(credentials.UserName);
             if (existingUser.Id != default)
             {
                 //user exists, generate a token and send email.
-                GenerateTokenForEmailAddress(existingUser.EmailAddress, true);
+                await GenerateTokenForEmailAddress(existingUser.EmailAddress, true);
             }
             //for security purposes we want to always return true for this method.
             //otherwise someone can spam the reset password method to sniff out users.
@@ -361,7 +362,7 @@ namespace CarCareTracker.Logic
                 return string.Empty;
             }
         }
-        public OperationResponse GenerateUserToken(string emailAddress, bool autoNotify)
+        public async Task<OperationResponse> GenerateUserToken(string emailAddress, bool autoNotify)
         {
             //check if email address already has a token attached to it.
             var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
@@ -369,7 +370,7 @@ namespace CarCareTracker.Logic
             {
                 if (autoNotify) //re-send email
                 {
-                    var notificationResult = _mailHelper.NotifyUserForRegistration(emailAddress, existingToken.Body);
+                    var notificationResult = await _mailHelper.NotifyUserForRegistration(emailAddress, existingToken.Body);
                     if (notificationResult.Success)
                     {
                         return OperationResponse.Failed($"There is an existing token tied to {emailAddress}, a new email has been sent out");
@@ -388,7 +389,8 @@ namespace CarCareTracker.Logic
             var result = _tokenData.CreateNewToken(token);
             if (result && autoNotify)
             {
-                result = _mailHelper.NotifyUserForRegistration(emailAddress, token.Body).Success;
+                var emailResponse = await _mailHelper.NotifyUserForRegistration(emailAddress, token.Body);
+                result = emailResponse.Success;
                 if (!result)
                 {
                     return OperationResponse.Failed("Token Generated, but Email failed to send, please check your SMTP settings.");
@@ -513,11 +515,12 @@ namespace CarCareTracker.Logic
             var encodedChallengeCode = Base64UrlEncoder.Encode(hashedCode);
             return new KeyValuePair<string, string>(verifierCode, encodedChallengeCode);
         }
-        public bool GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
+        public async Task<bool> GenerateTokenForEmailAddress(string emailAddress, bool isPasswordReset)
         {
             bool result = false;
             //check if there is already a token tied to this email address.
             var existingToken = _tokenData.GetTokenRecordByEmailAddress(emailAddress);
+            var tokenToSend = string.Empty;
             if (existingToken.Id == default)
             {
                 //no token, generate one and send.
@@ -529,12 +532,17 @@ namespace CarCareTracker.Logic
                 result = _tokenData.CreateNewToken(token);
                 if (result)
                 {
-                    result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, token.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, token.Body).Success;
+                    tokenToSend = token.Body;
                 }
             } else
             {
                 //token exists, send it again.
-                result = isPasswordReset ? _mailHelper.NotifyUserForPasswordReset(emailAddress, existingToken.Body).Success : _mailHelper.NotifyUserForAccountUpdate(emailAddress, existingToken.Body).Success;
+                tokenToSend = existingToken.Body;
+            }
+            if (!string.IsNullOrWhiteSpace(tokenToSend))
+            {
+                var emailResponse = isPasswordReset ? await _mailHelper.NotifyUserForPasswordReset(emailAddress, tokenToSend) : await _mailHelper.NotifyUserForAccountUpdate(emailAddress, tokenToSend);
+                result = emailResponse.Success;
             }
             return result;
         }
