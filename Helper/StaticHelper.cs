@@ -1095,5 +1095,9 @@ namespace CarCareTracker.Helper
             }
             return outputVerbiage;
         }
+        public static bool GetPathAllowAPIKeyAuth(PathString path)
+        {
+            return path.StartsWithSegments("/api") || path.StartsWithSegments("/kiosk") || path.StartsWithSegments("/images") || path.StartsWithSegments("/documents");
+        }
     }
 }
