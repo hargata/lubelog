@@ -152,6 +152,19 @@ function usePlannerRecordTemplate(planRecordTemplateId) {
         }
     });
 }
+function convertPlannerRecordToTemplate(planRecordId) {
+    $.post(`/Vehicle/ConvertPlanRecordToPlanRecordTemplate?planRecordId=${planRecordId}`, function (data) {
+        if (data.success) {
+            var vehicleId = GetVehicleId().vehicleId;
+            successToast(data.message);
+            hidePlanRecordTemplatesModal();
+            saveScrollPosition();
+            getVehiclePlanRecords(vehicleId);
+        } else {
+            errorToast(data.message);
+        }
+    });
+}
 
 function deletePlannerRecordTemplate(planRecordTemplateId) {
     $("#workAroundInput").show();
@@ -371,6 +384,9 @@ function configurePlanTableContextMenu(planRecordId, currentSwimLane) {
     });
     $(".context-menu-duplicate-vehicle").on('click', () => {
         duplicateRecordsToOtherVehicles(planRecordIdArray, 'PlanRecord');
+    });
+    $(".context-menu-create-template").on('click', () => {
+        convertPlannerRecordToTemplate(planRecordIdArray);
     });
     $(".context-menu-move.move-planned").on('click', () => {
         draggedId = planRecordId;

@@ -178,6 +178,87 @@ namespace CarCareTracker.Controllers
             var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord.ToPlanRecord());
             return Json(OperationResponse.Conditional(result, "Plan Record Added", StaticHelper.GenericErrorMessage));
         }
+        [HttpPost]
+        public IActionResult ConvertPlanRecordToPlanRecordTemplate(int planRecordId)
+        {
+            var existingRecord = _planRecordDataAccess.GetPlanRecordById(planRecordId);
+            if (existingRecord.Id == default)
+            {
+                return Json(OperationResponse.Failed("Unable to find plan record"));
+            }
+            //security check.
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
+            //check if template name already taken.
+            var existingTemplateRecord = _planRecordTemplateDataAccess.GetPlanRecordTemplatesByVehicleId(existingRecord.VehicleId).Any(x => x.Description == existingRecord.Description);
+            if (existingTemplateRecord)
+            {
+                return Json(OperationResponse.Failed("A template with that description already exists for this vehicle"));
+            }
+            var planRecordTemplate = new PlanRecordInput()
+            {
+                VehicleId = existingRecord.VehicleId,
+                Description = existingRecord.Description,
+                Notes = existingRecord.Notes,
+                Files = existingRecord.Files,
+                ImportMode = existingRecord.ImportMode,
+                Priority = existingRecord.Priority,
+                Progress = existingRecord.Progress,
+                Cost = existingRecord.Cost,
+                ExtraFields = existingRecord.ExtraFields
+            };
+            if (existingRecord.ReminderRecordId != default)
+            {
+                //check if reminder still exists and is still recurring.
+                var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
+                if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                {
+                    return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Unable to Create Template."));
+                }
+                planRecordTemplate.ReminderRecordId = existingRecord.ReminderRecordId;
+            }
+            else if (existingRecord.ReminderRecordIds.Any())
+            {
+                foreach (int reminderRecordId in existingRecord.ReminderRecordIds)
+                {
+                    //check if reminder still exists and is still recurring.
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderRecordId);
+                    if (existingReminder is null || existingReminder.Id == default || !existingReminder.IsRecurring)
+                    {
+                        return Json(OperationResponse.Failed("Missing or Non-recurring Reminder, Unable to Create Template."));
+                    }
+                    planRecordTemplate.ReminderRecordIds = existingRecord.ReminderRecordIds;
+                }
+            }
+            if (existingRecord.RequisitionHistory.Any())
+            {
+                foreach(SupplyUsageHistory supplyUsageHistory in existingRecord.RequisitionHistory)
+                {
+                    //check if supply still exists.
+                    if (supplyUsageHistory.Id != default)
+                    {
+                        planRecordTemplate.Supplies.Add(new SupplyUsage { SupplyId = supplyUsageHistory.Id, Quantity = supplyUsageHistory.Quantity });
+                    }
+                }
+            }
+            if (planRecordTemplate.Supplies.Any())
+            {
+                //check if all supplies are available
+                var supplyAvailability = CheckSupplyRecordsAvailability(planRecordTemplate.Supplies);
+                if (supplyAvailability.Any(x => x.Missing))
+                {
+                    return Json(OperationResponse.Failed("Missing Supplies, Unable to Create Template."));
+                }
+                else if (supplyAvailability.Any(x => x.Insufficient))
+                {
+                    return Json(OperationResponse.Failed("Insufficient Supplies"));
+                }
+            }
+            var result = _planRecordTemplateDataAccess.SavePlanRecordTemplateToVehicle(planRecordTemplate);
+            return Json(OperationResponse.Conditional(result, "Plan Record Template Created", StaticHelper.GenericErrorMessage));
+        }
         [HttpGet]
         public IActionResult GetAddPlanRecordPartialView()
         {
