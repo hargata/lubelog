@@ -46,3 +46,13 @@
         </tbody>
     </table>
 </div>
+<div class="modal-footer">
+    @if (Model.UserCanResetPassword)
+    {
+        <button type="button" class="btn btn-warning" onclick="adminRevokeUserPassword(@Model.ParentUserId)">@translator.Translate(userLanguage, "Revoke Password")</button>
+    } 
+    else
+    {
+        <button type="button" class="btn btn-warning" onclick="adminResetUserPassword(@Model.ParentUserId)">@translator.Translate(userLanguage, "Reset Password")</button>
+    }
+</div>

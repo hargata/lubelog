@@ -34,6 +34,8 @@ namespace CarCareTracker.Logic
         List<Token> GetAllTokens();
         KeyValuePair<string, string> GetPKCEChallengeCode();
         bool GetUserCanResetPassword(int userId);
+        OperationResponse RevokeUserPassword(int userId);
+        OperationResponse ResetUserPassword(int userId);
     }
     public class LoginLogic : ILoginLogic
     {
@@ -343,6 +345,42 @@ namespace CarCareTracker.Logic
                 return false;
             }
             return !string.IsNullOrWhiteSpace(result.Password);
+        }
+        public OperationResponse RevokeUserPassword(int userId)
+        {
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return OperationResponse.Failed("Unable to locate user");
+            }
+            existingUser.Password = string.Empty;
+            var result = _userData.SaveUserRecord(existingUser);
+            if (result)
+            {
+                return OperationResponse.Succeed("Password Revoked");
+            }
+            else
+            {
+                return OperationResponse.Failed();
+            }
+        }
+        public OperationResponse ResetUserPassword(int userId)
+        {
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return OperationResponse.Failed("Unable to locate user");
+            }
+            existingUser.Password = StaticHelper.GetHash(NewToken());
+            var result = _userData.SaveUserRecord(existingUser);
+            if (result)
+            {
+                return OperationResponse.Succeed("Password Reset");
+            }
+            else
+            {
+                return OperationResponse.Failed();
+            }
         }
         #region "Admin Functions"
         public bool MakeUserAdmin(int userId, bool isAdmin)
