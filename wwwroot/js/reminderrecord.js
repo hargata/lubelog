@@ -72,7 +72,7 @@ function checkCustomMileageInterval() {
         }).then(function (result) {
             if (result.isConfirmed) {
                 customMileageInterval = result.value.customMileage;
-                $("#reminderRecurringMileage > option[value='Other']").text(`Other: ${result.value.customMileage}`);
+                $("#reminderRecurringMileage > option[value='Other']").text(`Other: ${result.value.customMileage} ${getReminderRecordModelData().distanceUnit}`);
             } else {
                 $("#reminderRecurringMileage").val(getReminderRecordModelData().mileageInterval);
             }

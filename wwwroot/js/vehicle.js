@@ -246,6 +246,7 @@ function deleteVehicle(vehicleId) {
 function showAddReminderModal(reminderModalInput) {
     if (reminderModalInput != undefined) {
         reminderModalInput['createdFromRecord'] = true;
+        reminderModalInput['vehicleId'] = GetVehicleId().vehicleId;
         $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: reminderModalInput }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
@@ -253,7 +254,8 @@ function showAddReminderModal(reminderModalInput) {
             $("#reminderRecordModal").modal("show");
         });
     } else {
-        $.post('/Vehicle/GetAddReminderRecordPartialView', function (data) {
+        let blankReminderModal = { vehicleId: GetVehicleId().vehicleId };
+        $.post('/Vehicle/GetAddReminderRecordPartialView', { reminderModel: blankReminderModal }, function (data) {
             $("#reminderRecordModalContent").html(data);
             initDatePicker($('#reminderDate'), true);
             initTagSelector($("#reminderRecordTag"));

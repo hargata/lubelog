@@ -198,7 +198,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_ExtraFields", recordExtraFields);
         }
         [HttpPost]
-        public IActionResult GenerateTokenForUser()
+        public async Task<IActionResult> GenerateTokenForUser()
         {
             try
             {
@@ -206,7 +206,7 @@ namespace CarCareTracker.Controllers
                 var emailAddress = User.FindFirstValue(ClaimTypes.Email);
                 if (!string.IsNullOrWhiteSpace(emailAddress))
                 {
-                    var result = _loginLogic.GenerateTokenForEmailAddress(emailAddress, false);
+                    var result = await _loginLogic.GenerateTokenForEmailAddress(emailAddress, false);
                     return Json(result);
                 }
                 return Json(false);
@@ -241,7 +241,8 @@ namespace CarCareTracker.Controllers
         {
             var emailAddress = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
             var userName = User?.Identity?.Name ?? string.Empty;
-            return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
+            bool userCanResetPassword = _loginLogic.GetUserCanResetPassword(GetUserID());
+            return PartialView("_AccountModal", new UserDataViewModel() { EmailAddress = emailAddress, UserName = userName, CanResetPassword = userCanResetPassword });
         }
         [HttpGet]
         public IActionResult GetHouseholdModal()
@@ -661,6 +662,7 @@ namespace CarCareTracker.Controllers
                 CustomWidgetsEnabled = _config.GetCustomWidgetsEnabled(),
                 InvariantAPIEnabled = _config.GetInvariantApi(),
                 WebSocketEnabled = _config.GetWebSocketEnabled(),
+                ResizeThumbnail = _config.GetResizeThumbnailEnabled(),
                 SMTPConfig = _config.GetMailConfig(),
                 Domain = _config.GetServerDomain(),
                 OIDCConfig = _config.GetOpenIDConfig(),

@@ -255,4 +255,24 @@
         }
     });
     }
+    function adminRevokeUserPassword(userId){
+        $.post('/Admin/RevokeUserPassword', {userId: userId}, function(data){
+        if (data.success) {
+            successToast(data.message);
+            loadUserHousehold(userId);
+        } else {
+            errorToast(data.message);
+        }
+        });
+    }
+    function adminResetUserPassword(userId){
+        $.post('/Admin/ResetUserPassword', {userId: userId}, function(data){
+        if (data.success) {
+            successToast(data.message);
+            loadUserHousehold(userId);
+        } else {
+            errorToast(data.message);
+        }
+        });
+    }
 </script>

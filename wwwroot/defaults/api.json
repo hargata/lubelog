@@ -1721,6 +1721,14 @@
             ]
          },
          {
+            "path":"/api/info",
+            "description":"Gets server information for LubeLogger instance",
+            "methodType":0,
+            "queryParams":[
+
+            ]
+         },
+         {
             "path":"/api/version",
             "description":"Gets current version for LubeLogger instance",
             "methodType":0,

@@ -37,7 +37,7 @@ namespace CarCareTracker.Controllers
             var viewModel = _loginLogic.GetAllUsers().OrderBy(x => x.Id).ToList();
             return PartialView("_Users", viewModel);
         }
-        public IActionResult GenerateNewToken(string emailAddress, bool autoNotify)
+        public async Task<IActionResult> GenerateNewToken(string emailAddress, bool autoNotify)
         {
             if (emailAddress.Contains(","))
             {
@@ -47,7 +47,7 @@ namespace CarCareTracker.Controllers
                     var trimmedEmail = emailAdd.Trim();
                     if (!string.IsNullOrWhiteSpace(trimmedEmail))
                     {
-                        var result = _loginLogic.GenerateUserToken(emailAdd.Trim(), autoNotify);
+                        var result = await _loginLogic.GenerateUserToken(emailAdd.Trim(), autoNotify);
                         if (!result.Success)
                         {
                             //if fail, return prematurely
@@ -59,7 +59,7 @@ namespace CarCareTracker.Controllers
                 return Json(successResponse);
             } else
             {
-                var result = _loginLogic.GenerateUserToken(emailAddress, autoNotify);
+                var result = await _loginLogic.GenerateUserToken(emailAddress, autoNotify);
                 return Json(result);
             }
         }
@@ -94,7 +94,8 @@ namespace CarCareTracker.Controllers
             {
                 households = households.OrderBy(x => x.UserName).ToList();
             }
-            var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId };
+            var userCanResetPassword = _loginLogic.GetUserCanResetPassword(userId);
+            var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId, UserCanResetPassword = userCanResetPassword };
             return PartialView("_AdminUserHouseholdModal", viewModel);
         }
         [HttpPost]
@@ -113,6 +114,18 @@ namespace CarCareTracker.Controllers
         public IActionResult ModifyUserHouseholdPermissions(int parentUserId, int childUserId, List<HouseholdPermission> permissions)
         {
             var result = _userLogic.UpdateUserHousehold(parentUserId, childUserId, permissions);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult RevokeUserPassword(int userId)
+        {
+            var result = _loginLogic.RevokeUserPassword(userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult ResetUserPassword(int userId)
+        {
+            var result = _loginLogic.ResetUserPassword(userId);
             return Json(result);
         }
     }

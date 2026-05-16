@@ -3,7 +3,7 @@
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
-const mobileScreen = window.matchMedia("(max-width: 576px)");
+const mobileScreen = window.matchMedia("(max-width: 575px)");
 var eventHubConn = undefined;
 function returnToGarage() {
     window.location.href = '/Home';
@@ -79,8 +79,12 @@ function warnToast(message) {
         }
     })
 }
-function viewVehicle(vehicleId) {
-    window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
+function viewVehicle(vehicleId, tab) {
+    if (tab != undefined) {
+        window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}&tab=${tab}`;
+    } else {
+        window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}`;
+    }
 }
 function saveVehicle(isEdit) {
     var vehicleId = getVehicleModelData().id;
@@ -231,7 +235,13 @@ function saveVehicle(isEdit) {
             else {
                 successToast("Vehicle Updated");
                 hideEditVehicleModal();
-                viewVehicle(vehicleId);
+                //persist current tab
+                let currentParams = new URLSearchParams(window.location.search);
+                let currentTab = currentParams.get('tab');
+                if (currentTab == undefined || currentTab == '' || currentTab == null) {
+                    currentTab = getDefaultTabName();
+                }
+                viewVehicle(vehicleId, currentTab);
             }
         } else {
             errorToast(data.message);
@@ -269,31 +279,35 @@ function uploadMap(event) {
 }
 function uploadThumbnail(event) {
     var originalImage = event.files[0];
-    var maxHeight = 290;
-    try {
-        //load image and perform Hermite resize
-        var img = new Image();
-        img.onload = function () {
-            URL.revokeObjectURL(img.src);
-            var imgWidth = img.width;
-            var imgHeight = img.height;
-            if (imgHeight > maxHeight) {
-                //only scale if height is greater than threshold
-                var imgScale = maxHeight / imgHeight;
-                var newImgWidth = imgWidth * imgScale;
-                var newImgHeight = imgHeight * imgScale;
-                var resizedCanvas = hermiteResize(img, newImgWidth, newImgHeight);
-                resizedCanvas.toBlob((blob) => {
-                    let file = new File([blob], originalImage.name, { type: "image/jpeg" });
-                    uploadFileAsync(file, setUploadedFile);
-                }, 'image/jpeg');
-            } else {
-                uploadFileAsync(originalImage, setUploadedFile);
+    if (getGlobalConfig().resizeThumbnailEnabled) {
+        let maxHeight = 290;
+        try {
+            //load image and perform Hermite resize
+            var img = new Image();
+            img.onload = function () {
+                URL.revokeObjectURL(img.src);
+                var imgWidth = img.width;
+                var imgHeight = img.height;
+                if (imgHeight > maxHeight) {
+                    //only scale if height is greater than threshold
+                    var imgScale = maxHeight / imgHeight;
+                    var newImgWidth = imgWidth * imgScale;
+                    var newImgHeight = imgHeight * imgScale;
+                    var resizedCanvas = hermiteResize(img, newImgWidth, newImgHeight);
+                    resizedCanvas.toBlob((blob) => {
+                        let file = new File([blob], originalImage.name, { type: "image/jpeg" });
+                        uploadFileAsync(file, setUploadedFile);
+                    }, 'image/jpeg');
+                } else {
+                    uploadFileAsync(originalImage, setUploadedFile);
+                }
             }
+            img.src = URL.createObjectURL(originalImage);
+        } catch (error) {
+            console.log(`Error while attempting to upload and resize thumbnail - ${error}`);
+            uploadFileAsync(originalImage, setUploadedFile);
         }
-        img.src = URL.createObjectURL(originalImage);
-    } catch (error) {
-        console.log(`Error while attempting to upload and resize thumbnail - ${error}`);
+    } else {
         uploadFileAsync(originalImage, setUploadedFile);
     }
 }

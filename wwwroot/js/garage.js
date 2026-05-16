@@ -335,7 +335,7 @@ function viewVehicleWithTab(vehicleIds, tab) {
         return;
     }
     let vehicleId = vehicleIds[0];
-    window.location.href = `/Vehicle/Index?vehicleId=${vehicleId}&tab=${tab}`;
+    ViewVehicle(vehicleId, tab);
 }
 function handleGarageItemClick(e, vehicleId) {
     if (!(event.ctrlKey || event.metaKey)) {

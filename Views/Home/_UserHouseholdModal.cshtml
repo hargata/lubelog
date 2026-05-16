@@ -34,15 +34,15 @@
                     @foreach (UserHouseholdViewModel viewModel in Model.Households)
                     {
                         <tr class="d-flex">
-                            <td class="col-6">@viewModel.UserName</td>
-                            <td class="col-4">
+                            <td class="col-6 d-flex align-items-center">@viewModel.UserName</td>
+                            <td class="col-4 d-flex align-items-center">
                                 <select class="form-select" onchange="modifyUserHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)">
                                     <!option @(!viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="viewer">@translator.Translate(userLanguage, "Viewer")</!option>
                                     <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && !viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="editor">@translator.Translate(userLanguage, "Editor")</!option>
                                     <!option @(viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Edit) && viewModel.UserHousehold.Permissions.Contains(HouseholdPermission.Delete) ? "selected" : "") value="manager">@translator.Translate(userLanguage, "Manager")</!option>
                                 </select>
                             </td>
-                            <td class="col-2">
+                            <td class="col-2 d-flex align-items-center">
                                 <button type="button" class="btn btn-danger" onclick="removeUserFromHousehold(@viewModel.UserHousehold.Id.ChildUserId, this)"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>

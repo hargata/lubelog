@@ -17,6 +17,7 @@
     var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
     var userLanguage = userConfig.UserLanguage;
     var webSocketEnabled = config.GetWebSocketEnabled();
+    var resizeThumbnailEnabled = config.GetResizeThumbnailEnabled();
     shortDatePattern = shortDatePattern.ToLower();
     if (!shortDatePattern.Contains("dd"))
     {
@@ -72,6 +73,7 @@
                 useThreeDecimals: "@useThreeDecimals" == "True",
                 useMPG: "@useMPG" == "True",
                 webSocketEnabled: "@webSocketEnabled" == "True",
+                resizeThumbnailEnabled: "@resizeThumbnailEnabled" == "True",
                 firstDayOfWeek: @firstDayOfWeek
             }
         }

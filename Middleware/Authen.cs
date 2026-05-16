@@ -153,7 +153,7 @@ namespace CarCareTracker.Middleware
                         return AuthenticateResult.Fail("Corrupted credentials");
                     }
                 } 
-                else if (!string.IsNullOrWhiteSpace(apikey_header) && _httpContext.HttpContext != null && (_httpContext.HttpContext.Request.Path.StartsWithSegments("/api") || _httpContext.HttpContext.Request.Path.StartsWithSegments("/kiosk")))
+                else if (!string.IsNullOrWhiteSpace(apikey_header) && _httpContext.HttpContext != null && StaticHelper.GetPathAllowAPIKeyAuth(_httpContext.HttpContext.Request.Path))
                 {
                     //only do API Key Auth for API methods
                     var userData = _loginLogic.ValidateAPIKey(apikey_header);
