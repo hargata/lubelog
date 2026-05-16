@@ -241,7 +241,8 @@ namespace CarCareTracker.Controllers
         {
             var emailAddress = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
             var userName = User?.Identity?.Name ?? string.Empty;
-            return PartialView("_AccountModal", new UserData() { EmailAddress = emailAddress, UserName = userName });
+            bool userCanResetPassword = _loginLogic.GetUserCanResetPassword(GetUserID());
+            return PartialView("_AccountModal", new UserDataViewModel() { EmailAddress = emailAddress, UserName = userName, CanResetPassword = userCanResetPassword });
         }
         [HttpGet]
         public IActionResult GetHouseholdModal()

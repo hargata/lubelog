@@ -94,7 +94,8 @@ namespace CarCareTracker.Controllers
             {
                 households = households.OrderBy(x => x.UserName).ToList();
             }
-            var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId };
+            var userCanResetPassword = _loginLogic.GetUserCanResetPassword(userId);
+            var viewModel = new UserHouseholdAdminViewModel { Households = households, ParentUserId = userId, UserCanResetPassword = userCanResetPassword };
             return PartialView("_AdminUserHouseholdModal", viewModel);
         }
         [HttpPost]
@@ -113,6 +114,18 @@ namespace CarCareTracker.Controllers
         public IActionResult ModifyUserHouseholdPermissions(int parentUserId, int childUserId, List<HouseholdPermission> permissions)
         {
             var result = _userLogic.UpdateUserHousehold(parentUserId, childUserId, permissions);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult RevokeUserPassword(int userId)
+        {
+            var result = _loginLogic.RevokeUserPassword(userId);
+            return Json(result);
+        }
+        [HttpPost]
+        public IActionResult ResetUserPassword(int userId)
+        {
+            var result = _loginLogic.ResetUserPassword(userId);
             return Json(result);
         }
     }

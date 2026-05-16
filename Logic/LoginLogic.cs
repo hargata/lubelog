@@ -33,6 +33,9 @@ namespace CarCareTracker.Logic
         List<UserData> GetAllUsers();
         List<Token> GetAllTokens();
         KeyValuePair<string, string> GetPKCEChallengeCode();
+        bool GetUserCanResetPassword(int userId);
+        OperationResponse RevokeUserPassword(int userId);
+        OperationResponse ResetUserPassword(int userId);
     }
     public class LoginLogic : ILoginLogic
     {
@@ -105,9 +108,9 @@ namespace CarCareTracker.Logic
                 }
                 existingUser.EmailAddress = credentials.EmailAddress;
             }
-            if (!string.IsNullOrWhiteSpace(credentials.Password))
+            if (!string.IsNullOrWhiteSpace(existingUser.Password) && !string.IsNullOrWhiteSpace(credentials.Password))
             {
-                //update password
+                //update password only for non OIDC users
                 existingUser.Password = StaticHelper.GetHash(credentials.Password);
             }
             //delete token
@@ -141,7 +144,7 @@ namespace CarCareTracker.Logic
             var newUser = new UserData()
             {
                 UserName = credentials.UserName,
-                Password = StaticHelper.GetHash(NewToken()), //generate a password for OpenID User
+                Password = string.Empty, //OIDC users have empty passwords
                 EmailAddress = credentials.EmailAddress
             };
             var result = _userData.SaveUserRecord(newUser);
@@ -215,7 +218,7 @@ namespace CarCareTracker.Logic
         public async Task<OperationResponse> RequestResetPassword(LoginModel credentials)
         {
             var existingUser = _userData.GetUserRecordByUserName(credentials.UserName);
-            if (existingUser.Id != default)
+            if (existingUser.Id != default && !string.IsNullOrWhiteSpace(existingUser.Password)) //only send email for non-OIDC user
             {
                 //user exists, generate a token and send email.
                 await GenerateTokenForEmailAddress(existingUser.EmailAddress, true);
@@ -240,6 +243,11 @@ namespace CarCareTracker.Logic
             if (existingUser.Id == default)
             {
                 return OperationResponse.Failed("Unable to locate user");
+            }
+            if (string.IsNullOrWhiteSpace(existingUser.Password))
+            {
+                //Prevent OIDC User from resetting password
+                return OperationResponse.Failed();
             }
             existingUser.Password = StaticHelper.GetHash(credentials.Password);
             var result = _userData.SaveUserRecord(existingUser);
@@ -268,6 +276,16 @@ namespace CarCareTracker.Logic
             {
                 //authenticate via DB.
                 var result = _userData.GetUserRecordByUserName(credentials.UserName);
+                if (result.Id == default)
+                {
+                    //user does not exist
+                    return new UserData();
+                }
+                if (string.IsNullOrWhiteSpace(result.Password))
+                {
+                    //prevent OIDC users from logging in via basic auth
+                    return new UserData();
+                }
                 if (StaticHelper.GetHash(credentials.Password) == result.Password)
                 {
                     result.Password = string.Empty;
@@ -318,6 +336,51 @@ namespace CarCareTracker.Logic
                 }
             }
             return new UserData();
+        }
+        public bool GetUserCanResetPassword(int userId)
+        {
+            var result = _userData.GetUserRecordById(userId);
+            if (result.Id == default)
+            {
+                return false;
+            }
+            return !string.IsNullOrWhiteSpace(result.Password);
+        }
+        public OperationResponse RevokeUserPassword(int userId)
+        {
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return OperationResponse.Failed("Unable to locate user");
+            }
+            existingUser.Password = string.Empty;
+            var result = _userData.SaveUserRecord(existingUser);
+            if (result)
+            {
+                return OperationResponse.Succeed("Password Revoked");
+            }
+            else
+            {
+                return OperationResponse.Failed();
+            }
+        }
+        public OperationResponse ResetUserPassword(int userId)
+        {
+            var existingUser = _userData.GetUserRecordById(userId);
+            if (existingUser.Id == default)
+            {
+                return OperationResponse.Failed("Unable to locate user");
+            }
+            existingUser.Password = StaticHelper.GetHash(NewToken());
+            var result = _userData.SaveUserRecord(existingUser);
+            if (result)
+            {
+                return OperationResponse.Succeed("Password Reset");
+            }
+            else
+            {
+                return OperationResponse.Failed();
+            }
         }
         #region "Admin Functions"
         public bool MakeUserAdmin(int userId, bool isAdmin)
