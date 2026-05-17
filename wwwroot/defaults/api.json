@@ -62,6 +62,13 @@
                "licensePlate":"HITNCURBS",
                "fuelType":"Gasoline",
                "tags":"sedan nissan",
+               "imageLocation":"/images/image.jpg",
+               "purchaseDate":"2019-01-01",
+               "soldDate":"",
+               "purchasePrice":20000.00,
+               "soldPrice":0.00,
+               "odometerMultiplier":"1",
+               "odometerDifference":"0",
                "extraFields":[
                   {
                      "name":"VIN",
@@ -88,6 +95,13 @@
                "licensePlate":"HITNCURBS",
                "fuelType":"Diesel",
                "tags":"sedan nissan",
+               "imageLocation":"/images/image.jpg",
+               "purchaseDate":"2019-01-01",
+               "soldDate":"2023-06-15",
+               "purchasePrice":20000.00,
+               "soldPrice":15000.00,
+               "odometerMultiplier":"1",
+               "odometerDifference":"0",
                "extraFields":[
                   {
                      "name":"VIN",
@@ -1702,12 +1716,23 @@
             ]
          },
          {
+            "path":"/api/images/upload",
+            "description":"Upload an image (max 500KB). Returns a Location and Name - pass the Location value into the imageLocation field when calling the Add/Update Vehicle endpoints.",
+            "bodyParamName":"image",
+            "methodType":1,
+            "queryParams":[
+
+            ],
+            "hasBody":true,
+            "bodyIsFileUpload":true
+         },
+         {
             "path":"/api/documents/upload",
             "description":"Upload Documents",
             "bodyParamName":"documents",
             "methodType":1,
             "queryParams":[
-               
+
             ],
             "hasBody":true,
             "bodyIsFileUpload":true
