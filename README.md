@@ -49,4 +49,4 @@ Read this [Getting Started Guide](https://docs.lubelogger.com/Installation/Getti
 MIT
 
 ## Support
-Support this project by [Subscribing on Patreon](https://patreon.com/LubeLogger) or [Making a Donation](https://buy.stripe.com/aEU9Egc8DdMc9bO144)
+To support this project, please see [Funding](https://docs.lubelogger.com/Misc/Funding)
