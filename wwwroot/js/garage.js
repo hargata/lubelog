@@ -335,7 +335,7 @@ function viewVehicleWithTab(vehicleIds, tab) {
         return;
     }
     let vehicleId = vehicleIds[0];
-    ViewVehicle(vehicleId, tab);
+    viewVehicle(vehicleId, tab);
 }
 function handleGarageItemClick(e, vehicleId) {
     if (!(event.ctrlKey || event.metaKey)) {
