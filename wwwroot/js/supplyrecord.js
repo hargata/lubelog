@@ -142,3 +142,24 @@ function getAndValidateSupplyRecordValues() {
         requisitionHistory: supplyUsageHistory
     }
 }
+function checkSupplyFilterToggle(elem) {
+    $("[data-filter]").prop('checked', false);
+    $(elem).prop('checked', true);
+    let filterMode = $(elem).attr('data-filter');
+    let rowData = $(`#supply-tab-pane table tbody tr`);
+    switch (filterMode) {
+        case "all":
+            rowData.removeClass('override-hide');
+            break;
+        case "available":
+            rowData.addClass('override-hide');
+            $("td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) > 0).closest('tr').removeClass('override-hide');
+            break;
+        case "depleted":
+            rowData.addClass('override-hide');
+            $("td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) == 0).closest('tr').removeClass('override-hide');
+            break;
+    }
+    updateAggregateLabels();
+    $(".tagfilter.bg-primary").addClass('bg-secondary').removeClass('bg-primary');
+}
