@@ -618,7 +618,7 @@ function updateAggregateLabels() {
         var labelsToSum = $("[data-record-type='cost']").parent(":not('.override-hide')").children("[data-record-type='cost']").toArray();
         var newSum = "0.00";
         if (labelsToSum.length > 0) {
-            newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(2);
+            newSum = labelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b).toFixed(2);
         }
         sumLabel.text(`${sumLabel.text().split(':')[0]}: ${globalAppendCurrency(globalFloatToString(newSum))}`)
     }
@@ -628,7 +628,7 @@ function updateAggregateLabels() {
         var distanceLabelsToSum = $("[data-record-type='distance']").parent(":not('.override-hide')").children("[data-record-type='distance']").toArray();
         var newDistanceSum = 0;
         if (distanceLabelsToSum.length > 0) {
-            newDistanceSum = distanceLabelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b,) => a + b).toFixed(0);
+            newDistanceSum = distanceLabelsToSum.map(x => globalParseFloat(x.textContent)).reduce((a, b) => a + b).toFixed(0);
         }
         sumDistanceLabel.text(`${sumDistanceLabel.text().split(':')[0]}: ${newDistanceSum}`)
     }
@@ -2148,17 +2148,17 @@ function bindTabEvents(tab) {
         case "gas-tab":
             checkQueryParams('#gasRecordModalContent', showEditGasRecordModal, 'id');
             checkQueryParams('#gasRecordModalContent', showAddGasRecordModal, 'add');
-            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleGasRecords, GetVehicleId().vehicleId);
             break;
         case "accident-tab":
             checkQueryParams('#collisionRecordModalContent', showEditCollisionRecordModal, 'id');
             checkQueryParams('#collisionRecordModalContent', showAddCollisionRecordModal, 'add');
-            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleCollisionRecords, GetVehicleId().vehicleId);
             break;
         case "tax-tab":
             checkQueryParams('#taxRecordModalContent', showEditTaxRecordModal, 'id');
             checkQueryParams('#taxRecordModalContent', showAddTaxRecordModal, 'add');
-            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleNotes, GetVehicleId().vehicleId);
+            setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleTaxRecords, GetVehicleId().vehicleId);
             break;
         case "report-tab":
             setupEventHub(`vehicleId_${GetVehicleId().vehicleId}`, getVehicleReport, GetVehicleId().vehicleId);
