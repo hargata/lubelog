@@ -153,11 +153,11 @@ function checkSupplyFilterToggle(elem) {
             break;
         case "available":
             rowData.addClass('override-hide');
-            $("td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) > 0).closest('tr').removeClass('override-hide');
+            $("#supply-tab-pane table tbody td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) > 0).closest('tr').removeClass('override-hide');
             break;
         case "depleted":
             rowData.addClass('override-hide');
-            $("td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) == 0).closest('tr').removeClass('override-hide');
+            $("#supply-tab-pane table tbody td[data-column='quantity']").filter((x, y) => globalParseFloat($(y).text()) == 0).closest('tr').removeClass('override-hide');
             break;
     }
     updateAggregateLabels();
