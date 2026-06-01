@@ -449,6 +449,20 @@ function moveInspectionRecordField(e, isDown) {
         }
     }
 }
+function moveInspectionRecordFieldOption(e, isDown) {
+    let currentField = $(e).closest('[data-type="fieldOption"]');
+    if (isDown) {
+        let nextField = currentField.next('[data-type="fieldOption"]');
+        if (nextField.length != 0) {
+            currentField.insertAfter(nextField);
+        }
+    } else {
+        let prevField = currentField.prev('[data-type="fieldOption"]');
+        if (prevField.length != 0) {
+            currentField.insertBefore(prevField);
+        }
+    }
+}
 function duplicateInspectionRecordTemplateToVehicle() {
     let inspectionRecordsIds = [];
     inspectionRecordsIds.push(getInspectionRecordModelData().id);
