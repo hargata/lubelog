@@ -70,8 +70,12 @@ namespace CarCareTracker.Controllers
         {
             return PartialView("Inspection/_InspectionRecordField", new InspectionRecordTemplateField());
         }
-        public IActionResult GetAddInspectionRecordFieldOptionsPartialView()
+        public IActionResult GetAddInspectionRecordFieldOptionsPartialView(List<InspectionRecordTemplateFieldOption> currentOptions)
         {
+            if (currentOptions != null && currentOptions.Any())
+            {
+                return PartialView("Inspection/_InspectionRecordFieldOptions", currentOptions);
+            }
             return PartialView("Inspection/_InspectionRecordFieldOptions", new List<InspectionRecordTemplateFieldOption>());
         }
         public IActionResult GetAddInspectionRecordFieldOptionPartialView()

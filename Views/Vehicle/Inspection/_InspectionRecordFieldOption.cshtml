@@ -12,5 +12,7 @@
         <input class="form-check-input" data-type="fieldOptionIsFail" type="checkbox" role="switch" @(Model.IsFail ? "checked" : "")>
         <label class="form-check-label" onclick="stretchedLinkClick(this)">@translator.Translate(userLanguage, "Fail")</label>
     </div>
-    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteInspectionRecordFieldOption(this)"><i class="bi bi-trash"></i></button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveInspectionRecordFieldOption(this)"><i class="bi bi-arrow-up"></i></button>
+    <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="moveInspectionRecordFieldOption(this, true)"><i class="bi bi-arrow-down"></i></button>
+    <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="deleteInspectionRecordFieldOption(this)"><i class="bi bi-trash"></i></button>
 </div>

@@ -64,7 +64,17 @@ function handleInspectionRecordFieldTypeChange(e) {
     switch (selectedVal) {
         case 'Radio':
         case 'Check':
-            $.get('/Vehicle/GetAddInspectionRecordFieldOptionsPartialView', function (data) {
+            let currentFieldOptions = $(e).closest('[data-type="field"]').find('[data-type="fieldOptions"]').find('[data-type="fieldOption"]');
+            let currentFieldOptionsArray = [];
+            if (currentFieldOptions.length > 0) {
+                currentFieldOptions.map((index, elem) => {
+                        currentFieldOptionsArray.push({
+                            description: $(elem).find('[data-type="fieldOptionText"]').val(),
+                            isFail: $(elem).find('[data-type="fieldOptionIsFail"]').is(":checked")
+                        });
+                });
+            }
+            $.post('/Vehicle/GetAddInspectionRecordFieldOptionsPartialView', { currentOptions: currentFieldOptionsArray }, function (data) {
                 $(e).closest('[data-type="field"]').find('[data-type="fieldOptions"]').html(data);
             });
             $(e).closest('[data-type="field"]').find('[data-type="fieldActionItem"]').show();
@@ -434,6 +444,20 @@ function moveInspectionRecordField(e, isDown) {
         }
     } else {
         let prevField = currentField.prev('[data-type="field"]');
+        if (prevField.length != 0) {
+            currentField.insertBefore(prevField);
+        }
+    }
+}
+function moveInspectionRecordFieldOption(e, isDown) {
+    let currentField = $(e).closest('[data-type="fieldOption"]');
+    if (isDown) {
+        let nextField = currentField.next('[data-type="fieldOption"]');
+        if (nextField.length != 0) {
+            currentField.insertAfter(nextField);
+        }
+    } else {
+        let prevField = currentField.prev('[data-type="fieldOption"]');
         if (prevField.length != 0) {
             currentField.insertBefore(prevField);
         }

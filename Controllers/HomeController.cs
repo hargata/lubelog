@@ -534,7 +534,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed());
             }
         }
-        public ActionResult GetVehicleSelector(int vehicleId)
+        public IActionResult GetVehicleSelector(int vehicleId)
         {
             var vehiclesStored = _dataAccess.GetVehicles();
             if (!User.IsInRole(nameof(UserData.IsRootUser)))
@@ -552,7 +552,7 @@ namespace CarCareTracker.Controllers
             }
             return PartialView("_VehicleSelector", vehiclesStored);
         }
-        public ActionResult GetVehicleSelectorOdometer(int vehicleId)
+        public IActionResult GetVehicleSelectorOdometer(int vehicleId)
         {
             var vehiclesStored = _dataAccess.GetVehicles();
             if (!User.IsInRole(nameof(UserData.IsRootUser)))

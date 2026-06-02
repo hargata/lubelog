@@ -55,6 +55,26 @@
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Filter Supplies")</h6></li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkAllSupplies" onchange="checkSupplyFilterToggle(this)" checked data-filter="all">
+                                <label class="dropdown-item" for="chkAllSupplies">@translator.Translate(userLanguage, "All Supplies")</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkAvailableSupplies" onchange="checkSupplyFilterToggle(this)" data-filter="available">
+                                <label class="dropdown-item" for="chkAvailableSupplies">@translator.Translate(userLanguage, "Available Supplies")</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="list-group-item">
+                                <input class="btn-check" type="checkbox" id="chkDepletedSupplies" onchange="checkSupplyFilterToggle(this)" data-filter="depleted">
+                                <label class="dropdown-item" for="chkDepletedSupplies">@translator.Translate(userLanguage, "Depleted Supplies")</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">@translator.Translate(userLanguage, "Visible Columns")</h6></li>
                         <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('SupplyRecord')">
                             <div class="list-group-item">
