@@ -61,6 +61,13 @@ namespace CarCareTracker.Helper
                 {
                     var originalFileName = Path.GetFileNameWithoutExtension(fullFilePath);
                     var newFilePath = fullFilePath.Replace(originalFileName, newName);
+                    //security: check for path traversal exploit
+                    string absoluteFilePath = Path.GetFullPath(newFilePath);
+                    string dataPath = Path.Combine(_webEnv.ContentRootPath, "data");
+                    if (!absoluteFilePath.StartsWith(_webEnv.WebRootPath) && !absoluteFilePath.StartsWith(dataPath))
+                    {
+                        return false;
+                    }
                     File.Move(fullFilePath, newFilePath);
                     return true;
                 } 

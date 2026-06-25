@@ -25,7 +25,7 @@ namespace CarCareTracker.Controllers
             var fileName = UploadFile(file);
             return Json(fileName);
         }
-
+        [Authorize(Roles = nameof(UserData.IsRootUser))]
         [HttpPost]
         public IActionResult HandleTranslationFileUpload(IFormFile file)
         {
