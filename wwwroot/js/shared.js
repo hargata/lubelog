@@ -1368,7 +1368,7 @@ function rangeMouseDown(e) {
     }
     var contextMenuAction = $(e.target).parents(".table-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".table-context-menu > li > .dropdown-item") || $(e.target).parents(".garage-context-menu > li > .dropdown-item").length > 0 || $(e.target).is(".garage-context-menu > li > .dropdown-item");
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
-    if (!(e.ctrlKey || e.metaKey || selectMode) && !contextMenuAction) {
+    if (!(e.ctrlKey || e.metaKey || e.shiftKey || selectMode) && !contextMenuAction) {
         clearSelectedRows();
         clearSelectedVehicles();
     }
@@ -1514,16 +1514,64 @@ function getGarageMenuPosition(mouse, direction, scrollDir) {
         position -= menu;
     return position;
 }
+function selectEveryRowInBetween(rowId) {
+    if (selectedRow.length == 0) {
+        let startRow = $(`[data-rowId='${rowId}'`);
+        startRow.addClass('table-active');
+        addToSelectedRows(rowId);
+    }
+    else {
+        let lastSelectedRowId = selectedRow[0];
+        if (lastSelectedRowId == rowId) {
+            clearSelectedRows();
+            let startRow = $(`[data-rowId='${lastSelectedRowId}'`);
+            startRow.addClass('table-active');
+            addToSelectedRows(lastSelectedRowId);
+            return;
+        }
+        clearSelectedRows();
+        let startRow = $(`[data-rowId='${lastSelectedRowId}'`);
+        startRow.addClass('table-active');
+        addToSelectedRows(lastSelectedRowId);
+        let startIndex = startRow.index();
+        let endIndex = $(`[data-rowId='${rowId}'`).index();
+        if (startIndex > endIndex) {
+            for (let i = endIndex; i < startIndex; i++) {
+                $('.vehicleDetailTabContainer .table tbody tr:visible').eq(i).map((index, elem) => {
+                    $(elem).addClass('table-active');
+                    addToSelectedRows($(elem).attr('data-rowId'));
+                });
+            }
+        } else {
+            for (let i = endIndex; i > startIndex; i--) {
+                $('.vehicleDetailTabContainer .table tbody tr:visible').eq(i).map((index, elem) => {
+                    $(elem).addClass('table-active');
+                    addToSelectedRows($(elem).attr('data-rowId'));
+                });
+            }
+        }
+    }
+}
 function handleTableRowClick(e, callBack, rowId) {
     var selectMode = $("#chkSelectMode").length > 0 ? $("#chkSelectMode").is(":checked") : false;
-    if (!(event.ctrlKey || event.metaKey || selectMode)) {
+    if (!(event.ctrlKey || event.metaKey || event.shiftKey || selectMode)) {
         callBack(rowId);
     } else if (!$(e).hasClass('table-active')) {
-        addToSelectedRows($(e).attr('data-rowId'));
-        $(e).addClass('table-active');
+        if (event.shiftKey) {
+            selectEveryRowInBetween($(e).attr('data-rowId'));
+        }
+        else {
+            addToSelectedRows($(e).attr('data-rowId'));
+            $(e).addClass('table-active');
+        }
     } else if ($(e).hasClass('table-active')) {
-        removeFromSelectedRows($(e).attr('data-rowId'));
-        $(e).removeClass('table-active');
+        if (event.shiftKey) {
+            selectEveryRowInBetween($(e).attr('data-rowId'));
+        }
+        else {
+            removeFromSelectedRows($(e).attr('data-rowId'));
+            $(e).removeClass('table-active');
+        }
     }
 }
 
