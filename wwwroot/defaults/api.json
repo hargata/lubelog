@@ -335,6 +335,25 @@
             "bodySample":null
          },
          {
+            "path":"/api/vehicle/planrecords/promote",
+            "description":"Promotes a Plan Record to Done and creates the corresponding Service, Repair, or Upgrade Record",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Plan Record",
+                  "required":true
+               },
+               {
+                  "name":"odometer",
+                  "description":"Current odometer reading, used when creating the converted record and optionally inserting an odometer record",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
             "path":"/api/vehicle/planrecords/add",
             "description":"Adds a Plan Record for a vehicle",
             "bodyParamName":"input",
