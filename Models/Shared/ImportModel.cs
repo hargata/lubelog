@@ -283,5 +283,16 @@ namespace CarCareTracker.Models
         public string OdometerOptional { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
+        public string? ImageLocation { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
+        public string? PurchaseDate { get; set; }
+        [JsonConverter(typeof(FromDateOptional))]
+        public string? SoldDate { get; set; }
+        public decimal? PurchasePrice { get; set; }
+        public decimal? SoldPrice { get; set; }
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string? OdometerMultiplier { get; set; }
+        [JsonConverter(typeof(FromIntOptional))]
+        public string? OdometerDifference { get; set; }
     }
 }
