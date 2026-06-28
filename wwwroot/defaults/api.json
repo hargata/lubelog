@@ -75,7 +75,7 @@
             "description":"Updates a vehicle",
             "methodType":2,
             "queryParams":[
-               
+
             ],
             "hasBody":true,
             "bodyParamName":"input",
@@ -95,6 +95,20 @@
                   }
                ]
             }
+         },
+         {
+            "path":"/api/vehicles/delete",
+            "description":"Deletes a vehicle and all its associated records",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
          }
       ]
    },

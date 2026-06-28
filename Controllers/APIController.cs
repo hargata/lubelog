@@ -25,6 +25,9 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
+        private readonly IPlanRecordTemplateDataAccess _planRecordTemplateDataAccess;
+        private readonly IInspectionRecordDataAccess _inspectionRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
@@ -55,6 +58,9 @@ namespace CarCareTracker.Controllers
             IOdometerRecordDataAccess odometerRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
+            IPlanRecordTemplateDataAccess planRecordTemplateDataAccess,
+            IInspectionRecordDataAccess inspectionRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IEquipmentRecordDataAccess equipmentRecordDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
@@ -80,6 +86,9 @@ namespace CarCareTracker.Controllers
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
+            _planRecordTemplateDataAccess = planRecordTemplateDataAccess;
+            _inspectionRecordDataAccess = inspectionRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
@@ -411,6 +420,44 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
             }
+        }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Delete })]
+        [HttpDelete]
+        [Route("/api/vehicles/delete")]
+        public IActionResult DeleteVehicle(int vehicleId)
+        {
+            var existingVehicle = _dataAccess.GetVehicleById(vehicleId);
+            if (existingVehicle == null || existingVehicle.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Vehicle Id"));
+            }
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), vehicleId, HouseholdPermission.Delete))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            var result = _gasRecordDataAccess.DeleteAllGasRecordsByVehicleId(vehicleId) &&
+                _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
+                _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
+                _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
+                _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
+                _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
+                _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&
+                _planRecordDataAccess.DeleteAllPlanRecordsByVehicleId(vehicleId) &&
+                _planRecordTemplateDataAccess.DeleteAllPlanRecordTemplatesByVehicleId(vehicleId) &&
+                _inspectionRecordDataAccess.DeleteAllInspectionRecordsByVehicleId(vehicleId) &&
+                _inspectionRecordTemplateDataAccess.DeleteAllInspectionReportTemplatesByVehicleId(vehicleId) &&
+                _equipmentRecordDataAccess.DeleteAllEquipmentRecordsByVehicleId(vehicleId) &&
+                _supplyRecordDataAccess.DeleteAllSupplyRecordsByVehicleId(vehicleId) &&
+                _odometerRecordDataAccess.DeleteAllOdometerRecordsByVehicleId(vehicleId) &&
+                _userLogic.DeleteAllAccessToVehicle(vehicleId) &&
+                _dataAccess.DeleteVehicle(vehicleId);
+            if (result)
+            {
+                _eventLogic.PublishEvent(GetUserID(), WebHookPayload.Generic($"Deleted Vehicle - Id: {vehicleId}", "vehicle.delete.api", User.Identity?.Name ?? string.Empty, vehicleId.ToString()));
+            }
+            return Json(OperationResponse.Conditional(result, "Vehicle Deleted"));
         }
         [HttpPost]
         [Route("/api/documents/upload")]
