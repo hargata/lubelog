@@ -893,11 +893,10 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 
 .dual-range {
     position: relative;
-    height: 2.25rem; /* enough room for thumbs to not get clipped */
+    height: 2.25rem;
     width: 100%;
 }
 
-/* Background track (full width, muted) */
 .dual-range::before {
     content: "";
     position: absolute;
@@ -905,17 +904,16 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     left: 0;
     right: 0;
     height: 4px;
-    background: #dee2e6; /* bootstrap-ish gray-300 */
+    background: #dee2e6;
     border-radius: 2px;
     transform: translateY(-50%);
 }
 
-/* Highlighted track between the two handles */
 .dual-range-highlight {
     position: absolute;
     top: 50%;
     height: 4px;
-    background: #0d6efd; /* bootstrap primary */
+    background: #0d6efd;
     border-radius: 2px;
     transform: translateY(-50%);
     pointer-events: none;
@@ -929,13 +927,11 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     height: 2.25rem;
     margin: 0;
     background: transparent;
-    pointer-events: none; /* re-enabled selectively below */
+    pointer-events: none;
     -webkit-appearance: none;
     appearance: none;
 }
 
-/* Only the thumb should capture pointer events, not the whole track,
- so clicks pass through to whichever handle is closer / on top. */
 .dual-range input[type="range"]::-webkit-slider-thumb {
     pointer-events: auto;
 }
@@ -944,7 +940,6 @@ html[data-bs-theme="dark"] .swal2-validation-message {
     pointer-events: auto;
 }
 
-/* Hide native track for both browsers so our custom ::before/highlight show through */
 .dual-range input[type="range"]::-webkit-slider-runnable-track {
     background: transparent;
 }
