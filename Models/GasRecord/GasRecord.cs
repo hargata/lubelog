@@ -17,6 +17,8 @@
         public bool IsFillToFull { get; set; } = true;
         public bool MissedFuelUp { get; set; } = false;
         public string Notes { get; set; } = string.Empty;
+        public int StartingSoc { get; set; } = 20;
+        public int EndingSoc { get; set; } = 80;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();

@@ -890,3 +890,68 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .break-all{
     overflow-wrap: anywhere;
 }
+
+.dual-range {
+    position: relative;
+    height: 2.25rem; /* enough room for thumbs to not get clipped */
+    width: 100%;
+}
+
+/* Background track (full width, muted) */
+.dual-range::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #dee2e6; /* bootstrap-ish gray-300 */
+    border-radius: 2px;
+    transform: translateY(-50%);
+}
+
+/* Highlighted track between the two handles */
+.dual-range-highlight {
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    background: #0d6efd; /* bootstrap primary */
+    border-radius: 2px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.dual-range input[type="range"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2.25rem;
+    margin: 0;
+    background: transparent;
+    pointer-events: none; /* re-enabled selectively below */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Only the thumb should capture pointer events, not the whole track,
+ so clicks pass through to whichever handle is closer / on top. */
+.dual-range input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+}
+
+.dual-range input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+}
+
+/* Hide native track for both browsers so our custom ::before/highlight show through */
+.dual-range input[type="range"]::-webkit-slider-runnable-track {
+    background: transparent;
+}
+
+.dual-range input[type="range"]::-moz-range-track {
+    background: transparent;
+}
+.dual-range input[type="range"].dual-range-top {
+    z-index: 3;
+}

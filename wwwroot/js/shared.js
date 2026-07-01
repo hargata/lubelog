@@ -2300,3 +2300,36 @@ function downloadQR() {
         URL.revokeObjectURL(url);
     };
 }
+
+function handleDualRangeSlider(e) {
+    let isMinSlider = $(e).attr('data-handle') == 'min';
+    let minSlider = $(e).closest('.dual-range').find('[data-handle="min"]');
+    let maxSlider = $(e).closest('.dual-range').find('[data-handle="max"]');
+    let maxValue = parseInt(maxSlider.val());
+    let minValue = parseInt(minSlider.val());
+    let padding = 2;
+    let maxLimit = maxValue - padding;
+    let minLimit = minValue + padding;
+    let rangeHighlight = $(e).closest('.dual-range').find('.dual-range-highlight');
+    if (isMinSlider) {
+        if (minValue >= maxLimit) {
+            minSlider.val(maxLimit);
+        }
+        minSlider.addClass('dual-range-top');
+        maxSlider.removeClass('dual-range-top');
+    } else {
+        if (maxValue <= minLimit) {
+            maxSlider.val(minLimit);
+        }
+        minSlider.removeClass('dual-range-top');
+        maxSlider.addClass('dual-range-top');
+    }
+    //update range highlight
+    rangeHighlight.css('left', (minValue + '%'));
+    rangeHighlight.css('width', ((maxValue - minValue) + '%'));
+    //update labels
+    let minLabel = $(e).closest('.dual-range-container').find('[data-range-label="min"]');
+    let maxLabel = $(e).closest('.dual-range-container').find('[data-range-label="max"]');
+    minLabel.text(`${minSlider.val()}%`);
+    maxLabel.text(`${maxSlider.val()}%`);
+}

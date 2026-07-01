@@ -16,6 +16,8 @@
         public decimal Cost { get; set; }
         public bool IsFillToFull { get; set; } = true;
         public bool MissedFuelUp { get; set; } = false;
+        public int StartingSoc { get; set; } = 20;
+        public int EndingSoc { get; set; } = 80;
         public string Notes { get; set; } = string.Empty;
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
         public List<SupplyUsage> Supplies { get; set; } = new List<SupplyUsage>();
@@ -34,6 +36,8 @@
             Files = Files,
             IsFillToFull = IsFillToFull,
             MissedFuelUp = MissedFuelUp,
+            StartingSoc = StartingSoc,
+            EndingSoc = EndingSoc,
             Notes = Notes,
             Tags = Tags,
             ExtraFields = ExtraFields,
