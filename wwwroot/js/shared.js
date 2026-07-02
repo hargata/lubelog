@@ -2333,3 +2333,8 @@ function handleDualRangeSlider(e) {
     minRangeLabel.text(`${minSlider.val()}%`);
     maxRangeLabel.text(`${maxSlider.val()}%`);
 }
+function removeVehicleThumbnail() {
+    uploadedFile = "";
+    $("#inputImageReplaceLabel").addClass('d-none');
+    $("#inputImageUploadLabel").removeClass('d-none');
+}
