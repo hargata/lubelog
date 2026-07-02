@@ -20,6 +20,8 @@
         public decimal CostPerGallon { get; set; }
         public bool IsFillToFull { get; set; }
         public bool MissedFuelUp { get; set; }
+        public int StartingSoc { get; set; }
+        public int EndingSoc { get; set; }
         public string Notes { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();

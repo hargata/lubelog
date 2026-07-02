@@ -132,16 +132,12 @@
                             <!option value="@tag">@tag</!option>
                         }
                     </select>
-                    @if (!string.IsNullOrWhiteSpace(Model.ImageLocation))
-                    {
-                        <label for="inputImage">@translator.Translate(userLanguage, "Replace picture(optional)")</label>
-                        <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
-                    }
-                    else
-                    {
-                        <label for="inputImage">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
-                        <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
-                    }
+                    <div id="inputImageReplaceLabel" class="d-flex justify-content-between @(string.IsNullOrWhiteSpace(Model.ImageLocation) ? "d-none" : "")">
+                        <label for="inputImage" class="@(string.IsNullOrWhiteSpace(Model.ImageLocation) ? "d-none" : "")">@translator.Translate(userLanguage, "Replace picture(optional)")</label>
+                        <a class="text-danger" onclick="removeVehicleThumbnail()" style="cursor:pointer;">@translator.Translate(userLanguage, "Remove")</a>
+                    </div>
+                    <label for="inputImage" id="inputImageUploadLabel" class="@(string.IsNullOrWhiteSpace(Model.ImageLocation) ? "" : "d-none")">@translator.Translate(userLanguage, "Upload a picture(optional)")</label>
+                    <input onChange="uploadThumbnail(this)" type="file" accept=".png,.jpg,.jpeg" class="form-control-file" id="inputImage">
                     <input style="display:none;" onChange="uploadMap(this)" type="file" accept=".json" class="form-control-file" id="inputMap">
                 </div>
             </div>

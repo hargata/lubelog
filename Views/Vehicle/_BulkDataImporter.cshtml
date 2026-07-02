@@ -21,7 +21,7 @@
                     <div class="alert alert-danger" role="alert">
                         @translator.Translate(userLanguage, "Failure to format the data correctly can cause data corruption. Please make sure you make a copy of the local database before proceeding.")
                     </div>
-                    <a class="btn btn-link" href="@($"/Vehicle/GenerateCsvSample?mode={Model.ToString()}")" target="_blank">@translator.Translate(userLanguage, "Download Sample")</a>
+                    <btn class="btn btn-link" onclick="downloadCsvSample()">@translator.Translate(userLanguage, "Download Sample")</btn>
                 </div>
             </div>
             <div class="row mt-2">
@@ -44,6 +44,10 @@
 </div>
 <script>
     var uploadedFile = "";
+    function downloadCsvSample(){
+        let mode = "@Model";
+        window.open(`/Vehicle/GenerateCsvSample?mode=${mode}&vehicleId=${GetVehicleId().vehicleId}`);
+    }
     function importFromCsv() {
         var vehicleId = GetVehicleId().vehicleId;
         var mode = "@Model";

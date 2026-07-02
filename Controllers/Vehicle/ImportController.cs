@@ -17,7 +17,7 @@ namespace CarCareTracker.Controllers
             return PartialView("_BulkDataImporter", mode);
         }
         [HttpGet]
-        public IActionResult GenerateCsvSample(ImportMode mode)
+        public IActionResult GenerateCsvSample(ImportMode mode, int vehicleId)
         {
             string uploadDirectory = "temp/";
             string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
@@ -53,6 +53,12 @@ namespace CarCareTracker.Controllers
                     break;
                 case ImportMode.GasRecord:
                     {
+                        bool writeElectric = false;
+                        if (vehicleId != default)
+                        {
+                            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+                            writeElectric = vehicleData.IsElectric;
+                        }
                         var exportData = new List<GasRecordExportModel> { new GasRecordExportModel
                         {
                             Date = DateTime.Now.ToShortDateString(),
@@ -61,6 +67,8 @@ namespace CarCareTracker.Controllers
                             Cost = 45.67M.ToString("C"),
                             IsFillToFull = true.ToString(),
                             MissedFuelUp = false.ToString(),
+                            StartingSoc = "20",
+                            EndingSoc = "80",
                             Notes = "Test Note",
                             Tags = "test1 test2"
                         } };
@@ -69,7 +77,7 @@ namespace CarCareTracker.Controllers
                             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                             {
                                 //custom writer
-                                StaticHelper.WriteGasRecordExportModel(csv, exportData);
+                                StaticHelper.WriteGasRecordExportModel(csv, exportData, writeElectric);
                             }
                             writer.Dispose();
                         }
@@ -608,7 +616,7 @@ namespace CarCareTracker.Controllers
                 var vehicleData = _dataAccess.GetVehicleById(vehicleId);
                 bool useMPG = _config.GetUserConfig(User).UseMPG;
                 bool useUKMPG = !vehicleData.IsElectric && _config.GetUserConfig(User).UseUKMPG; //do not apply UK conversion on electric vehicles.
-                var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG);
+                var convertedRecords = _gasHelper.GetGasRecordViewModels(vehicleRecords, useMPG, useUKMPG, vehicleData.IsElectric);
                 //filter by tags
                 if (exportParameters.Tags.Any())
                 {
@@ -644,6 +652,8 @@ namespace CarCareTracker.Controllers
                         Odometer = x.Mileage.ToString(),
                         IsFillToFull = x.IsFillToFull.ToString(),
                         MissedFuelUp = x.MissedFuelUp.ToString(),
+                        StartingSoc = x.StartingSoc.ToString(),
+                        EndingSoc = x.EndingSoc.ToString(),
                         Notes = x.Notes,
                         Tags = string.Join(" ", x.Tags),
                         ExtraFields = x.ExtraFields
@@ -652,7 +662,7 @@ namespace CarCareTracker.Controllers
                     {
                         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                         {
-                            StaticHelper.WriteGasRecordExportModel(csv, exportData);
+                            StaticHelper.WriteGasRecordExportModel(csv, exportData, vehicleData.IsElectric);
                         }
                     }
                     return Json($"/{fileNameToExport}");
@@ -776,6 +786,14 @@ namespace CarCareTracker.Controllers
                                         var possibleMissedFuelUpValues = new List<string> { "1", "true" };
                                         var parsedBool = possibleMissedFuelUpValues.Contains(importModel.MissedFuelUp.Trim().ToLower());
                                         convertedRecord.MissedFuelUp = parsedBool;
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(importModel.StartingSoc))
+                                    {
+                                        convertedRecord.StartingSoc = int.Parse(importModel.StartingSoc);
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(importModel.EndingSoc))
+                                    {
+                                        convertedRecord.EndingSoc = int.Parse(importModel.EndingSoc);
                                     }
                                     return convertedRecord;
                                 }).ToList();

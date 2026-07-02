@@ -26,6 +26,8 @@ namespace CarCareTracker.Models
         public string PartialFuelUp { get; set; } = string.Empty;
         public string IsFillToFull { get; set; } = string.Empty;
         public string MissedFuelUp { get; set; } = string.Empty;
+        public string StartingSoc { get; set; } = string.Empty;
+        public string EndingSoc { get; set; } = string.Empty;
         public string PartNumber { get; set; } = string.Empty;
         public string PartSupplier { get; set; } = string.Empty;
         public string PartQuantity { get; set; } = string.Empty;
@@ -126,6 +128,10 @@ namespace CarCareTracker.Models
         public string IsFillToFull { get; set; } = string.Empty;
         [JsonConverter(typeof(FromBoolOptional))]
         public string MissedFuelUp { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromIntOptional))]
+        public string StartingSoc { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromIntOptional))]
+        public string EndingSoc { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();

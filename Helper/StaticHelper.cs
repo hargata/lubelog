@@ -14,7 +14,7 @@ namespace CarCareTracker.Helper
     /// </summary>
     public static class StaticHelper
     {
-        public const string VersionNumber = "1.6.8";
+        public const string VersionNumber = "1.6.9";
         public const string DbName = "data/cartracker.db";
         public const string UserConfigPath = "data/config/userConfig.json";
         public const string ServerConfigPath = "data/config/serverConfig.json";
@@ -876,7 +876,7 @@ namespace CarCareTracker.Helper
             serializerOption.Converters.Add(new InvariantConverter());
             return serializerOption;
         }
-        public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords)
+        public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords, bool writeElectric)
         {
             var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
             //write headers
@@ -887,6 +887,11 @@ namespace CarCareTracker.Helper
             _csv.WriteField(nameof(GasRecordExportModel.FuelEconomy));
             _csv.WriteField(nameof(GasRecordExportModel.IsFillToFull));
             _csv.WriteField(nameof(GasRecordExportModel.MissedFuelUp));
+            if (writeElectric)
+            {
+                _csv.WriteField(nameof(GasRecordExportModel.StartingSoc));
+                _csv.WriteField(nameof(GasRecordExportModel.EndingSoc));
+            }
             _csv.WriteField(nameof(GasRecordExportModel.Notes));
             _csv.WriteField(nameof(GasRecordExportModel.Tags));
             foreach (string extraHeader in extraHeaders)
@@ -903,6 +908,11 @@ namespace CarCareTracker.Helper
                 _csv.WriteField(genericRecord.FuelEconomy);
                 _csv.WriteField(genericRecord.IsFillToFull);
                 _csv.WriteField(genericRecord.MissedFuelUp);
+                if (writeElectric)
+                {
+                    _csv.WriteField(genericRecord.StartingSoc);
+                    _csv.WriteField(genericRecord.EndingSoc);
+                }
                 _csv.WriteField(genericRecord.Notes);
                 _csv.WriteField(genericRecord.Tags);
                 foreach (string extraHeader in extraHeaders)

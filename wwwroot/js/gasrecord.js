@@ -82,17 +82,19 @@ function saveGasRecordToVehicle(isEdit) {
     })
 }
 function getAndValidateGasRecordValues() {
-    var gasDate = $("#gasRecordDate").val();
-    var gasMileage = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
-    var gasGallons = $("#gasRecordGallons").val();
-    var gasCost = $("#gasRecordCost").val();
-    var gasCostType = $("#gasCostType").val();
-    var gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
-    var gasIsMissed = $("#gasIsMissed").is(":checked");
-    var gasNotes = $("#gasRecordNotes").val();
-    var gasTags = $("#gasRecordTag").val();
-    var vehicleId = GetVehicleId().vehicleId;
-    var gasRecordId = getGasRecordModelData().id;
+    let gasDate = $("#gasRecordDate").val();
+    let gasMileage = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
+    let gasGallons = $("#gasRecordGallons").val();
+    let gasCost = $("#gasRecordCost").val();
+    let gasCostType = $("#gasCostType").val();
+    let gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
+    let gasIsMissed = $("#gasIsMissed").is(":checked");
+    let gasNotes = $("#gasRecordNotes").val();
+    let gasTags = $("#gasRecordTag").val();
+    let gasStartingSoc = $("#gasSoc").find('[data-handle="min"]').val();
+    let gasEndingSoc = $("#gasSoc").find('[data-handle="max"]').val();
+    let vehicleId = GetVehicleId().vehicleId;
+    let gasRecordId = getGasRecordModelData().id;
     //Odometer Adjustments
     if (isNaN(gasMileage) && GetVehicleId().odometerOptional) {
         gasMileage = '0';
@@ -152,6 +154,8 @@ function getAndValidateGasRecordValues() {
         tags: gasTags,
         isFillToFull: gasIsFillToFull,
         missedFuelUp: gasIsMissed,
+        startingSoc: gasStartingSoc,
+        endingSoc: gasEndingSoc,
         notes: gasNotes,
         extraFields: extraFields.extraFields,
         requisitionHistory: supplyUsageHistory,
