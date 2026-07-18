@@ -557,6 +557,11 @@ function toggleSort(tabName, sender) {
         sortTable(tabName, sortColumn, false);
     }
 }
+function cellSortValue(cell) {
+    //prefer a numeric data-date epoch (used by Date columns) over the formatted textContent.
+    var epoch = cell.getAttribute('data-date');
+    return epoch !== null ? parseFloat(epoch) : globalParseFloat(cell.textContent);
+}
 function sortTable(tabName, columnName, desc) {
     //get column index.
     var columns = $(`#${tabName} table th`).toArray().map(x => x.innerText);
@@ -564,8 +569,8 @@ function sortTable(tabName, columnName, desc) {
     //get row data
     var rowData = $(`#${tabName} table tbody tr`);
     var sortedRow = rowData.toArray().sort((a, b) => {
-        var currentVal = globalParseFloat(a.children[colIndex].textContent);
-        var nextVal = globalParseFloat(b.children[colIndex].textContent);
+        var currentVal = cellSortValue(a.children[colIndex]);
+        var nextVal = cellSortValue(b.children[colIndex]);
         if (desc) {
             return nextVal - currentVal;
         } else {

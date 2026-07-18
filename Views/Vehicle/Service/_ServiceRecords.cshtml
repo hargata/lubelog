@@ -117,8 +117,8 @@
         <table class="table table-hover @(userConfig.UseGridInMobile ? "" : "ll-responsive-table")">
             <thead class="sticky-top">
                 <tr class="d-flex">
-                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date">@translator.Translate(userLanguage, "Date")</th>
-                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer">@translator.Translate(userLanguage, "Odometer")</th>
+                    <th scope="col" class="col-2 col-xl-1 flex-grow-1 text-truncate" data-column="date" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Date")</th>
+                    <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Odometer")</th>
                     <th scope="col" class="col-3 col-xl-4 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@translator.Translate(userLanguage, "Description")</th>
                     <th scope="col" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('servicerecord-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>

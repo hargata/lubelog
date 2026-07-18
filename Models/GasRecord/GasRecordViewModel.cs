@@ -6,6 +6,7 @@
         public int VehicleId { get; set; }
         public int MonthId { get; set; }
         public string Date { get; set; } = string.Empty;
+        public long DateEpoch { get; set; }
         /// <summary>
         /// American moment
         /// </summary>
