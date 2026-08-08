@@ -1504,6 +1504,128 @@
       ]
    },
    {
+      "categoryName":"Inspection Record Templates",
+      "methods":[
+         {
+            "path":"/api/vehicle/inspection/templates/all",
+            "description":"Gets Inspection Record Templates for all vehicles in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/inspection/templates",
+            "description":"Gets Inspection Record Templates for a vehicle in user's garage",
+            "methodType":0,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               },
+               {
+                  "name":"id",
+                  "description":"Id of the specific record",
+                  "required":false
+               },
+               {
+                  "name":"tags",
+                  "description":"Tags separated by space",
+                  "required":false
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         },
+         {
+            "path":"/api/vehicle/inspection/templates/add",
+            "description":"Adds an Inspection Record Template for a vehicle",
+            "bodyParamName":"input",
+            "methodType":1,
+            "queryParams":[
+               {
+                  "name":"vehicleId",
+                  "description":"Id of the vehicle",
+                  "required":true
+               }
+            ],
+            "hasBody":true,
+            "bodySample":[{
+               "description":"Pre-Trip Inspection",
+               "fields":[
+                  {
+                     "description":"Tire Tread",
+                     "fieldType":"Text",
+                     "hasNotes":false,
+                     "hasActionItem":false
+                  },
+                  {
+                     "description":"Brake Pads",
+                     "fieldType":"Radio",
+                     "options":[
+                        {"description":"Pass","isFail":false},
+                        {"description":"Fail","isFail":true}
+                     ],
+                     "hasNotes":true,
+                     "hasActionItem":true,
+                     "actionItemType":"RepairRecord",
+                     "actionItemDescription":"Replace brake pads",
+                     "actionItemPriority":"Normal"
+                  }
+               ],
+               "tags":"safety"
+            }]
+         },
+         {
+            "path":"/api/vehicle/inspection/templates/update",
+            "description":"Updates an Inspection Record Template for a vehicle",
+            "bodyParamName":"input",
+            "methodType":2,
+            "queryParams":[],
+            "hasBody":true,
+            "bodySample":[{
+               "id":1,
+               "description":"Pre-Trip Inspection",
+               "fields":[
+                  {
+                     "description":"Tire Tread",
+                     "fieldType":"Text",
+                     "hasNotes":false,
+                     "hasActionItem":false
+                  }
+               ],
+               "tags":"safety"
+            }]
+         },
+         {
+            "path":"/api/vehicle/inspection/templates/delete",
+            "description":"Deletes an Inspection Record Template",
+            "methodType":3,
+            "queryParams":[
+               {
+                  "name":"id",
+                  "description":"Id of the Inspection Record Template",
+                  "required":true
+               }
+            ],
+            "hasBody":false,
+            "bodySample":null
+         }
+      ]
+   },
+   {
       "categoryName":"Equipment Records",
       "methods":[
          {

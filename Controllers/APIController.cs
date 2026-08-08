@@ -25,6 +25,7 @@ namespace CarCareTracker.Controllers
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
+        private readonly IInspectionRecordTemplateDataAccess _inspectionRecordTemplateDataAccess;
         private readonly IEquipmentRecordDataAccess _equipmentRecordDataAccess;
         private readonly IUserAccessDataAccess _userAccessDataAccess;
         private readonly IUserRecordDataAccess _userRecordDataAccess;
@@ -56,6 +57,7 @@ namespace CarCareTracker.Controllers
             IOdometerRecordDataAccess odometerRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
+            IInspectionRecordTemplateDataAccess inspectionRecordTemplateDataAccess,
             IEquipmentRecordDataAccess equipmentRecordDataAccess,
             IUserAccessDataAccess userAccessDataAccess,
             IUserRecordDataAccess userRecordDataAccess,
@@ -82,6 +84,7 @@ namespace CarCareTracker.Controllers
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
+            _inspectionRecordTemplateDataAccess = inspectionRecordTemplateDataAccess;
             _equipmentRecordDataAccess = equipmentRecordDataAccess;
             _userAccessDataAccess = userAccessDataAccess;
             _userRecordDataAccess = userRecordDataAccess;
