@@ -1585,7 +1585,8 @@
                      "actionItemPriority":"Normal"
                   }
                ],
-               "tags":"safety"
+               "tags":"safety",
+               "reminderRecordId":[1]
             }]
          },
          {
@@ -1606,7 +1607,8 @@
                      "hasActionItem":false
                   }
                ],
-               "tags":"safety"
+               "tags":"safety",
+               "reminderRecordId":[1]
             }]
          },
          {

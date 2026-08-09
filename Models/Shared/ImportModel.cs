@@ -253,6 +253,7 @@ namespace CarCareTracker.Models
         public string Description { get; set; } = string.Empty;
         public List<InspectionRecordTemplateFieldExportModel> Fields { get; set; } = new List<InspectionRecordTemplateFieldExportModel>();
         public string Tags { get; set; } = string.Empty;
+        public List<int> ReminderRecordId { get; set; } = new List<int>();
     }
     public class InspectionRecordTemplateFieldExportModel
     {

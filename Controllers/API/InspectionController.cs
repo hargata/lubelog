@@ -99,7 +99,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 templateResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var results = templateResults.Select(x => new InspectionRecordTemplateExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Fields = ConvertToInspectionRecordTemplateFieldExportModels(x.Fields), Tags = string.Join(' ', x.Tags) });
+            var results = templateResults.Select(x => new InspectionRecordTemplateExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Fields = ConvertToInspectionRecordTemplateFieldExportModels(x.Fields), Tags = string.Join(' ', x.Tags), ReminderRecordId = x.ReminderRecordId });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -129,7 +129,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 templateResults.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var results = templateResults.Select(x => new InspectionRecordTemplateExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Fields = ConvertToInspectionRecordTemplateFieldExportModels(x.Fields), Tags = string.Join(' ', x.Tags) });
+            var results = templateResults.Select(x => new InspectionRecordTemplateExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Description = x.Description, Fields = ConvertToInspectionRecordTemplateFieldExportModels(x.Fields), Tags = string.Join(' ', x.Tags), ReminderRecordId = x.ReminderRecordId });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(results, StaticHelper.GetInvariantOption());
@@ -178,7 +178,8 @@ namespace CarCareTracker.Controllers
                     VehicleId = vehicleId,
                     Description = input.Description,
                     Fields = convertedFields,
-                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList(),
+                    ReminderRecordId = input.ReminderRecordId ?? new List<int>()
                 };
                 _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(inspectionRecordTemplate);
                 return Json(OperationResponse.Succeed("Inspection Record Template Added", new { recordId = inspectionRecordTemplate.Id }));
@@ -228,6 +229,7 @@ namespace CarCareTracker.Controllers
                     existingRecord.Description = input.Description;
                     existingRecord.Fields = convertedFields;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    existingRecord.ReminderRecordId = input.ReminderRecordId ?? new List<int>();
                     _inspectionRecordTemplateDataAccess.SaveInspectionReportTemplateToVehicle(existingRecord);
                 }
                 else
