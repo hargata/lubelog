@@ -7,7 +7,7 @@
     var hideZero = userConfig.HideZero;
 }
 @model CostTableForVehicle
-@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.InsuranceRecordSum + Model.UpgradeRecordSum > 0)
 {
     <div>
         <div class="modal-header">
@@ -56,6 +56,12 @@
                                 <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordPerDay.ToString("C2"), hideZero))</td>
                                 <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordPerMile.ToString("C2"), hideZero))</td>
                                 <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.TaxRecordSum.ToString("C2"), hideZero))</td>
+                            </tr>
+                            <tr class="d-flex">
+                                <td class="col-3 flex-grow-1">@translator.Translate(userLanguage, "Insurance")</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.InsuranceRecordPerDay.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.InsuranceRecordPerMile.ToString("C2"), hideZero))</td>
+                                <td class="col-3 flex-grow-1">@(StaticHelper.HideZeroCost(Model.InsuranceRecordSum.ToString("C2"), hideZero))</td>
                             </tr>
                         </tbody>
                         <tfoot>

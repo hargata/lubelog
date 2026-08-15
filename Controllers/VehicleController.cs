@@ -21,6 +21,7 @@ namespace CarCareTracker.Controllers
         private readonly IGasRecordDataAccess _gasRecordDataAccess;
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
+        private readonly IInsuranceRecordDataAccess _insuranceRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ISupplyRecordDataAccess _supplyRecordDataAccess;
@@ -57,6 +58,7 @@ namespace CarCareTracker.Controllers
             IGasRecordDataAccess gasRecordDataAccess,
             ICollisionRecordDataAccess collisionRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
+            IInsuranceRecordDataAccess insuranceRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             ISupplyRecordDataAccess supplyRecordDataAccess,
@@ -87,6 +89,7 @@ namespace CarCareTracker.Controllers
             _gasRecordDataAccess = gasRecordDataAccess;
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
+            _insuranceRecordDataAccess = insuranceRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _supplyRecordDataAccess = supplyRecordDataAccess;
@@ -342,6 +345,19 @@ namespace CarCareTracker.Controllers
                             }
                         }
                         break;
+                    case ImportMode.InsuranceRecord:
+                        {
+                            var results = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+                            if (caseSensitive)
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x, serializerOption).Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InsuranceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                            else
+                            {
+                                searchResults.AddRange(results.Where(x => JsonSerializer.Serialize(x, serializerOption).ToLower().Contains(searchQuery)).Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InsuranceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                            }
+                        }
+                        break;
                     case ImportMode.SupplyRecord:
                         {
                             var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
@@ -492,6 +508,13 @@ namespace CarCareTracker.Controllers
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.TaxRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
+                    case ImportMode.InsuranceRecord:
+                        {
+                            var results = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InsuranceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
+                        }
+                        break;
                     case ImportMode.SupplyRecord:
                         {
                             var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
@@ -574,6 +597,11 @@ namespace CarCareTracker.Controllers
                     {
                         var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                         return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Tax Record Not Found"));
+                    }
+                case ImportMode.InsuranceRecord:
+                    {
+                        var results = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+                        return Json(OperationResponse.Conditional(results.Any(x => x.Id == recordId), "", "Insurance Record Not Found"));
                     }
                 case ImportMode.SupplyRecord:
                     {
@@ -759,6 +787,9 @@ namespace CarCareTracker.Controllers
                     case ImportMode.TaxRecord:
                         result = DeleteTaxRecordWithChecks(recordId);
                         break;
+                    case ImportMode.InsuranceRecord:
+                        result = DeleteInsuranceRecordWithChecks(recordId);
+                        break;
                     case ImportMode.SupplyRecord:
                         result = DeleteSupplyRecordWithChecks(recordId);
                         break;
@@ -913,6 +944,18 @@ namespace CarCareTracker.Controllers
                             }
                             existingRecord.Id = default;
                             result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                        }
+                        break;
+                    case ImportMode.InsuranceRecord:
+                        {
+                            var existingRecord = _insuranceRecordDataAccess.GetInsuranceRecordById(recordId);
+                            //security check
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                            {
+                                return Json(OperationResponse.Failed("Access Denied"));
+                            }
+                            existingRecord.Id = default;
+                            result = _insuranceRecordDataAccess.SaveInsuranceRecordToVehicle(existingRecord);
                         }
                         break;
                     case ImportMode.SupplyRecord:
@@ -1101,6 +1144,21 @@ namespace CarCareTracker.Controllers
                             {
                                 existingRecord.VehicleId = vehicleId;
                                 result = _taxRecordDataAccess.SaveTaxRecordToVehicle(existingRecord);
+                            }
+                        }
+                        break;
+                    case ImportMode.InsuranceRecord:
+                        {
+                            var existingRecord = _insuranceRecordDataAccess.GetInsuranceRecordById(recordId);
+                            existingRecord.Id = default;
+                            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.View))
+                            {
+                                continue;
+                            }
+                            foreach (int vehicleId in vehicleIds)
+                            {
+                                existingRecord.VehicleId = vehicleId;
+                                result = _insuranceRecordDataAccess.SaveInsuranceRecordToVehicle(existingRecord);
                             }
                         }
                         break;

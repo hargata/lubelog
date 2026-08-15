@@ -19,6 +19,7 @@ namespace CarCareTracker.Logic
         List<KioskReminderViewModel> GetRemindersForKiosk(List<Vehicle> vehicles);
         List<KioskPlanViewModel> GetPlansForKiosk(List<Vehicle> vehicles, bool excludeDone);
         bool UpdateRecurringTaxes(int vehicleId);
+        bool UpdateRecurringInsurance(int vehicleId);
         void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription);
         KioskVehicleViewModel GetKioskVehicleInfo(int vehicleId);
         List<string> GetVehicleThumbnails(List<Vehicle> vehicles);
@@ -33,6 +34,7 @@ namespace CarCareTracker.Logic
         private readonly ICollisionRecordDataAccess _collisionRecordDataAccess;
         private readonly IUpgradeRecordDataAccess _upgradeRecordDataAccess;
         private readonly ITaxRecordDataAccess _taxRecordDataAccess;
+        private readonly IInsuranceRecordDataAccess _insuranceRecordDataAccess;
         private readonly IOdometerRecordDataAccess _odometerRecordDataAccess;
         private readonly IReminderRecordDataAccess _reminderRecordDataAccess;
         private readonly IPlanRecordDataAccess _planRecordDataAccess;
@@ -52,6 +54,7 @@ namespace CarCareTracker.Logic
             ICollisionRecordDataAccess collisionRecordDataAccess,
             IUpgradeRecordDataAccess upgradeRecordDataAccess,
             ITaxRecordDataAccess taxRecordDataAccess,
+            IInsuranceRecordDataAccess insuranceRecordDataAccess,
             IOdometerRecordDataAccess odometerRecordDataAccess,
             IReminderRecordDataAccess reminderRecordDataAccess,
             IPlanRecordDataAccess planRecordDataAccess,
@@ -70,6 +73,7 @@ namespace CarCareTracker.Logic
             _collisionRecordDataAccess = collisionRecordDataAccess;
             _upgradeRecordDataAccess = upgradeRecordDataAccess;
             _taxRecordDataAccess = taxRecordDataAccess;
+            _insuranceRecordDataAccess = insuranceRecordDataAccess;
             _odometerRecordDataAccess = odometerRecordDataAccess;
             _planRecordDataAccess = planRecordDataAccess;
             _reminderRecordDataAccess = reminderRecordDataAccess;
@@ -91,6 +95,7 @@ namespace CarCareTracker.Logic
                 GasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId),
                 CollisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId),
                 TaxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId),
+                InsuranceRecords = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId),
                 UpgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId),
                 OdometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId),
             };
@@ -101,8 +106,9 @@ namespace CarCareTracker.Logic
             var repairRecordSum = vehicleRecords.CollisionRecords.Sum(x => x.Cost);
             var upgradeRecordSum = vehicleRecords.UpgradeRecords.Sum(x => x.Cost);
             var taxRecordSum = vehicleRecords.TaxRecords.Sum(x => x.Cost);
+            var insuranceRecordSum = vehicleRecords.InsuranceRecords.Sum(x => x.Cost);
             var gasRecordSum = vehicleRecords.GasRecords.Sum(x => x.Cost);
-            return serviceRecordSum + repairRecordSum + upgradeRecordSum + taxRecordSum + gasRecordSum;
+            return serviceRecordSum + repairRecordSum + upgradeRecordSum + taxRecordSum + insuranceRecordSum + gasRecordSum;
         }
         public int GetMaxMileage(int vehicleId)
         {
@@ -467,6 +473,60 @@ namespace CarCareTracker.Logic
             }
             return false; //no outdated recurring tax records.
         }
+        public bool UpdateRecurringInsurance(int vehicleId)
+        {
+            var vehicleData = _dataAccess.GetVehicleById(vehicleId);
+            if (!string.IsNullOrWhiteSpace(vehicleData.SoldDate))
+            {
+                return false;
+            }
+            bool RecurringInsuranceIsOutdated(InsuranceRecord insuranceRecord)
+            {
+                var monthInterval = insuranceRecord.RecurringInterval != ReminderMonthInterval.Other ? (int)insuranceRecord.RecurringInterval : insuranceRecord.CustomMonthInterval;
+                bool addDays = insuranceRecord.RecurringInterval == ReminderMonthInterval.Other && insuranceRecord.CustomMonthIntervalUnit == ReminderIntervalUnit.Days;
+                return addDays ? DateTime.Now > insuranceRecord.Date.AddDays(monthInterval) : DateTime.Now > insuranceRecord.Date.AddMonths(monthInterval);
+            }
+            var result = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+            var outdatedRecurringFees = result.Where(x => x.IsRecurring && RecurringInsuranceIsOutdated(x));
+            if (outdatedRecurringFees.Any())
+            {
+                var success = false;
+                foreach (InsuranceRecord recurringFee in outdatedRecurringFees)
+                {
+                    var monthInterval = recurringFee.RecurringInterval != ReminderMonthInterval.Other ? (int)recurringFee.RecurringInterval : recurringFee.CustomMonthInterval;
+                    bool isOutdated = true;
+                    bool addDays = recurringFee.RecurringInterval == ReminderMonthInterval.Other && recurringFee.CustomMonthIntervalUnit == ReminderIntervalUnit.Days;
+                    //update the original outdated insurance record
+                    recurringFee.IsRecurring = false;
+                    _insuranceRecordDataAccess.SaveInsuranceRecordToVehicle(recurringFee);
+                    //month multiplier for severely outdated monthly insurance records.
+                    int monthMultiplier = 1;
+                    var originalDate = recurringFee.Date;
+                    while (isOutdated)
+                    {
+                        try
+                        {
+                            var nextDate = addDays ? originalDate.AddDays(monthInterval * monthMultiplier) : originalDate.AddMonths(monthInterval * monthMultiplier);
+                            monthMultiplier++;
+                            var nextnextDate = addDays ? originalDate.AddDays(monthInterval * monthMultiplier) : originalDate.AddMonths(monthInterval * monthMultiplier);
+                            recurringFee.Date = nextDate;
+                            recurringFee.Id = default; //new record
+                            recurringFee.IsRecurring = DateTime.Now <= nextnextDate;
+                            _insuranceRecordDataAccess.SaveInsuranceRecordToVehicle(recurringFee);
+                            isOutdated = !recurringFee.IsRecurring;
+                            success = true;
+                        }
+                        catch (Exception)
+                        {
+                            isOutdated = false; //break out of loop if something broke.
+                            success = false;
+                        }
+                    }
+                }
+                return success;
+            }
+            return false; //no outdated recurring insurance records.
+        }
         public void RestoreSupplyRecordsByUsage(List<SupplyUsageHistory> supplyUsage, string usageDescription)
         {
             foreach (SupplyUsageHistory supply in supplyUsage)
@@ -601,6 +661,7 @@ namespace CarCareTracker.Logic
                 vehicleDocuments.AddRange(_collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 vehicleDocuments.AddRange(_upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 vehicleDocuments.AddRange(_taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
+                vehicleDocuments.AddRange(_insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 vehicleDocuments.AddRange(_gasRecordDataAccess.GetGasRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 vehicleDocuments.AddRange(_noteDataAccess.GetNotesByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
                 vehicleDocuments.AddRange(_odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicle.Id).SelectMany(x => x.Files).Select(y => Path.GetFileName(y.Location)));
@@ -625,6 +686,7 @@ namespace CarCareTracker.Logic
                 _serviceRecordDataAccess.DeleteAllServiceRecordsByVehicleId(vehicleId) &&
                 _collisionRecordDataAccess.DeleteAllCollisionRecordsByVehicleId(vehicleId) &&
                 _taxRecordDataAccess.DeleteAllTaxRecordsByVehicleId(vehicleId) &&
+                _insuranceRecordDataAccess.DeleteAllInsuranceRecordsByVehicleId(vehicleId) &&
                 _noteDataAccess.DeleteAllNotesByVehicleId(vehicleId) &&
                 _reminderRecordDataAccess.DeleteAllReminderRecordsByVehicleId(vehicleId) &&
                 _upgradeRecordDataAccess.DeleteAllUpgradeRecordsByVehicleId(vehicleId) &&

@@ -11,6 +11,7 @@ namespace CarCareTracker.Helper
         IEnumerable<CostForVehicleByMonth> GetUpgradeRecordSum(List<UpgradeRecord> upgradeRecords, int year = 0, bool sortIntoYear = false);
         IEnumerable<CostForVehicleByMonth> GetGasRecordSum(List<GasRecord> gasRecords, int year = 0, bool sortIntoYear = false);
         IEnumerable<CostForVehicleByMonth> GetTaxRecordSum(List<TaxRecord> taxRecords, int year = 0, bool sortIntoYear = false);
+        IEnumerable<CostForVehicleByMonth> GetInsuranceRecordSum(List<InsuranceRecord> insuranceRecords, int year = 0, bool sortIntoYear = false);
     }
     public class ReportHelper: IReportHelper
     {
@@ -159,6 +160,31 @@ namespace CarCareTracker.Helper
             } else
             {
                 return taxRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
+                {
+                    MonthId = x.Key,
+                    MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
+                    Cost = x.Sum(y => y.Cost)
+                });
+            }
+        }
+        public IEnumerable<CostForVehicleByMonth> GetInsuranceRecordSum(List<InsuranceRecord> insuranceRecords, int year = 0, bool sortIntoYear = false)
+        {
+            if (year != default)
+            {
+                insuranceRecords.RemoveAll(x => x.Date.Year != year);
+            }
+            if (sortIntoYear)
+            {
+                return insuranceRecords.GroupBy(x => new { x.Date.Month, x.Date.Year }).OrderBy(x => x.Key.Month).Select(x => new CostForVehicleByMonth
+                {
+                    MonthId = x.Key.Month,
+                    MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key.Month),
+                    Year = x.Key.Year,
+                    Cost = x.Sum(y => y.Cost)
+                });
+            } else
+            {
+                return insuranceRecords.GroupBy(x => x.Date.Month).OrderBy(x => x.Key).Select(x => new CostForVehicleByMonth
                 {
                     MonthId = x.Key,
                     MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),

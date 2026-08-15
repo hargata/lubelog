@@ -7,6 +7,7 @@
         public List<UpgradeRecord> UpgradeRecords { get; set; } = new List<UpgradeRecord>();
         public List<GasRecord> GasRecords { get; set; } = new List<GasRecord>();
         public List<TaxRecord> TaxRecords { get; set; } = new List<TaxRecord>();
+        public List<InsuranceRecord> InsuranceRecords { get; set; } = new List<InsuranceRecord>();
         public List<OdometerRecord> OdometerRecords { get; set; } = new List<OdometerRecord>();
     }
 }

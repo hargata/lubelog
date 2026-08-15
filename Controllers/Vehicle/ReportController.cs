@@ -20,6 +20,7 @@ namespace CarCareTracker.Controllers
             var gasRecords = vehicleRecords.GasRecords;
             var collisionRecords = vehicleRecords.CollisionRecords;
             var taxRecords = vehicleRecords.TaxRecords;
+            var insuranceRecords = vehicleRecords.InsuranceRecords;
             var upgradeRecords = vehicleRecords.UpgradeRecords;
             var odometerRecords = vehicleRecords.OdometerRecords;
             var userConfig = _config.GetUserConfig(User);
@@ -35,6 +36,7 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                InsuranceRecordSum = insuranceRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             //get costbymonth
@@ -44,6 +46,7 @@ namespace CarCareTracker.Controllers
             allCosts.AddRange(_reportHelper.GetUpgradeRecordSum(upgradeRecords, 0));
             allCosts.AddRange(_reportHelper.GetGasRecordSum(gasRecords, 0));
             allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, 0));
+            allCosts.AddRange(_reportHelper.GetInsuranceRecordSum(insuranceRecords, 0));
             allCosts.AddRange(_reportHelper.GetOdometerRecordSum(odometerRecords, 0));
             viewModel.CostForVehicleByMonth = allCosts.GroupBy(x => new { x.MonthName, x.MonthId }).OrderBy(x => x.Key.MonthId).Select(x => new CostForVehicleByMonth
             {
@@ -77,6 +80,10 @@ namespace CarCareTracker.Controllers
             if (visibleTabs.Contains(ImportMode.TaxRecord) || taxRecords.Any())
             {
                 viewModel.AvailableMetrics.Add(ImportMode.TaxRecord);
+            }
+            if (visibleTabs.Contains(ImportMode.InsuranceRecord) || insuranceRecords.Any())
+            {
+                viewModel.AvailableMetrics.Add(ImportMode.InsuranceRecord);
             }
 
             //get reminders
@@ -209,6 +216,7 @@ namespace CarCareTracker.Controllers
             var gasRecords = vehicleRecords.GasRecords;
             var collisionRecords = vehicleRecords.CollisionRecords;
             var taxRecords = vehicleRecords.TaxRecords;
+            var insuranceRecords = vehicleRecords.InsuranceRecords;
             var upgradeRecords = vehicleRecords.UpgradeRecords;
             var odometerRecords = vehicleRecords.OdometerRecords;
 
@@ -218,6 +226,7 @@ namespace CarCareTracker.Controllers
                 gasRecords.RemoveAll(x => x.Date.Year != year);
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
+                insuranceRecords.RemoveAll(x => x.Date.Year != year);
                 upgradeRecords.RemoveAll(x => x.Date.Year != year);
                 odometerRecords.RemoveAll(x => x.Date.Year != year);
             }
@@ -262,6 +271,7 @@ namespace CarCareTracker.Controllers
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var collisionRecords = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
             var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
+            var insuranceRecords = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
             var upgradeRecords = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
             if (year != default)
             {
@@ -269,6 +279,7 @@ namespace CarCareTracker.Controllers
                 gasRecords.RemoveAll(x => x.Date.Year != year);
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
+                insuranceRecords.RemoveAll(x => x.Date.Year != year);
                 upgradeRecords.RemoveAll(x => x.Date.Year != year);
             }
             var viewModel = new CostMakeUpForVehicle
@@ -277,6 +288,7 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                InsuranceRecordSum = insuranceRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
             };
             return PartialView("Report/_CostMakeUpReport", viewModel);
@@ -290,6 +302,7 @@ namespace CarCareTracker.Controllers
             var gasRecords = vehicleRecords.GasRecords;
             var collisionRecords = vehicleRecords.CollisionRecords;
             var taxRecords = vehicleRecords.TaxRecords;
+            var insuranceRecords = vehicleRecords.InsuranceRecords;
             var upgradeRecords = vehicleRecords.UpgradeRecords;
             var odometerRecords = vehicleRecords.OdometerRecords;
             if (year != default)
@@ -298,6 +311,7 @@ namespace CarCareTracker.Controllers
                 gasRecords.RemoveAll(x => x.Date.Year != year);
                 collisionRecords.RemoveAll(x => x.Date.Year != year);
                 taxRecords.RemoveAll(x => x.Date.Year != year);
+                insuranceRecords.RemoveAll(x => x.Date.Year != year);
                 upgradeRecords.RemoveAll(x => x.Date.Year != year);
                 odometerRecords.RemoveAll(x => x.Date.Year != year);
             }
@@ -313,6 +327,7 @@ namespace CarCareTracker.Controllers
                 GasRecordSum = gasRecords.Sum(x => x.Cost),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
+                InsuranceRecordSum = insuranceRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
                 TotalDistance = totalDistanceTraveled,
                 DistanceUnit = vehicleData.UseHours ? "Cost Per Hour" : userConfig.UseMPG ? "Cost Per Mile" : "Cost Per Kilometer",
@@ -404,6 +419,17 @@ namespace CarCareTracker.Controllers
                 attachmentData.AddRange(records.Select(x => new GenericReportModel
                 {
                     DataType = ImportMode.TaxRecord,
+                    Date = x.Date,
+                    Odometer = 0,
+                    Files = x.Files
+                }));
+            }
+            if (exportTabs.Contains(ImportMode.InsuranceRecord))
+            {
+                var records = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId).Where(x => x.Files.Any());
+                attachmentData.AddRange(records.Select(x => new GenericReportModel
+                {
+                    DataType = ImportMode.InsuranceRecord,
                     Date = x.Date,
                     Odometer = 0,
                     Files = x.Files
@@ -533,6 +559,7 @@ namespace CarCareTracker.Controllers
                     vehicleRecords.CollisionRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.UpgradeRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.TaxRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.InsuranceRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     gasViewModels.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.GasRecords.RemoveAll(x => x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                 }
@@ -543,6 +570,7 @@ namespace CarCareTracker.Controllers
                     vehicleRecords.CollisionRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.UpgradeRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.TaxRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
+                    vehicleRecords.InsuranceRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     gasViewModels.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                     vehicleRecords.GasRecords.RemoveAll(x => !x.Tags.Any(y => reportParameter.Tags.Contains(y)));
                 }
@@ -563,6 +591,7 @@ namespace CarCareTracker.Controllers
                     vehicleRecords.CollisionRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
                     vehicleRecords.UpgradeRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
                     vehicleRecords.TaxRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
+                    vehicleRecords.InsuranceRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
                     gasViewModels.RemoveAll(x => DateTime.Parse(x.Date).Date > endDate || DateTime.Parse(x.Date).Date < startDate);
                     vehicleRecords.GasRecords.RemoveAll(x => x.Date.Date > endDate || x.Date.Date < startDate);
                 }
@@ -609,7 +638,7 @@ namespace CarCareTracker.Controllers
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             vehicleHistory.DistanceUnit = vehicleHistory.VehicleData.UseHours ? "h" : useMPG ? "mi." : "km";
             vehicleHistory.TotalGasCost = gasViewModels.Sum(x => x.Cost);
-            vehicleHistory.TotalCost = vehicleRecords.ServiceRecords.Sum(x => x.Cost) + vehicleRecords.CollisionRecords.Sum(x => x.Cost) + vehicleRecords.UpgradeRecords.Sum(x => x.Cost) + vehicleRecords.TaxRecords.Sum(x => x.Cost);
+            vehicleHistory.TotalCost = vehicleRecords.ServiceRecords.Sum(x => x.Cost) + vehicleRecords.CollisionRecords.Sum(x => x.Cost) + vehicleRecords.UpgradeRecords.Sum(x => x.Cost) + vehicleRecords.TaxRecords.Sum(x => x.Cost) + vehicleRecords.InsuranceRecords.Sum(x => x.Cost);
             if (distanceTraveled != default)
             {
                 vehicleHistory.DistanceTraveled = distanceTraveled.ToString("N0");
@@ -677,6 +706,16 @@ namespace CarCareTracker.Controllers
                 Notes = x.Notes,
                 Cost = x.Cost,
                 DataType = ImportMode.TaxRecord,
+                ExtraFields = x.ExtraFields
+            }));
+            reportData.AddRange(vehicleRecords.InsuranceRecords.Select(x => new GenericReportModel
+            {
+                Date = x.Date,
+                Odometer = 0,
+                Description = x.Description,
+                Notes = x.Notes,
+                Cost = x.Cost,
+                DataType = ImportMode.InsuranceRecord,
                 ExtraFields = x.ExtraFields
             }));
             vehicleHistory.VehicleHistory = reportData.OrderBy(x => x.Date).ThenBy(x => x.Odometer).ToList();
@@ -758,6 +797,11 @@ namespace CarCareTracker.Controllers
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year));
             }
+            if (selectedMetrics.Contains(ImportMode.InsuranceRecord))
+            {
+                var insuranceRecords = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetInsuranceRecordSum(insuranceRecords, year));
+            }
             if (selectedMetrics.Contains(ImportMode.OdometerRecord))
             {
                 var odometerRecords = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
@@ -800,6 +844,11 @@ namespace CarCareTracker.Controllers
             {
                 var taxRecords = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
                 allCosts.AddRange(_reportHelper.GetTaxRecordSum(taxRecords, year, true));
+            }
+            if (selectedMetrics.Contains(ImportMode.InsuranceRecord))
+            {
+                var insuranceRecords = _insuranceRecordDataAccess.GetInsuranceRecordsByVehicleId(vehicleId);
+                allCosts.AddRange(_reportHelper.GetInsuranceRecordSum(insuranceRecords, year, true));
             }
             if (selectedMetrics.Contains(ImportMode.OdometerRecord))
             {

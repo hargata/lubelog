@@ -15,6 +15,7 @@
     <script src="~/js/gasrecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/collisionrecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/taxrecord.js?v=@StaticHelper.VersionNumber"></script>
+    <script src="~/js/insurancerecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/reminderrecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/upgraderecord.js?v=@StaticHelper.VersionNumber"></script>
     <script src="~/js/note.js?v=@StaticHelper.VersionNumber"></script>
@@ -68,6 +69,9 @@
                     <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.TaxRecord)">
                         <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar"></i><span class="ms-2">@translator.Translate(userLanguage, "Taxes")</span></button>
                     </li>
+                    <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.InsuranceRecord)">
+                        <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InsuranceRecord)" id="insurance-tab" data-bs-toggle="tab" data-bs-target="#insurance-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shield-check"></i><span class="ms-2">@translator.Translate(userLanguage, "Insurance")</span></button>
+                    </li>
                     <li class="nav-item" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x=>x == ImportMode.NoteRecord)">
                         <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark"></i><span class="ms-2">@translator.Translate(userLanguage, "Notes")</span></button>
                     </li>
@@ -112,6 +116,9 @@
                             </li>
                             <li class="nav-item text-truncate" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.TaxRecord)">
                                 <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-currency-dollar"></i><span class="ms-2">@translator.Translate(userLanguage, "Taxes")</span></button>
+                            </li>
+                            <li class="nav-item text-truncate" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.InsuranceRecord)">
+                                <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InsuranceRecord)" id="insurance-tab" data-bs-toggle="tab" data-bs-target="#insurance-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-shield-check"></i><span class="ms-2">@translator.Translate(userLanguage, "Insurance")</span></button>
                             </li>
                             <li class="nav-item text-truncate" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.NoteRecord)">
                                 <button class="nav-link resizable-nav-link @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-journal-bookmark"></i><span class="ms-2">@translator.Translate(userLanguage, "Notes")</span></button>
@@ -179,6 +186,9 @@
         <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.TaxRecord)">
             <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.TaxRecord)" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-currency-dollar me-2"></i>@translator.Translate(userLanguage, "Taxes")</span></button>
         </li>
+        <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.InsuranceRecord)">
+            <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.InsuranceRecord)" id="insurance-tab" data-bs-toggle="tab" data-bs-target="#insurance-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-shield-check me-2"></i>@translator.Translate(userLanguage, "Insurance")</span></button>
+        </li>
         <li class="nav-item d-flex" role="presentation" style="order: @userConfig.TabOrder.FindIndex(x => x == ImportMode.NoteRecord)">
             <button class="nav-link flex-grow-1 text-start @StaticHelper.DefaultActiveTab(userConfig, ImportMode.NoteRecord)" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane" type="button" role="tab" aria-selected="false"><span class="display-3 ms-2"><i class="bi bi-journal-bookmark me-2"></i>@translator.Translate(userLanguage, "Notes")</span></button>
         </li>
@@ -198,6 +208,7 @@
         <div class="tab-pane fade" id="servicerecord-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="gas-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="tax-tab-pane" role="tabpanel" tabindex="0"></div>
+        <div class="tab-pane fade" id="insurance-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="notes-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="accident-tab-pane" role="tabpanel" tabindex="0"></div>
         <div class="tab-pane fade" id="reminder-tab-pane" role="tabpanel" tabindex="0"></div>

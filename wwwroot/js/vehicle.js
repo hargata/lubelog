@@ -19,6 +19,9 @@
             case "tax-tab":
                 getVehicleTaxRecords(vehicleId);
                 break;
+            case "insurance-tab":
+                getVehicleInsuranceRecords(vehicleId);
+                break;
             case "report-tab":
                 getVehicleReport(vehicleId);
                 break;
@@ -59,6 +62,9 @@
                     break;
                 case "tax-tab":
                     $("#tax-tab-pane").html("");
+                    break;
+                case "insurance-tab":
+                    $("#insurance-tab-pane").html("");
                     break;
                 case "report-tab":
                     $("#report-tab-pane").html("");
@@ -176,6 +182,15 @@ function getVehicleTaxRecords(vehicleId) {
     $.get(`/Vehicle/GetTaxRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
         if (data) {
             $("#tax-tab-pane").html(data);
+            restoreScrollPosition();
+            getVehicleHaveImportantReminders(vehicleId);
+        }
+    });
+}
+function getVehicleInsuranceRecords(vehicleId) {
+    $.get(`/Vehicle/GetInsuranceRecordsByVehicleId?vehicleId=${vehicleId}`, function (data) {
+        if (data) {
+            $("#insurance-tab-pane").html(data);
             restoreScrollPosition();
             getVehicleHaveImportantReminders(vehicleId);
         }
@@ -770,6 +785,14 @@ function loadGlobalSearchResult(recordId, recordType) {
                     $('#tax-tab').tab('show');
                     waitForElement('#taxRecordModalContent', showEditTaxRecordModal, recordId);
                     break;
+                case "InsuranceRecord":
+                    if ($('#insurance-tab').hasClass('d-none')) {
+                        errorToast(`${recordType} Tab Not Enabled`);
+                        return;
+                    }
+                    $('#insurance-tab').tab('show');
+                    waitForElement('#insuranceRecordModalContent', showEditInsuranceRecordModal, recordId);
+                    break;
                 case "SupplyRecord":
                     if ($('#supply-tab').hasClass('d-none')) {
                         errorToast(`${recordType} Tab Not Enabled`);
@@ -863,6 +886,9 @@ function getDefaultTabName() {
             break;
         case "TaxRecord":
             return 'tax';
+            break;
+        case "InsuranceRecord":
+            return 'insurance';
             break;
         case "Dashboard":
             return 'report';

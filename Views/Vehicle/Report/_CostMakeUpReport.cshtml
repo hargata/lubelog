@@ -6,7 +6,7 @@
     var userLanguage = userConfig.UserLanguage;
 }
 @model CostMakeUpForVehicle
-@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.UpgradeRecordSum > 0)
+@if (Model.CollisionRecordSum + Model.ServiceRecordSum + Model.GasRecordSum + Model.TaxRecordSum + Model.InsuranceRecordSum + Model.UpgradeRecordSum > 0)
 {
     <canvas id="pie-chart"></canvas>
     <script>
@@ -35,6 +35,10 @@
                         costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Tax")'));
                         costMakeUpChartData.push(globalParseFloat('@Model.TaxRecordSum'));
                         break;
+                    case 'InsuranceRecord':
+                        costMakeUpChartLabels.push(decodeHTMLEntities('@translator.Translate(userLanguage, "Insurance")'));
+                        costMakeUpChartData.push(globalParseFloat('@Model.InsuranceRecordSum'));
+                        break;
                 }
             })
             return {
@@ -53,7 +57,7 @@
                     datasets: [
                         {
                             label: decodeHTMLEntities('@translator.Translate(userLanguage, "Expenses by Type")'),
-                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ffa600", "#ff6361" ],
+                            backgroundColor: ["#003f5c", "#58508d", "#bc5090", "#ffa600", "#ff6361", "#488f31" ],
                             data: chartData.data
                         }
                     ]
