@@ -60,13 +60,13 @@
                 <span class="badge bg-primary" id="averageFuelMileageLabel">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {gasHelper.GetAverageGasMileage(Model.GasRecords, useMPG)}")</span>
                 if (useMPG)
                 {
-                    <span class="badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                    <span class="badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="badge bg-primary" id="worstFuelMileageLabel">@($"{translator.Translate(userLanguage, "Worst Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="badge bg-primary" id="bestFuelMileageLabel">@($"{translator.Translate(userLanguage, "Best Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 }
                 else
                 {
-                    <span class="badge bg-primary" id="minFuelMileageLabel">@($"{translator.Translate(userLanguage, "Min Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
-                    <span class="badge bg-primary" id="maxFuelMileageLabel">@($"{translator.Translate(userLanguage, "Max Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="badge bg-primary" id="worstFuelMileageLabel">@($"{translator.Translate(userLanguage, "Worst Fuel Economy")}: {Model.GasRecords.Max(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
+                    <span class="badge bg-primary" id="bestFuelMileageLabel">@($"{translator.Translate(userLanguage, "Best Fuel Economy")}: {Model.GasRecords.Where(y => y.MilesPerGallon > 0)?.Min(x => x.MilesPerGallon).ToString("F") ?? "0"}")</span>
                 }
                 <span class="badge bg-success" id="totalDistanceLabel">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.GasRecords.Sum(x => x.DeltaMileage).ToString() ?? "0"} {distanceUnit}")</span>
             }

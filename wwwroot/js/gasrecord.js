@@ -320,8 +320,8 @@ function toggleGasFilter(sender) {
 }
 function updateMPGLabels() {
     var averageLabel = $("#averageFuelMileageLabel");
-    var minLabel = $("#minFuelMileageLabel");
-    var maxLabel = $("#maxFuelMileageLabel");
+    var minLabel = $("#worstFuelMileageLabel");
+    var maxLabel = $("#bestFuelMileageLabel");
     var totalConsumedLabel = $("#totalFuelConsumedLabel");
     var totalDistanceLabel = $("#totalDistanceLabel");
     if (averageLabel.length > 0 && minLabel.length > 0 && maxLabel.length > 0 && totalConsumedLabel.length > 0 && totalDistanceLabel.length > 0) {
