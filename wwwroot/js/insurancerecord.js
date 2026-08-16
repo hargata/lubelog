@@ -133,6 +133,7 @@ function getAndValidateInsuranceRecordValues() {
     var insuranceProvider = $("#insuranceRecordProvider").val();
     var insurancePolicyNumber = $("#insuranceRecordPolicyNumber").val();
     var insuranceCost = $("#insuranceRecordCost").val();
+    var insuranceTotalPremium = $("#insuranceRecordTotalPremium").val();
     var insuranceNotes = $("#insuranceRecordNotes").val();
     var vehicleId = GetVehicleId().vehicleId;
     var insuranceRecordId = getInsuranceRecordModelData().id;
@@ -173,6 +174,8 @@ function getAndValidateInsuranceRecordValues() {
         provider: insuranceProvider,
         policyNumber: insurancePolicyNumber,
         cost: insuranceCost,
+        totalPremium: insuranceTotalPremium,
+        payments: insurancePayments,
         notes: insuranceNotes,
         isRecurring: insuranceIsRecurring,
         recurringInterval: insuranceRecurringMonth,
@@ -186,6 +189,59 @@ function getAndValidateInsuranceRecordValues() {
     }
 }
 
+function renderInsurancePaymentsList() {
+    var listEl = $("#insurancePaymentsList");
+    listEl.empty();
+    insurancePayments.forEach(function (payment, index) {
+        listEl.append(
+            $('<li class="list-group-item"></li>').append(
+                $('<div class="d-flex justify-content-between align-items-center"></div>').append(
+                    $('<span></span>').text(`${payment.date} — ${globalFloatToString(payment.amount.toFixed(2))}${payment.notes ? ' (' + payment.notes + ')' : ''}`),
+                    $('<button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>').on('click', function () { removeInsurancePayment(index); })
+                )
+            )
+        );
+    });
+    updateInsurancePaymentsSummary();
+}
+function addInsurancePayment() {
+    var date = $("#insurancePaymentDate").val();
+    var amount = $("#insurancePaymentAmount").val();
+    var notes = $("#insurancePaymentNotes").val();
+    if (date.trim() == '' || !isValidMoney(amount)) {
+        errorToast("Please provide a valid date and amount");
+        return;
+    }
+    insurancePayments.push({ date: date, amount: parseFloat(amount), notes: notes });
+    $("#insurancePaymentDate").val('');
+    $("#insurancePaymentAmount").val('');
+    $("#insurancePaymentNotes").val('');
+    renderInsurancePaymentsList();
+}
+function removeInsurancePayment(index) {
+    insurancePayments.splice(index, 1);
+    renderInsurancePaymentsList();
+}
+function updateInsurancePaymentsSummary() {
+    var costField = $("#insuranceRecordCost");
+    var totalPremium = parseFloat($("#insuranceRecordTotalPremium").val()) || 0;
+    var amountPaid = insurancePayments.reduce(function (sum, p) { return sum + p.amount; }, 0);
+    if (insurancePayments.length > 0) {
+        costField.val(amountPaid.toFixed(2));
+        costField.attr('disabled', true);
+    } else {
+        costField.attr('disabled', false);
+    }
+    var summaryEl = $("#insurancePaymentsSummary");
+    if (totalPremium > 0) {
+        var remaining = totalPremium - amountPaid;
+        summaryEl.text(`Paid: ${globalFloatToString(amountPaid.toFixed(2))} / Remaining: ${globalFloatToString(remaining.toFixed(2))} of ${globalFloatToString(totalPremium.toFixed(2))}`);
+    } else if (insurancePayments.length > 0) {
+        summaryEl.text(`Paid so far: ${globalFloatToString(amountPaid.toFixed(2))}`);
+    } else {
+        summaryEl.text('');
+    }
+}
 function checkRecurringInsurance() {
     let vehicleId = GetVehicleId().vehicleId
     $.post('/Vehicle/CheckRecurringInsuranceRecords', { vehicleId: vehicleId }, function (data) {

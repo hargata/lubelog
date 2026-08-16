@@ -1,0 +1,35 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+}
+@model List<InsurancePayment>
+<label id="insurancePaymentsLabel">@translator.Translate(userLanguage, "Payments")</label>
+<ul class="list-group mb-2" id="insurancePaymentsList">
+</ul>
+<div class="row g-1 mb-2">
+    <div class="col-4">
+        <input type="text" id="insurancePaymentDate" class="form-control form-control-sm" placeholder="@translator.Translate(userLanguage, "Date")">
+    </div>
+    <div class="col-3">
+        <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="insurancePaymentAmount" class="form-control form-control-sm" placeholder="@translator.Translate(userLanguage, "Amount")">
+    </div>
+    <div class="col-3">
+        <input type="text" id="insurancePaymentNotes" class="form-control form-control-sm" placeholder="@translator.Translate(userLanguage, "Notes(optional)")">
+    </div>
+    <div class="col-2">
+        <button type="button" class="btn btn-sm btn-primary w-100" onclick="addInsurancePayment()"><i class="bi bi-plus-lg"></i></button>
+    </div>
+</div>
+<div id="insurancePaymentsSummary" class="mb-2 text-muted"></div>
+<script>
+    var insurancePayments = [];
+    @foreach (InsurancePayment payment in Model)
+    {
+        @:insurancePayments.push({ date: "@payment.Date", amount: @payment.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture), notes: decodeHTMLEntities("@payment.Notes") });
+    }
+    initDatePicker($('#insurancePaymentDate'));
+    renderInsurancePaymentsList();
+</script>

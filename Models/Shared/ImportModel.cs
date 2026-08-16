@@ -122,6 +122,9 @@ namespace CarCareTracker.Models
         public string Notes { get; set; } = string.Empty;
         [JsonConverter(typeof(FromDecimalOptional))]
         public string Cost { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string TotalPremium { get; set; } = string.Empty;
+        public List<InsurancePayment> Payments { get; set; } = new List<InsurancePayment>();
         public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();

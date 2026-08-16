@@ -9,6 +9,11 @@
         public string Provider { get; set; } = string.Empty;
         public string PolicyNumber { get; set; } = string.Empty;
         public decimal Cost { get; set; }
+        public decimal TotalPremium { get; set; } = 0;
+        public List<InsurancePayment> Payments { get; set; } = new List<InsurancePayment>();
+        public decimal AmountPaid { get { return Payments.Sum(x => x.Amount); } }
+        public decimal RemainingBalance { get { return TotalPremium - AmountPaid; } }
+        public bool IsPaidInFull { get { return TotalPremium > 0 && AmountPaid >= TotalPremium; } }
         public string Notes { get; set; } = string.Empty;
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.OneYear;

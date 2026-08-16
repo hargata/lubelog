@@ -40,7 +40,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new InsuranceRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Provider = x.Provider, PolicyNumber = x.PolicyNumber, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new InsuranceRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Provider = x.Provider, PolicyNumber = x.PolicyNumber, Cost = x.Cost.ToString(), TotalPremium = x.TotalPremium.ToString(), Payments = x.Payments, Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -79,7 +79,7 @@ namespace CarCareTracker.Controllers
                 var tagsFilter = parameters.Tags.Split(' ').Distinct();
                 vehicleRecords.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
             }
-            var result = vehicleRecords.Select(x => new InsuranceRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Provider = x.Provider, PolicyNumber = x.PolicyNumber, Cost = x.Cost.ToString(), Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
+            var result = vehicleRecords.Select(x => new InsuranceRecordExportModel { VehicleId = x.VehicleId.ToString(), Id = x.Id.ToString(), Date = x.Date.ToShortDateString(), Description = x.Description, Provider = x.Provider, PolicyNumber = x.PolicyNumber, Cost = x.Cost.ToString(), TotalPremium = x.TotalPremium.ToString(), Payments = x.Payments, Notes = x.Notes, ExtraFields = x.ExtraFields, Files = x.Files, Tags = string.Join(' ', x.Tags) });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
                 return Json(result, StaticHelper.GetInvariantOption());
@@ -168,7 +168,9 @@ namespace CarCareTracker.Controllers
                     Provider = string.IsNullOrWhiteSpace(input.Provider) ? "" : input.Provider,
                     PolicyNumber = string.IsNullOrWhiteSpace(input.PolicyNumber) ? "" : input.PolicyNumber,
                     Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes,
-                    Cost = decimal.Parse(input.Cost),
+                    Cost = (input.Payments != null && input.Payments.Any()) ? input.Payments.Sum(x => x.Amount) : decimal.Parse(input.Cost),
+                    TotalPremium = string.IsNullOrWhiteSpace(input.TotalPremium) ? 0 : decimal.Parse(input.TotalPremium),
+                    Payments = input.Payments ?? new List<InsurancePayment>(),
                     ExtraFields = input.ExtraFields,
                     Files = input.Files,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
@@ -251,7 +253,9 @@ namespace CarCareTracker.Controllers
                     existingRecord.Provider = string.IsNullOrWhiteSpace(input.Provider) ? "" : input.Provider;
                     existingRecord.PolicyNumber = string.IsNullOrWhiteSpace(input.PolicyNumber) ? "" : input.PolicyNumber;
                     existingRecord.Notes = string.IsNullOrWhiteSpace(input.Notes) ? "" : input.Notes;
-                    existingRecord.Cost = decimal.Parse(input.Cost);
+                    existingRecord.Cost = (input.Payments != null && input.Payments.Any()) ? input.Payments.Sum(x => x.Amount) : decimal.Parse(input.Cost);
+                    existingRecord.TotalPremium = string.IsNullOrWhiteSpace(input.TotalPremium) ? 0 : decimal.Parse(input.TotalPremium);
+                    existingRecord.Payments = input.Payments ?? new List<InsurancePayment>();
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();

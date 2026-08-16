@@ -83,6 +83,8 @@ namespace CarCareTracker.Controllers
             {
                 Id = result.Id,
                 Cost = result.Cost,
+                TotalPremium = result.TotalPremium,
+                Payments = result.Payments,
                 Date = result.Date.ToShortDateString(),
                 Description = result.Description,
                 Provider = result.Provider,

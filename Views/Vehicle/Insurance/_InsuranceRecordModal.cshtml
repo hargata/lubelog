@@ -37,7 +37,10 @@
                     <label for="insuranceRecordPolicyNumber">@translator.Translate(userLanguage,"Policy Number(optional)")</label>
                     <input type="text" id="insuranceRecordPolicyNumber" class="form-control" placeholder="@translator.Translate(userLanguage,"Policy Number")" value="@Model.PolicyNumber">
                     <label for="insuranceRecordCost">@translator.Translate(userLanguage,"Cost")</label>
-                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="insuranceRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of policy")" value="@(isNew? "" : Model.Cost)">
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2)" id="insuranceRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of policy")" value="@(isNew? "" : Model.Cost)" @(Model.Payments.Any() ? "disabled" : "")>
+                    <label for="insuranceRecordTotalPremium">@translator.Translate(userLanguage,"Total Premium(optional, for tracking paid vs. remaining)")</label>
+                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="fixDecimalInput(this, 2); updateInsurancePaymentsSummary();" id="insuranceRecordTotalPremium" class="form-control" placeholder="@translator.Translate(userLanguage,"Full policy premium, if paying in installments")" value="@(Model.TotalPremium > 0 ? Model.TotalPremium.ToString() : "")">
+                    @await Html.PartialAsync("Insurance/_InsurancePayments", Model.Payments)
                     <label for="insuranceRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>
                     <select multiple class="form-select" id="insuranceRecordTag">
                         @foreach (string tag in Model.Tags)

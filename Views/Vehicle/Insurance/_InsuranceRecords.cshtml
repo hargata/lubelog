@@ -136,7 +136,13 @@
                             <td data-label="@translator.Translate(userLanguage, "Date")" class="col-3 flex-grow-1 col-xl-1 text-truncate" data-column="date">@insuranceRecord.Date.ToShortDateString()</td>
                             <td data-label="@translator.Translate(userLanguage, "Description")" class="col-3 flex-grow-1 col-xl-4 text-truncate" data-column="description">@insuranceRecord.Description</td>
                             <td data-label="@translator.Translate(userLanguage, "Provider")" class="col-2 flex-grow-1 col-xl-2 text-truncate" data-column="provider">@insuranceRecord.Provider</td>
-                            <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(StaticHelper.HideZeroCost(insuranceRecord.Cost, hideZero))</td>
+                            <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">
+                                @(StaticHelper.HideZeroCost(insuranceRecord.Cost, hideZero))
+                                @if (insuranceRecord.TotalPremium > 0)
+                                {
+                                    <span class="badge @(insuranceRecord.IsPaidInFull ? "bg-success" : "bg-warning text-dark") ms-1">@(insuranceRecord.IsPaidInFull ? translator.Translate(userLanguage, "Paid") : $"{translator.Translate(userLanguage, "Remaining")}: {insuranceRecord.RemainingBalance.ToString("C")}")</span>
+                                }
+                            </td>
                             <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", insuranceRecord.Files)</td>
                             <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(insuranceRecord.Notes)</td>
                         @foreach (string extraFieldColumn in extraFields)

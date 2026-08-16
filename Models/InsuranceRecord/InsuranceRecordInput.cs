@@ -10,6 +10,8 @@
         public string Provider { get; set; } = string.Empty;
         public string PolicyNumber { get; set; } = string.Empty;
         public decimal Cost { get; set; }
+        public decimal TotalPremium { get; set; } = 0;
+        public List<InsurancePayment> Payments { get; set; } = new List<InsurancePayment>();
         public string Notes { get; set; } = string.Empty;
         public bool IsRecurring { get; set; } = false;
         public ReminderMonthInterval RecurringInterval { get; set; } = ReminderMonthInterval.OneYear;
@@ -22,7 +24,9 @@
             Id = Id,
             VehicleId = VehicleId,
             Date = DateTime.Parse(Date),
-            Cost = Cost,
+            Cost = (Payments != null && Payments.Any()) ? Payments.Sum(x => x.Amount) : Cost,
+            TotalPremium = TotalPremium,
+            Payments = Payments ?? new List<InsurancePayment>(),
             Description = Description,
             Provider = Provider,
             PolicyNumber = PolicyNumber,
