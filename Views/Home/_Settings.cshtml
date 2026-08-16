@@ -201,6 +201,10 @@
                         <label class="form-check-label stretched-link" for="taxRecordTab">@translator.Translate(userLanguage, "Taxes")</label>
                     </li>
                     <li class="list-group-item">
+                        <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="InsuranceRecord" id="insuranceRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.InsuranceRecord) ? "checked" : "")>
+                        <label class="form-check-label stretched-link" for="insuranceRecordTab">@translator.Translate(userLanguage, "Insurance")</label>
+                    </li>
+                    <li class="list-group-item">
                         <input onChange="updateSettings()" class="form-check-input me-1" type="checkbox" value="NoteRecord" id="noteRecordTab" @(Model.UserConfig.VisibleTabs.Contains(ImportMode.NoteRecord) ? "checked" : "")>
                         <label class="form-check-label stretched-link" for="noteRecordTab">@translator.Translate(userLanguage, "Notes")</label>
                     </li>
@@ -233,6 +237,7 @@
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.UpgradeRecord)) value="UpgradeRecord">@translator.Translate(userLanguage, "Upgrades")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.GasRecord)) value="GasRecord">@translator.Translate(userLanguage, "Fuel")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.TaxRecord)) value="TaxRecord">@translator.Translate(userLanguage, "Tax")</!option>
+                    <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.InsuranceRecord)) value="InsuranceRecord">@translator.Translate(userLanguage, "Insurance")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.NoteRecord)) value="NoteRecord">@translator.Translate(userLanguage, "Notes")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.ReminderRecord)) value="ReminderRecord">@translator.Translate(userLanguage, "Reminders")</!option>
                     <!option @(StaticHelper.DefaultTabSelected(Model.UserConfig, ImportMode.SupplyRecord)) value="SupplyRecord">@translator.Translate(userLanguage, "Supplies")</!option>
@@ -421,6 +426,7 @@
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.GasRecord)" draggable="true" data-tab="@ImportMode.GasRecord">@translator.Translate(userLanguage, "Fuel")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.SupplyRecord)" draggable="true" data-tab="@ImportMode.SupplyRecord">@translator.Translate(userLanguage, "Supplies")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.TaxRecord)" draggable="true" data-tab="@ImportMode.TaxRecord">@translator.Translate(userLanguage, "Taxes")</li>
+                            <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.InsuranceRecord)" draggable="true" data-tab="@ImportMode.InsuranceRecord">@translator.Translate(userLanguage, "Insurance")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x=>x == ImportMode.NoteRecord)" draggable="true" data-tab="@ImportMode.NoteRecord">@translator.Translate(userLanguage, "Notes")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x => x == ImportMode.InspectionRecord)" draggable="true" data-tab="@ImportMode.InspectionRecord">@translator.Translate(userLanguage, "Inspections")</li>
                             <li class="list-group-item" style="order: @Model.UserConfig.TabOrder.FindIndex(x => x == ImportMode.EquipmentRecord)" draggable="true" data-tab="@ImportMode.EquipmentRecord">@translator.Translate(userLanguage, "Equipment")</li>

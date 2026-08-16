@@ -452,6 +452,8 @@ namespace CarCareTracker.Helper
                     return "bi-wrench-adjustable";
                 case ImportMode.TaxRecord:
                     return "bi-currency-dollar";
+                case ImportMode.InsuranceRecord:
+                    return "bi-shield-check";
                 case ImportMode.SupplyRecord:
                     return "bi-shop";
                 case ImportMode.PlanRecord:
@@ -1070,6 +1072,9 @@ namespace CarCareTracker.Helper
                     break;
                 case ImportMode.TaxRecord:
                     outputVerbiage = "Tax Record";
+                    break;
+                case ImportMode.InsuranceRecord:
+                    outputVerbiage = "Insurance Record";
                     break;
                 case ImportMode.SupplyRecord:
                     outputVerbiage = "Supply Record";

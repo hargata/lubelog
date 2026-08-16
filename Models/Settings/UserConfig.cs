@@ -40,6 +40,7 @@
             ImportMode.GasRecord, 
             ImportMode.UpgradeRecord, 
             ImportMode.TaxRecord, 
+            ImportMode.InsuranceRecord,
             ImportMode.ReminderRecord, 
             ImportMode.NoteRecord
         };
@@ -54,6 +55,7 @@
             ImportMode.GasRecord,
             ImportMode.SupplyRecord,
             ImportMode.TaxRecord,
+            ImportMode.InsuranceRecord,
             ImportMode.NoteRecord,
             ImportMode.InspectionRecord,
             ImportMode.EquipmentRecord,
