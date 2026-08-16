@@ -4,6 +4,19 @@ Self-Hosted, Open-Source, Web-Based Vehicle Maintenance and Fuel Mileage Tracker
 
 Website: https://lubelogger.com
 
+## About This Fork
+
+This is a personal fork of [hargata/lubelog](https://github.com/hargata/lubelog) with the following changes on top of upstream:
+
+- **Insurance record tracking** — a new "Insurance" tab (cloned from the existing Tax record feature) for logging vehicle insurance costs, including:
+  - Provider and Policy Number fields
+  - Recurring policy renewals (auto-generates the next entry once a renewal date passes)
+  - Installment/partial payments — track a policy's Total Premium and log individual payments against it, with a live "Paid / Remaining" balance shown on both the record and the record list
+  - Full integration with cost reports, charts, tag filtering, search, duplication, and the Settings → Visible Tabs / Default Tab / Tab Order screens
+- **Fuel Economy labels** — the "Min Fuel Economy" / "Max Fuel Economy" badges on the Gas tab now read "Worst Fuel Economy" / "Best Fuel Economy", correctly reflecting which number is actually better regardless of whether you're using MPG or a consumption-based unit (e.g. L/100km).
+
+> **Note:** The code changes in this fork were generated with the assistance of an AI coding assistant (Claude), based on and closely following the existing patterns already present in the upstream codebase (in particular, the Tax record feature was used as the template for Insurance tracking). It has been reviewed and built successfully, but has not been exhaustively tested against every edge case — use accordingly, and see [hargata/lubelog](https://github.com/hargata/lubelog) for the original, upstream-maintained project.
+
 ## Why
 Because nobody should have to deal with a homemade spreadsheet or a shoebox full of receipts when it comes to vehicle maintenance.
 
