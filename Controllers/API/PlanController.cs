@@ -299,5 +299,121 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
+        [HttpGet]
+        [Route("/api/vehicle/planrecords/promote")]
+        public IActionResult ConvertPlanRecordToRecord(int id, int odometer = 0)
+        {
+            if (id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Must provide a valid plan record id"));
+            }
+            var existingRecord = _planRecordDataAccess.GetPlanRecordById(id);
+            if (existingRecord == null || existingRecord.Id == default)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Invalid Record Id"));
+            }
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+            {
+                Response.StatusCode = 401;
+                return Json(OperationResponse.Failed("Access Denied, you don't have access to this vehicle."));
+            }
+            if (existingRecord.Progress == PlanProgress.Done)
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Plan Record has already been promoted to Done."));
+            }
+            try
+            {
+                existingRecord.Progress = PlanProgress.Done;
+                existingRecord.DateModified = DateTime.Now;
+                var result = _planRecordDataAccess.SavePlanRecordToVehicle(existingRecord);
+                int newRecordId = 0;
+                if (existingRecord.ImportMode == ImportMode.ServiceRecord)
+                {
+                    var newRecord = new ServiceRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now.Date,
+                        Mileage = odometer,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
+                        ExtraFields = existingRecord.ExtraFields
+                    };
+                    _serviceRecordDataAccess.SaveServiceRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
+                }
+                else if (existingRecord.ImportMode == ImportMode.RepairRecord)
+                {
+                    var newRecord = new CollisionRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now.Date,
+                        Mileage = odometer,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
+                        ExtraFields = existingRecord.ExtraFields
+                    };
+                    _collisionRecordDataAccess.SaveCollisionRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
+                }
+                else if (existingRecord.ImportMode == ImportMode.UpgradeRecord)
+                {
+                    var newRecord = new UpgradeRecord()
+                    {
+                        VehicleId = existingRecord.VehicleId,
+                        Date = DateTime.Now.Date,
+                        Mileage = odometer,
+                        Description = existingRecord.Description,
+                        Cost = existingRecord.Cost,
+                        Notes = existingRecord.Notes,
+                        Files = existingRecord.Files,
+                        RequisitionHistory = existingRecord.RequisitionHistory,
+                        ExtraFields = existingRecord.ExtraFields
+                    };
+                    _upgradeRecordDataAccess.SaveUpgradeRecordToVehicle(newRecord);
+                    newRecordId = newRecord.Id;
+                }
+                if (newRecordId != default && _config.GetUserConfig(User).EnableAutoOdometerInsert)
+                {
+                    _odometerLogic.AutoInsertOdometerRecord(new OdometerRecord
+                    {
+                        Date = DateTime.Now.Date,
+                        VehicleId = existingRecord.VehicleId,
+                        Mileage = odometer,
+                        Notes = $"Auto Insert From Plan Record: {existingRecord.Description}",
+                        ExtraFields = existingRecord.ExtraFields,
+                        Files = StaticHelper.CreateAttachmentFromRecord(existingRecord.ImportMode, newRecordId, existingRecord.Description)
+                    });
+                }
+                if (existingRecord.ReminderRecordId != default)
+                {
+                    var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(existingRecord.ReminderRecordId);
+                    if (existingReminder is not null && existingReminder.Id != default && existingReminder.IsRecurring)
+                    {
+                        existingReminder = _reminderHelper.GetUpdatedRecurringReminderRecord(existingReminder, DateTime.Now, odometer);
+                        _reminderRecordDataAccess.SaveReminderRecordToVehicle(existingReminder);
+                    }
+                }
+                if (result)
+                {
+                    _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromPlanRecord(existingRecord, "planrecord.promote.api", User.Identity?.Name ?? string.Empty));
+                }
+                return Json(OperationResponse.Succeed("Plan Record Promoted", new { recordId = newRecordId }));
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(OperationResponse.Failed(ex.Message));
+            }
+        }
     }
 }
