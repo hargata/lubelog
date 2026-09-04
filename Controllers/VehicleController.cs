@@ -452,7 +452,7 @@ namespace CarCareTracker.Controllers
         }
         [HttpPost]
         [TypeFilter(typeof(CollaboratorFilter))]
-        public IActionResult SearchRecordsByTags(int vehicleId, string tags)
+        public IActionResult SearchRecordsByTags(int vehicleId, string tags, string operation)
         {
             List<SearchResult> searchResults = new List<SearchResult>();
             if (string.IsNullOrWhiteSpace(tags))
@@ -460,6 +460,7 @@ namespace CarCareTracker.Controllers
                 return Json(searchResults);
             }
             var tagsFilter = tags.Split(' ').Distinct();
+            bool andOperator = operation.Trim().ToLower() == "and";
             foreach (ImportMode visibleTab in _config.GetUserConfig(User).VisibleTabs)
             {
                 switch (visibleTab)
@@ -467,77 +468,154 @@ namespace CarCareTracker.Controllers
                     case ImportMode.ServiceRecord:
                         {
                             var results = _serviceRecordDataAccess.GetServiceRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            } 
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ServiceRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.RepairRecord:
                         {
                             var results = _collisionRecordDataAccess.GetCollisionRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.RepairRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.UpgradeRecord:
                         {
                             var results = _upgradeRecordDataAccess.GetUpgradeRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.UpgradeRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.TaxRecord:
                         {
                             var results = _taxRecordDataAccess.GetTaxRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.TaxRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.SupplyRecord:
                         {
                             var results = _supplyRecordDataAccess.GetSupplyRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.SupplyRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.OdometerRecord:
                         {
                             var results = _odometerRecordDataAccess.GetOdometerRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.OdometerRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
                         }
                         break;
                     case ImportMode.GasRecord:
                         {
                             var results = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.GasRecord, Description = $"{x.Date.ToShortDateString()} - {x.Mileage}" }));
                         }
                         break;
                     case ImportMode.NoteRecord:
                         {
                             var results = _noteDataAccess.GetNotesByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.NoteRecord, Description = $"{x.Description}" }));
                         }
                         break;
                     case ImportMode.ReminderRecord:
                         {
                             var results = _reminderRecordDataAccess.GetReminderRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.ReminderRecord, Description = $"{x.Description}" }));
                         }
                         break;
                     case ImportMode.InspectionRecord:
                         {
                             var results = _inspectionRecordDataAccess.GetInspectionRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.InspectionRecord, Description = $"{x.Date.ToShortDateString()} - {x.Description}" }));
                         }
                         break;
                     case ImportMode.EquipmentRecord:
                         {
                             var results = _equipmentRecordDataAccess.GetEquipmentRecordsByVehicleId(vehicleId);
-                            results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            if (andOperator)
+                            {
+                                results.RemoveAll(x => !tagsFilter.All(y => x.Tags.Contains(y)));
+                            }
+                            else
+                            {
+                                results.RemoveAll(x => !x.Tags.Any(y => tagsFilter.Contains(y)));
+                            }
                             searchResults.AddRange(results.Select(x => new SearchResult { Id = x.Id, RecordType = ImportMode.EquipmentRecord, Description = $"{x.Description}" }));
                         }
                         break;
