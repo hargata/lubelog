@@ -27,10 +27,10 @@
     }
     @if (StaticHelper.GetAttachmentIsInTemp(Model.Location))
     {
-        <h5 class="modal-title text-truncate ps-2 pe-2" id="updateAccountModalLabel">@Model.Name</h5>
+        <h5 class="modal-title text-truncate ps-2 pe-2">@Model.Name</h5>
     } else
     {
-        <h5 class="modal-title text-truncate ps-2 pe-2" id="updateAccountModalLabel" data-link="@Model.Location" onclick="handleAttachmentCopyLink(this)" style="cursor:pointer;">@Model.Name</h5>
+        <h5 class="modal-title text-truncate ps-2 pe-2" data-link="@Model.Location" onclick="handleAttachmentCopyLink(this)" style="cursor:pointer;">@Model.Name</h5>
     }
     <a style="cursor:pointer;" onclick="closeAttachmentPreview()"><span class="link-body-emphasis"><i class="bi bi-x-lg"></i></span></a>
 </div>
