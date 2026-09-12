@@ -44,7 +44,7 @@ namespace CarCareTracker.Controllers
                 //get supply record.
                 var result = _supplyRecordDataAccess.GetSupplyRecordById(supply.SupplyId);
                 //security check
-                if (!_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.Edit))
+                if (result.VehicleId != default && !_userLogic.UserCanEditVehicle(GetUserID(), result.VehicleId, HouseholdPermission.Edit))
                 {
                     return results;
                 }

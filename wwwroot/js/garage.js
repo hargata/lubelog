@@ -887,6 +887,7 @@ $(function () {
     loadTabFromURL();
     //bind to browser pop state
     window.addEventListener('popstate', function (event) {
+        hideActiveModal();
         loadTabFromURL();
     });
 })

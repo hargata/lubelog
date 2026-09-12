@@ -376,8 +376,8 @@ function loadVehicleImageMap() {
         $("#vehicleDataTableModal").modal('show');
     });
 }
-function loadRecordsByTags(tags) {
-    $.post('/Vehicle/SearchRecordsByTags', { vehicleId: GetVehicleId().vehicleId, tags: tags }, function (data) {
+function loadRecordsByTags(tags, operation) {
+    $.post('/Vehicle/SearchRecordsByTags', { vehicleId: GetVehicleId().vehicleId, tags: tags, operation: operation }, function (data) {
         $('#vehicleMaintenanceMapResults').html(data);
         $('#vehicleMaintenanceMapResults').show();
     });
@@ -388,7 +388,7 @@ function loadMapSearchResult(id, recordType) {
 }
 function loadRecordAttachment(id, recordType) {
     closeAttachmentPreview();
-    $(".modal.show").modal('hide');
+    hideActiveModal();
     loadGlobalSearchResult(id, recordType);
 }
 function showCustomWidgets() {

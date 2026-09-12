@@ -29,6 +29,7 @@
         public bool DisableAutoZoom { get; set; }
         public bool EnablePersistentDialog { get; set; }
         public bool UseGridInMobile { get; set; }
+        public bool EnableNotesColumnWrap { get; set; }
         public List<UserColumnPreference> UserColumnPreferences { get; set; } = new List<UserColumnPreference>();
         public string UserNameHash { get; set; } = string.Empty;
         public string UserPasswordHash { get; set; } = string.Empty;
