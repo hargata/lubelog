@@ -13,6 +13,8 @@
         extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x=>x.Tab == ImportMode.OdometerRecord);
+    var noteColumnStyle = userConfig.EnableNotesColumnWrap ? "text-wrap break-all" : "text-truncate";
+    var noteColumnLength = userConfig.EnableNotesColumnWrap ? 100 : 25;
 }
 @model List<OdometerRecord>
 <div class="d-flex flex-column vehicleTabPane">
@@ -139,7 +141,7 @@
                         <td data-label="@translator.Translate(userLanguage, "Odometer")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-record-type="cost">@odometerRecord.Mileage</td>
                         <td data-label="@translator.Translate(userLanguage, "Distance")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="distance" data-record-type="distance">@(odometerRecord.DistanceTraveled == default ? "---" : odometerRecord.DistanceTraveled)</td>
                         <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", odometerRecord.Files)</td>
-                        <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-2 col-xl-3 flex-grow-1 flex-shrink-1 @noteColumnStyle" data-column="notes">@StaticHelper.TruncateStrings(odometerRecord.Notes, noteColumnLength)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">

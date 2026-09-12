@@ -66,6 +66,7 @@ function updateSettings() {
         userTheme: $("#defaultTheme").val(),
         useUnitForFuelCost: $("#useUnitForFuelCost").is(":checked"),
         useGridInMobile: $("#useGridInMobile").is(":checked"),
+        enableNotesColumnWrap: $("#enableNotesColumnWrap").is(":checked"),
         visibleTabs: visibleTabs,
         defaultTab: defaultTab,
         tabOrder: tabOrder

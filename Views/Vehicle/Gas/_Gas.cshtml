@@ -49,6 +49,8 @@
         extraFields = Model.GasRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
+    var noteColumnStyle = userConfig.EnableNotesColumnWrap ? "text-wrap break-all" : "text-truncate";
+    var noteColumnLength = userConfig.EnableNotesColumnWrap ? 100 : 25;
 }
 <div class="d-flex flex-column vehicleTabPane">
 <div class="row">
@@ -229,7 +231,7 @@
                         <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
                         <td data-label="@translator.Translate(userLanguage, "Unit Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
                         <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", gasRecord.Files)</td>
-                        <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 @noteColumnStyle" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes, noteColumnLength)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
                             <td data-label="@extraFieldColumn" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@extraFieldColumn">

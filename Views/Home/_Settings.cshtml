@@ -90,6 +90,10 @@
                     <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="useMarkDownOnSavedNotes" checked="@Model.UserConfig.UseMarkDownOnSavedNotes">
                     <label class="form-check-label" for="useMarkDownOnSavedNotes">@translator.Translate(userLanguage, "Display Saved Notes in Markdown")</label>
                 </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" onChange="updateSettings()" type="checkbox" role="switch" id="enableNotesColumnWrap" checked="@Model.UserConfig.EnableNotesColumnWrap">
+                    <label class="form-check-label" for="enableNotesColumnWrap">@translator.Translate(userLanguage, "Wrap Notes Column")</label>
+                </div>
             </div>
             <div class="border rounded p-2 bg-secondary-subtle">
                 <div class="form-check form-switch">
@@ -113,7 +117,6 @@
                     <label class="form-check-label" for="useThreeDecimalGasConsumption">@translator.Translate(userLanguage, "Use Three Decimals For Fuel Consumption")</label>
                 </div>
             </div>
-            
         </div>
         <div data-page="3" style="display:none;">
             <div class="border rounded p-2 bg-secondary-subtle">

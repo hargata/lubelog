@@ -9,6 +9,8 @@
     var recordTags = Model.SelectMany(x => x.Tags).Distinct();
     var enableCsvImports = userConfig.EnableCsvImports;
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.ReminderRecord);
+    var noteColumnStyle = userConfig.EnableNotesColumnWrap ? "text-wrap break-all" : "text-truncate";
+    var noteColumnLength = userConfig.EnableNotesColumnWrap ? 100 : 25;
 }
 <div class="d-flex flex-column vehicleTabPane">
 <div class="row">
@@ -189,7 +191,7 @@
                             @(reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer ? reminderRecord.DueMileage : "---")
                         </td>
                             <td data-label="@translator.Translate(userLanguage, "Description")" data-column="description" class="flex-grow-1 flex-shrink-1 text-truncate @(hasRefresh ? "col-3" : "col-4")">@reminderRecord.Description</td>
-                            <td data-label="@translator.Translate(userLanguage, "Notes")" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 text-truncate">@StaticHelper.TruncateStrings(reminderRecord.Notes)</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" data-column="notes" class="flex-grow-1 flex-shrink-1 col-2 @noteColumnStyle">@StaticHelper.TruncateStrings(reminderRecord.Notes, noteColumnLength)</td>
                         @if (hasRefresh)
                         {
                                 <td data-label="@translator.Translate(userLanguage, "Done")" class="flex-grow-1 flex-shrink-1 col-2 text-truncate hideOnPrint" data-column="done">

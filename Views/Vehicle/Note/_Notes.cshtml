@@ -13,6 +13,8 @@
         extraFields = Model.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct().ToList();
     }
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.NoteRecord);
+    var noteColumnStyle = userConfig.EnableNotesColumnWrap ? "text-wrap break-all" : "text-truncate";
+    var noteColumnLength = userConfig.EnableNotesColumnWrap ? 200 : 100;
 }
 <div class="d-flex flex-column vehicleTabPane">
 <div class="row">
@@ -111,7 +113,7 @@
                         {
                             <td data-label="@translator.Translate(userLanguage, "Description")" class="col-4 col-md-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="description">@note.Description</td>
                         }
-                        <td data-label="@translator.Translate(userLanguage, "Note")" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 text-truncate" data-record-type="cost" data-column="notes">@StaticHelper.TruncateStrings(note.NoteText, 100)</td>
+                        <td data-label="@translator.Translate(userLanguage, "Note")" class="col-8 col-md-9 flex-grow-1 flex-shrink-1 @noteColumnStyle" data-record-type="cost" data-column="notes">@StaticHelper.TruncateStrings(note.NoteText, noteColumnLength)</td>
                         <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", note.Files)</td>
                         @foreach (string extraFieldColumn in extraFields)
                         {
