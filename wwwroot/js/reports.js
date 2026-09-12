@@ -388,7 +388,7 @@ function loadMapSearchResult(id, recordType) {
 }
 function loadRecordAttachment(id, recordType) {
     closeAttachmentPreview();
-    $(".modal.show").modal('hide');
+    hideActiveModal();
     loadGlobalSearchResult(id, recordType);
 }
 function showCustomWidgets() {
