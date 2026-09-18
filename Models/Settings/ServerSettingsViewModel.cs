@@ -4,6 +4,7 @@ namespace CarCareTracker.Models
     {
         public string LocaleOverride { get; set; } = string.Empty;
         public string LocaleDateTimeOverride { get; set; } = string.Empty;
+        public string CurrencySymbolOverride { get; set; } = string.Empty;
         public string PostgresConnection { get; set; } = string.Empty;
         public string AllowedFileExtensions { get; set; } = string.Empty;
         public string CustomLogoURL { get; set; } = string.Empty;

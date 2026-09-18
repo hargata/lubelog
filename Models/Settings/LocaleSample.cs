@@ -8,5 +8,6 @@ namespace CarCareTracker.Models
         public string NumberSample { get; set; } = string.Empty;
         public string DecimalSample { get; set; } = string.Empty;
         public bool DecimalSeparatorMismatch { get; set; }
+        public bool CurrencySymbolInvalid { get; set; }
     }
 }

@@ -610,13 +610,23 @@ namespace CarCareTracker.Controllers
             return Json(false);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
-        public IActionResult GetLocaleSample(string locale, string dtlocale)
+        public IActionResult GetLocaleSample(string locale, string dtlocale, string currency)
         {
-            var cultureInfo = new CultureInfo(locale);
-            if (!string.IsNullOrWhiteSpace(dtlocale))
+            var cultureInfo = !string.IsNullOrWhiteSpace(locale) ? new CultureInfo(locale) : (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            if (!string.IsNullOrWhiteSpace(locale) && !string.IsNullOrWhiteSpace(dtlocale))
             {
                 var datetimeCulture = CultureInfo.GetCultureInfo(dtlocale);
                 cultureInfo.DateTimeFormat = datetimeCulture.DateTimeFormat;
+            }
+            var currencySymbol = currency?.Trim() ?? string.Empty;
+            var currencySymbolInvalid = false;
+            if (!string.IsNullOrWhiteSpace(currencySymbol))
+            {
+                currencySymbolInvalid = !StaticHelper.IsValidCurrencySymbol(currencySymbol, cultureInfo.NumberFormat);
+                if (!currencySymbolInvalid)
+                {
+                    cultureInfo.NumberFormat.CurrencySymbol = currencySymbol;
+                }
             }
             var viewModel = new LocaleSample
             {
@@ -625,7 +635,8 @@ namespace CarCareTracker.Controllers
                 CurrencySample = 13.45M.ToString("C", cultureInfo),
                 NumberSample = 123456.ToString("N", cultureInfo),
                 DecimalSample = 123456.78M.ToString("N2", cultureInfo),
-                DecimalSeparatorMismatch = cultureInfo.NumberFormat.NumberDecimalSeparator.Trim() != cultureInfo.NumberFormat.CurrencyDecimalSeparator.Trim()
+                DecimalSeparatorMismatch = cultureInfo.NumberFormat.NumberDecimalSeparator.Trim() != cultureInfo.NumberFormat.CurrencyDecimalSeparator.Trim(),
+                CurrencySymbolInvalid = currencySymbolInvalid
             };
             return PartialView("_LocaleSample", viewModel);
         }
@@ -658,6 +669,7 @@ namespace CarCareTracker.Controllers
             {
                 LocaleOverride = _config.GetLocaleOverride(),
                 LocaleDateTimeOverride = _config.GetLocaleDateTimeOverride(),
+                CurrencySymbolOverride = _config.GetCurrencySymbolOverride(),
                 AvailableLocales = installedLocales,
                 PostgresConnection = _config.GetServerPostgresConnection(),
                 AllowedFileExtensions = _config.GetAllowedFileUploadExtensions(),

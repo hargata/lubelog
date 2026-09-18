@@ -57,20 +57,44 @@ function previousSetupPage() {
     let prevPage = parseInt(currentVisiblePage) - 1;
     loadSetupPage(prevPage);
 }
+var localeSampleRequest = 0;
 function loadLocaleSample() {
-    let selectedLocale = $("#inputLocale").val();
+    let selectedLocale = $("#inputLocale").val().trim();
     let selectedDateTimeLocale = $("#inputDateTimeLocale").val();
-    if (selectedLocale.trim() == '') {
-        $("#localeSampleContainer").hide();
+    let selectedCurrencySymbol = $("#inputCurrencySymbol").val().trim();
+    //responses can arrive out of order, only the latest request may update the samples.
+    let requestId = ++localeSampleRequest;
+    if (selectedLocale == '') {
         $("#dateTimeLocaleOverride").hide();
     } else {
         $("#dateTimeLocaleOverride").show();
-        $.get(`/Home/GetLocaleSample?locale=${selectedLocale}&dtlocale=${selectedDateTimeLocale}`, function (data) {
-            $("#localeSampleContainer").html(data);
-            $("#localeSampleContainer").show();
-        })
     }
+    if (selectedLocale == '' && selectedCurrencySymbol == '') {
+        $("#localeSampleContainer, #dateTimeSampleContainer, #currencySampleContainer").hide();
+        return;
+    }
+    $.get(`/Home/GetLocaleSample?locale=${encodeURIComponent(selectedLocale)}&dtlocale=${encodeURIComponent(selectedDateTimeLocale)}&currency=${encodeURIComponent(selectedCurrencySymbol)}`, function (data) {
+        if (requestId != localeSampleRequest) {
+            return;
+        }
+        //each sample is placed under the input that controls it.
+        let samples = $($.parseHTML(data));
+        let localeSample = samples.filter('[data-sample="locale"]');
+        let dateTimeSample = samples.filter('[data-sample="datetime"]');
+        let currencySample = samples.filter('[data-sample="currency"]');
+        if (localeSample.length == 0 || dateTimeSample.length == 0 || currencySample.length == 0) {
+            return;
+        }
+        $("#localeSampleContainer").empty().append(localeSample).toggle(selectedLocale != '');
+        $("#dateTimeSampleContainer").empty().append(dateTimeSample).toggle(selectedLocale != '');
+        $("#currencySampleContainer").empty().append(currencySample).show();
+    });
 }
+$(function () {
+    if ($("#inputCurrencySymbol").length > 0 && $("#inputCurrencySymbol").val().trim() != '') {
+        loadLocaleSample();
+    }
+});
 function updateRangeLabel(e) {
     let labelElem = $(e).closest('.form-group').find('.rangeLabel');
     labelElem.text($(e).val());
@@ -79,6 +103,7 @@ function saveSetup() {
     let setupData = {
         LocaleOverride: $("#inputLocale").val(),
         LocaleDateTimeOverride: $("#inputDateTimeLocale").val(),
+        CurrencySymbolOverride: $("#inputCurrencySymbol").val(),
         PostgresConnection: $("#inputPostgres").val(),
         AllowedFileExtensions: $("#inputFileExt").val(),
         CustomLogoURL: $("#inputLogoURL").val(),

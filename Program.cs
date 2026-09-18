@@ -20,13 +20,27 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_SECRETS_PATH"])
     builder.Configuration.AddKeyPerFile(builder.Configuration["LUBELOGGER_SECRETS_PATH"] ?? string.Empty, optional: true);
 }
 
-if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"]))
+var localeOverride = builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"];
+var currencySymbolOverride = builder.Configuration["LUBELOGGER_CURRENCY_SYMBOL_OVERRIDE"]?.Trim();
+if (!string.IsNullOrWhiteSpace(localeOverride) || !string.IsNullOrWhiteSpace(currencySymbolOverride))
 {
-    var overrideCulture = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_OVERRIDE"] ?? string.Empty);
-    if (!string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]))
+    //currency symbol override alone keeps the system locale and only swaps the symbol, amounts are never converted.
+    var overrideCulture = !string.IsNullOrWhiteSpace(localeOverride) ? new CultureInfo(localeOverride) : (CultureInfo)CultureInfo.CurrentCulture.Clone();
+    if (!string.IsNullOrWhiteSpace(localeOverride) && !string.IsNullOrWhiteSpace(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"]))
     {
         var overrideDTFormat = new CultureInfo(builder.Configuration["LUBELOGGER_LOCALE_DT_OVERRIDE"] ?? string.Empty);
         overrideCulture.DateTimeFormat = overrideDTFormat.DateTimeFormat;
+    }
+    if (!string.IsNullOrWhiteSpace(currencySymbolOverride))
+    {
+        if (StaticHelper.IsValidCurrencySymbol(currencySymbolOverride, overrideCulture.NumberFormat))
+        {
+            overrideCulture.NumberFormat.CurrencySymbol = currencySymbolOverride;
+        }
+        else
+        {
+            Console.WriteLine($"WARNING: Currency Symbol Override ignored, it must be 1-{StaticHelper.MaxCurrencySymbolLength} characters with a letter or currency sign and without digits, signs, number separators or any of < > & \" ' \\ `");
+        }
     }
     CultureInfo.DefaultThreadCurrentCulture = overrideCulture;
     CultureInfo.DefaultThreadCurrentUICulture = overrideCulture;

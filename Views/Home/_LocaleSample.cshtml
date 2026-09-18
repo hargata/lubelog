@@ -6,14 +6,22 @@
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
 }
-<div class="d-flex flex-column text-secondary">
-    <span>@translator.Translate(userLanguage, "Short Date"): @Model.ShortDateSample</span>
-    <span>@translator.Translate(userLanguage, "Short DateTime"): @Model.ShortDateTimeSample</span>
-    <span>@translator.Translate(userLanguage, "Currency"): @Model.CurrencySample</span>
+<div data-sample="locale" class="d-flex flex-column text-secondary">
     <span>@translator.Translate(userLanguage, "Number"): @Model.NumberSample</span>
     <span>@translator.Translate(userLanguage, "Decimal"): @Model.DecimalSample</span>
     @if (Model.DecimalSeparatorMismatch)
     {
         <span class="text-warning"><i class="bi bi-exclamation-triangle me-2"></i>@translator.Translate(userLanguage, "This locale has mismatched currency and number decimal separators")</span>
+    }
+</div>
+<div data-sample="datetime" class="d-flex flex-column text-secondary">
+    <span>@translator.Translate(userLanguage, "Short Date"): @Model.ShortDateSample</span>
+    <span>@translator.Translate(userLanguage, "Short DateTime"): @Model.ShortDateTimeSample</span>
+</div>
+<div data-sample="currency" class="d-flex flex-column text-secondary">
+    <span>@translator.Translate(userLanguage, "Currency"): @Model.CurrencySample</span>
+    @if (Model.CurrencySymbolInvalid)
+    {
+        <span class="text-warning"><i class="bi bi-exclamation-triangle me-2"></i>@translator.Translate(userLanguage, "This currency symbol will be ignored, it needs a letter or currency sign and cannot contain digits, signs, number separators or special characters")</span>
     }
 </div>

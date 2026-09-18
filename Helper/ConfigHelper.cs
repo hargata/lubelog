@@ -24,6 +24,7 @@ namespace CarCareTracker.Helper
         bool GetCustomWidgetsEnabled();
         string GetLocaleOverride();
         string GetLocaleDateTimeOverride();
+        string GetCurrencySymbolOverride();
         string GetMOTD();
         string GetLogoUrl();
         string GetSmallLogoUrl();
@@ -106,6 +107,11 @@ namespace CarCareTracker.Helper
         {
             var locale = CheckString("LUBELOGGER_LOCALE_DT_OVERRIDE");
             return locale;
+        }
+        public string GetCurrencySymbolOverride()
+        {
+            var currencySymbol = CheckString("LUBELOGGER_CURRENCY_SYMBOL_OVERRIDE");
+            return currencySymbol;
         }
         public bool GetServerOpenRegistration()
         {
@@ -248,6 +254,20 @@ namespace CarCareTracker.Helper
             if (string.IsNullOrWhiteSpace(serverConfig.LocaleDateTimeOverride))
             {
                 serverConfig.LocaleDateTimeOverride = null;
+            }
+            if (string.IsNullOrWhiteSpace(serverConfig.CurrencySymbolOverride))
+            {
+                serverConfig.CurrencySymbolOverride = null;
+            }
+            else
+            {
+                //separators of the locale are checked on startup, where the culture is known.
+                serverConfig.CurrencySymbolOverride = serverConfig.CurrencySymbolOverride.Trim();
+                if (!StaticHelper.IsValidCurrencySymbol(serverConfig.CurrencySymbolOverride))
+                {
+                    _logger.LogWarning("Server configuration not saved, Currency Symbol Override is not valid");
+                    return false;
+                }
             }
             if (serverConfig.AllowedFileExtensions == StaticHelper.DefaultAllowedFileExtensions || string.IsNullOrWhiteSpace(serverConfig.AllowedFileExtensions))
             {

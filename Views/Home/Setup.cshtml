@@ -81,6 +81,7 @@
                     }
                 </select>
                 <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use system locale. Restart Required")</small>
+                <div id="localeSampleContainer" style="display:none;"></div>
                 <div id="dateTimeLocaleOverride" style="@(string.IsNullOrWhiteSpace(Model.LocaleOverride) ? "display:none;" : "")">
                     <label for="inputDateTimeLocale">@translator.Translate(userLanguage, "Locale DateTime Override")</label>
                     <select class="form-select" id="inputDateTimeLocale" onchange="loadLocaleSample()">
@@ -90,8 +91,14 @@
                         }
                     </select>
                     <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use default datetime format. Restart Required")</small>
+                    <div id="dateTimeSampleContainer"></div>
                 </div>
-                <div id="localeSampleContainer" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label for="inputCurrencySymbol">@translator.Translate(userLanguage, "Currency Symbol Override")</label>
+                <input type="text" id="inputCurrencySymbol" class="form-control" maxlength="@StaticHelper.MaxCurrencySymbolLength" placeholder="@translator.Translate(userLanguage, "Not Configured")" value="@Model.CurrencySymbolOverride" oninput="setDebounce(loadLocaleSample)">
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Leave blank to use the currency symbol of the locale. Amounts are not converted. Restart Required")</small>
+                <div id="currencySampleContainer" style="display:none;"></div>
             </div>
             <div class="form-group">
                 <label for="inputFileExt">@translator.Translate(userLanguage, "Allowed File Extensions")</label>

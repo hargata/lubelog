@@ -15,6 +15,7 @@
     var shortDatePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
     var firstDayOfWeek = (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
     var numberFormat = CultureInfo.CurrentCulture.NumberFormat;
+    var currencySymbolJson = System.Text.Json.JsonSerializer.Serialize(numberFormat.CurrencySymbol);
     var userLanguage = userConfig.UserLanguage;
     var webSocketEnabled = config.GetWebSocketEnabled();
     var resizeThumbnailEnabled = config.GetResizeThumbnailEnabled();
@@ -70,7 +71,7 @@
                 useDarkMode: "@useDarkMode" == "True" || ("@useSystemColorMode" == "True" && window.matchMedia('(prefers-color-scheme: dark)').matches),
                 enableCsvImport : "@enableCsvImports" == "True",
                 useMarkDown: "@useMarkDown" == "True",
-                currencySymbol: decodeHTMLEntities("@numberFormat.CurrencySymbol"),
+                currencySymbol: @Html.Raw(currencySymbolJson),
                 useThreeDecimals: "@useThreeDecimals" == "True",
                 useMPG: "@useMPG" == "True",
                 webSocketEnabled: "@webSocketEnabled" == "True",
@@ -87,7 +88,7 @@
             //remove thousands separator.
             var thousandSeparator = decodeHTMLEntities("@numberFormat.NumberGroupSeparator");
             var decimalSeparator = decodeHTMLEntities("@numberFormat.NumberDecimalSeparator");
-            var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
+            var currencySymbol = @Html.Raw(currencySymbolJson);
             if (input == "---") {
                 input = "0";
             }
@@ -146,7 +147,7 @@
         function globalAppendCurrency(input){
             //check currency symbol position
             var currencySymbolPosition = "@numberFormat.CurrencyPositivePattern";
-            var currencySymbol = decodeHTMLEntities("@numberFormat.CurrencySymbol");
+            var currencySymbol = @Html.Raw(currencySymbolJson);
             switch (currencySymbolPosition) {
                 case "0":
                     return `${currencySymbol}${input}`;
