@@ -12,6 +12,11 @@ namespace CarCareTracker.Models
     }
     public class NotificationServiceConfig
     {
+        public NotificationServiceType ServiceType { get; set; } = NotificationServiceType.Generic;
+        /// <summary>
+        /// Also send the daily All Reminders digest to this service
+        /// </summary>
+        public bool IncludeAllReminders { get; set; }
         public string Url { get; set; } = string.Empty;
         public string ContentType { get; set; } = string.Empty;
         public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();

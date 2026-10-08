@@ -26,13 +26,23 @@ namespace CarCareTracker.Models
         [JsonPropertyName("avatar_url")]
         public string AvatarUrl { get { return "https://hargata.github.io/hargata/lubelogger_logo_small.png"; } }
         public string Content { get; set; } = "";
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<DiscordEmbed>? Embeds { get; set; }
         public static DiscordWebHook FromWebHookPayload(WebHookPayload webHookPayload)
         {
             return new DiscordWebHook
             {
                 Content = webHookPayload.Action,
             };
-        } 
+        }
+    }
+    public class DiscordEmbed
+    {
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int Color { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Url { get; set; }
     }
     public class WebHookPayload: WebHookPayloadBase
     {

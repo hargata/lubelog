@@ -713,25 +713,24 @@ namespace CarCareTracker.Controllers
             try
             {
                 List<ReminderUrgency> testUrgencies = new List<ReminderUrgency> { ReminderUrgency.NotUrgent, ReminderUrgency.Urgent, ReminderUrgency.VeryUrgent, ReminderUrgency.PastDue };
-                foreach(ReminderUrgency reminderUrgency in testUrgencies)
+                var testReminders = testUrgencies.Select(reminderUrgency => new ReminderRecordViewModel
                 {
-                    var testReminder = new ReminderRecordViewModel
-                    {
-                        Urgency = reminderUrgency,
-                        Description = "Test"
-                    };
-                    var testVehicle = new Vehicle
-                    {
-                        Id = 1,
-                        Year = 1992,
-                        Make = "Make",
-                        Model = "Model",
-                        LicensePlate = "Identifier",
-                        VehicleIdentifier = "LicensePlate"
-                    };
-                    await _notificationLogic.SendNotificationToExternalServices(serviceConfig, testReminder, testVehicle);
-                }
-                return Json(OperationResponse.Succeed("Notification Sent!"));
+                    Urgency = reminderUrgency,
+                    Description = "Test",
+                    Date = DateTime.Now.Date,
+                    Metric = ReminderMetric.Date
+                }).ToList();
+                var testVehicle = new Vehicle
+                {
+                    Id = 1,
+                    Year = 1992,
+                    Make = "Make",
+                    Model = "Model",
+                    LicensePlate = "Identifier",
+                    VehicleIdentifier = "LicensePlate"
+                };
+                var result = await _notificationLogic.SendNotificationToExternalServices(serviceConfig, testReminders, testVehicle);
+                return Json(result);
             } catch (Exception ex)
             {
                 _logger.LogError($"Error Sending Test Notification: {ex.Message}");

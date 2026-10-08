@@ -2,6 +2,8 @@
 using CarCareTracker.Helper;
 using CarCareTracker.Models;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace CarCareTracker.Logic
 {
@@ -9,7 +11,7 @@ namespace CarCareTracker.Logic
     {
         Task RunAutomatedEvents();
         Task CheckReminderStateChanged();
-        Task SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, ReminderRecordViewModel reminderToSend, Vehicle vehicle);
+        Task<OperationResponse> SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, List<ReminderRecordViewModel> remindersToSend, Vehicle vehicle);
     }
     public class NotificationLogic: INotificationLogic
     {
@@ -156,6 +158,10 @@ namespace CarCareTracker.Logic
                     try
                     {
                         List<OperationResponse> operationResponses = new List<OperationResponse>();
+                        List<OperationResponse> serviceResponses = new List<OperationResponse>();
+                        var digestServiceConfigs = notificationConfig.ServiceConfigs.Where(x => x.IncludeAllReminders).ToList();
+                        //skip emails when SMTP is not set up and reminders are being delivered via external services instead
+                        bool sendEmails = !digestServiceConfigs.Any() || !string.IsNullOrWhiteSpace(_config.GetMailConfig().EmailServer);
                         foreach (Vehicle vehicle in vehicles)
                         {
                             var vehicleId = vehicle.Id;
@@ -165,6 +171,14 @@ namespace CarCareTracker.Logic
                             var results = _reminderHelper.GetReminderRecordViewModels(reminders, currentMileage, DateTime.Now).OrderByDescending(x => x.Urgency).ToList();
                             results.RemoveAll(x => !notificationConfig.UrgenciesTracked.Contains(x.Urgency));
                             if (!results.Any())
+                            {
+                                continue;
+                            }
+                            foreach (NotificationServiceConfig serviceConfig in digestServiceConfigs)
+                            {
+                                serviceResponses.Add(await SendNotificationToExternalServices(serviceConfig, results, vehicle));
+                            }
+                            if (!sendEmails)
                             {
                                 continue;
                             }
@@ -187,7 +201,22 @@ namespace CarCareTracker.Logic
                             var result = await _mailHelper.NotifyUserForReminders(vehicle, emailRecipients, results);
                             operationResponses.Add(result);
                         }
-                        if (!operationResponses.Any())
+                        if (serviceResponses.Any())
+                        {
+                            if (serviceResponses.All(x => x.Success))
+                            {
+                                _logger.LogInformation($"External Notifications Sent({serviceResponses.Count()})");
+                            }
+                            else
+                            {
+                                _logger.LogError($"External Notifications Sent({serviceResponses.Count(x => x.Success)}), External Notifications Failed({serviceResponses.Count(x => !x.Success)})");
+                            }
+                        }
+                        if (!sendEmails)
+                        {
+                            _logger.LogInformation("SMTP Server Not Setup, Skipped Reminder Emails");
+                        }
+                        else if (!operationResponses.Any())
                         {
                             _logger.LogWarning("No Emails Sent, No Vehicles Available or No Recipients Configured");
                         }
@@ -307,15 +336,9 @@ namespace CarCareTracker.Logic
                                 }
                             }
                         }
-                        if (notificationConfig.ServiceConfigs.Any())
+                        foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
                         {
-                            foreach (ReminderRecordViewModel reminderToSend in groupedNotification)
-                            {
-                                foreach (NotificationServiceConfig serviceConfig in notificationConfig.ServiceConfigs)
-                                {
-                                    await SendNotificationToExternalServices(serviceConfig, reminderToSend, vehicle);
-                                }
-                            }
+                            await SendNotificationToExternalServices(serviceConfig, groupedNotification.ToList(), vehicle);
                         }
                         _cachedReminders.AddRange(groupedNotification.Select(x => new CachedReminderRecord { Id = x.Id, Urgency = x.Urgency, DateAdded = DateTime.Now }));
                     }
@@ -330,49 +353,163 @@ namespace CarCareTracker.Logic
                 _logger.LogError($"Unable To Detect Reminder State Change Due To Error {ex.Message}");
             }
         }
-        public async Task SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, ReminderRecordViewModel reminderToSend, Vehicle vehicle)
+        public async Task<OperationResponse> SendNotificationToExternalServices(NotificationServiceConfig serviceConfig, List<ReminderRecordViewModel> remindersToSend, Vehicle vehicle)
         {
-            var serverLanguage = _config.GetServerLanguage();
+            if (string.IsNullOrWhiteSpace(serviceConfig.Url))
+            {
+                return OperationResponse.Failed("Notification Service URL Not Configured");
+            }
+            if (!remindersToSend.Any())
+            {
+                return OperationResponse.Failed("No reminders could be found");
+            }
             var serverDomain = _config.GetServerDomain();
             string notificationTitle = $"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})";
-            string notificationBody = $"{_translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminderToSend.Urgency))} - {reminderToSend.Description}";
-            string vehicleId = vehicle.Id.ToString();
             string linkToClick = string.Empty;
             if (!string.IsNullOrWhiteSpace(serverDomain))
             {
                 string cleanedURL = serverDomain.EndsWith('/') ? serverDomain.TrimEnd('/') : serverDomain;
-                linkToClick = $"{cleanedURL}/Vehicle/Index?vehicleId={vehicleId}&tab=reminder";
+                linkToClick = $"{cleanedURL}/Vehicle/Index?vehicleId={vehicle.Id}&tab=reminder";
             }
-            var httpClient = _httpClientFactory.CreateClient();
-            //loop through all configured service
-            string priority = string.Empty;
-            if (serviceConfig.PriorityMapping.TryGetValue(reminderToSend.Urgency.ToString(), out string? mappedPriority))
+            try
             {
-                priority = mappedPriority ?? string.Empty;
-            }
-            string messageBody = notificationBody;
-            if (!string.IsNullOrWhiteSpace(serviceConfig.Body))
-            {
-                messageBody = RenderNotificationBody(serviceConfig.Body, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain);
-            }
-            string cleanedUrl = RenderNotificationBody(serviceConfig.Url, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain);
-            var request = new HttpRequestMessage(HttpMethod.Post, cleanedUrl);
-            if (serviceConfig.Headers.Any())
-            {
-                foreach (var header in serviceConfig.Headers)
+                var httpClient = _httpClientFactory.CreateClient();
+                List<HttpResponseMessage> responses = serviceConfig.ServiceType == NotificationServiceType.Discord
+                    ? await SendDiscordNotification(httpClient, serviceConfig, remindersToSend, notificationTitle, linkToClick)
+                    : await SendGenericNotification(httpClient, serviceConfig, remindersToSend, vehicle, notificationTitle, linkToClick, serverDomain);
+                var failedResponse = responses.FirstOrDefault(x => !x.IsSuccessStatusCode);
+                if (failedResponse != null)
                 {
-                    request.Headers.Add(header.Key, RenderNotificationBody(header.Value, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain));
+                    string errorBody = await failedResponse.Content.ReadAsStringAsync();
+                    _logger.LogError($"{serviceConfig.ServiceType} Notification Failed: {(int)failedResponse.StatusCode} {failedResponse.StatusCode} {errorBody}");
+                    return OperationResponse.Failed($"Notification Failed: {(int)failedResponse.StatusCode} {failedResponse.StatusCode}");
+                }
+                return OperationResponse.Succeed("Notification Sent!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{serviceConfig.ServiceType} Notification Failed Due To Error: {ex.Message}");
+                return OperationResponse.Failed(ex.Message);
+            }
+        }
+        private async Task<List<HttpResponseMessage>> SendGenericNotification(HttpClient httpClient, NotificationServiceConfig serviceConfig, List<ReminderRecordViewModel> remindersToSend, Vehicle vehicle, string notificationTitle, string linkToClick, string serverDomain)
+        {
+            var serverLanguage = _config.GetServerLanguage();
+            string vehicleId = vehicle.Id.ToString();
+            string contentType = string.IsNullOrWhiteSpace(serviceConfig.ContentType) ? "text/plain" : serviceConfig.ContentType;
+            //values substituted into a JSON body have to be escaped or quotes in descriptions will produce invalid JSON
+            bool escapeForJson = contentType.Contains("json", StringComparison.OrdinalIgnoreCase);
+            List<HttpResponseMessage> responses = new List<HttpResponseMessage>();
+            //generic services receive one notification per reminder
+            foreach (ReminderRecordViewModel reminderToSend in remindersToSend)
+            {
+                string notificationBody = $"{_translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminderToSend.Urgency))} - {reminderToSend.Description}";
+                string priority = string.Empty;
+                if (serviceConfig.PriorityMapping.TryGetValue(reminderToSend.Urgency.ToString(), out string? mappedPriority))
+                {
+                    priority = mappedPriority ?? string.Empty;
+                }
+                string messageBody = notificationBody;
+                if (!string.IsNullOrWhiteSpace(serviceConfig.Body))
+                {
+                    messageBody = RenderNotificationBody(serviceConfig.Body, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain, escapeForJson);
+                }
+                string cleanedUrl = RenderNotificationBody(serviceConfig.Url, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain);
+                var response = await SendWithRetry(httpClient, () =>
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Post, cleanedUrl);
+                    foreach (var header in serviceConfig.Headers)
+                    {
+                        request.Headers.Add(header.Key, RenderNotificationBody(header.Value, vehicleId, notificationTitle, notificationBody, priority, linkToClick, serverDomain));
+                    }
+                    if (!string.IsNullOrWhiteSpace(messageBody))
+                    {
+                        request.Content = new StringContent(messageBody, Encoding.UTF8, contentType);
+                    }
+                    return request;
+                });
+                responses.Add(response);
+            }
+            return responses;
+        }
+        private async Task<List<HttpResponseMessage>> SendDiscordNotification(HttpClient httpClient, NotificationServiceConfig serviceConfig, List<ReminderRecordViewModel> remindersToSend, string notificationTitle, string linkToClick)
+        {
+            var serverLanguage = _config.GetServerLanguage();
+            string webhookUrl = serviceConfig.Url.Trim().Replace("discord://", "https://");
+            var embeds = remindersToSend.Select(reminder =>
+            {
+                string urgency = _translator.Translate(serverLanguage, StaticHelper.GetTitleCaseReminderUrgency(reminder.Urgency));
+                string dueOn = reminder.Metric == ReminderMetric.Both ? $"{reminder.Date.ToShortDateString()} or {reminder.Mileage}" : reminder.Metric == ReminderMetric.Date ? $"{reminder.Date.ToShortDateString()}" : $"{reminder.Mileage}";
+                return new DiscordEmbed
+                {
+                    Title = Truncate(reminder.Description, 256),
+                    Description = $"**{urgency}** · {_translator.Translate(serverLanguage, "Due")}: {dueOn}",
+                    Color = GetDiscordColor(reminder.Urgency),
+                    Url = string.IsNullOrWhiteSpace(linkToClick) ? null : linkToClick
+                };
+            }).ToList();
+            List<HttpResponseMessage> responses = new List<HttpResponseMessage>();
+            //discord allows at most 10 embeds per message
+            foreach (var embedChunk in embeds.Chunk(10))
+            {
+                var payload = new DiscordWebHook
+                {
+                    Content = $"**{notificationTitle}**",
+                    Embeds = embedChunk.ToList()
+                };
+                string serializedPayload = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                var response = await SendWithRetry(httpClient, () => new HttpRequestMessage(HttpMethod.Post, webhookUrl) { Content = new StringContent(serializedPayload, Encoding.UTF8, "application/json") });
+                responses.Add(response);
+                if (!response.IsSuccessStatusCode)
+                {
+                    break;
                 }
             }
-            if (!string.IsNullOrWhiteSpace(messageBody))
-            {
-                request.Content = new StringContent(messageBody, Encoding.UTF8, serviceConfig.ContentType);
-            }
-            await httpClient.SendAsync(request);
+            return responses;
         }
-        private string RenderNotificationBody(string inputString, string vehicleId, string title, string message, string priority, string linkToClick, string domain)
+        private async Task<HttpResponseMessage> SendWithRetry(HttpClient httpClient, Func<HttpRequestMessage> createRequest)
         {
-            return inputString.Replace("{vehicleId}", vehicleId).Replace("{title}", title).Replace("{message}", message).Replace("{priority}", priority).Replace("{link}", linkToClick).Replace("{domain}", domain);
+            int maxAttempts = 3;
+            var response = await httpClient.SendAsync(createRequest());
+            for (int attempt = 1; attempt < maxAttempts && response.StatusCode == System.Net.HttpStatusCode.TooManyRequests; attempt++)
+            {
+                var retryDelay = response.Headers.RetryAfter?.Delta ?? TimeSpan.FromSeconds(Math.Pow(2, attempt));
+                _logger.LogWarning($"Notification Service: Too Many Requests, Delaying for {retryDelay.TotalSeconds} seconds before attempt {attempt + 1}/{maxAttempts}");
+                response.Dispose();
+                await Task.Delay(retryDelay);
+                response = await httpClient.SendAsync(createRequest());
+            }
+            return response;
+        }
+        private static int GetDiscordColor(ReminderUrgency urgency)
+        {
+            //matches the bootstrap badge colors used for reminders in the UI
+            switch (urgency)
+            {
+                case ReminderUrgency.PastDue:
+                    return 0x6C757D;
+                case ReminderUrgency.VeryUrgent:
+                    return 0xDC3545;
+                case ReminderUrgency.Urgent:
+                    return 0xFFC107;
+                default:
+                    return 0x198754;
+            }
+        }
+        private static string Truncate(string input, int maxLength)
+        {
+            return input.Length <= maxLength ? input : $"{input.Substring(0, maxLength - 3)}...";
+        }
+        private string RenderNotificationBody(string inputString, string vehicleId, string title, string message, string priority, string linkToClick, string domain, bool escapeForJson = false)
+        {
+            Func<string, string> encode = escapeForJson ? EscapeJsonString : (value => value);
+            return inputString.Replace("{vehicleId}", encode(vehicleId)).Replace("{title}", encode(title)).Replace("{message}", encode(message)).Replace("{priority}", encode(priority)).Replace("{link}", encode(linkToClick)).Replace("{domain}", encode(domain));
+        }
+        private static string EscapeJsonString(string value)
+        {
+            //serialize as a JSON string and strip the surrounding quotes so the value can be placed inside a quoted template field
+            var serialized = JsonSerializer.Serialize(value, new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            return serialized.Substring(1, serialized.Length - 2);
         }
     }
 }

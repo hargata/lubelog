@@ -198,23 +198,7 @@ function saveSetup() {
             notificationConfig.AutomatedEvents.push(this.value);
         });
         $("#inputNotificationServiceConfig .serviceConfig").map((index, elem) => {
-            let headerValues = $(elem).find('.serviceConfigHeaders').val();
-            if (headerValues.trim() == '') {
-                headerValues = '{}';
-            }
-            let serviceConfig = {
-                Url: $(elem).find('.serviceConfigUrl').val(),
-                ContentType: $(elem).find('.serviceConfigContentType').val(),
-                PriorityMapping: {
-                    NotUrgent: $(elem).find('.serviceConfigNotUrgentPriority').val(),
-                    Urgent: $(elem).find('.serviceConfigUrgentPriority').val(),
-                    VeryUrgent: $(elem).find('.serviceConfigVeryUrgentPriority').val(),
-                    PastDue: $(elem).find('.serviceConfigPastDuePriority').val()
-                },
-                Headers: JSON.parse(headerValues),
-                Body: $(elem).find('.serviceConfigBody').val()
-            };
-            notificationConfig.ServiceConfigs.push(serviceConfig);
+            notificationConfig.ServiceConfigs.push(getNotificationServiceConfig($(elem)));
         });
         setupData["NotificationConfig"] = notificationConfig;
     }
@@ -234,13 +218,20 @@ function addNewNotificationServiceConfig() {
 function deleteNotificationServiceConfig(e) {
     $(e).closest('.serviceConfig').remove();
 }
-function sendTestNotification(e) {
+function toggleNotificationServiceType(e) {
     let serviceConfigElem = $(e).closest('.serviceConfig');
+    let isDiscord = $(e).val() == 'Discord';
+    serviceConfigElem.find('.serviceConfigGenericField').toggle(!isDiscord);
+    serviceConfigElem.find('.serviceConfigUrl').attr('placeholder', isDiscord ? 'https://discord.com/api/webhooks/...' : '');
+}
+function getNotificationServiceConfig(serviceConfigElem) {
     let headerValues = serviceConfigElem.find('.serviceConfigHeaders').val();
     if (headerValues.trim() == '') {
         headerValues = '{}';
     }
-    let serviceConfigToTest = {
+    return {
+        ServiceType: serviceConfigElem.find('.serviceConfigServiceType').val(),
+        IncludeAllReminders: serviceConfigElem.find('.serviceConfigIncludeAllReminders').is(':checked'),
         Url: serviceConfigElem.find('.serviceConfigUrl').val(),
         ContentType: serviceConfigElem.find('.serviceConfigContentType').val(),
         PriorityMapping: {
@@ -251,7 +242,10 @@ function sendTestNotification(e) {
         },
         Headers: JSON.parse(headerValues),
         Body: serviceConfigElem.find('.serviceConfigBody').val()
-    }
+    };
+}
+function sendTestNotification(e) {
+    let serviceConfigToTest = getNotificationServiceConfig($(e).closest('.serviceConfig'));
     $.post('/Home/SendTestNotification', { serviceConfig: serviceConfigToTest }, function (data) {
         if (data.success) {
             successToast(data.message);
