@@ -376,7 +376,9 @@ namespace CarCareTracker.Logic
                         CurrentOdometer = vehicleMileage,
                         DueDays = x.DueDays,
                         DueMileage = x.DueMileage,
-                        UserMetric = x.UserMetric
+                        UserMetric = x.UserMetric,
+                        IsRecurring = x.IsRecurring,
+                        Tags = x.Tags
                     }).ToList();
                     reminders.AddRange(reminderUrgencyToAdd);
                 }

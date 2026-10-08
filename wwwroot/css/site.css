@@ -941,3 +941,7 @@ html[data-bs-theme="dark"] .swal2-validation-message {
 .dual-range input[type="range"].dual-range-top {
     z-index: 3;
 }
+.btn-check:not(:checked) + .all-reminders-urgency-label {
+    opacity: 0.35;
+    text-decoration: line-through;
+}

@@ -1,0 +1,122 @@
+﻿@using CarCareTracker.Helper
+@inject IConfigHelper config
+@inject ITranslationHelper translator
+@model List<KioskReminderViewModel>
+@{
+    var userConfig = config.GetUserConfig(User);
+    var userLanguage = userConfig.UserLanguage;
+    var vehicles = Model.Select(x => x.VehicleData).GroupBy(x => x.Id).Select(x => x.First()).OrderBy(x => $"{x.Year} {x.Make} {x.Model}").ToList();
+    var recordTags = Model.SelectMany(x => x.Tags).Distinct().OrderBy(x => x).ToList();
+    var urgencies = new List<(ReminderUrgency Urgency, string Label, string BadgeClass)>
+    {
+        (ReminderUrgency.PastDue, "Past Due", "text-bg-secondary"),
+        (ReminderUrgency.VeryUrgent, "Very Urgent", "text-bg-danger"),
+        (ReminderUrgency.Urgent, "Urgent", "text-bg-warning"),
+        (ReminderUrgency.NotUrgent, "Not Urgent", "text-bg-success")
+    };
+    Func<Vehicle, string> getVehicleName = vehicle => $"{vehicle.Year} {vehicle.Make} {vehicle.Model} ({StaticHelper.GetVehicleIdentifier(vehicle)})";
+}
+<div class="d-flex flex-column vehicleTabPane">
+    <div class="row hideOnPrint">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="badge bg-success" data-aggregate-type="count">@translator.Translate(userLanguage, "# of Reminders"): <span class="all-reminders-count">@Model.Count()</span></span>
+            @foreach (var urgency in urgencies)
+            {
+                <input type="checkbox" class="btn-check all-reminders-urgency-filter" id="allRemindersUrgency_@urgency.Urgency" value="@urgency.Urgency" autocomplete="off" checked onchange="filterAllReminders()">
+                <label class="badge @urgency.BadgeClass all-reminders-urgency-label user-select-none" style="cursor:pointer;" for="allRemindersUrgency_@urgency.Urgency">@translator.Translate(userLanguage, urgency.Label): @Model.Count(x => x.Urgency == urgency.Urgency)</label>
+            }
+        </div>
+    </div>
+    <div class="row mt-2 hideOnPrint">
+        <div class="d-flex flex-wrap gap-2">
+            <input type="search" id="allRemindersSearch" class="form-control flex-grow-1" style="max-width:20rem;" placeholder="@translator.Translate(userLanguage, "Search")" oninput="filterAllReminders()">
+            @if (vehicles.Count > 1)
+            {
+                <select id="allRemindersVehicleFilter" class="form-select" style="max-width:20rem;" onchange="filterAllReminders()">
+                    <!option value="">@translator.Translate(userLanguage, "All Vehicles")</!option>
+                    @foreach (Vehicle vehicle in vehicles)
+                    {
+                        <!option value="@vehicle.Id">@getVehicleName(vehicle)</!option>
+                    }
+                </select>
+            }
+            @if (recordTags.Any())
+            {
+                <select id="allRemindersTagFilter" class="form-select" style="max-width:14rem;" onchange="filterAllReminders()">
+                    <!option value="">@translator.Translate(userLanguage, "All Tags")</!option>
+                    @foreach (string recordTag in recordTags)
+                    {
+                        <!option value="@recordTag">@recordTag</!option>
+                    }
+                </select>
+            }
+            <button type="button" class="btn btn-outline-secondary" onclick="resetAllRemindersFilters()">@translator.Translate(userLanguage, "Reset")</button>
+            <button type="button" class="btn btn-outline-secondary ms-auto" onclick="printTab()"><i class="bi bi-printer"></i></button>
+        </div>
+    </div>
+    <div class="row vehicleDetailTabContainer flex-grow-1 mt-2">
+        <div class="col-12">
+            <div class="row mt-2 showOnPrint">
+                <div class="d-flex">
+                    <img src="@config.GetLogoUrl()" class="lubelogger-logo" />
+                </div>
+            </div>
+            <table class="table table-hover all-reminders-table @(userConfig.UseGridInMobile ? "" : "ll-responsive-table")">
+                <thead class="sticky-top">
+                    <tr>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="vehicle" data-sort-type="text" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Vehicle")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="urgency" data-sort-type="number" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Urgency")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="description" data-sort-type="text" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Description")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="date" data-sort-type="number" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Date")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="odometer" data-sort-type="number" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Odometer")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="duedays" data-sort-type="number" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Due Days")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col" class="text-nowrap user-select-none" style="cursor:pointer;" data-sort-column="duedistance" data-sort-type="number" onclick="sortAllReminders(this)">@translator.Translate(userLanguage, "Due Distance")<i class="bi ms-1 all-reminders-sort-icon"></i></th>
+                        <th scope="col">@translator.Translate(userLanguage, "Notes")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (KioskReminderViewModel reminderRecord in Model)
+                    {
+                        var vehicleName = getVehicleName(reminderRecord.VehicleData);
+                        var hasDate = reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Date;
+                        var hasOdometer = reminderRecord.UserMetric == ReminderMetric.Both || reminderRecord.UserMetric == ReminderMetric.Odometer;
+                        var urgencyInfo = urgencies.First(x => x.Urgency == reminderRecord.Urgency);
+                        <tr class="user-select-none" style="cursor:pointer;" onclick="showCalendarReminderModal(@reminderRecord.Id)" data-vehicle-id="@reminderRecord.VehicleData.Id" data-urgency="@reminderRecord.Urgency" data-tags="@string.Join(" ", reminderRecord.Tags)">
+                            <td data-label="@translator.Translate(userLanguage, "Vehicle")" data-sort-column="vehicle" data-sort="@vehicleName">
+                                <a href="/Vehicle/Index?vehicleId=@reminderRecord.VehicleData.Id&tab=reminder" onclick="event.stopPropagation();">@vehicleName</a>
+                            </td>
+                            <td data-label="@translator.Translate(userLanguage, "Urgency")" data-sort-column="urgency" data-sort="@((int)reminderRecord.Urgency)">
+                                <span class="badge @urgencyInfo.BadgeClass">@translator.Translate(userLanguage, urgencyInfo.Label)</span>
+                            </td>
+                            <td data-label="@translator.Translate(userLanguage, "Description")" data-sort-column="description" data-sort="@reminderRecord.Description">@reminderRecord.Description</td>
+                            <td data-label="@translator.Translate(userLanguage, "Date")" data-sort-column="date" data-sort="@(hasDate ? StaticHelper.GetEpochFromDateTime(reminderRecord.Date).ToString() : "")">@(hasDate ? reminderRecord.Date.ToShortDateString() : "---")</td>
+                            <td data-label="@translator.Translate(userLanguage, "Odometer")" data-sort-column="odometer" data-sort="@(hasOdometer ? reminderRecord.Mileage.ToString() : "")">@(hasOdometer ? reminderRecord.Mileage.ToString() : "---")</td>
+                            <td data-label="@translator.Translate(userLanguage, "Due Days")" data-sort-column="duedays" data-sort="@(hasDate ? reminderRecord.DueDays.ToString() : "")">@(hasDate ? reminderRecord.DueDays.ToString() : "---")</td>
+                            <td data-label="@translator.Translate(userLanguage, "Due Distance")" data-sort-column="duedistance" data-sort="@(hasOdometer ? reminderRecord.DueMileage.ToString() : "")">@(hasOdometer ? reminderRecord.DueMileage.ToString() : "---")</td>
+                            <td data-label="@translator.Translate(userLanguage, "Notes")" class="text-truncate" style="max-width:15rem;">@StaticHelper.TruncateStrings(reminderRecord.Notes, 50)</td>
+                        </tr>
+                    }
+                    <tr class="all-reminders-empty" style="@(Model.Any() ? "display:none;" : "")">
+                        <td colspan="8" class="text-center text-body-secondary">@translator.Translate(userLanguage, "No reminders found")</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="8" class="showOnPrint lubelogger-report-banner">
+                            @StaticHelper.ReportNote
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" data-bs-focus="false" id="reminderRecordCalendarModal" tabindex="-1" role="dialog" aria-hidden="true" @StaticHelper.GetStaticModalAttribute(userConfig.EnablePersistentDialog)>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="reminderRecordCalendarModalContent">
+        </div>
+    </div>
+</div>
+<script>
+    initAllReminders();
+</script>

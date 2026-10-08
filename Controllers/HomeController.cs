@@ -132,10 +132,26 @@ namespace CarCareTracker.Controllers
             var reminders = _vehicleLogic.GetReminders(vehiclesStored, true);
             return PartialView("_Calendar", reminders);
         }
+        public IActionResult Reminders()
+        {
+            var vehiclesStored = _dataAccess.GetVehicles();
+            if (!User.IsInRole(nameof(UserData.IsRootUser)))
+            {
+                vehiclesStored = _userLogic.FilterUserVehicles(vehiclesStored, GetUserID());
+            }
+            if (_config.GetUserConfig(User).HideSoldVehicles)
+            {
+                vehiclesStored.RemoveAll(x => !string.IsNullOrWhiteSpace(x.SoldDate));
+            }
+            var reminders = _vehicleLogic.GetRemindersForKiosk(vehiclesStored);
+            return PartialView("_Reminders", reminders);
+        }
         public IActionResult ViewCalendarReminder(int reminderId)
         {
             var reminder = _reminderRecordDataAccess.GetReminderRecordById(reminderId);
-            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, 0, DateTime.Now).FirstOrDefault();
+            //use the vehicle's current odometer so odometer based reminders get the correct urgency
+            var currentMileage = _vehicleLogic.GetMaxMileage(reminder.VehicleId);
+            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, currentMileage, DateTime.Now).FirstOrDefault();
             return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
         }
         public async Task<IActionResult> Settings()

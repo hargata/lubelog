@@ -40,6 +40,9 @@
                             <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2">@translator.Translate(userLanguage, "Calendar")</span></button>
                         </li>
                     }
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link resizable-nav-link" id="reminders-tab" data-bs-toggle="tab" data-bs-target="#reminders-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bell"></i><span class="ms-2">@translator.Translate(userLanguage, "Reminders")</span></button>
+                    </li>
                     <li class="nav-item dropdown nav-item-persist nav-item-more me-5" role="presentation" style="display:none;">
                         <a class="nav-link resizable-nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-three-dots"></i></a>
                         <ul class="dropdown-menu">
@@ -58,6 +61,9 @@
                                     <button class="nav-link resizable-nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-calendar-week"></i><span class="ms-2">@translator.Translate(userLanguage, "Calendar")</span></button>
                                 </li>
                             }
+                            <li class="nav-item text-truncate" role="presentation">
+                                <button class="nav-link resizable-nav-link" id="reminders-tab" data-bs-toggle="tab" data-bs-target="#reminders-tab-pane" type="button" role="tab" aria-selected="false"><i class="bi bi-bell"></i><span class="ms-2">@translator.Translate(userLanguage, "Reminders")</span></button>
+                            </li>
                             <li class="nav-item text-truncate" role="presentation">
                                 <button class="nav-link resizable-nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><i class="bi bi-gear"></i><span class="ms-2">@translator.Translate(userLanguage, "Settings")</span></button>
                             </li>
@@ -126,6 +132,9 @@
             </li>
         }
         <li class="nav-item d-flex" role="presentation">
+            <button class="nav-link flex-grow-1 text-start" id="reminders-tab" data-bs-toggle="tab" data-bs-target="#reminders-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-bell me-2"></i>@translator.Translate(userLanguage, "Reminders")</span></button>
+        </li>
+        <li class="nav-item d-flex" role="presentation">
             <button class="nav-link flex-grow-1 text-start" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab"><span class="ms-2 display-3"><i class="bi bi-gear me-2"></i>@translator.Translate(userLanguage, "Settings")</span></button>
         </li>
         @if (User.IsInRole("CookieAuth") || User.IsInRole("APIAuth"))
@@ -163,6 +172,8 @@
         <div class="tab-pane fade" id="supply-tab-pane" role="tabpanel" tabindex="0">
         </div>
         <div class="tab-pane fade" id="calendar-tab-pane" role="tabpanel" tabindex="0">
+        </div>
+        <div class="tab-pane fade" id="reminders-tab-pane" role="tabpanel" tabindex="0">
         </div>
         <div class="tab-pane fade" id="settings-tab-pane" role="tabpanel" tabindex="0">
         </div>

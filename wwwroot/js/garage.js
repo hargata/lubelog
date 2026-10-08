@@ -50,6 +50,9 @@ function bindTabEvent() {
             case "calendar-tab":
                 getVehicleCalendarEvents();
                 break;
+            case "reminders-tab":
+                getAllReminders();
+                break;
         }
         $(`.lubelogger-tab #${e.target.id}`).addClass('active');
         $(`.lubelogger-mobile-nav #${e.target.id}`).addClass('active');
@@ -66,6 +69,9 @@ function bindTabEvent() {
                     break;
                 case "calendar-tab":
                     $("#calendar-tab-pane").html("");
+                    break;
+                case "reminders-tab":
+                    $("#reminders-tab-pane").html("");
                     break;
             }
             $(`.lubelogger-tab #${e.relatedTarget.id}`).removeClass('active');
@@ -120,7 +126,7 @@ function markDoneCalendarReminderRecord(reminderRecordId, e) {
         if (data.success) {
             hideCalendarReminderModal();
             successToast("Reminder Updated");
-            getVehicleCalendarEvents();
+            reloadReminderView();
         } else {
             errorToast(data.message);
         }
@@ -137,7 +143,7 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
                 if (data.success) {
                     hideCalendarReminderModal();
                     successToast("Reminder Deleted");
-                    getVehicleCalendarEvents();
+                    reloadReminderView();
                 } else {
                     errorToast(data.message);
                     $("#workAroundInput").hide();
@@ -147,6 +153,98 @@ function deleteCalendarReminderRecord(reminderRecordId, e) {
             $("#workAroundInput").hide();
         }
     });
+}
+function reloadReminderView() {
+    //the reminder modal is shared by the calendar and all reminders tabs
+    if ($("#reminders-tab-pane").hasClass("active")) {
+        getAllReminders();
+    } else {
+        getVehicleCalendarEvents();
+    }
+}
+//filter and sort state is kept so it survives reloads after marking a reminder done or deleting it
+var allRemindersState = { search: '', vehicleId: '', tag: '', hiddenUrgencies: [], sortColumn: '', sortDescending: false };
+function getAllReminders() {
+    $.get('/Home/Reminders', function (data) {
+        if (data) {
+            $("#reminders-tab-pane").html(data);
+        }
+    });
+}
+function initAllReminders() {
+    $("#allRemindersSearch").val(allRemindersState.search);
+    //only restore selections that still exist in the reloaded data
+    if ($(`#allRemindersVehicleFilter option[value='${allRemindersState.vehicleId}']`).length > 0) {
+        $("#allRemindersVehicleFilter").val(allRemindersState.vehicleId);
+    }
+    if ($("#allRemindersTagFilter option").filter((index, elem) => elem.value == allRemindersState.tag).length > 0) {
+        $("#allRemindersTagFilter").val(allRemindersState.tag);
+    }
+    $(".all-reminders-urgency-filter").each((index, elem) => {
+        $(elem).prop('checked', !allRemindersState.hiddenUrgencies.includes(elem.value));
+    });
+    if (allRemindersState.sortColumn != '') {
+        applyAllRemindersSort();
+    }
+    filterAllReminders();
+}
+function filterAllReminders() {
+    allRemindersState.search = $("#allRemindersSearch").val() ?? '';
+    allRemindersState.vehicleId = $("#allRemindersVehicleFilter").val() ?? '';
+    allRemindersState.tag = $("#allRemindersTagFilter").val() ?? '';
+    allRemindersState.hiddenUrgencies = $(".all-reminders-urgency-filter:not(:checked)").map((index, elem) => elem.value).get();
+    let searchString = allRemindersState.search.trim().toLowerCase();
+    let visibleRows = 0;
+    $(".all-reminders-table tbody tr:not(.all-reminders-empty)").each((index, elem) => {
+        let row = $(elem);
+        let isVisible = !allRemindersState.hiddenUrgencies.includes(row.attr('data-urgency'))
+            && (allRemindersState.vehicleId == '' || row.attr('data-vehicle-id') == allRemindersState.vehicleId)
+            && (allRemindersState.tag == '' || row.attr('data-tags').split(' ').includes(allRemindersState.tag))
+            && (searchString == '' || row.text().toLowerCase().includes(searchString));
+        row.toggle(isVisible);
+        if (isVisible) {
+            visibleRows++;
+        }
+    });
+    $(".all-reminders-count").text(visibleRows);
+    $(".all-reminders-empty").toggle(visibleRows == 0);
+}
+function resetAllRemindersFilters() {
+    $("#allRemindersSearch").val('');
+    $("#allRemindersVehicleFilter").val('');
+    $("#allRemindersTagFilter").val('');
+    $(".all-reminders-urgency-filter").prop('checked', true);
+    filterAllReminders();
+}
+function sortAllReminders(header) {
+    let sortColumn = $(header).attr('data-sort-column');
+    //clicking the same column toggles direction, a new column starts ascending
+    allRemindersState.sortDescending = allRemindersState.sortColumn == sortColumn ? !allRemindersState.sortDescending : false;
+    allRemindersState.sortColumn = sortColumn;
+    applyAllRemindersSort();
+}
+function applyAllRemindersSort() {
+    let header = $(`.all-reminders-table th[data-sort-column='${allRemindersState.sortColumn}']`);
+    if (header.length == 0) {
+        return;
+    }
+    let isNumeric = header.attr('data-sort-type') == 'number';
+    let direction = allRemindersState.sortDescending ? -1 : 1;
+    let tableBody = $(".all-reminders-table tbody");
+    let rows = tableBody.find("tr:not(.all-reminders-empty)").get();
+    rows.sort((a, b) => {
+        let aValue = $(a).find(`td[data-sort-column='${allRemindersState.sortColumn}']`).attr('data-sort');
+        let bValue = $(b).find(`td[data-sort-column='${allRemindersState.sortColumn}']`).attr('data-sort');
+        //rows without a value for this column always go last
+        if (aValue == '' || bValue == '') {
+            return (aValue == '') - (bValue == '');
+        }
+        let result = isNumeric ? parseFloat(aValue) - parseFloat(bValue) : aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
+        return result * direction;
+    });
+    tableBody.prepend(rows);
+    $(".all-reminders-sort-icon").removeClass('bi-sort-down bi-sort-up');
+    header.find(".all-reminders-sort-icon").addClass(allRemindersState.sortDescending ? 'bi-sort-down' : 'bi-sort-up');
 }
 function initCalendar() {
     if (groupedDates.length == 0) {

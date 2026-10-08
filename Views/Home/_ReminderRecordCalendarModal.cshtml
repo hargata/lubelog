@@ -16,8 +16,16 @@
             <div class="row">
                 <div class="col-md-6 col-12" id="reminderOptions">
                     <input type="text" id="workAroundInput" style="height:0px; width:0px; display:none;">
-                    <label for="reminderDescription">@translator.Translate(userLanguage, "Date")</label>
-                    <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Date.ToShortDateString()">
+                    @if (Model.UserMetric == ReminderMetric.Both || Model.UserMetric == ReminderMetric.Date)
+                    {
+                        <label for="reminderDate">@translator.Translate(userLanguage, "Date")</label>
+                        <input type="text" id="reminderDate" readonly class="form-control" value="@Model.Date.ToShortDateString()">
+                    }
+                    @if (Model.UserMetric == ReminderMetric.Both || Model.UserMetric == ReminderMetric.Odometer)
+                    {
+                        <label for="reminderOdometer">@translator.Translate(userLanguage, "Odometer")</label>
+                        <input type="text" id="reminderOdometer" readonly class="form-control" value="@Model.Mileage">
+                    }
                     <label for="reminderDescription">@translator.Translate(userLanguage,"Description")</label>
                     <input type="text" id="reminderDescription" readonly class="form-control" value="@Model.Description">
                 </div>
