@@ -48,7 +48,7 @@
                     <script>
                         supplyUsageHistory.push({ id: decodeHTMLEntities("@usageHistory.Id"), date: decodeHTMLEntities("@usageHistory.Date.ToShortDateString()"), partNumber: decodeHTMLEntities('@usageHistory.PartNumber'), description: decodeHTMLEntities("@usageHistory.Description"), quantity: decodeHTMLEntities("@usageHistory.Quantity.ToString("F")"), cost: decodeHTMLEntities("@usageHistory.Cost.ToString("F")") })
                     </script>
-                    <div class="d-flex supply-row p-2 align-items-center border rounded mb-2">
+                    <div class="d-flex supply-row p-2 align-items-center border rounded mb-2 flex-nowrap">
                         <div class="d-flex flex-column flex-grow-1">
                             <small class="text-secondary">
                                 @StaticHelper.TruncateStrings(usageHistory.Date.ToShortDateString())
@@ -56,19 +56,19 @@
                             <span class="text-wrap pe-2 break-all">
                                 @StaticHelper.TruncateStrings(usageHistory.Description, 125)
                             </span>
-                            <div class="d-flex flex-row gap-2">
+                            <div class="d-flex flex-row gap-2 flex-wrap">
                                 @if (!string.IsNullOrWhiteSpace(usageHistory.PartNumber))
                                 {
-                                    <div class="d-flex flex-column text-truncate">
+                                    <div class="d-flex flex-column text-wrap break-all">
                                         <small class="text-secondary">@translator.Translate(userLanguage, "Part Number")</small>
                                         <small>@usageHistory.PartNumber</small>
                                     </div>
                                 }
-                                <div class="d-flex flex-column text-truncate">
+                                <div class="d-flex flex-column text-wrap break-all">
                                     <small class="text-secondary">@translator.Translate(userLanguage, "Quantity")</small>
                                     <small>@usageHistory.Quantity.ToString("F")</small>
                                 </div>
-                                <div class="d-flex flex-column text-truncate">
+                                <div class="d-flex flex-column text-wrap break-all">
                                     <small class="text-secondary">@translator.Translate(userLanguage, "Cost")</small>
                                     <small>@usageHistory.Cost.ToString("C2")</small>
                                 </div>
@@ -76,7 +76,7 @@
                         </div>
                         @if (showDelete)
                         {
-                            <button type="button" class="btn btn-danger" onclick="deleteSupplyUsageHistory('@usageHistory.Id.ToString()', '@usageHistory.Quantity.ToString("F")', '@usageHistory.Cost.ToString("F")', this)"><i class="bi bi-trash"></i></button>
+                            <button type="button" class="btn btn-danger mt-1 mb-1" onclick="deleteSupplyUsageHistory('@usageHistory.Id.ToString()', '@usageHistory.Quantity.ToString("F")', '@usageHistory.Cost.ToString("F")', this)"><i class="bi bi-trash"></i></button>
                         }
                     </div>
                 }

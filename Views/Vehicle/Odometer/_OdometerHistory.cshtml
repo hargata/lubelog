@@ -15,27 +15,33 @@
         {
             <div class="row">
                 <div class="col-12" style="max-height:50vh; overflow-y:auto;">
-                    <table class="table table-hover">
-                        <thead class="sticky-top">
-                            <tr class="d-flex">
-                                <th scope="col" class="col-3">@translator.Translate(userLanguage, "Date")</th>
-                                <th scope="col" class="col-3">@translator.Translate(userLanguage, "Initial Odometer")</th>
-                                <th scope="col" class="col-3">@translator.Translate(userLanguage, "Odometer")</th>
-                                <th scope="col" class="col-3">@translator.Translate(userLanguage, "Distance")</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (OdometerRecord odometerHistory in Model)
-                            {
-                                <tr class="d-flex">
-                                    <td class="col-3">@StaticHelper.TruncateStrings(odometerHistory.Date.ToShortDateString())</td>
-                                    <td class="col-3">@odometerHistory.InitialMileage</td>
-                                    <td class="col-3">@odometerHistory.Mileage</td>
-                                    <td class="col-3">@(odometerHistory.DistanceTraveled == default ? "---" : odometerHistory.DistanceTraveled)</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    <div class="d-flex flex-column">
+                        @foreach (OdometerRecord odometerHistory in Model)
+                        {
+                            <div class="d-flex align-items-center p-2 border rounded mb-2 flex-nowrap">
+                                <div class="d-flex flex-column flex-grow-1">
+                                    <small>@StaticHelper.TruncateStrings(odometerHistory.Date.ToShortDateString())</small>
+                                    <div class="d-flex flex-row gap-2 flex-wrap">
+                                        <div class="d-flex flex-column text-wrap break-all">
+                                            <small class="text-secondary">@translator.Translate(userLanguage, "Initial Odometer")</small>
+                                            <small>@odometerHistory.InitialMileage</small>
+                                        </div>
+                                        <div class="d-flex flex-column text-wrap break-all">
+                                            <small class="text-secondary">@translator.Translate(userLanguage, "Odometer")</small>
+                                            <small>@odometerHistory.Mileage</small>
+                                        </div>
+                                        <div class="d-flex flex-column text-wrap break-all">
+                                            <small class="text-secondary">@translator.Translate(userLanguage, "Distance")</small>
+                                            <small>@(odometerHistory.DistanceTraveled == default ? "---" : odometerHistory.DistanceTraveled)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center flex-column">
+                                    <button onclick="loadRecordAttachment(@odometerHistory.Id, 'OdometerRecord')" class="btn btn-outline-secondary btn-md mt-1 mb-1"><i class="bi bi-box-arrow-in-up-right"></i></button>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         }
