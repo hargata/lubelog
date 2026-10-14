@@ -528,7 +528,7 @@ namespace CarCareTracker.Logic
                 };
                 File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(newUserConfig));
             }
-            _cache.Remove("userConfig_-1");
+            _cache.Remove($"userConfig_{(-1).ToString()}");
             return true;
         }
         public bool DeleteRootUserCredentials()
@@ -543,7 +543,7 @@ namespace CarCareTracker.Logic
                 existingUserConfig.UserPasswordHash = string.Empty;
             }
             //clear out the cached config for the root user.
-            _cache.Remove("userConfig_-1");
+            _cache.Remove($"userConfig_{(-1).ToString()}");
             File.WriteAllText(StaticHelper.UserConfigPath, JsonSerializer.Serialize(existingUserConfig));
             return true;
         }

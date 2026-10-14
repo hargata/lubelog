@@ -31,7 +31,7 @@ namespace CarCareTracker.Logic
                 List<string> hubGroups = new List<string> { $"kiosk_{userId}", $"vehicleId_{webHookPayload.VehicleId}" };
                 if (userId != -1)
                 {
-                    hubGroups.Add("kiosk_-1");
+                    hubGroups.Add($"kiosk_{(-1).ToString()}");
                 }
                 await _eventHub.Clients.Groups(hubGroups).ReceiveChangeForAllVehicles(webHookPayload);
             }
