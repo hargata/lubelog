@@ -244,6 +244,37 @@ namespace CarCareTracker.Models
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
     }
+    public class InspectionRecordTemplateExportModel
+    {
+        [JsonConverter(typeof(FromIntOptional))]
+        public string VehicleId { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromIntOptional))]
+        public string Id { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public List<InspectionRecordTemplateFieldExportModel> Fields { get; set; } = new List<InspectionRecordTemplateFieldExportModel>();
+        public string Tags { get; set; } = string.Empty;
+        public List<int> ReminderRecordId { get; set; } = new List<int>();
+    }
+    public class InspectionRecordTemplateFieldExportModel
+    {
+        public string Description { get; set; } = string.Empty;
+        public string FieldType { get; set; } = "Text";
+        public List<InspectionRecordTemplateFieldOptionExportModel> Options { get; set; } = new List<InspectionRecordTemplateFieldOptionExportModel>();
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string HasNotes { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string HasActionItem { get; set; } = string.Empty;
+        public string ActionItemType { get; set; } = "ServiceRecord";
+        public string ActionItemDescription { get; set; } = string.Empty;
+        public string ActionItemPriority { get; set; } = "Normal";
+    }
+    public class InspectionRecordTemplateFieldOptionExportModel
+    {
+        public string Description { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsFail { get; set; } = string.Empty;
+    }
     public class UserExportModel
     {
         public string Username { get; set; } = string.Empty;
