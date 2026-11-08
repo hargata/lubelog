@@ -64,6 +64,8 @@ function updateSettings() {
         preferredGasMileageUnit: $("#preferredFuelMileageUnit").val(),
         userLanguage: $("#defaultLanguage").val(),
         userTheme: $("#defaultTheme").val(),
+        userLocale: $("#userLocale").val(),
+        userDecimalSeparator: $("#userDecimalSeparator").val(),
         useUnitForFuelCost: $("#useUnitForFuelCost").is(":checked"),
         useGridInMobile: $("#useGridInMobile").is(":checked"),
         enableNotesColumnWrap: $("#enableNotesColumnWrap").is(":checked"),

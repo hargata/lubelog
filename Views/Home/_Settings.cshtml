@@ -335,6 +335,30 @@
                 }
             </div>
         </div>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <span class="lead">@translator.Translate(userLanguage, "Region Format")</span>
+                <select class="form-select" onchange="updateSettings()" id="userLocale">
+                    <!option value="" @(string.IsNullOrWhiteSpace(Model.UserConfig.UserLocale) ? "selected" : "")>@translator.Translate(userLanguage, "Server Default")</!option>
+                    @foreach (var locale in Model.AvailableLocales)
+                    {
+                        <!option value="@locale.Key" @(Model.UserConfig.UserLocale == locale.Key ? "selected" : "")>@locale.Value</!option>
+                    }
+                </select>
+                <small class="text-body-secondary">@translator.Translate(userLanguage, "Used for dates, numbers and currency")</small>
+            </div>
+            <div class="col-12 col-md-6">
+                <span class="lead">@translator.Translate(userLanguage, "Decimal Separator")</span>
+                <select class="form-select" onchange="updateSettings()" id="userDecimalSeparator">
+                    <!option value="" @(string.IsNullOrWhiteSpace(Model.UserConfig.UserDecimalSeparator) ? "selected" : "")>@translator.Translate(userLanguage, "Region Default")</!option>
+                    <!option value="." @(Model.UserConfig.UserDecimalSeparator == "." ? "selected" : "")>@translator.Translate(userLanguage, "Period") (1,234.56)</!option>
+                    <!option value="," @(Model.UserConfig.UserDecimalSeparator == "," ? "selected" : "")>@translator.Translate(userLanguage, "Comma") (1.234,56)</!option>
+                </select>
+            </div>
+            <div class="col-12 mt-2">
+                <partial name="_LocaleSample" model="Model.LocaleSample" />
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">

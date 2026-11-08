@@ -143,11 +143,18 @@ namespace CarCareTracker.Controllers
             var userConfig = _config.GetUserConfig(User);
             var languages = _fileHelper.GetLanguages();
             var themes = _fileHelper.GetThemes();
+            var availableLocales = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                .OrderBy(x => x.Name)
+                .Select(x => new KeyValuePair<string, string>(x.Name, $"{x.Name} - {x.EnglishName}"))
+                .ToList();
             var viewModel = new SettingsViewModel
             {
                 UserConfig = userConfig,
                 UILanguages = languages,
-                UIThemes = themes
+                UIThemes = themes,
+                AvailableLocales = availableLocales,
+                LocaleSample = BuildLocaleSample(CultureInfo.CurrentCulture)
             };
             return PartialView("_Settings", viewModel);
         }
@@ -618,7 +625,11 @@ namespace CarCareTracker.Controllers
                 var datetimeCulture = CultureInfo.GetCultureInfo(dtlocale);
                 cultureInfo.DateTimeFormat = datetimeCulture.DateTimeFormat;
             }
-            var viewModel = new LocaleSample
+            return PartialView("_LocaleSample", BuildLocaleSample(cultureInfo));
+        }
+        private static LocaleSample BuildLocaleSample(CultureInfo cultureInfo)
+        {
+            return new LocaleSample
             {
                 ShortDateSample = DateTime.Now.ToString(cultureInfo.DateTimeFormat.ShortDatePattern, cultureInfo.DateTimeFormat),
                 ShortDateTimeSample = DateTime.Now.ToString("G", cultureInfo.DateTimeFormat),
@@ -627,7 +638,6 @@ namespace CarCareTracker.Controllers
                 DecimalSample = 123456.78M.ToString("N2", cultureInfo),
                 DecimalSeparatorMismatch = cultureInfo.NumberFormat.NumberDecimalSeparator.Trim() != cultureInfo.NumberFormat.CurrencyDecimalSeparator.Trim()
             };
-            return PartialView("_LocaleSample", viewModel);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
         public async Task<IActionResult> ImportOpenIDConfiguration(string configUrl)

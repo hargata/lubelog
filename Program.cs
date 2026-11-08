@@ -163,6 +163,9 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+//per-user region format and decimal separator
+app.UseMiddleware<UserCulture>();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
