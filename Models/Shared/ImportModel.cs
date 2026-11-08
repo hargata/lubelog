@@ -252,6 +252,11 @@ namespace CarCareTracker.Models
         public string IsAdmin { get; set; } = string.Empty;
         [JsonConverter(typeof(FromBoolOptional))]
         public string IsRoot { get; set; } = string.Empty;
+        public string UserLocale { get; set; } = string.Empty;
+        public string UserDecimalSeparator { get; set; } = string.Empty;
+        public string EffectiveLocale { get; set; } = string.Empty;
+        public string EffectiveDecimalSeparator { get; set; } = string.Empty;
+        public string EffectiveGroupSeparator { get; set; } = string.Empty;
     }
     public class AttachmentExportModel
     {
