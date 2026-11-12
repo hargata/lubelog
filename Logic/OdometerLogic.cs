@@ -59,9 +59,9 @@ namespace CarCareTracker.Logic
             for (int i = 0; i < odometerRecords.Count; i++)
             {
                 var currentObject = odometerRecords[i];
-                if (previousMileage == default)
+                if (i == 0)
                 {
-                    //first record
+                    //first record. checked by position: a first reading of 0 (a new vehicle) is a valid start.
                     currentObject.InitialMileage = currentObject.Mileage;
                 }
                 else
