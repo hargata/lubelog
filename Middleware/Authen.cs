@@ -1,4 +1,5 @@
-﻿using CarCareTracker.Helper;
+﻿using CarCareTracker.Filter;
+using CarCareTracker.Helper;
 using CarCareTracker.Logic;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -16,6 +17,7 @@ namespace CarCareTracker.Middleware
         private IHttpContextAccessor _httpContext;
         private IDataProtector _dataProtector;
         private ILoginLogic _loginLogic;
+        private IApiJwtValidator _apiJwtValidator;
         private bool enableAuth;
         public Authen(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -24,8 +26,10 @@ namespace CarCareTracker.Middleware
             IConfiguration configuration,
             ILoginLogic loginLogic,
             IDataProtectionProvider securityProvider,
-            IHttpContextAccessor httpContext) : base(options, logger, encoder)
+            IHttpContextAccessor httpContext,
+            IApiJwtValidator apiJwtValidator) : base(options, logger, encoder)
         {
+            _apiJwtValidator = apiJwtValidator;
             _httpContext = httpContext;
             _dataProtector = securityProvider.CreateProtector("login");
             _loginLogic = loginLogic;
@@ -62,6 +66,45 @@ namespace CarCareTracker.Middleware
                 if (string.IsNullOrWhiteSpace(access_token) && string.IsNullOrWhiteSpace(request_header) && string.IsNullOrWhiteSpace(apikey_header))
                 {
                     return AuthenticateResult.Fail("Cookie is invalid or does not exist.");
+                }
+                else if (request_header.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    //auth using a bearer JWT from an external identity provider (APIAuthJWT), API methods only.
+                    if (!_apiJwtValidator.Enabled || _httpContext.HttpContext == null || !_httpContext.HttpContext.Request.Path.StartsWithSegments("/api"))
+                    {
+                        return AuthenticateResult.Fail("Invalid credentials");
+                    }
+                    var emailAddress = await _apiJwtValidator.ValidateAsync(request_header.ToString().Substring("Bearer ".Length).Trim());
+                    if (string.IsNullOrWhiteSpace(emailAddress))
+                    {
+                        return AuthenticateResult.Fail("Invalid credentials");
+                    }
+                    //map to an existing user (or the OIDC root user) exactly like OpenID login does; never registers anyone.
+                    var userData = _loginLogic.ValidateOpenIDUser(new LoginModel { EmailAddress = emailAddress });
+                    if (userData.Id == default)
+                    {
+                        return AuthenticateResult.Fail("Invalid credentials");
+                    }
+                    var appIdentity = new ClaimsIdentity("Custom");
+                    var userIdentity = new List<Claim>
+                    {
+                        new(ClaimTypes.Name, userData.UserName),
+                        new(ClaimTypes.NameIdentifier, userData.Id.ToString()),
+                        new(ClaimTypes.Email, userData.EmailAddress),
+                        new(ClaimTypes.Role, "APIAuth"),
+                        new(ClaimTypes.Role, DenyJWTFilter.JWTAuthRole)
+                    };
+                    if (userData.IsAdmin)
+                    {
+                        userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsAdmin)));
+                    }
+                    if (userData.IsRootUser)
+                    {
+                        userIdentity.Add(new(ClaimTypes.Role, nameof(UserData.IsRootUser)));
+                    }
+                    appIdentity.AddClaims(userIdentity);
+                    AuthenticationTicket ticket = new AuthenticationTicket(new ClaimsPrincipal(appIdentity), Scheme.Name);
+                    return AuthenticateResult.Success(ticket);
                 }
                 else if (!string.IsNullOrWhiteSpace(request_header))
                 {
