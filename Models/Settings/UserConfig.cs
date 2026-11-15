@@ -35,6 +35,8 @@
         public string UserPasswordHash { get; set; } = string.Empty;
         public string UserLanguage { get; set; } = "en_US";
         public string UserTheme { get; set; } = string.Empty;
+        public string UserLocale { get; set; } = string.Empty;
+        public string UserDecimalSeparator { get; set; } = string.Empty;
         public List<ImportMode> VisibleTabs { get; set; } = new List<ImportMode>() { 
             ImportMode.Dashboard,
             ImportMode.ServiceRecord, 
