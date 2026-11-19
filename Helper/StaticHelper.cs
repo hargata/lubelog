@@ -313,6 +313,11 @@ namespace CarCareTracker.Helper
             }
             return fuelEconomyUnit;
         }
+        public static List<AdditionalFuelType> GetAdditionalFuelTypes(Vehicle vehicle, List<GasRecord> gasRecords)
+        {
+            //include fuel types that are no longer tracked for the vehicle but still exist in records.
+            return vehicle.AdditionalFuelTypes.Union(gasRecords.SelectMany(x => x.AdditionalFuels).Select(x => x.FuelType)).Distinct().OrderBy(x => x).ToList();
+        }
         public static long GetEpochFromDateTime(DateTime date)
         {
             return new DateTimeOffset(date).ToUnixTimeMilliseconds();
@@ -884,6 +889,7 @@ namespace CarCareTracker.Helper
         public static void WriteGasRecordExportModel(CsvWriter _csv, IEnumerable<GasRecordExportModel> genericRecords, bool writeElectric)
         {
             var extraHeaders = genericRecords.SelectMany(x => x.ExtraFields).Select(y => y.Name).Distinct();
+            var additionalFuelTypes = genericRecords.SelectMany(x => x.AdditionalFuels ?? new List<AdditionalFuelExportModel>()).Select(y => y.FuelType).Distinct();
             //write headers
             _csv.WriteField(nameof(GasRecordExportModel.Date));
             _csv.WriteField(nameof(GasRecordExportModel.Odometer));
@@ -896,6 +902,13 @@ namespace CarCareTracker.Helper
             {
                 _csv.WriteField(nameof(GasRecordExportModel.StartingSoc));
                 _csv.WriteField(nameof(GasRecordExportModel.EndingSoc));
+            }
+            foreach (string additionalFuelType in additionalFuelTypes)
+            {
+                _csv.WriteField($"{additionalFuelType}_{nameof(AdditionalFuelExportModel.FuelConsumed)}");
+                _csv.WriteField($"{additionalFuelType}_{nameof(AdditionalFuelExportModel.Cost)}");
+                _csv.WriteField($"{additionalFuelType}_{nameof(AdditionalFuelExportModel.FuelEconomy)}");
+                _csv.WriteField($"{additionalFuelType}_{nameof(AdditionalFuelExportModel.IsFillToFull)}");
             }
             _csv.WriteField(nameof(GasRecordExportModel.Notes));
             _csv.WriteField(nameof(GasRecordExportModel.Tags));
@@ -917,6 +930,14 @@ namespace CarCareTracker.Helper
                 {
                     _csv.WriteField(genericRecord.StartingSoc);
                     _csv.WriteField(genericRecord.EndingSoc);
+                }
+                foreach (string additionalFuelType in additionalFuelTypes)
+                {
+                    var additionalFuel = genericRecord.AdditionalFuels?.FirstOrDefault(x => x.FuelType == additionalFuelType);
+                    _csv.WriteField(additionalFuel?.FuelConsumed ?? string.Empty);
+                    _csv.WriteField(additionalFuel?.Cost ?? string.Empty);
+                    _csv.WriteField(additionalFuel?.FuelEconomy ?? string.Empty);
+                    _csv.WriteField(additionalFuel?.IsFillToFull ?? string.Empty);
                 }
                 _csv.WriteField(genericRecord.Notes);
                 _csv.WriteField(genericRecord.Tags);

@@ -127,6 +127,11 @@ namespace CarCareTracker.Models
             payloadDictionary.Add("fuelconsumed", gasRecord.Gallons.ToString());
             payloadDictionary.Add("vehicleId", gasRecord.VehicleId.ToString());
             payloadDictionary.Add("cost", gasRecord.Cost.ToString("F2"));
+            foreach (AdditionalFuel additionalFuel in gasRecord.AdditionalFuels)
+            {
+                payloadDictionary.TryAdd($"{additionalFuel.FuelType.ToString().ToLower()}fuelconsumed", additionalFuel.FuelConsumed.ToString());
+                payloadDictionary.TryAdd($"{additionalFuel.FuelType.ToString().ToLower()}cost", additionalFuel.Cost.ToString("F2"));
+            }
             return new WebHookPayload
             {
                 Type = actionType,

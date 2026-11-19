@@ -101,7 +101,7 @@ namespace CarCareTracker.Logic
             var repairRecordSum = vehicleRecords.CollisionRecords.Sum(x => x.Cost);
             var upgradeRecordSum = vehicleRecords.UpgradeRecords.Sum(x => x.Cost);
             var taxRecordSum = vehicleRecords.TaxRecords.Sum(x => x.Cost);
-            var gasRecordSum = vehicleRecords.GasRecords.Sum(x => x.Cost);
+            var gasRecordSum = vehicleRecords.GasRecords.Sum(x => x.GetTotalCost());
             return serviceRecordSum + repairRecordSum + upgradeRecordSum + taxRecordSum + gasRecordSum;
         }
         public int GetMaxMileage(int vehicleId)
@@ -308,7 +308,7 @@ namespace CarCareTracker.Logic
                     UpgradeRecordCount = upgradeRecords.Count(),
                     UpgradeRecordCost = upgradeRecords.Sum(x => x.Cost),
                     GasRecordCount = gasRecords.Count(),
-                    GasRecordCost = gasRecords.Sum(x => x.Cost),
+                    GasRecordCost = gasRecords.Sum(x => x.GetTotalCost()),
                     TaxRecordCount = taxRecords.Count(),
                     TaxRecordCost = taxRecords.Sum(x => x.Cost),
                     VeryUrgentReminderCount = results.Count(x => x.Urgency == ReminderUrgency.VeryUrgent),

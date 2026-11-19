@@ -6,5 +6,6 @@
         public int DistanceTraveled { get; set; }
         public decimal TotalCost { get; set; }
         public string AverageMPG { get; set; } = string.Empty;
+        public Dictionary<AdditionalFuelType, string> AdditionalFuelAverageMPG { get; set; } = new Dictionary<AdditionalFuelType, string>();
     }
 }

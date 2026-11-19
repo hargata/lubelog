@@ -144,6 +144,8 @@ namespace CarCareTracker.Controllers
                 //move image from temp folder to images folder.
                 vehicleInput.ImageLocation = _fileHelper.MoveFileFromTemp(vehicleInput.ImageLocation, "images/");
                 vehicleInput.MapLocation = _fileHelper.MoveFileFromTemp(vehicleInput.MapLocation, "documents/");
+                //DEF is only tracked for diesel vehicles.
+                vehicleInput.AdditionalFuelTypes = vehicleInput.IsDiesel ? vehicleInput.AdditionalFuelTypes.Distinct().ToList() : new List<AdditionalFuelType>();
                 //save vehicle.
                 var result = _dataAccess.SaveVehicle(vehicleInput);
                 if (isNewAddition)
@@ -1683,7 +1685,7 @@ namespace CarCareTracker.Controllers
                             }
                             stickerViewModel.GenericRecords.Add(new GenericRecord
                             {
-                                Cost = record.Cost,
+                                Cost = record.GetTotalCost(),
                                 Date = record.Date,
                                 Notes = record.Notes,
                                 Mileage = record.Mileage,

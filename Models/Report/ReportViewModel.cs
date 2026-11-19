@@ -12,5 +12,7 @@
         public bool CustomWidgetsConfigured { get; set; } = false;
         public List<ImportMode> AvailableMetrics { get; set; } = new List<ImportMode>();
         public bool HasVehicleImageMap { get; set; } = false;
+        public string PrimaryFuelType { get; set; } = string.Empty;
+        public List<AdditionalFuelType> AdditionalFuelTypes { get; set; } = new List<AdditionalFuelType>();
     }
 }

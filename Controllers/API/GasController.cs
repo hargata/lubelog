@@ -56,7 +56,15 @@ namespace CarCareTracker.Controllers
                     Notes = x.Notes,
                     ExtraFields = x.ExtraFields,
                     Files = x.Files,
-                    Tags = string.Join(' ', x.Tags)
+                    Tags = string.Join(' ', x.Tags),
+                    AdditionalFuels = x.AdditionalFuels.Select(y => new AdditionalFuelExportModel
+                    {
+                        FuelType = y.FuelType.ToString(),
+                        FuelConsumed = y.FuelConsumed.ToString(),
+                        Cost = y.Cost.ToString(),
+                        FuelEconomy = y.FuelEconomy.ToString(),
+                        IsFillToFull = y.IsFillToFull.ToString()
+                    }).ToList()
                 });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -115,7 +123,15 @@ namespace CarCareTracker.Controllers
                     Notes = x.Notes,
                     ExtraFields = x.ExtraFields,
                     Files = x.Files,
-                    Tags = string.Join(' ', x.Tags)
+                    Tags = string.Join(' ', x.Tags),
+                    AdditionalFuels = x.AdditionalFuels.Select(y => new AdditionalFuelExportModel
+                    {
+                        FuelType = y.FuelType.ToString(),
+                        FuelConsumed = y.FuelConsumed.ToString(),
+                        Cost = y.Cost.ToString(),
+                        FuelEconomy = y.FuelEconomy.ToString(),
+                        IsFillToFull = y.IsFillToFull.ToString()
+                    }).ToList()
                 });
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
@@ -155,6 +171,11 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
             }
+            if (!AdditionalFuelsAreValid(input.AdditionalFuels))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, FuelType for AdditionalFuels must be DEF and FuelConsumed cannot be empty."));
+            }
             if (input.Files == null)
             {
                 input.Files = new List<UploadedFiles>();
@@ -179,7 +200,8 @@ namespace CarCareTracker.Controllers
                     Cost = decimal.Parse(input.Cost),
                     ExtraFields = input.ExtraFields,
                     Files = input.Files,
-                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
+                    Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList(),
+                    AdditionalFuels = GetAdditionalFuelsFromInput(input.AdditionalFuels)
                 };
                 _gasRecordDataAccess.SaveGasRecordToVehicle(gasRecord);
                 if (_config.GetUserConfig(User).EnableAutoOdometerInsert)
@@ -248,6 +270,11 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 400;
                 return Json(OperationResponse.Failed("Input object invalid, Id, Date, Odometer, FuelConsumed, IsFillToFull, MissedFuelUp, and Cost cannot be empty."));
             }
+            if (!AdditionalFuelsAreValid(input.AdditionalFuels))
+            {
+                Response.StatusCode = 400;
+                return Json(OperationResponse.Failed("Input object invalid, FuelType for AdditionalFuels must be DEF and FuelConsumed cannot be empty."));
+            }
             if (input.Files == null)
             {
                 input.Files = new List<UploadedFiles>();
@@ -280,6 +307,10 @@ namespace CarCareTracker.Controllers
                     existingRecord.ExtraFields = input.ExtraFields;
                     existingRecord.Files = input.Files;
                     existingRecord.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    if (input.AdditionalFuels != null)
+                    {
+                        existingRecord.AdditionalFuels = GetAdditionalFuelsFromInput(input.AdditionalFuels);
+                    }
                     _gasRecordDataAccess.SaveGasRecordToVehicle(existingRecord);
                     _eventLogic.PublishEvent(GetUserID(), WebHookPayload.FromGasRecord(existingRecord, "gasrecord.update.api", User.Identity?.Name ?? string.Empty));
                 }
@@ -295,6 +326,28 @@ namespace CarCareTracker.Controllers
                 Response.StatusCode = 500;
                 return Json(OperationResponse.Failed(ex.Message));
             }
+        }
+        private bool AdditionalFuelsAreValid(List<AdditionalFuelExportModel>? input)
+        {
+            if (input == null)
+            {
+                return true;
+            }
+            return input.All(x => Enum.TryParse(x.FuelType, true, out AdditionalFuelType fuelType) && Enum.IsDefined(fuelType) && !string.IsNullOrWhiteSpace(x.FuelConsumed));
+        }
+        private List<AdditionalFuel> GetAdditionalFuelsFromInput(List<AdditionalFuelExportModel>? input)
+        {
+            if (input == null)
+            {
+                return new List<AdditionalFuel>();
+            }
+            return input.Select(x => new AdditionalFuel
+            {
+                FuelType = Enum.Parse<AdditionalFuelType>(x.FuelType, true),
+                FuelConsumed = decimal.Parse(x.FuelConsumed),
+                Cost = string.IsNullOrWhiteSpace(x.Cost) ? 0 : decimal.Parse(x.Cost),
+                IsFillToFull = string.IsNullOrWhiteSpace(x.IsFillToFull) || bool.Parse(x.IsFillToFull)
+            }).Where(x => x.FuelConsumed > 0).ToList();
         }
     }
 }

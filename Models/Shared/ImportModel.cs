@@ -34,6 +34,10 @@ namespace CarCareTracker.Models
         public string Tags { get; set; } = string.Empty;
         public string IsEquipped { get; set; } = string.Empty;
         public Dictionary<string,string> ExtraFields {get;set; } = new Dictionary<string, string>();
+        /// <summary>
+        /// Keyed by lowercase header, e.g.: def_fuelconsumed
+        /// </summary>
+        public Dictionary<string, string> AdditionalFuels { get; set; } = new Dictionary<string, string>();
     }
 
     public class SupplyRecordExportModel
@@ -136,6 +140,22 @@ namespace CarCareTracker.Models
         public string Tags { get; set; } = string.Empty;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<UploadedFiles> Files { get; set; } = new List<UploadedFiles>();
+        /// <summary>
+        /// Null when not provided so that updates via API do not clear existing additional fuels.
+        /// </summary>
+        public List<AdditionalFuelExportModel>? AdditionalFuels { get; set; }
+    }
+    public class AdditionalFuelExportModel
+    {
+        public string FuelType { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string FuelConsumed { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string Cost { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromDecimalOptional))]
+        public string FuelEconomy { get; set; } = string.Empty;
+        [JsonConverter(typeof(FromBoolOptional))]
+        public string IsFillToFull { get; set; } = string.Empty;
     }
     public class EquipmentRecordExportModel
     {

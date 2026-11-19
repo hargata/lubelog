@@ -51,6 +51,16 @@
     var userColumnPreferences = userConfig.UserColumnPreferences.Where(x => x.Tab == ImportMode.GasRecord);
     var noteColumnStyle = userConfig.EnableNotesColumnWrap ? "text-wrap break-all" : "text-truncate";
     var noteColumnLength = userConfig.EnableNotesColumnWrap ? 100 : 25;
+    //additional fuels are measured in the same units as liquid fuel.
+    string additionalFuelConsumptionUnit = useUKMPG ? (useMPG ? "imp gal" : "l") : (useMPG ? "US gal" : "l");
+    var additionalFuels = Model.AdditionalFuelTypes.Select(x => new
+    {
+        FuelType = x,
+        Name = translator.Translate(userLanguage, x.ToString()),
+        ConsumptionUnit = additionalFuelConsumptionUnit,
+        FuelEconomyUnit = StaticHelper.GetFuelEconomyUnit(false, useHours, useMPG, useUKMPG),
+        GasRecords = gasHelper.GetAdditionalFuelViewModels(Model.GasRecords, x)
+    }).ToList();
 }
 <div class="d-flex flex-column vehicleTabPane">
 <div class="row">
@@ -73,7 +83,18 @@
                 <span class="badge bg-success" id="totalDistanceLabel">@($"{translator.Translate(userLanguage, "Total Distance")}: {Model.GasRecords.Sum(x => x.DeltaMileage).ToString() ?? "0"} {distanceUnit}")</span>
             }
             <span class="badge bg-success" id="totalFuelConsumedLabel">@($"{translator.Translate(userLanguage, "Total Fuel Consumed")}: {Model.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
-            <span class="badge bg-success" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total Cost")}: {Model.GasRecords.Sum(x => x.Cost).ToString(gasCostFormat)}")</span>
+            @foreach (var additionalFuel in additionalFuels)
+            {
+                if (additionalFuel.GasRecords.Any(x => x.MilesPerGallon > 0))
+                {
+                    <span class="badge bg-primary" data-additional-fuel-label="average" data-additional-fuel="@additionalFuel.FuelType">@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Average Fuel Economy")}: {gasHelper.GetAverageGasMileage(additionalFuel.GasRecords, useMPG)}")</span>
+                }
+                if (additionalFuel.GasRecords.Any())
+                {
+                    <span class="badge bg-success" data-additional-fuel-label="consumed" data-additional-fuel="@additionalFuel.FuelType">@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Total Fuel Consumed")}: {additionalFuel.GasRecords.Sum(x => x.Gallons).ToString("F")}")</span>
+                }
+            }
+            <span class="badge bg-success" data-aggregate-type="sum">@($"{translator.Translate(userLanguage, "Total Cost")}: {Model.GasRecords.Sum(x => x.GetTotalCost()).ToString(gasCostFormat)}")</span>
             @foreach (string recordTag in recordTags)
             {
                 <span onclick="toggleGasFilter(this)" class="user-select-none rounded-pill badge bg-secondary tagfilter" style="cursor:pointer;">@recordTag</span>
@@ -163,6 +184,20 @@
                             <label class="form-check-label stretched-link" for="chkCol_UnitCost">@translator.Translate(userLanguage, "Unit Cost")</label>
                         </div>
                     </li>
+                    @foreach (var additionalFuel in additionalFuels)
+                    {
+                        var additionalFuelColumns = new List<(string Column, string Label, bool IsVisible)> { ("consumption", "Consumption", true), ("fueleconomy", "Fuel Economy", true), ("cost", "Cost", true), ("unitcost", "Unit Cost", false) };
+                        foreach (var additionalFuelColumn in additionalFuelColumns)
+                        {
+                            var elementId = $"chkCol_{additionalFuel.FuelType}_{additionalFuelColumn.Column}";
+                            <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
+                                <div class="list-group-item">
+                                    <input class="form-check-input col-visible-toggle" data-column-toggle='@($"additionalfuel_{additionalFuel.FuelType}_{additionalFuelColumn.Column}")' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="@elementId" checked="@additionalFuelColumn.IsVisible">
+                                    <label class="form-check-label stretched-link" for="@elementId">@($"{additionalFuel.Name} {translator.Translate(userLanguage, additionalFuelColumn.Label)}")</label>
+                                </div>
+                            </li>
+                        }
+                    }
                     <li class="dropdown-item" draggable="true" ondragstart="handleTableColumnDragStart(event)" ondragover="handleTableColumnDragOver(event)" ondragend="handleTableColumnDragEnd('GasRecord')">
                         <div class="list-group-item">
                             <input class="form-check-input col-visible-toggle" data-column-toggle='attachments' onChange="showTableColumns(this, 'GasRecord')" type="checkbox" id="chkCol_Attachment">
@@ -209,6 +244,13 @@
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas="fueleconomy" data-unit="@fuelEconomyUnit" onclick="toggleSort('gas-tab-pane', this)" oncontextmenu="toggleUnits(this)" style="cursor:pointer;">@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Cost")</th>
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@translator.Translate(userLanguage, "Unit Cost")</th>
+                    @foreach (var additionalFuel in additionalFuels)
+                    {
+                        <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_consumption")" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@($"{additionalFuel.Name}({additionalFuel.ConsumptionUnit})")</th>
+                        <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_fueleconomy")" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@($"{additionalFuel.Name}({additionalFuel.FuelEconomyUnit})")</th>
+                        <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_cost")" onclick="toggleSort('gas-tab-pane', this)" style="cursor:pointer;">@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Cost")}")</th>
+                        <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@($"additionalfuel_{additionalFuel.FuelType}_unitcost")" onclick="toggleSort('gas-tab-pane', this)">@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Unit Cost")}")</th>
+                    }
                     <th scope="col" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@translator.Translate(userLanguage, "Attachments")</th>
                     <th scope="col" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="notes">@translator.Translate(userLanguage, "Notes")</th>
                     @foreach (string extraFieldColumn in extraFields)
@@ -220,16 +262,33 @@
             <tbody>
                 @foreach (GasRecordViewModel gasRecord in Model.GasRecords)
                 {
+                    //records that only contain additional fuels have no primary fuel values to show.
+                    var isAdditionalFuelOnly = gasRecord.Gallons == default && gasRecord.AdditionalFuels.Any();
                     <tr class="d-flex user-select-none" style="cursor:pointer;" onmouseup="stopEvent()" ontouchstart="detectRowLongTouch(this)" ontouchend="detectRowTouchEndPremature(this)" data-rowId="@gasRecord.Id" oncontextmenu="showTableContextMenu(this)" onmousemove="rangeMouseMove(this)" onclick="handleTableRowClick(this, showEditGasRecordModal,@gasRecord.Id)" data-tags='@string.Join(" ", gasRecord.Tags)'>
                         <td data-label="@translator.Translate(userLanguage, "Date Refueled")" class="col-2 flex-grow-1 text-truncate" data-column="daterefueled">@gasRecord.Date</td>
                         <td data-label="@($"{translator.Translate(userLanguage, "Odometer")}({distanceUnit})")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="odometer" data-gas-type="mileage" data-gas-aggregate="@gasRecord.DeltaMileage" data-gas-original="@gasRecord.Mileage">@(gasRecord.Mileage == default ? "---" : gasRecord.Mileage.ToString())</td>
                         <td data-label="@($"Δ({distanceUnit})")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="delta" data-gas-type="totaldistance">@(gasRecord.DeltaMileage == default ? "---" : gasRecord.DeltaMileage)</td>
-                        <td data-label="@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@gasRecord.Gallons.ToString(gasConsumptionFormat)</td>
+                        <td data-label="@($"{translator.Translate(userLanguage, "Consumption")}({consumptionUnit})")" class="col-2 flex-grow-1 flex-shrink-1 text-truncate" data-column="consumption" data-gas-type="consumption" data-gas-aggregate="@gasRecord.Gallons">@(isAdditionalFuelOnly ? "---" : gasRecord.Gallons.ToString(gasConsumptionFormat))</td>
                         <td data-label="@translator.Translate(userLanguage, "Start SoC")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate @(Model.UseKwh ? "" : "d-none")" style='display:none;' data-column="startsoc">@gasRecord.StartingSoc.ToString("0'%'")</td>
                         <td data-label="@translator.Translate(userLanguage, "End SoC")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate @(Model.UseKwh ? "" : "d-none")" style='display:none;' data-column="endsoc">@gasRecord.EndingSoc.ToString("0'%'")</td>
                         <td data-label="@($"{@translator.Translate(userLanguage, "Fuel Economy")}({fuelEconomyUnit})")" class="col-3 flex-grow-1 flex-shrink-1 text-truncate" data-column="fueleconomy" data-gas-type="fueleconomy" data-aggregated='@(gasRecord.IncludeInAverage.ToString().ToLower())'>@(gasRecord.MilesPerGallon == 0 ? "---" : gasRecord.MilesPerGallon.ToString("F"))</td>
-                        <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@((hideZero && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
-                        <td data-label="@translator.Translate(userLanguage, "Unit Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@((hideZero && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        <td data-label="@translator.Translate(userLanguage, "Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="cost" data-record-type="cost">@(((hideZero || isAdditionalFuelOnly) && gasRecord.Cost == default) ? "---" : gasRecord.Cost.ToString(gasCostFormat))</td>
+                        <td data-label="@translator.Translate(userLanguage, "Unit Cost")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="unitcost" data-gas-type="unitcost">@(((hideZero || isAdditionalFuelOnly) && gasRecord.CostPerGallon == default) ? "---" : gasRecord.CostPerGallon.ToString(gasCostFormat))</td>
+                        @foreach (var additionalFuel in additionalFuels)
+                        {
+                            var recordAdditionalFuel = gasRecord.AdditionalFuels.FirstOrDefault(x => x.FuelType == additionalFuel.FuelType);
+                            <td data-label="@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Consumption")}({additionalFuel.ConsumptionUnit})")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_consumption")" data-additional-fuel="@additionalFuel.FuelType" data-additional-fuel-type="consumption" data-additional-fuel-consumed="@(recordAdditionalFuel?.FuelConsumed ?? 0)" data-additional-fuel-distance="@(recordAdditionalFuel?.DeltaMileage ?? 0)" data-additional-fuel-aggregated="@((recordAdditionalFuel?.IncludeInAverage ?? false).ToString().ToLower())">@(recordAdditionalFuel == null ? "---" : recordAdditionalFuel.FuelConsumed.ToString(gasConsumptionFormat))</td>
+                            <td data-label="@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Fuel Economy")}({additionalFuel.FuelEconomyUnit})")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_fueleconomy")">@(recordAdditionalFuel == null || recordAdditionalFuel.FuelEconomy == 0 ? "---" : recordAdditionalFuel.FuelEconomy.ToString("F"))</td>
+                            @if (recordAdditionalFuel == null)
+                            {
+                                <td data-label="@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Cost")}")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_cost")">---</td>
+                            }
+                            else
+                            {
+                                <td data-label="@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Cost")}")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" data-column="@($"additionalfuel_{additionalFuel.FuelType}_cost")" data-record-type="cost">@((hideZero && recordAdditionalFuel.Cost == default) ? "---" : recordAdditionalFuel.Cost.ToString(gasCostFormat))</td>
+                            }
+                            <td data-label="@($"{additionalFuel.Name} {translator.Translate(userLanguage, "Unit Cost")}")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="@($"additionalfuel_{additionalFuel.FuelType}_unitcost")">@(recordAdditionalFuel == null || (hideZero && recordAdditionalFuel.CostPerUnit == default) ? "---" : recordAdditionalFuel.CostPerUnit.ToString(gasCostFormat))</td>
+                        }
                         <td data-label="@translator.Translate(userLanguage, "Attachments")" class="col-1 flex-grow-1 flex-shrink-1 text-truncate" style='display:none;' data-column="attachments">@await Html.PartialAsync("_AttachmentColumn", gasRecord.Files)</td>
                         <td data-label="@translator.Translate(userLanguage, "Notes")" class="col-3 flex-grow-1 flex-shrink-1 @noteColumnStyle" style='display:none;' data-column="notes">@StaticHelper.TruncateStrings(gasRecord.Notes, noteColumnLength)</td>
                         @foreach (string extraFieldColumn in extraFields)

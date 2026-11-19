@@ -1265,7 +1265,7 @@
                }
             ],
             "hasBody":true,
-			"bodySampleNames":["Gas/Diesel", "EV"],
+			"bodySampleNames":["Gas/Diesel", "EV", "Diesel + DEF"],
             "bodySample":[{
                "date":"2026-01-03",
                "odometer":15000,
@@ -1311,6 +1311,24 @@
                      "location":"https://lubelogger.com"
                   }
                ]
+            },
+			{
+               "date":"2026-01-03",
+               "odometer":15000,
+               "fuelConsumed":12.34,
+               "cost":45.67,
+               "isFillToFull":true,
+               "missedFuelUp":false,
+               "notes":"test",
+               "tags":"testing",
+               "additionalFuels":[
+                  {
+                     "fuelType":"DEF",
+                     "fuelConsumed":2.5,
+                     "cost":9.99,
+                     "isFillToFull":true
+                  }
+               ]
             }
 			]
          },
@@ -1323,7 +1341,7 @@
                
             ],
             "hasBody":true,
-			"bodySampleNames":["Gas/Diesel", "EV"],
+			"bodySampleNames":["Gas/Diesel", "EV", "Diesel + DEF"],
             "bodySample":[{
                "id":1,
                "date":"2026-01-03",
@@ -1369,6 +1387,25 @@
                   {
                      "name":"Attachment Example",
                      "location":"https://lubelogger.com"
+                  }
+               ]
+            },
+			{
+               "id":1,
+               "date":"2026-01-03",
+               "odometer":15000,
+               "fuelConsumed":12.34,
+               "cost":45.67,
+               "isFillToFull":true,
+               "missedFuelUp":false,
+               "notes":"test",
+               "tags":"testing",
+               "additionalFuels":[
+                  {
+                     "fuelType":"DEF",
+                     "fuelConsumed":2.5,
+                     "cost":9.99,
+                     "isFillToFull":true
                   }
                ]
             }

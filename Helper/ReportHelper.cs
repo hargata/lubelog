@@ -129,7 +129,7 @@ namespace CarCareTracker.Helper
                     MonthId = x.Key.Month,
                     MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key.Month),
                     Year = x.Key.Year,
-                    Cost = x.Sum(y => y.Cost)
+                    Cost = x.Sum(y => y.GetTotalCost())
                 });
             } else
             {
@@ -137,7 +137,7 @@ namespace CarCareTracker.Helper
                 {
                     MonthId = x.Key,
                     MonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Key),
-                    Cost = x.Sum(y => y.Cost)
+                    Cost = x.Sum(y => y.GetTotalCost())
                 });
             }
         }

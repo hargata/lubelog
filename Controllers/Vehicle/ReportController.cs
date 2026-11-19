@@ -32,7 +32,7 @@ namespace CarCareTracker.Controllers
             viewModel.CostMakeUpForVehicle = new CostMakeUpForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
-                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.GetTotalCost()),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
@@ -125,6 +125,9 @@ namespace CarCareTracker.Controllers
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             var averageMPG = _gasHelper.GetAverageGasMileage(mileageData, userConfig.UseMPG);
+            viewModel.PrimaryFuelType = vehicleData.IsElectric ? "Electric" : vehicleData.IsDiesel ? "Diesel" : "Gasoline";
+            viewModel.AdditionalFuelTypes = StaticHelper.GetAdditionalFuelTypes(vehicleData, gasRecords);
+            viewModel.ReportHeaderForVehicle.AdditionalFuelAverageMPG = GetAdditionalFuelAverageMPG(mileageData, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG, preferredFuelMileageUnit);
             mileageData.RemoveAll(x => x.MilesPerGallon == default);
             bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
             var monthlyMileageData = StaticHelper.GetBaseLineCostsNoMonthName();
@@ -248,6 +251,7 @@ namespace CarCareTracker.Controllers
             {
                 TotalCost = _vehicleLogic.GetVehicleTotalCost(vehicleRecords),
                 AverageMPG = $"{averageMPG} {mpgUnit}",
+                AdditionalFuelAverageMPG = GetAdditionalFuelAverageMPG(mileageData, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG, preferredFuelMileageUnit),
                 MaxOdometer = maxMileage,
                 DistanceTraveled = odometerRecords.Sum(x => x.DistanceTraveled)
             };
@@ -274,7 +278,7 @@ namespace CarCareTracker.Controllers
             var viewModel = new CostMakeUpForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
-                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.GetTotalCost()),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost)
@@ -310,7 +314,7 @@ namespace CarCareTracker.Controllers
             var viewModel = new CostTableForVehicle
             {
                 ServiceRecordSum = serviceRecords.Sum(x => x.Cost),
-                GasRecordSum = gasRecords.Sum(x => x.Cost),
+                GasRecordSum = gasRecords.Sum(x => x.GetTotalCost()),
                 CollisionRecordSum = collisionRecords.Sum(x => x.Cost),
                 TaxRecordSum = taxRecords.Sum(x => x.Cost),
                 UpgradeRecordSum = upgradeRecords.Sum(x => x.Cost),
@@ -608,7 +612,7 @@ namespace CarCareTracker.Controllers
             List<GenericReportModel> reportData = new List<GenericReportModel>();
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
             vehicleHistory.DistanceUnit = vehicleHistory.VehicleData.UseHours ? "h" : useMPG ? "mi." : "km";
-            vehicleHistory.TotalGasCost = gasViewModels.Sum(x => x.Cost);
+            vehicleHistory.TotalGasCost = gasViewModels.Sum(x => x.GetTotalCost());
             vehicleHistory.TotalCost = vehicleRecords.ServiceRecords.Sum(x => x.Cost) + vehicleRecords.CollisionRecords.Sum(x => x.Cost) + vehicleRecords.UpgradeRecords.Sum(x => x.Cost) + vehicleRecords.TaxRecords.Sum(x => x.Cost);
             if (distanceTraveled != default)
             {
@@ -634,6 +638,7 @@ namespace CarCareTracker.Controllers
                 fuelEconomyMileageUnit = preferredFuelMileageUnit;
             }
             vehicleHistory.MPG = $"{averageMPG} {fuelEconomyMileageUnit}";
+            vehicleHistory.AdditionalFuelMPG = GetAdditionalFuelAverageMPG(gasViewModels, vehicleHistory.VehicleData.UseHours, useMPG, useUKMPG, preferredFuelMileageUnit);
             //insert servicerecords
             reportData.AddRange(vehicleRecords.ServiceRecords.Select(x => new GenericReportModel
             {
@@ -684,15 +689,21 @@ namespace CarCareTracker.Controllers
         }
         [TypeFilter(typeof(CollaboratorFilter))]
         [HttpPost]
-        public IActionResult GetMonthMPGByVehicle(int vehicleId, int year = 0)
+        public IActionResult GetMonthMPGByVehicle(int vehicleId, int year = 0, AdditionalFuelType? fuelType = null)
         {
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var gasRecords = _gasRecordDataAccess.GetGasRecordsByVehicleId(vehicleId);
             var userConfig = _config.GetUserConfig(User);
             string preferredFuelMileageUnit = _config.GetUserConfig(User).PreferredGasMileageUnit;
-            var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(vehicleData.IsElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
+            //fuel type is only provided when requesting an additional fuel, which uses the same units as liquid fuel.
+            bool isElectric = !fuelType.HasValue && vehicleData.IsElectric;
+            var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(isElectric, vehicleData.UseHours, userConfig.UseMPG, userConfig.UseUKMPG);
             bool invertedFuelMileageUnit = fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l";
             var mileageData = _gasHelper.GetGasRecordViewModels(gasRecords, userConfig.UseMPG, userConfig.UseUKMPG, vehicleData.IsElectric);
+            if (fuelType.HasValue)
+            {
+                mileageData = _gasHelper.GetAdditionalFuelViewModels(mileageData, fuelType.Value);
+            }
             if (year != 0)
             {
                 mileageData.RemoveAll(x => DateTime.Parse(x.Date).Year != year);
@@ -724,7 +735,8 @@ namespace CarCareTracker.Controllers
             {
                 CostData = monthlyMileageData,
                 Unit = invertedFuelMileageUnit ? preferredFuelMileageUnit : fuelEconomyMileageUnit,
-                SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList()
+                SortedCostData = (userConfig.UseMPG || invertedFuelMileageUnit) ? monthlyMileageData.OrderByDescending(x => x.Cost).ToList() : monthlyMileageData.OrderBy(x => x.Cost).ToList(),
+                AdditionalFuelType = fuelType
             };
             return PartialView("Report/_MPGByMonthReport", mpgViewModel);
         }
@@ -830,6 +842,28 @@ namespace CarCareTracker.Controllers
         public IActionResult GetImportModeSelector()
         {
             return PartialView("Report/_ImportModeSelector");
+        }
+        private Dictionary<AdditionalFuelType, string> GetAdditionalFuelAverageMPG(List<GasRecordViewModel> mileageData, bool useHours, bool useMPG, bool useUKMPG, string preferredFuelMileageUnit)
+        {
+            var result = new Dictionary<AdditionalFuelType, string>();
+            var additionalFuelTypes = mileageData.SelectMany(x => x.AdditionalFuels).Select(x => x.FuelType).Distinct().OrderBy(x => x);
+            foreach (AdditionalFuelType fuelType in additionalFuelTypes)
+            {
+                var averageMPG = _gasHelper.GetAverageGasMileage(_gasHelper.GetAdditionalFuelViewModels(mileageData, fuelType), useMPG);
+                var fuelEconomyMileageUnit = StaticHelper.GetFuelEconomyUnit(false, useHours, useMPG, useUKMPG);
+                if (fuelEconomyMileageUnit == "l/100km" && preferredFuelMileageUnit == "km/l")
+                {
+                    var newAverageMPG = decimal.Parse(averageMPG, NumberStyles.Any);
+                    if (newAverageMPG != 0)
+                    {
+                        newAverageMPG = 100 / newAverageMPG;
+                    }
+                    averageMPG = newAverageMPG.ToString("F");
+                    fuelEconomyMileageUnit = preferredFuelMileageUnit;
+                }
+                result.Add(fuelType, $"{averageMPG} {fuelEconomyMileageUnit}");
+            }
+            return result;
         }
     }
 }

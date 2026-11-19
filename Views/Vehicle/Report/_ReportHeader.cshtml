@@ -21,4 +21,9 @@
 <div class="col-md-3 col-12 mt-2 text-center text-truncate">
     <span class="lead">@Model.AverageMPG</span><br />
     <span class="text-secondary">@translator.Translate(userLanguage, "Average Fuel Economy")</span>
+    @foreach (var additionalFuelAverageMPG in Model.AdditionalFuelAverageMPG)
+    {
+        <br />
+        <small class="text-secondary">@($"{translator.Translate(userLanguage, additionalFuelAverageMPG.Key.ToString())}: {additionalFuelAverageMPG.Value}")</small>
+    }
 </div>

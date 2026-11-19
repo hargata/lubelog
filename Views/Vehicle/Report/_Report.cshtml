@@ -138,11 +138,35 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-12 chartContainer border rounded">
-            <div class="d-flex justify-content-center align-items-center" style="height:100%;" id="monthFuelMileageReportContent">
-                    @await Html.PartialAsync("Report/_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
+        @if (Model.AdditionalFuelTypes.Any())
+        {
+            <div class="col-md-6 col-12 border rounded d-flex flex-column">
+                <div class="row pt-1">
+                    <div class="col-12">
+                        <select class="form-select" id="fuelMileageFuelType" onchange="refreshMPGChart()">
+                            <option value="">@translator.Translate(userLanguage, Model.PrimaryFuelType)</option>
+                            @foreach (AdditionalFuelType additionalFuelType in Model.AdditionalFuelTypes)
+                            {
+                                <option value="@additionalFuelType">@translator.Translate(userLanguage, additionalFuelType.ToString())</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row flex-grow-1 flex-shrink-1">
+                    <div class="d-flex justify-content-center align-items-center col-12 chartContainer" id="monthFuelMileageReportContent">
+                        @await Html.PartialAsync("Report/_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
+                    </div>
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="col-md-6 col-12 chartContainer border rounded">
+                <div class="d-flex justify-content-center align-items-center" style="height:100%;" id="monthFuelMileageReportContent">
+                        @await Html.PartialAsync("Report/_MPGByMonthReport", Model.FuelMileageForVehicleByMonth)
+                </div>
+            </div>
+        }
             <div class="col-md-2 flex-grow-1 col-12 chartContainer border rounded" id="collaboratorContent">
                 @await Html.PartialAsync("Report/_Collaborators", Model.Collaborators)
             </div>
