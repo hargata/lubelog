@@ -502,6 +502,7 @@ namespace CarCareTracker.Controllers
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [DenyJWTFilter]
         [HttpGet]
         [Route("/api/vehicle/reminders/send")]
         public async Task<IActionResult> SendReminders(ReminderMethodParameter parameters)
@@ -646,6 +647,7 @@ namespace CarCareTracker.Controllers
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [DenyJWTFilter]
         [HttpGet]
         [Route("/api/makebackup")]
         public async Task<IActionResult> MakeBackup(string? output = "")
@@ -684,6 +686,7 @@ namespace CarCareTracker.Controllers
             }
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [DenyJWTFilter]
         [HttpGet]
         [Route("/api/tempfiles")]
         public IActionResult GetTempFiles()
@@ -692,6 +695,7 @@ namespace CarCareTracker.Controllers
             return Json(tempFiles);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [DenyJWTFilter]
         [HttpGet]
         [Route("/api/cleanup")]
         public IActionResult CleanUp(bool deepClean = false)
@@ -723,6 +727,7 @@ namespace CarCareTracker.Controllers
             return Json(jsonResponse);
         }
         [Authorize(Roles = nameof(UserData.IsRootUser))]
+        [DenyJWTFilter]
         [HttpGet]
         [Route("/api/demo/restore")]
         public IActionResult RestoreDemo()

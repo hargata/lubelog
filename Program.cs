@@ -127,6 +127,7 @@ builder.Services.AddSignalR();
 builder.Services.AddHttpClient();
 builder.Services.AddDataProtection();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IApiJwtValidator, ApiJwtValidator>();
 builder.Services.AddAuthentication("AuthN").AddScheme<AuthenticationSchemeOptions, Authen>("AuthN", opts => { });
 builder.Services.AddAuthorization(options =>
 {
