@@ -85,7 +85,9 @@ function getVehicleCalendarEvents() {
 function showCalendarReminderModal(id) {
     event.stopPropagation();
     $.get(`/Home/ViewCalendarReminder?reminderId=${id}`, function (data) {
-        if (data) {
+        if (isOperationResponse(data)) {
+            return;
+        } else if (data) {
             $("#reminderRecordCalendarModalContent").html(data);
             $("#reminderRecordCalendarModal").modal('show');
             $('#reminderRecordCalendarModal').off('shown.bs.modal').on('shown.bs.modal', function () {
