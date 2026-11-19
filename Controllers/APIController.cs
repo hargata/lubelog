@@ -158,13 +158,20 @@ namespace CarCareTracker.Controllers
         public async Task<IActionResult> GetServerInformation()
         {
             var currentCulture = CultureInfo.CurrentCulture;
+            string allowedFileExtensions = _config.GetAllowedFileUploadExtensions();
+            List<string> allowedFileExtensionsArray = new List<string>();
+            if (!string.IsNullOrWhiteSpace(allowedFileExtensions) && allowedFileExtensions.Trim() != "*")
+            {
+                allowedFileExtensionsArray.AddRange(allowedFileExtensions.Split(",").Select(x => x.Trim()));
+            }
             var viewModel = new ServerInformation
             {
                 Locale = currentCulture.Name,
                 CurrentVersion = StaticHelper.VersionNumber,
                 CurrencySymbol = currentCulture.NumberFormat.CurrencySymbol,
                 DecimalSeparator = currentCulture.NumberFormat.NumberDecimalSeparator,
-                DateFormat = currentCulture.DateTimeFormat.ShortDatePattern
+                DateFormat = currentCulture.DateTimeFormat.ShortDatePattern,
+                AllowedAttachmentExtensions = allowedFileExtensionsArray
             };
             return Json(viewModel);
         }
