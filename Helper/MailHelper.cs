@@ -1,4 +1,5 @@
 ﻿using CarCareTracker.Models;
+using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;

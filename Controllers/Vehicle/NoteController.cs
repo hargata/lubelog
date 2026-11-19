@@ -31,6 +31,14 @@ namespace CarCareTracker.Controllers
             {
                 return Json(OperationResponse.Failed("Access Denied"));
             }
+            if (note.Id != default)
+            {
+                var existingRecord = _noteDataAccess.GetNoteById(note.Id);
+                if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                {
+                    return Json(OperationResponse.Failed("Access Denied"));
+                }
+            }
             note.Files = note.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
             bool isCreate = note.Id == default; //needed here since Notes don't use an input object.
             var result = _noteDataAccess.SaveNoteToVehicle(note);

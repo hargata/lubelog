@@ -10,5 +10,6 @@
         public string CurrencySymbol { get; set; } = string.Empty;
         public string DecimalSeparator { get; set; } = string.Empty;
         public string DateFormat { get; set; } = string.Empty;
+        public List<string> AllowedAttachmentExtensions { get; set; } = new List<string>();
     }
 }
