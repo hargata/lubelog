@@ -7,6 +7,7 @@
         public ReportParameter ReportParameters { get; set; }
         public string Odometer { get; set; } = string.Empty;
         public string MPG { get; set; } = string.Empty;
+        public Dictionary<AdditionalFuelType, string> AdditionalFuelMPG { get; set; } = new Dictionary<AdditionalFuelType, string>();
         public decimal TotalCost { get; set; }
         public decimal TotalGasCost { get; set; }
         public string DaysOwned { get; set; } = string.Empty;

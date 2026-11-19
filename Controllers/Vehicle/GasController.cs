@@ -28,6 +28,7 @@ namespace CarCareTracker.Controllers
             {
                 UseKwh = vehicleIsElectric,
                 UseHours = vehicleUseHours,
+                AdditionalFuelTypes = StaticHelper.GetAdditionalFuelTypes(vehicleData, result),
                 GasRecords = computedResults
             };
             return PartialView("Gas/_Gas", viewModel);
@@ -49,6 +50,8 @@ namespace CarCareTracker.Controllers
                 }
             }
             gasRecord.Files = gasRecord.Files.Select(x => { return new UploadedFiles { Name = x.Name, Location = _fileHelper.MoveFileFromTemp(x.Location, "documents/") }; }).ToList();
+            //only keep additional fuels that were refueled.
+            gasRecord.AdditionalFuels.RemoveAll(x => x.FuelConsumed <= 0);
             if (gasRecord.Supplies.Any())
             {
                 gasRecord.RequisitionHistory.AddRange(RequisitionSupplyRecordsByUsage(gasRecord.Supplies, DateTime.Parse(gasRecord.Date), $"Fuel Record {gasRecord.Date}"));
@@ -87,7 +90,7 @@ namespace CarCareTracker.Controllers
             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
             var vehicleIsElectric = vehicleData.IsElectric;
             var vehicleUseHours = vehicleData.UseHours;
-            return PartialView("Gas/_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
+            return PartialView("Gas/_GasModal", new GasRecordInputContainer() { UseKwh = vehicleIsElectric, UseHours = vehicleUseHours, AdditionalFuelTypes = vehicleData.AdditionalFuelTypes, GasRecord = new GasRecordInput() { ExtraFields = _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields } });
         }
         [HttpGet]
         public IActionResult GetGasRecordForEditById(int gasRecordId)
@@ -114,6 +117,7 @@ namespace CarCareTracker.Controllers
                 Notes = result.Notes,
                 Tags = result.Tags,
                 RequisitionHistory = result.RequisitionHistory,
+                AdditionalFuels = result.AdditionalFuels,
                 ExtraFields = StaticHelper.AddExtraFields(result.ExtraFields, _extraFieldDataAccess.GetExtraFieldsById((int)ImportMode.GasRecord).ExtraFields)
             };
             var vehicleData = _dataAccess.GetVehicleById(convertedResult.VehicleId);
@@ -123,6 +127,7 @@ namespace CarCareTracker.Controllers
             {
                 UseKwh = vehicleIsElectric,
                 UseHours = vehicleUseHours,
+                AdditionalFuelTypes = StaticHelper.GetAdditionalFuelTypes(vehicleData, new List<GasRecord> { result }),
                 GasRecord = convertedResult
             };
             return PartialView("Gas/_GasModal", viewModel);

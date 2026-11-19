@@ -106,6 +106,17 @@ function getAndValidateGasRecordValues() {
     if (extraFields.hasError) {
         hasError = true;
     }
+    var additionalFuels = getAndValidateAdditionalFuels();
+    if (additionalFuels.hasError) {
+        hasError = true;
+    }
+    //primary fuel can be omitted if only additional fuels were refueled.
+    if (gasGallons.trim() == '' && additionalFuels.additionalFuels.length > 0) {
+        gasGallons = '0';
+    }
+    if (gasCost.trim() == '' && globalParseFloat(gasGallons) == 0 && additionalFuels.additionalFuels.length > 0) {
+        gasCost = '0';
+    }
     if (gasDate.trim() == '') { //eliminates whitespace.
         hasError = true;
         $("#gasRecordDate").addClass("is-invalid");
@@ -118,7 +129,7 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordMileage").removeClass("is-invalid");
     }
-    if (gasGallons.trim() == '' || globalParseFloat(gasGallons) <= 0) {
+    if (gasGallons.trim() == '' || globalParseFloat(gasGallons) < 0 || (globalParseFloat(gasGallons) == 0 && additionalFuels.additionalFuels.length == 0)) {
         hasError = true;
         $("#gasRecordGallons").addClass("is-invalid");
     } else {
@@ -158,10 +169,55 @@ function getAndValidateGasRecordValues() {
         endingSoc: gasEndingSoc,
         notes: gasNotes,
         extraFields: extraFields.extraFields,
+        additionalFuels: additionalFuels.additionalFuels,
         requisitionHistory: supplyUsageHistory,
         deletedRequisitionHistory: deletedSupplyUsageHistory,
         copySuppliesAttachment: copySuppliesAttachments
     }
+}
+function getAndValidateAdditionalFuels() {
+    let hasError = false;
+    let additionalFuels = [];
+    $(".additional-fuel").map((index, elem) => {
+        let fuelConsumedInput = $(elem).find('.additional-fuel-consumed');
+        let fuelCostInput = $(elem).find('.additional-fuel-cost');
+        let fuelConsumed = fuelConsumedInput.val();
+        let fuelCost = fuelCostInput.val();
+        let fuelCostType = $(elem).find('.additional-fuel-cost-type').val();
+        fuelConsumedInput.removeClass("is-invalid");
+        fuelCostInput.removeClass("is-invalid");
+        if (fuelConsumed.trim() == '' && fuelCost.trim() == '') {
+            //this fuel type was not refueled.
+            return;
+        }
+        if (fuelConsumed.trim() == '' || isNaN(globalParseFloat(fuelConsumed)) || globalParseFloat(fuelConsumed) <= 0) {
+            hasError = true;
+            fuelConsumedInput.addClass("is-invalid");
+        }
+        if (fuelCost.trim() == '') {
+            fuelCost = '0';
+        }
+        if (fuelCostType != undefined && fuelCostType == 'unit') {
+            let convertedFuelCost = globalParseFloat(fuelCost) * globalParseFloat(fuelConsumed);
+            if (isNaN(convertedFuelCost)) {
+                hasError = true;
+                fuelCostInput.addClass("is-invalid");
+            } else {
+                fuelCost = globalFloatToString(convertedFuelCost.toFixed(2).toString());
+            }
+        }
+        if (!isValidMoney(fuelCost)) {
+            hasError = true;
+            fuelCostInput.addClass("is-invalid");
+        }
+        additionalFuels.push({
+            fuelType: $(elem).attr('data-fuel-type'),
+            fuelConsumed: fuelConsumed,
+            cost: fuelCost,
+            isFillToFull: $(elem).find('.additional-fuel-filltofull').is(':checked')
+        });
+    });
+    return { hasError: hasError, additionalFuels: additionalFuels };
 }
 
 function saveUserGasTabPreferences() {
@@ -319,6 +375,7 @@ function toggleGasFilter(sender) {
     updateMPGLabels();
 }
 function updateMPGLabels() {
+    updateAdditionalFuelLabels();
     var averageLabel = $("#averageFuelMileageLabel");
     var minLabel = $("#minFuelMileageLabel");
     var maxLabel = $("#maxFuelMileageLabel");
@@ -366,6 +423,29 @@ function updateMPGLabels() {
             maxLabel.text(`${maxLabel.text().split(':')[0]}: ${globalFloatToString(maxMPG.toFixed(2))}`);
         }
     }
+}
+function updateAdditionalFuelLabels() {
+    $("[data-additional-fuel-label]").map((index, elem) => {
+        let label = $(elem);
+        let fuelType = label.attr('data-additional-fuel');
+        let cellSelector = `[data-additional-fuel='${fuelType}'][data-additional-fuel-type='consumption']`;
+        let fuelCells = $(cellSelector).parent(":not('.override-hide')").children(cellSelector).toArray();
+        let labelValue = 0;
+        if (label.attr('data-additional-fuel-label') == 'average') {
+            let aggregatedCells = fuelCells.filter(x => $(x).attr('data-additional-fuel-aggregated') == 'true');
+            let totalDistance = aggregatedCells.map(x => globalParseFloat($(x).attr('data-additional-fuel-distance'))).reduce((a, b) => a + b, 0);
+            let totalConsumed = aggregatedCells.map(x => globalParseFloat($(x).attr('data-additional-fuel-consumed'))).reduce((a, b) => a + b, 0);
+            if (totalDistance > 0 && totalConsumed > 0) {
+                labelValue = totalDistance / totalConsumed;
+                if (!getGlobalConfig().useMPG) {
+                    labelValue = 100 / labelValue;
+                }
+            }
+        } else {
+            labelValue = fuelCells.map(x => globalParseFloat($(x).attr('data-additional-fuel-consumed'))).reduce((a, b) => a + b, 0);
+        }
+        label.text(`${label.text().split(':')[0]}: ${globalFloatToString(labelValue.toFixed(2))}`);
+    });
 }
 
 function toggleUnits(sender) {

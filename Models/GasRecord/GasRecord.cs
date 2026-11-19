@@ -23,5 +23,13 @@
         public List<string> Tags { get; set; } = new List<string>();
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public List<AdditionalFuel> AdditionalFuels { get; set; } = new List<AdditionalFuel>();
+        /// <summary>
+        /// Cost of the primary fuel and all additional fuels.
+        /// </summary>
+        public decimal GetTotalCost()
+        {
+            return Cost + AdditionalFuels.Sum(x => x.Cost);
+        }
     }
 }

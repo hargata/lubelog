@@ -63,6 +63,10 @@
                             {
                                 <span><i class="bi bi-fuel-pump me-2"></i>@translator.Translate(userLanguage, "Gasoline")</span>
                             }
+                            @if (Model.VehicleData.AdditionalFuelTypes.Any())
+                            {
+                                <span>@($" + {string.Join(", ", Model.VehicleData.AdditionalFuelTypes.Select(x => translator.Translate(userLanguage, x.ToString())))}")</span>
+                            }
                         </div>
                         @if (!string.IsNullOrWhiteSpace(Model.DaysOwned))
                         {
@@ -84,6 +88,10 @@
             <ul class="list-group">
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Last Reported Odometer Reading")}: {Model.Odometer}") </li>
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Average Fuel Economy")}: {Model.MPG}") </li>
+                @foreach (var additionalFuelMPG in Model.AdditionalFuelMPG)
+                {
+                    <li class="list-group-item">@($"{translator.Translate(userLanguage, additionalFuelMPG.Key.ToString())} {translator.Translate(userLanguage, "Average Fuel Economy")}: {additionalFuelMPG.Value}") </li>
+                }
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent(excl. fuel)")}: {Model.TotalCost.ToString("C")} ({Model.TotalCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
                 <li class="list-group-item">@($"{translator.Translate(userLanguage, "Total Spent on Fuel")}: {Model.TotalGasCost.ToString("C")} ({Model.TotalGasCostPerMile.ToString("C")}/{Model.DistanceUnit})") </li>
             </ul>

@@ -15,6 +15,7 @@
     var useUnitFuelCost = userConfig.UseUnitForFuelCost;
     string consumptionUnit;
     string distanceUnit;
+    string additionalFuelConsumptionUnit = (useUKMPG || !useMPG) ? translator.Translate(userLanguage, "liters") : translator.Translate(userLanguage, "gallons");
     if (useKwh)
     {
         consumptionUnit = "kWh";
@@ -101,6 +102,37 @@
                     } else
                     {
                         <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="gasRecordCost" class="form-control" placeholder="@translator.Translate(userLanguage,"Cost of gas refueled")" value="@(isNew ? "" : Model.GasRecord.Cost)">
+                    }
+                    @foreach (AdditionalFuelType additionalFuelType in Model.AdditionalFuelTypes)
+                    {
+                        var additionalFuel = Model.GasRecord.AdditionalFuels.FirstOrDefault(x => x.FuelType == additionalFuelType);
+                        var additionalFuelName = translator.Translate(userLanguage, additionalFuelType.ToString());
+                        <div class="additional-fuel" data-fuel-type="@additionalFuelType">
+                            <hr class="my-2" />
+                            <label for="@($"gasRecordAdditionalFuelConsumed{additionalFuelType}")">@($"{additionalFuelName} {translator.Translate(userLanguage, "Consumption")}({additionalFuelConsumptionUnit})")</label>
+                            <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimalsConsumption ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="@($"gasRecordAdditionalFuelConsumed{additionalFuelType}")" class="form-control additional-fuel-consumed" placeholder="@($"{additionalFuelName} {translator.Translate(userLanguage, "Consumption")}")" value="@(additionalFuel == null ? "" : additionalFuel.FuelConsumed)">
+                            <label for="@($"gasRecordAdditionalFuelCost{additionalFuelType}")">@($"{additionalFuelName} {translator.Translate(userLanguage, "Cost")}")</label>
+                            @if (isNew)
+                            {
+                                <div class="input-group">
+                                    <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="@($"gasRecordAdditionalFuelCost{additionalFuelType}")" class="form-control additional-fuel-cost" placeholder="@($"{additionalFuelName} {translator.Translate(userLanguage, "Cost")}")">
+                                    <div class="input-group-text">
+                                        <select class="form-select form-select-sm additional-fuel-cost-type">
+                                            <!option @(useUnitFuelCost ? "" : "selected") value="total">@translator.Translate(userLanguage, "Total")</!option>
+                                            <!option @(useUnitFuelCost ? "selected" : "") value="unit">@translator.Translate(userLanguage, "Unit")</!option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="text" inputmode="decimal" onkeydown="interceptDecimalKeys(event)" onkeyup="@(useThreeDecimals ? "fixDecimalInput(this, 3)" : "fixDecimalInput(this, 2)")" id="@($"gasRecordAdditionalFuelCost{additionalFuelType}")" class="form-control additional-fuel-cost" placeholder="@($"{additionalFuelName} {translator.Translate(userLanguage, "Cost")}")" value="@(additionalFuel == null ? "" : additionalFuel.Cost)">
+                            }
+                            <div class="form-check form-switch">
+                                <input class="form-check-input additional-fuel-filltofull" type="checkbox" role="switch" id="@($"gasRecordAdditionalFuelIsFillToFull{additionalFuelType}")" checked="@(additionalFuel?.IsFillToFull ?? true)">
+                                <label class="form-check-label" for="@($"gasRecordAdditionalFuelIsFillToFull{additionalFuelType}")">@($"{additionalFuelName} {translator.Translate(userLanguage, "Is Filled To Full")}")</label>
+                            </div>
+                        </div>
                     }
                     @await Html.PartialAsync("Supply/_SupplyStore", new SupplyStore { Tab = "GasRecord", AdditionalSupplies = Model.GasRecord.RequisitionHistory.Any() })
                     <label for="gasRecordTag">@translator.Translate(userLanguage,"Tags(optional)")</label>

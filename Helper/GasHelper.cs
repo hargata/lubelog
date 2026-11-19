@@ -5,6 +5,7 @@ namespace CarCareTracker.Helper
     public interface IGasHelper
     {
         List<GasRecordViewModel> GetGasRecordViewModels(List<GasRecord> result, bool useMPG, bool useUKMPG, bool isElectric);
+        List<GasRecordViewModel> GetAdditionalFuelViewModels(List<GasRecordViewModel> results, AdditionalFuelType fuelType);
         string GetAverageGasMileage(List<GasRecordViewModel> results, bool useMPG);
     }
     public class GasHelper : IGasHelper
@@ -35,6 +36,117 @@ namespace CarCareTracker.Helper
         {
             //need to order by to get correct results
             result = result.OrderBy(x => x.Date).ThenBy(x => x.Mileage).ThenBy(x=>x.EndingSoc).ToList();
+            //records that only contain additional fuels(e.g.: DEF top-ups) are excluded from the primary fuel economy calculation.
+            var primaryFuelResults = CalculateFuelEconomy(result.Where(x => !IsAdditionalFuelOnly(x)).ToList(), useMPG, useUKMPG, isElectric);
+            var computedResults = new List<GasRecordViewModel>();
+            int primaryFuelIndex = 0;
+            foreach (GasRecord gasRecord in result)
+            {
+                if (IsAdditionalFuelOnly(gasRecord))
+                {
+                    computedResults.Add(new GasRecordViewModel()
+                    {
+                        Id = gasRecord.Id,
+                        VehicleId = gasRecord.VehicleId,
+                        MonthId = gasRecord.Date.Month,
+                        Date = gasRecord.Date.ToShortDateString(),
+                        Mileage = gasRecord.Mileage,
+                        Gallons = gasRecord.Gallons,
+                        Cost = gasRecord.Cost,
+                        DeltaMileage = 0,
+                        MilesPerGallon = 0,
+                        CostPerGallon = 0,
+                        StartingSoc = gasRecord.StartingSoc,
+                        EndingSoc = gasRecord.EndingSoc,
+                        IsFillToFull = gasRecord.IsFillToFull,
+                        MissedFuelUp = gasRecord.MissedFuelUp,
+                        Notes = gasRecord.Notes,
+                        Tags = gasRecord.Tags,
+                        ExtraFields = gasRecord.ExtraFields,
+                        Files = gasRecord.Files
+                    });
+                }
+                else
+                {
+                    computedResults.Add(primaryFuelResults[primaryFuelIndex]);
+                    primaryFuelIndex++;
+                }
+            }
+            //each additional fuel type is calculated independently using the distance between its own refuels.
+            var additionalFuelTypes = result.SelectMany(x => x.AdditionalFuels).Where(x => x.FuelConsumed > 0).Select(x => x.FuelType).Distinct().OrderBy(x => x);
+            foreach (AdditionalFuelType fuelType in additionalFuelTypes)
+            {
+                var recordIndexes = new List<int>();
+                var fuelRecords = new List<GasRecord>();
+                for (int i = 0; i < result.Count; i++)
+                {
+                    var additionalFuels = result[i].AdditionalFuels.Where(x => x.FuelType == fuelType && x.FuelConsumed > 0);
+                    if (additionalFuels.Any())
+                    {
+                        recordIndexes.Add(i);
+                        fuelRecords.Add(new GasRecord
+                        {
+                            Id = result[i].Id,
+                            VehicleId = result[i].VehicleId,
+                            Date = result[i].Date,
+                            Mileage = result[i].Mileage,
+                            Gallons = additionalFuels.Sum(x => x.FuelConsumed),
+                            Cost = additionalFuels.Sum(x => x.Cost),
+                            IsFillToFull = additionalFuels.All(x => x.IsFillToFull)
+                        });
+                    }
+                }
+                var fuelResults = CalculateFuelEconomy(fuelRecords, useMPG, useUKMPG, false);
+                for (int i = 0; i < fuelResults.Count; i++)
+                {
+                    var fuelResult = fuelResults[i];
+                    computedResults[recordIndexes[i]].AdditionalFuels.Add(new AdditionalFuelViewModel
+                    {
+                        FuelType = fuelType,
+                        FuelConsumed = fuelResult.Gallons,
+                        Cost = fuelResult.Cost,
+                        CostPerUnit = fuelResult.CostPerGallon,
+                        IsFillToFull = fuelResult.IsFillToFull,
+                        DeltaMileage = fuelResult.DeltaMileage,
+                        FuelEconomy = fuelResult.MilesPerGallon,
+                        IncludeInAverage = fuelResult.IncludeInAverage
+                    });
+                }
+            }
+            return computedResults;
+        }
+        public List<GasRecordViewModel> GetAdditionalFuelViewModels(List<GasRecordViewModel> results, AdditionalFuelType fuelType)
+        {
+            //flattens an additional fuel type into view models so that it can be aggregated the same way as the primary fuel.
+            return results.Where(x => x.AdditionalFuels.Any(y => y.FuelType == fuelType)).Select(x =>
+            {
+                var additionalFuel = x.AdditionalFuels.First(y => y.FuelType == fuelType);
+                return new GasRecordViewModel
+                {
+                    Id = x.Id,
+                    VehicleId = x.VehicleId,
+                    MonthId = x.MonthId,
+                    Date = x.Date,
+                    Mileage = x.Mileage,
+                    Gallons = additionalFuel.FuelConsumed,
+                    Cost = additionalFuel.Cost,
+                    DeltaMileage = additionalFuel.DeltaMileage,
+                    MilesPerGallon = additionalFuel.FuelEconomy,
+                    CostPerGallon = additionalFuel.CostPerUnit,
+                    IsFillToFull = additionalFuel.IsFillToFull,
+                    Notes = x.Notes,
+                    Tags = x.Tags,
+                    ExtraFields = x.ExtraFields,
+                    Files = x.Files
+                };
+            }).ToList();
+        }
+        private static bool IsAdditionalFuelOnly(GasRecord gasRecord)
+        {
+            return gasRecord.Gallons == default && gasRecord.AdditionalFuels.Any(x => x.FuelConsumed > 0);
+        }
+        private List<GasRecordViewModel> CalculateFuelEconomy(List<GasRecord> result, bool useMPG, bool useUKMPG, bool isElectric)
+        {
             var computedResults = new List<GasRecordViewModel>();
             int previousMileage = 0;
             int previousEndingSoc = 0;

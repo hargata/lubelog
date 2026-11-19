@@ -54,10 +54,12 @@ namespace CarCareTracker.Controllers
                 case ImportMode.GasRecord:
                     {
                         bool writeElectric = false;
+                        var additionalFuelTypes = new List<AdditionalFuelType>();
                         if (vehicleId != default)
                         {
                             var vehicleData = _dataAccess.GetVehicleById(vehicleId);
                             writeElectric = vehicleData.IsElectric;
+                            additionalFuelTypes = vehicleData.AdditionalFuelTypes;
                         }
                         var exportData = new List<GasRecordExportModel> { new GasRecordExportModel
                         {
@@ -70,7 +72,14 @@ namespace CarCareTracker.Controllers
                             StartingSoc = "20",
                             EndingSoc = "80",
                             Notes = "Test Note",
-                            Tags = "test1 test2"
+                            Tags = "test1 test2",
+                            AdditionalFuels = additionalFuelTypes.Select(x => new AdditionalFuelExportModel
+                            {
+                                FuelType = x.ToString(),
+                                FuelConsumed = 1.23M.ToString(),
+                                Cost = 4.56M.ToString("C"),
+                                IsFillToFull = true.ToString()
+                            }).ToList()
                         } };
                         using (var writer = new StreamWriter(fullExportFilePath))
                         {
@@ -656,7 +665,15 @@ namespace CarCareTracker.Controllers
                         EndingSoc = x.EndingSoc.ToString(),
                         Notes = x.Notes,
                         Tags = string.Join(" ", x.Tags),
-                        ExtraFields = x.ExtraFields
+                        ExtraFields = x.ExtraFields,
+                        AdditionalFuels = x.AdditionalFuels.Select(y => new AdditionalFuelExportModel
+                        {
+                            FuelType = y.FuelType.ToString(),
+                            FuelConsumed = y.FuelConsumed.ToString(),
+                            Cost = y.Cost.ToString(),
+                            FuelEconomy = y.FuelEconomy.ToString(),
+                            IsFillToFull = y.IsFillToFull.ToString()
+                        }).ToList()
                     });
                     using (var writer = new StreamWriter(fullExportFilePath))
                     {
@@ -795,6 +812,32 @@ namespace CarCareTracker.Controllers
                                     {
                                         convertedRecord.EndingSoc = int.Parse(importModel.EndingSoc);
                                     }
+                                    foreach (AdditionalFuelType fuelType in Enum.GetValues<AdditionalFuelType>())
+                                    {
+                                        //additional fuel columns are formatted as {FuelType}_{Field}, e.g.: DEF_FuelConsumed
+                                        string fuelTypePrefix = fuelType.ToString().ToLower();
+                                        if (importModel.AdditionalFuels.TryGetValue($"{fuelTypePrefix}_fuelconsumed", out string? additionalFuelConsumed) && !string.IsNullOrWhiteSpace(additionalFuelConsumed))
+                                        {
+                                            var additionalFuel = new AdditionalFuel
+                                            {
+                                                FuelType = fuelType,
+                                                FuelConsumed = decimal.Parse(additionalFuelConsumed, NumberStyles.Any)
+                                            };
+                                            if (importModel.AdditionalFuels.TryGetValue($"{fuelTypePrefix}_cost", out string? additionalFuelCost) && !string.IsNullOrWhiteSpace(additionalFuelCost))
+                                            {
+                                                additionalFuel.Cost = decimal.Parse(additionalFuelCost, NumberStyles.Any);
+                                            }
+                                            if (importModel.AdditionalFuels.TryGetValue($"{fuelTypePrefix}_isfilltofull", out string? additionalFuelIsFillToFull) && !string.IsNullOrWhiteSpace(additionalFuelIsFillToFull))
+                                            {
+                                                var possibleFillToFullValues = new List<string> { "1", "true", "full" };
+                                                additionalFuel.IsFillToFull = possibleFillToFullValues.Contains(additionalFuelIsFillToFull.Trim().ToLower());
+                                            }
+                                            if (additionalFuel.FuelConsumed > 0)
+                                            {
+                                                convertedRecord.AdditionalFuels.Add(additionalFuel);
+                                            }
+                                        }
+                                    }
                                     return convertedRecord;
                                 }).ToList();
                             }
@@ -808,7 +851,8 @@ namespace CarCareTracker.Controllers
                                 foreach (var convertedRecord in convertedRecords)
                                 {
                                     //insert record into db, check to make sure fuelconsumed is not zero so we don't get a divide by zero error.
-                                    if (convertedRecord.Gallons > 0)
+                                    //records that only contain additional fuels are excluded from the primary fuel economy calculation.
+                                    if (convertedRecord.Gallons > 0 || convertedRecord.AdditionalFuels.Any())
                                     {
                                         _gasRecordDataAccess.SaveGasRecordToVehicle(convertedRecord);
                                         if (_config.GetUserConfig(User).EnableAutoOdometerInsert)

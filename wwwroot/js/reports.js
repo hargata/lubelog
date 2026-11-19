@@ -144,7 +144,8 @@ function updateCheck() {
 function refreshMPGChart() {
     var vehicleId = GetVehicleId().vehicleId;
     var year = getYear();
-    $.post('/Vehicle/GetMonthMPGByVehicle', {vehicleId: vehicleId, year: year}, function (data) {
+    var fuelType = $("#fuelMileageFuelType").val() ?? '';
+    $.post('/Vehicle/GetMonthMPGByVehicle', {vehicleId: vehicleId, year: year, fuelType: fuelType}, function (data) {
         $("#monthFuelMileageReportContent").html(data);
         refreshReportHeader();
     })

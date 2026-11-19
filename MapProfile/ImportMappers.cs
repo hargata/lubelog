@@ -45,6 +45,19 @@ namespace CarCareTracker.MapProfile
                 }
                 return attributes;
             });
+            Map(m => m.AdditionalFuels).Convert(row =>
+            {
+                var attributes = new Dictionary<string, string>();
+                var fuelTypePrefixes = Enum.GetNames<AdditionalFuelType>().Select(x => $"{x.ToLower()}_");
+                foreach (var header in row.Row.HeaderRecord ?? Array.Empty<string>())
+                {
+                    if (fuelTypePrefixes.Any(x => header.ToLower().StartsWith(x)))
+                    {
+                        attributes[header.Trim().ToLower()] = row.Row.GetField(header) ?? string.Empty;
+                    }
+                }
+                return attributes;
+            });
         }
     }
 }

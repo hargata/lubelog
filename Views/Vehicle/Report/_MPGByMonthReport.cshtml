@@ -6,6 +6,11 @@
     var barGraphColors = StaticHelper.GetBarChartColors();
     var userConfig = config.GetUserConfig(User);
     var userLanguage = userConfig.UserLanguage;
+    var chartTitle = $"{translator.Translate(userLanguage, "Fuel Mileage by Month")}({Model.Unit})";
+    if (Model.AdditionalFuelType.HasValue)
+    {
+        chartTitle = $"{translator.Translate(userLanguage, Model.AdditionalFuelType.Value.ToString())} {chartTitle}";
+    }
 }
 @if (Model.CostData.Any(x => x.Cost > 0))
 {
@@ -65,7 +70,7 @@
                             title: {
                                 display: true,
                                 color: useDarkMode ? "#fff" : "#000",
-                                text: decodeHTMLEntities('@($"{translator.Translate(userLanguage, "Fuel Mileage by Month")}({Model.Unit})")')
+                                text: decodeHTMLEntities('@chartTitle')
                             },
                             legend: {
                                 display: false,

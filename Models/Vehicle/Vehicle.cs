@@ -19,6 +19,10 @@ namespace CarCareTracker.Models
         public decimal SoldPrice { get; set; }
         public bool IsElectric { get; set; } = false;
         public bool IsDiesel { get; set; } = false;
+        /// <summary>
+        /// Fluids tracked in Gas Records in addition to the primary fuel, currently only DEF on diesel vehicles.
+        /// </summary>
+        public List<AdditionalFuelType> AdditionalFuelTypes { get; set; } = new List<AdditionalFuelType>();
         public bool UseHours { get; set; } = false;
         public bool OdometerOptional { get; set; } = false;
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();

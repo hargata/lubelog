@@ -25,6 +25,7 @@
         public List<ExtraField> ExtraFields { get; set; } = new List<ExtraField>();
         public List<SupplyUsageHistory> RequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
         public List<SupplyUsageHistory> DeletedRequisitionHistory { get; set; } = new List<SupplyUsageHistory>();
+        public List<AdditionalFuel> AdditionalFuels { get; set; } = new List<AdditionalFuel>();
         public bool CopySuppliesAttachment { get; set; } = false;
         public GasRecord ToGasRecord() { return new GasRecord { 
             Id = Id, 
@@ -41,7 +42,8 @@
             Notes = Notes,
             Tags = Tags,
             ExtraFields = ExtraFields,
-            RequisitionHistory = RequisitionHistory
+            RequisitionHistory = RequisitionHistory,
+            AdditionalFuels = AdditionalFuels
         }; }
     }
 }

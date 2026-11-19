@@ -97,6 +97,7 @@ function saveVehicle(isEdit) {
     var vehicleLicensePlate = $("#inputLicensePlate").val();
     var vehicleIsElectric = $("#inputFuelType").val() == 'Electric';
     var vehicleIsDiesel = $("#inputFuelType").val() == 'Diesel';
+    var vehicleAdditionalFuelTypes = vehicleIsDiesel && $("#inputTrackDEF").is(":checked") ? ['DEF'] : [];
     var vehicleUseHours = $("#inputUseHours").is(":checked");
     var vehicleOdometerOptional = $("#inputOdometerOptional").is(":checked");
     var vehicleHasOdometerAdjustment = $("#inputHasOdometerAdjustment").is(':checked');
@@ -212,6 +213,7 @@ function saveVehicle(isEdit) {
         licensePlate: vehicleLicensePlate,
         isElectric: vehicleIsElectric,
         isDiesel: vehicleIsDiesel,
+        additionalFuelTypes: vehicleAdditionalFuelTypes,
         tags: vehicleTags,
         useHours: vehicleUseHours,
         extraFields: extraFields.extraFields,
@@ -247,6 +249,14 @@ function saveVehicle(isEdit) {
             errorToast(data.message);
         }
     });
+}
+function handleFuelTypeChanged() {
+    //DEF is only tracked for diesel vehicles.
+    if ($("#inputFuelType").val() == 'Diesel') {
+        $("#inputTrackDEFContainer").removeClass('d-none');
+    } else {
+        $("#inputTrackDEFContainer").addClass('d-none');
+    }
 }
 function toggleOdometerAdjustment() {
     var isChecked = $("#inputHasOdometerAdjustment").is(':checked');
