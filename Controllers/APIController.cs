@@ -449,6 +449,7 @@ namespace CarCareTracker.Controllers
                 return Json(OperationResponse.Failed(ex.Message));
             }
         }
+        [TypeFilter(typeof(APIKeyFilter), Arguments = new object[] { HouseholdPermission.Edit })]
         [HttpPost]
         [Route("/api/documents/upload")]
         public IActionResult UploadDocument(List<IFormFile> documents)
@@ -460,8 +461,20 @@ namespace CarCareTracker.Controllers
                 string uploadPath = Path.Combine(_webEnv.ContentRootPath, "data", uploadDirectory);
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
+                string allowedFileExtensions = _config.GetAllowedFileUploadExtensions();
+                List<string> allowedFileExtensionsArray = new List<string>();
+                if (!string.IsNullOrWhiteSpace(allowedFileExtensions) && allowedFileExtensions.Trim() != "*")
+                {
+                    allowedFileExtensionsArray.AddRange(allowedFileExtensions.Split(",").Select(x => x.Trim()));
+                }
                 foreach (IFormFile document in documents)
                 {
+                    //sanitize against list of allowed extensions
+                    if (allowedFileExtensionsArray.Any() && !allowedFileExtensions.Contains(Path.GetExtension(document.FileName)))
+                    {
+                        Response.StatusCode = 400;
+                        return Json(OperationResponse.Failed($"User tried to upload attachment with unapproved extension {Path.GetExtension(document.FileName)}"));
+                    }
                     string fileName = Guid.NewGuid() + Path.GetExtension(document.FileName);
                     string filePath = Path.Combine(uploadPath, fileName);
                     using (var stream = System.IO.File.Create(filePath))
