@@ -326,6 +326,10 @@ namespace CarCareTracker.Controllers
                     ExtraFields = input.ExtraFields,
                     Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList()
                 };
+                if (!string.IsNullOrWhiteSpace(input.ImageLocation))
+                {
+                    vehicle.ImageLocation = input.ImageLocation;
+                }
                 switch (input.FuelType)
                 {
                     case "Diesel":
@@ -431,6 +435,10 @@ namespace CarCareTracker.Controllers
                     existingVehicle.OdometerOptional = string.IsNullOrWhiteSpace(input.OdometerOptional) ? false : bool.Parse(input.OdometerOptional);
                     existingVehicle.ExtraFields = input.ExtraFields;
                     existingVehicle.Tags = string.IsNullOrWhiteSpace(input.Tags) ? new List<string>() : input.Tags.Split(' ').Distinct().ToList();
+                    if (!string.IsNullOrWhiteSpace(input.ImageLocation))
+                    {
+                        existingVehicle.ImageLocation = input.ImageLocation;
+                    }
                     switch (input.FuelType)
                     {
                         case "Diesel":

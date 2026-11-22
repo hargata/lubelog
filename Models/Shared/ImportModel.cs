@@ -283,6 +283,7 @@ namespace CarCareTracker.Models
         public string LicensePlate { get; set; } = string.Empty;
         public string Identifier { get; set; } = "LicensePlate";
         public string FuelType { get; set; } = "Gasoline";
+        public string ImageLocation { get; set; } = string.Empty;
         [JsonConverter(typeof(FromBoolOptional))]
         public string UseEngineHours { get; set; } = string.Empty;
         [JsonConverter(typeof(FromBoolOptional))]
