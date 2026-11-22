@@ -92,7 +92,7 @@
                 input = "0";
             }
             //strip thousands from input.
-            input = input.replace(thousandSeparator, "");
+            input = input.split(thousandSeparator).join("");
             //convert to JS format where decimal is only separated by .
             input = input.replace(decimalSeparator, ".");
             //remove any currency symbol

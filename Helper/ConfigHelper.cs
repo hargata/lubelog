@@ -479,6 +479,8 @@ namespace CarCareTracker.Helper
                 UseUnitForFuelCost = CheckBool(CheckString(nameof(UserConfig.UseUnitForFuelCost))),
                 UserLanguage = CheckString(nameof(UserConfig.UserLanguage), "en_US"),
                 UserTheme = CheckString(nameof(UserConfig.UserTheme)),
+                UserLocale = CheckString(nameof(UserConfig.UserLocale)),
+                UserDecimalSeparator = CheckString(nameof(UserConfig.UserDecimalSeparator)),
                 HideSoldVehicles = CheckBool(CheckString(nameof(UserConfig.HideSoldVehicles))),
                 EnableShopSupplies = CheckBool(CheckString(nameof(UserConfig.EnableShopSupplies))),
                 ShowCalendar = CheckBool(CheckString(nameof(UserConfig.ShowCalendar))),

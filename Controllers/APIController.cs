@@ -2,6 +2,7 @@
 using CarCareTracker.Filter;
 using CarCareTracker.Helper;
 using CarCareTracker.Logic;
+using CarCareTracker.Middleware;
 using CarCareTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -116,12 +117,19 @@ namespace CarCareTracker.Controllers
         [Route("/api/whoami")]
         public IActionResult WhoAmI()
         {
+            var userConfig = _config.GetUserConfig(User);
+            var userCulture = UserCulture.GetCulture(userConfig.UserLocale, userConfig.UserDecimalSeparator) ?? CultureInfo.CurrentCulture;
             var result = new UserExportModel
             {
                 Username = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
                 EmailAddress = User.IsInRole(nameof(UserData.IsRootUser)) ? _config.GetDefaultReminderEmail() : User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
                 IsAdmin = User.IsInRole(nameof(UserData.IsAdmin)).ToString(),
-                IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString()
+                IsRoot = User.IsInRole(nameof(UserData.IsRootUser)).ToString(),
+                UserLocale = userConfig.UserLocale,
+                UserDecimalSeparator = userConfig.UserDecimalSeparator,
+                EffectiveLocale = userCulture.Name,
+                EffectiveDecimalSeparator = userCulture.NumberFormat.NumberDecimalSeparator,
+                EffectiveGroupSeparator = userCulture.NumberFormat.NumberGroupSeparator
             };
             if (_config.GetInvariantApi() || Request.Headers.ContainsKey("culture-invariant"))
             {
