@@ -161,6 +161,14 @@ namespace CarCareTracker.Controllers
                 {
                     return Json(OperationResponse.Failed("Access Denied"));
                 }
+                if (supplyRecord.Id != default)
+                {
+                    var existingRecord = _supplyRecordDataAccess.GetSupplyRecordById(supplyRecord.Id);
+                    if (!_userLogic.UserCanEditVehicle(GetUserID(), existingRecord.VehicleId, HouseholdPermission.Edit))
+                    {
+                        return Json(OperationResponse.Failed("Access Denied"));
+                    }
+                }
             }
             else if (!_config.GetServerEnableShopSupplies())
             {

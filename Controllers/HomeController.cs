@@ -134,8 +134,13 @@ namespace CarCareTracker.Controllers
         }
         public IActionResult ViewCalendarReminder(int reminderId)
         {
-            var reminder = _reminderRecordDataAccess.GetReminderRecordById(reminderId);
-            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { reminder }, 0, DateTime.Now).FirstOrDefault();
+            var existingReminder = _reminderRecordDataAccess.GetReminderRecordById(reminderId);
+            //security check
+            if (!_userLogic.UserCanEditVehicle(GetUserID(), existingReminder.VehicleId, HouseholdPermission.View))
+            {
+                return Json(OperationResponse.Failed("Access Denied"));
+            }
+            var reminderUrgency = _reminderHelper.GetReminderRecordViewModels(new List<ReminderRecord> { existingReminder }, 0, DateTime.Now).FirstOrDefault();
             return PartialView("_ReminderRecordCalendarModal", reminderUrgency);
         }
         public async Task<IActionResult> Settings()

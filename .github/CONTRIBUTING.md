@@ -1,5 +1,9 @@
 # Contributing Guidelines
 
+## Notice Regarding Mobile Apps named LubeLogger or similar in App Stores
+
+LubeLogger DOES NOT have an official mobile app for neither Android nor iOS. Any app claiming to be a companion app for LubeLogger is NOT officially supported by us. Any issues logged related to these apps will be closed immediately and the user will be blocked from contributing to the LubeLogger repository in the future.
+
 ## Asking Questions
 Before submitting a question, please check the [Troubleshooting Guide](https://docs.lubelogger.com/Installation/Troubleshooting) and search through existing issues.
 
