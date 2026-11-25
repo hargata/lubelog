@@ -61,7 +61,231 @@ function deleteGasRecord(gasRecordId) {
         }
     });
 }
+var isGasCalcPopupOpen = false;
+var gasCalcLabelObserver = null;
+
+function syncGasCalcLabelWrap(rowElem) {
+    let $row = $(rowElem);
+    if ($row.length === 0 || $row[0].clientWidth === 0) {
+        return;
+    }
+    let lastWidth = $row.data('last-measured-width');
+    if (lastWidth === $row[0].clientWidth) {
+        return;
+    }
+    $row.data('last-measured-width', $row[0].clientWidth);
+
+    let $units = $row.find('.gas-label-unit');
+    $units.removeClass('d-block');
+
+    let anyWrapped = false;
+    $row.find('.gas-calc-label').each(function () {
+        let $label = $(this);
+        let titleEl = $label.find('.gas-label-title')[0];
+        let unitEl = $label.find('.gas-label-unit')[0];
+        if (titleEl && unitEl) {
+            let titleRects = titleEl.getClientRects();
+            let unitRect = unitEl.getBoundingClientRect();
+            let titleRect = titleEl.getBoundingClientRect();
+            if (titleRects.length > 1 || unitRect.top > titleRect.top + 2) {
+                anyWrapped = true;
+            }
+        }
+    });
+
+    if (anyWrapped) {
+        $units.addClass('d-block');
+    }
+}
+
+function initGasCalcLabelObserver() {
+    let rowElem = document.getElementById('gasCalcFieldsRow');
+    if (!rowElem) {
+        return;
+    }
+    if (gasCalcLabelObserver) {
+        gasCalcLabelObserver.disconnect();
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+        gasCalcLabelObserver = new ResizeObserver(() => {
+            syncGasCalcLabelWrap(rowElem);
+        });
+        gasCalcLabelObserver.observe(rowElem);
+    }
+    $('#gasRecordModal').off('shown.bs.modal.gasCalcLabels').on('shown.bs.modal.gasCalcLabels', function () {
+        $(rowElem).removeData('last-measured-width');
+        syncGasCalcLabelWrap(rowElem);
+    });
+    syncGasCalcLabelWrap(rowElem);
+}
+
+function getGasFieldInfo(fieldName) {
+    switch (fieldName) {
+        case 'gallons':
+            return {
+                name: 'gallons',
+                input: $("#gasRecordGallons"),
+                label: $("label[for='gasRecordGallons']").text().trim(),
+                value: ($("#gasRecordGallons").val() || '').trim()
+            };
+        case 'unitCost':
+            return {
+                name: 'unitCost',
+                input: $("#gasRecordUnitCost"),
+                label: $("label[for='gasRecordUnitCost']").text().trim(),
+                value: ($("#gasRecordUnitCost").val() || '').trim()
+            };
+        case 'cost':
+            return {
+                name: 'cost',
+                input: $("#gasRecordCost"),
+                label: $("label[for='gasRecordCost']").text().trim(),
+                value: ($("#gasRecordCost").val() || '').trim()
+            };
+    }
+}
+
+function isGasFieldFilled(val) {
+    if (val == undefined || val.trim() === '') {
+        return false;
+    }
+    let parsed = globalParseFloat(val);
+    return !isNaN(parsed) && parsed > 0;
+}
+
+function calculateMissingGasField(targetField) {
+    let gallonsVal = globalParseFloat($("#gasRecordGallons").val());
+    let unitCostVal = globalParseFloat($("#gasRecordUnitCost").val());
+    let costVal = globalParseFloat($("#gasRecordCost").val());
+    let modelData = getGasRecordModelData();
+    let costDecimals = modelData.useThreeDecimals ? 3 : 2;
+    let consumptionDecimals = modelData.useThreeDecimalsConsumption ? 3 : 2;
+
+    if (targetField === 'gallons') {
+        if (!isNaN(costVal) && !isNaN(unitCostVal) && unitCostVal > 0 && costVal > 0) {
+            let calculatedGallons = costVal / unitCostVal;
+            let formattedGallons = globalFloatToString(calculatedGallons.toFixed(consumptionDecimals).toString());
+            $("#gasRecordGallons").val(formattedGallons).attr("data-last-value", formattedGallons).attr("data-changed", true).removeClass("is-invalid");
+        }
+    } else if (targetField === 'unitCost') {
+        if (!isNaN(costVal) && !isNaN(gallonsVal) && gallonsVal > 0 && costVal >= 0) {
+            let calculatedUnitCost = costVal / gallonsVal;
+            let formattedUnitCost = globalFloatToString(calculatedUnitCost.toFixed(costDecimals).toString());
+            $("#gasRecordUnitCost").val(formattedUnitCost).attr("data-last-value", formattedUnitCost).attr("data-changed", true).removeClass("is-invalid");
+        }
+    } else if (targetField === 'cost') {
+        if (!isNaN(gallonsVal) && !isNaN(unitCostVal) && gallonsVal > 0 && unitCostVal >= 0) {
+            let calculatedCost = gallonsVal * unitCostVal;
+            let formattedCost = globalFloatToString(calculatedCost.toFixed(costDecimals).toString());
+            $("#gasRecordCost").val(formattedCost).attr("data-last-value", formattedCost).attr("data-changed", true).removeClass("is-invalid");
+        }
+    }
+}
+
+function handleGasRecordCalc(changedField) {
+    if (isGasCalcPopupOpen) {
+        return;
+    }
+    let changedInfo = getGasFieldInfo(changedField);
+    if (!changedInfo || changedInfo.input.length === 0) {
+        return;
+    }
+    let currentVal = changedInfo.value;
+    let lastVal = (changedInfo.input.attr('data-last-value') || '').trim();
+
+    if (currentVal === '') {
+        changedInfo.input.attr('data-last-value', '');
+        return;
+    }
+
+    if (!isGasFieldFilled(currentVal)) {
+        return;
+    }
+
+    let valueChanged = currentVal !== lastVal;
+    if (valueChanged && lastVal !== '' && isGasFieldFilled(lastVal)) {
+        if (globalParseFloat(currentVal) === globalParseFloat(lastVal)) {
+            valueChanged = false;
+        }
+    }
+
+    let allFields = ['gallons', 'unitCost', 'cost'];
+    let otherFields = allFields.filter(f => f !== changedField);
+    let infoA = getGasFieldInfo(otherFields[0]);
+    let infoB = getGasFieldInfo(otherFields[1]);
+    let isAFilled = isGasFieldFilled(infoA.value);
+    let isBFilled = isGasFieldFilled(infoB.value);
+
+    if (isAFilled && isBFilled) {
+        if (!valueChanged) {
+            changedInfo.input.attr('data-last-value', currentVal);
+            return;
+        }
+        isGasCalcPopupOpen = true;
+        let modelData = getGasRecordModelData();
+        Swal.fire({
+            title: modelData.keepValueTitle,
+            html: `
+                <p class="mb-3">${modelData.keepValuePrompt}</p>
+                <div class="list-group text-start">
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="Swal.clickConfirm()">
+                        <span>${encodeHTMLInput(infoA.label)}</span>
+                        <span class="badge bg-primary rounded-pill fs-6">${encodeHTMLInput(infoA.value)}</span>
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="Swal.clickDeny()">
+                        <span>${encodeHTMLInput(infoB.label)}</span>
+                        <span class="badge bg-primary rounded-pill fs-6">${encodeHTMLInput(infoB.value)}</span>
+                    </button>
+                </div>
+            `,
+            icon: "question",
+            showConfirmButton: true,
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: `${infoA.label}: ${infoA.value}`,
+            denyButtonText: `${infoB.label}: ${infoB.value}`,
+            cancelButtonText: modelData.cancelLabel,
+            confirmButtonColor: "#0d6efd",
+            denyButtonColor: "#0d6efd",
+            allowOutsideClick: false
+        }).then((result) => {
+            isGasCalcPopupOpen = false;
+            if (result.isConfirmed) {
+                changedInfo.input.attr('data-last-value', currentVal).removeClass("is-invalid");
+                calculateMissingGasField(infoB.name);
+            } else if (result.isDenied) {
+                changedInfo.input.attr('data-last-value', currentVal).removeClass("is-invalid");
+                calculateMissingGasField(infoA.name);
+            } else {
+                changedInfo.input.val(lastVal);
+            }
+        });
+    } else if (isAFilled && !isBFilled) {
+        changedInfo.input.attr('data-last-value', currentVal).removeClass("is-invalid");
+        calculateMissingGasField(infoB.name);
+    } else if (!isAFilled && isBFilled) {
+        changedInfo.input.attr('data-last-value', currentVal).removeClass("is-invalid");
+        calculateMissingGasField(infoA.name);
+    } else {
+        changedInfo.input.attr('data-last-value', currentVal).removeClass("is-invalid");
+    }
+}
+
 function saveGasRecordToVehicle(isEdit) {
+    if (isGasCalcPopupOpen) {
+        return;
+    }
+    let allFields = ['gallons', 'unitCost', 'cost'];
+    for (let field of allFields) {
+        let info = getGasFieldInfo(field);
+        let lastVal = (info.input.attr('data-last-value') || '').trim();
+        if (info.value !== lastVal) {
+            handleGasRecordCalc(field);
+            if (isGasCalcPopupOpen) {
+                return;
+            }
+        }
+    }
     //get values
     var formValues = getAndValidateGasRecordValues();
     //validate
@@ -82,11 +306,25 @@ function saveGasRecordToVehicle(isEdit) {
     })
 }
 function getAndValidateGasRecordValues() {
+    let filledFields = ['gallons', 'unitCost', 'cost'].filter(f => isGasFieldFilled(getGasFieldInfo(f).value));
+    let emptyFields = ['gallons', 'unitCost', 'cost'].filter(f => getGasFieldInfo(f).value === '');
+    if (filledFields.length === 2 && emptyFields.length === 1) {
+        calculateMissingGasField(emptyFields[0]);
+    }
     let gasDate = $("#gasRecordDate").val();
     let gasMileage = parseInt(globalParseFloat($("#gasRecordMileage").val())).toString();
     let gasGallons = $("#gasRecordGallons").val();
+    let gasUnitCost = $("#gasRecordUnitCost").val();
     let gasCost = $("#gasRecordCost").val();
-    let gasCostType = $("#gasCostType").val();
+    if (isGasFieldFilled(gasGallons)) {
+        if (gasUnitCost.trim() === '' && gasCost.trim() !== '' && globalParseFloat(gasCost) === 0) {
+            calculateMissingGasField('unitCost');
+            gasUnitCost = $("#gasRecordUnitCost").val();
+        } else if (gasCost.trim() === '' && gasUnitCost.trim() !== '' && globalParseFloat(gasUnitCost) === 0) {
+            calculateMissingGasField('cost');
+            gasCost = $("#gasRecordCost").val();
+        }
+    }
     let gasIsFillToFull = $("#gasIsFillToFull").is(":checked");
     let gasIsMissed = $("#gasIsMissed").is(":checked");
     let gasNotes = $("#gasRecordNotes").val();
@@ -118,21 +356,18 @@ function getAndValidateGasRecordValues() {
     } else {
         $("#gasRecordMileage").removeClass("is-invalid");
     }
-    if (gasGallons.trim() == '' || globalParseFloat(gasGallons) <= 0) {
+    if (gasGallons.trim() == '' || isNaN(globalParseFloat(gasGallons)) || globalParseFloat(gasGallons) <= 0) {
         hasError = true;
         $("#gasRecordGallons").addClass("is-invalid");
     } else {
         $("#gasRecordGallons").removeClass("is-invalid");
     }
-    if (gasCostType != undefined && gasCostType == 'unit') {
-        var convertedGasCost = globalParseFloat(gasCost) * globalParseFloat(gasGallons);
-        if (isNaN(convertedGasCost))
-        {
+    if (gasUnitCost != undefined) {
+        if (gasUnitCost.trim() == '' || !isValidMoney(gasUnitCost)) {
             hasError = true;
-            $("#gasRecordCost").addClass("is-invalid");
+            $("#gasRecordUnitCost").addClass("is-invalid");
         } else {
-            gasCost = globalFloatToString(convertedGasCost.toFixed(2).toString());
-            $("#gasRecordCost").removeClass("is-invalid");
+            $("#gasRecordUnitCost").removeClass("is-invalid");
         }
     }
     if (gasCost.trim() == '' || !isValidMoney(gasCost)) {
